@@ -88,12 +88,16 @@
 			},
 			function(json) {
 				if ("1" == json.result) {
-					$("#capacityCountsTime").html(json.lastTime);
 					var objList =  json.resultList;
-					showCapacityCounts(objList);
+					if(objList && objList.length > 0) {
+						$("#capacityCountsTime").html(json.lastTime);
+						showCapacityCounts(objList);
 					} else {
-						showMsgBox("alert", "查询失败");
+						$("#capacityCountsTime").html("无数据");
 					}
+				} else {
+					showMsgBox("alert", "查询失败");
+				}
 			}, "json");
 	}
 	
@@ -111,9 +115,13 @@
 				},
 				function(json) {
 					if ("1" == json.result) {
-						$("#capacityFieldTime").html(json.lastTime);
 		                var list =  json.resultList;
-		                showCapacityFieldErrorObjCounts(list);
+		                if(list && list.length > 0) {
+		                	$("#capacityFieldTime").html(json.lastTime);
+		                	showCapacityFieldErrorObjCounts(list);
+						} else {
+							$("#capacityFieldTime").html("无数据");
+						}
 		            } else {
 		            	showMsgBox("alert", "查询失败");
 		            }
@@ -134,14 +142,18 @@
 			},
 			function(json) {
 				if ("1" == json.result) {
-					$("#capacityGeoTime").html(json.lastTime);
 					var objGeoList =  json.resultList;
-					showCapacityGeoCounts(objGeoList);
+					if(objGeoList && objGeoList.length > 0) {
+						$("#capacityGeoTime").html(json.lastTime);
+						showCapacityGeoCounts(objGeoList);
 					} else {
-						showMsgBox("alert", "查询失败");
-						}
-				}, "json"
-			);
+						$("#capacityGeoTime").html("无数据");
+					}
+				} else {
+					showMsgBox("alert", "查询失败");
+				}
+			}, "json"
+		);
 	}
 	
 	//查询POI错误工作量
@@ -159,13 +171,17 @@
 				},
 				function(json) {
 					if ("1" == json.result) {
-						$("#capacityPOITime").html(json.lastTime);
 						var objPOIList = json.resultList;
-						showCapacityPOICounts(objPOIList);
+						if(objPOIList && objPOIList.length > 0) {
+							$("#capacityPOITime").html(json.lastTime);
+							showCapacityPOICounts(objPOIList);
+						} else {
+							$("#capacityPOITime").html("无数据");
+						}
 					} else {
 						showMsgBox("alert", "查询失败");
-						}
-					}, "json");
+					}
+				}, "json");
 	}
 
 	function queryCountResult() {
