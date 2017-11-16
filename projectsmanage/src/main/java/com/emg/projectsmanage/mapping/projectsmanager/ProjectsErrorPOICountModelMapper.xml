@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.emg.projectsmanage.dao.projectsmanager.ProjectsErrorPOICountModelDao">
+	<resultMap id="BaseResultMap"
+		type="com.emg.projectsmanage.pojo.ProjectsErrorPOICountModel">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="projectid" property="projectid" jdbcType="BIGINT" />
+		<result column="userid" property="userid" jdbcType="INTEGER" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
+		<result column="roleid" property="roleid" jdbcType="INTEGER" />
+		<result column="rolename" property="rolename" jdbcType="VARCHAR" />
+		<result column="starttime" property="starttime" jdbcType="VARCHAR" />
+		<result column="endtime" property="endtime" jdbcType="VARCHAR" />
+		<result column="count" property="count" jdbcType="INTEGER" />
+		<result column="count_error_a" property="countErrorA" jdbcType="INTEGER" />
+		<result column="count_error_b" property="countErrorB" jdbcType="INTEGER" />
+		<result column="count_error_c" property="countErrorC" jdbcType="INTEGER" />
+		<result column="createtime" property="createtime" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		`id`, `projectid`, `userid`, `username`, `roleid`,
+		`rolename`, `starttime`, `endtime`, `count`, `count_error_a`,
+		`count_error_b`, `count_error_c`, `createtime`
+	</sql>
+	<select id="queryModifyPOICount" resultMap="BaseResultMap"
+		parameterType="com.emg.projectsmanage.pojo.ProjectsErrorPOICountModel">
+		select
+		<include refid="Base_Column_List" />
+		from tb_projects_error_poi_count
+		<where>
+			<if test="projectid != null">
+				`projectid` = #{projectid,jdbcType=BIGINT}
+			</if>
+			<if test="starttime != null">
+				AND `starttime` = #{starttime,jdbcType=VARCHAR}
+			</if>
+			<if test="endtime != null">
+				AND `endtime` = #{endtime,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	<select id="queryDistinctPOIRolesIdList" resultMap="BaseResultMap"
+		parameterType="com.emg.projectsmanage.pojo.ProjectsErrorPOICountModel">
+		select
+		<include refid="Base_Column_List" />
+		from tb_projects_error_poi_count
+		<where>
+			<if test="projectid != null">
+				`projectid` = #{projectid,jdbcType=BIGINT}
+			</if>
+			<if test="starttime != null">
+				AND `starttime` = #{starttime,jdbcType=VARCHAR}
+			</if>
+			<if test="endtime != null">
+				AND `endtime` = #{endtime,jdbcType=VARCHAR}
+			</if>
+		</where>
+		GROUP BY `userid`, `roleid`
+	</select>
+	<select id="queryModifyPOITime" resultType="java.lang.String"
+		parameterType="com.emg.projectsmanage.pojo.ProjectsErrorPOICountModel">
+		select date_format(max(`createtime`),'%Y-%m-%d %T')
+		from
+		tb_projects_error_poi_count
+		<where>
+			<if test="projectid != null">
+				`projectid` = #{projectid,jdbcType=BIGINT}
+			</if>
+			<if test="starttime != null">
+				AND `starttime` = #{starttime,jdbcType=VARCHAR}
+			</if>
+			<if test="endtime != null">
+				AND `endtime` = #{endtime,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+</mapper>

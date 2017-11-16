@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao">
+	<resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.ProjectModel">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="protype" property="protype" jdbcType="INTEGER" />
+		<result column="pdifficulty" property="pdifficulty" jdbcType="INTEGER" />
+		<result column="priority" property="priority" jdbcType="INTEGER" />
+		<result column="tasknum" property="tasknum" jdbcType="INTEGER" />
+		<result column="systemid" property="systemid" jdbcType="INTEGER" />
+		<result column="description" property="description" jdbcType="VARCHAR" />
+		<result column="createby" property="createby" jdbcType="INTEGER" />
+		<result column="createtime" property="createtime" jdbcType="VARCHAR" />
+		<result column="area" property="area" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="owner" property="owner" jdbcType="INTEGER" />
+		<result column="overprogress" property="overprogress" jdbcType="VARCHAR" />
+		<result column="overstate" property="overstate" jdbcType="INTEGER" />
+		<result column="poitotckdisl" property="poitotckdisl" jdbcType="DOUBLE" />
+		<result column="poitotckdisr" property="poitotckdisr" jdbcType="DOUBLE" />
+	</resultMap>
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		id, protype, pdifficulty, priority, tasknum, systemid, description,
+		createby, createtime,
+		area, name, owner, overprogress, overstate, poitotckdisl, poitotckdisr
+	</sql>
+	<select id="selectByExample" resultMap="BaseResultMap"
+		parameterType="com.emg.projectsmanage.pojo.ProjectModelExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from tb_projects
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="limit != null">
+			limit ${limit}
+		</if>
+		<if test="offset != null">
+			offset ${offset}
+		</if>
+	</select>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from tb_projects
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from tb_projects
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<delete id="deleteByExample" parameterType="com.emg.projectsmanage.pojo.ProjectModelExample">
+		delete from tb_projects
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id"
+		parameterType="com.emg.projectsmanage.pojo.ProjectModel">
+		insert into tb_projects (id, protype, pdifficulty,
+		priority, tasknum, systemid,
+		description, createby, createtime,
+		area, name, owner,
+		overprogress, overstate, poitotckdisl,
+		poitotckdisr)
+		values (#{id,jdbcType=BIGINT}, #{protype,jdbcType=INTEGER},
+		#{pdifficulty,jdbcType=INTEGER},
+		#{priority,jdbcType=INTEGER}, #{tasknum,jdbcType=INTEGER}, #{systemid,jdbcType=INTEGER},
+		#{description,jdbcType=VARCHAR}, #{createby,jdbcType=INTEGER},
+		#{createtime,jdbcType=TIMESTAMP},
+		#{area,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{owner,jdbcType=INTEGER},
+		#{overprogress,jdbcType=VARCHAR}, #{overstate,jdbcType=INTEGER},
+		#{poitotckdisl,jdbcType=DOUBLE},
+		#{poitotckdisr,jdbcType=DOUBLE})
+	</insert>
+	<insert id="insertSelective" parameterType="com.emg.projectsmanage.pojo.ProjectModel">
+		insert into tb_projects
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="protype != null">
+				protype,
+			</if>
+			<if test="pdifficulty != null">
+				pdifficulty,
+			</if>
+			<if test="priority != null">
+				priority,
+			</if>
+			<if test="tasknum != null">
+				tasknum,
+			</if>
+			<if test="systemid != null">
+				systemid,
+			</if>
+			<if test="description != null">
+				description,
+			</if>
+			<if test="createby != null">
+				createby,
+			</if>
+			<if test="createtime != null">
+				createtime,
+			</if>
+			<if test="area != null">
+				area,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="owner != null">
+				owner,
+			</if>
+			<if test="overprogress != null">
+				overprogress,
+			</if>
+			<if test="overstate != null">
+				overstate,
+			</if>
+			<if test="poitotckdisl != null">
+				poitotckdisl,
+			</if>
+			<if test="poitotckdisr != null">
+				poitotckdisr,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="protype != null">
+				#{protype,jdbcType=INTEGER},
+			</if>
+			<if test="pdifficulty != null">
+				#{pdifficulty,jdbcType=INTEGER},
+			</if>
+			<if test="priority != null">
+				#{priority,jdbcType=INTEGER},
+			</if>
+			<if test="tasknum != null">
+				#{tasknum,jdbcType=INTEGER},
+			</if>
+			<if test="systemid != null">
+				#{systemid,jdbcType=INTEGER},
+			</if>
+			<if test="description != null">
+				#{description,jdbcType=VARCHAR},
+			</if>
+			<if test="createby != null">
+				#{createby,jdbcType=INTEGER},
+			</if>
+			<if test="createtime != null">
+				#{createtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="area != null">
+				#{area,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="owner != null">
+				#{owner,jdbcType=INTEGER},
+			</if>
+			<if test="overprogress != null">
+				#{overprogress,jdbcType=VARCHAR},
+			</if>
+			<if test="overstate != null">
+				#{overstate,jdbcType=INTEGER},
+			</if>
+			<if test="poitotckdisl != null">
+				#{poitotckdisl,jdbcType=DOUBLE},
+			</if>
+			<if test="poitotckdisr != null">
+				#{poitotckdisr,jdbcType=DOUBLE},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample" parameterType="com.emg.projectsmanage.pojo.ProjectModelExample"
+		resultType="java.lang.Integer">
+		select count(*) from tb_projects
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update tb_projects
+		<set>
+			<if test="record.id != null">
+				id = #{record.id,jdbcType=BIGINT},
+			</if>
+			<if test="record.protype != null">
+				protype = #{record.protype,jdbcType=INTEGER},
+			</if>
+			<if test="record.pdifficulty != null">
+				pdifficulty = #{record.pdifficulty,jdbcType=INTEGER},
+			</if>
+			<if test="record.priority != null">
+				priority = #{record.priority,jdbcType=INTEGER},
+			</if>
+			<if test="record.tasknum != null">
+				tasknum = #{record.tasknum,jdbcType=INTEGER},
+			</if>
+			<if test="record.systemid != null">
+				systemid = #{record.systemid,jdbcType=INTEGER},
+			</if>
+			<if test="record.description != null">
+				description = #{record.description,jdbcType=VARCHAR},
+			</if>
+			<if test="record.createby != null">
+				createby = #{record.createby,jdbcType=INTEGER},
+			</if>
+			<if test="record.createtime != null">
+				createtime = #{record.createtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.area != null">
+				area = #{record.area,jdbcType=VARCHAR},
+			</if>
+			<if test="record.name != null">
+				name = #{record.name,jdbcType=VARCHAR},
+			</if>
+			<if test="record.owner != null">
+				owner = #{record.owner,jdbcType=INTEGER},
+			</if>
+			<if test="record.overprogress != null">
+				overprogress = #{record.overprogress,jdbcType=VARCHAR},
+			</if>
+			<if test="record.overstate != null">
+				overstate = #{record.overstate,jdbcType=INTEGER},
+			</if>
+			<if test="record.poitotckdisl != null">
+				poitotckdisl = #{record.poitotckdisl,jdbcType=DOUBLE},
+			</if>
+			<if test="record.poitotckdisr != null">
+				poitotckdisr = #{record.poitotckdisr,jdbcType=DOUBLE},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update tb_projects
+		set id = #{record.id,jdbcType=BIGINT},
+		protype = #{record.protype,jdbcType=INTEGER},
+		pdifficulty = #{record.pdifficulty,jdbcType=INTEGER},
+		priority = #{record.priority,jdbcType=INTEGER},
+		tasknum = #{record.tasknum,jdbcType=INTEGER},
+		systemid = #{record.systemid,jdbcType=INTEGER},
+		description = #{record.description,jdbcType=VARCHAR},
+		createby = #{record.createby,jdbcType=INTEGER},
+		createtime = #{record.createtime,jdbcType=TIMESTAMP},
+		area = #{record.area,jdbcType=VARCHAR},
+		name = #{record.name,jdbcType=VARCHAR},
+		owner = #{record.owner,jdbcType=INTEGER},
+		overprogress = #{record.overprogress,jdbcType=VARCHAR},
+		overstate = #{record.overstate,jdbcType=INTEGER},
+		poitotckdisl = #{record.poitotckdisl,jdbcType=DOUBLE},
+		poitotckdisr = #{record.poitotckdisr,jdbcType=DOUBLE}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.emg.projectsmanage.pojo.ProjectModel">
+		update tb_projects
+		<set>
+			<if test="protype != null">
+				protype = #{protype,jdbcType=INTEGER},
+			</if>
+			<if test="pdifficulty != null">
+				pdifficulty = #{pdifficulty,jdbcType=INTEGER},
+			</if>
+			<if test="priority != null">
+				priority = #{priority,jdbcType=INTEGER},
+			</if>
+			<if test="tasknum != null">
+				tasknum = #{tasknum,jdbcType=INTEGER},
+			</if>
+			<if test="systemid != null">
+				systemid = #{systemid,jdbcType=INTEGER},
+			</if>
+			<if test="description != null">
+				description = #{description,jdbcType=VARCHAR},
+			</if>
+			<if test="createby != null">
+				createby = #{createby,jdbcType=INTEGER},
+			</if>
+			<if test="createtime != null">
+				createtime = #{createtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="area != null">
+				area = #{area,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="owner != null">
+				owner = #{owner,jdbcType=INTEGER},
+			</if>
+			<if test="overprogress != null">
+				overprogress = #{overprogress,jdbcType=VARCHAR},
+			</if>
+			<if test="overstate != null">
+				overstate = #{overstate,jdbcType=INTEGER},
+			</if>
+			<if test="poitotckdisl != null">
+				poitotckdisl = #{poitotckdisl,jdbcType=DOUBLE},
+			</if>
+			<if test="poitotckdisr != null">
+				poitotckdisr = #{poitotckdisr,jdbcType=DOUBLE},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.emg.projectsmanage.pojo.ProjectModel">
+		update tb_projects
+		set protype = #{protype,jdbcType=INTEGER},
+		pdifficulty = #{pdifficulty,jdbcType=INTEGER},
+		priority = #{priority,jdbcType=INTEGER},
+		tasknum = #{tasknum,jdbcType=INTEGER},
+		systemid = #{systemid,jdbcType=INTEGER},
+		description = #{description,jdbcType=VARCHAR},
+		createby = #{createby,jdbcType=INTEGER},
+		createtime = #{createtime,jdbcType=TIMESTAMP},
+		area = #{area,jdbcType=VARCHAR},
+		name = #{name,jdbcType=VARCHAR},
+		owner = #{owner,jdbcType=INTEGER},
+		overprogress = #{overprogress,jdbcType=VARCHAR},
+		overstate = #{overstate,jdbcType=INTEGER},
+		poitotckdisl = #{poitotckdisl,jdbcType=DOUBLE},
+		poitotckdisr = #{poitotckdisr,jdbcType=DOUBLE}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+</mapper>

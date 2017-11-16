@@ -1,0 +1,159 @@
+.highlight {
+	padding: 9px 14px;
+	margin-bottom: 14px;
+	background-color: #f7f7f9;
+	border: 1px solid #e1e1e8;
+	border-radius: 4px;
+}
+
+.bs-callout {
+	margin: 20px 0;
+	padding: 20px;
+	border: 1px solid #eee;
+	border-left-width: 5px;
+	border-radius: 3px;
+}
+
+.bs-callout-danger {
+	background-color: #fdf7f7;
+	border-color: #d9534f;
+}
+
+.bs-callout h2 {
+	margin-top: 0;
+	margin-bottom: 5px;
+}
+
+.bs-callout-danger h2 {
+	color: #d9534f;
+}
+
+.bs-callout-warning {
+	border-left-color: #f0ad4e;
+}
+
+.headline {
+	background-color: #f5f5f5;
+	box-sizing: border-box;
+	height: 44px;
+	z-index: 11;
+	-webkit-transform: translateZ(0);
+	position: fixed;
+	left: 1px;
+	right: 0;
+	top: 0;
+}
+
+.footline {
+	background-color: #f5f5f5;
+	height: 32px;
+	position: fixed;
+	left: 1px;
+	right: 0;
+	bottom: 0;
+	text-align: center;
+	padding: 6px 0;
+}
+
+.footline span {
+	font-size: 12px;
+	color: #544b4b;
+}
+
+.footline a {
+	font-size: 12px;
+	color: #544b4b;
+}
+
+.headicon {
+	background-image: -webkit-image-set(url(images/webeditor.png) 1x);
+	background-repeat: no-repeat;
+	margin-left: 0;
+	height: 44px;
+	width: 44px;
+	display: block;
+	cursor: pointer;
+	float: left;
+}
+
+.headmenu {
+	float: right;
+	right: 600px;
+	position: relative;
+}
+
+.menuitem {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+.headgroup {
+	float: right;
+	right: 150px;
+	position: relative;
+}
+
+.headword {
+	display: inline-block;
+	font-size: 14px;
+	line-height: 1.4;
+	max-width: 180px;
+	min-width: 20px;
+	overflow: hidden;
+	padding: 13px 0 10px 0;
+	text-decoration: none;
+	text-overflow: ellipsis;
+	vertical-align: top;
+	white-space: nowrap;
+}
+
+.container {
+	margin-top: 44px;
+}
+
+.loginpic {
+	margin-top: 30px;
+	background-image: -webkit-image-set(url(images/login-time.jpg) 1x);
+	background-repeat: no-repeat;
+	height: 440px;
+	width: 438px;
+	display: block;
+	float: left;
+}
+
+.registerpic {
+	margin-top: 115px;
+	background-image: -webkit-image-set(url(images/register-time.jpg) 1x);
+	background-repeat: no-repeat;
+	height: 239px;
+	width: 400px;
+	display: block;
+	float: left;
+}
+
+.splitdiv {
+	position: relative;
+	z-index: 1;
+	height: 600px;
+	width: 15px;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.side {
+	box-sizing: border-box;
+	width: 10px;
+	height: 90%;
+	z-index: 11;
+	position: fixed;
+	left: 0px;
+	top: 50;
+}
+
+.sidesub {
+	background-color: #f5f5f5;
+	float: left;
+	width: 0px;
+	height: 100%;
+	margin-left: 0px;
+}

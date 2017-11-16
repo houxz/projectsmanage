@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:oxm="http://www.springframework.org/schema/oxm"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm.xsd">
+
+	<beans:import resource="./spring-ehcache.xml" />
+	
+	<context:property-placeholder location="WEB-INF/spring/version.properties" ignore-unresolvable="true"/>
+	
+	<beans:bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<beans:property name="dataSource" ref="dataSourceMySqlForAccount" />
+		<beans:qualifier value="txMySql" />
+	</beans:bean>
+
+	<beans:bean id="transactionManagerPro"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<beans:property name="dataSource" ref="dataSourceMySqlForProjectmanager" />
+		<beans:qualifier value="txMyForProSql" />
+	</beans:bean>
+
+	<tx:annotation-driven transaction-manager="transactionManagerPro" />
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing 
+		infrastructure -->
+
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving 
+		up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources 
+		in the /WEB-INF/views directory -->
+	<beans:bean id="jspViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+
+	<context:component-scan base-package="com.emg" />
+
+	<beans:bean
+		class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+	<view-controller path="/exception/resourceNotFound.web" />
+	<view-controller path="/exception/uncaughtException.web" />
+	<view-controller path="/exception/dataAccessFailure.web" />
+	<view-controller path="/exception/accessDenied.web" />
+
+	<beans:bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<beans:property name="defaultEncoding" value="UTF-8" />
+		<beans:property name="basenames">
+			<beans:value>WEB-INF/messages/messages</beans:value>
+		</beans:property>
+	</beans:bean>
+
+	<beans:bean
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver"
+		p:defaultErrorView="/exception/uncaughtException">
+		<beans:property name="exceptionMappings">
+			<beans:props>
+				<beans:prop key=".DataAccessException">/exception/dataAccessFailure.web
+				</beans:prop>
+				<beans:prop key=".AccessDeniedException">/exception/accessDenied.web</beans:prop>
+				<beans:prop key=".NoSuchRequestHandlingMethodException">/exception/resourceNotFound.web
+				</beans:prop>
+				<beans:prop key=".TypeMismatchException">/exception/resourceNotFound.web
+				</beans:prop>
+				<beans:prop key=".MissingServletRequestParameterException">/exception/resourceNotFound.web
+				</beans:prop>
+			</beans:props>
+		</beans:property>
+	</beans:bean>
+</beans:beans>

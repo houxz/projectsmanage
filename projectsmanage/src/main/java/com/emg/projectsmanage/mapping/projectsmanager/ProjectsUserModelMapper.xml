@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao">
+	<resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.ProjectsUserModel">
+		<result column="id" property="id" jdbcType="VARCHAR" />
+		<result column="pid" property="pid" jdbcType="VARCHAR" />
+		<result column="userid" property="userid" jdbcType="INTEGER" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
+		<result column="roleid" property="roleid" jdbcType="INTEGER" />
+		<result column="rolename" property="rolename" jdbcType="VARCHAR" />
+		<result column="optime" property="optime" jdbcType="VARCHAR" />
+		<result column="opuid" property="opuid" jdbcType="INTEGER" />
+		<result column="systemid" property="systemid" jdbcType="INTEGER" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, pid, userid, username, roleid, rolename, optime, opuid,
+		systemid
+	</sql>
+	<insert id="insert" parameterType="com.emg.projectsmanage.pojo.ProjectsUserModel">
+		insert into tb_projects_user
+		(pid, userid, username, roleid, rolename, optime, opuid, systemid)
+		values
+		( #{pid,jdbcType=VARCHAR},
+		#{userid,jdbcType=INTEGER},
+		#{username,jdbcType=VARCHAR},
+		#{roleid,jdbcType=INTEGER},
+		#{rolename,jdbcType=VARCHAR},
+		#{optime,jdbcType=VARCHAR},
+		#{opuid,jdbcType=INTEGER},
+		#{systemid,jdbcType=INTEGER})
+	</insert>
+	<select id="count" resultType="java.lang.Integer"
+		parameterType="com.emg.projectsmanage.pojo.ProjectsUserModel">
+		SELECT COUNT(1)
+		FROM tb_projects_user pu
+		WHERE pu.`pid` =
+		#{pid,jdbcType=VARCHAR}
+		AND pu.`userid` = #{userid,jdbcType=INTEGER}
+		AND pu.`systemid` = #{systemid,jdbcType=INTEGER}
+		AND pu.`roleid` =
+		#{roleid,jdbcType=BIGINT}
+	</select>
+	<select id="queryProjectUsers" resultMap="BaseResultMap"
+		parameterType="com.emg.projectsmanage.pojo.ProjectsUserModel">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM tb_projects_user
+		<where>
+			<if test="id != null">
+				`id` = #{id,jdbcType=BIGINT}
+			</if>
+			<if test="pid != null">
+				AND `pid` = #{pid,jdbcType=BIGINT}
+			</if>
+			<if test="userid != null">
+				AND `userid` = #{userid,jdbcType=INTEGER}
+			</if>
+			<if test="username != null">
+				AND `username` = #{username,jdbcType=VARCHAR}
+			</if>
+			<if test="roleid != null">
+				AND `roleid` = #{roleid,jdbcType=INTEGER}
+			</if>
+			<if test="rolename != null">
+				AND `rolename` = #{rolename,jdbcType=VARCHAR}
+			</if>
+			<if test="optime != null">
+				AND `optime` = #{optime,jdbcType=VARCHAR}
+			</if>
+			<if test="opuid != null">
+				AND `opuid` = #{opuid,jdbcType=INTEGER}
+			</if>
+			<if test="systemid != null">
+				AND `systemid` = #{systemid,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	<select id="queryProjectUsersByPids" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM tb_projects_user
+		<where>
+			`pid` in
+			<foreach collection="list" item="projectID" open="("
+				close=")" separator=",">
+				#{projectID}
+			</foreach>
+		</where>
+	</select>
+	<select id="getDistinctWorkers" resultMap="BaseResultMap"
+		parameterType="com.emg.projectsmanage.pojo.ProjectsUserModel">
+		SELECT DISTINCT userid, username, roleid
+		FROM tb_projects_user
+		<where>
+			<if test="id != null">
+				`id` = #{id,jdbcType=BIGINT}
+			</if>
+			<if test="pid != null">
+				AND `pid` = #{pid,jdbcType=BIGINT}
+			</if>
+			<if test="userid != null">
+				AND `userid` = #{userid,jdbcType=INTEGER}
+			</if>
+			<if test="username != null">
+				AND `username` = #{username,jdbcType=VARCHAR}
+			</if>
+			<if test="roleid != null">
+				AND `roleid` = #{roleid,jdbcType=INTEGER}
+			</if>
+			<if test="rolename != null">
+				AND `rolename` = #{rolename,jdbcType=VARCHAR}
+			</if>
+			<if test="optime != null">
+				AND `optime` = #{optime,jdbcType=VARCHAR}
+			</if>
+			<if test="opuid != null">
+				AND `opuid` = #{opuid,jdbcType=INTEGER}
+			</if>
+			<if test="systemid != null">
+				AND `systemid` = #{systemid,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	<delete id="delete" parameterType="com.emg.projectsmanage.pojo.ProjectsUserModel">
+		DELETE FROM tb_projects_user
+		<where>
+			<if test="id != null">
+				`id` = #{id,jdbcType=BIGINT}
+			</if>
+			<if test="pid != null">
+				AND `pid` = #{pid,jdbcType=BIGINT}
+			</if>
+			<if test="userid != null">
+				AND `userid` = #{userid,jdbcType=INTEGER}
+			</if>
+			<if test="username != null">
+				AND `username` = #{username,jdbcType=VARCHAR}
+			</if>
+			<if test="roleid != null">
+				AND `roleid` = #{roleid,jdbcType=INTEGER}
+			</if>
+			<if test="rolename != null">
+				AND `rolename` = #{rolename,jdbcType=VARCHAR}
+			</if>
+			<if test="optime != null">
+				AND `optime` = #{optime,jdbcType=VARCHAR}
+			</if>
+			<if test="opuid != null">
+				AND `opuid` = #{opuid,jdbcType=INTEGER}
+			</if>
+			<if test="systemid != null">
+				AND `systemid` = #{systemid,jdbcType=INTEGER}
+			</if>
+		</where>
+	</delete>
+</mapper>

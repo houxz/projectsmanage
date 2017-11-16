@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao">
+	<resultMap id="BaseResultMap"
+		type="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		<result column="id" property="id" jdbcType="VARCHAR" />
+		<result column="userid" property="userid" jdbcType="INTEGER" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
+		<result column="roleid" property="roleid" jdbcType="INTEGER" />
+		<result column="rolename" property="rolename" jdbcType="VARCHAR" />
+		<result column="projectid" property="projectid" jdbcType="VARCHAR" />
+		<result column="projectname" property="projectname" jdbcType="VARCHAR" />
+		<result column="totaltask" property="totaltask" jdbcType="INTEGER" />
+		<result column="edittask" property="edittask" jdbcType="INTEGER" />
+		<result column="qctask" property="qctask" jdbcType="INTEGER" />
+		<result column="checktask" property="checktask" jdbcType="INTEGER" />
+		<result column="completetask" property="completetask" jdbcType="INTEGER" />
+	</resultMap>
+	<select id="groupProjectsProgressByUseridAndRoleid" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		SELECT
+			t.`userid`,
+			t.`username`,
+			t.`roleid`,
+			t.`rolename`
+		FROM
+			tb_projects_task_count t, tb_projects p
+		<where>
+			t.`systemid` = #{systemid} AND p.`systemid` = #{systemid} AND t.`projectid` = p.`id`
+			<if test="userid != null">
+				AND t.`userid` = #{userid}
+			</if>
+		</where>
+		GROUP BY t.`userid`,t.`roleid`
+	</select>
+	<select id="getProjectsProgressByUserid" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		SELECT
+			t.`id`,
+			t.`userid`,
+			t.`username`,
+			t.`roleid`,
+			t.`rolename`,
+			p.`id` AS projectid,
+			p.`name` AS projectname,
+			t.`totaltask`,
+			t.`edittask`,
+			t.`qctask`,
+			t.`checktask`,
+			t.`completetask`
+		FROM
+			tb_projects_task_count t
+		LEFT JOIN tb_projects p ON t.`projectid` = p.`id`
+		<where>
+			p.`systemid` = #{systemid}
+			<if test="userid != null">
+				AND t.`userid` = #{userid}
+			</if>
+			<if test="roleid != null">
+				AND t.`roleid` = #{roleid}
+			</if>
+			<if test="projectid != null">
+				AND p.`id` = #{projectid}
+			</if>
+			<if test="projectname != null">
+				AND p.`name` like #{projectname}
+			</if>
+		</where>
+		ORDER BY
+			p.`priority` desc,
+			p.`id`,
+			t.`userid`,
+			t.`roleid`
+		<if test="limit != null">
+			LIMIT #{limit}
+		</if>
+		<if test="offset != null">
+			OFFSET #{offset}
+		</if>
+	</select>
+	<select id="countProjectsProgressByUserid" resultType="java.lang.Integer"
+		parameterType="java.util.Map">
+		SELECT
+			COUNT(1)
+		FROM
+			tb_projects_task_count t
+		LEFT JOIN tb_projects p ON t.`projectid` = p.`id`
+		<where>
+			p.`systemid` = #{systemid}
+			<if test="userid != null">
+				AND t.`userid` = #{userid}
+			</if>
+			<if test="roleid != null">
+				AND t.`roleid` = #{roleid}
+			</if>
+			<if test="projectname != null">
+				AND p.`name` like #{projectname}
+			</if>
+		</where>
+	</select>
+	<select id="getProjectsProgress" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		SELECT
+			p.`id` AS projectid,
+			p.`name` AS projectname,
+			p.`tasknum` AS totaltask,
+			SUM(CASE WHEN t.`roleid` = 5 THEN t.`edittask` ELSE 0 END) AS edittask,
+			SUM(CASE WHEN t.`roleid` = 5 THEN t.`qctask` ELSE 0 END) AS qctask,
+			SUM(CASE WHEN t.`roleid` = 5 THEN t.`checktask` ELSE 0 END) AS checktask,
+			SUM(CASE WHEN t.`roleid` = 5 THEN t.`completetask` ELSE 0 END) AS completetask
+		FROM tb_projects p
+		LEFT JOIN tb_projects_task_count t 
+			ON t.`projectid` = p.`id`
+		<where>
+			p.`systemid` = #{systemid}
+			<if test="projectid != null">
+				AND p.`id` = #{projectid}
+			</if>
+			<if test="projectIDs != null">
+				AND (p.`owner` = 0 or (p.`owner` = 1 and p.`id` in
+				<foreach collection="projectIDs" item="projectID" open="(" close=")"
+					separator=",">
+					#{projectID}
+				</foreach>
+				))
+			</if>
+			<if test="projectname != null">
+				AND p.`name` like #{projectname}
+			</if>
+		</where>
+		GROUP BY
+			p.`id`
+		ORDER BY
+			p.`priority` desc,
+			p.`id`
+		<if test="limit != null">
+			LIMIT #{limit}
+		</if>
+		<if test="offset != null">
+			OFFSET #{offset}
+		</if>
+	</select>
+	<select id="countProjectsProgress" resultType="java.lang.Integer"
+		parameterType="java.util.Map">
+		SELECT
+			COUNT(1)
+		FROM tb_projects p
+		LEFT JOIN tb_projects_task_count t 
+			ON t.`projectid` = p.`id`
+		<where>
+			p.`systemid` = #{systemid}
+			<if test="projectid != null">
+				AND p.`id` = #{projectid}
+			</if>
+			<if test="projectIDs != null">
+				AND (p.`owner` = 0 or (p.`owner` = 1 and p.`id` in
+				<foreach collection="projectIDs" item="projectID" open="(" close=")"
+					separator=",">
+					#{projectID}
+				</foreach>
+				))
+			</if>
+			<if test="projectname != null">
+				AND p.`name` like #{projectname}
+			</if>
+		</where>
+		GROUP BY
+			p.`id`
+	</select>
+	<select id="count" resultType="java.lang.Integer"
+		parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		SELECT COUNT(1)
+		FROM tb_projects_task_count l
+		<where>
+			l.`systemid` = #{systemid,jdbcType=INTEGER}
+			<if test="projectid != null">
+				AND l.`projectid` = #{projectid,jdbcType=BIGINT}
+			</if>
+			<if test="userid != null">
+				AND l.`userid` = #{userid,jdbcType=INTEGER}
+			</if>
+			<if test="roleid != null">
+				AND l.`roleid` = #{roleid,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	<insert id="newProjectsProgress" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel" >
+	    insert into tb_projects_task_count 
+	    	(`userid`, 
+	    	`username`, 
+	    	`roleid`, 
+	    	`rolename`, 
+	    	`systemid`, 
+	    	`projectid`, 
+	    	`totaltask`, 
+	    	`edittask`, 
+	    	`qctask`, 
+	    	`checktask`, 
+	    	`completetask`)
+	    values
+	    	(#{userid,jdbcType=INTEGER}, 
+	    	#{username,jdbcType=VARCHAR}, 
+	    	#{roleid,jdbcType=INTEGER}, 
+	    	#{rolename,jdbcType=VARCHAR}, 
+	    	#{systemid,jdbcType=INTEGER}, 
+	      	#{projectid,jdbcType=BIGINT}, 
+	      	#{totaltask,jdbcType=INTEGER}, 
+	      	#{edittask,jdbcType=INTEGER}, 
+	      	#{qctask,jdbcType=INTEGER}, 
+	      	#{checktask,jdbcType=INTEGER}, 
+	      	#{completetask,jdbcType=INTEGER})
+	</insert>
+	<update id="newTask2Edit" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		UPDATE tb_projects_task_count
+		SET `totaltask` = `totaltask` + 1, `edittask` = `edittask` + 1
+		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
+		AND `projectid` = #{projectid,jdbcType=BIGINT}
+		AND `userid` = #{userid,jdbcType=INTEGER}
+		AND `roleid` = #{roleid,jdbcType=INTEGER}
+	</update>
+	<update id="newTask2Check" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		UPDATE tb_projects_task_count
+		SET `totaltask` = `totaltask` + 1, `checktask` = `checktask` + 1
+		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
+		AND `projectid` = #{projectid,jdbcType=BIGINT}
+		AND `userid` = #{userid,jdbcType=INTEGER}
+		AND `roleid` = #{roleid,jdbcType=INTEGER}
+	</update><update id="newTask2QC" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		UPDATE tb_projects_task_count
+		SET `totaltask` = `totaltask` + 1, `qctask` = `qctask` + 1
+		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
+		AND `projectid` = #{projectid,jdbcType=BIGINT}
+		AND `userid` = #{userid,jdbcType=INTEGER}
+		AND `roleid` = #{roleid,jdbcType=INTEGER}
+	</update>
+	<update id="Edit2QC" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		UPDATE tb_projects_task_count
+		SET `edittask` = `edittask` - 1, `qctask` = `qctask` + 1
+		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
+		AND `projectid` = #{projectid,jdbcType=BIGINT}
+		AND `userid` = #{userid,jdbcType=INTEGER}
+		AND `roleid` = #{roleid,jdbcType=INTEGER}
+	</update>
+	<update id="QC2Check" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		UPDATE tb_projects_task_count
+		SET `qctask` = `qctask` - 1, `checktask` = `checktask` + 1
+		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
+		AND `projectid` = #{projectid,jdbcType=BIGINT}
+		AND `userid` = #{userid,jdbcType=INTEGER}
+		AND `roleid` = #{roleid,jdbcType=INTEGER}
+	</update>
+	<update id="taskDone" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		UPDATE tb_projects_task_count
+		SET `checktask` = `checktask` - 1, `completetask` = `completetask` + 1
+		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
+		AND `projectid` = #{projectid,jdbcType=BIGINT}
+		AND `userid` = #{userid,jdbcType=INTEGER}
+		AND `roleid` = #{roleid,jdbcType=INTEGER}
+	</update>
+	<update id="comTaskDone" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		UPDATE tb_projects_task_count
+		SET `edittask` = `edittask` - 1, `completetask` = `completetask` + 1
+		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
+		AND `projectid` = #{projectid,jdbcType=BIGINT}
+		AND `userid` = #{userid,jdbcType=INTEGER}
+		AND `roleid` = #{roleid,jdbcType=INTEGER}
+	</update>
+	<update id="QCTaskDone" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		UPDATE tb_projects_task_count
+		SET `qctask` = `qctask` - 1, `completetask` = `completetask` + 1
+		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
+		AND `projectid` = #{projectid,jdbcType=BIGINT}
+		AND `userid` = #{userid,jdbcType=INTEGER}
+		AND `roleid` = #{roleid,jdbcType=INTEGER}
+	</update>
+</mapper>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:component-scan base-package="com.emg" />
+
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!-- DB 配置 开始 -->
+	<context:property-placeholder location="WEB-INF/spring/localhost.properties" ignore-unresolvable="true"/>
+
+	<!-- MySql 配置 -->
+	<bean id="dataSourceMySqlForAccount" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${account.driverClassName}" />
+		<property name="url" value="${account.url}" />
+		<property name="username" value="${account.username}" />
+		<property name="password" value="${account.password}" />
+		<property name="initialSize" value="${account.initialSize}" />
+		<property name="maxIdle" value="${account.maxIdle}" />
+		<property name="minIdle" value="${account.minIdle}" />
+		<property name="maxActive" value="${account.maxActive}" />
+		<property name="logAbandoned" value="${account.logAbandoned}" />
+		<property name="validationQuery" value="${account.validationQuery}" />
+		<property name="testOnBorrow" value="${account.testOnBorrow}" />
+		<property name="testWhileIdle" value="${account.testWhileIdle}" />
+		<property name="removeAbandoned" value="${account.removeAbandoned}" />
+		<property name="removeAbandonedTimeout" value="${account.removeAbandonedTimeout}" />
+		<property name="maxWait" value="${account.maxWait}" />
+	</bean>
+
+
+	<!-- Projects 配置 -->
+	<bean id="dataSourceMySqlForProjectmanager" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${projectmanager.driverClassName}" />
+		<property name="url" value="${projectmanager.url}" />
+		<property name="username" value="${projectmanager.username}" />
+		<property name="password" value="${projectmanager.password}" />
+		<property name="initialSize" value="${projectmanager.initialSize}" />
+		<property name="maxIdle" value="${projectmanager.maxIdle}" />
+		<property name="minIdle" value="${projectmanager.minIdle}" />
+		<property name="maxActive" value="${projectmanager.maxActive}" />
+		<property name="logAbandoned" value="${projectmanager.logAbandoned}" />
+		<property name="validationQuery" value="${projectmanager.validationQuery}" />
+		<property name="testOnBorrow" value="${projectmanager.testOnBorrow}" />
+		<property name="testWhileIdle" value="${projectmanager.testWhileIdle}" />
+		<property name="removeAbandoned" value="${projectmanager.removeAbandoned}" />
+		<property name="removeAbandonedTimeout" value="${projectmanager.removeAbandonedTimeout}" />
+		<property name="maxWait" value="${projectmanager.maxWait}" />
+	</bean>
+
+	<!-- comm 配置 -->
+	<bean id="dataSourceMySqlForComm" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${comm.driverClassName}" />
+		<property name="url" value="${comm.url}" />
+		<property name="username" value="${comm.username}" />
+		<property name="password" value="${comm.password}" />
+		<property name="initialSize" value="${comm.initialSize}" />
+		<property name="maxIdle" value="${comm.maxIdle}" />
+		<property name="minIdle" value="${comm.minIdle}" />
+		<property name="maxActive" value="${comm.maxActive}" />
+		<property name="logAbandoned" value="${comm.logAbandoned}" />
+		<property name="validationQuery" value="${comm.validationQuery}" />
+		<property name="testOnBorrow" value="${comm.testOnBorrow}" />
+		<property name="testWhileIdle" value="${comm.testWhileIdle}" />
+		<property name="removeAbandoned" value="${comm.removeAbandoned}" />
+		<property name="removeAbandonedTimeout" value="${comm.removeAbandonedTimeout}" />
+		<property name="maxWait" value="${comm.maxWait}" />
+	</bean>
+	
+	<!-- emapgoaccount库 mybatis配置 -->
+	<bean id="sqlSessionFactoryForEmapgoaccount" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceMySqlForAccount" />
+		<property name="mapperLocations"
+			value="classpath:com/emg/projectsmanage/mapping/emapgoaccount/*.xml" />
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.emg.projectsmanage.dao.emapgoaccount" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForEmapgoaccount" />
+	</bean>
+	
+	<!-- projectsmanager库 mybatis配置 -->
+	<bean id="sqlSessionFactoryForProject" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceMySqlForProjectmanager" />
+		<property name="mapperLocations"
+			value="classpath:com/emg/projectsmanage/mapping/projectsmanager/*.xml" />
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.emg.projectsmanage.dao.projectsmanager" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForProject" />
+	</bean>
+
+	<!-- comm库 mybatis配置 -->
+	<bean id="sqlSessionFactoryForComm" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceMySqlForComm" />
+		<property name="mapperLocations"
+			value="classpath:com/emg/projectsmanage/mapping/comm/*.xml" />
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.emg.projectsmanage.dao.comm" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForComm" />
+	</bean>
+</beans>

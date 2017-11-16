@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskLogModelDao">
+	<resultMap id="BaseResultMap"
+		type="com.emg.projectsmanage.pojo.ProjectsTaskLogModel">
+		<result column="id" property="id" jdbcType="VARCHAR" />
+		<result column="systemid" property="systemid" jdbcType="INTEGER" />
+		<result column="projectid" property="projectid" jdbcType="VARCHAR" />
+		<result column="taskid" property="taskid" jdbcType="VARCHAR" />
+		<result column="userid" property="userid" jdbcType="INTEGER" />
+		<result column="roleid" property="roleid" jdbcType="INTEGER" />
+		<result column="statebefore" property="statebefore" jdbcType="INTEGER" />
+		<result column="processbefore" property="processbefore" jdbcType="INTEGER" />
+		<result column="stateafter" property="stateafter" jdbcType="INTEGER" />
+		<result column="processafter" property="processafter" jdbcType="INTEGER" />
+		<result column="createtime" property="createtime" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, systemid, projectid, taskid, userid, roleid, statebefore, processbefore, stateafter, processafter, createtime
+	</sql>
+	<insert id="insert" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskLogModel">
+		insert into tb_projects_task_log 
+			(systemid, projectid, taskid, userid, roleid, statebefore, processbefore, stateafter, processafter)
+		values
+			( #{systemid,jdbcType=INTEGER},
+			#{projectid,jdbcType=BIGINT},
+			#{taskid,jdbcType=BIGINT}, 
+			#{userid,jdbcType=INTEGER},
+			#{roleid,jdbcType=INTEGER},
+			#{statebefore,jdbcType=INTEGER},
+			#{processbefore,jdbcType=INTEGER},
+			#{stateafter,jdbcType=INTEGER},
+			#{processafter,jdbcType=INTEGER})
+	</insert>
+	<select id="count" resultType="java.lang.Integer"
+		parameterType="com.emg.projectsmanage.pojo.ProjectsTaskLogModel">
+		SELECT COUNT(1)
+		FROM tb_projects_task_log l
+		WHERE l.`systemid` = #{systemid,jdbcType=INTEGER}
+		AND l.`projectid` = #{projectid,jdbcType=BIGINT}
+		AND l.`taskid` = #{taskid,jdbcType=BIGINT}
+		AND l.`roleid` = #{roleid,jdbcType=BIGINT}
+		AND l.`statebefore` = #{statebefore,jdbcType=INTEGER}
+		AND l.`processbefore` = #{processbefore,jdbcType=INTEGER}
+		AND l.`stateafter` = #{stateafter,jdbcType=INTEGER}
+		AND l.`processafter` = #{processafter,jdbcType=INTEGER}
+	</select>
+	<select id="select" resultMap="BaseResultMap"
+		parameterType="com.emg.projectsmanage.pojo.ProjectsTaskLogModel">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM tb_projects_task_log
+		<where>
+			<if test="id != null">
+				`id` = #{id,jdbcType=BIGINT}
+			</if>
+			<if test="systemid != null">
+				AND `systemid` = #{systemid,jdbcType=INTEGER}
+			</if>
+			<if test="projectid != null">
+				AND `projectid` = #{projectid,jdbcType=BIGINT}
+			</if>
+			<if test="taskid != null">
+				AND `taskid` = #{taskid,jdbcType=BIGINT}
+			</if>
+			<if test="userid != null">
+				AND `userid` = #{userid,jdbcType=INTEGER}
+			</if>
+			<if test="roleid != null">
+				AND `roleid` = #{roleid,jdbcType=INTEGER}
+			</if>
+			<if test="statebefore != null">
+				AND `statebefore` = #{statebefore,jdbcType=INTEGER}
+			</if>
+			<if test="processbefore != null">
+				AND `processbefore` = #{processbefore,jdbcType=INTEGER}
+			</if>
+			<if test="stateafter != null">
+				AND `stateafter` = #{stateafter,jdbcType=INTEGER}
+			</if>
+			<if test="processafter != null">
+				AND `processafter` = #{processafter,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.projectsmanage.dao.projectsmanager.MessageModelDao">
+	<resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.MessageModel">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="type" property="type" jdbcType="INTEGER" />
+		<result column="sender" property="sender" jdbcType="INTEGER" />
+		<result column="sendername" property="sendername" jdbcType="VARCHAR" />
+		<result column="receiver" property="receiver" jdbcType="INTEGER" />
+		<result column="receivername" property="receivername" jdbcType="VARCHAR" />
+		<result column="message" property="message" jdbcType="VARCHAR" />
+		<result column="checked" property="checked" jdbcType="INTEGER" />
+		<result column="createtime" property="createtime" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, type, sender, sendername, receiver, receivername,
+		message, checked,
+		createtime
+	</sql>
+
+	<select id="countUncheckMessages" parameterType="java.lang.Integer"
+		resultType="java.lang.Integer">
+		select count(*) from tb_message
+		<where>
+			receiver = #{userID,jdbcType=INTEGER}
+			AND checked = 0
+		</where>
+	</select>
+
+	<select id="getContacts" resultType="java.util.Map"
+		parameterType="java.lang.Integer">
+		SELECT
+			CASE WHEN sender = #{userID,jdbcType=INTEGER} THEN "sender" ELSE "receiver" END AS im,
+			CASE WHEN sender = #{userID,jdbcType=INTEGER} THEN receiver ELSE sender END AS contactid,
+			CASE WHEN sender = #{userID,jdbcType=INTEGER} THEN receivername ELSE sendername END AS contactname,
+			sum(
+				CASE
+				WHEN (sender != #{userID,jdbcType=INTEGER} AND checked = 0) THEN
+					1
+				ELSE
+					0
+				END
+			) as unchecked
+		FROM
+			tb_message m
+		WHERE
+			sender = #{userID,jdbcType=INTEGER}
+		OR receiver = #{userID,jdbcType=INTEGER}
+		GROUP BY
+			sender,
+			receiver
+		ORDER BY
+			createtime ASC
+	</select>
+
+	<select id="getMessagesByContact" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from tb_message
+		<where>
+			(sender = #{userID,jdbcType=INTEGER} AND receiver = #{contactID,jdbcType=INTEGER})
+			OR (receiver = #{userID,jdbcType=INTEGER} AND sender = #{contactID,jdbcType=INTEGER})
+		</where>
+		
+		ORDER BY
+			createtime ASC
+		LIMIT 20
+	</select>
+
+	<update id="checkMessage" parameterType="java.util.Map">
+		update tb_message
+		<set>
+			`checked` = 1
+		</set>
+		<where>
+			`receiver` = #{userID,jdbcType=INTEGER} AND `id` in (${messageIDs})
+		</where>
+	</update>
+
+	<insert id="newMessage" parameterType="com.emg.projectsmanage.pojo.MessageModel">
+		insert into tb_message
+		(type, sender,
+		sendername, receiver, receivername,
+		message, checked,
+		createtime
+		)
+		values (#{type,jdbcType=INTEGER},
+		#{sender,jdbcType=INTEGER},
+		#{sendername,jdbcType=VARCHAR},
+		#{receiver,jdbcType=INTEGER}, #{receivername,jdbcType=VARCHAR},
+		#{message,jdbcType=VARCHAR}, #{checked,jdbcType=INTEGER},
+		CURRENT_TIMESTAMP
+		)
+	</insert>
+</mapper>

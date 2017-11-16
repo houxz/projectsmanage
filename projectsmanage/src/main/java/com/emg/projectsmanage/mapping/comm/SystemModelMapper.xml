@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.projectsmanage.dao.comm.SystemModelDao">
+	<resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.SystemModel">
+		<result column="id" property="id" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="desc" property="desc" jdbcType="VARCHAR" />
+		<result column="createtime" property="createtime" jdbcType="DATE" />
+		<result column="createby" property="createby" jdbcType="VARCHAR" />
+		<result column="memo" property="memo" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		`id`, `name`, `desc`, `createtime`, `createby`, `memo`
+	</sql>
+	<select id="getSystemsByNames" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from tb_system
+		<where>
+			<if test="list != null">
+				`name` in
+				<foreach item="item" index="index" collection="list" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+	</select>
+	<select id="getAllSystems" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from tb_system
+	</select>
+</mapper>

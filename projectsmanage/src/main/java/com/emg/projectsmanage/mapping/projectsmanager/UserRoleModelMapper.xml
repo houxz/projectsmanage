@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao">
+	<resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.UserRoleModel">
+		<result column="id" property="id" jdbcType="INTEGER" />
+		<result column="userid" property="userid" jdbcType="INTEGER" />
+		<result column="roleid" property="roleid" jdbcType="INTEGER" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, userid, roleid
+	</sql>
+	<select id="queryCount" resultType="java.lang.Integer">
+		SELECT COUNT(1)
+		FROM
+		tb_user_roles
+	</select>
+	<select id="query" resultMap="BaseResultMap"
+		parameterType="com.emg.projectsmanage.pojo.UserRoleModel">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM tb_user_roles
+		<where>
+			<if test="id != null">
+				`id` = #{id,jdbcType=BIGINT}
+			</if>
+			<if test="userid != null">
+				AND `userid` = #{userid,jdbcType=INTEGER}
+			</if>
+			<if test="roleid != null">
+				AND `roleid` = #{roleid,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	<select id="queryAll" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM tb_user_roles
+	</select>
+	<select id="getEpleRoles" parameterType="java.lang.Integer" resultType="java.util.Map">
+		SELECT ur.`id` AS urid, r.`id`, r.`name` AS rolename, r.`remark`
+		FROM tb_user_roles ur, tb_roles r
+		WHERE ur.userid = #{userid,jdbcType=INTEGER} AND ur.roleid = r.id AND r.enabled = 1
+	</select>
+	<delete id="delEpleRole" parameterType="com.emg.projectsmanage.pojo.UserRoleModel">
+		DELETE FROM tb_user_roles
+		<where>
+			<if test="id != null">
+				`id` = #{id,jdbcType=INTEGER}
+			</if>
+			<if test="userid != null">
+				AND `userid` = #{userid,jdbcType=INTEGER}
+			</if>
+			<if test="roleid != null">
+				AND `roleid` = #{roleid,jdbcType=INTEGER}
+			</if>
+		</where>
+	</delete>
+	<insert id="addEpleRole" parameterType="com.emg.projectsmanage.pojo.UserRoleModel" >
+	    insert into tb_user_roles 
+	    	(`userid`,
+	    	`roleid`)
+	    values
+	    	(#{userid,jdbcType=INTEGER}, 
+	    	#{roleid,jdbcType=INTEGER})
+	</insert>
+</mapper>

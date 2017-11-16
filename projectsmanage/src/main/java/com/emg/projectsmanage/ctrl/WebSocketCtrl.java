@@ -1,0 +1,85 @@
+package com.emg.projectsmanage.ctrl;
+
+import javax.servlet.http.HttpSession;
+import javax.websocket.*;
+import javax.websocket.server.ServerEndpoint;
+
+import net.sf.json.JSONObject;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.emg.projectsmanage.bean.GetHttpSessionConfigurator;
+import com.emg.projectsmanage.common.CommonConstants;
+
+@ServerEndpoint(value = "/socket.web", configurator = GetHttpSessionConfigurator.class)
+public class WebSocketCtrl {
+	private static int onlineCount = 0;
+
+	public static HashMap<Integer, WebSocketCtrl> webSocketSet = new HashMap<Integer, WebSocketCtrl>();
+
+	private Integer userID;
+	private String userName;
+	private Session session;
+
+	@OnOpen
+	public void onOpen(Session session, EndpointConfig config) {
+		this.session = session;
+		HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
+		this.userID = (Integer) httpSession.getAttribute(CommonConstants.SESSION_USER_ID);
+		this.userName = httpSession.getAttribute(CommonConstants.SESSION_USER_NAME).toString();
+		webSocketSet.put(this.userID, this);
+		addOnlineCount();
+		System.out.println(this.userName + " 加入！当前在线人数为" + getOnlineCount());
+	}
+
+	@OnClose
+	public void onClose() {
+		webSocketSet.remove(this.userID);
+		subOnlineCount();
+		System.out.println(this.userName + " 连接关闭！当前在线人数为" + getOnlineCount());
+	}
+
+	@SuppressWarnings("unchecked")
+	@OnMessage
+	public void onMessage(String message) {
+		try {
+			Map<String, Object> mapObj = (Map<String, Object>) JSONObject.fromObject(message);
+			Integer receiverID = (Integer)mapObj.get("receiverID");
+			String content = mapObj.get("message").toString();
+			if (webSocketSet.containsKey(receiverID)) {
+				WebSocketCtrl item = webSocketSet.get(receiverID);
+				System.out.println(this.userName + " 发给 " + item.userName + " 的消息:" + content);
+				item.sendMessage(content);
+			} else {
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@OnError
+	public void onError(Throwable error) {
+		System.out.println("发生错误");
+		error.printStackTrace();
+	}
+
+	public void sendMessage(String message) throws IOException {
+		this.session.getBasicRemote().sendText(message);
+
+	}
+
+	public static synchronized int getOnlineCount() {
+		return onlineCount;
+	}
+
+	public static synchronized void addOnlineCount() {
+		WebSocketCtrl.onlineCount++;
+	}
+
+	public static synchronized void subOnlineCount() {
+		WebSocketCtrl.onlineCount--;
+	}
+
+}
