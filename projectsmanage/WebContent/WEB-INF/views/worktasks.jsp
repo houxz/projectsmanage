@@ -78,16 +78,16 @@
 				data-query-params="queryParams" data-url="./worktasks.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="worktasks" data-height="714"
-				data-page-list="[ 15, 30, 50, All]" data-page-size="15"
+				data-page-list="[15, 30, 50, All]" data-page-size="15"
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr>
 						<th data-field="userid" data-formatter="userFormat"
 							data-filter-control="select" data-filter-data="var:userForSelect"
-							data-width="140">人员名称</th>
+							data-width="100">人员名称</th>
 						<th data-field="roleid" data-formatter="roleFormat"
 							data-filter-control="select" data-filter-data="var:roleForSelect"
-							data-width="140">角色名称</th>
+							data-width="100">角色名称</th>
 						<th data-field="projectid" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="70">项目编号</th>
 						<th data-field="projectname" data-filter-control="input"

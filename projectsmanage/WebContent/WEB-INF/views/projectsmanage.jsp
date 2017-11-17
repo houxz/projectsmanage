@@ -288,19 +288,19 @@
 								data-width="320">项目名称</th>
 							<th data-field="overstate" data-formatter="stateFormat"
 								data-filter-control="select" data-filter-data="var:jobstatus"
-								data-width="140">作业状态</th>
+								data-width="100">作业状态</th>
 							<th data-field="workers" data-formatter="workersFormat"
-								data-filter-control="select" data-width="180"
+								data-filter-control="select" data-width="120"
 								data-filter-data="var:selectedworkusers">制作人</th>
 							<th data-field="checkers" data-formatter="checkersFormart"
-								data-filter-control="select" data-width="180"
+								data-filter-control="select" data-width="120"
 								data-filter-data="var:selectedcheckusers">校验人</th>
 							<th data-field="priority" data-formatter="priFormat"
-								data-width="120">优先级</th>
+								data-width="100">优先级</th>
 							<th data-field="pdifficulty" data-formatter="diffFormat"
-								data-width="120">难度</th>
+								data-width="100">难度</th>
 							<th data-field="owner" data-formatter="ownerFormat"
-								data-width="140">公有/私有</th>
+								data-width="100">公有/私有</th>
 							<th data-formatter="operationFormat" data-width="70">操作</th>
 						</tr>
 					</thead>

@@ -62,13 +62,13 @@
 				data-url="./projectsprocess.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="projectsprocess"
-				data-height="714" data-page-list="[ 15, 30, 50, All]"
+				data-height="714" data-page-list="[15, 30, 50, All]"
 				data-page-size="15" data-search-on-enter-key='true'
 				data-align='center'>
 				<thead>
 					<tr>
 						<th data-field="projectid" data-width="70" data-filter-control="input" data-filter-control-placeholder="">项目编号</th>
-						<th data-field="projectname" data-filter-control="input" data-filter-control-placeholder="">项目名称</th>
+						<th data-field="projectname" data-width="320" data-filter-control="input" data-filter-control-placeholder="">项目名称</th>
 						<th data-field="totaltask">任务总数</th>
 						<th data-field="idletask" data-formatter='idleFormat'>空闲任务</th>
 						<th data-field="edittask">编辑中任务</th>
