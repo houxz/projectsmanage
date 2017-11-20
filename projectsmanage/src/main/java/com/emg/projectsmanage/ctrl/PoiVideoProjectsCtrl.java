@@ -106,6 +106,15 @@ public class PoiVideoProjectsCtrl {
 					case "overstate":
 						criteria.andOverstateEqualTo(Integer.valueOf(filterPara.get(key).toString()));
 						break;
+					case "priority":
+						criteria.andPriorityEqualTo(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					case "pdifficulty":
+						criteria.andPdifficultyEqualTo(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					case "owner":
+						criteria.andOwnerEqualTo(Integer.valueOf(filterPara.get(key).toString()));
+						break;
 					default:
 						break;
 					}

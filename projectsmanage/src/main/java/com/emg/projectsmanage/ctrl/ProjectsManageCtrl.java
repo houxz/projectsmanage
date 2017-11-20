@@ -85,8 +85,24 @@ public class ProjectsManageCtrl extends BaseCtrl {
 			if (!userAndRoleService.isUserHasRole(uid, RoleType.ROLE_POIVIDEOEDIT.toString())) {
 				return "redirect:login.jsp";
 			}
+			
+			List<MetadataModel> skillLevels = commService.getSkillLevels();
+			List<MetadataModel> difficuties = commService.getDifficuties();
 
+			JSONArray jsonArraySkill = new JSONArray();
+			for(MetadataModel skillLevel : skillLevels) {
+				jsonArraySkill.add(skillLevel.getValue().intValue(), skillLevel.getDesc());
+			}
+			model.addAttribute("skillLevels", jsonArraySkill.toString());
+			
+			JSONArray jsonArrayDifficuties = new JSONArray();
+			for(MetadataModel difficuty : difficuties) {
+				jsonArrayDifficuties.add(difficuty.getValue().intValue(), difficuty.getDesc());
+			}
+			model.addAttribute("difficuties", jsonArrayDifficuties.toString());
+			
 			model.addAttribute("jobstatus", JobStatus.toJsonStr());
+			model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
 
 			List<UserRoleModel> allWorkersList = getEmployAndRole(RoleType.ROLE_WORKER.toString(), systemid);
 			List<UserRoleModel> allCheckersList = getEmployAndRole(RoleType.ROLE_CHECKER.toString(), systemid);

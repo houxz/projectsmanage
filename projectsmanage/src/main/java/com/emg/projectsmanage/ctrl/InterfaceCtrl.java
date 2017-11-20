@@ -29,7 +29,6 @@ import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
 import com.emg.projectsmanage.pojo.DepartmentModel;
 import com.emg.projectsmanage.pojo.ProjectModelExample;
 import com.emg.projectsmanage.pojo.ProjectModelExample.Criteria;
-import com.emg.projectsmanage.pojo.MetadataModel;
 import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
 import com.emg.projectsmanage.pojo.ProjectsTaskLogModel;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
@@ -1147,9 +1146,7 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("test start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			List<MetadataModel> list = commService.getDifficuties();
 			json.addObject("status", true);
-			json.addObject("option", list);
 		} catch (Exception e) {
 			e.printStackTrace();
 			json.addObject("status", false);

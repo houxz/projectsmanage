@@ -60,11 +60,13 @@
 	var currentPageProjects = {};
 	{
 		var jobstatus = eval('(${jobstatus})');
+		var skillLevels = eval('(${skillLevels})');
+		var difficuties = eval('(${difficuties})');
+		var priorityLevels = eval('(${priorityLevels})');
+		var ownerLevels = {"-1": "不可用", "0": "公有", "1": "私有"};
+		
 		var workersForSelect = eval('(${workers})');
 		var selectedworkusers = {};
-		var skillLevels = [];
-		var difficuties = [];
-		var priorityLevels = [];
 		if (workersForSelect.length > 0) {
 			for ( var w in workersForSelect) {
 				selectedworkusers[workersForSelect[w].userid] = workersForSelect[w].username;
@@ -81,7 +83,6 @@
 		$(document).ready(function() {
 			$.webeditor.getHead();
 			//$.webeditor.getFoot();
-			getskillanddiffandpris();
 			$('[data-toggle="jobsinfos"]').bootstrapTable({
 				locale : 'zh-CN',
 				onLoadSuccess : function(data) {
@@ -192,14 +193,13 @@
 		html.push("<select name='pdifficulty_" + row.id + "' id='pdifficulty_"
 				+ row.id + "' onchange='changeDiff(" + row.id
 				+ ")'  class='form-control'>");
-		for ( var i = 0; i < difficuties.length; i++) {
-			if (difficuties[i].value == value) {
-				html
-						.push("<option value='"+ difficuties[i].value +"' selected='selected' >"
-								+ difficuties[i].desc + "</option>");
+		for ( var difficuty in difficuties) {
+			if (difficuty == value) {
+				html.push("<option value='"+ value +"' selected='selected' >"
+								+ difficuties[value] + "</option>");
 			} else {
-				html.push("<option value='"+ difficuties[i].value +"'>"
-						+ difficuties[i].desc + "</option>");
+				html.push("<option value='"+ difficuty +"'>"
+						+ difficuties[difficuty] + "</option>");
 			}
 		}
 		html.push("</select>");
@@ -244,26 +244,6 @@
 		html.push("</select>");
 		return html.join("");
 	}
-
-	function getskillanddiffandpris() {
-		$.ajax({
-			async : false,
-			type : 'POST',
-			url : './projectsmanage.web',
-			data : {
-				atn : "skillAndDiffAndPri"
-			},
-			dataType : 'json',
-			success : function(result) {
-			}
-		}).done(function(json) {
-			if (json.result == 1) {
-				skillLevels = json.skillLevels;
-				difficuties = json.difficuties;
-				priorityLevels = json.priorityLevels;
-			}
-		});
-	}
 </script>
 
 </head>
@@ -296,11 +276,14 @@
 								data-filter-control="select" data-width="120"
 								data-filter-data="var:selectedcheckusers">校验人</th>
 							<th data-field="priority" data-formatter="priFormat"
-								data-width="100">优先级</th>
+								data-filter-control="select" data-width="100"
+								data-filter-data="var:priorityLevels">优先级</th>
 							<th data-field="pdifficulty" data-formatter="diffFormat"
-								data-width="100">难度</th>
+								data-filter-control="select" data-width="100"
+								data-filter-data="var:difficuties">难度</th>
 							<th data-field="owner" data-formatter="ownerFormat"
-								data-width="100">公有/私有</th>
+								data-filter-control="select" data-width="100"
+								data-filter-data="var:ownerLevels">公有/私有</th>
 							<th data-formatter="operationFormat" data-width="70">操作</th>
 						</tr>
 					</thead>
