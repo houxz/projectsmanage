@@ -100,16 +100,18 @@
         	jQuery.post("<%=path%>/usersmanage.web", 
                     {"atn":"getepleroles", "id":uid},
                     function(json) {
-                        var html = new Array();
-                        html.push("<div class='panel panel-default'>");
-                        html.push("<table class='table'>");
-                        for (var i=0; i<json.epleRolesList.length;i++) {
-                            html.push("<tr><td><span>"+json.epleRolesList[i].remark+"</span></td>");
-                            html.push("<td><a style='margin-left:50px' href='#' onclick=\"delEpleRole("+json.epleRolesList[i].urid+", "+uid+")\">删除</a></td></tr>");
-                        }
-                        html.push("</table>");
-                        html.push("</div>");
-                        $("#eplerolediv").html(html.join(''));
+                    	if(json.epleRolesList.length > 0) {
+	                        var html = new Array();
+	                        html.push("<div class='panel panel-default' style='padding: 0 9px;'>");
+	                        html.push("<table class='table'>");
+	                        for (var i=0; i<json.epleRolesList.length;i++) {
+	                            html.push("<tr><td><span>"+json.epleRolesList[i].remark+"</span></td>");
+	                            html.push("<td><a style='margin-left:50px' href='#' onclick=\"delEpleRole("+json.epleRolesList[i].urid+", "+uid+")\">删除</a></td></tr>");
+	                        }
+	                        html.push("</table>");
+	                        html.push("</div>");
+	                        $("#eplerolediv").html(html.join(''));
+                    	}
                     }, "json");
         }
         
@@ -193,7 +195,7 @@
 <body>
 	<div class="container">
 		<div id="headdiv"></div>
-		<div class="row" style="padding-top: 20px">
+		<div class="row" style="padding-top: 16px">
 			<div class="col-md-6">
 				<div>
 					<span class="label label-default">人员信息</span>
