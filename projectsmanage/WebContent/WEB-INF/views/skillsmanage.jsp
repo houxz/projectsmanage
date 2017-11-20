@@ -192,18 +192,15 @@
 						</p>
 					</blockquote>
 					<div id="skilllistdiv" style="margin: 0 5%;">
-						<select id="skillmoduleselect"
-							style="padding: 5px; border-radius: 4px; min-width: 100px;">
+						<select id="skillmoduleselect" class="form-control" style="width: 40%; margin-bottom: 2px;">
 							<c:forEach items="${skillModules }" var="skillModule">
 								<option value='${skillModule["value"] }'>${skillModule["desc"]}</option>
 							</c:forEach>
-						</select> <select id="rolelist"
-							style="padding: 5px; border-radius: 4px; min-width: 100px;">
+						</select> <select id="rolelist" class="form-control" style="width: 40%; margin-bottom: 2px;">
 							<c:forEach items="${roles }" var="role">
 								<option value='${role["name"] }'>${role["remark"] }</option>
 							</c:forEach>
-						</select> <select id="skilllevelselect"
-							style="padding: 5px; border-radius: 4px; min-width: 100px;">
+						</select> <select id="skilllevelselect" class="form-control" style="width: 20%;">
 							<c:forEach items="${skillLevels }" var="skillLevel">
 								<option value='${skillLevel["value"] }'>${skillLevel["desc"]}</option>
 							</c:forEach>

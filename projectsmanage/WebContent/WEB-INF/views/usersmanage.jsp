@@ -179,10 +179,9 @@
 						function(json) {
 							var html = new Array();
 							html
-									.push("<select id='rolelistselect'  style='padding: 5px; border-radius: 4px; min-width: 100px; margin-bottom: 5px;'>");
+									.push("<select id='rolelistselect' class='form-control' style='width: 120px; margin-bottom: 5px;'>");
 							for ( var i = 0; i < json.rolelist.length; i++) {
-								html
-										.push("<option value='"+json.rolelist[i].id+"'>"
+								html.push("<option value='"+json.rolelist[i].id+"'>"
 												+ json.rolelist[i].remark
 												+ "</option>");
 							}
