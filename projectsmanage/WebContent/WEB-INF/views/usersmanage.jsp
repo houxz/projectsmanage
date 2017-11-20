@@ -35,7 +35,6 @@
         $(document).ready(function() {
         	$.webeditor.getHead();
         	loadeple();
-        	setRoleList();
         });
         
         function findExpandibleNodess() {
@@ -173,21 +172,20 @@
         
         function setRoleList() {
         	$.post("<%=path%>/usersmanage.web",
-						{
-							"atn" : "getrolelist"
-						},
-						function(json) {
-							var html = new Array();
-							html
-									.push("<select id='rolelistselect' class='form-control' style='width: 120px; margin-bottom: 5px;'>");
-							for ( var i = 0; i < json.rolelist.length; i++) {
-								html.push("<option value='"+json.rolelist[i].id+"'>"
-												+ json.rolelist[i].remark
-												+ "</option>");
-							}
-							html.push("</select>");
-							$("#rolelistdiv").html(html.join(''));
-						}, "json");
+					{
+						"atn" : "getrolelist"
+					},
+					function(json) {
+						var html = new Array();
+						html.push("<select id='rolelistselect' class='form-control' style='width: 120px; margin-bottom: 5px;'>");
+						for ( var i = 0; i < json.rolelist.length; i++) {
+							html.push("<option value='"+json.rolelist[i].id+"'>"
+											+ json.rolelist[i].remark
+											+ "</option>");
+						}
+						html.push("</select>");
+						$("#rolelistdiv").html(html.join(''));
+					}, "json");
 	}
 </script>
 </head>
@@ -230,7 +228,13 @@
 							<span style="color: red;">勾选</span>左侧的人员，选择权限，然后点击添加人员权限。
 						</p>
 					</blockquote>
-					<div id="rolelistdiv"></div>
+					<div id="rolelistdiv">
+						<select id="rolelistselect" class="form-control" style="width: 120px; margin-bottom: 5px;">
+							<c:forEach items="${rolelist }" var="role">
+								<option value='${role["id"] }'>${role["remark"]}</option>
+							</c:forEach>
+						</select>
+					</div>
 					<button type="button" class="btn btn-default"
 						onclick="addEpleRole();">添加人员权限</button>
 					<hr />

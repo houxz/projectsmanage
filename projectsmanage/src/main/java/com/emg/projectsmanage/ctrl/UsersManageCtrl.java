@@ -50,7 +50,9 @@ public class UsersManageCtrl extends BaseCtrl {
 		logger.debug("UsersManageCtrl-openLader start.");
 		try {
 			List<RoleModel> authlist = projectManagerRoleService.getAllEnabledRoles();
+			List<RoleModel> rolelist = projectManagerRoleService.getAllEnabledRoles();
 			model.addAttribute("authlist", authlist);
+			model.addAttribute("rolelist", rolelist);
 			return "usersmanage";
 		} catch (Exception e) {
 			e.printStackTrace();
