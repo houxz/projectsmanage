@@ -12,6 +12,7 @@
 		<result column="projectid" property="projectid" jdbcType="VARCHAR" />
 		<result column="projectname" property="projectname" jdbcType="VARCHAR" />
 		<result column="totaltask" property="totaltask" jdbcType="INTEGER" />
+		<result column="idletask" property="idletask" jdbcType="INTEGER" />
 		<result column="edittask" property="edittask" jdbcType="INTEGER" />
 		<result column="qctask" property="qctask" jdbcType="INTEGER" />
 		<result column="checktask" property="checktask" jdbcType="INTEGER" />
@@ -68,6 +69,9 @@
 			</if>
 		</where>
 		ORDER BY
+			<if test="orderby != null">
+				${orderby},
+			</if>
 			p.`priority` desc,
 			p.`id`,
 			t.`userid`,
@@ -108,7 +112,8 @@
 			SUM(CASE WHEN t.`roleid` = 5 THEN t.`edittask` ELSE 0 END) AS edittask,
 			SUM(CASE WHEN t.`roleid` = 5 THEN t.`qctask` ELSE 0 END) AS qctask,
 			SUM(CASE WHEN t.`roleid` = 5 THEN t.`checktask` ELSE 0 END) AS checktask,
-			SUM(CASE WHEN t.`roleid` = 5 THEN t.`completetask` ELSE 0 END) AS completetask
+			SUM(CASE WHEN t.`roleid` = 5 THEN t.`completetask` ELSE 0 END) AS completetask,
+			p.`tasknum` - SUM(CASE WHEN t.`roleid` = 5 THEN t.`edittask` ELSE 0 END) - SUM(CASE WHEN t.`roleid` = 5 THEN t.`qctask` ELSE 0 END) - SUM(CASE WHEN t.`roleid` = 5 THEN t.`checktask` ELSE 0 END) - SUM(CASE WHEN t.`roleid` = 5 THEN t.`completetask` ELSE 0 END) AS idletask
 		FROM tb_projects p
 		LEFT JOIN tb_projects_task_count t 
 			ON t.`projectid` = p.`id`
@@ -132,6 +137,9 @@
 		GROUP BY
 			p.`id`
 		ORDER BY
+			<if test="orderby != null">
+				${orderby},
+			</if>
 			p.`priority` desc,
 			p.`id`
 		<if test="limit != null">

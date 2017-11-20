@@ -10,6 +10,7 @@ public class ProjectsTaskCountModel {
 	private String projectid;
 	private String projectname;
 	private Integer totaltask;
+	private Integer idletask;
 	private Integer edittask;
 	private Integer qctask;
 	private Integer checktask;
@@ -92,5 +93,11 @@ public class ProjectsTaskCountModel {
 	}
 	public void setRolename(String rolename) {
 		this.rolename = rolename;
+	}
+	public Integer getIdletask() {
+		return idletask;
+	}
+	public void setIdletask(Integer idletask) {
+		this.idletask = idletask;
 	}
 }

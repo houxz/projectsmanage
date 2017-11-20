@@ -60,6 +60,8 @@ public class ProjectsProcessCtrl extends BaseCtrl {
 			Integer systemid = (Integer) session.getAttribute(CommonConstants.SESSION_CURRENTSYSTEMID);
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
+			String sort = ParamUtils.getParameter(request, "sort", "");
+			String order = ParamUtils.getParameter(request, "order", "");
 			String _filter = ParamUtils.getParameter(request, "filter", "");
 			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
 
@@ -100,6 +102,9 @@ public class ProjectsProcessCtrl extends BaseCtrl {
 						break;
 					}
 				}
+			}
+			if (!sort.isEmpty()) {
+				map.put("orderby", sort + " " + order);
 			}
 			if (limit.compareTo(0) > 0)
 				map.put("limit", limit);

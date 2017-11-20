@@ -32,7 +32,8 @@
 	$(document).ready(function() {
 		$.webeditor.getHead();
 		$('[data-toggle="projectsprocess"]').bootstrapTable({
-			locale : 'zh-CN'
+			locale : 'zh-CN',
+			sortable: true
 		});
 	});
 	function queryParams(params) {
@@ -45,10 +46,6 @@
 			}
 		}
 		return params;
-	}
-	function idleFormat(value, row, index) {
-		return row.totaltask - row.edittask - row.qctask - row.checktask
-				- row.completetask;
 	}
 </script>
 
@@ -69,12 +66,12 @@
 					<tr>
 						<th data-field="projectid" data-width="70" data-filter-control="input" data-filter-control-placeholder="">项目编号</th>
 						<th data-field="projectname" data-width="320" data-filter-control="input" data-filter-control-placeholder="">项目名称</th>
-						<th data-field="totaltask">任务总数</th>
-						<th data-field="idletask" data-formatter='idleFormat'>空闲任务</th>
-						<th data-field="edittask">编辑中任务</th>
-						<th data-field="qctask">质检中任务</th>
-						<th data-field="checktask">校正中任务</th>
-						<th data-field="completetask">已完成任务</th>
+						<th data-field="totaltask" data-sortable="true">任务总数</th>
+						<th data-field="idletask" data-sortable="true">空闲任务</th>
+						<th data-field="edittask" data-sortable="true">编辑中任务</th>
+						<th data-field="qctask" data-sortable="true">质检中任务</th>
+						<th data-field="checktask" data-sortable="true">校正中任务</th>
+						<th data-field="completetask" data-sortable="true">已完成任务</th>
 					</tr>
 				</thead>
 			</table>

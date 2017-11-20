@@ -53,7 +53,8 @@
 		$.webeditor.getHead();
 		//$.webeditor.getFoot();
 		$('[data-toggle="worktasks"]').bootstrapTable({
-			locale : 'zh-CN'
+			locale : 'zh-CN',
+			sortable: true
 		});
 	});
 	function queryParams(params) {
@@ -84,20 +85,20 @@
 					<tr>
 						<th data-field="userid" data-formatter="userFormat"
 							data-filter-control="select" data-filter-data="var:userForSelect"
-							data-width="100">人员名称</th>
+							data-width="120">人员名称</th>
 						<th data-field="roleid" data-formatter="roleFormat"
 							data-filter-control="select" data-filter-data="var:roleForSelect"
-							data-width="100">角色名称</th>
+							data-width="120">角色名称</th>
 						<th data-field="projectid" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="70">项目编号</th>
 						<th data-field="projectname" data-filter-control="input"
 							data-filter-control-placeholder=""
 							data-width="320">项目名称</th>
-						<th data-field="totaltask">任务总数</th>
-						<th data-field="edittask">编辑中任务</th>
-						<th data-field="qctask">质检中任务</th>
-						<th data-field="checktask">校正中任务</th>
-						<th data-field="completetask">已完成任务</th>
+						<th data-field="totaltask" data-sortable="true">任务总数</th>
+						<th data-field="edittask" data-sortable="true">编辑中任务</th>
+						<th data-field="qctask" data-sortable="true">质检中任务</th>
+						<th data-field="checktask" data-sortable="true">校正中任务</th>
+						<th data-field="completetask" data-sortable="true">已完成任务</th>
 					</tr>
 				</thead>
 			</table>
