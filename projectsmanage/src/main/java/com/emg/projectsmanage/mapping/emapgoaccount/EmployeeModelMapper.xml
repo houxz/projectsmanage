@@ -73,6 +73,7 @@
 			concat('dept', CONV(`id`, 10, 10)) AS id,
 			concat('dept', CONV(`parentDepId`, 10, 10)) AS pId,
 			`name`,
+			`name` as text,
 			'1' AS isdept,
 			IF (`id` = 1 OR `id` = 2, 'true', 'false') AS open
 		FROM
@@ -82,6 +83,7 @@
 			CONV(`id`, 10, 10) AS id,
 			concat('dept', CONV(`department`, 10, 10)) AS pId,
 			`realname` AS name,
+			`realname` AS text,
 			'0' AS isdept,
 			'false' AS open
 		FROM

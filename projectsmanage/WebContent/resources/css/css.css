@@ -176,3 +176,7 @@ select {
 	width: 80%;
 	margin: 2% auto 0 auto;
 }
+
+#treeview-checkable ul li {
+	padding: 4px 15px;
+}

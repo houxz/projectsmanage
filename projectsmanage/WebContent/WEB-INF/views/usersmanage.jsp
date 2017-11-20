@@ -17,6 +17,7 @@
 <link href="resources/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
 <link href="resources/css/css.css" rel="stylesheet" />
 <link href="resources/jquery.zTree-3.5.29/css/zTreeStyle/zTreeStyle.css" rel="stylesheet" />
+<link href="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.css" rel="stylesheet" />
 <link href="resources/css/message.css" rel="stylesheet">
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
@@ -25,82 +26,102 @@
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/jquery.zTree-3.5.29/js/jquery.ztree.core.min.js"></script>
 <script src="resources/jquery.zTree-3.5.29/js/jquery.ztree.excheck.min.js"></script>
+<script src="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.js"/>
 <script src="resources/js/message.js"></script>
 
-
 <script type="text/javascript">
-        var setting = {
-                check: {
-                    enable: true,
-                    chkboxType:{ "Y" : "ps", "N" : "ps" }
-                },
-                data: {
-                    simpleData: {
-                        enable: true
-                    }
-                },
-                callback: {
-                    onClick: onClick
-                }
-        };
+        var bootstrapTree = null;
+        
         $(document).ready(function() {
         	$.webeditor.getHead();
         	loadeple();
         	setRoleList();
         });
         
+        function findExpandibleNodess() {
+        	if(bootstrapTree) {
+        		bootstrapTree.treeview('uncheckAll', { silent: true });
+        		bootstrapTree.treeview('collapseAll', { silent: true });
+        		return bootstrapTree.treeview('search', [ $('#input-expand-node').val(), { ignoreCase: false, exactMatch: false } ]);
+        	} else {
+        		return null;
+        	}
+            
+        }
+        function checkExpandibleNodess() {
+        	if(bootstrapTree) {
+	        	var expandibleNodes = findExpandibleNodess();
+	        	bootstrapTree.treeview('checkNode', [ expandibleNodes, { silent: false }]);
+        	}
+        }
+        
+        
         function loadeple() {
             jQuery.post("<%=path%>/usersmanage.web", 
                     {"atn":"epletree"},
                     function(json) {
-                        $.fn.zTree.init($("#epletree"), setting, json.eplelist);
-                      //  setCheck();
-                        $("#py").bind("change", setCheck);
-                        $("#sy").bind("change", setCheck);
-                        $("#pn").bind("change", setCheck);
-                        $("#sn").bind("change", setCheck);
+                        //{name: "集团", pId: "dept0", id: "dept1", open: "true", isdept: "1"}
+                        //id: 1,text: 'Parent 1',href: '#parent1', tags: ['4'], nodes: [
+                        bootstrapTree = $('#treeview-checkable').treeview({
+                        	data: $.webeditor.transJsonData2Tree(json.eplelist, "id", "pId", "nodes"),
+                            showIcon: false,
+                            showCheckbox: true,
+                            highlightSelected: true,
+                            onNodeChecked: function(event, node) {
+                            	if(node.isdept == 1) {//部门节点
+                            		var children = node.nodes;
+                            		$.each(children, function(index, child){
+                            			bootstrapTree.treeview('checkNode', [ child.nodeId, { silent: false }]);
+                            		});
+                            	}
+                            },
+                            onNodeUnchecked: function(event, node) {
+                            	if(node.isdept == 1) {//部门节点
+                            		var children = node.nodes;
+                            		$.each(children, function(index, child){
+                            			bootstrapTree.treeview('uncheckNode', [ child.nodeId, { silent: false }]);
+                            		});
+                            	}
+                            },
+                            onNodeSelected: function(event, node) {
+                            	if(node.isdept == 0) {//人员节点
+                            		getEpleRoles(node.id);
+                            	}
+                            },
+                            onNodeUnselected: function (event, node) {
+                            	$("#eplerolediv").empty();
+                            }
+                          });
                     }, "json");
         }
-        function setCheck() {
-            var zTree = $.fn.zTree.getZTreeObj("epletree"),
-            py = $("#py").attr("checked")? "p":"",
-            sy = $("#sy").attr("checked")? "s":"",
-            pn = $("#pn").attr("checked")? "p":"",
-            sn = $("#sn").attr("checked")? "s":"",
-            type = { "Y":py + sy, "N":pn + sn};
-            zTree.setting.check.chkboxType = type;
-        }
         
-        function onClick(event, treeId, treeNode, clickFlag) {
-        	if (clickFlag == 1) { //选择
-        		if (treeNode.isdept == 0) {
-        			getEpleRoles(treeNode.id);
-        		}
-        	}
-        }
         function getEpleRoles(uid) {
+        	$("#eplerolediv").empty();
         	jQuery.post("<%=path%>/usersmanage.web", 
                     {"atn":"getepleroles", "id":uid},
                     function(json) {
                         var html = new Array();
-                        html.push("<ul>");
+                        html.push("<div class='panel panel-default'>");
+                        html.push("<table class='table'>");
                         for (var i=0; i<json.epleRolesList.length;i++) {
-                            html.push("<li>"+json.epleRolesList[i].remark);
-                            html.push("<a style='margin-left:50px' href='#' onclick=\"delEpleRole("+json.epleRolesList[i].urid+", "+uid+")\">删除</a></li>");
+                            html.push("<tr><td><span>"+json.epleRolesList[i].remark+"</span></td>");
+                            html.push("<td><a style='margin-left:50px' href='#' onclick=\"delEpleRole("+json.epleRolesList[i].urid+", "+uid+")\">删除</a></td></tr>");
                         }
-                        html.push("</ul>");
+                        html.push("</table>");
+                        html.push("</div>");
                         $("#eplerolediv").html(html.join(''));
                     }, "json");
         }
         
         function addEpleRole() {
-        	var zTree = $.fn.zTree.getZTreeObj("epletree");
-        	nodes = zTree.getCheckedNodes(true);
-            var checkCount = nodes.length;
+        	var expandibleNodes = new Array();
+        	if(bootstrapTree)
+        		expandibleNodes = bootstrapTree.treeview('getChecked');
+            var checkCount = expandibleNodes.length;
             var epleid = new Array();
             for (var i=0; i<checkCount; i++) {
-            	if (nodes[i].isdept == 0) {
-            		epleid.push(nodes[i].id);
+            	if (expandibleNodes[i].isdept == 0) {
+            		epleid.push(expandibleNodes[i].id);
             	}
             }
             if (epleid.length < 1) {
@@ -178,8 +199,14 @@
 					<span class="label label-default">人员信息</span>
 				</div>
 				<div class="well">
-					<ul id="tree" class="ztree"></ul>
-					<ul id=epletree class="ztree"></ul>
+					<div class="input-group">
+						<input type="input" class="form-control" id="input-expand-node" placeholder="查找人员">
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-default" tabindex="-1" onclick="findExpandibleNodess();">查找</button>
+							<button type="button" class="btn btn-default" tabindex="-1" onclick="checkExpandibleNodess();">选择</button>
+						</div>
+					</div>
+					<div id="treeview-checkable" style="height: 550px; overflow: auto;"></div>
 				</div>
 			</div>
 			<div class="col-md-6">
@@ -193,7 +220,8 @@
 							<span style="color: red;">点击</span>左侧的人员，可显示该人员拥有的权限。
 						</p>
 					</blockquote>
-					<div id="eplerolediv"></div>
+					<div id="eplerolediv">
+					</div>
 					<hr />
 					<blockquote>
 						<p>
