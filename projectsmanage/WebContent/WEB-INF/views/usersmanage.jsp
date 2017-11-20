@@ -101,14 +101,12 @@
                     function(json) {
                     	if(json.epleRolesList.length > 0) {
 	                        var html = new Array();
-	                        html.push("<div class='panel panel-default' style='padding: 0 9px;'>");
-	                        html.push("<table class='table'>");
+	                        html.push("<table class='table table-condensed'>");
 	                        for (var i=0; i<json.epleRolesList.length;i++) {
 	                            html.push("<tr><td><span>"+json.epleRolesList[i].remark+"</span></td>");
 	                            html.push("<td><a style='margin-left:50px' href='#' onclick=\"delEpleRole("+json.epleRolesList[i].urid+", "+uid+")\">删除</a></td></tr>");
 	                        }
 	                        html.push("</table>");
-	                        html.push("</div>");
 	                        $("#eplerolediv").html(html.join(''));
                     	}
                     }, "json");
@@ -192,69 +190,66 @@
 <body>
 	<div class="container">
 		<div id="headdiv"></div>
-		<div class="row" style="padding-top: 16px">
+		<div class="row" style="padding-top: 20px">
 			<div class="col-md-6">
-				<div>
-					<span class="label label-default">人员信息</span>
-				</div>
-				<div class="well">
-					<div class="input-group">
-						<input type="input" class="form-control" id="input-expand-node" placeholder="查找人员">
-						<div class="input-group-btn">
-							<button type="button" class="btn btn-default" tabindex="-1" onclick="findExpandibleNodess();">查找</button>
-							<button type="button" class="btn btn-default" tabindex="-1" onclick="checkExpandibleNodess();">选择</button>
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<div class="input-group">
+							<input type="input" class="form-control" id="input-expand-node" placeholder="查找人员">
+							<div class="input-group-btn">
+								<button type="button" class="btn btn-default" tabindex="-1" onclick="findExpandibleNodess();">查找</button>
+								<button type="button" class="btn btn-default" tabindex="-1" onclick="checkExpandibleNodess();">选择</button>
+							</div>
 						</div>
 					</div>
 					<div id="treeview-checkable" style="height: 550px; overflow: auto;"></div>
 				</div>
 			</div>
 			<div class="col-md-6">
-				<div>
-					<span class="label label-default">权限信息</span>
-				</div>
-				<div class="well">
-					<blockquote>
-						<p>
-							显示人员权限。<br />
-							<span style="color: red;">点击</span>左侧的人员，可显示该人员拥有的权限。
-						</p>
-					</blockquote>
-					<div id="eplerolediv">
-					</div>
-					<hr />
-					<blockquote>
-						<p>
-							为人员添加权限。<br />
-							<span style="color: red;">勾选</span>左侧的人员，选择权限，然后点击添加人员权限。
-						</p>
-					</blockquote>
-					<div id="rolelistdiv">
-						<select id="rolelistselect" class="form-control" style="width: 120px; margin-bottom: 5px;">
-							<c:forEach items="${rolelist }" var="role">
-								<option value='${role["id"] }'>${role["remark"]}</option>
-							</c:forEach>
-						</select>
-					</div>
-					<button type="button" class="btn btn-default"
-						onclick="addEpleRole();">添加人员权限</button>
-					<hr />
-					<div class="form-group">
+				<div class="panel panel-default">
+					<div class="panel-body">
 						<blockquote>
 							<p>
-								仅添加权限。<br />输入权限名称和描述，点击添加权限。
+								显示人员权限。<br />
+								<span style="color: red;">点击</span>左侧的人员，可显示该人员拥有的权限。
 							</p>
 						</blockquote>
-						<label for="r_username">权限名称：</label> <input type="text"
-							class="form-control required" id="rolename" name="rolename"
-							placeholder="请输入权限名称" value='' />
+						<div id="eplerolediv" style="margin: 0 20px;"></div>
+						<hr />
+						<blockquote>
+							<p>
+								为人员添加权限。<br />
+								<span style="color: red;">勾选</span>左侧的人员，选择权限，然后点击添加人员权限。
+							</p>
+						</blockquote>
+						<div id="rolelistdiv">
+							<select id="rolelistselect" class="form-control" style="width: 120px; margin-bottom: 5px;">
+								<c:forEach items="${rolelist }" var="role">
+									<option value='${role["id"] }'>${role["remark"]}</option>
+								</c:forEach>
+							</select>
+						</div>
+						<button type="button" class="btn btn-default"
+							onclick="addEpleRole();">添加人员权限</button>
+						<hr />
+						<div class="form-group">
+							<blockquote>
+								<p>
+									仅添加权限。<br />输入权限名称和描述，点击添加权限。
+								</p>
+							</blockquote>
+							<label for="r_username">权限名称：</label> <input type="text"
+								class="form-control required" id="rolename" name="rolename"
+								placeholder="请输入权限名称" value='' />
+						</div>
+						<div class="form-group">
+							<label for="r_username">权限描述：</label> <input type="text"
+								class="form-control required" id="roleremark" name="roleremark"
+								placeholder="请输入权限说明" value='' />
+						</div>
+						<button type="button" class="btn btn-default" name="register"
+							onclick="addRole();">添加权限</button>
 					</div>
-					<div class="form-group">
-						<label for="r_username">权限描述：</label> <input type="text"
-							class="form-control required" id="roleremark" name="roleremark"
-							placeholder="请输入权限说明" value='' />
-					</div>
-					<button type="button" class="btn btn-default" name="register"
-						onclick="addRole();">添加权限</button>
 				</div>
 			</div>
 		</div>

@@ -67,11 +67,11 @@
 						<li class="<%="999".equals(menucode) ? "active" : ""%>"><a
 							href="<c:url value='usersmanage.web'/>">人员信息管理</a></li>
 					</sec:authorize>
-					<sec:authorize access="hasAnyRole('ROLE_ADMIN' )">
+					<!--<sec:authorize access="hasAnyRole('ROLE_ADMIN' )">
 						<li class="<%="1000".equals(menucode) ? "active" : ""%>">
 							<a href="<c:url value='skillsmanage.web'/>">人员技能管理</a>
 						</li>
-					</sec:authorize>
+					</sec:authorize>-->
 					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
 						<li class="<%="1002".equals(menucode) ? "active" : ""%>"><a
 							href="<c:url value='projectsmanage.web'/>">项目管理</a></li>
