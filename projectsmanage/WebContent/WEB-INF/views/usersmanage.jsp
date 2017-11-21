@@ -112,7 +112,7 @@
 	                        html.push("<tr><td><div>" + username + "</div></td><td></td></tr>");
 	                        for (var i=0; i<json.epleRolesList.length;i++) {
 	                            html.push("<tr><td><div>" + json.epleRolesList[i].remark + "</div></td>");
-	                            html.push("<td><span title=\"删除" + json.epleRolesList[i].remark + "权限\" class=\"glyphicon glyphicon-remove-circle\" aria-hidden=\"true\" onclick=\"delEpleRole(" + json.epleRolesList[i].urid + ", " + uid + ");\"></span></td></tr>");
+	                            html.push("<td><span title=\"删除" + json.epleRolesList[i].remark + "权限\" class=\"glyphicon glyphicon-remove-circle\" aria-hidden=\"true\" onclick=\"delEpleRole(" + json.epleRolesList[i].urid + ", " + uid + ", '" + username + "');\"></span></td></tr>");
 	                        }
 	                        html.push("</table>");
 	                        $("#eplerolediv").html(html.join(''));
@@ -146,13 +146,13 @@
                     }, "json");
         }
         
-        function delEpleRole(urid, uid) {
+        function delEpleRole(urid, uid, username) {
         	 $.post("<%=path%>/usersmanage.web", 
                      {"atn":"deleplerole", "urid":urid},
                      function(json) {
                          if (json.result == 1) {
                              $.webeditor.showMsgLabel("success", "人员权限删除成功");
-                             getEpleRoles(uid);
+                             getEpleRoles(uid, username);
                          } else {
                              $.webeditor.showMsgLabel("alert", "人员权限删除失败");
                          }
