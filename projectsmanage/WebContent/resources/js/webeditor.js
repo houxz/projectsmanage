@@ -65,26 +65,31 @@ jQuery.webeditor = {
 		if ("success" == type) {
 			html.push("<div class=\"alert alert-success alert-dismissable\">");
 			html.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
+			html.push("<span class=\"glyphicon glyphicon-ok-sign\" aria-hidden=\"true\">&nbsp;</span>");
 			html.push(msg);
 			html.push("</div>");
 		} else if ("info" == type) {
 			html.push("<div class=\"alert alert-info alert-dismissable\">");
 			html.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
+			html.push("<span class=\"glyphicon glyphicon-info-sign\" aria-hidden=\"true\">&nbsp;</span>");
 			html.push(msg);
 			html.push("</div>");
 		} else if ("warning" == type) {
 			html.push("<div class=\"alert alert-warning alert-dismissable\">");
 			html.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
+			html.push("<span class=\"glyphicon glyphicon-question-sign\" aria-hidden=\"true\">&nbsp;</span>");
 			html.push(msg);
 			html.push("</div>");
 		} else if ("alert" == type) {
 			html.push("<div class=\"alert alert-danger alert-dismissable\">");
 			html.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
+			html.push("<span class=\"glyphicon glyphicon-remove-sign\" aria-hidden=\"true\">&nbsp;</span>");
 			html.push(msg);
 			html.push("</div>");
 		} else {
 			html.push("<div class=\"alert alert-info alert-dismissable\">");
 			html.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
+			html.push("<span class=\"glyphicon glyphicon-remove-sign\" aria-hidden=\"true\">&nbsp;</span>");
 			html.push(msg);
 			html.push("</div>");
 		}

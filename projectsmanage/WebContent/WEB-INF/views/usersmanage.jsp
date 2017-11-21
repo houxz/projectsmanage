@@ -198,9 +198,13 @@
 								placeholder="查找人员">
 							<div class="input-group-btn">
 								<button type="button" class="btn btn-default" tabindex="-1"
-									onclick="findExpandibleNodess();">查找</button>
+									onclick="findExpandibleNodess();">
+									<span class="glyphicon glyphicon-search" aria-hidden="true">&nbsp;</span>查找
+								</button>
 								<button type="button" class="btn btn-default" tabindex="-1"
-									onclick="checkExpandibleNodess();">勾选</button>
+									onclick="checkExpandibleNodess();">
+									<span class="glyphicon glyphicon-check" aria-hidden="true">&nbsp;</span>勾选
+								</button>
 							</div>
 						</div>
 					</div>
