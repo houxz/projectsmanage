@@ -173,7 +173,8 @@
 					$("#roleremark").val("");
 					var newRole = json.role;
 					var html = new Array();
-					html.push("<option value='"+newRole.id+"'>" + newRole.remark + "</option>");
+					html.push("<option value='"+newRole.id+"'>" + newRole.remark
+							+ "</option>");
 					$("#rolelistselect").append(html.join(''));
 					$.webeditor.showMsgBox("info", "添加成功");
 				} else {
@@ -213,7 +214,7 @@
 								显示人员权限。<br /> <span style="color: red;">点击</span>左侧的人员，可显示该人员拥有的权限。
 							</p>
 						</blockquote>
-						<div id="eplerolediv" style="width: 60%;margin: 0 5%;"></div>
+						<div id="eplerolediv" style="width: 60%; margin: 0 5%;"></div>
 						<hr />
 						<blockquote>
 							<p>
@@ -237,13 +238,15 @@
 								仅添加权限。<br />输入权限名称和描述，点击添加权限。
 							</p>
 						</blockquote>
-						<div class="input-group"  style="width: 60%;margin: 2px 5%;">
-							<span class="input-group-addon">权限名称：</span>
-							<input type="text" class="form-control required" id="rolename" name="rolename" placeholder="请输入权限名称" value='' />
+						<div class="input-group" style="width: 60%; margin: 2px 5%;">
+							<span class="input-group-addon">权限名称：</span> <input type="text"
+								class="form-control required" id="rolename" name="rolename"
+								placeholder="请输入权限名称" value='' />
 						</div>
-						<div class="input-group"  style="width: 60%;margin: 2px 5%;">
-							<span class="input-group-addon">权限描述：</span>
-							<input type="text" class="form-control required" id="roleremark" name="roleremark" placeholder="请输入权限说明" value='' />
+						<div class="input-group" style="width: 60%; margin: 2px 5%;">
+							<span class="input-group-addon">权限描述：</span> <input type="text"
+								class="form-control required" id="roleremark" name="roleremark"
+								placeholder="请输入权限说明" value='' />
 						</div>
 						<button type="button" class="btn btn-default" name="register"
 							onclick="addRole();" style="margin: 2px 5%;">添加权限</button>
