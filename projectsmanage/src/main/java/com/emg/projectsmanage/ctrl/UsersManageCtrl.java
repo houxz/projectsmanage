@@ -109,9 +109,11 @@ public class UsersManageCtrl extends BaseCtrl {
 		record.setName(name);
 		record.setType("U");
 		record.setRemark(remark);
+		record.setEnabled(1);
 		int ret = projectManagerRoleService.addRole(record);
 		if (ret > 0) {
 			json.addObject("result", 1);
+			json.addObject("role", record);
 		} else {
 			json.addObject("result", 0);
 		}

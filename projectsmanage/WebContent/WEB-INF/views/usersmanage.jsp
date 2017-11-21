@@ -13,11 +13,16 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<link href="resources/jquery-ui-1.12.1.custom/jquery-ui.min.css" rel="stylesheet">
-<link href="resources/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+<link href="resources/jquery-ui-1.12.1.custom/jquery-ui.min.css"
+	rel="stylesheet">
+<link href="resources/bootstrap-3.3.7/css/bootstrap.min.css"
+	rel="stylesheet" />
 <link href="resources/css/css.css" rel="stylesheet" />
-<link href="resources/jquery.zTree-3.5.29/css/zTreeStyle/zTreeStyle.css" rel="stylesheet" />
-<link href="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.css" rel="stylesheet" />
+<link href="resources/jquery.zTree-3.5.29/css/zTreeStyle/zTreeStyle.css"
+	rel="stylesheet" />
+<link
+	href="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.css"
+	rel="stylesheet" />
 <link href="resources/css/message.css" rel="stylesheet">
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
@@ -25,8 +30,10 @@
 <script src="resources/js/webeditor.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/jquery.zTree-3.5.29/js/jquery.ztree.core.min.js"></script>
-<script src="resources/jquery.zTree-3.5.29/js/jquery.ztree.excheck.min.js"></script>
-<script src="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.js"/>
+<script
+	src="resources/jquery.zTree-3.5.29/js/jquery.ztree.excheck.min.js"></script>
+<script
+	src="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.js" />
 <script src="resources/js/message.js"></script>
 
 <script type="text/javascript">
@@ -156,35 +163,24 @@
             	$.webeditor.showMsgBox("alert", "必须填写权限名称和权限说明");
             	return ;
             }
-            $.post("<%=path%>/usersmanage.web", 
-            	    {"atn":"addrole", "name":$("#rolename").val(), "remark":$("#roleremark").val()},
-                    function(json) {
-            	        if (json.result == 1) {
-            	        	$.webeditor.showMsgBox("info", "添加成功");
-            	        	setRoleList();
-            	        } else {
-            	        	$.webeditor.showMsgBox("alert", json.msg);
-            	        }
-                    }, "json");
-        }
-        
-        function setRoleList() {
-        	$.post("<%=path%>/usersmanage.web",
-					{
-						"atn" : "getrolelist"
-					},
-					function(json) {
-						var html = new Array();
-						html.push("<select id='rolelistselect' class='form-control' style='width: 120px; margin-bottom: 5px;'>");
-						for ( var i = 0; i < json.rolelist.length; i++) {
-							html.push("<option value='"+json.rolelist[i].id+"'>"
-											+ json.rolelist[i].remark
-											+ "</option>");
-						}
-						html.push("</select>");
-						$("#rolelistdiv").html(html.join(''));
-					}, "json");
-	}
+            $.post("<%=path%>/usersmanage.web", {
+				"atn" : "addrole",
+				"name" : $("#rolename").val(),
+				"remark" : $("#roleremark").val()
+			}, function(json) {
+				if (json.result == 1 && json.role) {
+					$("#rolename").val("");
+					$("#roleremark").val("");
+					var newRole = json.role;
+					var html = new Array();
+					html.push("<option value='"+newRole.id+"'>" + newRole.remark + "</option>");
+					$("#rolelistselect").append(html.join(''));
+					$.webeditor.showMsgBox("info", "添加成功");
+				} else {
+					$.webeditor.showMsgBox("alert", json.msg);
+				}
+			}, "json");
+		}
 </script>
 </head>
 <body>
@@ -195,14 +191,18 @@
 				<div class="panel panel-default">
 					<div class="panel-body">
 						<div class="input-group">
-							<input type="input" class="form-control" id="input-expand-node" placeholder="查找人员">
+							<input type="input" class="form-control" id="input-expand-node"
+								placeholder="查找人员">
 							<div class="input-group-btn">
-								<button type="button" class="btn btn-default" tabindex="-1" onclick="findExpandibleNodess();">查找</button>
-								<button type="button" class="btn btn-default" tabindex="-1" onclick="checkExpandibleNodess();">选择</button>
+								<button type="button" class="btn btn-default" tabindex="-1"
+									onclick="findExpandibleNodess();">查找</button>
+								<button type="button" class="btn btn-default" tabindex="-1"
+									onclick="checkExpandibleNodess();">勾选</button>
 							</div>
 						</div>
 					</div>
-					<div id="treeview-checkable" style="height: 550px; overflow: auto;"></div>
+					<div id="treeview-checkable"
+						style="height: 550px; overflow: auto; font-size: 13px;"></div>
 				</div>
 			</div>
 			<div class="col-md-6">
@@ -210,45 +210,43 @@
 					<div class="panel-body">
 						<blockquote>
 							<p>
-								显示人员权限。<br />
-								<span style="color: red;">点击</span>左侧的人员，可显示该人员拥有的权限。
+								显示人员权限。<br /> <span style="color: red;">点击</span>左侧的人员，可显示该人员拥有的权限。
 							</p>
 						</blockquote>
-						<div id="eplerolediv" style="margin: 0 20px;"></div>
+						<div id="eplerolediv" style="width: 60%;margin: 0 5%;"></div>
 						<hr />
 						<blockquote>
 							<p>
-								为人员添加权限。<br />
-								<span style="color: red;">勾选</span>左侧的人员，选择权限，然后点击添加人员权限。
+								为人员添加权限。<br /> <span style="color: red;">勾选</span>左侧的人员，选择权限，然后点击添加人员权限。
 							</p>
 						</blockquote>
-						<div id="rolelistdiv">
-							<select id="rolelistselect" class="form-control" style="width: 120px; margin-bottom: 5px;">
+						<div class="input-group" style="width: 60%; margin: 0 5%;">
+							<select id="rolelistselect" class="form-control">
 								<c:forEach items="${rolelist }" var="role">
 									<option value='${role["id"] }'>${role["remark"]}</option>
 								</c:forEach>
-							</select>
+							</select> <span class="input-group-btn">
+								<button type="button" class="btn btn-default"
+									onclick="addEpleRole();">添加人员权限</button>
+							</span>
 						</div>
-						<button type="button" class="btn btn-default"
-							onclick="addEpleRole();">添加人员权限</button>
+						<!-- /input-group -->
 						<hr />
-						<div class="form-group">
-							<blockquote>
-								<p>
-									仅添加权限。<br />输入权限名称和描述，点击添加权限。
-								</p>
-							</blockquote>
-							<label for="r_username">权限名称：</label> <input type="text"
-								class="form-control required" id="rolename" name="rolename"
-								placeholder="请输入权限名称" value='' />
+						<blockquote>
+							<p>
+								仅添加权限。<br />输入权限名称和描述，点击添加权限。
+							</p>
+						</blockquote>
+						<div class="input-group"  style="width: 60%;margin: 2px 5%;">
+							<span class="input-group-addon">权限名称：</span>
+							<input type="text" class="form-control required" id="rolename" name="rolename" placeholder="请输入权限名称" value='' />
 						</div>
-						<div class="form-group">
-							<label for="r_username">权限描述：</label> <input type="text"
-								class="form-control required" id="roleremark" name="roleremark"
-								placeholder="请输入权限说明" value='' />
+						<div class="input-group"  style="width: 60%;margin: 2px 5%;">
+							<span class="input-group-addon">权限描述：</span>
+							<input type="text" class="form-control required" id="roleremark" name="roleremark" placeholder="请输入权限说明" value='' />
 						</div>
 						<button type="button" class="btn btn-default" name="register"
-							onclick="addRole();">添加权限</button>
+							onclick="addRole();" style="margin: 2px 5%;">添加权限</button>
 					</div>
 				</div>
 			</div>
