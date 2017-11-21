@@ -19,16 +19,21 @@ jQuery.webeditor = {
 		if ("alert" == type) {
 			title = "警告";
 			html.push("<div id=\"comm_msgbox\">");
-			html
-					.push("    <div class=\"alert alert-danger alert-dismissable\" style=\"margin-bottom: 0;\">");
+			html.push("    <div class=\"alert alert-danger alert-dismissable\" style=\"margin-bottom: 0;\">");
+			html.push(msg);
+			html.push("    </div>");
+			html.push("</div>");
+		} else if("info" == type) {
+			title = "消息";
+			html.push("<div id=\"comm_msgbox\">");
+			html.push("    <div class=\"alert alert-success alert-dismissable\" style=\"margin-bottom: 0;\">");
 			html.push(msg);
 			html.push("    </div>");
 			html.push("</div>");
 		} else {
 			title = "消息";
 			html.push("<div id=\"comm_msgbox\">");
-			html
-					.push("    <div class=\"alert alert-success alert-dismissable\" style=\"margin-bottom: 0;\">");
+			html.push("    <div class=\"alert alert-success alert-dismissable\" style=\"margin-bottom: 0;\">");
 			html.push(msg);
 			html.push("    </div>");
 			html.push("</div>");
@@ -49,21 +54,7 @@ jQuery.webeditor = {
 			}
 		};
 		if (h) {
-			opt = {
-				title : title,
-				autoOpen : true,
-				width : w ? w : 550,
-				height : h,
-				modal : true,
-				open : function(event, ui) {
-					$(".ui-dialog-titlebar-close").hide();
-				},
-				buttons : {
-					"确定" : function() {
-						$(this).dialog("close");
-					}
-				}
-			};
+			opt.height = h;
 		}
 		$('#comm_msgbox').dialog(opt);
 	},
@@ -74,26 +65,27 @@ jQuery.webeditor = {
 				.push("<div id=\"comm_msglabel\" style=\"display:none;position:fixed;right:2%;bottom:3%;min-width:18%;\">");
 		if ("success" == type) {
 			html.push("<div class=\"alert alert-success alert-dismissable\">");
-			html
-					.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
+			html.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
 			html.push(msg);
 			html.push("</div>");
 		} else if ("info" == type) {
 			html.push("<div class=\"alert alert-info alert-dismissable\">");
-			html
-					.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
+			html.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
 			html.push(msg);
 			html.push("</div>");
 		} else if ("warning" == type) {
 			html.push("<div class=\"alert alert-warning alert-dismissable\">");
-			html
-					.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
+			html.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
+			html.push(msg);
+			html.push("</div>");
+		} else if ("alert" == type) {
+			html.push("<div class=\"alert alert-danger alert-dismissable\">");
+			html.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
 			html.push(msg);
 			html.push("</div>");
 		} else {
-			html.push("<div class=\"alert alert-danger alert-dismissable\">");
-			html
-					.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
+			html.push("<div class=\"alert alert-info alert-dismissable\">");
+			html.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
 			html.push(msg);
 			html.push("</div>");
 		}
