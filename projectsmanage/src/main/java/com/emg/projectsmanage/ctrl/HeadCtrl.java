@@ -63,7 +63,7 @@ public class HeadCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		int sysid = ParamUtils.getIntParameter(request, "sysid", CommonConstants.SYSTEM_POIVIDEOEDIT_ID);
 		session.setAttribute(CommonConstants.SESSION_CURRENTSYSTEMID, sysid);
-		json.addObject("result", 0);
+		json.addObject("result", 1);
 
 		return json;
 	}

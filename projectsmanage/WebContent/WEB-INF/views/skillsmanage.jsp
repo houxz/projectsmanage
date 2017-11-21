@@ -119,7 +119,7 @@
             	}
             }
             if (epleid.length < 1) {
-            	$.webeditor.showMsgBox("alert", "请勾选左边的人员");
+            	$.webeditor.showMsgLabel("alert", "请勾选左边的人员");
             	return ;
             }
             var skillmodule = $("#skillmoduleselect").val();
@@ -131,32 +131,32 @@
             			"epleid":epleid.join(','),
             			"eplename":eplename.join(','),
             			"skilllevel":skilllevel,
-            			"rolename":rolename},
-                    function(json) {
+            			"rolename":rolename
+            		}, function(json) {
                         if (json.result == 1) {
-                            $.webeditor.showMsgBox("info", "添加成功");
+                            $.webeditor.showMsgLabel("success", "人员技能等级添加成功");
                         } else {
-                            $.webeditor.showMsgBox("alert", json.msg);
+                            $.webeditor.showMsgLabel("alert", "人员技能等级添加失败");
                         }
                     }, "json");
         }
         
         function delEpleSill(id,skillmodule,userid) {
         	var sys = $("#systems").val();
-        	 $.post("<%=path%>/skillsmanage.web", {
-			"atn" : "deleplesill",
-			"id" : id,
-			"skillmodule" : skillmodule,
-			"sysid" : sys
-		}, function(json) {
-			if (json.result == 0) {
-				$.webeditor.showMsgBox("info", "删除成功");
-				getEpleSkill(userid);
-			} else {
-				$.webeditor.showMsgBox("alert", json.msg);
-			}
-		}, "json");
-	}
+        	$.post("<%=path%>/skillsmanage.web",
+        			{"atn" : "deleplesill",
+        				"id" : id,
+        				"skillmodule" : skillmodule,
+        				"sysid" : sys
+        			}, function(json) {
+        				if (json.result == 0) {
+        					$.webeditor.showMsgLabel("success", "人员技能等级删除成功");
+        					getEpleSkill(userid);
+        				} else {
+        					$.webeditor.showMsgLabel("alert", "人员技能等级删除失败");
+        				}
+        			}, "json");
+        }
 </script>
 </head>
 <body>

@@ -33,25 +33,3 @@ var fixHelper = function(e, ui) {
      });
          return ui;
  };
-//变更任务优先级 change priority with jobid
-function changePrio(jobid,prejobid,nextjobid){
-	$.ajax({
-    	async:false,
-    	type:'POST',
-    	url:'./projectsmanage.web',
-		data:{
-				atn:"adjustprio",
-				jobid:jobid,
-				prejobid:prejobid,
-				nextjobid:nextjobid 
-			  },
-		dataType:'json',
-    	success:function(result){
-    	}
-    }).done(function(json) {
-		if (1 == json.result) {
-		}else{
-			alert("任务优先级变更失败");
-		}
-    });
-}

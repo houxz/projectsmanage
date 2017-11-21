@@ -116,12 +116,12 @@
 		}
 		var user  = $("#"+workusertype).val();
 		if (user == 0) {
-			alert("请选择作业人员");
+			$.webeditor.showMsgLabel("alert", "请选择作业人员");
 			return;
 		}
 		var userinfo  = user.split("_");
 		if(checkIsExist(userinfo[0])){
-			alert("该人员已添加");
+			$.webeditor.showMsgLabel("alert", "该人员已添加");
 			return;
 		}
 		var w = {
@@ -160,6 +160,9 @@
 		$(idstr).each(function(){
 			removeIDs.push($(this).attr("id"));
 		});
+		if(removeIDs.length <= 0) {
+			$.webeditor.showMsgLabel("alert", "必须勾选作业人员");
+		}
 		for(var i = 0 ;i < removeIDs.length;i++){
 			var id = removeIDs[i].split("_")[0];
 			removeWorker(id);
@@ -191,7 +194,7 @@
 	//提交人力资源变更
 	function submitWorkers(){
 		if( addWorkers.length == 0 && delWorkers.length == 0){
-			alert("人员未发生变化");
+			$.webeditor.showMsgLabel("alert", "人员未发生变化");
 			return;
 		}
 		var subStr = "[";
@@ -237,7 +240,7 @@
 	    		$("#"+divID).dialog( "close" );
 	    		cleanParas();
 	    	} else{
-	    		alert("更改失败");
+	    		$.webeditor.showMsgLabel("alert", "作业人员分配失败");
 	    	}
 	    });
 	}

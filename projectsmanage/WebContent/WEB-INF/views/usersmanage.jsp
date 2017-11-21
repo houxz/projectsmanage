@@ -131,16 +131,16 @@
             	}
             }
             if (epleid.length < 1) {
-            	$.webeditor.showMsgBox("alert", "请勾选左边的人员");
+            	$.webeditor.showMsgLabel("alert", "请勾选左边的人员");
             	return ;
             }
             $.post("<%=path%>/usersmanage.web", 
                     {"atn":"addeplerole", "epleid":epleid.join(','), "roleid":$("#rolelistselect").val()},
                     function(json) {
                         if (json.result == 1) {
-                            $.webeditor.showMsgBox("info", "添加成功");
+                            $.webeditor.showMsgLabel("success", "人员权限添加成功");
                         } else {
-                            $.webeditor.showMsgBox("alert", json.msg);
+                            $.webeditor.showMsgLabel("alert", "人员权限添加失败");
                         }
                     }, "json");
         }
@@ -150,17 +150,17 @@
                      {"atn":"deleplerole", "urid":urid},
                      function(json) {
                          if (json.result == 1) {
-                             $.webeditor.showMsgBox("info", "删除成功");
+                             $.webeditor.showMsgLabel("success", "人员权限删除成功");
                              getEpleRoles(uid);
                          } else {
-                             $.webeditor.showMsgBox("alert", json.msg);
+                             $.webeditor.showMsgLabel("alert", "人员权限删除失败");
                          }
                      }, "json");
         }
         
         function addRole() {
             if ($("#rolename").val() == "" || $("#roleremark").val() == "") {
-            	$.webeditor.showMsgBox("alert", "必须填写权限名称和权限说明");
+            	$.webeditor.showMsgLabel("alert", "必须填写权限名称和权限说明");
             	return ;
             }
             $.post("<%=path%>/usersmanage.web", {
@@ -176,9 +176,9 @@
 					html.push("<option value='"+newRole.id+"'>" + newRole.remark
 							+ "</option>");
 					$("#rolelistselect").append(html.join(''));
-					$.webeditor.showMsgBox("info", "添加成功");
+					$.webeditor.showMsgLabel("success", "权限添加成功");
 				} else {
-					$.webeditor.showMsgBox("alert", json.msg);
+					$.webeditor.showMsgLabel("alert", "权限添加失败");
 				}
 			}, "json");
 		}

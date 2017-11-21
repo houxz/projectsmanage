@@ -44,10 +44,10 @@
 			success : function(result) {
 			}
 		}).done(function(json) {
-			if (json.result == 0) {
+			if (json.result == 1) {
 				window.location.reload();
 			} else {
-				$.webeditor.showMsgBox("alert", "变更失败");
+				$.webeditor.showMsgLabel("alert", "平台变更失败");
 			}
 		});
 

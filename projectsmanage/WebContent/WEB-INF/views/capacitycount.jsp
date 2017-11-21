@@ -96,7 +96,7 @@
 						$("#capacityCountsTime").html("无数据");
 					}
 				} else {
-					showMsgBox("alert", "查询失败");
+					showMsgLabel("alert", "查询失败");
 				}
 			}, "json");
 	}
@@ -123,7 +123,7 @@
 							$("#capacityFieldTime").html("无数据");
 						}
 		            } else {
-		            	showMsgBox("alert", "查询失败");
+		            	showMsgLabel("alert", "查询失败");
 		            }
 				}, "json"
 		    );
@@ -150,7 +150,7 @@
 						$("#capacityGeoTime").html("无数据");
 					}
 				} else {
-					showMsgBox("alert", "查询失败");
+					showMsgLabel("alert", "查询失败");
 				}
 			}, "json"
 		);
@@ -179,7 +179,7 @@
 							$("#capacityPOITime").html("无数据");
 						}
 					} else {
-						showMsgBox("alert", "查询失败");
+						showMsgLabel("alert", "查询失败");
 					}
 				}, "json");
 	}
