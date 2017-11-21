@@ -73,6 +73,8 @@
                             showIcon: false,
                             showCheckbox: true,
                             highlightSelected: true,
+                            expandIcon: 'glyphicon glyphicon-menu-right',
+                            collapseIcon: 'glyphicon glyphicon-menu-down',
                             onNodeChecked: function(event, node) {
                             	if(node.isdept == 1) {//部门节点
                             		var children = node.nodes;
