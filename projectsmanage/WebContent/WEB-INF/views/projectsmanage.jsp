@@ -42,7 +42,7 @@
 
 #selectWorker ul li {
 	float: left;
-	margin-right: 16px;
+	margin: 2px 8px;
 }
 
 #selectChecker ul {
@@ -52,7 +52,7 @@
 
 #selectChecker ul li {
 	float: left;
-	margin-right: 16px;
+	margin: 2px 8px;
 }
 </style>
 
@@ -293,13 +293,13 @@
 		<div id="footdiv"></div>
 	</div>
 
-	<div id="selectWorker"
-		style="width: 40%; height: 400px; display: none; text-align: center; padding: 20px;">
-		<div id="hasWorker_div" style="height: 80%;">
-			<ul id="hasWorker_ul" style="height: 70%"></ul>
+	<div id="selectWorker" style="display: none;">
+		<div id="hasWorker_div" style="height: 70%; margin: 2% auto;">
+			<ul id="hasWorker_ul" style="display: table-cell;padding: 0;"></ul>
 		</div>
-		<div style="height: 10%;">
-			添加作业人员： <select name="workerse" id="workerse">
+		<div class="input-group" style="width: 80%; margin: 1% auto;">
+			<span class="input-group-addon">添加作业人员： </span>
+			<select class="form-control" id="workerse">
 				<option value="0">请选择作业人员</option>
 				<c:forEach items="${allWorkersList }" var="worker">
 					<option value="${worker['userid'] }_${worker['username'] }">
@@ -314,19 +314,21 @@
 						</c:if>
 					</option>
 				</c:forEach>
-			</select> <input name="button1" value="添加" type="button"
-				onclick="confirmSelect()" /> <input name="button1" value="删除选中作业员"
-				type="button" onclick="removeWorkers()" />
+			</select>
+			<span class="input-group-btn">
+				<button class="btn btn-default" type="button" onclick="confirmSelect()">添加</button>
+				<button class="btn btn-default" type="button" onclick="removeAllWorkers()">清空作业员</button>
+			</span>
 		</div>
 	</div>
 
-	<div id="selectChecker"
-		style="width: 40%; height: 400px; display: none; text-align: center; padding: 20px;">
-		<div id="hasChecker_div" style="height: 80%;">
-			<ul id="hasChecker_ul" style="height: 70%"></ul>
+	<div id="selectChecker" style="display: none;">
+		<div id="hasChecker_div" style="height: 70%; margin: 2% auto;">
+			<ul id="hasChecker_ul" style="display: table-cell;padding: 0;"></ul>
 		</div>
-		<div style="height: 10%;">
-			添加检验人员： <select name="checkers" id="checkers">
+		<div class="input-group" style="width: 80%; margin: 1% auto;">
+			<span class="input-group-addon">添加检验人员：</span>
+			<select class="form-control" id="checkers">
 				<option value="0">请选择校验人员</option>
 				<c:forEach items="${allCheckersList }" var="check">
 					<option value="${check['userid'] }_${check['username'] }">
@@ -340,9 +342,11 @@
 						</c:if>
 					</option>
 				</c:forEach>
-			</select> <input name="button2" value="添加" type="button"
-				onclick="confirmSelect()" /> <input name="button2" value="删除选中校验员"
-				type="button" onclick="removeWorkers()" />
+			</select>
+			<span class="input-group-btn">
+				<button class="btn btn-default" type="button" onclick="confirmSelect()">添加</button>
+				<button class="btn btn-default" type="button" onclick="removeAllWorkers()">清空校验员</button>
+			</span>
 		</div>
 	</div>
 </body>

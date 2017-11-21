@@ -3,6 +3,10 @@ select {
 	border-radius: 4px;
 }
 
+button {
+	font-size: 14px !important;
+}
+
 .highlight {
 	padding: 9px 14px;
 	margin-bottom: 14px;
@@ -179,4 +183,13 @@ select {
 
 #treeview-checkable ul li {
 	padding: 4px 15px;
+}
+
+#eplerolediv table td div {
+	margin-left: 10%;
+}
+
+#eplerolediv table td span {
+	margin-left: 20%;
+	cursor: pointer;
 }

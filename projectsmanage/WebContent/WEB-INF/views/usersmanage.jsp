@@ -66,8 +66,6 @@
             jQuery.post("<%=path%>/usersmanage.web", 
                     {"atn":"epletree"},
                     function(json) {
-                        //{name: "集团", pId: "dept0", id: "dept1", open: "true", isdept: "1"}
-                        //id: 1,text: 'Parent 1',href: '#parent1', tags: ['4'], nodes: [
                         bootstrapTree = $('#treeview-checkable').treeview({
                         	data: $.webeditor.transJsonData2Tree(json.eplelist, "id", "pId", "nodes"),
                             showIcon: false,
@@ -75,6 +73,8 @@
                             highlightSelected: true,
                             expandIcon: 'glyphicon glyphicon-menu-right',
                             collapseIcon: 'glyphicon glyphicon-menu-down',
+                            selectedColor: "#000000",
+                            selectedBackColor: "#e7e7e7",
                             onNodeChecked: function(event, node) {
                             	if(node.isdept == 1) {//部门节点
                             		var children = node.nodes;
@@ -93,17 +93,15 @@
                             },
                             onNodeSelected: function(event, node) {
                             	if(node.isdept == 0) {//人员节点
-                            		getEpleRoles(node.id);
+                            		$("#eplerolediv").empty();
+                            		getEpleRoles(node.id, node.name);
                             	}
-                            },
-                            onNodeUnselected: function (event, node) {
-                            	$("#eplerolediv").empty();
                             }
                           });
                     }, "json");
         }
         
-        function getEpleRoles(uid) {
+        function getEpleRoles(uid, username) {
         	$("#eplerolediv").empty();
         	jQuery.post("<%=path%>/usersmanage.web", 
                     {"atn":"getepleroles", "id":uid},
@@ -111,9 +109,10 @@
                     	if(json.epleRolesList.length > 0) {
 	                        var html = new Array();
 	                        html.push("<table class='table table-condensed'>");
+	                        html.push("<tr><td><div>" + username + "</div></td><td></td></tr>");
 	                        for (var i=0; i<json.epleRolesList.length;i++) {
-	                            html.push("<tr><td><span>"+json.epleRolesList[i].remark+"</span></td>");
-	                            html.push("<td><a style='margin-left:50px' href='#' onclick=\"delEpleRole("+json.epleRolesList[i].urid+", "+uid+")\">删除</a></td></tr>");
+	                            html.push("<tr><td><div>" + json.epleRolesList[i].remark + "</div></td>");
+	                            html.push("<td><span title=\"删除" + json.epleRolesList[i].remark + "权限\" class=\"glyphicon glyphicon-remove-circle\" aria-hidden=\"true\" onclick=\"delEpleRole(" + json.epleRolesList[i].urid + ", " + uid + ");\"></span></td></tr>");
 	                        }
 	                        html.push("</table>");
 	                        $("#eplerolediv").html(html.join(''));
@@ -220,7 +219,8 @@
 								显示人员权限。<br /> <span style="color: red;">点击</span>左侧的人员，可显示该人员拥有的权限。
 							</p>
 						</blockquote>
-						<div id="eplerolediv" style="width: 60%; margin: 0 5%;"></div>
+						<div id="eplerolediv" style="width: 60%; margin: 0 5%;">
+						</div>
 						<hr />
 						<blockquote>
 							<p>
@@ -234,7 +234,9 @@
 								</c:forEach>
 							</select> <span class="input-group-btn">
 								<button type="button" class="btn btn-default"
-									onclick="addEpleRole();">添加人员权限</button>
+									onclick="addEpleRole();">
+									<span class="glyphicon glyphicon-plus" aria-hidden="true">&nbsp;</span>添加人员权限
+								</button>
 							</span>
 						</div>
 						<!-- /input-group -->
@@ -255,7 +257,9 @@
 								placeholder="请输入权限说明" value='' />
 						</div>
 						<button type="button" class="btn btn-default" name="register"
-							onclick="addRole();" style="margin: 2px 5%;">添加权限</button>
+							onclick="addRole();" style="margin: 2px 5%;">
+							<span class="glyphicon glyphicon-plus" aria-hidden="true">&nbsp;</span>添加权限
+						</button>
 					</div>
 				</div>
 			</div>
