@@ -16,9 +16,9 @@
 	}
 	function setOrgUsers(pro) {
 		if (worktype == 0) {
-			orgUsers = currentProject.workusers;
+			orgUsers = currentProject.workusers.concat();
 		} else {
-			orgUsers = currentProject.checkusers;
+			orgUsers = currentProject.checkusers.concat();
 		}
 	}
 	// 原来没有，添加
