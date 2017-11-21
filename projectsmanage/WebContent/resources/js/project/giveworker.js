@@ -150,7 +150,7 @@
 		html.push("<li id='" + w.userid + "_li'>");
 		html.push("<div class='input-group'>");
 		html.push("<span class='input-group-addon'>" + w.username + "</span>");
-		html.push("<span class='input-group-addon'><a href='#' onclick='removeWorker(" + w.userid + ");'><span class='glyphicon glyphicon-remove-circle' aria-hidden='true'></span></a></span>");
+		html.push("<span class='input-group-addon'><div onclick='removeWorker(" + w.userid + ");'><span class='glyphicon glyphicon-remove-circle' aria-hidden='true'></span></div></span>");
 		html.push("</div></li>");
 		
 		$("#" + workerul).append(html.join(""));
