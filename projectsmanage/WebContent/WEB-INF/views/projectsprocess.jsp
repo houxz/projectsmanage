@@ -25,7 +25,6 @@
 <script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.js"></script>
 <script src="resources/bootstrap-table-1.11.1/locale/bootstrap-table-zh-CN.js"></script>
-<script src="resources/js/message.js"></script>
 
 
 <script type="text/javascript">

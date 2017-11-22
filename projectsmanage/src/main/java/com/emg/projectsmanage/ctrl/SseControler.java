@@ -58,7 +58,7 @@ public class SseControler {
 		try {
 			Integer userid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
 			if (userid != null && userid > 0) {
-				contacts = messageModelService.getContacts(userid);
+				contacts = messageModelService.getMyContacts(userid);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

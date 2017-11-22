@@ -33,8 +33,7 @@
 <script
 	src="resources/jquery.zTree-3.5.29/js/jquery.ztree.excheck.min.js"></script>
 <script
-	src="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.js" />
-<script src="resources/js/message.js"></script>
+	src="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.js" /></script>
 
 <script type="text/javascript">
         var bootstrapTree = null;

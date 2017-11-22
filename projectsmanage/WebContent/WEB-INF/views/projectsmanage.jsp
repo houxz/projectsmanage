@@ -31,7 +31,6 @@
 <script src="resources/js/project/priorityadjust.js"></script>
 <script src="resources/jquery-flexselect-0.9.0/jquery.flexselect.js"></script>
 <script src="resources/jquery-flexselect-0.9.0/liquidmetal.js"></script>
-<script src="resources/js/message.js"></script>
 
 
 <style type="text/css">

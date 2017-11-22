@@ -29,7 +29,6 @@
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/jquery.zTree-3.5.29/js/jquery.ztree.core.min.js"></script>
 <script src="resources/jquery.zTree-3.5.29/js/jquery.ztree.excheck.min.js"></script>
-<script src="resources/js/message.js"></script>
 
 <script type="text/javascript">
         var setting = {

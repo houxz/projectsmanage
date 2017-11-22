@@ -4,14 +4,12 @@ import javax.servlet.http.HttpSession;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
-import net.sf.json.JSONObject;
-
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 import com.emg.projectsmanage.bean.GetHttpSessionConfigurator;
 import com.emg.projectsmanage.common.CommonConstants;
+import com.emg.projectsmanage.pojo.MessageModel;
 
 @ServerEndpoint(value = "/socket.web", configurator = GetHttpSessionConfigurator.class)
 public class WebSocketCtrl {
@@ -41,13 +39,12 @@ public class WebSocketCtrl {
 		System.out.println(this.userName + " 连接关闭！当前在线人数为" + getOnlineCount());
 	}
 
-	@SuppressWarnings("unchecked")
 	@OnMessage
 	public void onMessage(String message) {
 		try {
-			Map<String, Object> mapObj = (Map<String, Object>) JSONObject.fromObject(message);
-			Integer receiverID = (Integer)mapObj.get("receiverID");
-			String content = mapObj.get("message").toString();
+			MessageModel messageModel = new MessageModel(message);
+			Integer receiverID = messageModel.getReceiver();
+			String content = messageModel.getMessage();
 			if (webSocketSet.containsKey(receiverID)) {
 				WebSocketCtrl item = webSocketSet.get(receiverID);
 				System.out.println(this.userName + " 发给 " + item.userName + " 的消息:" + content);

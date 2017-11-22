@@ -27,7 +27,7 @@ public class MessageModelService {
 	}
 
 	@Cacheable(value = CACHEVALUE, key = "('CONTACTS-').concat(#userID)")
-	public List<Map<String, Object>> getContacts(Integer userID) {
+	public List<Map<String, Object>> getMyContacts(Integer userID) {
 		List<Map<String, Object>> senders = new ArrayList<Map<String, Object>>();
 		senders = messageModelDao.getContacts(userID);
 		return senders;

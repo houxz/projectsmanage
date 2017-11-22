@@ -1,97 +1,127 @@
 package com.emg.projectsmanage.pojo;
 
 import java.io.Serializable;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
 
 public class MessageModel implements Serializable {
 	private static final long serialVersionUID = -6827068167089820798L;
 
 	private Long id;
 
-    private Integer type;
+	private Integer type;
 
-    private Integer sender;
+	private Integer sender;
 
-    private String sendername;
+	private String sendername;
 
-    private Integer receiver;
+	private Integer receiver;
 
-    private String receivername;
+	private String receivername;
 
-    private String message;
+	private String message;
 
-    private Integer checked;
+	private Integer checked;
 
-    private String createtime;
+	private String createtime;
 
-    public Long getId() {
-        return id;
-    }
+	@SuppressWarnings("unchecked")
+	public MessageModel(String message) {
+		try {
+			Map<String, Object> mapObj = (Map<String, Object>) JSONObject.fromObject(message);
+			if (mapObj.containsKey("id"))
+				this.id = (Long) mapObj.get("id");
+			if (mapObj.containsKey("type"))
+				this.type = (Integer) mapObj.get("type");
+			if (mapObj.containsKey("sender"))
+				this.sender = (Integer) mapObj.get("sender");
+			if (mapObj.containsKey("sendername"))
+				this.sendername = mapObj.get("sendername").toString();
+			if (mapObj.containsKey("receiver"))
+				this.receiver = (Integer) mapObj.get("receiver");
+			if (mapObj.containsKey("receivername"))
+				this.receivername = mapObj.get("receivername").toString();
+			if (mapObj.containsKey("message"))
+				this.message = mapObj.get("message").toString();
+			if (mapObj.containsKey("checked"))
+				this.checked = (Integer) mapObj.get("checked");
+		} catch (Exception e) {
+		}
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public MessageModel() {
+	}
 
-    public Integer getType() {
-        return type;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setType(Integer type) {
-        this.type = type;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public Integer getSender() {
-        return sender;
-    }
+	public Integer getType() {
+		return type;
+	}
 
-    public void setSender(Integer sender) {
-        this.sender = sender;
-    }
+	public void setType(Integer type) {
+		this.type = type;
+	}
 
-    public String getSendername() {
-        return sendername;
-    }
+	public Integer getSender() {
+		return sender;
+	}
 
-    public void setSendername(String sendername) {
-        this.sendername = sendername == null ? null : sendername.trim();
-    }
+	public void setSender(Integer sender) {
+		this.sender = sender;
+	}
 
-    public Integer getReceiver() {
-        return receiver;
-    }
+	public String getSendername() {
+		return sendername;
+	}
 
-    public void setReceiver(Integer receiver) {
-        this.receiver = receiver;
-    }
+	public void setSendername(String sendername) {
+		this.sendername = sendername == null ? null : sendername.trim();
+	}
 
-    public String getReceivername() {
-        return receivername;
-    }
+	public Integer getReceiver() {
+		return receiver;
+	}
 
-    public void setReceivername(String receivername) {
-        this.receivername = receivername == null ? null : receivername.trim();
-    }
+	public void setReceiver(Integer receiver) {
+		this.receiver = receiver;
+	}
 
-    public String getMessage() {
-        return message;
-    }
+	public String getReceivername() {
+		return receivername;
+	}
 
-    public void setMessage(String message) {
-        this.message = message == null ? null : message.trim();
-    }
+	public void setReceivername(String receivername) {
+		this.receivername = receivername == null ? null : receivername.trim();
+	}
 
-    public Integer getChecked() {
-        return checked;
-    }
+	public String getMessage() {
+		return message;
+	}
 
-    public void setChecked(Integer checked) {
-        this.checked = checked;
-    }
+	public void setMessage(String message) {
+		this.message = message == null ? null : message.trim();
+	}
 
-    public String getCreatetime() {
-        return createtime;
-    }
+	public Integer getChecked() {
+		return checked;
+	}
 
-    public void setCreatetime(String createtime) {
-        this.createtime = createtime;
-    }
+	public void setChecked(Integer checked) {
+		this.checked = checked;
+	}
+
+	public String getCreatetime() {
+		return createtime;
+	}
+
+	public void setCreatetime(String createtime) {
+		this.createtime = createtime;
+	}
 }

@@ -34,7 +34,6 @@
 <script src="resources/jquery-flexselect-0.9.0/jquery.flexselect.js"></script>
 <script src="resources/jquery-flexselect-0.9.0/liquidmetal.js"
 	type="text/javascript"></script>
-<script src="resources/js/message.js"></script>
 
 <script type="text/javascript">
 	$(document).ready(function() {
