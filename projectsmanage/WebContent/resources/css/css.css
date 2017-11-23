@@ -204,6 +204,10 @@ button {
 	color: #337ab7;
 }
 
+#hasWorker_ul li div.input-group span div {
+	cursor: pointer;
+}
+
 .fixed-table-container thead th .both {
 	background-image: none !important;
 	padding-right: 10px !important;
