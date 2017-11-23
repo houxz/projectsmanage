@@ -26,7 +26,6 @@
 <link href="resources/css/css.css" rel="stylesheet" />
 <link href="resources/jquery-flexselect-0.9.0/flexselect.css"
 	rel="stylesheet">
-<link href="resources/css/message.css" rel="stylesheet">
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
 <script src="resources/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>

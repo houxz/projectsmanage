@@ -17,7 +17,6 @@
 <link href="resources/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
 <link href="resources/bootstrap-table-1.11.1/bootstrap-table.min.css" rel="stylesheet">
 <link href="resources/css/css.css" rel="stylesheet" />
-<link href="resources/css/message.css" rel="stylesheet">
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
 <script src="resources/js/webeditor.js"></script>

@@ -13,27 +13,14 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<link href="resources/jquery-ui-1.12.1.custom/jquery-ui.min.css"
-	rel="stylesheet">
-<link href="resources/bootstrap-3.3.7/css/bootstrap.min.css"
-	rel="stylesheet" />
+<link href="resources/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
 <link href="resources/css/css.css" rel="stylesheet" />
-<link href="resources/jquery.zTree-3.5.29/css/zTreeStyle/zTreeStyle.css"
-	rel="stylesheet" />
-<link
-	href="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.css"
-	rel="stylesheet" />
-<link href="resources/css/message.css" rel="stylesheet">
+<link href="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.css" rel="stylesheet" />
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
-<script src="resources/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 <script src="resources/js/webeditor.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-<script src="resources/jquery.zTree-3.5.29/js/jquery.ztree.core.min.js"></script>
-<script
-	src="resources/jquery.zTree-3.5.29/js/jquery.ztree.excheck.min.js"></script>
-<script
-	src="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.js" /></script>
+<script src="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.js" /></script>
 
 <script type="text/javascript">
         var bootstrapTree = null;
@@ -218,8 +205,7 @@
 								显示人员权限。<br /> <span style="color: red;">点击</span>左侧的人员，可显示该人员拥有的权限。
 							</p>
 						</blockquote>
-						<div id="eplerolediv" style="width: 60%; margin: 0 5%;">
-						</div>
+						<div id="eplerolediv" style="width: 60%; margin: 0 5%;"></div>
 						<hr />
 						<blockquote>
 							<p>
