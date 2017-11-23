@@ -61,7 +61,7 @@ jQuery.webeditor = {
 	showMsgLabel : function(type, msg, w, h) {
 		var speed = 300;
 		var html = new Array();
-		html.push("<div id=\"comm_msglabel\" style=\"display:none;position:fixed;right:5%;bottom:6%;min-width:20%;\">");
+		html.push("<div id=\"comm_msglabel\" style=\"display:none;position:fixed;right:5%;bottom:6%;min-width:20%;z-index:99999;\">");
 		if ("success" == type) {
 			html.push("<div class=\"alert alert-success alert-dismissable\">");
 			html.push("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>");
