@@ -61,7 +61,7 @@
 		var skillLevels = eval('(${skillLevels})');
 		var difficuties = eval('(${difficuties})');
 		var priorityLevels = eval('(${priorityLevels})');
-		var ownerLevels = {"-1": "不可用", "0": "公有", "1": "私有"};
+		var ownerLevels = eval('(${ownerLevels})');
 		
 		var workersForSelect = eval('(${workers})');
 		var selectedworkusers = {};
@@ -228,17 +228,16 @@
 				+ "' onchange='changeAccess(" + row.id
 				+ ")'  class='form-control'>");
 
-		if (value == 0) {
-			html.push("<option value='0' selected='selected'>公有</option>");
-			html.push("<option value='1' >私有</option>");
-		} else if (value == 1) {
-			html.push("<option value='0'>公有</option>");
-			html.push("<option value='1' selected='selected'>私有</option>");
-		} else {
-			html.push("<option value='-1' selected='selected'>不可用</option>");
-			html.push("<option value='0'>公有</option>");
-			html.push("<option value='1'>私有</option>");
+		for ( var ownerLevel in ownerLevels) {
+			if (ownerLevel == value) {
+				html.push("<option value='"+ value +"' selected='selected' >"
+						+ ownerLevels[value] + "</option>");
+			} else {
+				html.push("<option value='"+ ownerLevel +"'>"
+						+ ownerLevels[ownerLevel] + "</option>");
+			}
 		}
+		
 		html.push("</select>");
 		return html.join("");
 	}

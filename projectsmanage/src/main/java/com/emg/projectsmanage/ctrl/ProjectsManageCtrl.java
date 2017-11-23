@@ -32,6 +32,7 @@ import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.EmployeeSkillModel;
 import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.common.JobStatus;
+import com.emg.projectsmanage.common.OwnerStatus;
 import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.PriorityLevel;
@@ -103,6 +104,7 @@ public class ProjectsManageCtrl extends BaseCtrl {
 			
 			model.addAttribute("jobstatus", JobStatus.toJsonStr());
 			model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
+			model.addAttribute("ownerLevels", OwnerStatus.toJsonStr());
 
 			List<UserRoleModel> allWorkersList = getEmployAndRole(RoleType.ROLE_WORKER.toString(), systemid);
 			List<UserRoleModel> allCheckersList = getEmployAndRole(RoleType.ROLE_CHECKER.toString(), systemid);
