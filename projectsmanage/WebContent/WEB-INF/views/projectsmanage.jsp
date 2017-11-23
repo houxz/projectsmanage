@@ -106,7 +106,7 @@
 					names += workers[w].username + ",";
 				}
 				if(names.indexOf(',') > 0)	names = names.substring(0,names.lastIndexOf(','));
-				uhtml += "<a  style='cursor:hand;'  href='javascript:void(0)' onclick='changeworker("
+				uhtml += "<div class='workernames' onclick='changeworker("
 						+ row.id + ",0)' title='" + names + "'>";
 				uhtml += workers[0].username;
 				if (workers.length == 2) {
@@ -114,11 +114,11 @@
 				}else if(workers.length > 2){
 					uhtml += "," + workers[1].username + "...";
 				}
-				uhtml += "</a>";
+				uhtml += "</div>";
 			} else {
-				uhtml = "<a  href='javascript:void(0)'   id='" + row.id
+				uhtml = "<div class='workernames' id='" + row.id
 						+ "_worker' onclick='addworker(" + row.id
-						+ ",0)'>添加</a>";
+						+ ",0)'>添加</div>";
 			}
 			return uhtml;
 		}
@@ -131,7 +131,7 @@
 					names += checkusers[w].username + ",";
 				}
 				if(names.indexOf(',') > 0)	names = names.substring(0,names.lastIndexOf(','));
-				uhtml += "<a  style='cursor:hand;'  href='javascript:void(0)' onclick='changeworker("
+				uhtml += "<div class='workernames' onclick='changeworker("
 						+ row.id + ",1)'  title='" + names + "'>";
 				uhtml += checkusers[0].username;
 				if (checkusers.length == 2) {
@@ -139,11 +139,11 @@
 				}else if(checkusers.length > 2){
 					uhtml += "," + checkusers[1].username + "...";
 				}
-				uhtml += "</a>";
+				uhtml += "</div>";
 			} else {
-				uhtml = "<a  href='javascript:void(0)'   id='" + row.id
+				uhtml = "<div class='workernames' id='" + row.id
 						+ "_checker' onclick='addworker(" + row.id
-						+ ",1)'>添加</a>";
+						+ ",1)'>添加</div>";
 			}
 			return uhtml;
 		}

@@ -198,6 +198,12 @@ button {
 	cursor: pointer;
 }
 
+.workernames {
+	float: left;
+	cursor: pointer;
+	color: #337ab7;
+}
+
 .fixed-table-container thead th .both {
 	background-image: none !important;
 	padding-right: 10px !important;
