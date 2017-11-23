@@ -223,3 +223,19 @@ button {
 	content: "\e156";
 	opacity: 0.5;
 }
+
+.pagination>li>a,
+.pagination>li>span {
+	color: #333;
+}
+
+.pagination > .active > a,
+.pagination > .active > span,
+.pagination > .active > a:hover,
+.pagination > .active > span:hover,
+.pagination > .active > a:focus,
+.pagination > .active > span:focus {
+	color: #333;
+	background-color: #e7e7e7;
+	border-color: #dddddd;
+}
