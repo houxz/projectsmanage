@@ -7,6 +7,10 @@ button {
 	font-size: 14px !important;
 }
 
+.table>tbody>tr>td {
+	vertical-align: middle !important;
+}
+
 .highlight {
 	padding: 9px 14px;
 	margin-bottom: 14px;
@@ -192,4 +196,30 @@ button {
 #eplerolediv table td span {
 	margin-left: 20%;
 	cursor: pointer;
+}
+
+.fixed-table-container thead th .both {
+	background-image: none !important;
+	padding-right: 10px !important;
+}
+
+.fixed-table-container thead th .both:after {
+	float: right;
+	font-family: 'Glyphicons Halflings';
+	content: "\e150";
+	opacity: 0.2;
+}
+
+.fixed-table-container thead th .asc:after {
+	float: right;
+	font-family: 'Glyphicons Halflings';
+	content: "\e155";
+	opacity: 0.5;
+}
+
+.fixed-table-container thead th .desc:after {
+	float: right;
+	font-family: 'Glyphicons Halflings';
+	content: "\e156";
+	opacity: 0.5;
 }

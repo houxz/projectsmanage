@@ -13,9 +13,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <link href="resources/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
-<link href="resources/css/css.css" rel="stylesheet" />
 <link href="resources/jquery-ui-1.12.1.custom/jquery-ui.min.css" rel="stylesheet">
 <link href="resources/bootstrap-table-1.11.1/bootstrap-table.min.css" rel="stylesheet">
+<link href="resources/css/css.css" rel="stylesheet" />
 <link href="resources/css/message.css" rel="stylesheet">
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
@@ -23,7 +23,7 @@
 <script src="resources/js/webeditor.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
-<script src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.js"></script>
+<script src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/locale/bootstrap-table-zh-CN.js"></script>
 
 

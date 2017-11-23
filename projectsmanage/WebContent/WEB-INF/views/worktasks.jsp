@@ -23,7 +23,7 @@
 <script src="resources/js/webeditor.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
-<script src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.js"></script>
+<script src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/locale/bootstrap-table-zh-CN.js"></script>
 
 <script type="text/javascript">
@@ -83,10 +83,10 @@
 					<tr>
 						<th data-field="userid" data-formatter="userFormat"
 							data-filter-control="select" data-filter-data="var:userForSelect"
-							data-width="120">人员名称</th>
+							data-width="110">人员名称</th>
 						<th data-field="roleid" data-formatter="roleFormat"
 							data-filter-control="select" data-filter-data="var:roleForSelect"
-							data-width="120">角色名称</th>
+							data-width="110">角色名称</th>
 						<th data-field="projectid" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="70">项目编号</th>
 						<th data-field="projectname" data-filter-control="input"
