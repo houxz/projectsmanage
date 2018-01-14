@@ -8,7 +8,7 @@
 
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<!-- DB 配置 开始 -->
-	<context:property-placeholder location="WEB-INF/spring/localhost.properties" ignore-unresolvable="true"/>
+	<context:property-placeholder location="WEB-INF/spring/db225.properties" ignore-unresolvable="true"/>
 
 	<!-- MySql 配置 -->
 	<bean id="dataSourceMySqlForAccount" class="org.apache.commons.dbcp.BasicDataSource"
@@ -71,6 +71,26 @@
 		<property name="maxWait" value="${comm.maxWait}" />
 	</bean>
 	
+	<!-- process 配置 -->
+	<bean id="dataSourceMySqlForProcess" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${process.driverClassName}" />
+		<property name="url" value="${process.url}" />
+		<property name="username" value="${process.username}" />
+		<property name="password" value="${process.password}" />
+		<property name="initialSize" value="${process.initialSize}" />
+		<property name="maxIdle" value="${process.maxIdle}" />
+		<property name="minIdle" value="${process.minIdle}" />
+		<property name="maxActive" value="${process.maxActive}" />
+		<property name="logAbandoned" value="${process.logAbandoned}" />
+		<property name="validationQuery" value="${process.validationQuery}" />
+		<property name="testOnBorrow" value="${process.testOnBorrow}" />
+		<property name="testWhileIdle" value="${process.testWhileIdle}" />
+		<property name="removeAbandoned" value="${process.removeAbandoned}" />
+		<property name="removeAbandonedTimeout" value="${process.removeAbandonedTimeout}" />
+		<property name="maxWait" value="${process.maxWait}" />
+	</bean>
+	
 	<!-- emapgoaccount库 mybatis配置 -->
 	<bean id="sqlSessionFactoryForEmapgoaccount" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSourceMySqlForAccount" />
@@ -102,5 +122,16 @@
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="com.emg.projectsmanage.dao.comm" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForComm" />
+	</bean>
+	
+	<!-- process库 mybatis配置 -->
+	<bean id="sqlSessionFactoryForProcess" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceMySqlForProcess" />
+		<property name="mapperLocations"
+			value="classpath:com/emg/projectsmanage/mapping/process/*.xml" />
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.emg.projectsmanage.dao.process" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForProcess" />
 	</bean>
 </beans>

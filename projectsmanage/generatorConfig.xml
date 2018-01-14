@@ -13,8 +13,8 @@
 		</commentGenerator>
 		<!--数据库链接URL，用户名、密码 -->
 		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
-			connectionURL="jdbc:mysql://localhost:3306/projectmanager_225"
-			userId="root" password="admin">
+			connectionURL="jdbc:mysql://192.168.0.225:3306/process"
+			userId="mapcheckdb" password="5921034">
 		</jdbcConnection>
 		<javaTypeResolver>
 			<property name="forceBigDecimals" value="false" />
@@ -26,19 +26,19 @@
 			<property name="trimStrings" value="true" />
 		</javaModelGenerator>
 		<!-- 生成映射文件的包名和位置 -->
-		<sqlMapGenerator targetPackage="com.emg.projectsmanage.mapping.projectsmanager"
+		<sqlMapGenerator targetPackage="com.emg.projectsmanage.mapping.process"
 			targetProject="projectsmanage">
 			<property name="enableSubPackages" value="true" />
 		</sqlMapGenerator>
 		<!-- 生成DAO的包名和位置 -->
 		<javaClientGenerator type="XMLMAPPER"
-			targetPackage="com.emg.projectsmanage.dao.projectsmanager"
+			targetPackage="com.emg.projectsmanage.dao.process"
 			targetProject="projectsmanage">
 			<property name="enableSubPackages" value="true" />
 		</javaClientGenerator>
 		<!-- 要生成的表 tableName是数据库中的表名或视图名 domainObjectName是实体类名 -->
-		<table tableName="tb_message" domainObjectName="MessageModel"
-			enableCountByExample="true" enableUpdateByExample="true"
-			enableDeleteByExample="true" enableSelectByExample="true"></table>
+		<table tableName="tb_config_module" domainObjectName="ConfigModuleModel"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"></table>
 	</context>
 </generatorConfiguration>  

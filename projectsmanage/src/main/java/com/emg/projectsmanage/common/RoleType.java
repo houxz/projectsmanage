@@ -14,6 +14,10 @@ public enum RoleType {
 	/**
 	 * 管理人员
 	 */
+	ROLE_PROCESSMANAGER(7, "流程管理人员"),
+	/**
+	 * 管理人员
+	 */
 	ROLE_POIVIDEOEDIT(2, "管理人员"),
 	/**
 	 * 编辑人员

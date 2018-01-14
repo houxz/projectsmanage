@@ -18,6 +18,10 @@
 			return "1004";
 		} else if (url.indexOf("/capacitycount.web") > 0) {
 			return "1005";
+		} else if (url.indexOf("/processesconfig.web") > 0) {
+			return "1006";
+		} else if (url.indexOf("/processesprocess.web") > 0) {
+			return "1007";
 		}
 		return "0000";
 	}%>
@@ -70,8 +74,16 @@
 					<!--<sec:authorize access="hasAnyRole('ROLE_ADMIN' )">
 						<li class="<%="1000".equals(menucode) ? "active" : ""%>">
 							<a href="<c:url value='skillsmanage.web'/>">人员技能管理</a>
-						</li>
+						</li>processesconfig.jsp
 					</sec:authorize>-->
+					<sec:authorize access="hasAnyRole('ROLE_PROCESSMANAGER' )">
+						<li class="<%="1006".equals(menucode) ? "active" : ""%>"><a
+							href="<c:url value='processesconfig.web'/>">流程配置</a></li>
+					</sec:authorize>
+					<sec:authorize access="hasAnyRole('ROLE_PROCESSMANAGER' )">
+						<li class="<%="1007".equals(menucode) ? "active" : ""%>"><a
+							href="<c:url value='processesprocess.web'/>">流程进度</a></li>
+					</sec:authorize>
 					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
 						<li class="<%="1002".equals(menucode) ? "active" : ""%>"><a
 							href="<c:url value='projectsmanage.web'/>">项目管理</a></li>

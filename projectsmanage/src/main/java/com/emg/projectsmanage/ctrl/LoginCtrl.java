@@ -99,6 +99,9 @@ public class LoginCtrl extends BaseCtrl {
 			if (hasRole(request, RoleType.ROLE_ADMIN.toString())) {
 				logger.debug("LoginCtrl-login end to admin page.");
 				return "redirect:usersmanage.web";
+			} else if (hasRole(request, RoleType.ROLE_PROCESSMANAGER.toString())) {
+				logger.debug("LoginCtrl-login end to leader page.");
+				return "redirect:processesconfig.web";
 			} else if (hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
 				logger.debug("LoginCtrl-login end to leader page.");
 				return "redirect:projectsmanage.web";
