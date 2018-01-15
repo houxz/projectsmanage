@@ -4,7 +4,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>流程进度</title>
+<title>流程管理</title>
 <meta charset="UTF-8" />
 <meta name="robots" content="none">
 <meta http-equiv="Pragma" content="no-cache">
@@ -34,6 +34,12 @@
 <body>
 	<div class="container">
 		<div id="headdiv"></div>
+		<div style="width:100%;height:200px;padding-top: 20px;display: flex;background-color: aliceblue;">
+			<div style="width:20%;height:100px;background-color: aquamarine;">
+			</div>
+			<div style="width:80%;height:100px;background-color: bisque;">
+			</div>
+		</div>
 		<div id="footdiv"></div>
 	</div>
 </body>

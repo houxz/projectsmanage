@@ -14,10 +14,10 @@ import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
 
 @Controller
-@RequestMapping("/processesprocess.web")
-public class ProcessesProcessCtrl extends BaseCtrl {
+@RequestMapping("/processesmanage.web")
+public class ProcessesManageCtrl extends BaseCtrl {
 
-	private static final Logger logger = LoggerFactory.getLogger(ProcessesProcessCtrl.class);
+	private static final Logger logger = LoggerFactory.getLogger(ProcessesManageCtrl.class);
 
 	@Autowired
 	private ProjectsTaskCountModelDao projectsTaskCountDao;
@@ -30,7 +30,7 @@ public class ProcessesProcessCtrl extends BaseCtrl {
 
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("ProcessesProcessCtrl-openLader start.");
-		return "processesprocess";
+		logger.debug("ProcessesConfigCtrl-openLader start.");
+		return "processesmanage";
 	}
 }
