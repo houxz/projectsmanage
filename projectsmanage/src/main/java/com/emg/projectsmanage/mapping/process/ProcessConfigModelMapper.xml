@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.projectsmanage.dao.process.ProcessConfigModelDao">
+	<resultMap id="BaseResultMap"
+		type="com.emg.projectsmanage.pojo.ProcessConfigModel">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="moduleid" property="moduleid" jdbcType="INTEGER" />
+		<result column="moduleName" property="moduleName" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="typeid" property="typeid" jdbcType="INTEGER" />
+		<result column="type" property="type" jdbcType="VARCHAR" />
+		<result column="style" property="style" jdbcType="VARCHAR" />
+		<result column="control" property="control" jdbcType="VARCHAR" />
+		<result column="defaultValue" property="defaultValue" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="selectAllConfigModuleModels" resultType="java.util.Map">
+		SELECT *
+		FROM tb_config_module
+	</select>
+	<select id="selectAllConfigTypeModels" resultType="java.util.Map">
+		SELECT *
+		FROM tb_config_type
+	</select>
+	<select id="selectAllConfigValueRangeModels" resultType="java.util.Map">
+		SELECT *
+		FROM tb_config_value_range
+	</select>
+	<select id="selectAllConfigDBModels" resultType="java.util.Map">
+		SELECT *
+		FROM tb_config_db
+	</select>
+	<select id="selectAllProcessConfigModels" resultMap="BaseResultMap">
+		SELECT
+			tc.`id`,
+			tc.`moduleid`,
+			tcm.`name` AS modulename,
+			tc.`name`,
+			tc.`type` AS typeid,
+			tct.`type`,
+			tct.`style`,
+			tct.`control`,
+			tc.`defaultvalue`
+		FROM
+			tb_config tc
+		JOIN tb_config_module tcm ON tc.moduleid = tcm.id
+		JOIN tb_config_type tct ON tc.type = tct.id
+	</select>
+</mapper>

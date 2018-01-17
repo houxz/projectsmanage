@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.projectsmanage.dao.process.CondigDBModelDao" >
+  <resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.CondigDBModel" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="dbtype" property="dbtype" jdbcType="INTEGER" />
+    <result column="connname" property="connname" jdbcType="VARCHAR" />
+    <result column="dbname" property="dbname" jdbcType="VARCHAR" />
+    <result column="user" property="user" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="port" property="port" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, ip, dbtype, connname, dbname, user, password, port
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_config_db
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tb_config_db
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.emg.projectsmanage.pojo.CondigDBModel" >
+    insert into tb_config_db (id, ip, dbtype, 
+      connname, dbname, user, 
+      password, port)
+    values (#{id,jdbcType=INTEGER}, #{ip,jdbcType=VARCHAR}, #{dbtype,jdbcType=INTEGER}, 
+      #{connname,jdbcType=VARCHAR}, #{dbname,jdbcType=VARCHAR}, #{user,jdbcType=VARCHAR}, 
+      #{password,jdbcType=VARCHAR}, #{port,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.emg.projectsmanage.pojo.CondigDBModel" >
+    insert into tb_config_db
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="ip != null" >
+        ip,
+      </if>
+      <if test="dbtype != null" >
+        dbtype,
+      </if>
+      <if test="connname != null" >
+        connname,
+      </if>
+      <if test="dbname != null" >
+        dbname,
+      </if>
+      <if test="user != null" >
+        user,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+      <if test="port != null" >
+        port,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="ip != null" >
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="dbtype != null" >
+        #{dbtype,jdbcType=INTEGER},
+      </if>
+      <if test="connname != null" >
+        #{connname,jdbcType=VARCHAR},
+      </if>
+      <if test="dbname != null" >
+        #{dbname,jdbcType=VARCHAR},
+      </if>
+      <if test="user != null" >
+        #{user,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="port != null" >
+        #{port,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.emg.projectsmanage.pojo.CondigDBModel" >
+    update tb_config_db
+    <set >
+      <if test="ip != null" >
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="dbtype != null" >
+        dbtype = #{dbtype,jdbcType=INTEGER},
+      </if>
+      <if test="connname != null" >
+        connname = #{connname,jdbcType=VARCHAR},
+      </if>
+      <if test="dbname != null" >
+        dbname = #{dbname,jdbcType=VARCHAR},
+      </if>
+      <if test="user != null" >
+        user = #{user,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="port != null" >
+        port = #{port,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.emg.projectsmanage.pojo.CondigDBModel" >
+    update tb_config_db
+    set ip = #{ip,jdbcType=VARCHAR},
+      dbtype = #{dbtype,jdbcType=INTEGER},
+      connname = #{connname,jdbcType=VARCHAR},
+      dbname = #{dbname,jdbcType=VARCHAR},
+      user = #{user,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      port = #{port,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

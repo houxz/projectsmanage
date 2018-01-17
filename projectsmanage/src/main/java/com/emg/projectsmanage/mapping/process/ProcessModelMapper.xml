@@ -6,8 +6,10 @@
 		<result column="name" property="name" jdbcType="VARCHAR" />
 		<result column="state" property="state" jdbcType="INTEGER" />
 		<result column="stage" property="stage" jdbcType="INTEGER" />
+		<result column="stagestate" property="stagestate" jdbcType="INTEGER" />
 		<result column="progress" property="progress" jdbcType="VARCHAR" />
 		<result column="userid" property="userid" jdbcType="INTEGER" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
 		<result column="createtime" property="createtime" jdbcType="VARCHAR" />
 		<result column="time" property="time" jdbcType="VARCHAR" />
 	</resultMap>
@@ -75,7 +77,8 @@
 		</where>
 	</sql>
 	<sql id="Base_Column_List">
-		id, name, state, stage, progress, userid, createtime, time
+		id, name, state, stage, stagestate, progress, userid, username,
+		createtime, time
 	</sql>
 	<select id="selectByExample" resultMap="BaseResultMap"
 		parameterType="com.emg.projectsmanage.pojo.ProcessModelExample">
@@ -117,11 +120,14 @@
 	</delete>
 	<insert id="insert" parameterType="com.emg.projectsmanage.pojo.ProcessModel">
 		insert into tb_process (id, name, state,
-		stage, progress, userid,
+		stage, stagestate, progress,
+		userid, username, createtime,
 		time)
 		values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR},
 		#{state,jdbcType=INTEGER},
-		#{stage,jdbcType=INTEGER}, #{progress,jdbcType=VARCHAR}, #{userid,jdbcType=INTEGER},
+		#{stage,jdbcType=INTEGER}, #{stagestate,jdbcType=INTEGER}, #{progress,jdbcType=VARCHAR},
+		#{userid,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
+		#{createtime,jdbcType=TIMESTAMP},
 		#{time,jdbcType=TIMESTAMP})
 	</insert>
 	<insert id="insertSelective" parameterType="com.emg.projectsmanage.pojo.ProcessModel">
@@ -139,11 +145,20 @@
 			<if test="stage != null">
 				stage,
 			</if>
+			<if test="stagestate != null">
+				stagestate,
+			</if>
 			<if test="progress != null">
 				progress,
 			</if>
 			<if test="userid != null">
 				userid,
+			</if>
+			<if test="username != null">
+				username,
+			</if>
+			<if test="createtime != null">
+				createtime,
 			</if>
 			<if test="time != null">
 				time,
@@ -162,11 +177,20 @@
 			<if test="stage != null">
 				#{stage,jdbcType=INTEGER},
 			</if>
+			<if test="stagestate != null">
+				#{stagestate,jdbcType=INTEGER},
+			</if>
 			<if test="progress != null">
 				#{progress,jdbcType=VARCHAR},
 			</if>
 			<if test="userid != null">
 				#{userid,jdbcType=INTEGER},
+			</if>
+			<if test="username != null">
+				#{username,jdbcType=VARCHAR},
+			</if>
+			<if test="createtime != null">
+				#{createtime,jdbcType=TIMESTAMP},
 			</if>
 			<if test="time != null">
 				#{time,jdbcType=TIMESTAMP},
@@ -195,11 +219,20 @@
 			<if test="record.stage != null">
 				stage = #{record.stage,jdbcType=INTEGER},
 			</if>
+			<if test="record.stagestate != null">
+				stagestate = #{record.stagestate,jdbcType=INTEGER},
+			</if>
 			<if test="record.progress != null">
 				progress = #{record.progress,jdbcType=VARCHAR},
 			</if>
 			<if test="record.userid != null">
 				userid = #{record.userid,jdbcType=INTEGER},
+			</if>
+			<if test="record.username != null">
+				username = #{record.username,jdbcType=VARCHAR},
+			</if>
+			<if test="record.createtime != null">
+				createtime = #{record.createtime,jdbcType=TIMESTAMP},
 			</if>
 			<if test="record.time != null">
 				time = #{record.time,jdbcType=TIMESTAMP},
@@ -215,8 +248,11 @@
 		name = #{record.name,jdbcType=VARCHAR},
 		state = #{record.state,jdbcType=INTEGER},
 		stage = #{record.stage,jdbcType=INTEGER},
+		stagestate = #{record.stagestate,jdbcType=INTEGER},
 		progress = #{record.progress,jdbcType=VARCHAR},
 		userid = #{record.userid,jdbcType=INTEGER},
+		username = #{record.username,jdbcType=VARCHAR},
+		createtime = #{record.createtime,jdbcType=TIMESTAMP},
 		time = #{record.time,jdbcType=TIMESTAMP}
 		<if test="_parameter != null">
 			<include refid="Update_By_Example_Where_Clause" />
@@ -234,11 +270,20 @@
 			<if test="stage != null">
 				stage = #{stage,jdbcType=INTEGER},
 			</if>
+			<if test="stagestate != null">
+				stagestate = #{stagestate,jdbcType=INTEGER},
+			</if>
 			<if test="progress != null">
 				progress = #{progress,jdbcType=VARCHAR},
 			</if>
 			<if test="userid != null">
 				userid = #{userid,jdbcType=INTEGER},
+			</if>
+			<if test="username != null">
+				username = #{username,jdbcType=VARCHAR},
+			</if>
+			<if test="createtime != null">
+				createtime = #{createtime,jdbcType=TIMESTAMP},
 			</if>
 			<if test="time != null">
 				time = #{time,jdbcType=TIMESTAMP},
@@ -251,8 +296,11 @@
 		set name = #{name,jdbcType=VARCHAR},
 		state = #{state,jdbcType=INTEGER},
 		stage = #{stage,jdbcType=INTEGER},
+		stagestate = #{stagestate,jdbcType=INTEGER},
 		progress = #{progress,jdbcType=VARCHAR},
 		userid = #{userid,jdbcType=INTEGER},
+		username = #{username,jdbcType=VARCHAR},
+		createtime = #{createtime,jdbcType=TIMESTAMP},
 		time = #{time,jdbcType=TIMESTAMP}
 		where id = #{id,jdbcType=BIGINT}
 	</update>

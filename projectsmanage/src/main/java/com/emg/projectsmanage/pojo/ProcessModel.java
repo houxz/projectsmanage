@@ -9,10 +9,14 @@ public class ProcessModel {
 
     private Integer stage;
 
+    private Integer stagestate;
+
     private String progress;
 
     private Integer userid;
-    
+
+    private String username;
+
     private String createtime;
 
     private String time;
@@ -49,6 +53,14 @@ public class ProcessModel {
         this.stage = stage;
     }
 
+    public Integer getStagestate() {
+        return stagestate;
+    }
+
+    public void setStagestate(Integer stagestate) {
+        this.stagestate = stagestate;
+    }
+
     public String getProgress() {
         return progress;
     }
@@ -65,6 +77,22 @@ public class ProcessModel {
         this.userid = userid;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username == null ? null : username.trim();
+    }
+
+    public String getCreatetime() {
+        return createtime;
+    }
+
+    public void setCreatetime(String createtime) {
+        this.createtime = createtime;
+    }
+
     public String getTime() {
         return time;
     }
@@ -72,12 +100,4 @@ public class ProcessModel {
     public void setTime(String time) {
         this.time = time;
     }
-
-	public String getCreatetime() {
-		return createtime;
-	}
-
-	public void setCreatetime(String createtime) {
-		this.createtime = createtime;
-	}
 }

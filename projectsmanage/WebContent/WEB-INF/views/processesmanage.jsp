@@ -1,6 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt'%>
+<%
+	String path = request.getContextPath();
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,7 +15,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<link href="resources/jquery-ui-1.12.1.custom/jquery-ui.min.css" rel="stylesheet">
+<link href="resources/jquery-ui-1.12.1.custom/jquery-ui.min.css"
+	rel="stylesheet">
 <link href="resources/bootstrap-3.3.7/css/bootstrap.min.css"
 	rel="stylesheet" />
 <link href="resources/css/css.css" rel="stylesheet" />
@@ -37,6 +41,7 @@
 		$('[data-toggle="processes"]').bootstrapTable({
 			locale : 'zh-CN'
 		});
+
 	});
 
 	var colors = [ "#f0ad4e", "#5bc0de", "cornflowerblue", "#5cb85c", "#d9534f" ];
@@ -53,31 +58,52 @@
 			html.push('<div>');
 			var v = values[i];
 			if (v > 0 && v < 100 && row.state == 1)
-				html.push('<div class="progress progress-striped active" style="margin-bottom: 3px;">');
+				html
+						.push('<div class="progress progress-striped active" style="margin-bottom: 3px;">');
 			else
 				html.push('<div class="progress" style="margin-bottom: 3px;">');
-			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
-							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: ' + v + '%;background-color: ' + colors[i] + ';">'
-							+ ' <span style="margin:0 6px;color: black;">' + v + '&#8453;</span>' + ' </div>');
+			html
+					.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
+							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
+							+ v
+							+ '%;background-color: '
+							+ colors[i]
+							+ ';">'
+							+ ' <span style="margin:0 6px;color: black;">'
+							+ v
+							+ '&#8453;</span>' + ' </div>');
 			html.push('</div></div>');
 		}
 
 		return html.join('');
 	}
-	
+
 	function changeState(state, processid) {
-		
+
 	}
 
 	function operationFormat(value, row, index) {
 		var html = new Array();
-		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getConfig(' + row.id + ');">配置</button>');
+		html
+				.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getConfig('
+						+ row.id + ',\'' + row.name + '\');">配置</button>');
 		if (row.state == 1) {
-			html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,' + row.id + ')">暂停</button>');
+			html
+					.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,'
+							+ row.id + ')">暂停</button>');
 		} else if (row.state == 2 || row.state == 0) {
-			html.push('<button class="btn btn-default" style="margin-bottom:3px;" onclick="changeState(1,' + row.id + ')" >开始</button>');
+			html
+					.push('<button class="btn btn-default" style="margin-bottom:3px;" onclick="changeState(1,'
+							+ row.id + ')" >开始</button>');
 		}
 
+		return html.join('');
+	}
+
+	function projcetsIDFormat(value, row, index) {
+		var html = new Array();
+		html.push('<input type="checkbox" value="' + row.id + '">' + row.id
+				+ '');
 		return html.join('');
 	}
 
@@ -92,33 +118,150 @@
 		}
 		return params;
 	}
-	
-	function getConfig(processid) {
-		
-		showConfigDlg(processid);
+
+	function getConfig(processid, processname) {
+
+		showConfigDlg(processid, processname);
 	}
-	
-	function showConfigDlg(processid) {
+
+	function showConfigDlg(processid, processname) {
 		$("#configDlg").dialog({
 			modal : true,
-			height : document.documentElement.clientHeight * 0.8,
+			height : 600,
 			width : document.documentElement.clientWidth * 0.4,
 			title : "流程配置",
 			open : function(event, ui) {
+				$("#config_0_1").val(processid);
+				$("#config_0_2").val(processname);
 				$(".ui-dialog-titlebar-close").hide();
+				$('.navbar-example').scrollspy({
+					target : '.navbar-example'
+				});
 			},
 			buttons : [ {
 				text : "提交",
-				class: "btn btn-default",
+				class : "btn btn-default",
 				click : function() {
 				}
 			}, {
 				text : "关闭",
-				class: "btn btn-default",
+				class : "btn btn-default",
 				click : function() {
 					$(this).dialog("close");
 				}
 			} ]
+		});
+	}
+
+	function getProjects332() {
+		$('[data-toggle="projects332"]').bootstrapTable({
+			locale : 'zh-CN',
+			queryParams : function(params) {
+				if (params.filter != undefined) {
+					var filterObj = eval('(' + params.filter + ')');
+					if (filterObj.state != undefined) {
+						filterObj["state"] = filterObj.state;
+						delete filterObj.state;
+						params.filter = JSON.stringify(filterObj);
+					}
+				}
+				params["configDBid"] = $("#config_1_1").val();
+				params["systemid"]=332;
+				return params;
+			}
+		});
+		showProjectsDlg332();
+	}
+	
+	function getProjects349() {
+		$('[data-toggle="projects349"]').bootstrapTable({
+			locale : 'zh-CN',
+			queryParams : function(params) {
+				if (params.filter != undefined) {
+					var filterObj = eval('(' + params.filter + ')');
+					if (filterObj.state != undefined) {
+						filterObj["state"] = filterObj.state;
+						delete filterObj.state;
+						params.filter = JSON.stringify(filterObj);
+					}
+				}
+				params["configDBid"] = $("#config_2_9").val();
+				params["systemid"]=349;
+				return params;
+			}
+		});
+		showProjectsDlg349();
+	}
+
+	function showProjectsDlg332() {
+		$("#projectsDlg332").dialog({
+			modal : true,
+			height : 400,
+			width : document.documentElement.clientWidth * 0.3,
+			title : "项目关联",
+			open : function(event, ui) {
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			buttons : [
+					{
+						text : "确定",
+						class : "btn btn-default",
+						click : function() {
+							var selections = $('[data-toggle="projects332"]').bootstrapTable('getAllSelections');
+							var length = selections.length;
+							var value = new String();
+							if(length > 0) {
+								$.each(selections,function (domEle){
+									value += domEle.id + ",";
+								});
+								$("#config_1_4 input:radio:checked").val(value);
+								$("#config_1_4 input:radio:checked").siblings("p").text("已选择" + length + "个项目");
+							}
+							$(this).dialog("close");
+						}
+					}, {
+						text : "关闭",
+						class : "btn btn-default",
+						click : function() {
+							$(this).dialog("close");
+						}
+					} ]
+		});
+	}
+	
+	function showProjectsDlg349() {
+		$("#projectsDlg349").dialog({
+			modal : true,
+			height : 400,
+			width : document.documentElement.clientWidth * 0.3,
+			title : "项目关联",
+			open : function(event, ui) {
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			buttons : [
+					{
+						text : "确定",
+						class : "btn btn-default",
+						click : function() {
+							var selections = $('[data-toggle="projects349"]').bootstrapTable('getAllSelections');
+							var length = selections.length;
+							var value = new String();
+							if(length > 0) {
+								$.each(selections,function (domEle){
+									value += domEle.id + ",";
+								});
+								$("#config_2_11 input:radio:checked").val(value);
+								$("#config_2_11 input:radio:checked").siblings("p").text("已选择" + length + "个项目");
+							}
+							$(this).dialog("close");
+						}
+					}, {
+						text : "关闭",
+						class : "btn btn-default",
+						click : function() {
+							$(this).dialog("close");
+						}
+					} ]
 		});
 	}
 </script>
@@ -139,13 +282,14 @@
 					<tr>
 						<th data-field="id" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">流程编号
-							<button class="btn btn-default btn-xs" title="新建流程" onclick="getConfig(0);">
+							<button class="btn btn-default btn-xs" title="新建流程"
+								onclick="getConfig(0);">
 								<span class="glyphicon glyphicon-plus"></span>
 							</button>
 						</th>
 						<th data-field="name" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">流程名称</th>
-						<th data-field="userid" data-filter-control="input"
+						<th data-field="username" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">创建者</th>
 						<th data-field="state" data-formatter="statesFormat"
 							data-filter-control="select" data-width="100"
@@ -162,6 +306,212 @@
 		<div id="footdiv"></div>
 	</div>
 	<div id="configDlg" style="display: none;">
+		<div id="navbar-example" style="width: 16%; float: left;">
+			<ul class="nav nav-pills nav-stacked">
+				<li><a href="#sc0">基础配置</a></li>
+				<li><a href="#sc1">质检配置</a></li>
+				<li><a href="#sc2">改错配置</a></li>
+			</ul>
+		</div>
+		<div class="navbar-example"
+			style="width: 83%; height: 472px; float: left; overflow-y: auto;"
+			data-spy="scroll" data-target="#navbar-example">
+			<div class="panel panel-default" id="sc0">
+				<div class="panel-heading">基础配置</div>
+				<table class="table">
+					<tr>
+						<td>流程编号</td>
+						<td><input type="text" class="form-control" id="config_0_1"></td>
+					</tr>
+					<tr>
+						<td>流程名称</td>
+						<td><input type="text" class="form-control" id="config_0_2"></td>
+					</tr>
+				</table>
+			</div>
+			<div class="panel panel-default" id="sc1">
+				<div class="panel-heading">质检配置</div>
+				<table class="table">
+					<tr>
+						<td>项目库</td>
+						<td><select class="form-control" id="config_1_1">
+								<c:forEach items="${configDBModels }" var="configDBModel">
+									<c:if
+										test="${configDBModel['connname'].equals('projectmanager') }">
+										<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
+									</c:if>
+								</c:forEach>
+						</select></td>
+					</tr>
+					<tr>
+						<td>任务库</td>
+						<td><select class="form-control" id="config_1_2">
+								<c:forEach items="${configDBModels }" var="configDBModel">
+									<c:if test="${configDBModel['connname'].equals('task') }">
+										<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
+									</c:if>
+								</c:forEach>
+						</select></td>
+					</tr>
+					<tr>
+						<td>关联项目</td>
+						<td>
+							<div id="config_1_4">
+								<div class="radio">
+									<label> <input type="radio" name="radios1" value="-1"
+										checked>新建项目<input type="text" class="form-control"
+										placeholder="请输入新项目名"
+									</label>
+								</div>
+								<div class="radio">
+									<label> <input type="radio" name="radios1" value="0"
+										onclick="getProjects332();">选择已有项目
+										<p class="help-block">已选择0个项目</p>
+									</label>
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>质检集合</td>
+						<td><select class="form-control" id="config_1_5">
+								<option value="1">九宫格</option>
+								<option value="2">全国</option>
+								<option value="3">市</option>
+						</select></td>
+					</tr>
+					<tr>
+						<td>质检图层</td>
+						<td>待补充</td>
+					</tr>
+					<tr>
+						<td>质检区域</td>
+						<td>待补充</td>
+					</tr>
+					<tr>
+						<td>启动类型</td>
+						<td><select class="form-control" id="config_1_8">
+								<option value="1">手动</option>
+								<option value="2">自动</option>
+								<option value="3">自动延迟</option>
+						</select></td>
+					</tr>
+				</table>
+			</div>
+			<div class="panel panel-default" id="sc2">
+				<div class="panel-heading">改错配置</div>
+				<table class="table">
+					<tr>
+						<td>项目库</td>
+						<td><select class="form-control" id="config_2_9">
+								<c:forEach items="${configDBModels }" var="configDBModel">
+									<c:if
+										test="${configDBModel['connname'].equals('projectmanager') }">
+										<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
+									</c:if>
+								</c:forEach>
+						</select></td>
+					</tr>
+					<tr>
+						<td>任务库</td>
+						<td><select class="form-control" id="config_2_10">
+								<c:forEach items="${configDBModels }" var="configDBModel">
+									<c:if test="${configDBModel['connname'].equals('task') }">
+										<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
+									</c:if>
+								</c:forEach>
+						</select></td>
+					</tr>
+					<tr>
+						<td>关联项目</td>
+						<td>
+							<div id="config_2_11">
+								<div class="radio">
+									<label> <input type="radio" name="radios2" value="-1"
+										checked>新建项目<input type="text" class="form-control"
+										placeholder="请输入新项目名">
+									</label>
+
+								</div>
+								<div class="radio">
+									<label> <input type="radio" name="radios2" value="0"
+										onclick="getProjects349();">选择已有项目
+										<p class="help-block">已选择0个项目</p>
+									</label>
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>任务类型</td>
+						<td><select class="form-control" id="config_2_12">
+								<option value="1">POI改错任务</option>
+								<option value="2">背景改错</option>
+								<option value="3">道路改错</option>
+								<option value="4">附属表继承改错</option>
+								<option value="5">附属表继承批量创建</option>
+								<option value="6">批量创建</option>
+						</select></td>
+					</tr>
+					<tr>
+						<td>错误个数</td>
+						<td><input type="text" class="form-control" id="config_2_13"></td>
+					</tr>
+					<tr>
+						<td>错误距离</td>
+						<td><input type="text" class="form-control" id="config_2_14"></td>
+					</tr>
+					<tr>
+						<td>错误库</td>
+						<td><select class="form-control" id="config_2_15">
+								<c:forEach items="${configDBModels }" var="configDBModel">
+									<c:if test="${configDBModel['connname'].equals('error') }">
+										<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
+									</c:if>
+								</c:forEach>
+						</select></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div id="projectsDlg332" style="display: none;">
+		<table id="projectslist" class="table-condensed" data-unique-id="id"
+			data-url="./processesmanage.web?atn=getprojects"
+			data-side-pagination="server" data-filter-control="true"
+			data-click-to-select="true" data-single-select="false"
+			data-select-item-name="checkboxName" data-pagination="false"
+			data-toggle="projects332" data-height="274"
+			data-search-on-enter-key='true' data-align='center'>
+			<thead>
+				<tr>
+					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="id" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="20">项目编号</th>
+					<th data-field="name" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="120">项目名称</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div id="projectsDlg349" style="display: none;">
+		<table id="projectslist" class="table-condensed" data-unique-id="id"
+			data-url="./processesmanage.web?atn=getprojects"
+			data-side-pagination="server" data-filter-control="true"
+			data-click-to-select="true" data-single-select="false"
+			data-select-item-name="checkboxName" data-pagination="false"
+			data-toggle="projects349" data-height="274"
+			data-search-on-enter-key='true' data-align='center'>
+			<thead>
+				<tr>
+					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="id" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="20">项目编号</th>
+					<th data-field="name" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="120">项目名称</th>
+				</tr>
+			</thead>
+		</table>
 	</div>
 </body>
 </html>
