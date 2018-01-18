@@ -1,9 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt'%>
-<%
-	String path = request.getContextPath();
-%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -90,7 +87,7 @@
 		var html = new Array();
 		html
 				.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getConfig('
-						+ row.id + ',\'' + row.name + '\');">配置</button>');
+						+ row.id + ');">配置</button>');
 		if (row.state == 1) {
 			html
 					.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,'
@@ -123,9 +120,17 @@
 		return params;
 	}
 
-	function getConfig(processid, processname) {
+	function getConfig(processid) {
+		jQuery.post("./processesmanage.web",
+            {
+				"atn" : "getconfigvalues", 
+				"processid" : processid
+            },function(json) {
+            	if(json.configValues && json.configValues.length > 0) {
+            		showConfigDlg(processid, "123123");
+            	}
+            }, "json");
 
-		showConfigDlg(processid, processname);
 	}
 
 	function showConfigDlg(processid, processname) {
@@ -146,6 +151,48 @@
 				text : "提交",
 				class : "btn btn-default",
 				click : function() {
+					var newProcessName = $("#config_0_2").val();
+					var config_1_1 = $("#config_1_1").val();
+					var config_1_2 = $("#config_1_2").val();
+					var newproject332 = $("#config_1_4_rds input:radio:checked").val() == 0;
+					var config_1_4 = newproject332 ? $("#newproname332").val() : $("#config_1_4").val();
+					var config_1_5 = $("#config_1_5").val();
+					var config_1_6 = $("#config_1_6").val();
+					var config_1_7 = $("#config_1_7").val();
+					var config_1_8 = $("#config_1_8").val();
+					var config_2_9 = $("#config_2_9").val();
+					var config_2_10 = $("#config_2_10").val();
+					var newproject349 = $("#config_2_11_rds input:radio:checked").val() == 0;
+					var config_2_11 = newproject349 ? $("#newproname349").val() : $("#config_2_11").val();
+					var config_2_12 = $("#config_2_12").val();
+					var config_2_13 = $("#config_2_13").val();
+					var config_2_14 = $("#config_2_14").val();
+					var config_2_15 = $("#config_2_15").val();
+					var config_2_18 = $("#config_2_18").val();
+					
+					jQuery.post("./processesmanage.web",
+	                    {
+							"atn" : "newprocess", 
+							"newProcessName" : newProcessName,
+							"config_1_1" : config_1_1,
+							"config_1_2" : config_1_2,
+							"newproject332" : newproject332,
+							"config_1_4" : config_1_4,
+							"config_1_5" : config_1_5,
+							"config_1_6" : config_1_6,
+							"config_1_7" : config_1_7,
+							"config_1_8" : config_1_8,
+							"config_2_9" : config_2_9,
+							"config_2_10" : config_2_10,
+							"newproject349" : newproject349,
+							"config_2_11" : config_2_11,
+							"config_2_12" : config_2_12,
+							"config_2_13" : config_2_13,
+							"config_2_14" : config_2_14,
+							"config_2_15" : config_2_15,
+							"config_2_18" : config_2_18
+	                    },function(json) {
+	                    }, "json");
 				}
 			}, {
 				text : "关闭",
@@ -224,15 +271,8 @@
 														index, domEle) {
 													value += domEle.id + ",";
 												});
-												$(
-														"#config_1_4 input:radio:checked")
-														.val(value);
-												$(
-														"#config_1_4 input:radio:checked")
-														.siblings("p")
-														.text(
-																"已选择" + length
-																		+ "个项目");
+												$("#config_1_4").val(value);
+												$("#config_1_4_rds input:radio:checked").siblings("p").text("已选择" + length + "个项目");
 											}
 											$(this).dialog("close");
 										}
@@ -273,15 +313,8 @@
 														index, domEle) {
 													value += domEle.id + ",";
 												});
-												$(
-														"#config_2_11 input:radio:checked")
-														.val(value);
-												$(
-														"#config_2_11 input:radio:checked")
-														.siblings("p")
-														.text(
-																"已选择" + length
-																		+ "个项目");
+												$("#config_2_11").val(value);
+												$("#config_2_11_rds input:radio:checked").siblings("p").text( "已选择" + length + "个项目");
 											}
 											$(this).dialog("close");
 										}
@@ -395,6 +428,17 @@
 				text : "提交",
 				class : "btn btn-default",
 				click : function() {
+					var selections = $('[data-toggle="itemAreas"]').bootstrapTable('getAllSelections');
+					var length = selections.length;
+					var value = new String();
+					if (length > 0) {
+						$.each(selections, function(index, domEle) {
+							value += domEle.id + ",";
+						});
+						$("#config_1_7").val(value);
+						$("#config_1_7").siblings("p").text("已选择" + length + "个质检区域");
+					}
+					$(this).dialog("close");
 				}
 			}, {
 				text : "关闭",
@@ -498,14 +542,15 @@
 					<tr>
 						<td>关联项目</td>
 						<td>
-							<div id="config_1_4">
+							<input id="config_1_4" type="hidden" value="">
+							<div id="config_1_4_rds">
 								<div class="radio">
-									<label> <input type="radio" name="radios1" value="-1"
-										checked>新建项目<input type="text" class="form-control"
+									<label> <input type="radio" name="radios1" value="0"
+										checked>新建项目<input id="newproname332" type="text" class="form-control"
 										placeholder="请输入新项目名"</label>
 								</div>
 								<div class="radio">
-									<label> <input type="radio" name="radios1" value="0"
+									<label> <input type="radio" name="radios1" value="1"
 										onclick="getProjects332();">选择已有项目
 										<p class="help-block">已选择0个项目</p>
 									</label>
@@ -572,16 +617,17 @@
 					<tr>
 						<td>关联项目</td>
 						<td>
-							<div id="config_2_11">
+							<input id="config_2_11" type="hidden" value="">
+							<div id="config_2_11_rds">
 								<div class="radio">
-									<label> <input type="radio" name="radios2" value="-1"
-										checked>新建项目<input type="text" class="form-control"
+									<label> <input type="radio" name="radios2" value="0"
+										checked>新建项目<input type="text" id="newproname349" class="form-control"
 										placeholder="请输入新项目名">
 									</label>
 
 								</div>
 								<div class="radio">
-									<label> <input type="radio" name="radios2" value="0"
+									<label> <input type="radio" name="radios2" value="1"
 										onclick="getProjects349();">选择已有项目
 										<p class="help-block">已选择0个项目</p>
 									</label>
@@ -620,6 +666,14 @@
 								</c:forEach>
 						</select></td>
 					</tr>
+					<tr>
+						<td>启动类型</td>
+						<td><select class="form-control" id="config_2_18">
+								<option value="1">手动</option>
+								<option value="2" selected="selected">自动</option>
+								<option value="3">自动延迟</option>
+						</select></td>
+					</tr>
 				</table>
 			</div>
 		</div>
@@ -628,13 +682,13 @@
 		<table id="projectslist" class="table-condensed" data-unique-id="id"
 			data-url="./processesmanage.web?atn=getprojects"
 			data-side-pagination="server" data-filter-control="true"
-			data-click-to-select="true" data-single-select="false"
-			data-select-item-name="checkboxName" data-pagination="false"
+			data-click-to-select="true" data-single-select="true"
+			data-select-item-name="radioName" data-pagination="false"
 			data-toggle="projects332" data-height="374"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
-					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="state" data-radio="true"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">项目编号</th>
 					<th data-field="name" data-filter-control="input"
@@ -647,13 +701,13 @@
 		<table id="projectslist" class="table-condensed" data-unique-id="id"
 			data-url="./processesmanage.web?atn=getprojects"
 			data-side-pagination="server" data-filter-control="true"
-			data-click-to-select="true" data-single-select="false"
-			data-select-item-name="checkboxName" data-pagination="false"
+			data-click-to-select="true" data-single-select="true"
+			data-select-item-name="radioName" data-pagination="false"
 			data-toggle="projects349" data-height="374"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
-					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="state" data-radio="true"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">项目编号</th>
 					<th data-field="name" data-filter-control="input"

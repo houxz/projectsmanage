@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.projectsmanage.dao.process.ProcessConfigValueModelDao">
+	<resultMap id="BaseResultMap"
+		type="com.emg.projectsmanage.pojo.ProcessConfigValueModel">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="processid" property="processid" jdbcType="BIGINT" />
+		<result column="moduleid" property="moduleid" jdbcType="INTEGER" />
+		<result column="configid" property="configid" jdbcType="INTEGER" />
+		<result column="value" property="value" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		`id`, `processid`, `moduleid`, `configid`, `value`
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from tb_config_value
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<select id="selectByProcessID" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from tb_config_value
+		where processid = #{processid,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from tb_config_value
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="java.util.List">
+		insert into tb_config_value (`processid`, `moduleid`, `configid`, `value`)
+		values
+		<foreach collection="list" item="record" index="index" separator=",">
+			(#{record.processid,jdbcType=BIGINT},#{record.moduleid,jdbcType=INTEGER},#{record.configid,jdbcType=INTEGER},#{record.value,jdbcType=VARCHAR})
+		</foreach>
+	</insert>
+	<insert id="insertSelective" parameterType="com.emg.projectsmanage.pojo.ProcessConfigValueModel">
+		insert into tb_config_value
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="processid != null">
+				processid,
+			</if>
+			<if test="moduleid != null">
+				moduleid,
+			</if>
+			<if test="configid != null">
+				configid,
+			</if>
+			<if test="value != null">
+				value,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="processid != null">
+				#{processid,jdbcType=BIGINT},
+			</if>
+			<if test="moduleid != null">
+				#{moduleid,jdbcType=INTEGER},
+			</if>
+			<if test="configid != null">
+				#{configid,jdbcType=INTEGER},
+			</if>
+			<if test="value != null">
+				#{value,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.emg.projectsmanage.pojo.ProcessConfigValueModel">
+		update tb_config_value
+		<set>
+			<if test="processid != null">
+				processid = #{processid,jdbcType=BIGINT},
+			</if>
+			<if test="moduleid != null">
+				moduleid = #{moduleid,jdbcType=INTEGER},
+			</if>
+			<if test="configid != null">
+				configid = #{configid,jdbcType=INTEGER},
+			</if>
+			<if test="value != null">
+				value = #{value,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.emg.projectsmanage.pojo.ProcessConfigValueModel">
+		update tb_config_value
+		set processid = #{processid,jdbcType=BIGINT},
+		moduleid = #{moduleid,jdbcType=INTEGER},
+		configid = #{configid,jdbcType=INTEGER},
+		value = #{value,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>
