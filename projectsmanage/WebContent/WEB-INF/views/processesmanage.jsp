@@ -46,9 +46,13 @@
 
 	var colors = [ "#f0ad4e", "#5bc0de", "cornflowerblue", "#5cb85c", "#d9534f" ];
 	var processStates = eval('(${processStates})');
+	var itemAreaTypes = eval('(${itemAreaTypes})');
 
 	function statesFormat(value, row, index) {
 		return processStates[row.state];
+	}
+	function areaTypesFormat(value, row, index) {
+		return itemAreaTypes[row.type];
 	}
 
 	function progressFormat(value, row, index) {
@@ -166,13 +170,13 @@
 					}
 				}
 				params["configDBid"] = $("#config_1_1").val();
-				params["systemid"]=332;
+				params["systemid"] = 332;
 				return params;
 			}
 		});
 		showProjectsDlg332();
 	}
-	
+
 	function getProjects349() {
 		$('[data-toggle="projects349"]').bootstrapTable({
 			locale : 'zh-CN',
@@ -186,7 +190,7 @@
 					}
 				}
 				params["configDBid"] = $("#config_2_9").val();
-				params["systemid"]=349;
+				params["systemid"] = 349;
 				return params;
 			}
 		});
@@ -194,74 +198,211 @@
 	}
 
 	function showProjectsDlg332() {
-		$("#projectsDlg332").dialog({
-			modal : true,
-			height : 400,
-			width : document.documentElement.clientWidth * 0.3,
-			title : "项目关联",
-			open : function(event, ui) {
-				$(".ui-dialog-titlebar-close").hide();
-			},
-			buttons : [
-					{
-						text : "确定",
-						class : "btn btn-default",
-						click : function() {
-							var selections = $('[data-toggle="projects332"]').bootstrapTable('getAllSelections');
-							var length = selections.length;
-							var value = new String();
-							if(length > 0) {
-								$.each(selections,function (domEle){
-									value += domEle.id + ",";
-								});
-								$("#config_1_4 input:radio:checked").val(value);
-								$("#config_1_4 input:radio:checked").siblings("p").text("已选择" + length + "个项目");
-							}
-							$(this).dialog("close");
-						}
-					}, {
-						text : "关闭",
-						class : "btn btn-default",
-						click : function() {
-							$(this).dialog("close");
-						}
-					} ]
+		$("#projectsDlg332")
+				.dialog(
+						{
+							modal : true,
+							height : 500,
+							width : document.documentElement.clientWidth * 0.3,
+							title : "项目关联",
+							open : function(event, ui) {
+								$(".ui-dialog-titlebar-close").hide();
+							},
+							buttons : [
+									{
+										text : "确定",
+										class : "btn btn-default",
+										click : function() {
+											var selections = $(
+													'[data-toggle="projects332"]')
+													.bootstrapTable(
+															'getAllSelections');
+											var length = selections.length;
+											var value = new String();
+											if (length > 0) {
+												$.each(selections, function(
+														index, domEle) {
+													value += domEle.id + ",";
+												});
+												$(
+														"#config_1_4 input:radio:checked")
+														.val(value);
+												$(
+														"#config_1_4 input:radio:checked")
+														.siblings("p")
+														.text(
+																"已选择" + length
+																		+ "个项目");
+											}
+											$(this).dialog("close");
+										}
+									}, {
+										text : "关闭",
+										class : "btn btn-default",
+										click : function() {
+											$(this).dialog("close");
+										}
+									} ]
+						});
+	}
+
+	function showProjectsDlg349() {
+		$("#projectsDlg349")
+				.dialog(
+						{
+							modal : true,
+							height : 500,
+							width : document.documentElement.clientWidth * 0.3,
+							title : "项目关联",
+							open : function(event, ui) {
+								$(".ui-dialog-titlebar-close").hide();
+							},
+							buttons : [
+									{
+										text : "确定",
+										class : "btn btn-default",
+										click : function() {
+											var selections = $(
+													'[data-toggle="projects349"]')
+													.bootstrapTable(
+															'getAllSelections');
+											var length = selections.length;
+											var value = new String();
+											if (length > 0) {
+												$.each(selections, function(
+														index, domEle) {
+													value += domEle.id + ",";
+												});
+												$(
+														"#config_2_11 input:radio:checked")
+														.val(value);
+												$(
+														"#config_2_11 input:radio:checked")
+														.siblings("p")
+														.text(
+																"已选择" + length
+																		+ "个项目");
+											}
+											$(this).dialog("close");
+										}
+									}, {
+										text : "关闭",
+										class : "btn btn-default",
+										click : function() {
+											$(this).dialog("close");
+										}
+									} ]
+						});
+	}
+
+	function getItemSets() {
+		$('[data-toggle="itemSets"]').bootstrapTable({
+			locale : 'zh-CN',
+			queryParams : function(params) {
+				if (params.filter != undefined) {
+					var filterObj = eval('(' + params.filter + ')');
+					if (filterObj.state != undefined) {
+						filterObj["state"] = filterObj.state;
+						delete filterObj.state;
+						params.filter = JSON.stringify(filterObj);
+					}
+				}
+				params["configDBid"] = $("#config_1_2").val();
+				return params;
+			}
 		});
+		showItemSetsDlg();
+	}
+
+	function showItemSetsDlg() {
+		$("#itemSetsDlg")
+				.dialog(
+						{
+							modal : true,
+							height : 500,
+							width : document.documentElement.clientWidth * 0.6,
+							title : "质检图层配置",
+							open : function(event, ui) {
+								$(".ui-dialog-titlebar-close").hide();
+							},
+							buttons : [
+									{
+										text : "确定",
+										class : "btn btn-default",
+										click : function() {
+											var selections = $(
+													'[data-toggle="itemSets"]')
+													.bootstrapTable(
+															'getAllSelections');
+											var length = selections.length;
+											var value = new String();
+											if (length > 0) {
+												$.each(selections, function(
+														index, domEle) {
+													value += domEle.id + ",";
+												});
+												$("#config_1_6").val(value);
+												$("#config_1_6")
+														.siblings("p")
+														.text(
+																"已选择"
+																		+ length
+																		+ "个质检图层");
+											}
+											$(this).dialog("close");
+										}
+									}, {
+										text : "关闭",
+										class : "btn btn-default",
+										click : function() {
+											$(this).dialog("close");
+										}
+									} ]
+						});
 	}
 	
-	function showProjectsDlg349() {
-		$("#projectsDlg349").dialog({
+	function getItemAreas() {
+		$('[data-toggle="itemAreas"]').bootstrapTable({
+			locale : 'zh-CN',
+			queryParams : function(params) {
+				if (params.filter != undefined) {
+					var filterObj = eval('(' + params.filter + ')');
+					if (filterObj.state != undefined) {
+						filterObj["state"] = filterObj.state;
+						delete filterObj.state;
+						params.filter = JSON.stringify(filterObj);
+					}
+				}
+				params["type"] = $("#config_1_5").val();
+				params["configDBid"] = $("#config_1_2").val();
+				return params;
+			}
+		});
+		
+		showItemAreasDlg();
+	}
+	
+	function showItemAreasDlg() {
+		$("#itemAreasDlg").dialog({
 			modal : true,
-			height : 400,
+			height : 500,
 			width : document.documentElement.clientWidth * 0.3,
-			title : "项目关联",
+			title : "质检区域配置",
 			open : function(event, ui) {
 				$(".ui-dialog-titlebar-close").hide();
 			},
-			buttons : [
-					{
-						text : "确定",
-						class : "btn btn-default",
-						click : function() {
-							var selections = $('[data-toggle="projects349"]').bootstrapTable('getAllSelections');
-							var length = selections.length;
-							var value = new String();
-							if(length > 0) {
-								$.each(selections,function (domEle){
-									value += domEle.id + ",";
-								});
-								$("#config_2_11 input:radio:checked").val(value);
-								$("#config_2_11 input:radio:checked").siblings("p").text("已选择" + length + "个项目");
-							}
-							$(this).dialog("close");
-						}
-					}, {
-						text : "关闭",
-						class : "btn btn-default",
-						click : function() {
-							$(this).dialog("close");
-						}
-					} ]
+			buttons : [ {
+				text : "提交",
+				class : "btn btn-default",
+				click : function() {
+				}
+			}, {
+				text : "关闭",
+				class : "btn btn-default",
+				click : function() {
+					$(this).dialog("close");
+				}
+			} ]
 		});
 	}
 </script>
@@ -325,7 +466,8 @@
 					</tr>
 					<tr>
 						<td>流程名称</td>
-						<td><input type="text" class="form-control" id="config_0_2"></td>
+						<td><input type="text" class="form-control" id="config_0_2"
+							placeholder="请输入新流程名"></td>
 					</tr>
 				</table>
 			</div>
@@ -360,8 +502,7 @@
 								<div class="radio">
 									<label> <input type="radio" name="radios1" value="-1"
 										checked>新建项目<input type="text" class="form-control"
-										placeholder="请输入新项目名"
-									</label>
+										placeholder="请输入新项目名"</label>
 								</div>
 								<div class="radio">
 									<label> <input type="radio" name="radios1" value="0"
@@ -382,17 +523,23 @@
 					</tr>
 					<tr>
 						<td>质检图层</td>
-						<td>待补充</td>
+						<td><input type="hidden" id="config_1_6" value="">
+						<button type="button" class="btn btn-default"
+								onclick="getItemSets();">配置质检图层</button>
+							<p class="help-block">已选择0个质检图层</p></td>
 					</tr>
 					<tr>
 						<td>质检区域</td>
-						<td>待补充</td>
+						<td><input type="hidden" id="config_1_7" value="">
+						<button type="button" class="btn btn-default"
+								onclick="getItemAreas();">配置质检区域</button>
+							<p class="help-block">已选择0个质检区域</p></td>
 					</tr>
 					<tr>
 						<td>启动类型</td>
 						<td><select class="form-control" id="config_1_8">
 								<option value="1">手动</option>
-								<option value="2">自动</option>
+								<option value="2" selected="selected">自动</option>
 								<option value="3">自动延迟</option>
 						</select></td>
 					</tr>
@@ -455,11 +602,13 @@
 					</tr>
 					<tr>
 						<td>错误个数</td>
-						<td><input type="text" class="form-control" id="config_2_13"></td>
+						<td><input type="text" class="form-control" id="config_2_13"
+							value="100"></td>
 					</tr>
 					<tr>
 						<td>错误距离</td>
-						<td><input type="text" class="form-control" id="config_2_14"></td>
+						<td><input type="text" class="form-control" id="config_2_14"
+							value="10000"></td>
 					</tr>
 					<tr>
 						<td>错误库</td>
@@ -481,7 +630,7 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="projects332" data-height="274"
+			data-toggle="projects332" data-height="374"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
@@ -500,7 +649,7 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="projects349" data-height="274"
+			data-toggle="projects349" data-height="374"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
@@ -509,6 +658,53 @@
 						data-filter-control-placeholder="" data-width="20">项目编号</th>
 					<th data-field="name" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="120">项目名称</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div id="itemSetsDlg" style="display: none;">
+		<table id="itemSetslist" class="table-condensed" data-unique-id="id"
+			data-url="./processesmanage.web?atn=getitemsets"
+			data-side-pagination="server" data-filter-control="true"
+			data-click-to-select="true" data-single-select="false"
+			data-select-item-name="checkboxName" data-pagination="false"
+			data-toggle="itemSets" data-height="374"
+			data-search-on-enter-key='true' data-align='center'>
+			<thead>
+				<tr>
+					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="id" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="20">项目编号</th>
+					<th data-field="layername" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="240">图层名称</th>
+					<th data-field="systype" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="20">操作系统</th>
+					<th data-field="referdata" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="240">参考图层及参考层数</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div id="itemAreasDlg" style="display: none;">
+		<table id="itemAreaslist" class="table-condensed" data-unique-id="id"
+			data-url="./processesmanage.web?atn=getitemareas"
+			data-side-pagination="server" data-filter-control="true"
+			data-click-to-select="true" data-single-select="false"
+			data-select-item-name="checkboxName" data-pagination="false"
+			data-toggle="itemAreas" data-height="374"
+			data-search-on-enter-key='true' data-align='center'>
+			<thead>
+				<tr>
+					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="id" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="20">区域编号</th>
+					<th data-field="type" data-filter-control="select"
+						 data-formatter="areaTypesFormat" data-filter-data="var:itemAreaTypes"
+						data-filter-control-placeholder="" data-width="20">区域级别</th>
+					<th data-field="province" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="120">省</th>
+					<th data-field="city" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="120">市</th>
 				</tr>
 			</thead>
 		</table>

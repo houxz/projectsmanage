@@ -23,10 +23,13 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.ProcessState;
+import com.emg.projectsmanage.common.ItemAreaType;
 import com.emg.projectsmanage.dao.process.CondigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.pojo.CondigDBModel;
+import com.emg.projectsmanage.pojo.ItemAreaModel;
+import com.emg.projectsmanage.pojo.ItemSetModel;
 import com.emg.projectsmanage.pojo.ProcessModel;
 import com.emg.projectsmanage.pojo.ProcessModelExample;
 import com.emg.projectsmanage.pojo.ProjectModel;
@@ -45,11 +48,13 @@ public class ProcessesManageCtrl extends BaseCtrl {
 	
 	@Autowired
 	private CondigDBModelDao condigDBModelDao;
-
+	
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProcessesConfigCtrl-openLader start.");
+		
 		model.addAttribute("processStates", ProcessState.toJsonStr());
+		model.addAttribute("itemAreaTypes", ItemAreaType.toJsonStr());
 		
 		List<Map<String,Object>> configDBModels = processConfigModelDao.selectAllConfigDBModels();
 		model.addAttribute("configDBModels", configDBModels);
@@ -133,6 +138,75 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return json;
 	}
 	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(params = "atn=getitemsets")
+	public ModelAndView getItemSets(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ProcessesManageCtrl-getItemSets start.");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<ItemSetModel> itemSets = new ArrayList<ItemSetModel>();
+		try {
+			Integer systemid = ParamUtils.getIntParameter(request, "systemid", -1);
+			Integer configDBid = ParamUtils.getIntParameter(request, "configDBid", -1);
+			String _filter = ParamUtils.getParameter(request, "filter", "");
+			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
+			
+			Map<String, Object> filterPara = null;
+			Long pid = -1L;
+			String pName = new String();
+			if (filter.length() > 0) {
+				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
+				for (String key : filterPara.keySet()) {
+					switch (key) {
+					case "id":
+						pid = Long.valueOf(filterPara.get(key).toString());
+						break;
+					case "name":
+						pName = filterPara.get(key).toString();
+						break;
+					default:
+						break;
+					}
+				}
+			}
+			
+			CondigDBModel condigDBModel = condigDBModelDao.selectByPrimaryKey(configDBid);
+			itemSets = getItemSets(condigDBModel);
+		} catch (Exception e) {
+			e.printStackTrace();
+			itemSets = new ArrayList<ItemSetModel>();
+			logger.debug(e.getMessage());
+		}
+		json.addObject("rows", itemSets);
+		json.addObject("total", itemSets.size());
+		json.addObject("result", 1);
+
+		logger.debug("ProcessesManageCtrl-getItemSets end.");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=getitemareas")
+	public ModelAndView getItemAreas(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ProcessesManageCtrl-getItemAreas start.");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<ItemAreaModel> itemAreas = new ArrayList<ItemAreaModel>();
+		try {
+			Integer type = ParamUtils.getIntParameter(request, "type", -1);
+			Integer configDBid = ParamUtils.getIntParameter(request, "configDBid", -1);
+			
+			CondigDBModel condigDBModel = condigDBModelDao.selectByPrimaryKey(configDBid);
+			itemAreas = getItemAreas(condigDBModel, type);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.debug(e.getMessage());
+		}
+		json.addObject("rows", itemAreas);
+		json.addObject("count", itemAreas.size());
+		json.addObject("result", 1);
+
+		logger.debug("ProcessesManageCtrl-getItemAreas end.");
+		return json;
+	}
+	
 	private BasicDataSource getDataSource(String url, String username, String password) {
 		BasicDataSource dataSource = new BasicDataSource();
 		dataSource.setDriverClassName("com.mysql.jdbc.Driver");
@@ -177,6 +251,51 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		} catch(Exception e) {
 			e.printStackTrace();
 			list = new ArrayList<ProjectModel>();
+		}
+		return list;
+	}
+	
+	private List<ItemSetModel> getItemSets(CondigDBModel condigDBModel) {
+		List<ItemSetModel> list = new ArrayList<ItemSetModel>();
+		try{
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT * ");
+			sql.append(" FROM tb_itemset ");
+			sql.append(" WHERE `enable` = 0 ");
+			
+			BasicDataSource dataSource = getDataSource(getUrl(condigDBModel), condigDBModel.getUser(), condigDBModel.getPassword());
+			list = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemSetModel>(ItemSetModel.class));
+		} catch(Exception e) {
+			e.printStackTrace();
+			list = new ArrayList<ItemSetModel>();
+		}
+		return list;
+	}
+	
+	private List<ItemAreaModel> getItemAreas(CondigDBModel condigDBModel, Integer type) {
+		List<ItemAreaModel> list = new ArrayList<ItemAreaModel>();
+		try{
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT * ");
+			sql.append(" FROM tb_city ");
+			if(type.equals(1)) {
+				
+			} else if(type.equals(2)) {
+				
+			} else if(type.equals(3)) {
+				sql.append(" WHERE `type` = 2 ");
+			} else {
+				return list;
+			}
+			sql.append(" GROUP BY `province`,`city`");
+			sql.append(" ORDER BY `type`,`id`");
+			
+			
+			BasicDataSource dataSource = getDataSource(getUrl(condigDBModel), condigDBModel.getUser(), condigDBModel.getPassword());
+			list = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemAreaModel>(ItemAreaModel.class));
+		} catch(Exception e) {
+			e.printStackTrace();
+			list = new ArrayList<ItemAreaModel>();
 		}
 		return list;
 	}
