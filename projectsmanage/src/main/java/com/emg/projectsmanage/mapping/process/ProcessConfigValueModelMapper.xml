@@ -30,6 +30,10 @@
 		delete from tb_config_value
 		where id = #{id,jdbcType=INTEGER}
 	</delete>
+	<delete id="deleteByProcessID" parameterType="java.lang.Long">
+		delete from tb_config_value
+		where processid = #{processid,jdbcType=BIGINT}
+	</delete>
 	<insert id="insert" parameterType="java.util.List">
 		insert into tb_config_value (`processid`, `moduleid`, `configid`, `value`)
 		values

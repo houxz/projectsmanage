@@ -258,3 +258,10 @@ button {
 	background-color: #e7e7e7;
 	border-color: #dddddd;
 }
+
+#navbar-example .nav-pills>li.active>a,
+#navbar-example .nav-pills>li.active>a:focus, 
+#navbar-example .nav-pills>li.active>a:hover {
+	color: #333;
+    background-color: #e7e7e7;
+}

@@ -12,5 +12,7 @@ public interface ProcessConfigModelDao {
 	List<Map<String, Object>> selectAllConfigValueRangeModels();
 	
 	List<Map<String, Object>> selectAllConfigDBModels();
+	
+	List<Map<String, Object>> selectAllProcessConfigModels();
 
 }

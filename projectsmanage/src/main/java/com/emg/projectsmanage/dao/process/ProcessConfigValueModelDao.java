@@ -15,6 +15,8 @@ public interface ProcessConfigValueModelDao {
 
     ProcessConfigValueModel selectByPrimaryKey(Integer id);
     
+    int deleteByProcessID(Long processID);
+    
     List<ProcessConfigValueModel> selectByProcessID(Long processID);
 
     int updateByPrimaryKeySelective(ProcessConfigValueModel record);

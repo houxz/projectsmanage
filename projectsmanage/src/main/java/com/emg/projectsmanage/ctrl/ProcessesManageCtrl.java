@@ -135,30 +135,33 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Integer ret = -1;
 		try {
+			Long newProcessID = ParamUtils.getLongParameter(request, "processid", -1L);
 			String newProcessName = ParamUtils.getParameter(request, "newProcessName");
 			Integer uid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
 			String username = (String) session.getAttribute(CommonConstants.SESSION_USER_NAME);
 
-			ProcessModel newProcess = new ProcessModel();
-			newProcess.setName(newProcessName);
-			newProcess.setState(0);
-			newProcess.setUserid(uid);
-			newProcess.setUsername(username);
+			if(newProcessID.equals(0L)) {
+				ProcessModel newProcess = new ProcessModel();
+				newProcess.setName(newProcessName);
+				newProcess.setState(0);
+				newProcess.setUserid(uid);
+				newProcess.setUsername(username);
 
-			if(processModelDao.insertSelective(newProcess) <= 0)	return json;
-			Long newProcessID = newProcess.getId();
-			System.out.println("---------------->newProcessID: " + newProcessID);
-
-			Boolean newproject332 = ParamUtils.getBooleanParameter(request, "newproject332");
-			Boolean newproject349 = ParamUtils.getBooleanParameter(request, "newproject349");
+				if(processModelDao.insertSelective(newProcess) <= 0)	return json;
+				newProcessID = newProcess.getId();
+				System.out.println("---------------->newProcessID: " + newProcessID);
+			}
+			
 			Integer config_1_1 = (Integer) ParamUtils.getIntParameter(request, "config_1_1", -1);
 			String config_1_4 = ParamUtils.getParameter(request, "config_1_4");
+			Integer config_1_16 = (Integer) ParamUtils.getIntParameter(request, "config_1_16", -1);
 			Integer config_2_9 = (Integer) ParamUtils.getIntParameter(request, "config_2_9", -1);
 			String config_2_11 = ParamUtils.getParameter(request, "config_2_11");
+			Integer config_2_17 = (Integer) ParamUtils.getIntParameter(request, "config_2_17", -1);
 
 			List<ProcessConfigValueModel> configValues = new ArrayList<ProcessConfigValueModel>();
 
-			if (newproject332) {
+			if (config_1_16.equals(0)) {
 				CondigDBModel condigDBModel332 = condigDBModelDao.selectByPrimaryKey(config_1_1);
 				Integer projectid332 = newProject(condigDBModel332, uid, 332, config_1_4);
 				if (projectid332 > 0) {
@@ -178,9 +181,25 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 					configValues.add(_configValue);
 				}
+			} else {
+				ProcessConfigValueModel configValue = new ProcessConfigValueModel();
+				configValue.setProcessid(newProcessID);
+				configValue.setModuleid(1);
+				configValue.setConfigid(4);
+				configValue.setValue(config_1_4);
+
+				configValues.add(configValue);
+				
+				ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
+				_configValue.setProcessid(newProcessID);
+				_configValue.setModuleid(1);
+				_configValue.setConfigid(16);
+				_configValue.setValue(config_1_16.toString());
+
+				configValues.add(_configValue);
 			}
 
-			if (newproject349) {
+			if (config_2_17.equals(0)) {
 				CondigDBModel condigDBModel349 = condigDBModelDao.selectByPrimaryKey(config_2_9);
 				Integer projectid349 = newProject(condigDBModel349, uid, 349, config_2_11);
 				if (projectid349 > 0) {
@@ -200,12 +219,32 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 					configValues.add(_configValue);
 				}
+			} else {
+				ProcessConfigValueModel configValue = new ProcessConfigValueModel();
+				configValue.setProcessid(newProcessID);
+				configValue.setModuleid(2);
+				configValue.setConfigid(11);
+				configValue.setValue(config_2_11);
+
+				configValues.add(configValue);
+				
+				ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
+				_configValue.setProcessid(newProcessID);
+				_configValue.setModuleid(2);
+				_configValue.setConfigid(17);
+				_configValue.setValue(config_2_17.toString());
+
+				configValues.add(_configValue);
 			}
 
 			Enumeration<String> paramNames = request.getParameterNames();
 			while (paramNames.hasMoreElements()) {
 				String paramName = paramNames.nextElement();
-				if (!paramName.startsWith("config_") || paramName.equals("config_1_4") || paramName.equals("config_2_11"))
+				if (!paramName.startsWith("config_") ||
+						paramName.equals("config_1_4") ||
+						paramName.equals("config_1_16") ||
+						paramName.equals("config_2_11") ||
+						paramName.equals("config_2_17"))
 					continue;
 
 				String[] a = paramName.split("_");
@@ -222,8 +261,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				configValues.add(configValue);
 			}
 			
-			ret = processConfigValueModelDao.insert(configValues);
-
+			if(processConfigValueModelDao.deleteByProcessID(newProcessID) >= 0) {
+				ret = processConfigValueModelDao.insert(configValues);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
