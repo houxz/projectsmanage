@@ -6,7 +6,9 @@
 <%@ taglib prefix="sec"
 	uri="http://www.springframework.org/security/tags"%>
 <%!String getMenuCode(String url) {
-		if (url.indexOf("/usersmanage.web") > 0) {
+		if (url.indexOf("/systemsets.web") > 0) {
+			return "990";
+		} else if (url.indexOf("/usersmanage.web") > 0) {
 			return "999";
 		} else if (url.indexOf("/skillsmanage.web") > 0) {
 			return "1000";
@@ -62,7 +64,6 @@
 				<a class="navbar-brand headicon" href="#"></a> <span
 					class="headword"><strong>任务管理系统</strong></span>
 			</div>
-
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN' )">
@@ -96,6 +97,10 @@
 						access="hasAnyRole('ROLE_POIVIDEOEDIT' ,'ROLE_WORKER' ,'ROLE_CHECKER')">
 						<li class="<%="1005".equals(menucode) ? "active" : ""%>"><a
 							href="<c:url value='capacitycount.web'/>">产能统计</a></li>
+					</sec:authorize>
+					<sec:authorize access="hasAnyRole('ROLE_SYSTEMMANAGER' )">
+						<li class="<%="990".equals(menucode) ? "active" : ""%>"><a
+							href="<c:url value='systemsets.web'/>">系统配置</a></li>
 					</sec:authorize>
 				</ul>
 

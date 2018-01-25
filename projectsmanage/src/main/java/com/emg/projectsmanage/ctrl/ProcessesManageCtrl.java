@@ -34,7 +34,6 @@ import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ItemAreaType;
 import com.emg.projectsmanage.dao.process.CondigDBModelDao;
-import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigValueModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.pojo.CondigDBModel;
@@ -56,9 +55,6 @@ public class ProcessesManageCtrl extends BaseCtrl {
 	private ProcessModelDao processModelDao;
 
 	@Autowired
-	private ProcessConfigModelDao processConfigModelDao;
-
-	@Autowired
 	private CondigDBModelDao condigDBModelDao;
 	
 	@Autowired
@@ -70,9 +66,6 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 		model.addAttribute("processStates", ProcessState.toJsonStr());
 		model.addAttribute("itemAreaTypes", ItemAreaType.toJsonStr());
-
-		List<Map<String, Object>> configDBModels = processConfigModelDao.selectAllConfigDBModels();
-		model.addAttribute("configDBModels", configDBModels);
 
 		return "processesmanage";
 	}

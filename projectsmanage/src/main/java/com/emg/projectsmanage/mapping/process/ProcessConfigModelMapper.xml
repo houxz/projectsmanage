@@ -45,4 +45,13 @@
 		JOIN tb_config_module tcm ON tc.moduleid = tcm.id
 		JOIN tb_config_type tct ON tc.type = tct.id
 	</select>
+	<update id="updateDefaultValueSelective" parameterType="com.emg.projectsmanage.pojo.ProcessConfigModel">
+		update tb_config
+		<set>
+			<if test="defaultValue != null">
+				defaultValue = #{defaultValue,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
 </mapper>

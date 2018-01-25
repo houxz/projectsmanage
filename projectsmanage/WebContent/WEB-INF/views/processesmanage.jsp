@@ -575,95 +575,53 @@
 	<div id="configDlg" style="display: none;">
 		<div id="navbar-example" style="width: 16%; float: left;">
 			<ul class="nav nav-pills nav-stacked">
-				<li class="active"><a href="#sc0">基础配置</a></li>
-				<li><a href="#sc1">质检配置</a></li>
-				<li><a href="#sc2">改错配置</a></li>
+				<li class="active"><a href="#sc1">基础配置</a></li>
+				<li><a href="#sc2">质检配置</a></li>
+				<li><a href="#sc3">改错配置</a></li>
 			</ul>
 		</div>
 		<div class="navbar-example"
 			style="width: 83%; height: 472px; float: left; overflow-y: auto;"
 			data-spy="scroll" data-target="#navbar-example">
-			<div class="panel panel-default" id="sc0">
+			<div class="panel panel-default" id="sc1">
 				<div class="panel-heading">基础配置</div>
 				<table class="table">
 					<tr>
-						<td>流程编号</td>
+						<td>项目编号</td>
 						<td><input type="text" class="form-control" id="config_0_1"></td>
 					</tr>
 					<tr>
-						<td>流程名称</td>
+						<td>项目名称</td>
 						<td><input type="text" class="form-control" id="config_0_2"
-							placeholder="请输入新流程名"></td>
+							placeholder="请输入新项目名"></td>
 					</tr>
 				</table>
 			</div>
-			<div class="panel panel-default" id="sc1">
+			<div class="panel panel-default" id="sc2">
 				<div class="panel-heading">质检配置</div>
 				<table class="table">
-					<tr>
-						<td>项目库</td>
-						<td><select class="form-control" id="config_1_1">
-								<c:forEach items="${configDBModels }" var="configDBModel">
-									<c:if
-										test="${configDBModel['connname'].equals('projectmanager') }">
-										<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
-									</c:if>
-								</c:forEach>
-						</select></td>
-					</tr>
-					<tr>
-						<td>任务库</td>
-						<td><select class="form-control" id="config_1_2">
-								<c:forEach items="${configDBModels }" var="configDBModel">
-									<c:if test="${configDBModel['connname'].equals('task') }">
-										<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
-									</c:if>
-								</c:forEach>
-						</select></td>
-					</tr>
-					<tr>
-						<td>项目id</td>
-						<td><input type="text" class="form-control" id="config_1_16" value="">
-					</tr>
-					<tr>
-						<td>关联项目</td>
-						<td>
-							<input id="config_1_4" type="hidden" value="">
-							<div id="config_1_4_rds">
-								<div class="radio">
-									<label> <input type="radio" name="radios1" value="0">新建项目<input id="newproname332" type="text" class="form-control"
-										placeholder="请输入新项目名"</label>
-								</div>
-								<div class="radio">
-									<label> <input type="radio" name="radios1" value="1"
-										onclick="getProjects332();">选择已有项目
-										<p class="help-block">已选择项目: <span id="projectName332"></span>(<span id="projectID332"></span>)</p>
-									</label>
-								</div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>质检集合</td>
-						<td><select class="form-control" id="config_1_5">
-								<option value="1">九宫格</option>
-								<option value="2">全国</option>
-								<option value="3">市</option>
-						</select></td>
-					</tr>
-					<tr>
-						<td>质检图层</td>
-						<td><input type="hidden" id="config_1_6" value="">
-						<button type="button" class="btn btn-default"
-								onclick="getItemSets();">配置质检图层</button>
-							<p class="help-block">已选择0个质检图层</p></td>
-					</tr>
 					<tr>
 						<td>质检区域</td>
 						<td><input type="hidden" id="config_1_7" value="">
 						<button type="button" class="btn btn-default"
 								onclick="getItemAreas();">配置质检区域</button>
 							<p class="help-block">已选择0个质检区域</p></td>
+					</tr>
+					<tr>
+						<td>质检集合</td>
+						<td><select class="form-control" id="config_1_5">
+								<option value="1"selected="selected">九宫格</option>
+								<option value="2">全国</option>
+								<option value="3">市</option>
+						</select></td>
+					</tr>
+					<tr>
+						<td>质检图层</td>
+						<td><select class="form-control" id="config_1_6">
+								<option value="1"selected="selected">POI</option>
+								<option value="2">Road</option>
+								<option value="3">背景</option>
+						</select></td>
 					</tr>
 					<tr>
 						<td>启动类型</td>
@@ -675,92 +633,29 @@
 					</tr>
 				</table>
 			</div>
-			<div class="panel panel-default" id="sc2">
+			<div class="panel panel-default" id="sc3">
 				<div class="panel-heading">改错配置</div>
 				<table class="table">
 					<tr>
-						<td>项目库</td>
-						<td><select class="form-control" id="config_2_9">
-								<c:forEach items="${configDBModels }" var="configDBModel">
-									<c:if
-										test="${configDBModel['connname'].equals('projectmanager') }">
-										<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
-									</c:if>
-								</c:forEach>
-						</select></td>
-					</tr>
-					<tr>
-						<td>任务库</td>
-						<td><select class="form-control" id="config_2_10">
-								<c:forEach items="${configDBModels }" var="configDBModel">
-									<c:if test="${configDBModel['connname'].equals('task') }">
-										<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
-									</c:if>
-								</c:forEach>
-						</select></td>
-					</tr>
-					<tr>
-						<td>项目id</td>
-						<td><input type="text" class="form-control" id="config_2_17" value="">
-					</tr>
-					<tr>
-						<td>关联项目</td>
-						<td>
-							<input id="config_2_11" type="hidden" value="">
-							<div id="config_2_11_rds">
-								<div class="radio">
-									<label> <input type="radio" name="radios2" value="0">新建项目<input type="text" id="newproname349" class="form-control"
-										placeholder="请输入新项目名">
-									</label>
-
-								</div>
-								<div class="radio">
-									<label> <input type="radio" name="radios2" value="1"
-										onclick="getProjects349();">选择已有项目
-										<p class="help-block">已选择项目: <span id="projectName349"></span>(<span id="projectID349"></span>)</p>
-									</label>
-								</div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>任务类型</td>
-						<td><select class="form-control" id="config_2_12">
-								<option value="1">POI改错任务</option>
-								<option value="2">背景改错</option>
-								<option value="3">道路改错</option>
-								<option value="4">附属表继承改错</option>
-								<option value="5">附属表继承批量创建</option>
-								<option value="6">批量创建</option>
-						</select></td>
-					</tr>
-					<tr>
-						<td>错误个数</td>
-						<td><input type="text" class="form-control" id="config_2_13"
-							value="100"></td>
-					</tr>
-					<tr>
-						<td>错误距离</td>
-						<td><input type="text" class="form-control" id="config_2_14"
-							value="10000"></td>
-					</tr>
-					<tr>
-						<td>错误库</td>
-						<td><select class="form-control" id="config_2_15">
-								<c:forEach items="${configDBModels }" var="configDBModel">
-									<c:if test="${configDBModel['connname'].equals('error') }">
-										<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
-									</c:if>
-								</c:forEach>
-						</select></td>
-					</tr>
-					<tr>
 						<td>启动类型</td>
-						<td><select class="form-control" id="config_2_18">
+						<td><select class="form-control" id="config_2_17">
 								<option value="1">手动</option>
 								<option value="2" selected="selected">自动</option>
 								<option value="3">自动延迟</option>
 						</select></td>
+					</tr>
+					<tr>
+						<td>改错人员</td>
+						<td><div id="config_2_18">添加人员</div></td>
+					</tr>
+					<tr>
+						<td>公有私有</td>
+						<td>
+							<select class="form-control" id="config_2_19">
+								<option value="0">公有</option>
+								<option value="1">私有</option>
+							</select>
+						</td>
 					</tr>
 				</table>
 			</div>
