@@ -44,6 +44,7 @@
 	var colors = [ "#f0ad4e", "#5bc0de", "cornflowerblue", "#5cb85c", "#d9534f" ];
 	var processStates = eval('(${processStates})');
 	var itemAreaTypes = eval('(${itemAreaTypes})');
+	var priorityLevels = eval('(${priorityLevels})');
 
 	function statesFormat(value, row, index) {
 		return processStates[row.state];
@@ -77,6 +78,24 @@
 		}
 
 		return html.join('');
+	}
+	
+	function priFormat(value, row, index) {
+		var html = [];
+		html.push("<select name='priority_" + row.id + "' id='priority_"
+				+ row.id + "' onchange='changePriority(" + row.id
+				+ ")'  class='form-control'>");
+		for ( var priorityLevel in priorityLevels) {
+			if (priorityLevel == value) {
+				html.push("<option value='"+ value +"' selected='selected' >"
+						+ priorityLevels[value] + "</option>");
+			} else {
+				html.push("<option value='"+ priorityLevel +"'>"
+						+ priorityLevels[priorityLevel] + "</option>");
+			}
+		}
+		html.push("</select>");
+		return html.join("");
 	}
 
 	function changeState(state, processid) {
@@ -120,31 +139,16 @@
 	function loadDefaultConfig() {
 		$("#config_0_1").val(new String());
 		$("#config_0_2").val(new String());
-		$('#config_1_1').prop('selectedIndex', 0);
-		$("#config_1_2").prop('selectedIndex', 0);
-		$("#config_1_4_rds input:radio:last").attr("checked", false);
-		$("#config_1_4_rds input:radio:first").attr("checked", true);
-		$("#projectName332").text(new String());
-		$("#projectID332").text(new String());
+
 		$("#config_1_5").prop('selectedIndex', 0);
-		$("#config_1_6").val(new String());
-		$("#config_1_6").siblings("p").text("已选择0个质检图层");
+		$("#config_1_6").prop('selectedIndex', 0);
 		$("#config_1_7").val(new String());
 		$("#config_1_7").siblings("p").text("已选择0个质检区域");
 		$("#config_1_8").prop('selectedIndex', 0);
-		$("#config_2_9").prop('selectedIndex', 0);
-		$("#config_2_10").prop('selectedIndex', 0);
-		$("#config_2_11_rds input:radio:last").attr("checked", false);
-		$("#config_2_11_rds input:radio:first").attr("checked", true);
-		$("#projectName349").text(new String());
-		$("#projectID349").text(new String());
-		$("#config_2_12").prop('selectedIndex', 0);
-		$("#config_2_13").val(100);
-		$("#config_2_14").val(10000);
-		$("#config_2_15").prop('selectedIndex', 0);
-		$("#config_1_16").val(new String());
-		$("#config_2_17").val(new String());
-		$("#config_2_18").prop('selectedIndex', 0);
+		
+		$("#config_2_17").prop('selectedIndex', 0);
+		$("#config_2_18").val(new String());
+		$("#config_2_19").prop('selectedIndex', 0);
 	}
 
 	function getConfig(processid, processname) {
@@ -159,28 +163,6 @@
 	            		var configValues = json.configValues;
 	            		for(var index in configValues) {
 	            			$("#" + "config_" + configValues[index].moduleid + "_" + configValues[index].configid).val(configValues[index].value);
-	            			if(configValues[index].moduleid == 1 && configValues[index].configid == 16 && configValues[index].value) {
-	            				$("#config_1_4_rds input:radio:eq(1)").attr("checked", true);
-	            				$("#projectID332").text(configValues[index].value);
-	            			}
-	            			if(configValues[index].moduleid == 1 && configValues[index].configid == 4 && configValues[index].value) {
-	            				$("#projectName332").text(configValues[index].value);
-	            			}
-	            			if(configValues[index].moduleid == 2 && configValues[index].configid == 17 && configValues[index].value) {
-	            				$("#config_2_11_rds input:radio:eq(1)").attr("checked", true);
-	            				$("#projectID349").text(configValues[index].value);
-	            			}
-	            			if(configValues[index].moduleid == 2 && configValues[index].configid == 11 && configValues[index].value) {
-	            				$("#projectName349").text(configValues[index].value);
-	            			}
-	            			if(configValues[index].moduleid == 1 && configValues[index].configid == 6 && configValues[index].value) {
-	            				var items = configValues[index].value.split(",");
-	            				$("#config_1_6").siblings("p").text("已选择" + items.length + "个质检图层");
-	            			}
-	            			if(configValues[index].moduleid == 1 && configValues[index].configid == 7 && configValues[index].value) {
-	            				var items = configValues[index].value.split(",");
-	            				$("#config_1_7").siblings("p").text("已选择" + items.length + "个质检区域");
-	            			}
 	            		}
 	            	}
 	            }, "json");
@@ -206,55 +188,32 @@
 				text : "提交",
 				class : "btn btn-default",
 				click : function() {
+					var processid = $("#config_0_1").val();
 					var newProcessName = $("#config_0_2").val();
-					var config_1_1 = $("#config_1_1").val();
-					var config_1_2 = $("#config_1_2").val();
-					var newproject332 = $("#config_1_4_rds input:radio:checked").val() == 0;
-					var config_1_4 = newproject332 ? $("#newproname332").val() : $("#projectName332").text();
 					var config_1_5 = $("#config_1_5").val();
 					var config_1_6 = $("#config_1_6").val();
 					var config_1_7 = $("#config_1_7").val();
 					var config_1_8 = $("#config_1_8").val();
-					var config_2_9 = $("#config_2_9").val();
-					var config_2_10 = $("#config_2_10").val();
-					var newproject349 = $("#config_2_11_rds input:radio:checked").val() == 0;
-					var config_2_11 = newproject349 ? $("#newproname349").val() : $("#projectName349").text();
-					var config_2_12 = $("#config_2_12").val();
-					var config_2_13 = $("#config_2_13").val();
-					var config_2_14 = $("#config_2_14").val();
-					var config_2_15 = $("#config_2_15").val();
-					var config_1_16 = newproject332 ? 0 : $("#projectID332").text();
-					var config_2_17 = newproject349 ? 0 : $("#projectID349").text();
+					
+					var config_2_17 = $("#config_2_17").val();
 					var config_2_18 = $("#config_2_18").val();
+					var config_2_19 = $("#config_2_19").val();
 					
 					jQuery.post("./processesmanage.web",
 	                    {
 							"atn" : "newprocess",
 							"processid" : processid,
 							"newProcessName" : newProcessName,
-							"config_1_1" : config_1_1,
-							"config_1_2" : config_1_2,
-							"config_1_4" : config_1_4,
 							"config_1_5" : config_1_5,
 							"config_1_6" : config_1_6,
 							"config_1_7" : config_1_7,
 							"config_1_8" : config_1_8,
-							"config_2_9" : config_2_9,
-							"config_2_10" : config_2_10,
-							"config_2_11" : config_2_11,
-							"config_2_12" : config_2_12,
-							"config_2_13" : config_2_13,
-							"config_2_14" : config_2_14,
-							"config_2_15" : config_2_15,
-							"config_1_16" : config_1_16,
 							"config_2_17" : config_2_17,
-							"config_2_18" : config_2_18
+							"config_2_18" : config_2_18,
+							"config_2_19" : config_2_19
 	                    },function(json) {
 	                    	if (json.result > 0) {
 	                            $.webeditor.showMsgLabel("success", "新建流程成功");
-	                            $('[data-toggle="projects332"]').bootstrapTable("destroy");
-	                            $('[data-toggle="projects349"]').bootstrapTable("destroy");
-	                            $('[data-toggle="itemSets"]').bootstrapTable("destroy");
 	                            $('[data-toggle="itemAreas"]').bootstrapTable("destroy");
 	                            $("#configDlg").dialog("close");
 	                        } else {
@@ -271,72 +230,9 @@
 			} ]
 		});
 	}
-
-	function getProjects332() {
-		$('[data-toggle="projects332"]').bootstrapTable({
-			locale : 'zh-CN',
-			queryParams : function(params) {
-				if (params.filter != undefined) {
-					var filterObj = eval('(' + params.filter + ')');
-					if (filterObj.state != undefined) {
-						filterObj["state"] = filterObj.state;
-						delete filterObj.state;
-						params.filter = JSON.stringify(filterObj);
-					}
-				}
-				params["configDBid"] = $("#config_1_1").val();
-				params["systemid"] = 332;
-				return params;
-			},
-			onLoadSuccess : function(data) {
-				var values = new Array(1);
-				values[0] = parseInt($("#config_1_16").val());
-				$('[data-toggle="projects332"]').bootstrapTable("checkBy", {field: "id", values: values});
-			}
-		});
-		showProjectsDlg332();
-	}
-
-	function showProjectsDlg332() {
-		$("#projectsDlg332").dialog(
-			{
-				modal : true,
-				height : 500,
-				width : document.documentElement.clientWidth * 0.3,
-				title : "项目关联",
-				open : function(event, ui) {
-					$(".ui-dialog-titlebar-close").hide();
-				},
-				buttons : [
-						{
-							text : "确定",
-							class : "btn btn-default",
-							click : function() {
-								var selections = $('[data-toggle="projects332"]').bootstrapTable('getAllSelections');
-								if (selections.length > 0) {
-									var projectID = selections[0].id;
-									var projectName = selections[0].name;
-									$("#config_1_4").val(projectName);
-									$("#config_1_16").val(projectID);
-									$("#projectName332").text(projectName);
-									$("#projectID332").text(projectID);
-								}
-								$('[data-toggle="projects332"]').bootstrapTable("destroy");
-								$(this).dialog("close");
-							}
-						}, {
-							text : "关闭",
-							class : "btn btn-default",
-							click : function() {
-								$('[data-toggle="projects332"]').bootstrapTable("destroy");
-								$(this).dialog("close");
-							}
-						} ]
-			});
-	}
 	
-	function getProjects349() {
-		$('[data-toggle="projects349"]').bootstrapTable({
+	function getWorkers() {
+		$('[data-toggle="workers"]').bootstrapTable({
 			locale : 'zh-CN',
 			queryParams : function(params) {
 				if (params.filter != undefined) {
@@ -347,125 +243,58 @@
 						params.filter = JSON.stringify(filterObj);
 					}
 				}
-				params["configDBid"] = $("#config_2_9").val();
-				params["systemid"] = 349;
-				return params;
-			},
-			onLoadSuccess : function(data) {
-				var values = new Array(1);
-				values[0] = parseInt($("#config_2_17").val());
-				$('[data-toggle="projects349"]').bootstrapTable("checkBy", {field: "id", values: values});
-			}
-		});
-		showProjectsDlg349();
-	}
-
-	function showProjectsDlg349() {
-		$("#projectsDlg349").dialog(
-			{
-				modal : true,
-				height : 500,
-				width : document.documentElement.clientWidth * 0.3,
-				title : "项目关联",
-				open : function(event, ui) {
-					$(".ui-dialog-titlebar-close").hide();
-				},
-				buttons : [
-						{
-							text : "确定",
-							class : "btn btn-default",
-							click : function() {
-								var selections = $('[data-toggle="projects349"]').bootstrapTable('getAllSelections');
-								if (selections.length > 0) {
-									var projectID = selections[0].id;
-									var projectName = selections[0].name;
-									$("#config_2_11").val(projectName);
-									$("#config_2_17").val(projectID);
-									$("#projectName349").text(projectName);
-									$("#projectID349").text(projectID);
-								}
-								$('[data-toggle="projects349"]').bootstrapTable("destroy");
-								$(this).dialog("close");
-							}
-						}, {
-							text : "关闭",
-							class : "btn btn-default",
-							click : function() {
-								$('[data-toggle="projects349"]').bootstrapTable("destroy");
-								$(this).dialog("close");
-							}
-						} ]
-			});
-	}
-
-	function getItemSets() {
-		$('[data-toggle="itemSets"]').bootstrapTable({
-			locale : 'zh-CN',
-			queryParams : function(params) {
-				if (params.filter != undefined) {
-					var filterObj = eval('(' + params.filter + ')');
-					if (filterObj.state != undefined) {
-						filterObj["state"] = filterObj.state;
-						delete filterObj.state;
-						params.filter = JSON.stringify(filterObj);
-					}
-				}
-				params["configDBid"] = $("#config_1_2").val();
 				return params;
 			},
 			onLoadSuccess : function(data) {
 				var values = new Array();
-				$.each($("#config_1_6").val().split(","), function (index, domEle) {
+				$.each($("#config_2_18").val().split(","), function (index, domEle) {
 					values[index] = parseInt(domEle);
 				});
-				$('[data-toggle="itemSets"]').bootstrapTable("checkBy", {field: "id", values: values});
+				$('[data-toggle="workers"]').bootstrapTable("checkBy", {field: "id", values: values});
 			}
 		});
 		
-		showItemSetsDlg();
-	}
-
-	function showItemSetsDlg() {
-		$("#itemSetsDlg").dialog(
-			{
-				modal : true,
-				height : 500,
-				width : document.documentElement.clientWidth * 0.6,
-				title : "质检图层配置",
-				open : function(event, ui) {
-					$(".ui-dialog-titlebar-close").hide();
-				},
-				buttons : [
-						{
-							text : "确定",
-							class : "btn btn-default",
-							click : function() {
-								var selections = $('[data-toggle="itemSets"]').bootstrapTable('getAllSelections');
-								var length = selections.length;
-								var value = new String();
-								if (length > 0) {
-									$.each(selections, function(
-											index, domEle) {
-										value += domEle.id + ",";
-									});
-									value = value.substring(0,value.length-1);
-									$("#config_1_6").val(value);
-									$("#config_1_6").siblings("p").text("已选择" + length + "个质检图层");
-								}
-								$('[data-toggle="itemSets"]').bootstrapTable("destroy");
-								$(this).dialog("close");
-							}
-						}, {
-							text : "关闭",
-							class : "btn btn-default",
-							click : function() {
-								$('[data-toggle="itemSets"]').bootstrapTable("destroy");
-								$(this).dialog("close");
-							}
-						} ]
-			});
+		showWorkersDlg();
 	}
 	
+	function showWorkersDlg() {
+		$("#workers").dialog({
+			modal : true,
+			height : 500,
+			width : document.documentElement.clientWidth * 0.3,
+			title : "添加人员",
+			open : function(event, ui) {
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			buttons : [ {
+				text : "提交",
+				class : "btn btn-default",
+				click : function() {
+					var selections = $('[data-toggle="workers"]').bootstrapTable('getAllSelections');
+					var length = selections.length;
+					var value = new String();
+					if (length > 0) {
+						$.each(selections, function(index, domEle) {
+							value += domEle.id + ",";
+						});
+						value = value.substring(0,value.length-1);
+						$("#config_2_18").val(value);
+						$("#config_2_18").siblings("p").text("已添加人员" + length + "位");
+					}
+					$('[data-toggle="workers"]').bootstrapTable("destroy");
+					$(this).dialog("close");
+				}
+			}, {
+				text : "关闭",
+				class : "btn btn-default",
+				click : function() {
+					$('[data-toggle="workers"]').bootstrapTable("destroy");
+					$(this).dialog("close");
+				}
+			} ]
+		});
+	}
+
 	function getItemAreas() {
 		$('[data-toggle="itemAreas"]').bootstrapTable({
 			locale : 'zh-CN',
@@ -479,7 +308,6 @@
 					}
 				}
 				params["type"] = $("#config_1_5").val();
-				params["configDBid"] = $("#config_1_2").val();
 				return params;
 			},
 			onLoadSuccess : function(data) {
@@ -558,13 +386,16 @@
 							data-filter-control-placeholder="" data-width="120">流程名称</th>
 						<th data-field="username" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">创建者</th>
+						<th data-field="priority" data-formatter="priFormat"
+							data-filter-control="select" data-width="120"
+							data-filter-data="var:priorityLevels">优先级</th>
 						<th data-field="state" data-formatter="statesFormat"
 							data-filter-control="select" data-width="100"
 							data-filter-data="var:processStates">流程状态</th>
 						<th data-field="progress" data-formatter="progressFormat"
-							data-width="600">流程进度</th>
+							data-width="500">流程进度</th>
 						<th data-field="createtime" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="240">创建时间</th>
+							data-filter-control-placeholder="" data-width="200">创建时间</th>
 						<th data-formatter="operationFormat" data-width="70">操作</th>
 					</tr>
 				</thead>
@@ -646,7 +477,10 @@
 					</tr>
 					<tr>
 						<td>改错人员</td>
-						<td><div id="config_2_18">添加人员</div></td>
+						<td><input type="hidden" id="config_2_18" value="">
+						<button type="button" class="btn btn-default"
+								onclick="getWorkers();">添加人员</button>
+							<p class="help-block">已添加人员0位</p></td>
 					</tr>
 					<tr>
 						<td>公有私有</td>
@@ -661,63 +495,21 @@
 			</div>
 		</div>
 	</div>
-	<div id="projectsDlg332" style="display: none;">
-		<table id="projectslist" class="table-condensed" data-unique-id="id"
-			data-url="./processesmanage.web?atn=getprojects" data-cache="false"
-			data-side-pagination="server" data-filter-control="true"
-			data-click-to-select="true" data-single-select="true"
-			data-select-item-name="radioName" data-pagination="false"
-			data-toggle="projects332" data-height="374"
-			data-search-on-enter-key='true' data-align='center'>
-			<thead>
-				<tr>
-					<th data-field="state" data-radio="true"></th>
-					<th data-field="id" data-filter-control="input"
-						data-filter-control-placeholder="" data-width="20">项目编号</th>
-					<th data-field="name" data-filter-control="input"
-						data-filter-control-placeholder="" data-width="120">项目名称</th>
-				</tr>
-			</thead>
-		</table>
-	</div>
-	<div id="projectsDlg349" style="display: none;">
-		<table id="projectslist" class="table-condensed" data-unique-id="id"
-			data-url="./processesmanage.web?atn=getprojects" data-cache="false"
-			data-side-pagination="server" data-filter-control="true"
-			data-click-to-select="true" data-single-select="true"
-			data-select-item-name="radioName" data-pagination="false"
-			data-toggle="projects349" data-height="374"
-			data-search-on-enter-key='true' data-align='center'>
-			<thead>
-				<tr>
-					<th data-field="state" data-radio="true"></th>
-					<th data-field="id" data-filter-control="input"
-						data-filter-control-placeholder="" data-width="20">项目编号</th>
-					<th data-field="name" data-filter-control="input"
-						data-filter-control-placeholder="" data-width="120">项目名称</th>
-				</tr>
-			</thead>
-		</table>
-	</div>
-	<div id="itemSetsDlg" style="display: none;">
-		<table id="itemSetslist" class="table-condensed" data-unique-id="id"
-			data-url="./processesmanage.web?atn=getitemsets" data-cache="false"
+	<div id="workers" style="display: none;">
+		<table id="workerlist" class="table-condensed" data-unique-id="id"
+			data-url="./processesmanage.web?atn=getworkers" data-cache="false"
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="itemSets" data-height="374"
+			data-toggle="workers" data-height="374"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
 					<th data-field="state" data-checkbox="true"></th>
 					<th data-field="id" data-filter-control="input"
-						data-filter-control-placeholder="" data-width="20">项目编号</th>
-					<th data-field="layername" data-filter-control="input"
-						data-filter-control-placeholder="" data-width="240">图层名称</th>
-					<th data-field="systype" data-filter-control="input"
-						data-filter-control-placeholder="" data-width="20">操作系统</th>
-					<th data-field="referdata" data-filter-control="input"
-						data-filter-control-placeholder="" data-width="240">参考图层及参考层数</th>
+						data-filter-control-placeholder="" data-width="20">编号</th>
+					<th data-field="realname" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="120">人员姓名</th>
 				</tr>
 			</thead>
 		</table>

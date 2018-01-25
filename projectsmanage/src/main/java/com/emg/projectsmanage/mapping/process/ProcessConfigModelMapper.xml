@@ -54,4 +54,21 @@
 		</set>
 		where id = #{id,jdbcType=INTEGER}
 	</update>
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+		SELECT
+			tc.`id`,
+			tc.`moduleid`,
+			tcm.`name` AS modulename,
+			tc.`name`,
+			tc.`type` AS typeid,
+			tct.`type`,
+			tct.`style`,
+			tct.`control`,
+			tc.`defaultvalue`
+		FROM
+			tb_config tc
+		JOIN tb_config_module tcm ON tc.moduleid = tcm.id
+		JOIN tb_config_type tct ON tc.type = tct.id
+		WHERE tc.`id` = #{id,jdbcType=INTEGER}
+	</select>
 </mapper>

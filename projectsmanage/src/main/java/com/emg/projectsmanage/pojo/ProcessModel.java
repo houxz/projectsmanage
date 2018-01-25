@@ -4,6 +4,8 @@ public class ProcessModel {
     private Long id;
 
     private String name;
+    
+    private Integer priority;
 
     private Integer state;
 
@@ -100,4 +102,12 @@ public class ProcessModel {
     public void setTime(String time) {
         this.time = time;
     }
+
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
 }

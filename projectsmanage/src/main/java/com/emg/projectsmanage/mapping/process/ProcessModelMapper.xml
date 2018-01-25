@@ -4,6 +4,7 @@
 	<resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.ProcessModel">
 		<id column="id" property="id" jdbcType="BIGINT" />
 		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="priority" property="priority" jdbcType="INTEGER" />
 		<result column="state" property="state" jdbcType="INTEGER" />
 		<result column="stage" property="stage" jdbcType="INTEGER" />
 		<result column="stagestate" property="stagestate" jdbcType="INTEGER" />
@@ -77,7 +78,7 @@
 		</where>
 	</sql>
 	<sql id="Base_Column_List">
-		id, name, state, stage, stagestate, progress, userid, username,
+		id, name, priority, state, stage, stagestate, progress, userid, username,
 		createtime, time
 	</sql>
 	<select id="selectByExample" resultMap="BaseResultMap"

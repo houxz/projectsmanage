@@ -31,19 +31,24 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.ParamUtils;
+import com.emg.projectsmanage.common.PriorityLevel;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ItemAreaType;
+import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.dao.process.CondigDBModelDao;
+import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigValueModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.pojo.CondigDBModel;
+import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.ItemAreaModel;
-import com.emg.projectsmanage.pojo.ItemSetModel;
+import com.emg.projectsmanage.pojo.ProcessConfigModel;
 import com.emg.projectsmanage.pojo.ProcessConfigValueModel;
 import com.emg.projectsmanage.pojo.ProcessModel;
 import com.emg.projectsmanage.pojo.ProcessModelExample;
+import com.emg.projectsmanage.pojo.UserRoleModel;
 import com.emg.projectsmanage.pojo.ProcessModelExample.Criteria;
-import com.emg.projectsmanage.pojo.ProjectModel;
+import com.emg.projectsmanage.service.EmapgoAccountService;
 
 @Controller
 @RequestMapping("/processesmanage.web")
@@ -58,7 +63,13 @@ public class ProcessesManageCtrl extends BaseCtrl {
 	private CondigDBModelDao condigDBModelDao;
 	
 	@Autowired
+	private ProcessConfigModelDao processConfigModelDao;
+	
+	@Autowired
 	private ProcessConfigValueModelDao processConfigValueModelDao;
+	
+	@Autowired
+	private EmapgoAccountService emapgoAccountService;
 
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
@@ -66,6 +77,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 		model.addAttribute("processStates", ProcessState.toJsonStr());
 		model.addAttribute("itemAreaTypes", ItemAreaType.toJsonStr());
+		model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
 
 		return "processesmanage";
 	}
@@ -286,98 +298,6 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return json;
 	}
 
-	@SuppressWarnings("unchecked")
-	@RequestMapping(params = "atn=getprojects")
-	public ModelAndView getProjects(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("ProcessesManageCtrl-getProjects start.");
-		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		List<ProjectModel> projects = new ArrayList<ProjectModel>();
-		try {
-			Integer systemid = ParamUtils.getIntParameter(request, "systemid", -1);
-			Integer configDBid = ParamUtils.getIntParameter(request, "configDBid", -1);
-			String _filter = ParamUtils.getParameter(request, "filter", "");
-			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
-
-			Map<String, Object> filterPara = null;
-			Long pid = -1L;
-			String pName = new String();
-			if (filter.length() > 0) {
-				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
-				for (String key : filterPara.keySet()) {
-					switch (key) {
-					case "id":
-						pid = Long.valueOf(filterPara.get(key).toString());
-						break;
-					case "name":
-						pName = filterPara.get(key).toString();
-						break;
-					default:
-						break;
-					}
-				}
-			}
-
-			CondigDBModel condigDBModel = condigDBModelDao.selectByPrimaryKey(configDBid);
-			projects = getProjects(condigDBModel, systemid, pid, pName);
-		} catch (Exception e) {
-			e.printStackTrace();
-			projects = new ArrayList<ProjectModel>();
-			logger.debug(e.getMessage());
-		}
-		json.addObject("rows", projects);
-		json.addObject("total", projects.size());
-		json.addObject("result", 1);
-
-		logger.debug("ProcessesManageCtrl-getProjects end.");
-		return json;
-	}
-
-	@SuppressWarnings("unchecked")
-	@RequestMapping(params = "atn=getitemsets")
-	public ModelAndView getItemSets(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("ProcessesManageCtrl-getItemSets start.");
-		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		List<ItemSetModel> itemSets = new ArrayList<ItemSetModel>();
-		try {
-			Integer systemid = ParamUtils.getIntParameter(request, "systemid", -1);
-			Integer configDBid = ParamUtils.getIntParameter(request, "configDBid", -1);
-			String _filter = ParamUtils.getParameter(request, "filter", "");
-			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
-
-			Map<String, Object> filterPara = null;
-			Long pid = -1L;
-			String pName = new String();
-			if (filter.length() > 0) {
-				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
-				for (String key : filterPara.keySet()) {
-					switch (key) {
-					case "id":
-						pid = Long.valueOf(filterPara.get(key).toString());
-						break;
-					case "name":
-						pName = filterPara.get(key).toString();
-						break;
-					default:
-						break;
-					}
-				}
-			}
-
-			CondigDBModel condigDBModel = condigDBModelDao.selectByPrimaryKey(configDBid);
-			itemSets = getItemSets(condigDBModel);
-		} catch (Exception e) {
-			e.printStackTrace();
-			itemSets = new ArrayList<ItemSetModel>();
-			logger.debug(e.getMessage());
-		}
-		json.addObject("rows", itemSets);
-		json.addObject("total", itemSets.size());
-		json.addObject("result", 1);
-
-		logger.debug("ProcessesManageCtrl-getItemSets end.");
-		return json;
-	}
-
 	@RequestMapping(params = "atn=getitemareas")
 	public ModelAndView getItemAreas(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProcessesManageCtrl-getItemAreas start.");
@@ -385,9 +305,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		List<ItemAreaModel> itemAreas = new ArrayList<ItemAreaModel>();
 		try {
 			Integer type = ParamUtils.getIntParameter(request, "type", -1);
-			Integer configDBid = ParamUtils.getIntParameter(request, "configDBid", -1);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 
-			CondigDBModel condigDBModel = condigDBModelDao.selectByPrimaryKey(configDBid);
+			CondigDBModel condigDBModel = condigDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			itemAreas = getItemAreas(condigDBModel, type);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -398,6 +318,28 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		json.addObject("result", 1);
 
 		logger.debug("ProcessesManageCtrl-getItemAreas end.");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=getworkers")
+	public ModelAndView getWorkers(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ProcessesManageCtrl-getWorkers start.");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
+		try {
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(1);
+
+			CondigDBModel condigDBModel = condigDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			workers = getWorkers(condigDBModel);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.debug(e.getMessage());
+		}
+		json.addObject("rows", workers);
+		json.addObject("count", workers.size());
+		json.addObject("result", 1);
+
+		logger.debug("ProcessesManageCtrl-getWorkers end.");
 		return json;
 	}
 
@@ -426,46 +368,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		}
 		return url.toString();
 	}
-
-	private List<ProjectModel> getProjects(CondigDBModel condigDBModel, Integer systemid, Long projectid, String projectName) {
-		List<ProjectModel> list = new ArrayList<ProjectModel>();
-		try {
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
-			sql.append(" FROM tb_projects ");
-			sql.append(" WHERE `systemid` = ");
-			sql.append(systemid);
-			if (projectid.compareTo(0L) > 0)
-				sql.append(" AND `id` = " + projectid);
-			if (projectName != null && projectName.length() > 0)
-				sql.append(" AND `name` like '%" + projectName + "%'");
-
-			BasicDataSource dataSource = getDataSource(getUrl(condigDBModel), condigDBModel.getUser(), condigDBModel.getPassword());
-			list = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ProjectModel>(ProjectModel.class));
-		} catch (Exception e) {
-			e.printStackTrace();
-			list = new ArrayList<ProjectModel>();
-		}
-		return list;
-	}
-
-	private List<ItemSetModel> getItemSets(CondigDBModel condigDBModel) {
-		List<ItemSetModel> list = new ArrayList<ItemSetModel>();
-		try {
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
-			sql.append(" FROM tb_itemset ");
-			sql.append(" WHERE `enable` = 0 ");
-
-			BasicDataSource dataSource = getDataSource(getUrl(condigDBModel), condigDBModel.getUser(), condigDBModel.getPassword());
-			list = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemSetModel>(ItemSetModel.class));
-		} catch (Exception e) {
-			e.printStackTrace();
-			list = new ArrayList<ItemSetModel>();
-		}
-		return list;
-	}
-
+	
 	private List<ItemAreaModel> getItemAreas(CondigDBModel condigDBModel, Integer type) {
 		List<ItemAreaModel> list = new ArrayList<ItemAreaModel>();
 		try {
@@ -526,5 +429,27 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			newProjectID = -1;
 		}
 		return newProjectID;
+	}
+	
+	private List<EmployeeModel> getWorkers(CondigDBModel condigDBModel) {
+		List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
+		try{
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT * ");
+			sql.append(" FROM tb_user_roles ");
+			sql.append(" WHERE `roleid` in ( " + RoleType.ROLE_WORKER.getValue() + " , " + RoleType.ROLE_CHECKER.getValue() + " )");
+			
+			BasicDataSource dataSource = getDataSource(getUrl(condigDBModel), condigDBModel.getUser(), condigDBModel.getPassword());
+			List<UserRoleModel> userRoleModels = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<UserRoleModel>(UserRoleModel.class));
+			List<Integer> ids = new ArrayList<Integer>();
+			for (UserRoleModel userRoleModel : userRoleModels) {
+				Integer id = userRoleModel.getUserid();
+				ids.add(id);
+			}
+			workers = emapgoAccountService.getEmployeeByIDS(ids);
+		} catch(Exception e) {
+			
+		}
+		return workers;
 	}
 }
