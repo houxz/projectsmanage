@@ -33,6 +33,10 @@
 	<delete id="deleteByProcessID" parameterType="java.lang.Long">
 		delete from tb_config_value
 		where processid = #{processid,jdbcType=BIGINT}
+		AND (moduleid != 1 OR configid != 3)
+		AND (moduleid != 1 OR configid != 4)
+		AND (moduleid != 2 OR configid != 11)
+		AND (moduleid != 2 OR configid != 12)
 	</delete>
 	<insert id="insert" parameterType="java.util.List">
 		insert into tb_config_value (`processid`, `moduleid`, `configid`, `value`)

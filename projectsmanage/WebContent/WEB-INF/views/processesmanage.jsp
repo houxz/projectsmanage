@@ -105,7 +105,7 @@
 	function operationFormat(value, row, index) {
 		var html = new Array();
 		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getConfig('
-						+ row.id + ',\'' + row.name + '\');">配置</button>');
+						+ row.id + ',\'' + row.name + '\',' + row.priority + ');">配置</button>');
 		if (row.state == 1) {
 			html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,'
 							+ row.id + ')">暂停</button>');
@@ -139,6 +139,7 @@
 	function loadDefaultConfig() {
 		$("#config_0_1").val(new String());
 		$("#config_0_2").val(new String());
+		$("#config_0_3").val(0);
 
 		$("#config_1_5").prop('selectedIndex', 0);
 		$("#config_1_6").prop('selectedIndex', 0);
@@ -151,7 +152,7 @@
 		$("#config_2_19").prop('selectedIndex', 0);
 	}
 
-	function getConfig(processid, processname) {
+	function getConfig(processid, processname, priority) {
 		loadDefaultConfig();
 		if(processid > 0) {
 			jQuery.post("./processesmanage.web",
@@ -162,15 +163,32 @@
 	            	if(json.configValues && json.configValues.length > 0) {
 	            		var configValues = json.configValues;
 	            		for(var index in configValues) {
-	            			$("#" + "config_" + configValues[index].moduleid + "_" + configValues[index].configid).val(configValues[index].value);
+	            			var obj = $("#" + "config_" + configValues[index].moduleid + "_" + configValues[index].configid);
+	            			if(obj) {
+	            				$(obj).val(configValues[index].value);
+	            			}
 	            		}
+	            		
+	            		var config_1_3 = $("#config_1_3").val();
+	            		var config_1_4 = $("#config_1_4").val();
+	            		$("#config_1_4").siblings("p").text("已关联项目:" + config_1_4 + "(" + config_1_3 + ")");
+	            		
+	            		var config_1_7 = $("#config_1_7").val();
+	            		$("#config_1_7").siblings("p").text("已选择" + (config_1_7 ? config_1_7.split(",").length : 0) + "个质检区域");
+	            		
+	            		var config_2_11 = $("#config_2_11").val();
+	            		var config_2_12 = $("#config_2_12").val();
+	            		$("#config_2_12").siblings("p").text("已关联项目:" + config_2_12 + "(" + config_2_11 + ")");
+	            		
+	            		var config_2_18 = $("#config_2_18").val();
+	            		$("#config_2_18").siblings("p").text("已添加人员" + (config_2_18 ? config_2_18.split(",").length : 0) + "位");
 	            	}
 	            }, "json");
 		}
-		showConfigDlg(processid, processname);
+		showConfigDlg(processid, processname, priority);
 	}
 
-	function showConfigDlg(processid, processname) {
+	function showConfigDlg(processid, processname, priority) {
 		$("#configDlg").dialog({
 			modal : true,
 			height : 600,
@@ -179,6 +197,7 @@
 			open : function(event, ui) {
 				$("#config_0_1").val(processid);
 				$("#config_0_2").val(processname);
+				$("#config_0_3").val(priority);
 				$(".ui-dialog-titlebar-close").hide();
 				$('.navbar-example').scrollspy({
 					target : '.navbar-example'
@@ -190,6 +209,7 @@
 				click : function() {
 					var processid = $("#config_0_1").val();
 					var newProcessName = $("#config_0_2").val();
+					var priority = $("#config_0_3").val();
 					var config_1_5 = $("#config_1_5").val();
 					var config_1_6 = $("#config_1_6").val();
 					var config_1_7 = $("#config_1_7").val();
@@ -204,6 +224,7 @@
 							"atn" : "newprocess",
 							"processid" : processid,
 							"newProcessName" : newProcessName,
+							"priority" : priority,
 							"config_1_5" : config_1_5,
 							"config_1_6" : config_1_6,
 							"config_1_7" : config_1_7,
@@ -216,6 +237,7 @@
 	                            $.webeditor.showMsgLabel("success", "新建流程成功");
 	                            $('[data-toggle="itemAreas"]').bootstrapTable("destroy");
 	                            $("#configDlg").dialog("close");
+	                            $('[data-toggle="processes"]').bootstrapTable('refresh');
 	                        } else {
 	                            $.webeditor.showMsgLabel("alert", "新建流程失败");
 	                        }
@@ -378,7 +400,7 @@
 						<th data-field="id" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">流程编号
 							<button class="btn btn-default btn-xs" title="新建流程"
-								onclick="getConfig(0,'');">
+								onclick="getConfig(0,'',0);">
 								<span class="glyphicon glyphicon-plus"></span>
 							</button>
 						</th>
@@ -426,11 +448,28 @@
 						<td><input type="text" class="form-control" id="config_0_2"
 							placeholder="请输入新项目名"></td>
 					</tr>
+					<tr>
+						<td>项目优先级</td>
+						<td><select class="form-control" id="config_0_3">
+								<option value="-2">极低</option>
+								<option value="-1">低</option>
+								<option value="0" selected="selected">一般</option>
+								<option value="1">高</option>
+								<option value="2">极高</option>
+						</select></td>
+					</tr>
 				</table>
 			</div>
 			<div class="panel panel-default" id="sc2">
 				<div class="panel-heading">质检配置</div>
 				<table class="table">
+					<tr>
+						<td>项目关联</td>
+						<td>
+							<input type="hidden" id="config_1_3" value="">
+							<input type="hidden" id="config_1_4" value="">
+							<p class="help-block">已关联项目&lceil;&rfloor;</p></td>
+					</tr>
 					<tr>
 						<td>质检区域</td>
 						<td><input type="hidden" id="config_1_7" value="">
@@ -467,6 +506,13 @@
 			<div class="panel panel-default" id="sc3">
 				<div class="panel-heading">改错配置</div>
 				<table class="table">
+					<tr>
+						<td>项目关联</td>
+						<td>
+							<input type="hidden" id="config_2_11" value="">
+							<input type="hidden" id="config_2_12" value="">
+							<p class="help-block">已关联项目&lceil;&rfloor;</p></td>
+					</tr>
 					<tr>
 						<td>启动类型</td>
 						<td><select class="form-control" id="config_2_17">

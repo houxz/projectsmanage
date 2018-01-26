@@ -8,23 +8,23 @@ package com.emg.projectsmanage.common;
  */
 public enum PriorityLevel {
 	/**
-	 * 0-未知
+	 * -2, "极低"
 	 */
 	UNKNOW(-2, "极低"),
 	/**
-	 * 5-制作
+	 * -1, "低"
 	 */
 	EDIT(-1, "低"),
 	/**
-	 * 0-一般
+	 * 0, "一般"
 	 */
 	CHECK(0, "一般"),
 	/**
-	 * 7-修改错误
+	 * 1, "高"
 	 */
 	MODIFY(1, "高"),
 	/**
-	 * 8-验证
+	 * 2, "极高"
 	 */
 	CONFIRM(2, "极高");
 
