@@ -238,6 +238,11 @@ public class ProcessModelExample {
             addCriterion("name not between", value1, value2, "name");
             return (Criteria) this;
         }
+        
+        public Criteria andPriorityEqualTo(Integer value) {
+            addCriterion("priority =", value, "priority");
+            return (Criteria) this;
+        }
 
         public Criteria andStateIsNull() {
             addCriterion("state is null");

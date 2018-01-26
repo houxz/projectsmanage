@@ -125,14 +125,6 @@
 	}
 
 	function queryParams(params) {
-		if (params.filter != undefined) {
-			var filterObj = eval('(' + params.filter + ')');
-			if (filterObj.state != undefined) {
-				filterObj["state"] = filterObj.state;
-				delete filterObj.state;
-				params.filter = JSON.stringify(filterObj);
-			}
-		}
 		return params;
 	}
 	
@@ -416,7 +408,7 @@
 							data-filter-data="var:processStates">流程状态</th>
 						<th data-field="progress" data-formatter="progressFormat"
 							data-width="500">流程进度</th>
-						<th data-field="createtime" data-filter-control="input"
+						<th data-field="createtime"
 							data-filter-control-placeholder="" data-width="200">创建时间</th>
 						<th data-formatter="operationFormat" data-width="70">操作</th>
 					</tr>
@@ -544,7 +536,7 @@
 	<div id="workers" style="display: none;">
 		<table id="workerlist" class="table-condensed" data-unique-id="id"
 			data-url="./processesmanage.web?atn=getworkers" data-cache="false"
-			data-side-pagination="server" data-filter-control="true"
+			data-side-pagination="server" data-filter-control="false"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
 			data-toggle="workers" data-height="374"
@@ -563,7 +555,7 @@
 	<div id="itemAreasDlg" style="display: none;">
 		<table id="itemAreaslist" class="table-condensed" data-unique-id="id"
 			data-url="./processesmanage.web?atn=getitemareas" data-cache="false"
-			data-side-pagination="server" data-filter-control="true"
+			data-side-pagination="server" data-filter-control="false"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
 			data-toggle="itemAreas" data-height="374"

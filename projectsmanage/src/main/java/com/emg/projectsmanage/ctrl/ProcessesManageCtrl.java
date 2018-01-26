@@ -110,7 +110,14 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					case "state":
 						criteria.andStateEqualTo(Integer.valueOf(filterPara.get(key).toString()));
 						break;
+					case "priority":
+						criteria.andPriorityEqualTo(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					case "username":
+						criteria.andUsernameLike("%" + filterPara.get(key).toString() + "%");
+						break;
 					default:
+						logger.debug("未处理的筛选项：" + key);
 						break;
 					}
 				}
