@@ -154,6 +154,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Integer uid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
 			String username = (String) session.getAttribute(CommonConstants.SESSION_USER_NAME);
 			Integer owner = ParamUtils.getIntParameter(request, "config_2_19", 0) == 1 ? 1:0;
+			Long projectid332 = ParamUtils.getLongParameter(request, "config_1_3", -1L);
+			Long projectid349 = ParamUtils.getLongParameter(request, "config_2_11", -1L);
+			String strWorkers = ParamUtils.getParameter(request, "config_2_18");
 			
 			Boolean isNewProcess = newProcessID.equals(0L);
 
@@ -179,9 +182,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			
 			List<ProcessConfigValueModel> configValues = new ArrayList<ProcessConfigValueModel>();
 
+			ProcessConfigModel config332 = processConfigModelDao.selectByPrimaryKey(1);
+			CondigDBModel condigDBModel332 = condigDBModelDao.selectByPrimaryKey(Integer.valueOf(config332.getDefaultValue()));
 			if (isNewProcess) {
-				ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(1);
-				CondigDBModel condigDBModel332 = condigDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 				String config_1_4 = newProcessName + "_质检";
 				
 				ProjectModel newpro = new ProjectModel();
@@ -190,29 +193,45 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				newpro.setCreateby(uid);
 				newpro.setPriority(priority);
 				
-				Integer projectid332 = newProject(condigDBModel332, newpro);
+				projectid332 = newProject(condigDBModel332, newpro);
 				if (projectid332 > 0) {
 					ProcessConfigValueModel configValue = new ProcessConfigValueModel();
 					configValue.setProcessid(newProcessID);
 					configValue.setModuleid(1);
-					configValue.setConfigid(4);
-					configValue.setValue(config_1_4);
+					configValue.setConfigid(3);
+					configValue.setValue(projectid332.toString());
 
 					configValues.add(configValue);
 					
 					ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
 					_configValue.setProcessid(newProcessID);
 					_configValue.setModuleid(1);
-					_configValue.setConfigid(3);
-					_configValue.setValue(projectid332.toString());
+					_configValue.setConfigid(4);
+					_configValue.setValue(config_1_4);
 
 					configValues.add(_configValue);
 				}
+			} else {
+				String config_1_4 = newProcessName + "_质检";
+				
+				ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
+				_configValue.setProcessid(newProcessID);
+				_configValue.setModuleid(1);
+				_configValue.setConfigid(4);
+				_configValue.setValue(config_1_4);
+
+				configValues.add(_configValue);
+				
+				ProjectModel pro = new ProjectModel();
+				pro.setId(projectid332);
+				pro.setName(config_1_4);
+				pro.setPriority(priority);
+				updateProject(condigDBModel332, pro);
 			}
 
+			ProcessConfigModel config349 = processConfigModelDao.selectByPrimaryKey(9);
+			CondigDBModel condigDBModel349 = condigDBModelDao.selectByPrimaryKey(Integer.valueOf(config349.getDefaultValue()));
 			if (isNewProcess) {
-				ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(9);
-				CondigDBModel condigDBModel349 = condigDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 				String config_2_12 = newProcessName + "_改错";
 				
 				ProjectModel newpro = new ProjectModel();
@@ -222,45 +241,81 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				newpro.setPriority(priority);
 				newpro.setOwner(owner);
 				
-				Integer projectid349 = newProject(condigDBModel349, newpro);
+				projectid349 = newProject(condigDBModel349, newpro);
 				if (projectid349 > 0) {
 					ProcessConfigValueModel configValue = new ProcessConfigValueModel();
 					configValue.setProcessid(newProcessID);
 					configValue.setModuleid(2);
-					configValue.setConfigid(12);
-					configValue.setValue(config_2_12);
+					configValue.setConfigid(11);
+					configValue.setValue(projectid349.toString());
 
 					configValues.add(configValue);
 					
 					ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
 					_configValue.setProcessid(newProcessID);
 					_configValue.setModuleid(2);
-					_configValue.setConfigid(11);
-					_configValue.setValue(projectid349.toString());
+					_configValue.setConfigid(12);
+					_configValue.setValue(config_2_12);
 
 					configValues.add(_configValue);
 				}
+			} else {
+				String config_2_12 = newProcessName + "_改错";
+				
+				ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
+				_configValue.setProcessid(newProcessID);
+				_configValue.setModuleid(2);
+				_configValue.setConfigid(12);
+				_configValue.setValue(config_2_12);
+
+				configValues.add(_configValue);
+				
+				ProjectModel pro = new ProjectModel();
+				pro.setId(projectid349);
+				pro.setName(config_2_12);
+				pro.setPriority(priority);
+				pro.setOwner(owner);
+				updateProject(condigDBModel349, pro);
 			}
-
-			Enumeration<String> paramNames = request.getParameterNames();
-			while (paramNames.hasMoreElements()) {
-				String paramName = paramNames.nextElement();
-				if (!paramName.startsWith("config_"))
+			
+			List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
+			for (String strWorker : strWorkers.split(",")) {
+				EmployeeModel worker = new EmployeeModel();
+				worker.setId(Integer.valueOf(strWorker));
+				workers.add(worker);
+			}
+			setWorkers(condigDBModel349, projectid349, workers , uid, 349);
+			
+			List<ProcessConfigModel> processConfigs = processConfigModelDao.selectAllProcessConfigModels();
+			for(ProcessConfigModel processConfig : processConfigs) {
+				Integer moduleid = processConfig.getModuleid();
+				Integer configid = processConfig.getId();
+				String defaultValue = processConfig.getDefaultValue() == null ? new String() : processConfig.getDefaultValue().toString();
+				
+				if((moduleid.equals(1) && configid.equals(3)) ||
+					(moduleid.equals(1) && configid.equals(4)) ||
+					(moduleid.equals(2) && configid.equals(11)) ||
+					(moduleid.equals(2) && configid.equals(12)))
 					continue;
-
-				String[] a = paramName.split("_");
-				Integer moduleid = Integer.valueOf(a[1]);
-				Integer configid = Integer.valueOf(a[2]);
-				String value = ParamUtils.getParameter(request, paramName);
+				
+				Enumeration<String> paramNames = request.getParameterNames();
+				while (paramNames.hasMoreElements()) {
+					String paramName = paramNames.nextElement();
+					if (!paramName.equals("config_" + moduleid + "_" + configid))
+						continue;
+					defaultValue = ParamUtils.getParameter(request, paramName);
+				}
 
 				ProcessConfigValueModel configValue = new ProcessConfigValueModel();
 				configValue.setProcessid(newProcessID);
 				configValue.setModuleid(moduleid);
 				configValue.setConfigid(configid);
-				configValue.setValue(value);
+				configValue.setValue(defaultValue);
 
 				configValues.add(configValue);
 			}
+
+			
 			
 			if(processConfigValueModelDao.deleteByProcessID(newProcessID) >= 0) {
 				ret = processConfigValueModelDao.insert(configValues);
@@ -392,8 +447,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return list;
 	}
 
-	private Integer newProject(CondigDBModel condigDBModel, final ProjectModel newProject) {
-		Integer newProjectID = -1;
+	private Long newProject(CondigDBModel condigDBModel, final ProjectModel newProject) {
+		Long newProjectID = -1L;
 		try{
 			final StringBuffer sql = new StringBuffer();
 			sql.append(" INSERT INTO tb_projects (`protype`, `pdifficulty`, `priority`, `tasknum`, `systemid`, `description`, `createby`, `area`, `name`, `owner`, `overprogress`, `overstate`) ");
@@ -419,12 +474,32 @@ public class ProcessesManageCtrl extends BaseCtrl {
 	                return ps;
 	            }
 			}, keyHolder);
-			newProjectID = keyHolder.getKey().intValue();
+			newProjectID = keyHolder.getKey().longValue();
 		} catch (Exception e) {
 			e.printStackTrace();
-			newProjectID = -1;
+			newProjectID = -1L;
 		}
 		return newProjectID;
+	}
+	
+	private Integer updateProject(CondigDBModel condigDBModel, ProjectModel project) {
+		Integer ret = -1;
+		try{
+			StringBuffer sql = new StringBuffer();
+			sql.append(" UPDATE tb_projects ");
+			sql.append(" SET `name` = '" + project.getName() + "', `priority` = " + project.getPriority());
+			if(project.getOwner() != null) {
+				sql.append(", `owner` = " + project.getOwner());
+			}
+			sql.append(" WHERE `id` = " + project.getId());
+			
+			BasicDataSource dataSource = getDataSource(getUrl(condigDBModel), condigDBModel.getUser(), condigDBModel.getPassword());
+			ret = new JdbcTemplate(dataSource).update(sql.toString());
+		} catch(Exception e) {
+			e.printStackTrace();
+			ret = -1;
+		}
+		return ret;
 	}
 	
 	private List<EmployeeModel> getWorkers(CondigDBModel condigDBModel) {
@@ -444,8 +519,48 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			}
 			workers = emapgoAccountService.getEmployeeByIDS(ids);
 		} catch(Exception e) {
-			
+			e.printStackTrace();
+			workers = new ArrayList<EmployeeModel>();
 		}
 		return workers;
+	}
+	
+	private Integer setWorkers(CondigDBModel condigDBModel, Long pid, List<EmployeeModel> workers, Integer opuid, Integer systemid) {
+		Integer ret = -1;
+		if(workers.size() <= 0) return ret;
+		try{
+			StringBuffer sql_del = new StringBuffer();
+			sql_del.append(" DELETE ");
+			sql_del.append(" FROM tb_projects_user ");
+			sql_del.append(" WHERE `pid` = " + pid);
+			
+			BasicDataSource dataSource = getDataSource(getUrl(condigDBModel), condigDBModel.getUser(), condigDBModel.getPassword());
+			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+			Integer ret_del = jdbc.update(sql_del.toString());
+			if(ret_del >= 0) {
+				StringBuffer sql = new StringBuffer();
+				sql.append(" INSERT INTO tb_projects_user");
+				sql.append(" (`pid`, `userid`, `username`, `roleid`, `rolename`, `opuid`, `systemid`) ");
+				sql.append(" VALUES ");
+				for(EmployeeModel worker : workers) {
+					sql.append("(");
+					sql.append(pid + ", ");
+					sql.append(worker.getId() + ", ");
+					sql.append("'" + worker.getRealname() + "', ");
+					sql.append(RoleType.ROLE_WORKER.getValue() + ", ");
+					sql.append("'" + RoleType.ROLE_WORKER.getDes() + "', ");
+					sql.append(opuid + ", ");
+					sql.append(systemid);
+					sql.append(" ),");
+				}
+				sql.deleteCharAt(sql.length() - 1);
+				ret = jdbc.update(sql.toString());
+			}
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			ret = -1;
+		}
+		return ret;
 	}
 }

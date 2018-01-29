@@ -202,11 +202,15 @@
 					var processid = $("#config_0_1").val();
 					var newProcessName = $("#config_0_2").val();
 					var priority = $("#config_0_3").val();
+					var config_1_3 = $("#config_1_3").val();
+					var config_1_4 = $("#config_1_4").val();
 					var config_1_5 = $("#config_1_5").val();
 					var config_1_6 = $("#config_1_6").val();
 					var config_1_7 = $("#config_1_7").val();
 					var config_1_8 = $("#config_1_8").val();
 					
+					var config_2_11 = $("#config_2_11").val();
+					var config_2_12 = $("#config_2_12").val();
 					var config_2_17 = $("#config_2_17").val();
 					var config_2_18 = $("#config_2_18").val();
 					var config_2_19 = $("#config_2_19").val();
@@ -217,10 +221,14 @@
 							"processid" : processid,
 							"newProcessName" : newProcessName,
 							"priority" : priority,
+							"config_1_3" : config_1_3,
+							"config_1_4" : config_1_4,
 							"config_1_5" : config_1_5,
 							"config_1_6" : config_1_6,
 							"config_1_7" : config_1_7,
 							"config_1_8" : config_1_8,
+							"config_2_11" : config_2_11,
+							"config_2_12" : config_2_12,
 							"config_2_17" : config_2_17,
 							"config_2_18" : config_2_18,
 							"config_2_19" : config_2_19
@@ -288,10 +296,14 @@
 					var length = selections.length;
 					var value = new String();
 					if (length > 0) {
+						var subStr = "[";
 						$.each(selections, function(index, domEle) {
 							value += domEle.id + ",";
+							subStr += '{"uid":' + domEle.id + ', "username":"' + domEle.realname + '"},';
 						});
 						value = value.substring(0,value.length-1);
+						subStr = subStr.substring(0,subStr.length-1);
+						subStr += ']';
 						$("#config_2_18").val(value);
 						$("#config_2_18").siblings("p").text("已添加人员" + length + "位");
 					}

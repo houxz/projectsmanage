@@ -87,7 +87,7 @@ public class SystemSetsCtrl extends BaseCtrl {
 		logger.debug("SystemSetsCtrl-setDefaultValues start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			List<Map<String, Object>> processConfigs = processConfigModelDao.selectAllProcessConfigModels();
+			List<ProcessConfigModel> processConfigs = processConfigModelDao.selectAllProcessConfigModels();
 			json.addObject("ret", 1);
 			json.addObject("configs", processConfigs);
 		} catch (Exception e) {

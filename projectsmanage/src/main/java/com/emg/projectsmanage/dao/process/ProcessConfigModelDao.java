@@ -15,7 +15,7 @@ public interface ProcessConfigModelDao {
 	
 	List<Map<String, Object>> selectAllConfigDBModels();
 	
-	List<Map<String, Object>> selectAllProcessConfigModels();
+	List<ProcessConfigModel> selectAllProcessConfigModels();
 	
 	int updateDefaultValueSelective(ProcessConfigModel record);
 	
