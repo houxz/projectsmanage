@@ -349,6 +349,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return json;
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=getitemareas")
 	public ModelAndView getItemAreas(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProcessesManageCtrl-getItemAreas start.");
@@ -356,10 +357,39 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		List<ItemAreaModel> itemAreas = new ArrayList<ItemAreaModel>();
 		try {
 			Integer type = ParamUtils.getIntParameter(request, "type", -1);
+			String _filter = ParamUtils.getParameter(request, "filter", "");
+			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
+			
+			Map<String, Object> filterPara = null;
+			ItemAreaModel itemAreaModel = new ItemAreaModel();
+			
+			if (filter.length() > 0) {
+				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
+				for (String key : filterPara.keySet()) {
+					switch (key) {
+					case "id":
+						itemAreaModel.setId(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					case "type":
+						itemAreaModel.setType(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					case "province":
+						itemAreaModel.setProvince(filterPara.get(key).toString());
+						break;
+					case "city":
+						itemAreaModel.setCity(filterPara.get(key).toString());
+						break;
+					default:
+						logger.debug("未处理的筛选项：" + key);
+						break;
+					}
+				}
+			}
+			
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-
 			CondigDBModel condigDBModel = condigDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			itemAreas = getItemAreas(condigDBModel, type);
+			
+			itemAreas = getItemAreas(condigDBModel, type, itemAreaModel);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
@@ -379,8 +409,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(1);
-
 			CondigDBModel condigDBModel = condigDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			
 			workers = getWorkers(condigDBModel);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -420,18 +450,31 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return url.toString();
 	}
 	
-	private List<ItemAreaModel> getItemAreas(CondigDBModel condigDBModel, Integer type) {
+	private List<ItemAreaModel> getItemAreas(CondigDBModel condigDBModel, Integer type, ItemAreaModel itemArea) {
 		List<ItemAreaModel> list = new ArrayList<ItemAreaModel>();
 		try {
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
 			sql.append(" FROM tb_city ");
+			sql.append(" WHERE 1=1 ");
+			if(itemArea.getId() != null) {
+				sql.append(" AND `id` = " + itemArea.getId());
+			}
+			if(itemArea.getType() != null) {
+				sql.append(" AND `type` = " + itemArea.getType());
+			}
+			if(itemArea.getProvince() != null) {
+				sql.append(" AND `province` like '%" + itemArea.getProvince() + "%'");
+			}
+			if(itemArea.getCity() != null) {
+				sql.append(" AND `city` like '%" + itemArea.getCity() + "%'");
+			}
 			if (type.equals(1)) {
 
 			} else if (type.equals(2)) {
 
 			} else if (type.equals(3)) {
-				sql.append(" WHERE `type` = 2 ");
+				sql.append(" AND `type` = 2 ");
 			} else {
 				return list;
 			}

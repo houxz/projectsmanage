@@ -567,7 +567,7 @@
 	<div id="itemAreasDlg" style="display: none;">
 		<table id="itemAreaslist" class="table-condensed" data-unique-id="id"
 			data-url="./processesmanage.web?atn=getitemareas" data-cache="false"
-			data-side-pagination="server" data-filter-control="false"
+			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
 			data-toggle="itemAreas" data-height="374"
