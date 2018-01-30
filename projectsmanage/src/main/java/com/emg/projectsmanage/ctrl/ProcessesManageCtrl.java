@@ -330,6 +330,30 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return json;
 	}
 	
+	@RequestMapping(params = "atn=changeState")
+	public ModelAndView changeState(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ProcessesManageCtrl-changeState start.");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		Integer ret = -1;
+		try {
+			Long processid = ParamUtils.getLongParameter(request, "processid", -1);
+			Integer state = ParamUtils.getIntParameter(request, "state", -1);
+			
+			ProcessModel record = new ProcessModel();
+			record.setId(processid);
+			record.setState(state);
+			ret = processModelDao.updateByPrimaryKeySelective(record );
+		} catch (Exception e) {
+			e.printStackTrace();
+			ret = -1;
+			logger.debug(e.getMessage());
+		}
+		json.addObject("ret", ret);
+
+		logger.debug("ProcessesManageCtrl-changeState end.");
+		return json;
+	}
+	
 	@RequestMapping(params = "atn=getconfigvalues")
 	public ModelAndView getProcessConfigValues(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProcessesManageCtrl-getProcessConfigValues start.");

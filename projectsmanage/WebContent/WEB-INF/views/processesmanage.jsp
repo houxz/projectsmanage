@@ -99,7 +99,14 @@
 	}
 
 	function changeState(state, processid) {
-
+		jQuery.post("./processesmanage.web",
+	            {
+					"atn" : "changeState", 
+					"processid" : processid,
+					"state" : state
+	            },function(json) {
+	            	$('[data-toggle="processes"]').bootstrapTable('refresh');
+	            }, "json");
 	}
 
 	function operationFormat(value, row, index) {
@@ -444,17 +451,17 @@
 				<div class="panel-heading">基础配置</div>
 				<table class="table">
 					<tr>
-						<td>项目编号</td>
-						<td><input type="text" class="form-control" id="config_0_1" disabled></td>
+						<td><div class="configKey">项目编号</div></td>
+						<td><input type="text" class="form-control configValue" id="config_0_1" disabled></td>
 					</tr>
 					<tr>
-						<td>项目名称</td>
-						<td><input type="text" class="form-control" id="config_0_2"
+						<td><div class="configKey">项目名称</div></td>
+						<td><input type="text" class="form-control configValue" id="config_0_2"
 							placeholder="请输入新项目名"></td>
 					</tr>
 					<tr>
-						<td>项目优先级</td>
-						<td><select class="form-control" id="config_0_3">
+						<td><div class="configKey">项目优先级</div></td>
+						<td><select class="form-control configValue" id="config_0_3">
 								<option value="-2">极低</option>
 								<option value="-1">低</option>
 								<option value="0" selected="selected">一般</option>
