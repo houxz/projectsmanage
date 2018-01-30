@@ -3,8 +3,7 @@
  */
 jQuery.webeditor = {
 	getHead : function() {
-		$("#headdiv").load(
-				"head.web?fromurl=" + location.href + "&r=" + Math.random());
+		$("#headdiv").load("head.web?fromurl=" + location.href);
 	},
 	getFoot : function() {
 		$("#footdiv").load("foot.web?r=" + Math.random());
