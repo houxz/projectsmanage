@@ -467,19 +467,12 @@
 			<div class="panel panel-default" id="sc2">
 				<div class="panel-heading">质检配置</div>
 				<table class="table">
-					<tr>
+					<tr style="display: none;">
 						<td>项目关联</td>
 						<td>
 							<input type="hidden" id="config_1_3" value="">
 							<input type="hidden" id="config_1_4" value="">
 							<p class="help-block">已关联项目&lceil;&rfloor;</p></td>
-					</tr>
-					<tr>
-						<td>质检区域</td>
-						<td><input type="hidden" id="config_1_7" value="">
-						<button type="button" class="btn btn-default"
-								onclick="getItemAreas();">配置质检区域</button>
-							<p class="help-block">已选择0个质检区域</p></td>
 					</tr>
 					<tr>
 						<td>质检集合</td>
@@ -488,6 +481,13 @@
 								<option value="2">全国</option>
 								<option value="3">市</option>
 						</select></td>
+					</tr>
+					<tr>
+						<td>质检区域</td>
+						<td><input type="hidden" id="config_1_7" value="">
+						<button type="button" class="btn btn-default"
+								onclick="getItemAreas();">配置质检区域</button>
+							<p class="help-block">已选择0个质检区域</p></td>
 					</tr>
 					<tr>
 						<td>质检图层</td>
@@ -510,7 +510,7 @@
 			<div class="panel panel-default" id="sc3">
 				<div class="panel-heading">改错配置</div>
 				<table class="table">
-					<tr>
+					<tr style="display: none;">
 						<td>项目关联</td>
 						<td>
 							<input type="hidden" id="config_2_11" value="">
