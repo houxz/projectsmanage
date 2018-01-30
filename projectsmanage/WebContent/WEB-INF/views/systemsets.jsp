@@ -41,12 +41,29 @@
 			if (json.ret && json.ret == 1) {
 				var configs = json.configs;
         		for(var index in configs) {
-        			var obj = $("#config_" + configs[index].moduleid + "_" + configs[index].id);
+        			var moduleid = configs[index].moduleid;
+        			var configid = configs[index].id;
+        			var defaultValue = configs[index].defaultValue;
+        			var obj = $("#config_" + moduleid + "_" + configid);
         			if(obj) {
-        				$(obj).val(configs[index].defaultValue);
+        				$(obj).val(defaultValue);
+        			}
+        			if(moduleid == 2 && configid == 13) {
+        				if(defaultValue == 0) {
+        					$("#config_2_14").addClass("systemSet");
+        					$("#config_2_14").parents("tr").show();
+        					$("#config_2_15").addClass("systemSet");
+        					$("#config_2_15").parents("tr").show();
+        				} else {
+        					$("#config_2_14").removeClass("systemSet");
+        					$("#config_2_14").parents("tr").hide();
+        					$("#config_2_15").removeClass("systemSet");
+        					$("#config_2_15").parents("tr").hide();
+        				}
         			}
         		}
 			}
+			$(".row").show();
 		}, "json");
 	}
 
@@ -69,12 +86,28 @@
 			}
 		}, "json");
 	}
+	
+	function typeChange(obj) {
+		var type = $(obj).val();
+		if(type == 1) {
+			$("#config_2_14").removeClass("systemSet");
+			$("#config_2_14").parents("tr").hide();
+			$("#config_2_15").removeClass("systemSet");
+			$("#config_2_15").parents("tr").hide();
+		} else {
+			$("#config_2_14").addClass("systemSet");
+			$("#config_2_14").parents("tr").show();
+			$("#config_2_15").addClass("systemSet");
+			$("#config_2_15").parents("tr").show();
+		}
+		
+	}
 </script>
 </head>
 <body>
 	<div class="container" style="max-width: 80%;">
 		<div id="headdiv"></div>
-		<div class="row" style="padding-top: 20px">
+		<div class="row" style="padding-top: 20px; display: none;">
 			<div id="navbar-example" style="width: 16%; float: left;">
 				<ul class="nav nav-pills nav-stacked">
 					<li class="active"><a href="#sc1">项目基础配置</a></li>
@@ -141,7 +174,7 @@
 							</tr>
 							<tr>
 								<td>改错任务组织方式</td>
-								<td><select class="form-control systemSet" id="config_2_13">
+								<td><select class="form-control systemSet" id="config_2_13" onchange="typeChange(this);">
 										<option value="0">多要素组织</option>
 										<option value="1">单要素组织</option>
 								</select></td>
