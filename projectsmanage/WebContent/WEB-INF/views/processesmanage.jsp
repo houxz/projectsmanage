@@ -108,6 +108,18 @@
 	            	$('[data-toggle="processes"]').bootstrapTable('refresh');
 	            }, "json");
 	}
+	
+	function changePriority(processid) {
+		var priority = $("#priority_" + processid).val();
+		jQuery.post("./processesmanage.web",
+	            {
+					"atn" : "changePriority", 
+					"processid" : processid,
+					"priority" : priority
+	            },function(json) {
+	            	$('[data-toggle="processes"]').bootstrapTable('refresh');
+	            }, "json");
+	}
 
 	function operationFormat(value, row, index) {
 		var html = new Array();
