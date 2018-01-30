@@ -77,14 +77,14 @@
 		<div class="row" style="padding-top: 20px">
 			<div id="navbar-example" style="width: 16%; float: left;">
 				<ul class="nav nav-pills nav-stacked">
-					<li class="active"><a href="#sc1">项目流程配置</a></li>
+					<li class="active"><a href="#sc1">项目基础配置</a></li>
 				</ul>
 			</div>
 			<div class="navbar-example"
 				style="width: 83%; float: left; overflow-y: auto;" data-spy="scroll"
 				data-target="#navbar-example">
 				<div class="panel panel-default" id="sc1">
-					<div class="panel-heading">项目流程配置</div>
+					<div class="panel-heading">项目基础配置</div>
 					<div class="panel-body">
 						<table class="table">
 							<tr>
