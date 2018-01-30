@@ -445,7 +445,7 @@
 				<table class="table">
 					<tr>
 						<td>项目编号</td>
-						<td><input type="text" class="form-control" id="config_0_1"></td>
+						<td><input type="text" class="form-control" id="config_0_1" disabled></td>
 					</tr>
 					<tr>
 						<td>项目名称</td>
