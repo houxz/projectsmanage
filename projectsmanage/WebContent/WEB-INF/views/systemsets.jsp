@@ -121,7 +121,7 @@
 					<div class="panel-body">
 						<table class="table">
 							<tr>
-								<td>质检项目库</td>
+								<td class="configKey">质检项目库</td>
 								<td><select class="form-control systemSet" id="config_1_1">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if
@@ -132,7 +132,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td>质检任务库</td>
+								<td class="configKey">质检任务库</td>
 								<td><select class="form-control systemSet" id="config_1_2">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
@@ -142,7 +142,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td>改错项目库</td>
+								<td class="configKey">改错项目库</td>
 								<td><select class="form-control systemSet" id="config_2_9">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if
@@ -153,7 +153,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td>改错任务库</td>
+								<td class="configKey">改错任务库</td>
 								<td><select class="form-control systemSet" id="config_2_10">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
@@ -163,7 +163,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td>改错错误库</td>
+								<td class="configKey">改错错误库</td>
 								<td><select class="form-control systemSet" id="config_2_16">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('error') }">
@@ -173,24 +173,24 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td>改错任务组织方式</td>
+								<td class="configKey">改错任务组织方式</td>
 								<td><select class="form-control systemSet" id="config_2_13" onchange="typeChange(this);">
 										<option value="0">多要素组织</option>
 										<option value="1">单要素组织</option>
 								</select></td>
 							</tr>
 							<tr>
-								<td>错误个数</td>
+								<td class="configKey">错误个数</td>
 								<td><input type="text" class="form-control systemSet"
 									id="config_2_14" value="100"></td>
 							</tr>
 							<tr>
-								<td>错误距离</td>
+								<td class="configKey">错误距离</td>
 								<td><input type="text" class="form-control systemSet"
 									id="config_2_15" value="10000"></td>
 							</tr>
 							<tr>
-								<td></td>
+								<td class="configKey"></td>
 								<td><div class="btn-group">
 										<button type="button" class="btn btn-default"
 											onclick="setDefaultValues();">保存</button>
