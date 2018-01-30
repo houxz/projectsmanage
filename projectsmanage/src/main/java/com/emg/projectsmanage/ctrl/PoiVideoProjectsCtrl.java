@@ -24,7 +24,6 @@ import com.emg.projectsmanage.pojo.ProjectModelExample.Criteria;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
 import com.emg.projectsmanage.pojo.RoleModel;
 import com.emg.projectsmanage.service.ProjectManagerRoleService;
-import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
@@ -51,7 +50,6 @@ public class PoiVideoProjectsCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			// 分页
-			Integer sysid = (Integer) session.getAttribute(CommonConstants.SESSION_CURRENTSYSTEMID);
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
 			String _filter = ParamUtils.getParameter(request, "filter", "");
@@ -64,7 +62,6 @@ public class PoiVideoProjectsCtrl {
 
 			ProjectModelExample example = new ProjectModelExample();
 			Criteria criteria = example.or();
-			criteria.andSystemidEqualTo(sysid);
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				ProjectsUserModel pu = new ProjectsUserModel();
@@ -81,7 +78,6 @@ public class PoiVideoProjectsCtrl {
 						List<Long> workPids = new ArrayList<Long>();
 						pu.setRoleid(workRole.getId());
 						pu.setUserid(Integer.valueOf(filterPara.get("workers").toString()));
-						pu.setSystemid(sysid);
 						rtemp = projectsUserModelDao.queryProjectUsers(pu);
 						for (ProjectsUserModel _rtemp : rtemp) {
 							workPids.add(Long.valueOf(_rtemp.getPid()));
@@ -94,7 +90,6 @@ public class PoiVideoProjectsCtrl {
 						List<Long> checkPids = new ArrayList<Long>();
 						pu.setRoleid(checkRole.getId());
 						pu.setUserid(Integer.valueOf(filterPara.get("checkers").toString()));
-						pu.setSystemid(sysid);
 						rtemp = projectsUserModelDao.queryProjectUsers(pu);
 						for (ProjectsUserModel _rtemp : rtemp) {
 							checkPids.add(Long.valueOf(_rtemp.getPid()));

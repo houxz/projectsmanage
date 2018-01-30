@@ -30,32 +30,6 @@
 			"fromurl"));
 	Integer userID = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
 %>
-
-<script type="text/javascript">
-	$("#systems").change(function() {
-		var sysname = $("#systems  option:selected").attr("title");
-		var sysid = $("#systems").val();
-		$.ajax({
-			async : false,
-			type : 'POST',
-			url : './head.web',
-			data : {
-				atn : "changesys",
-				sysname : sysname,
-				sysid : sysid
-			},
-			dataType : 'json',
-			success : function(result) {
-			}
-		}).done(function(json) {
-			if (json.result == 1) {
-				window.location.reload();
-			} else {
-				$.webeditor.showMsgLabel("alert", "平台变更失败");
-			}
-		});
-
-	});
 </script>
 <div class="headline">
 	<nav class="navbar navbar-default">
@@ -77,12 +51,12 @@
 					</sec:authorize>-->
 					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
 						<li class="<%="1001".equals(menucode) ? "active" : ""%>"><a
-							href="<c:url value='processesmanage.web'/>">流程管理</a></li>
+							href="<c:url value='processesmanage.web'/>">项目管理</a></li>
 					</sec:authorize>
-					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
+					<!-- <sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
 						<li class="<%="1002".equals(menucode) ? "active" : ""%>"><a
 							href="<c:url value='projectsmanage.web'/>">项目管理</a></li>
-					</sec:authorize>
+					</sec:authorize> -->
 					<sec:authorize
 						access="hasAnyRole('ROLE_POIVIDEOEDIT' ,'ROLE_WORKER' ,'ROLE_CHECKER')">
 						<li class="<%="1003".equals(menucode) ? "active" : ""%>"><a
@@ -104,23 +78,7 @@
 					</sec:authorize>
 				</ul>
 
-				<ul class="nav navbar-nav navbar-right" style="width: 40%;">
-					<c:if test="${systems.size() >0 }">
-						<li style="padding-top: 10px; width: 40%;"><select id="systems" class="form-control">
-								<c:forEach items="${systems }" var="sys">
-									<c:choose>
-										<c:when
-											test="${sys['id'].equals(com_emg_webeditor_CURRENTSYSTEMID) }">
-											<option value="${sys['id'] }" selected="selected">${sys['desc']
-												}</option>
-										</c:when>
-										<c:otherwise>
-											<option value="${sys['id'] }">${sys['desc'] }</option>
-										</c:otherwise>
-									</c:choose>
-								</c:forEach>
-						</select></li>
-					</c:if>
+				<ul class="nav navbar-nav navbar-right" style="width: 24%;">
 					<c:choose>
 						<c:when test="${islogin}">
 							<li><a href="#"><c:out value="${account}" /></a></li>

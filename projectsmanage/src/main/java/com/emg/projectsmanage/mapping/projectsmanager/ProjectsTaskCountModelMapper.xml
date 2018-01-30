@@ -11,6 +11,7 @@
 		<result column="rolename" property="rolename" jdbcType="VARCHAR" />
 		<result column="projectid" property="projectid" jdbcType="VARCHAR" />
 		<result column="projectname" property="projectname" jdbcType="VARCHAR" />
+		<result column="systemid" property="systemid" jdbcType="INTEGER" />
 		<result column="totaltask" property="totaltask" jdbcType="INTEGER" />
 		<result column="idletask" property="idletask" jdbcType="INTEGER" />
 		<result column="edittask" property="edittask" jdbcType="INTEGER" />
@@ -28,7 +29,7 @@
 		FROM
 			tb_projects_task_count t, tb_projects p
 		<where>
-			t.`systemid` = #{systemid} AND p.`systemid` = #{systemid} AND t.`projectid` = p.`id`
+			t.`projectid` = p.`id`
 			<if test="userid != null">
 				AND t.`userid` = #{userid}
 			</if>
@@ -45,6 +46,7 @@
 			t.`rolename`,
 			p.`id` AS projectid,
 			p.`name` AS projectname,
+			p.`systemid`,
 			t.`totaltask`,
 			t.`edittask`,
 			t.`qctask`,
@@ -54,9 +56,8 @@
 			tb_projects_task_count t
 		LEFT JOIN tb_projects p ON t.`projectid` = p.`id`
 		<where>
-			p.`systemid` = #{systemid}
 			<if test="userid != null">
-				AND t.`userid` = #{userid}
+				t.`userid` = #{userid}
 			</if>
 			<if test="roleid != null">
 				AND t.`roleid` = #{roleid}
@@ -91,9 +92,8 @@
 			tb_projects_task_count t
 		LEFT JOIN tb_projects p ON t.`projectid` = p.`id`
 		<where>
-			p.`systemid` = #{systemid}
 			<if test="userid != null">
-				AND t.`userid` = #{userid}
+				t.`userid` = #{userid}
 			</if>
 			<if test="roleid != null">
 				AND t.`roleid` = #{roleid}
@@ -108,6 +108,7 @@
 		SELECT
 			p.`id` AS projectid,
 			p.`name` AS projectname,
+			p.`systemid`,
 			p.`tasknum` AS totaltask,
 			SUM(CASE WHEN t.`roleid` = 5 THEN t.`edittask` ELSE 0 END) AS edittask,
 			SUM(CASE WHEN t.`roleid` = 5 THEN t.`qctask` ELSE 0 END) AS qctask,
@@ -118,9 +119,8 @@
 		LEFT JOIN tb_projects_task_count t 
 			ON t.`projectid` = p.`id`
 		<where>
-			p.`systemid` = #{systemid}
 			<if test="projectid != null">
-				AND p.`id` = #{projectid}
+				p.`id` = #{projectid}
 			</if>
 			<if test="projectIDs != null">
 				AND (p.`owner` = 0 or (p.`owner` = 1 and p.`id` in

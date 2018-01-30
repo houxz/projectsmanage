@@ -94,8 +94,6 @@ public class LoginCtrl extends BaseCtrl {
 					new UsernamePasswordAuthenticationToken(SecurityContextHolder.getContext().getAuthentication().getPrincipal(), SecurityContextHolder.getContext()
 							.getAuthentication().getCredentials(), newAuths));
 
-			session.setAttribute(CommonConstants.SESSION_CURRENTSYSTEMID, CommonConstants.SYSTEM_POIVIDEOEDIT_ID);
-
 			if (hasRole(request, RoleType.ROLE_ADMIN.toString())) {
 				logger.debug("LoginCtrl-login end to admin page.");
 				return "redirect:usersmanage.web";

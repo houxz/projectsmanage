@@ -70,14 +70,6 @@ public class ProjectsManageCtrl extends BaseCtrl {
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProjectsManageCtrl-openLader start.");
 		
-		Integer systemid = CommonConstants.SYSTEM_POIVIDEOEDIT_ID;
-		try {
-			if (session.getAttribute(CommonConstants.SESSION_CURRENTSYSTEMID) != null)
-				systemid = (Integer) session.getAttribute(CommonConstants.SESSION_CURRENTSYSTEMID);
-		} catch (Exception e) {
-			systemid = CommonConstants.SYSTEM_POIVIDEOEDIT_ID;
-		}
-
 		try {
 			if (!hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
 				return "redirect:login.jsp";
@@ -106,13 +98,12 @@ public class ProjectsManageCtrl extends BaseCtrl {
 			model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
 			model.addAttribute("ownerLevels", OwnerStatus.toJsonStr());
 
-			List<UserRoleModel> allWorkersList = getEmployAndRole(RoleType.ROLE_WORKER.toString(), systemid);
-			List<UserRoleModel> allCheckersList = getEmployAndRole(RoleType.ROLE_CHECKER.toString(), systemid);
+			List<UserRoleModel> allWorkersList = getEmployAndRole(RoleType.ROLE_WORKER.toString());
+			List<UserRoleModel> allCheckersList = getEmployAndRole(RoleType.ROLE_CHECKER.toString());
 			model.addAttribute("allWorkersList", allWorkersList);
 			model.addAttribute("allCheckersList", allCheckersList);
 
 			ProjectsUserModel para = new ProjectsUserModel();
-			para.setSystemid(systemid);
 			List<ProjectsUserModel> users = projectsUserModelDao.getDistinctWorkers(para);
 
 			List<ProjectsUserModel> workers = new ArrayList<ProjectsUserModel>();
@@ -154,7 +145,7 @@ public class ProjectsManageCtrl extends BaseCtrl {
 	 * @param systemid
 	 * @return
 	 */
-	private List<UserRoleModel> getEmployAndRole(String rolename, Integer systemid) {
+	private List<UserRoleModel> getEmployAndRole(String rolename) {
 		RoleModel wrole = new RoleModel();
 		if (rolename.equals(RoleType.ROLE_WORKER.toString())) {
 			wrole = projectManagerRoleService.getWorkerRole();
@@ -174,7 +165,7 @@ public class ProjectsManageCtrl extends BaseCtrl {
 		List<EmployeeModel> es = emapgoAccountService.getEmployeeByIDS(ids);
 		EmployeeSkillModel emparam = new EmployeeSkillModel();
 		emparam.setRoleid(wrole.getId());
-		emparam.setSystemid(systemid);
+//		emparam.setSystemid(systemid);
 		List<EmployeeSkillModel> eds = employeeSkillModelDao.queryEmployeeSkills(emparam);
 		for (UserRoleModel r : workers) {
 			r.setRolename(wrole.getName());
@@ -219,7 +210,7 @@ public class ProjectsManageCtrl extends BaseCtrl {
 			String proid = ParamUtils.getParameter(request, "proid");
 			String workerStr = ParamUtils.getParameter(request, "addworkers");
 			JSONArray addarray = JSONArray.fromObject(workerStr);
-			Integer sysid = (Integer) session.getAttribute(CommonConstants.SESSION_CURRENTSYSTEMID);
+			Integer sysid = ParamUtils.getIntParameter(request, "systemid", -1);
 
 			RoleModel workRole = projectManagerRoleService.getWorkerRole();
 			RoleModel checkRole = projectManagerRoleService.getCheckerRole();

@@ -1,6 +1,5 @@
 package com.emg.projectsmanage.ctrl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,16 +18,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.ParamUtils;
-import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.projectsmanage.pojo.ProjectModelExample;
 import com.emg.projectsmanage.pojo.ProjectModelExample.Criteria;
 import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
-import com.emg.projectsmanage.pojo.ProjectsUserModel;
 
 @Controller
 @RequestMapping("/projectsprocess.web")
@@ -57,7 +53,6 @@ public class ProjectsProcessCtrl extends BaseCtrl {
 		logger.debug("ProjectsProcessCtrl-pages start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			Integer systemid = (Integer) session.getAttribute(CommonConstants.SESSION_CURRENTSYSTEMID);
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
 			String sort = ParamUtils.getParameter(request, "sort", "");
@@ -68,23 +63,6 @@ public class ProjectsProcessCtrl extends BaseCtrl {
 			Map<String, Object> map = new HashMap<String, Object>();
 			ProjectModelExample example = new ProjectModelExample();
 			Criteria criteria = example.or();
-			map.put("systemid", systemid);
-			criteria.andSystemidEqualTo(systemid);
-			if (!hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
-				Integer userid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
-				ProjectsUserModel record = new ProjectsUserModel();
-				record.setUserid(userid);
-				List<ProjectsUserModel> projectsUserModels = projectsUserModelDao.queryProjectUsers(record);
-				List<String> projectIDs = new ArrayList<String>();
-				for (ProjectsUserModel projectsUserModel : projectsUserModels) {
-					String pid = projectsUserModel.getPid();
-					if (!projectIDs.contains(pid))
-						projectIDs.add(pid);
-				}
-				// if(projectIDs.size() > 0)
-				// map.put("projectIDs", projectIDs);
-				// criteria.andIdIn(projectIDs);
-			}
 
 			if (filter.length() > 0) {
 				Map<String, Object> filterPara = (Map<String, Object>) JSONObject.fromObject(filter);

@@ -1,7 +1,5 @@
 package com.emg.projectsmanage.ctrl;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -11,13 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
-
-import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.pojo.EmployeeModel;
-import com.emg.projectsmanage.pojo.SystemModel;
 import com.emg.projectsmanage.service.CommService;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 import com.emg.projectsmanage.service.MessageModelService;
@@ -49,22 +42,10 @@ public class HeadCtrl extends BaseCtrl {
 		} else {
 			model.addAttribute("islogin", true);
 			model.addAttribute("account", user.getRealname());
-
-			List<SystemModel> systems = commService.getAllSystems();
-			model.addAttribute("systems", systems);
 		}
 
 		logger.debug("Head-head end.");
 		return "head";
 	}
 
-	@RequestMapping(params = "atn=changesys")
-	public ModelAndView changeSys(Model model, HttpSession session, HttpServletRequest request) {
-		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		int sysid = ParamUtils.getIntParameter(request, "sysid", CommonConstants.SYSTEM_POIVIDEOEDIT_ID);
-		session.setAttribute(CommonConstants.SESSION_CURRENTSYSTEMID, sysid);
-		json.addObject("result", 1);
-
-		return json;
-	}
 }

@@ -44,8 +44,6 @@ public class WorkTasksCtrl extends BaseCtrl {
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("WorkTasksCtrl-openLader start.");
 		Map<String, Object> map = new HashMap<String, Object>();
-		Integer systemid = (Integer) session.getAttribute(CommonConstants.SESSION_CURRENTSYSTEMID);
-		map.put("systemid", systemid);
 		if (!hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
 			Integer userid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
 			map.put("userid", userid);
@@ -81,7 +79,6 @@ public class WorkTasksCtrl extends BaseCtrl {
 		logger.debug("WorkTasksCtrl-pages start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			Integer systemid = (Integer) session.getAttribute(CommonConstants.SESSION_CURRENTSYSTEMID);
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
 			String sort = ParamUtils.getParameter(request, "sort", "");
@@ -90,7 +87,6 @@ public class WorkTasksCtrl extends BaseCtrl {
 			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
 
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("systemid", systemid);
 			if (!hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
 				Integer userid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
 				map.put("userid", userid);

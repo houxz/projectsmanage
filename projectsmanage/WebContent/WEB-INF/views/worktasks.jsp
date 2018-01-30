@@ -80,15 +80,15 @@
 					<tr>
 						<th data-field="userid" data-formatter="userFormat"
 							data-filter-control="select" data-filter-data="var:userForSelect"
-							data-width="110">人员名称</th>
+							data-width="80">人员名称</th>
 						<th data-field="roleid" data-formatter="roleFormat"
 							data-filter-control="select" data-filter-data="var:roleForSelect"
-							data-width="110">角色名称</th>
+							data-width="80">角色名称</th>
 						<th data-field="projectid" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="70">项目编号</th>
+							data-filter-control-placeholder="" data-width="60">项目编号</th>
 						<th data-field="projectname" data-filter-control="input"
 							data-filter-control-placeholder=""
-							data-width="320">项目名称</th>
+							data-width="300">项目名称</th>
 						<th data-field="totaltask" data-sortable="true">任务总数</th>
 						<th data-field="edittask" data-sortable="true">编辑中任务</th>
 						<th data-field="qctask" data-sortable="true">质检中任务</th>

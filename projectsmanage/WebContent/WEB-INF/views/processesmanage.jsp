@@ -4,7 +4,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>流程管理</title>
+<title>项目管理</title>
 <meta charset="UTF-8" />
 <meta name="robots" content="none">
 <meta http-equiv="Pragma" content="no-cache">
@@ -185,7 +185,7 @@
 			modal : true,
 			height : 600,
 			width : document.documentElement.clientWidth * 0.4,
-			title : "流程配置",
+			title : "项目配置",
 			open : function(event, ui) {
 				$("#config_0_1").val(processid);
 				$("#config_0_2").val(processname);
@@ -234,12 +234,12 @@
 							"config_2_19" : config_2_19
 	                    },function(json) {
 	                    	if (json.result > 0) {
-	                            $.webeditor.showMsgLabel("success", "新建流程成功");
+	                            $.webeditor.showMsgLabel("success", "新建项目成功");
 	                            $('[data-toggle="itemAreas"]').bootstrapTable("destroy");
 	                            $("#configDlg").dialog("close");
 	                            $('[data-toggle="processes"]').bootstrapTable('refresh');
 	                        } else {
-	                            $.webeditor.showMsgLabel("alert", "新建流程失败");
+	                            $.webeditor.showMsgLabel("alert", "新建项目失败");
 	                        }
 	                    }, "json");
 				}
@@ -402,14 +402,14 @@
 				<thead>
 					<tr>
 						<th data-field="id" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="120">流程编号
-							<button class="btn btn-default btn-xs" title="新建流程"
+							data-filter-control-placeholder="" data-width="120">项目编号
+							<button class="btn btn-default btn-xs" title="新建项目"
 								onclick="getConfig(0,'',0);">
 								<span class="glyphicon glyphicon-plus"></span>
 							</button>
 						</th>
 						<th data-field="name" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="120">流程名称</th>
+							data-filter-control-placeholder="" data-width="120">项目名称</th>
 						<th data-field="username" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">创建者</th>
 						<th data-field="priority" data-formatter="priFormat"
@@ -417,9 +417,9 @@
 							data-filter-data="var:priorityLevels">优先级</th>
 						<th data-field="state" data-formatter="statesFormat"
 							data-filter-control="select" data-width="100"
-							data-filter-data="var:processStates">流程状态</th>
+							data-filter-data="var:processStates">项目状态</th>
 						<th data-field="progress" data-formatter="progressFormat"
-							data-width="500">流程进度</th>
+							data-width="500">项目进度</th>
 						<th data-field="createtime"
 							data-filter-control-placeholder="" data-width="200">创建时间</th>
 						<th data-formatter="operationFormat" data-width="70">操作</th>
