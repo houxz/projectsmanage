@@ -265,3 +265,13 @@ button {
 	color: #333;
     background-color: #e7e7e7;
 }
+
+.configKey {
+	width: 40%;
+	padding: 5px 8% !important;
+	text-align: end;
+}
+
+.configValue {
+	
+}
