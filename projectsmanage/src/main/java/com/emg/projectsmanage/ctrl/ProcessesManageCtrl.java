@@ -159,6 +159,19 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			String strWorkers = ParamUtils.getParameter(request, "config_2_18");
 
 			Boolean isNewProcess = newProcessID.equals(0L);
+			
+			if(newProcessID.compareTo(0L) < 0) {
+				ret = -1;
+				json.addObject("result", ret);
+				json.addObject("resultMsg", "保存失败，错误的参数值：processid");
+				return json;
+			}
+			if(newProcessName == null || newProcessName.isEmpty()) {
+				ret = -1;
+				json.addObject("result", ret);
+				json.addObject("resultMsg", "保存失败，项目名称不能为空");
+				return json;
+			}
 
 			if (isNewProcess) {
 				ProcessModel newProcess = new ProcessModel();
@@ -168,8 +181,12 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				newProcess.setUserid(uid);
 				newProcess.setUsername(username);
 
-				if (processModelDao.insertSelective(newProcess) <= 0)
+				if (processModelDao.insertSelective(newProcess) <= 0) {
+					ret = -1;
+					json.addObject("result", ret);
+					json.addObject("resultMsg", "新建项目失败");
 					return json;
+				}
 				newProcessID = newProcess.getId();
 				System.out.println("---------------->createNewProcess:  new " + newProcessID);
 			} else {
@@ -279,13 +296,15 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				updateProject(condigDBModel349, pro);
 			}
 
-			List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
-			for (String strWorker : strWorkers.split(",")) {
-				EmployeeModel worker = new EmployeeModel();
-				worker.setId(Integer.valueOf(strWorker));
-				workers.add(worker);
+			if(strWorkers != null && !strWorkers.isEmpty()) {
+				List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
+				for (String strWorker : strWorkers.split(",")) {
+					EmployeeModel worker = new EmployeeModel();
+					worker.setId(Integer.valueOf(strWorker));
+					workers.add(worker);
+				}
+				setWorkers(condigDBModel349, projectid349, workers, uid, 349);
 			}
-			setWorkers(condigDBModel349, projectid349, workers, uid, 349);
 
 			List<ProcessConfigModel> processConfigs = processConfigModelDao.selectAllProcessConfigModels();
 			for (ProcessConfigModel processConfig : processConfigs) {
@@ -604,7 +623,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			sql.append(" UPDATE tb_projects ");
 			sql.append(" SET `id` = `id`");
 			if(project.getName() != null) {
-				sql.append(", `name` = " + project.getName());
+				sql.append(", `name` = '" + project.getName() + "'");
 			}
 			if(project.getPriority() != null) {
 				sql.append(", `priority` = " + project.getPriority());
