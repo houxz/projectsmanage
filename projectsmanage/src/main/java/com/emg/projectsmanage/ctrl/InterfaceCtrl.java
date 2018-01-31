@@ -36,6 +36,9 @@ import com.emg.projectsmanage.pojo.UserRoleModel;
 import com.emg.projectsmanage.service.CommService;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 
+import com.emg.projectsmanage.library.JNATest;
+import com.sun.jna.WString;
+
 @Controller
 @RequestMapping("/interface.web")
 public class InterfaceCtrl extends BaseCtrl {
@@ -1146,7 +1149,7 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("test start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			json.addObject("status", true);
+			JNATest.Instance.say(new WString("Hello World!"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			json.addObject("status", false);
