@@ -21,12 +21,19 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.common.RoleType;
+import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
+import com.emg.projectsmanage.dao.process.ConfigValueModelDao;
+import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskLogModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
+import com.emg.projectsmanage.pojo.ConfigDBModel;
+import com.emg.projectsmanage.pojo.ConfigValueModel;
 import com.emg.projectsmanage.pojo.DepartmentModel;
+import com.emg.projectsmanage.pojo.ProcessModel;
+import com.emg.projectsmanage.pojo.ProcessModelExample;
 import com.emg.projectsmanage.pojo.ProjectModelExample;
 import com.emg.projectsmanage.pojo.ProjectModelExample.Criteria;
 import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
@@ -60,6 +67,12 @@ public class InterfaceCtrl extends BaseCtrl {
 	private ProjectsTaskLogModelDao projectsTaskLogModelDao;
 	@Autowired
 	private ProjectsTaskCountModelDao projectsTaskCountDao;
+	@Autowired
+	private ProcessModelDao processModelDao;
+	@Autowired
+	private ConfigValueModelDao configValueModelDao;
+	@Autowired
+	private ConfigDBModelDao configDBModelDao;
 
 	@RequestMapping(params = "action=insertNewProject", method = RequestMethod.POST)
 	private ModelAndView insertNewProject(Model model, HttpSession session,
@@ -569,6 +582,34 @@ public class InterfaceCtrl extends BaseCtrl {
 										project.setOverstate(4);
 										projectModelDao
 												.updateByPrimaryKey(project);
+										
+										//by xiao
+										//项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
+										//先找到该项目关联的所有流程任务
+										/*select processid from tb_config_value where value=2 and configid in
+										(select tb_config.id from tb_config where name="项目id" and moduleid=2)*/
+										ConfigValueModel valuemodel = new ConfigValueModel();
+										valuemodel.setName("项目id");
+										valuemodel.setValue("2");
+										valuemodel.setModuleid(2);
+										List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
+										if (valueList.size() > 0) {
+											for (ConfigValueModel value : valueList) {
+												Long idProcess= value.getProcessId();
+												ProcessModel process = processModelDao.selectByPrimaryKey(idProcess);
+												String sProgress = process.getProgress();
+												if( sProgress.length() > 0)
+												{
+													int index = sProgress.lastIndexOf(',');
+													sProgress = sProgress.substring(0, index+1) + "100";
+													process.setProgress(sProgress);
+												}
+												process.setState(3); //流程完成
+												process.setStagestate(3); //阶段完成
+												processModelDao.updateByPrimaryKey(process);
+											}
+											
+										}
 									}
 									status = Boolean.valueOf(true);
 								}
@@ -1138,6 +1179,222 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("option", e.getMessage());
 		}
 		logger.debug("QCUndoProjectIDs end!");
+		return json;
+	}
+	
+	//by xiao
+	@RequestMapping(params = "action=selectProcessByID", method = RequestMethod.POST)
+	private ModelAndView selectProcessByID(Model model, HttpSession session,
+			HttpServletRequest request, @RequestParam("processid") String processID) {
+		logger.debug("selectProcessByID start!");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			ProcessModel process = processModelDao.selectByPrimaryKey(Long.valueOf(processID));
+			model.addAttribute("status", true);
+			model.addAttribute("option", process);
+		} catch (Exception e) {
+			e.printStackTrace();
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+		logger.debug("selectProcessByID end!");
+		return json;
+	}
+	
+	//by xiao
+	@RequestMapping(params = "action=updateProcessProgressByID", method = RequestMethod.POST)
+	private ModelAndView updateProcessProgressByID(Model model,
+			HttpSession session, HttpServletRequest request,
+			@RequestParam("processid") String processID,
+			@RequestParam("stage") Integer stage,
+			@RequestParam("progress") String progress) {
+		logger.debug("updateProcessProgressByID start!");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		Boolean status = false;
+		try {
+			ProcessModel process = processModelDao.selectByPrimaryKey(Long
+					.valueOf(processID));
+
+			String sProgress = process.getProgress();
+			if( sProgress.length() > 0)
+			{
+				int index = 0;
+				for (int i = 0; i < stage-1; i++) {
+					index = sProgress.indexOf(',', index+1);
+				}
+
+				if(stage == 1){
+					sProgress = progress + sProgress.substring(sProgress.indexOf(','));
+				}
+				else if(stage == 4) {
+					sProgress = sProgress.substring(0, index+1) + progress;
+				}
+				else{
+					String s1 = sProgress.substring(0, index+1);
+					String s2 = sProgress.substring(sProgress.indexOf(',', index+1));
+					sProgress = s1 + progress + s2;
+				}
+				process.setProgress(sProgress);
+				if(progress.compareTo("100") == 0 && stage == process.getStage()) {
+					process.setStagestate(3); //阶段进度为100时，自动将该阶段的状态设置为完成
+
+					//若下一阶段为自动开启状态，则直接设置为下一阶段开启
+					if(stage < 4) {
+						ConfigValueModel modelConfig = new ConfigValueModel();
+						Integer module = 0;
+						if(stage == 1) { //当前为第一阶段时，若完成，自动开始的第二阶段也属于模块1
+							module = 1;
+						}else if( stage == 2 || stage == 3) { //当前为第二阶段时，若完成，自动开始的第三杰顿属于模块2
+							module = 2;
+						}
+
+						modelConfig.setModuleid(module);
+						modelConfig.setName("启动类型");
+						modelConfig.setProcessId(Long.valueOf(processID));
+						ConfigValueModel valueModel = configValueModelDao.selectValueByConfig(modelConfig);
+						if(Integer.valueOf(valueModel.getValue()) == 2) { //自动
+							process.setStage(stage+1); //自动设置为下一阶段开始
+							process.setStagestate(1);
+						}
+					}
+				}
+				if (processModelDao.updateByPrimaryKey(process) > 0)
+					status = true;
+			}else {
+				status = false;
+				json.addObject("option", "进度未更新");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = false;
+			json.addObject("option", e.getMessage());
+		}
+		json.addObject("status", status);
+		logger.debug("updateProcessProgressByID end!");
+		return json;
+	}
+	
+	//by xiao
+	@RequestMapping(params = "action=selectNextProcess", method = RequestMethod.POST)
+	private ModelAndView selectNextProcess(Model model, HttpSession session,
+			HttpServletRequest request,
+			@RequestParam("stageid") Integer stageid,
+			@RequestParam("pid") String pid) {
+		logger.debug("selectNextProcess start!");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			String projectid = "-1";
+			String name = "";
+
+			ProcessModelExample example = new ProcessModelExample();
+			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria1 = example.or();
+			criteria1.andStateEqualTo(1) //流程开始
+			.andStageEqualTo(stageid)
+			.andStagestateEqualTo(1) //阶段开始
+			.andIdGreaterThan(Long.valueOf(pid));
+			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria2 = example.or();
+			criteria2.andStateEqualTo(1) //流程开始
+			.andStageEqualTo(stageid-1)
+			.andStagestateEqualTo(3) //上一个阶段完成
+			.andIdGreaterThan(Long.valueOf(pid));
+			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria3 = example.or();
+			criteria3.andStateEqualTo(1) //流程开始
+			.andStageEqualTo(stageid)
+			.andStagestateEqualTo(2) //阶段暂停
+			.andIdGreaterThan(Long.valueOf(pid));
+			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria4 = example.or();
+			criteria4.andStateEqualTo(1) //流程开始
+			.andStageEqualTo(stageid)
+			.andStagestateEqualTo(0) //阶段初始
+			.andIdGreaterThan(Long.valueOf(pid));
+			if ( stageid == 1) {
+				com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria5 = example.or();
+				criteria5.andStateEqualTo(1) //流程开始
+				.andStageEqualTo(0)  //流程初始
+				.andStagestateEqualTo(0) //阶段初始
+				.andIdGreaterThan(Long.valueOf(pid));
+			}
+
+			example.setOrderByClause("id");
+			example.setLimit(1);
+			List<ProcessModel> project = processModelDao.selectByExample(example);
+
+			Boolean status = true;
+			if(project != null && project.size() > 0){
+				ProcessModel modelP = project.get(0);
+				projectid = modelP.getId().toString();
+				name = modelP.getName();
+				modelP.setStage(stageid);
+				modelP.setStagestate(1);
+				if (processModelDao.updateByPrimaryKey(modelP) > 0) {
+					status = true;
+				}else {
+					status = false;
+					json.addObject("option", "阶段和阶段状态未更新……");
+				}
+			}
+
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("id", projectid);
+			map.put("name", name);
+			model.addAttribute("status", status);
+			model.addAttribute("option", map);
+		} catch (Exception e) {
+			e.printStackTrace();
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+		logger.debug("selectNextProcess end!");
+		return json;
+	}
+
+	//by xiao
+	@RequestMapping(params = "action=selectProcessConfigs", method = RequestMethod.POST)
+	private ModelAndView selectProcessConfigs(Model model, HttpSession session,
+			HttpServletRequest request,
+			@RequestParam("processid") Long processid,
+			@RequestParam("moduleid") Integer moduleid) {
+		logger.debug("selectProcessConfigs start!");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			ConfigValueModel value = new ConfigValueModel();
+			value.setProcessId(processid);
+			value.setModuleid(moduleid);
+			List<ConfigValueModel> configList = configValueModelDao.selectConfigsById(value);
+
+			//数据库配置信息
+			List<ConfigDBModel> dbList = configDBModelDao.selectDbInfos();
+			//将数据库id换成详细信息
+			for(ConfigValueModel modelValue : configList){
+				if(modelValue.getName().endsWith("库")) {
+					for(ConfigDBModel modelDb : dbList) {
+						if(modelDb.getId() == Integer.valueOf(modelValue.getValue())) {
+							Integer dbtype = modelDb.getDbtype();
+							String sdbtype = "";
+							if(dbtype == 1) {
+								sdbtype = "mysql";
+							}else if(dbtype == 2) {
+								sdbtype = "postgre";
+							}
+
+							String sDbInfo = String.format("DBTYPE=%s;DBNAME=%s;SERVER=%s;USER=%s;PWD=%s;PORT=%s;", 
+									sdbtype,modelDb.getDbname(),modelDb.getIp(),modelDb.getUser(),modelDb.getPassword(),modelDb.getPort());
+
+							modelValue.setValue(sDbInfo);
+							break;
+						}
+					}
+				}
+			}
+
+			model.addAttribute("status", true);
+			model.addAttribute("option", configList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+		logger.debug("selectProcessConfigs end!");
 		return json;
 	}
 	

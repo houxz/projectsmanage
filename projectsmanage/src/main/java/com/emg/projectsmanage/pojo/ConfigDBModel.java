@@ -1,6 +1,6 @@
 package com.emg.projectsmanage.pojo;
 
-public class CondigDBModel {
+public class ConfigDBModel {
     private Integer id;
 
     private String ip;

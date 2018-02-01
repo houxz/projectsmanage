@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.projectsmanage.dao.process.ConfigValueModelDao">
+	<resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.ConfigValueModel">
+		<id column="ida" property="id" jdbcType="BIGINT" />
+		<result column="processid" property="processid" jdbcType="BIGINT" />
+		<result column="moduleid" property="moduleid" jdbcType="INTEGER" />
+		<result column="configid" property="configid" jdbcType="INTEGER" />
+		<result column="value" property="value" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		tb_config_value.id as ida, processid, configid, value, name
+	</sql>
+	
+	<select id="selectConfigsById" resultMap="BaseResultMap"
+		parameterType="com.emg.projectsmanage.pojo.ConfigValueModel">
+		select
+		<include refid="Base_Column_List" />
+		from tb_config_value,tb_config
+		where processid = #{processid,jdbcType=BIGINT}
+		 AND tb_config_value.moduleid = #{moduleid,jdbcType=INTEGER}
+		 AND tb_config_value.configid = tb_config.id
+	</select>
+	
+	<select id="selectProcessIdByConfig" resultMap="BaseResultMap"
+		parameterType="com.emg.projectsmanage.pojo.ConfigValueModel">
+		select
+		processid
+		from tb_config_value
+		where value = #{value,jdbcType=VARCHAR}
+		 AND configid in
+		 (select tb_config.id from tb_config where name=#{name,jdbcType=VARCHAR} AND moduleid = #{moduleid, jdbcType=INTEGER})
+	</select>
+	
+	<select id="selectValueByConfig" resultMap="BaseResultMap"
+		parameterType="com.emg.projectsmanage.pojo.ConfigValueModel">
+		select
+		value
+		from tb_config_value
+		where processid = #{processid,jdbcType=BIGINT}
+		AND moduleid = #{moduleid,jdbcType=INTEGER}
+		 AND configid in
+		 (select tb_config.id from tb_config where name=#{name,jdbcType=VARCHAR} AND moduleid = #{moduleid, jdbcType=INTEGER})
+	</select>
+	
+</mapper>

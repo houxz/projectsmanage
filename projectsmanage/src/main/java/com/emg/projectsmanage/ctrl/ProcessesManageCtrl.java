@@ -35,11 +35,11 @@ import com.emg.projectsmanage.common.PriorityLevel;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ItemAreaType;
 import com.emg.projectsmanage.common.RoleType;
-import com.emg.projectsmanage.dao.process.CondigDBModelDao;
+import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigValueModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
-import com.emg.projectsmanage.pojo.CondigDBModel;
+import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.ItemAreaModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
@@ -61,7 +61,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 	private ProcessModelDao processModelDao;
 
 	@Autowired
-	private CondigDBModelDao condigDBModelDao;
+	private ConfigDBModelDao configDBModelDao;
 
 	@Autowired
 	private ProcessConfigModelDao processConfigModelDao;
@@ -201,7 +201,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			List<ProcessConfigValueModel> configValues = new ArrayList<ProcessConfigValueModel>();
 
 			ProcessConfigModel config332 = processConfigModelDao.selectByPrimaryKey(1);
-			CondigDBModel condigDBModel332 = condigDBModelDao.selectByPrimaryKey(Integer.valueOf(config332.getDefaultValue()));
+			ConfigDBModel configDBModel332 = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config332.getDefaultValue()));
 			if (isNewProcess) {
 				String config_1_4 = newProcessName + "_质检";
 
@@ -211,7 +211,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				newpro.setCreateby(uid);
 				newpro.setPriority(priority);
 
-				projectid332 = newProject(condigDBModel332, newpro);
+				projectid332 = newProject(configDBModel332, newpro);
 				if (projectid332 > 0) {
 					ProcessConfigValueModel configValue = new ProcessConfigValueModel();
 					configValue.setProcessid(newProcessID);
@@ -244,11 +244,11 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				pro.setId(projectid332);
 				pro.setName(config_1_4);
 				pro.setPriority(priority);
-				updateProject(condigDBModel332, pro);
+				updateProject(configDBModel332, pro);
 			}
 
 			ProcessConfigModel config349 = processConfigModelDao.selectByPrimaryKey(9);
-			CondigDBModel condigDBModel349 = condigDBModelDao.selectByPrimaryKey(Integer.valueOf(config349.getDefaultValue()));
+			ConfigDBModel configDBModel349 = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config349.getDefaultValue()));
 			if (isNewProcess) {
 				String config_2_12 = newProcessName + "_改错";
 
@@ -259,7 +259,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				newpro.setPriority(priority);
 				newpro.setOwner(owner);
 
-				projectid349 = newProject(condigDBModel349, newpro);
+				projectid349 = newProject(configDBModel349, newpro);
 				if (projectid349 > 0) {
 					ProcessConfigValueModel configValue = new ProcessConfigValueModel();
 					configValue.setProcessid(newProcessID);
@@ -293,7 +293,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				pro.setName(config_2_12);
 				pro.setPriority(priority);
 				pro.setOwner(owner);
-				updateProject(condigDBModel349, pro);
+				updateProject(configDBModel349, pro);
 			}
 
 			if(strWorkers != null && !strWorkers.isEmpty()) {
@@ -303,7 +303,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					worker.setId(Integer.valueOf(strWorker));
 					workers.add(worker);
 				}
-				setWorkers(condigDBModel349, projectid349, workers, uid, 349);
+				setWorkers(configDBModel349, projectid349, workers, uid, 349);
 			}
 
 			List<ProcessConfigModel> processConfigs = processConfigModelDao.selectAllProcessConfigModels();
@@ -399,16 +399,16 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						projectid349 = Long.valueOf(configValue.getValue());
 					}
 				}
-				CondigDBModel condigDBModel332 = condigDBModelDao.selectByPrimaryKey(configDBid332);
-				CondigDBModel condigDBModel349 = condigDBModelDao.selectByPrimaryKey(configDBid349);
+				ConfigDBModel configDBModel332 = configDBModelDao.selectByPrimaryKey(configDBid332);
+				ConfigDBModel configDBModel349 = configDBModelDao.selectByPrimaryKey(configDBid349);
 				ProjectModel pro332 = new ProjectModel();
 				pro332.setId(projectid332);
 				pro332.setPriority(priority);
-				updateProject(condigDBModel332, pro332);
+				updateProject(configDBModel332, pro332);
 				ProjectModel pro349 = new ProjectModel();
 				pro349.setId(projectid349);
 				pro349.setPriority(priority);
-				updateProject(condigDBModel349, pro349);
+				updateProject(configDBModel349, pro349);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -478,9 +478,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			}
 
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			CondigDBModel condigDBModel = condigDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
-			itemAreas = getItemAreas(condigDBModel, type, itemAreaModel);
+			itemAreas = getItemAreas(configDBModel, type, itemAreaModel);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
@@ -523,9 +523,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			}
 			
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(1);
-			CondigDBModel condigDBModel = condigDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
-			workers = getWorkers(condigDBModel, employeeModel);
+			workers = getWorkers(configDBModel, employeeModel);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
@@ -547,15 +547,15 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return dataSource;
 	}
 
-	private String getUrl(CondigDBModel condigDBModel) {
+	private String getUrl(ConfigDBModel configDBModel) {
 		StringBuffer url = new StringBuffer();
 		try {
 			url.append("jdbc:mysql://");
-			url.append(condigDBModel.getIp());
+			url.append(configDBModel.getIp());
 			url.append(":");
-			url.append(condigDBModel.getPort());
+			url.append(configDBModel.getPort());
 			url.append("/");
-			url.append(condigDBModel.getDbname());
+			url.append(configDBModel.getDbname());
 			url.append("?characterEncoding=UTF-8");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -564,7 +564,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return url.toString();
 	}
 
-	private List<ItemAreaModel> getItemAreas(CondigDBModel condigDBModel, Integer type, ItemAreaModel itemArea) {
+	private List<ItemAreaModel> getItemAreas(ConfigDBModel configDBModel, Integer type, ItemAreaModel itemArea) {
 		List<ItemAreaModel> list = new ArrayList<ItemAreaModel>();
 		try {
 			StringBuffer sql = new StringBuffer();
@@ -595,7 +595,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			sql.append(" GROUP BY `province`,`city`");
 			sql.append(" ORDER BY `type`,`id`");
 
-			BasicDataSource dataSource = getDataSource(getUrl(condigDBModel), condigDBModel.getUser(), condigDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			list = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemAreaModel>(ItemAreaModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -604,7 +604,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return list;
 	}
 
-	private Long newProject(CondigDBModel condigDBModel, final ProjectModel newProject) {
+	private Long newProject(ConfigDBModel configDBModel, final ProjectModel newProject) {
 		Long newProjectID = -1L;
 		try {
 			final StringBuffer sql = new StringBuffer();
@@ -612,7 +612,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			sql.append(" VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ");
 
 			KeyHolder keyHolder = new GeneratedKeyHolder();
-			BasicDataSource dataSource = getDataSource(getUrl(condigDBModel), condigDBModel.getUser(), condigDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			new JdbcTemplate(dataSource).update(new PreparedStatementCreator() {
 				public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
 					PreparedStatement ps = conn.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
@@ -639,7 +639,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return newProjectID;
 	}
 
-	private Integer updateProject(CondigDBModel condigDBModel, ProjectModel project) {
+	private Integer updateProject(ConfigDBModel configDBModel, ProjectModel project) {
 		Integer ret = -1;
 		try {
 			StringBuffer sql = new StringBuffer();
@@ -656,7 +656,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			}
 			sql.append(" WHERE `id` = " + project.getId());
 
-			BasicDataSource dataSource = getDataSource(getUrl(condigDBModel), condigDBModel.getUser(), condigDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			ret = new JdbcTemplate(dataSource).update(sql.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -665,7 +665,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return ret;
 	}
 
-	private List<EmployeeModel> getWorkers(CondigDBModel condigDBModel, EmployeeModel employeeModel) {
+	private List<EmployeeModel> getWorkers(ConfigDBModel configDBModel, EmployeeModel employeeModel) {
 		List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
 		try {
 			List<Integer> ids = new ArrayList<Integer>();
@@ -674,7 +674,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			sql.append(" FROM tb_user_roles ");
 			sql.append(" WHERE `roleid` in ( " + RoleType.ROLE_WORKER.getValue() + " , " + RoleType.ROLE_CHECKER.getValue() + " )");
 
-			BasicDataSource dataSource = getDataSource(getUrl(condigDBModel), condigDBModel.getUser(), condigDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			List<UserRoleModel> userRoleModels = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<UserRoleModel>(UserRoleModel.class));
 			for (UserRoleModel userRoleModel : userRoleModels) {
 				Integer id = userRoleModel.getUserid();
@@ -699,7 +699,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return workers;
 	}
 
-	private Integer setWorkers(CondigDBModel condigDBModel, Long pid, List<EmployeeModel> workers, Integer opuid, Integer systemid) {
+	private Integer setWorkers(ConfigDBModel configDBModel, Long pid, List<EmployeeModel> workers, Integer opuid, Integer systemid) {
 		Integer ret = -1;
 		if (workers.size() <= 0)
 			return ret;
@@ -709,7 +709,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			sql_del.append(" FROM tb_projects_user ");
 			sql_del.append(" WHERE `pid` = " + pid);
 
-			BasicDataSource dataSource = getDataSource(getUrl(condigDBModel), condigDBModel.getUser(), condigDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 			Integer ret_del = jdbc.update(sql_del.toString());
 			if (ret_del >= 0) {
