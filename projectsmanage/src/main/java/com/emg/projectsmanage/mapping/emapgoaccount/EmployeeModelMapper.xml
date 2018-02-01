@@ -67,6 +67,25 @@
 			</if>
 		</where>
 	</select>
+	
+	<select id="getEmployeesByIDSAndRealname" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM tb_employee
+		<where>
+			<if test="ids != null">
+				`id` in
+				<foreach item="id" index="index" collection="ids" open="("
+					separator="," close=")">
+					#{id}
+				</foreach>
+			</if>
+			<if test="realname != null">
+				AND `realname` like #{realname}
+			</if>
+		</where>
+	</select>
 
 	<select id="getEmployeeListForZTree" resultType="java.util.HashMap">
 		SELECT

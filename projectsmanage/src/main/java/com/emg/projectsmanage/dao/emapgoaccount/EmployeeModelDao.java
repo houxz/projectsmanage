@@ -12,5 +12,7 @@ public interface EmployeeModelDao {
 	
 	List<EmployeeModel> getEmployeeByIDS(Map<String, List<Integer>> map);
 	
+	List<EmployeeModel> getEmployeesByIDSAndRealname(Map<String, Object> map);
+	
 	List<Map<String, Object>> getEmployeeListForZTree();
 }

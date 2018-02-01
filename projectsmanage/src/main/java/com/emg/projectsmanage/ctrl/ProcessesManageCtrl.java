@@ -493,16 +493,39 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return json;
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=getworkers")
 	public ModelAndView getWorkers(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProcessesManageCtrl-getWorkers start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
 		try {
+			String _filter = ParamUtils.getParameter(request, "filter", "");
+			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
+			
+			Map<String, Object> filterPara = null;
+			EmployeeModel employeeModel = new EmployeeModel();
+			if (filter.length() > 0) {
+				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
+				for (String key : filterPara.keySet()) {
+					switch (key) {
+					case "id":
+						employeeModel.setId(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					case "realname":
+						employeeModel.setRealname(filterPara.get(key).toString());
+						break;
+					default:
+						logger.debug("未处理的筛选项：" + key);
+						break;
+					}
+				}
+			}
+			
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(1);
 			CondigDBModel condigDBModel = condigDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
-			workers = getWorkers(condigDBModel);
+			workers = getWorkers(condigDBModel, employeeModel);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
@@ -642,9 +665,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return ret;
 	}
 
-	private List<EmployeeModel> getWorkers(CondigDBModel condigDBModel) {
+	private List<EmployeeModel> getWorkers(CondigDBModel condigDBModel, EmployeeModel employeeModel) {
 		List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
 		try {
+			List<Integer> ids = new ArrayList<Integer>();
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
 			sql.append(" FROM tb_user_roles ");
@@ -652,12 +676,22 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 			BasicDataSource dataSource = getDataSource(getUrl(condigDBModel), condigDBModel.getUser(), condigDBModel.getPassword());
 			List<UserRoleModel> userRoleModels = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<UserRoleModel>(UserRoleModel.class));
-			List<Integer> ids = new ArrayList<Integer>();
 			for (UserRoleModel userRoleModel : userRoleModels) {
 				Integer id = userRoleModel.getUserid();
 				ids.add(id);
 			}
-			workers = emapgoAccountService.getEmployeeByIDS(ids);
+			
+			if(employeeModel.getId() != null) {
+				if(ids.contains(employeeModel.getId())) {
+					ids.clear();
+					ids.add(employeeModel.getId());
+				} else {
+					return new ArrayList<EmployeeModel>();
+				}
+			}
+			
+			if(ids.size() > 0)
+				workers = emapgoAccountService.getEmployeesByIDSAndRealname(ids, employeeModel.getRealname());
 		} catch (Exception e) {
 			e.printStackTrace();
 			workers = new ArrayList<EmployeeModel>();

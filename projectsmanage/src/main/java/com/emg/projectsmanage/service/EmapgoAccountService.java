@@ -44,6 +44,15 @@ public class EmapgoAccountService {
 		map.put("ids", ids);
 		return employeeModelDao.getEmployeeByIDS(map);
 	}
+	
+	@Cacheable(value = CACHEVALUE, key = "#root.methodName + #ids + #realname")
+	public List<EmployeeModel> getEmployeesByIDSAndRealname(List<Integer> ids, String realname) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("ids", ids);
+		if(realname != null && realname.length() > 0)
+			map.put("realname", "%"+realname+"%");
+		return employeeModelDao.getEmployeesByIDSAndRealname(map);
+	}
 
 	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
 	public List<Map<String, Object>> getEmployeeListForZTree() {

@@ -636,7 +636,7 @@
 	<div id="workers" style="display: none;">
 		<table id="workerlist" class="table-condensed" data-unique-id="id"
 			data-url="./processesmanage.web?atn=getworkers" data-cache="false"
-			data-side-pagination="server" data-filter-control="false"
+			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
 			data-toggle="workers" data-height="374"
