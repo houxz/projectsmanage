@@ -22,6 +22,10 @@
 			return "1004";
 		} else if (url.indexOf("/capacitycount.web") > 0) {
 			return "1005";
+		} else if (url.indexOf("/itemsetmanage.web") > 0) {
+			return "1006";
+		} else if (url.indexOf("/itemsetmanage.web") > 0) {
+			return "1007";
 		}
 		return "0000";
 	}%>
@@ -75,6 +79,14 @@
 					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
 						<li class="<%="990".equals(menucode) ? "active" : ""%>"><a
 							href="<c:url value='systemsets.web'/>">系统配置</a></li>
+					</sec:authorize>
+					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
+						<li class="<%="1006".equals(menucode) ? "active" : ""%>"><a
+							href="<c:url value='itemsetmanage.web'/>">图层配置</a></li>
+					</sec:authorize>
+					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
+						<li class="<%="1007".equals(menucode) ? "active" : ""%>"><a
+							href="<c:url value='itemsetmanage.web'/>">质检项配置</a></li>
 					</sec:authorize>
 				</ul>
 

@@ -127,10 +127,12 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				example.setLimit(limit);
 			if (offset.compareTo(0) > 0)
 				example.setOffset(offset);
-			List<ProcessModel> projectsTaskCountModels = processModelDao.selectByExample(example);
+			example.setOrderByClause("`priority` desc, `id`");
+			
+			List<ProcessModel> rows = processModelDao.selectByExample(example);
 			int count = processModelDao.countByExample(example);
 
-			json.addObject("rows", projectsTaskCountModels);
+			json.addObject("rows", rows);
 			json.addObject("total", count);
 			json.addObject("result", 1);
 		} catch (Exception e) {

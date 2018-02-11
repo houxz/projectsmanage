@@ -1,23 +1,25 @@
 package com.emg.projectsmanage.pojo;
 
-public class ItemSetModel {
+public class ItemInfoModel {
     private Long id;
+    
+    private String oid;
 
     private String name;
 
     private String layername;
+    
+    private Byte enable;
+    
+    private Byte unit;
 
     private Integer type;
-
-    private Integer enable;
 
     private Integer systype;
 
     private String referdata;
 
-    private Byte unit;
-
-    private String desc;
+    private String module;
 
     private String updatetime;
 
@@ -53,14 +55,6 @@ public class ItemSetModel {
         this.type = type;
     }
 
-    public Integer getEnable() {
-        return enable;
-    }
-
-    public void setEnable(Integer enable) {
-        this.enable = enable;
-    }
-
     public Integer getSystype() {
         return systype;
     }
@@ -85,14 +79,6 @@ public class ItemSetModel {
         this.unit = unit;
     }
 
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc == null ? null : desc.trim();
-    }
-
     public String getUpdatetime() {
         return updatetime;
     }
@@ -100,4 +86,28 @@ public class ItemSetModel {
     public void setUpdatetime(String updatetime) {
         this.updatetime = updatetime;
     }
+
+	public String getOid() {
+		return oid;
+	}
+
+	public void setOid(String oid) {
+		this.oid = oid;
+	}
+
+	public Byte getEnable() {
+		return enable;
+	}
+
+	public void setEnable(Byte enable) {
+		this.enable = enable;
+	}
+
+	public String getModule() {
+		return module;
+	}
+
+	public void setModule(String module) {
+		this.module = module;
+	}
 }

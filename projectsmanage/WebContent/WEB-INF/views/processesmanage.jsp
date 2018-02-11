@@ -44,7 +44,7 @@
 
 	});
 
-	var colors = [ "#f0ad4e", "#5bc0de", "cornflowerblue", "#5cb85c", "#d9534f" ];
+	var colors = [ "LimeGreen", "MediumSeaGreen", "MediumVioletRed", "Crimson", "Crimson" ];
 	var processStates = eval('(${processStates})');
 	var itemAreaTypes = eval('(${itemAreaTypes})');
 	var priorityLevels = eval('(${priorityLevels})');
