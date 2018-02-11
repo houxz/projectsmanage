@@ -48,12 +48,32 @@
 	var processStates = eval('(${processStates})');
 	var itemAreaTypes = eval('(${itemAreaTypes})');
 	var priorityLevels = eval('(${priorityLevels})');
+	var itemsetEnables = eval('(${itemsetEnables})');
+	var itemsetSysTypes = eval('(${itemsetSysTypes})');
+	var itemsetTypes = eval('(${itemsetTypes})');
+	var itemsetUnits = eval('(${itemsetUnits})');
 
 	function statesFormat(value, row, index) {
 		return processStates[row.state];
 	}
 	function areaTypesFormat(value, row, index) {
 		return itemAreaTypes[row.type];
+	}
+	
+	function enableFormat(value, row, index) {
+		return itemsetEnables[row.enable];
+	}
+	function sysFormat(value, row, index) {
+		return itemsetSysTypes[row.systype];
+	}
+	function typeFormat(value, row, index) {
+		return itemsetTypes[row.type];
+	}
+	function unitFormat(value, row, index) {
+		return itemsetUnits[row.unit];
+	}
+	function enableFormat(value, row, index) {
+		return itemsetEnables[row.enable];
 	}
 
 	function progressFormat(value, row, index) {
@@ -183,6 +203,7 @@
 
 		$("#config_1_5").prop('selectedIndex', 0);
 		$("#config_1_6").prop('selectedIndex', 0);
+		$("#config_1_6").siblings("p").text("已选择0个质检图层");
 		$("#config_1_7").val(new String());
 		$("#config_1_7").siblings("p").text("已选择0个质检区域");
 		$("#config_1_8").prop('selectedIndex', 0);
@@ -212,6 +233,9 @@
 					var config_1_3 = $("#config_1_3").val();
 					var config_1_4 = $("#config_1_4").val();
 					$("#config_1_4").siblings("p").text( "已关联项目:" + config_1_4 + "(" + config_1_3 + ")");
+					
+					var config_1_6 = $("#config_1_6").val();
+					$("#config_1_6").siblings("p").text("已选择" + (config_1_6 ? config_1_6.split(",").length : 0) + "个质检图层");
 
 					var config_1_7 = $("#config_1_7").val();
 					$("#config_1_7").siblings("p").text("已选择" + (config_1_7 ? config_1_7.split(",").length : 0) + "个质检区域");
@@ -464,6 +488,72 @@
 					} ]
 			});
 	}
+	
+	function getItemsets() {
+		$('[data-toggle="itemsets"]').bootstrapTable(
+				{
+					locale : 'zh-CN',
+					queryParams : function(params) {
+						return params;
+					},
+					onLoadSuccess : function(data) {
+						var values = new Array();
+						$.each($("#config_1_6").val().split(","), function(index, domEle) {
+							values[index] = parseInt(domEle);
+						});
+						$('[data-toggle="itemsets"]').bootstrapTable("checkBy", {
+									field : "id",
+									values : values
+								});
+					}
+				});
+
+		showItemsetsDlg();
+	}
+	
+	function showItemsetsDlg() {
+		$("#itemsetsDlg").dialog(
+			{
+				modal : true,
+				height : 600,
+				width : document.documentElement.clientWidth * 0.8,
+				title : "质检图层配置",
+				open : function(event, ui) {
+					$(".ui-dialog-titlebar-close").hide();
+				},
+				buttons : [
+					{
+						text : "提交",
+						class : "btn btn-default",
+						click : function() {
+							var selections = $('[data-toggle="itemsets"]').bootstrapTable('getSelections');
+							var length = selections.length;
+							var value = new String();
+							if (length > 0) {
+								$.each(selections, function(index,domEle) {
+									value += domEle.id + ",";
+								});
+								value = value.substring(0,value.length - 1);
+								$("#config_1_6").val(value);
+								$("#config_1_6").siblings("p").text("已选择" + length + "个质检图层");
+								
+								$('[data-toggle="itemsets"]').bootstrapTable("destroy");
+								$(this).dialog("close");
+							} else {
+								$.webeditor.showMsgLabel("alert","请选择质检区域");
+							}
+						}
+					},
+					{
+						text : "关闭",
+						class : "btn btn-default",
+						click : function() {
+							$('[data-toggle="itemsets"]').bootstrapTable("destroy");
+							$(this).dialog("close");
+						}
+					} ]
+			});
+	}
 </script>
 
 </head>
@@ -577,12 +667,17 @@
 					</tr>
 					<tr>
 						<td class="configKey">质检图层</td>
-						<td class="configValue"><select class="form-control"
+						<!-- <td class="configValue"><select class="form-control"
 							id="config_1_6">
 								<option value="1" selected="selected">POI</option>
 								<option value="2">Road</option>
 								<option value="3">背景</option>
-						</select></td>
+						</select></td> -->
+						<td class="configValue"><input type="hidden" id="config_1_6"
+							value="">
+							<button type="button" class="btn btn-default"
+								onclick="getItemsets();">配置质检图层</button>
+							<p class="help-block">已选择0个质检图层</p></td>
 					</tr>
 					<tr>
 						<td class="configKey">启动类型</td>
@@ -673,6 +768,40 @@
 						data-filter-control-placeholder="" data-width="120">省</th>
 					<th data-field="city" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="120">市</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div id="itemsetsDlg" style="display: none;">
+		<table id="itemsetslist" class="table-condensed" data-unique-id="id"
+			data-url="./processesmanage.web?atn=getitemsets" data-cache="false"
+			data-side-pagination="server" data-filter-control="true"
+			data-click-to-select="true" data-single-select="false"
+			data-select-item-name="checkboxName" data-pagination="false"
+			data-toggle="itemsets" data-height="474"
+			data-search-on-enter-key='true' data-align='center'>
+			<thead>
+				<tr>
+					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="id" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="20">编号</th>
+					<th data-field="name" data-filter-control="input"
+						data-filter-control-placeholder="">图层集合名称</th>
+					<th data-field="layername" data-filter-control="input"
+						data-filter-control-placeholder="">图层</th>
+					<th data-field="type" data-formatter="typeFormat"
+						data-filter-control="select" data-filter-data="var:itemsetTypes">类型</th>
+					<th data-field="enable" data-formatter="enableFormat"
+						data-filter-control="select" data-filter-data="var:itemsetEnables">状态</th>
+					<th data-field="systype" data-formatter="sysFormat"
+						data-filter-control="select"
+						data-filter-data="var:itemsetSysTypes">操作系统</th>
+					<th data-field="referdata" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="200">参考图层</th>
+					<th data-field="unit" data-formatter="unitFormat"
+						data-filter-control="select" data-filter-data="var:itemsetUnits">质检单位</th>
+					<th data-field="desc" data-filter-control="input"
+						data-filter-control-placeholder="">描述</th>
 				</tr>
 			</thead>
 		</table>

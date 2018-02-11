@@ -30,6 +30,10 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.CommonConstants;
+import com.emg.projectsmanage.common.ItemSetEnable;
+import com.emg.projectsmanage.common.ItemSetSysType;
+import com.emg.projectsmanage.common.ItemSetType;
+import com.emg.projectsmanage.common.ItemSetUnit;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.PriorityLevel;
 import com.emg.projectsmanage.common.ProcessState;
@@ -42,6 +46,7 @@ import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.ItemAreaModel;
+import com.emg.projectsmanage.pojo.ItemSetModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
 import com.emg.projectsmanage.pojo.ProcessConfigValueModel;
 import com.emg.projectsmanage.pojo.ProcessModel;
@@ -79,6 +84,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		model.addAttribute("processStates", ProcessState.toJsonStr());
 		model.addAttribute("itemAreaTypes", ItemAreaType.toJsonStr());
 		model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
+		model.addAttribute("itemsetEnables", ItemSetEnable.toJsonStr());
+		model.addAttribute("itemsetSysTypes", ItemSetSysType.toJsonStr());
+		model.addAttribute("itemsetTypes", ItemSetType.toJsonStr());
+		model.addAttribute("itemsetUnits", ItemSetUnit.toJsonStr());
 
 		return "processesmanage";
 	}
@@ -494,6 +503,74 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		logger.debug("ProcessesManageCtrl-getItemAreas end.");
 		return json;
 	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(params = "atn=getitemsets")
+	public ModelAndView getItemsets(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ProcessesManageCtrl-getItemsets start.");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<ItemSetModel> itemsets = new ArrayList<ItemSetModel>();
+		try {
+			Integer type = ParamUtils.getIntParameter(request, "type", -1);
+			String _filter = ParamUtils.getParameter(request, "filter", "");
+			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
+
+			Map<String, Object> filterPara = null;
+			ItemSetModel itemSetModel = new ItemSetModel();
+
+			if (filter.length() > 0) {
+				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
+				for (String key : filterPara.keySet()) {
+					switch (key) {
+					case "id":
+						itemSetModel.setId(Long.valueOf(filterPara.get(key).toString()));
+						break;
+					case "name":
+						itemSetModel.setName(filterPara.get(key).toString());
+						break;
+					case "layername":
+						itemSetModel.setLayername(filterPara.get(key).toString());
+						break;
+					case "type":
+						itemSetModel.setType(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					case "enable":
+						itemSetModel.setEnable(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					case "systype":
+						itemSetModel.setSystype(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					case "referdata":
+						itemSetModel.setReferdata(filterPara.get(key).toString());
+						break;
+					case "unit":
+						itemSetModel.setUnit(Byte.valueOf(filterPara.get(key).toString()));
+						break;
+					case "desc":
+						itemSetModel.setDesc(filterPara.get(key).toString());
+						break;
+					default:
+						logger.debug("未处理的筛选项：" + key);
+						break;
+					}
+				}
+			}
+
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+
+			itemsets = getItemsets(configDBModel, type, itemSetModel);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.debug(e.getMessage());
+		}
+		json.addObject("rows", itemsets);
+		json.addObject("count", itemsets.size());
+		json.addObject("result", 1);
+
+		logger.debug("ProcessesManageCtrl-getItemsets end.");
+		return json;
+	}
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=getworkers")
@@ -602,6 +679,50 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		} catch (Exception e) {
 			e.printStackTrace();
 			list = new ArrayList<ItemAreaModel>();
+		}
+		return list;
+	}
+	
+	private List<ItemSetModel> getItemsets(ConfigDBModel configDBModel, Integer type, ItemSetModel itemset) {
+		List<ItemSetModel> list = new ArrayList<ItemSetModel>();
+		try {
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT * ");
+			sql.append(" FROM tb_itemset ");
+			sql.append(" WHERE 1=1 ");
+			if (itemset.getId() != null) {
+				sql.append(" AND `id` = " + itemset.getId());
+			}
+			if (itemset.getName() != null) {
+				sql.append(" AND `name` like '%" + itemset.getName() + "%'");
+			}
+			if (itemset.getLayername() != null) {
+				sql.append(" AND `layername` like '%" + itemset.getLayername() + "%'");
+			}
+			if (itemset.getType() != null) {
+				sql.append(" AND `type` = " + itemset.getType());
+			}
+			if (itemset.getEnable() != null) {
+				sql.append(" AND `enable` = " + itemset.getEnable());
+			}
+			if (itemset.getSystype() != null) {
+				sql.append(" AND `systype` = " + itemset.getSystype());
+			}
+			if (itemset.getReferdata() != null) {
+				sql.append(" AND `referdata` like '%" + itemset.getReferdata() + "%'");
+			}
+			if (itemset.getUnit() != null) {
+				sql.append(" AND `unit` = " + itemset.getUnit());
+			}
+			if (itemset.getDesc() != null) {
+				sql.append(" AND `desc` like '%" + itemset.getDesc() + "%'");
+			}
+
+			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			list = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemSetModel>(ItemSetModel.class));
+		} catch (Exception e) {
+			e.printStackTrace();
+			list = new ArrayList<ItemSetModel>();
 		}
 		return list;
 	}
