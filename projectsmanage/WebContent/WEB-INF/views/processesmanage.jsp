@@ -315,7 +315,7 @@
 									},
 									function(json) {
 										if (json.result > 0) {
-											$.webeditor.showMsgLabel("success","新建项目成功");
+											$.webeditor.showMsgLabel("success","项目配置成功");
 											$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
 											$("#configDlg").dialog("close");
 											$('[data-toggle="processes"]').bootstrapTable('refresh');
@@ -777,12 +777,12 @@
 			data-url="./processesmanage.web?atn=getitemsets" data-cache="false"
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
-			data-select-item-name="checkboxName" data-pagination="false"
+			data-select-item-name="radio" data-pagination="false"
 			data-toggle="itemsets" data-height="474"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
-					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="state" data-radio="true"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">编号</th>
 					<th data-field="name" data-filter-control="input"
