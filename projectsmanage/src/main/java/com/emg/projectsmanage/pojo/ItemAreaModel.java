@@ -3,7 +3,7 @@ package com.emg.projectsmanage.pojo;
 public class ItemAreaModel {
     private Integer id;
 
-    private Integer type;
+    private Integer itemAreaType;
 
     private String province;
 
@@ -24,11 +24,11 @@ public class ItemAreaModel {
     }
 
     public Integer getType() {
-        return type;
+        return itemAreaType;
     }
 
     public void setType(Integer type) {
-        this.type = type;
+        this.itemAreaType = type;
     }
 
     public String getProvince() {

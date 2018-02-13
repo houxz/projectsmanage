@@ -777,20 +777,20 @@
 			data-url="./processesmanage.web?atn=getitemsets" data-cache="false"
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
-			data-select-item-name="radio" data-pagination="false"
+			data-select-item-name="checkbox" data-pagination="false"
 			data-toggle="itemsets" data-height="474"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
-					<th data-field="state" data-radio="true"></th>
+					<th data-field="state" data-checkbox="true"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">编号</th>
 					<th data-field="name" data-filter-control="input"
 						data-filter-control-placeholder="">图层集合名称</th>
 					<th data-field="layername" data-filter-control="input"
 						data-filter-control-placeholder="">图层</th>
-					<th data-field="type" data-formatter="typeFormat"
-						data-filter-control="select" data-filter-data="var:itemsetTypes">类型</th>
+					<!-- <th data-field="type" data-formatter="typeFormat"
+						data-filter-control="select" data-filter-data="var:itemsetTypes">类型</th> -->
 					<th data-field="enable" data-formatter="enableFormat"
 						data-filter-control="select" data-filter-data="var:itemsetEnables">状态</th>
 					<th data-field="systype" data-formatter="sysFormat"

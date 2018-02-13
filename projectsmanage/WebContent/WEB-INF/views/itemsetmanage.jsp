@@ -69,9 +69,6 @@
 		return html.join('');
 	}
 	
-	function enableFormat(value, row, index) {
-		return itemsetEnables[row.enable];
-	}
 	function sysFormat(value, row, index) {
 		return itemsetSysTypes[row.systype];
 	}
@@ -250,7 +247,7 @@
 		$("#dlgItems").dialog(
 				{
 					modal : true,
-					width : document.documentElement.clientWidth * 0.5,
+					width : document.documentElement.clientWidth * 0.3,
 					title : "质检项配置",
 					open : function(event, ui) {
 						$(".ui-dialog-titlebar-close").hide();
@@ -356,7 +353,7 @@
 	<div class="container" style="max-width: 80%;">
 		<div id="headdiv"></div>
 		<div class="row" style="padding-top: 20px;">
-			<table id="layerslist" data-unique-id="id"
+			<table id="itemsetslist" data-unique-id="id"
 				data-query-params="queryParams"
 				data-url="./itemsetmanage.web?atn=pages" data-side-pagination="server"
 				data-filter-control="true" data-pagination="true"
@@ -510,39 +507,20 @@
 		</table>
 	</div>
 	<div id="dlgItems" style="display: none;">
-		<table id="layerslist" class="table-condensed" data-unique-id="id"
-			data-url="./itemsetmanage.web?atn=getitems" data-cache="false"
+		<table id="itemslist" class="table-condensed" data-unique-id="id"
+			data-url="./itemsetmanage.web?atn=getqids" data-cache="false"
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="items" data-height="470"
+			data-toggle="items" data-height="325"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
 					<th data-field="state" data-checkbox="true"></th>
-					<th data-field="id" data-filter-control-placeholder=""
-						data-filter-control="input">编号</th>
 					<th data-field="oid" data-filter-control-placeholder=""
-						data-filter-control="input">QID</th>
+						data-filter-control="input" data-width="80">QID</th>
 					<th data-field="name" data-filter-control-placeholder=""
-						data-filter-control="input">名称</th>
-					<th data-field="layername" data-filter-control="input"
-						data-filter-control-placeholder="">图层</th>
-					<th data-field="enable" data-formatter="enableFormat"
-						data-filter-control="select" data-filter-data="var:itemsetEnables">状态</th>
-					<th data-field="unit" data-formatter="unitFormat"
-						data-filter-control="select" data-filter-data="var:itemsetUnits">质检单位</th>
-					<th data-field="type" data-formatter="typeFormat"
-						data-filter-control="select" data-filter-data="var:itemsetTypes">类型</th>
-					<th data-field="systype" data-formatter="sysFormat"
-						data-filter-control="select"
-						data-filter-data="var:itemsetSysTypes">操作系统</th>
-					<th data-field="referdata" data-filter-control="input"
-						data-filter-control-placeholder="">参考图层</th>
-					<th data-field="module" data-filter-control="input"
-						data-filter-control-placeholder="">所属模块</th>
-					<th data-field="desc" data-filter-control="input"
-						data-filter-control-placeholder="">描述</th>
+						data-filter-control="input" data-width="260">名称</th>
 				</tr>
 			</thead>
 		</table>

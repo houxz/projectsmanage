@@ -180,7 +180,7 @@
 					<div class="panel-body">
 						<div class="input-group">
 							<input type="input" class="form-control" id="input-expand-node"
-								placeholder="查找人员">
+								placeholder="查找人员" onkeypress="if (event.keyCode==13) { findExpandibleNodess(); }">
 							<div class="input-group-btn">
 								<button type="button" class="btn btn-default" tabindex="-1"
 									onclick="findExpandibleNodess();">

@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,24 +28,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import com.emg.projectsmanage.common.ItemSetEnable;
 import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
 import com.emg.projectsmanage.common.ItemSetUnit;
-import com.emg.projectsmanage.common.LayerElement;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
+import com.emg.projectsmanage.pojo.ErrorSetModel;
 import com.emg.projectsmanage.pojo.ItemInfoModel;
-import com.emg.projectsmanage.pojo.ItemSetModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
 
 @Controller
-@RequestMapping("/itemsetmanage.web")
-public class ItemSetManageCtrl extends BaseCtrl {
+@RequestMapping("/errorsetmanage.web")
+public class ErrorSetManageCtrl extends BaseCtrl {
 
-	private static final Logger logger = LoggerFactory.getLogger(ItemSetManageCtrl.class);
+	private static final Logger logger = LoggerFactory.getLogger(ErrorSetManageCtrl.class);
 
 	@Autowired
 	private ProcessConfigModelDao processConfigModelDao;
@@ -63,15 +60,13 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	 */
 	@RequestMapping()
 	public String openLader(Model model, HttpSession session, HttpServletRequest request) {
-		logger.debug("LayerManageCtrl-openLader start.");
+		logger.debug("ErrorSetManageCtrl-openLader start.");
 		try {
-			model.addAttribute("itemsetEnables", ItemSetEnable.toJsonStr());
-			model.addAttribute("itemsetSysTypes", ItemSetSysType.toJsonStr());
-			model.addAttribute("itemsetTypes", ItemSetType.toJsonStr());
-			model.addAttribute("itemsetUnits", ItemSetUnit.toJsonStr());
-			model.addAttribute("layerElements", LayerElement.toJsonStr());
+			model.addAttribute("errorsetSysTypes", ItemSetSysType.toJsonStr());
+			model.addAttribute("errorsetTypes", ItemSetType.toJsonStr());
+			model.addAttribute("errorsetUnits", ItemSetUnit.toJsonStr());
 
-			return "itemsetmanage";
+			return "errorsetmanage";
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "redirect:login.jsp";
@@ -81,7 +76,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=pages")
 	public ModelAndView pages(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("LayerManageCtrl-pages start.");
+		logger.debug("ErrorSetManageCtrl-pages start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
@@ -90,7 +85,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
 
 			Map<String, Object> filterPara = null;
-			ItemSetModel record = new ItemSetModel();
+			ErrorSetModel record = new ErrorSetModel();
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {
@@ -101,14 +96,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					case "name":
 						record.setName(filterPara.get(key).toString());
 						break;
-					case "layername":
-						record.setLayername(filterPara.get(key).toString());
-						break;
 					case "type":
 						record.setType(Integer.valueOf(filterPara.get(key).toString()));
-						break;
-					case "enable":
-						record.setEnable(Integer.valueOf(filterPara.get(key).toString()));
 						break;
 					case "systype":
 						record.setSystype(Integer.valueOf(filterPara.get(key).toString()));
@@ -129,8 +118,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				}
 			}
 
-			List<ItemSetModel> rows = selectItemSets(record, limit, offset);
-			Integer count = countItemSets(record, limit, offset);
+			List<ErrorSetModel> rows = selectErrorSets(record, limit, offset);
+			Integer count = countErrorSets(record, limit, offset);
 
 			json.addObject("rows", rows);
 			json.addObject("total", count);
@@ -140,87 +129,45 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			logger.debug(e.getMessage());
 		}
 
-		logger.debug("LayerManageCtrl-pages end.");
+		logger.debug("ErrorSetManageCtrl-pages end.");
 		return json;
 	}
 
-	@RequestMapping(params = "atn=getitemset")
-	public ModelAndView getItemSet(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("LayerManageCtrl-getItemSet start.");
+	@RequestMapping(params = "atn=geterrorset")
+	public ModelAndView getErrorSet(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ErrorSetManageCtrl-getErrorSet start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		ItemSetModel itemset = new ItemSetModel();
-		String itemDetails = new String();
+		ErrorSetModel errorSet = new ErrorSetModel();
+		String errorDetails = new String();
 		try {
-			Long itemsetid = ParamUtils.getLongParameter(request, "itemsetid", -1L);
-			ItemSetModel record = new ItemSetModel();
-			record.setId(itemsetid);
-			List<ItemSetModel> rows = selectItemSets(record, 1, 0);
+			Long errorsetid = ParamUtils.getLongParameter(request, "itemsetid", -1L);
+			ErrorSetModel record = new ErrorSetModel();
+			record.setId(errorsetid);
+			List<ErrorSetModel> rows = selectErrorSets(record, 1, 0);
 			if (rows.size() >= 0) {
-				itemset = rows.get(0);
-				List<Long> items = getItemSetDetailsByItemSetID(itemsetid);
+				errorSet = rows.get(0);
+				List<Long> items = getErrorSetDetailsByErrorSetID(errorsetid);
 				if(items.size() > 0) {
 					for(Long item : items) {
-						itemDetails += item + ";";
+						errorDetails += item + ";";
 					}
-					itemDetails = itemDetails.substring(0, itemDetails.length() - 1);
+					errorDetails = errorDetails.substring(0, errorDetails.length() - 1);
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
 		}
-		json.addObject("itemset", itemset);
-		json.addObject("itemDetails", itemDetails);
-		logger.debug("LayerManageCtrl-getItemSet end.");
+		json.addObject("errorset", errorSet);
+		json.addObject("itemDetails", errorDetails);
+		logger.debug("ErrorSetManageCtrl-getErrorSet end.");
 		return json;
 	}
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(params = "atn=getlayers")
-	public ModelAndView getLayers(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("LayerManageCtrl-getLayerSet start.");
-		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
-		try {
-			String _filter = ParamUtils.getParameter(request, "filter", "");
-			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
-			Map<String, Object> filterPara = new HashMap<String, Object>();
-			if (filter != null && !filter.isEmpty()) {
-				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
-			}
-			for (LayerElement val : LayerElement.values()) {
-				Map<String, Object> row = new HashMap<String, Object>();
-				if(!filterPara.isEmpty()) {
-					if(filterPara.containsKey("id") && !val.getValue().equals(Integer.valueOf(filterPara.get("id").toString()))) {
-						continue;
-					}
-					if(filterPara.containsKey("name") && !val.toString().contains(filterPara.get("name").toString())) {
-						continue;
-					}
-					if(filterPara.containsKey("desc") && !val.getDes().contains(filterPara.get("desc").toString())) {
-						continue;
-					}
-				}
-				row.put("id", val.getValue());
-				row.put("name", val.toString());
-				row.put("desc", val.getDes());
-				rows.add(row);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
-		}
-		json.addObject("rows", rows);
-		json.addObject("total", rows.size());
-		json.addObject("result", 1);
-		logger.debug("LayerManageCtrl-getLayerSet end.");
-		return json;
-	}
-
-	@SuppressWarnings("unchecked")
-	@RequestMapping(params = "atn=getqids")
-	public ModelAndView getQIDs(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("LayerManageCtrl-getQIDs start.");
+	@RequestMapping(params = "atn=geterrortypes")
+	public ModelAndView getErrorTypes(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ErrorSetManageCtrl-getErrorTypes start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		List<ItemInfoModel> items = new ArrayList<ItemInfoModel>();
 		try {
@@ -247,7 +194,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					}
 				}
 			}
-			items = selectQIDs(oid, name, limit, offset);
+			items = selectErrorTypes(oid, name, limit, offset);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
@@ -255,21 +202,19 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		json.addObject("rows", items);
 		json.addObject("total", items.size());
 		json.addObject("result", 1);
-		logger.debug("LayerManageCtrl-getQIDs end.");
+		logger.debug("ErrorSetManageCtrl-getErrorTypes end.");
 		return json;
 	}
 	
-	@RequestMapping(params = "atn=submititemset")
-	public ModelAndView submitItemSet(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("LayerManageCtrl-submitItemSet start.");
+	@RequestMapping(params = "atn=submiterrorset")
+	public ModelAndView submitErrorSet(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ErrorSetManageCtrl-submitErrorSet start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean ret = false;
 		try {
 			Long itemSetID = ParamUtils.getLongParameter(request, "itemSetID", -1L);
 			String name = ParamUtils.getParameter(request, "name");
-			String layername = ParamUtils.getParameter(request, "layername");
 			Integer type = ParamUtils.getIntParameter(request, "type", -1);
-			Integer enable = ParamUtils.getIntParameter(request, "enable", -1);
 			Integer systype = ParamUtils.getIntParameter(request, "systype", -1);
 			String referdata = ParamUtils.getParameter(request, "referdata");
 			Integer unit = ParamUtils.getIntParameter(request, "unit", -1);
@@ -285,35 +230,31 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			
 			Boolean isNewItemSet = itemSetID.compareTo(0L) == 0;
 			if(isNewItemSet) {
-				ItemSetModel record = new ItemSetModel();
+				ErrorSetModel record = new ErrorSetModel();
 				record.setName(name);
-				record.setLayername(layername);
-				record.setEnable(enable);
 				record.setType(type);
 				record.setSystype(systype);
 				record.setReferdata(referdata);
 				record.setUnit(unit.byteValue());
 				record.setDesc(desc);
 				
-				itemSetID = insertItemset(record);
+				itemSetID = insertErrorSet(record);
 				if(itemSetID.compareTo(0L) > 0) {
-					if(setItemSetDetails(itemSetID, itemDetails) > 0)
+					if(setErrorSetDetails(itemSetID, itemDetails) > 0)
 						ret = true;
 				}
 			} else {
-				ItemSetModel record = new ItemSetModel();
+				ErrorSetModel record = new ErrorSetModel();
 				record.setId(itemSetID);
 				record.setName(name);
-				record.setLayername(layername);
-				record.setEnable(enable);
 				record.setType(type);
 				record.setSystype(systype);
 				record.setReferdata(referdata);
 				record.setUnit(unit.byteValue());
 				record.setDesc(desc);
 				
-				if(updateItemset(record)) {
-					if(setItemSetDetails(itemSetID, itemDetails) > 0)
+				if(updateErrorSet(record)) {
+					if(setErrorSetDetails(itemSetID, itemDetails) > 0)
 						ret = true;
 				}
 			}
@@ -322,13 +263,13 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			logger.debug(e.getMessage());
 		}
 		json.addObject("result", ret);
-		logger.debug("LayerManageCtrl-submitItemSet end.");
+		logger.debug("ErrorSetManageCtrl-submitErrorSet end.");
 		return json;
 	}
 	
-	@RequestMapping(params = "atn=deleteitemset")
-	public ModelAndView deleteItemSet(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("LayerManageCtrl-deleteItemSet start.");
+	@RequestMapping(params = "atn=deleteerrorset")
+	public ModelAndView deleteErrorSet(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ErrorSetManageCtrl-deleteErrorSet start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean ret = false;
 		try {
@@ -338,13 +279,13 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				return json;
 			}
 			
-			ret = deleteItemSet(itemSetID);
+			ret = deleteErrorSet(itemSetID);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
 		}
 		json.addObject("result", ret);
-		logger.debug("LayerManageCtrl-deleteItemSet end.");
+		logger.debug("ErrorSetManageCtrl-deleteErrorSet end.");
 		return json;
 	}
 
@@ -374,17 +315,17 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		return url.toString();
 	}
 
-	private List<ItemSetModel> selectItemSets(ItemSetModel record, Integer limit, Integer offset) {
-		List<ItemSetModel> itemSets = new ArrayList<ItemSetModel>();
+	private List<ErrorSetModel> selectErrorSets(ErrorSetModel record, Integer limit, Integer offset) {
+		List<ErrorSetModel> errorSets = new ArrayList<ErrorSetModel>();
 		try {
 			if (record == null)
-				return itemSets;
+				return errorSets;
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
-			sql.append(" FROM tb_itemset ");
+			sql.append(" FROM tb_errorset ");
 			sql.append(" WHERE 1=1 ");
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
 				sql.append(" AND `id` = " + record.getId());
@@ -392,14 +333,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			if(record.getName() != null && !record.getName().isEmpty()) {
 				sql.append(" AND `name` like '%" + record.getName() + "%'");
 			}
-			if(record.getLayername() != null && !record.getLayername().isEmpty()) {
-				sql.append(" AND `layername` like '%" + record.getLayername() + "%'");
-			}
 			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
 				sql.append(" AND `type` = " + record.getType());
-			}
-			if (record.getEnable() != null && record.getEnable().compareTo(0) >= 0) {
-				sql.append(" AND `enable` = " + record.getEnable());
 			}
 			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
 				sql.append(" AND `systype` = " + record.getSystype());
@@ -422,21 +357,21 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			}
 
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
-			itemSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemSetModel>(ItemSetModel.class));
+			errorSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorSetModel>(ErrorSetModel.class));
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			itemSets = new ArrayList<ItemSetModel>();
+			errorSets = new ArrayList<ErrorSetModel>();
 		}
-		return itemSets;
+		return errorSets;
 	}
 
-	private Long insertItemset(final ItemSetModel record) {
+	private Long insertErrorSet(final ErrorSetModel record) {
 		Long ret = -1L;
 		try {
 			final StringBuffer sql = new StringBuffer();
-			sql.append(" INSERT INTO tb_itemset (`name`, `layername`, `type`, `enable`, `systype`, `referdata`, `unit`, `desc`) ");
-			sql.append(" VALUES (?,?,?,?,?,?,?,?) ");
+			sql.append(" INSERT INTO tb_errorset (`name`, `type`, `systype`, `referdata`, `unit`, `desc`) ");
+			sql.append(" VALUES (?,?,?,?,?,?) ");
 
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -447,13 +382,11 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
 					PreparedStatement ps = conn.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
 					ps.setString(1, record.getName());
-					ps.setString(2, record.getLayername());
-					ps.setInt(3, record.getType() == null ? 0 : record.getType());
-					ps.setInt(4, record.getEnable() == null ? 0 : record.getEnable());
-					ps.setInt(5, record.getSystype() == null ? 0 : record.getSystype());
-					ps.setString(6, record.getReferdata());
-					ps.setInt(7, record.getUnit() == null ? 0 : record.getUnit());
-					ps.setString(8, record.getDesc());
+					ps.setInt(2, record.getType() == null ? 0 : record.getType());
+					ps.setInt(3, record.getSystype() == null ? 0 : record.getSystype());
+					ps.setString(4, record.getReferdata());
+					ps.setInt(5, record.getUnit() == null ? 0 : record.getUnit());
+					ps.setString(6, record.getDesc());
 					return ps;
 				}
 			}, keyHolder);
@@ -465,23 +398,17 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		return ret;
 	}
 	
-	private Boolean updateItemset(ItemSetModel record) {
+	private Boolean updateErrorSet(ErrorSetModel record) {
 		Boolean ret = false;
 		try {
 			StringBuffer sql = new StringBuffer();
-			sql.append(" UPDATE tb_itemset ");
+			sql.append(" UPDATE tb_errorset ");
 			sql.append(" SET `id` = `id`");
 			if(record.getName() != null) {
 				sql.append(", `name` = '" + record.getName() + "'");
 			}
-			if(record.getLayername() != null) {
-				sql.append(", `layername` = '" + record.getLayername() + "'");
-			}
 			if(record.getType() != null && record.getType().compareTo(0) >= 0) {
 				sql.append(", `type` = " + record.getType());
-			}
-			if(record.getEnable() != null && record.getEnable().compareTo(0) >= 0) {
-				sql.append(", `enable` = " + record.getEnable());
 			}
 			if(record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
 				sql.append(", `systype` = " + record.getSystype());
@@ -510,7 +437,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		return ret;
 	}
 	
-	private Boolean deleteItemSet(Long itemSetID) {
+	private Boolean deleteErrorSet(Long errorSetID) {
 		Boolean ret = false;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
@@ -518,8 +445,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" DELETE ");
-			sql.append(" FROM tb_itemset ");
-			sql.append(" WHERE `id` = " + itemSetID);
+			sql.append(" FROM tb_errorset ");
+			sql.append(" WHERE `id` = " + errorSetID);
 
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
@@ -530,7 +457,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		return ret;
 	}
 
-	private Integer countItemSets(ItemSetModel record, Integer limit, Integer offset) {
+	private Integer countErrorSets(ErrorSetModel record, Integer limit, Integer offset) {
 		Integer count = -1;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
@@ -538,7 +465,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT count(*) ");
-			sql.append(" FROM tb_itemset ");
+			sql.append(" FROM tb_errorset ");
 			sql.append(" WHERE 1=1 ");
 
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
@@ -550,7 +477,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		return count;
 	}
 
-	private List<ItemInfoModel> selectQIDs(String oid, String name, Integer limit, Integer offset) {
+	private List<ItemInfoModel> selectErrorTypes(String oid, String name, Integer limit, Integer offset) {
 		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
@@ -558,7 +485,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT `oid`, `name` ");
-			sql.append(" FROM v_qids ");
+			sql.append(" FROM tb_itemconfig ");
 			sql.append(" WHERE 1=1 ");
 			if(oid != null && !oid.isEmpty()) {
 				sql.append(" AND `oid` like '%" + oid + "%'");
@@ -576,7 +503,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		return itemInfos;
 	}
 	
-	private List<Long> getItemSetDetailsByItemSetID(Long itemSetID) {
+	private List<Long> getErrorSetDetailsByErrorSetID(Long errorSetID) {
 		List<Long> items = new ArrayList<Long>();
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
@@ -584,8 +511,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT `itemid` ");
-			sql.append(" FROM tb_itemsetdetail ");
-			sql.append(" WHERE `itemsetid` = " + itemSetID);
+			sql.append(" FROM tb_errorsetdetail ");
+			sql.append(" WHERE `itemsetid` = " + errorSetID);
 			
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
@@ -595,7 +522,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		return items;
 	}
 	
-	private Integer setItemSetDetails(Long itemSetID, List<Long> items) {
+	private Integer setErrorSetDetails(Long itemSetID, List<Long> items) {
 		Integer ret = -1;
 		if (items.size() <= 0)
 			return ret;
@@ -605,7 +532,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			
 			StringBuffer sql_del = new StringBuffer();
 			sql_del.append(" DELETE ");
-			sql_del.append(" FROM tb_itemsetdetail ");
+			sql_del.append(" FROM tb_errorsetdetail ");
 			sql_del.append(" WHERE `itemsetid` = " + itemSetID);
 
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
@@ -613,7 +540,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			Integer ret_del = jdbc.update(sql_del.toString());
 			if (ret_del >= 0) {
 				StringBuffer sql = new StringBuffer();
-				sql.append(" INSERT INTO tb_itemsetdetail");
+				sql.append(" INSERT INTO tb_errorsetdetail");
 				sql.append(" (`itemsetid`, `itemid`) ");
 				sql.append(" VALUES ");
 				for (Long item : items) {

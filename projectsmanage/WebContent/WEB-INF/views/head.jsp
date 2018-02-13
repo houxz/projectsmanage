@@ -24,7 +24,7 @@
 			return "1005";
 		} else if (url.indexOf("/itemsetmanage.web") > 0) {
 			return "1006";
-		} else if (url.indexOf("/itemsetmanage.web") > 0) {
+		} else if (url.indexOf("/errorsetmanage.web") > 0) {
 			return "1007";
 		}
 		return "0000";
@@ -82,11 +82,11 @@
 					</sec:authorize>
 					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
 						<li class="<%="1006".equals(menucode) ? "active" : ""%>"><a
-							href="<c:url value='itemsetmanage.web'/>">图层配置</a></li>
+							href="<c:url value='itemsetmanage.web'/>">质检集合配置</a></li>
 					</sec:authorize>
 					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
 						<li class="<%="1007".equals(menucode) ? "active" : ""%>"><a
-							href="<c:url value='itemsetmanage.web'/>">质检项配置</a></li>
+							href="<c:url value='errorsetmanage.web'/>">错误筛选配置</a></li>
 					</sec:authorize>
 				</ul>
 
