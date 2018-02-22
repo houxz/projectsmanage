@@ -77,16 +77,16 @@
 							href="<c:url value='capacitycount.web'/>">产能统计</a></li>
 					</sec:authorize>
 					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
-						<li class="<%="990".equals(menucode) ? "active" : ""%>"><a
-							href="<c:url value='systemsets.web'/>">系统配置</a></li>
-					</sec:authorize>
-					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
 						<li class="<%="1006".equals(menucode) ? "active" : ""%>"><a
 							href="<c:url value='itemsetmanage.web'/>">质检集合配置</a></li>
 					</sec:authorize>
 					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
 						<li class="<%="1007".equals(menucode) ? "active" : ""%>"><a
 							href="<c:url value='errorsetmanage.web'/>">错误筛选配置</a></li>
+					</sec:authorize>
+					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
+						<li class="<%="990".equals(menucode) ? "active" : ""%>"><a
+							href="<c:url value='systemsets.web'/>">系统配置</a></li>
 					</sec:authorize>
 				</ul>
 
