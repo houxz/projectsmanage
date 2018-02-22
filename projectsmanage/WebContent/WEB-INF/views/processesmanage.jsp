@@ -516,7 +516,7 @@
 			{
 				modal : true,
 				height : 600,
-				width : document.documentElement.clientWidth * 0.8,
+				width : document.documentElement.clientWidth * 0.6,
 				title : "质检图层配置",
 				open : function(event, ui) {
 					$(".ui-dialog-titlebar-close").hide();
@@ -791,15 +791,15 @@
 						data-filter-control-placeholder="">图层</th>
 					<!-- <th data-field="type" data-formatter="typeFormat"
 						data-filter-control="select" data-filter-data="var:itemsetTypes">类型</th> -->
-					<th data-field="enable" data-formatter="enableFormat"
-						data-filter-control="select" data-filter-data="var:itemsetEnables">状态</th>
-					<th data-field="systype" data-formatter="sysFormat"
+					<!-- <th data-field="enable" data-formatter="enableFormat"
+						data-filter-control="select" data-filter-data="var:itemsetEnables">状态</th> -->
+					<!-- <th data-field="systype" data-formatter="sysFormat"
 						data-filter-control="select"
-						data-filter-data="var:itemsetSysTypes">操作系统</th>
+						data-filter-data="var:itemsetSysTypes">操作系统</th> -->
 					<th data-field="referdata" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="200">参考图层</th>
-					<th data-field="unit" data-formatter="unitFormat"
-						data-filter-control="select" data-filter-data="var:itemsetUnits">质检单位</th>
+					<!-- <th data-field="unit" data-formatter="unitFormat"
+						data-filter-control="select" data-filter-data="var:itemsetUnits">质检单位</th> -->
 					<th data-field="desc" data-filter-control="input"
 						data-filter-control-placeholder="">描述</th>
 				</tr>
