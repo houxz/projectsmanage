@@ -402,7 +402,7 @@
 				<tr>
 					<td class="configKey">编号</td>
 					<td class="configValue"><input type="text"
-						class="form-control configValue" id="id" disabled>
+						class="form-control configValue" id="id" readonly>
 					</td>
 				</tr>
 				<tr>
@@ -482,7 +482,7 @@
 				<tr>
 					<td class="configKey">更新时间</td>
 					<td class="configValue"><input type="text"
-						class="form-control configValue" id="updatetime" disabled></td>
+						class="form-control configValue" id="updatetime" readonly></td>
 				</tr>
 			</tbody>
 		</table>
