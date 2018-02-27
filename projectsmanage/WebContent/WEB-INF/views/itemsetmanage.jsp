@@ -179,7 +179,7 @@
 				{
 					modal : true,
 					width : document.documentElement.clientWidth * 0.3,
-					title : "图层配置",
+					title : "选择图层",
 					open : function(event, ui) {
 						$(".ui-dialog-titlebar-close").hide();
 					},
@@ -249,7 +249,7 @@
 				{
 					modal : true,
 					width : document.documentElement.clientWidth * 0.3,
-					title : "质检项配置",
+					title : "选择质检项",
 					open : function(event, ui) {
 						$(".ui-dialog-titlebar-close").hide();
 					},
@@ -372,7 +372,7 @@
 							</button>
 						</th>
 						<th data-field="name" data-filter-control="input"
-							data-filter-control-placeholder="">图层集合名称</th>
+							data-filter-control-placeholder="">质检集合名称</th>
 						<th data-field="layername" data-filter-control="input"
 							data-filter-control-placeholder="">图层</th>
 						<th data-field="type" data-formatter="typeFormat"
@@ -406,7 +406,7 @@
 					</td>
 				</tr>
 				<tr>
-					<td class="configKey">图层集合名称</td>
+					<td class="configKey">质检集合名称</td>
 					<td class="configValue"><input type="text"
 						class="form-control configValue" id="name"
 						placeholder="请输入图层集合名称"></td>
@@ -460,7 +460,7 @@
 				<tr>
 					<td class="configKey">参考图层</td>
 					<td class="configValue">
-						<textarea class="form-control " rows="3" id="referdata" ></textarea>
+						<textarea class="form-control " rows="3" id="referdata" readonly></textarea>
 					</td>
 				</tr>
 				<tr>
