@@ -13,7 +13,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Cache-Control" CONTENT="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>错误筛选</title>
+<title>错误筛选配置</title>
 
 <link href="resources/jquery-flexselect-0.9.0/flexselect.css"
 	rel="stylesheet">
@@ -23,6 +23,7 @@
 	rel="stylesheet" />
 <link href="resources/bootstrap-table-1.11.1/bootstrap-table.min.css"
 	rel="stylesheet">
+	<link href="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.css" rel="stylesheet" />
 <link href="resources/css/css.css" rel="stylesheet" />
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
@@ -39,6 +40,7 @@
 <script src="resources/js/project/priorityadjust.js"></script>
 <script src="resources/jquery-flexselect-0.9.0/jquery.flexselect.js"></script>
 <script src="resources/jquery-flexselect-0.9.0/liquidmetal.js"></script>
+<script src="resources/bootstrap-treeview-1.2.0/bootstrap-treeview.min.js" /></script>
 
 <script type="text/javascript">
 	$(document).ready(function() {
@@ -54,6 +56,8 @@
 	var errorsetSysTypes = eval('(${errorsetSysTypes})');
 	var errorsetTypes = eval('(${errorsetTypes})');
 	var errorsetUnits = eval('(${errorsetUnits})');
+	
+	var errorTypesTree = null;
 	
 	function queryParams(params) {
 		return params;
@@ -126,7 +130,7 @@
 					modal : true,
 					height: 600,
 					width : document.documentElement.clientWidth * 0.4,
-					title : "质检集合配置",
+					title : "错误筛选集合配置",
 					open : function(event, ui) {
 						$(".ui-dialog-titlebar-close").hide();
 					},
@@ -146,74 +150,111 @@
 				});
 	}
 	
-	function getItems() {
-		$('[data-toggle="items"]').bootstrapTable(
-				{
-					locale : 'zh-CN',
-					queryParams : function(params) {
-						return params;
-					},
-					onLoadSuccess : function(data) {
-						var values = new Array();
-						$.each($("#dlgErrorSet table #items").val().split(";"), function(index, domEle) {
-							if(domEle)
-								values[index] = parseInt(domEle);
-						});
-						if(values.length > 0) {
-							$('[data-toggle="items"]').bootstrapTable("checkBy", {
-									field : "id",
-									values : values
-								});
-						}
-					}
-				});
-		
-		showItemsDlg();
-	}
+	function findExpandibleNodess() {
+    	if(errorTypesTree) {
+    		errorTypesTree.treeview('uncheckAll', { silent: true });
+    		errorTypesTree.treeview('collapseAll', { silent: true });
+    		return errorTypesTree.treeview('search', [ $('#input-expand-node').val(), { ignoreCase: false, exactMatch: false } ]);
+    	} else {
+    		return null;
+    	}
+        
+    }
+    function checkExpandibleNodess() {
+    	if(errorTypesTree) {
+        	var expandibleNodes = findExpandibleNodess();
+        	errorTypesTree.treeview('checkNode', [ expandibleNodes, { silent: false }]);
+    	}
+    }
 	
-	function showItemsDlg() {
-		$("#dlgItems").dialog(
-				{
-					modal : true,
-					width : document.documentElement.clientWidth * 0.3,
-					title : "质检项配置",
-					open : function(event, ui) {
-						$(".ui-dialog-titlebar-close").hide();
-					},
-					buttons : [
-							{
-								text : "提交",
-								class : "btn btn-default",
-								click : function() {
-									var selections = $('[data-toggle="items"]').bootstrapTable('getSelections');
-									var length = selections.length;
-									
-									if (length > 0) {
-										var value = new String();
-										$.each(selections, function(index,domEle) {
-											value += domEle.id + ";";
-										});
-										value = value.substring(0, value.length - 1);
-										$("#items").val(value);
-										$("#itemscount").text(length);
-										
-										$('[data-toggle="items"]').bootstrapTable("destroy");
-										$(this).dialog("close");
-									} else {
-										$.webeditor.showMsgLabel("alert","请选择质检项");
-									}
-								}
+	function getErrorTypes() {
+		if(!errorTypesTree) {
+			jQuery.post("./errorsetmanage.web", {
+				"atn" : "geterrortypes"
+			}, function(json) {
+				var errorTypes = json.rows;
+				if(errorTypes && errorTypes.length > 0) {//data, idStr, pidStr, pText, childrenStr, cText
+					var data = $.webeditor.transJsonData2Tree2(errorTypes, "id", "qid", "name", "nodes", "desc");
+					errorTypesTree = $('#errorTypesTree').treeview(
+						{
+							data : data,
+							showIcon : false,
+							showCheckbox : true,
+							highlightSelected : false,
+							expandIcon : 'glyphicon glyphicon-menu-right',
+							collapseIcon : 'glyphicon glyphicon-menu-down',
+							onNodeChecked : function(event, node) {
+								if(node.pid == 0) {
+                            		var children = node.nodes;
+                            		$.each(children, function(index, child){
+                            			errorTypesTree.treeview('checkNode', [ child.nodeId, { silent: false }]);
+                            		});
+                            	}
 							},
-							{
-								text : "关闭",
-								class : "btn btn-default",
-								click : function() {
-									$(this).dialog("close");
-								}
-							} ]
-				});
+							onNodeUnchecked : function(event, node) {
+								if(node.pid == 0) {
+                            		var children = node.nodes;
+                            		$.each(children, function(index, child){
+                            			errorTypesTree.treeview('uncheckNode', [ child.nodeId, { silent: false }]);
+                            		});
+                            	}
+							}
+						});
+				}
+			}, "json");
+		} else {
+		}
+		
+		showErrorTypesDlg();
 	}
-	
+
+	function showErrorTypesDlg() {
+		$("#dlgErrorTypes").dialog({
+			modal : true,
+			width : document.documentElement.clientWidth * 0.4,
+			height: 600,
+			title : "选择质检项",
+			open : function(event, ui) {
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			buttons : [ {
+				text : "提交",
+				class : "btn btn-default",
+				click : function() {
+					var expandibleNodes = new Array();
+		        	if(errorTypesTree)
+		        		expandibleNodes = errorTypesTree.treeview('getChecked');
+		        	if(expandibleNodes && expandibleNodes.length > 0) {
+			        	var length = 0;
+			        	var value = new String();
+			        	$.each(expandibleNodes, function(index, node){
+			        		if(node.id) {
+			        			value += node.id + ";";
+			        			length ++;
+			        		}
+	            		});
+			        	value = value.substring(0, value.length - 1);
+			        	$("#dlgErrorSet table #items").val(value);
+			        	$("#itemscount").text(length);
+			        	
+			        	errorTypesTree.treeview('uncheckAll', { silent: true });
+			    		errorTypesTree.treeview('collapseAll', { silent: true });
+			        	$(this).dialog("close");
+		        	} else {
+		        		$.webeditor.showMsgLabel("alert", "请选择错误类型");
+		        		return;
+		        	}
+				}
+			}, {
+				text : "关闭",
+				class : "btn btn-default",
+				click : function() {
+					$(this).dialog("close");
+				}
+			} ]
+		});
+	}
+
 	function submitErrorSet() {
 		var id = $("#dlgErrorSet table #id").val();
 		var name = $("#dlgErrorSet table #name").val();
@@ -225,55 +266,51 @@
 		var unit = $("#dlgErrorSet table #unit").val();
 		var desc = $("#dlgErrorSet table #desc").val();
 		var items = $("#dlgErrorSet table #items").val();
-		
-		if(name.length <= 0) {
-			$.webeditor.showMsgLabel("alert", "图层集合名称不能为空");
+
+		if (name.length <= 0) {
+			$.webeditor.showMsgLabel("alert", "错误筛选集合名称不能为空");
 			return;
 		}
-		
-		jQuery.post("./errorsetmanage.web",
-			{
-				"atn" : "submiterrorset",
-				"errorSetID" : id,
-				"name" : name,
-				"layername" : layername,
-				"type" : type,
-				"enable" : enable,
-				"systype" : systype,
-				"referdata" : referdata,
-				"unit" : unit,
-				"desc" : desc,
-				"items" : items
-			},
-			function(json) {
-				if (json.result) {
-					$.webeditor.showMsgLabel("success","质检集合配置成功");
-					$("#dlgErrorSet").dialog("close");
-					$('[data-toggle="errorsets"]').bootstrapTable('refresh');
-				} else {
-					$.webeditor.showMsgLabel("alert",json.resultMsg);
-				}
-			}, "json");
+
+		jQuery.post("./errorsetmanage.web", {
+			"atn" : "submiterrorset",
+			"errorSetID" : id,
+			"name" : name,
+			"layername" : layername,
+			"type" : type,
+			"enable" : enable,
+			"systype" : systype,
+			"referdata" : referdata,
+			"unit" : unit,
+			"desc" : desc,
+			"items" : items
+		}, function(json) {
+			if (json.result) {
+				$.webeditor.showMsgLabel("success", "质检集合配置成功");
+				$("#dlgErrorSet").dialog("close");
+				$('[data-toggle="errorsets"]').bootstrapTable('refresh');
+			} else {
+				$.webeditor.showMsgLabel("alert", json.resultMsg);
+			}
+		}, "json");
 	}
-	
+
 	function deleteErrorSet(errorSetID) {
-		if(!errorSetID || errorSetID <= 0) {
+		if (!errorSetID || errorSetID <= 0) {
 			$.webeditor.showMsgLabel("alert", "质检集合删除失败");
 			return;
 		}
-		jQuery.post("./errorsetmanage.web",
-			{
-				"atn" : "deleteerrorset",
-				"errorSetID" : errorSetID
-			},
-			function(json) {
-				if (json.result > 0) {
-					$.webeditor.showMsgLabel("success","质检集合删除成功");
-					$('[data-toggle="errorsets"]').bootstrapTable('refresh');
-				} else {
-					$.webeditor.showMsgLabel("alert",json.resultMsg);
-				}
-			}, "json");
+		jQuery.post("./errorsetmanage.web", {
+			"atn" : "deleteerrorset",
+			"errorSetID" : errorSetID
+		}, function(json) {
+			if (json.result > 0) {
+				$.webeditor.showMsgLabel("success", "质检集合删除成功");
+				$('[data-toggle="errorsets"]').bootstrapTable('refresh');
+			} else {
+				$.webeditor.showMsgLabel("alert", json.resultMsg);
+			}
+		}, "json");
 	}
 </script>
 </head>
@@ -297,7 +334,7 @@
 							</button>
 						</th>
 						<th data-field="name" data-filter-control="input"
-							data-filter-control-placeholder="">图层集合名称</th>
+							data-filter-control-placeholder="">错误筛选集合名称</th>
 						<th data-field="type" data-formatter="typeFormat"
 							data-filter-control="select" data-filter-data="var:errorsetTypes">类型</th>
 						<th data-field="systype" data-formatter="sysFormat"
@@ -326,17 +363,17 @@
 					</td>
 				</tr>
 				<tr>
-					<td class="configKey">图层集合名称</td>
+					<td class="configKey">错误筛选集合名称</td>
 					<td class="configValue"><input type="text"
 						class="form-control configValue" id="name"
-						placeholder="请输入新项目名"></td>
+						placeholder="请输入集合名"></td>
 				</tr>
 				<tr>
 					<td class="configKey">质检项</td>
 					<td class="configValue">
 						<input type="hidden" id="items" value="">
 						<button type="button" class="btn btn-default"
-							onclick="getItems();">选择质检项</button>
+							onclick="getErrorTypes();">选择质检项</button>
 						<p class="help-block">已选择<span id="itemscount"></span>个质检项</p></td>
 				</tr>
 				<tr>
@@ -379,18 +416,39 @@
 					<td class="configKey">描述</td>
 					<td class="configValue"><input type="text"
 						class="form-control configValue" id="desc"
-						placeholder="请输入新项目名"></td>
+						placeholder="请输入描述"></td>
 				</tr>
 				<tr>
 					<td class="configKey">更新时间</td>
 					<td class="configValue"><input type="text"
-						class="form-control configValue" id="updatetime"
-						placeholder="请输入新项目名"></td>
+						class="form-control configValue" id="updatetime" disabled></td>
 				</tr>
 			</tbody>
 		</table>
 	</div>
 	<div id="dlgErrorTypes" style="display: none;">
+		<div class="">
+			<div class="panel panel-default" style="margin-bottom: 0;">
+				<div class="panel-body">
+					<div class="input-group">
+						<input type="input" class="form-control" id="input-expand-node"
+							placeholder="查找人员"
+							onkeypress="if (event.keyCode==13) { findExpandibleNodess(); }">
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-default" tabindex="-1"
+								onclick="findExpandibleNodess();">
+								<span class="glyphicon glyphicon-search" aria-hidden="true">&nbsp;</span>查找
+							</button>
+							<button type="button" class="btn btn-default" tabindex="-1"
+								onclick="checkExpandibleNodess();">
+								<span class="glyphicon glyphicon-check" aria-hidden="true">&nbsp;</span>勾选
+							</button>
+						</div>
+					</div>
+				</div>
+				<div id="errorTypesTree" style="height: 406px; overflow: auto;"></div>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

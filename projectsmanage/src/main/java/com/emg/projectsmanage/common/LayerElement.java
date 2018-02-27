@@ -32,9 +32,9 @@ public enum LayerElement {
 	 */
 	SpeedLimit(6, "速度限制"),
 	/**
-	 * 7, "OBJ"
+	 * 7, "Obj"
 	 */
-	OBJ(7, "OBJ"),
+	Obj(7, "Obj"),
 	/**
 	 * 8, "铁路"
 	 */
@@ -48,9 +48,21 @@ public enum LayerElement {
 	 */
 	Water(10, "水域"),
 	/**
-	 * 11, "验证"
+	 * 11, "岛屿"
 	 */
-	Island(11, "验证");
+	Island(11, "岛屿"),
+	/**
+	 * 14, "建筑物"
+	 */
+	Building(14, "建筑物"),
+	/**
+	 * 12, "建筑线"
+	 */
+	BuildingLine(12, "建筑线"),
+	/**
+	 * 13, "建筑线"
+	 */
+	BuildingArea(13, "建筑区域");
 
 	private Integer value;
 	private String des;

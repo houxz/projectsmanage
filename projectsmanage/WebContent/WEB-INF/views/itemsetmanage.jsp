@@ -64,7 +64,7 @@
 	
 	function operationFormat(value, row, index) {
 		var html = new Array();
-		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getItemSet(' + row.id + ');">配置</button>');
+		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getItemSet(' + row.id + ');">详情</button>');
 		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="deleteItemSet(' + row.id + ');">删除</button>');
 		return html.join('');
 	}
@@ -117,8 +117,8 @@
 					$("#dlgItemSet table #unit").val(itemset.unit);
 					$("#dlgItemSet table #desc").val(itemset.desc);
 					$("#dlgItemSet table #updatetime").val(itemset.updatetime);
-					$("#dlgItemSet table #items").val(json.itemDetails);
-					$("#itemscount").text(json.itemDetails ? json.itemDetails.split(";").length : 0);
+					$("#dlgItemSet table #items").val(json.items);
+					$("#itemscount").text(json.items ? json.items.split(";").length : 0);
 				}
 			}, "json");
 		}
@@ -138,7 +138,7 @@
 					},
 					buttons : [
 							{
-								text : "提交",
+								text : "保存",
 								class : "btn btn-default",
 								click : submitItemSet
 							},
@@ -183,9 +183,12 @@
 					open : function(event, ui) {
 						$(".ui-dialog-titlebar-close").hide();
 					},
+					close : function(event, ui) {
+						$('[data-toggle="layers"]').bootstrapTable("destroy");
+					},
 					buttons : [
 							{
-								text : "提交",
+								text : "保存",
 								class : "btn btn-default",
 								click : function() {
 									var selections = $('[data-toggle="layers"]').bootstrapTable('getSelections');
@@ -200,7 +203,6 @@
 										$("#layername").val(value);
 										$("#layerscount").text(length);
 										
-										$('[data-toggle="layers"]').bootstrapTable("destroy");
 										$(this).dialog("close");
 									} else {
 										$.webeditor.showMsgLabel("alert","请选择图层");
@@ -211,7 +213,6 @@
 								text : "关闭",
 								class : "btn btn-default",
 								click : function() {
-									$('[data-toggle="layers"]').bootstrapTable("destroy");
 									$(this).dialog("close");
 								}
 							} ]
@@ -229,11 +230,11 @@
 						var values = new Array();
 						$.each($("#dlgItemSet table #items").val().split(";"), function(index, domEle) {
 							if(domEle)
-								values[index] = parseInt(domEle);
+								values[index] = domEle;
 						});
 						if(values.length > 0) {
 							$('[data-toggle="items"]').bootstrapTable("checkBy", {
-									field : "id",
+									field : "oid",
 									values : values
 								});
 						}
@@ -252,9 +253,12 @@
 					open : function(event, ui) {
 						$(".ui-dialog-titlebar-close").hide();
 					},
+					close : function(event, ui) {
+						$('[data-toggle="items"]').bootstrapTable("destroy");
+					},
 					buttons : [
 							{
-								text : "提交",
+								text : "保存",
 								class : "btn btn-default",
 								click : function() {
 									var selections = $('[data-toggle="items"]').bootstrapTable('getSelections');
@@ -263,13 +267,12 @@
 									if (length > 0) {
 										var value = new String();
 										$.each(selections, function(index,domEle) {
-											value += domEle.id + ";";
+											value += domEle.oid + ";";
 										});
 										value = value.substring(0, value.length - 1);
 										$("#items").val(value);
 										$("#itemscount").text(length);
 										
-										$('[data-toggle="items"]').bootstrapTable("destroy");
 										$(this).dialog("close");
 									} else {
 										$.webeditor.showMsgLabel("alert","请选择质检项");
@@ -457,7 +460,7 @@
 				<tr>
 					<td class="configKey">参考图层</td>
 					<td class="configValue">
-						<textarea class="form-control" rows="3" id="referdata"></textarea>
+						<textarea class="form-control " rows="3" id="referdata" ></textarea>
 					</td>
 				</tr>
 				<tr>

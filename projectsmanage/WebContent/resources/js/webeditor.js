@@ -118,8 +118,8 @@ jQuery.webeditor = {
 		}
 
 	},
-	transJsonData2Tree : function(data, idStr, pidStr, chindrenStr) {
-		var r = [], hash = {}, id = idStr, pid = pidStr, children = chindrenStr, i = 0, j = 0, len = data.length;
+	transJsonData2Tree : function(data, idStr, pidStr, childrenStr) {
+		var r = [], hash = {}, id = idStr, pid = pidStr, children = childrenStr, i = 0, j = 0, len = data.length;
 		for (; i < len; i++) {
 			hash[data[i][id]] = data[i];
 		}
@@ -131,6 +131,32 @@ jQuery.webeditor = {
 			} else {
 				r.push(aVal);
 			}
+		}
+		return r;
+	},
+	
+	transJsonData2Tree2 : function(data, idStr, pidStr, pText, childrenStr, cText) {
+		var r = [], hash = {}, len = data.length;
+		for (var i = 0; i < len; i++) {
+			var valF = {}, valC = data[i];
+			var qid = data[i][pidStr];
+			if(hash[qid]) {
+				valC["text"] = valC[cText];
+				valC["pid"] = valC[pidStr];
+				hash[qid][childrenStr].push(valC);
+			} else {
+				valF["text"] = valC[pText];
+				valF["pid"] = 0;
+				hash[qid] = valF;
+				hash[qid][childrenStr] = [];
+				valC["text"] = valC[cText];
+				valC["pid"] = valC[pidStr];
+				hash[qid][childrenStr].push(valC);
+			}
+		}
+		for(var key in hash) {
+			hash[key]["open"] = "false";
+			r.push(hash[key]);
 		}
 		return r;
 	}

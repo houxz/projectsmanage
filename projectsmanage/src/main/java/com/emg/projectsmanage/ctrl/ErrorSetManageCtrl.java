@@ -36,7 +36,7 @@ import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ErrorSetModel;
-import com.emg.projectsmanage.pojo.ItemInfoModel;
+import com.emg.projectsmanage.pojo.ItemConfigModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
 
 @Controller
@@ -164,43 +164,19 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		return json;
 	}
 
-	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=geterrortypes")
 	public ModelAndView getErrorTypes(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ErrorSetManageCtrl-getErrorTypes start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		List<ItemInfoModel> items = new ArrayList<ItemInfoModel>();
+		List<ItemConfigModel> errorTypes = new ArrayList<ItemConfigModel>();
 		try {
-			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
-			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
-			String _filter = ParamUtils.getParameter(request, "filter", "");
-			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
-
-			Map<String, Object> filterPara = null;
-			String oid = new String(), name = new String();
-			if (filter.length() > 0) {
-				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
-				for (String key : filterPara.keySet()) {
-					switch (key) {
-					case "oid":
-						oid = filterPara.get(key).toString();
-						break;
-					case "name":
-						name = filterPara.get(key).toString();
-						break;
-					default:
-						logger.debug("未处理的筛选项：" + key);
-						break;
-					}
-				}
-			}
-			items = selectErrorTypes(oid, name, limit, offset);
+			errorTypes = selectErrorTypes();
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
 		}
-		json.addObject("rows", items);
-		json.addObject("total", items.size());
+		json.addObject("rows", errorTypes);
+		json.addObject("total", errorTypes.size());
 		json.addObject("result", 1);
 		logger.debug("ErrorSetManageCtrl-getErrorTypes end.");
 		return json;
@@ -477,30 +453,24 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		return count;
 	}
 
-	private List<ItemInfoModel> selectErrorTypes(String oid, String name, Integer limit, Integer offset) {
-		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+	private List<ItemConfigModel> selectErrorTypes() {
+		List<ItemConfigModel> itemConfigs = new ArrayList<ItemConfigModel>();
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT `oid`, `name` ");
+			sql.append(" SELECT `id`, `qname`, `name`, `qid`, `errortype`, `desc`, `enable`, `unit`, `isexistokerror`, `createtime`, `iswarning`, `uuidruler`, `version`, `keyword`, `updatetime` ");
 			sql.append(" FROM tb_itemconfig ");
 			sql.append(" WHERE 1=1 ");
-			if(oid != null && !oid.isEmpty()) {
-				sql.append(" AND `oid` like '%" + oid + "%'");
-			}
-			if(name != null && !name.isEmpty()) {
-				sql.append(" AND `name` like '%" + name + "%'");
-			}
 
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
-			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
+			itemConfigs = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemConfigModel>(ItemConfigModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
-			itemInfos = new ArrayList<ItemInfoModel>();
+			itemConfigs = new ArrayList<ItemConfigModel>();
 		}
-		return itemInfos;
+		return itemConfigs;
 	}
 	
 	private List<Long> getErrorSetDetailsByErrorSetID(Long errorSetID) {

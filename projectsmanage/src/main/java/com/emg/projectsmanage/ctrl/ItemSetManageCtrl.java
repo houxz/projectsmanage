@@ -6,8 +6,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -149,7 +151,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		logger.debug("LayerManageCtrl-getItemSet start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		ItemSetModel itemset = new ItemSetModel();
-		String itemDetails = new String();
+		StringBuilder sb_items = new StringBuilder();
 		try {
 			Long itemsetid = ParamUtils.getLongParameter(request, "itemsetid", -1L);
 			ItemSetModel record = new ItemSetModel();
@@ -157,12 +159,16 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			List<ItemSetModel> rows = selectItemSets(record, 1, 0);
 			if (rows.size() >= 0) {
 				itemset = rows.get(0);
-				List<Long> items = getItemSetDetailsByItemSetID(itemsetid);
-				if(items.size() > 0) {
-					for(Long item : items) {
-						itemDetails += item + ";";
+				List<Long> itemids = getItemSetDetailsByItemSetID(itemsetid);
+				if (itemids.size() > 0) {
+					List<ItemInfoModel> itemInfos = selectItemInfosByItemids(itemids);
+					if (itemInfos != null && itemInfos.size() > 0) {
+						for (ItemInfoModel itemInfo : itemInfos) {
+							sb_items.append(itemInfo.getOid());
+							sb_items.append(";");
+						}
+						sb_items.deleteCharAt(sb_items.length() -1);
 					}
-					itemDetails = itemDetails.substring(0, itemDetails.length() - 1);
 				}
 			}
 		} catch (Exception e) {
@@ -170,7 +176,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			logger.debug(e.getMessage());
 		}
 		json.addObject("itemset", itemset);
-		json.addObject("itemDetails", itemDetails);
+		json.addObject("items", sb_items.toString());
 		logger.debug("LayerManageCtrl-getItemSet end.");
 		return json;
 	}
@@ -190,14 +196,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			}
 			for (LayerElement val : LayerElement.values()) {
 				Map<String, Object> row = new HashMap<String, Object>();
-				if(!filterPara.isEmpty()) {
-					if(filterPara.containsKey("id") && !val.getValue().equals(Integer.valueOf(filterPara.get("id").toString()))) {
+				if (!filterPara.isEmpty()) {
+					if (filterPara.containsKey("id") && !val.getValue().equals(Integer.valueOf(filterPara.get("id").toString()))) {
 						continue;
 					}
-					if(filterPara.containsKey("name") && !val.toString().contains(filterPara.get("name").toString())) {
+					if (filterPara.containsKey("name") && !val.toString().contains(filterPara.get("name").toString())) {
 						continue;
 					}
-					if(filterPara.containsKey("desc") && !val.getDes().contains(filterPara.get("desc").toString())) {
+					if (filterPara.containsKey("desc") && !val.getDes().contains(filterPara.get("desc").toString())) {
 						continue;
 					}
 				}
@@ -258,7 +264,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		logger.debug("LayerManageCtrl-getQIDs end.");
 		return json;
 	}
-	
+
 	@RequestMapping(params = "atn=submititemset")
 	public ModelAndView submitItemSet(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("LayerManageCtrl-submitItemSet start.");
@@ -271,51 +277,306 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			Integer type = ParamUtils.getIntParameter(request, "type", -1);
 			Integer enable = ParamUtils.getIntParameter(request, "enable", -1);
 			Integer systype = ParamUtils.getIntParameter(request, "systype", -1);
-			String referdata = ParamUtils.getParameter(request, "referdata");
 			Integer unit = ParamUtils.getIntParameter(request, "unit", -1);
 			String desc = ParamUtils.getParameter(request, "desc");
 			String items = ParamUtils.getParameter(request, "items");
-			
-			List<Long> itemDetails = new ArrayList<Long>();
-			if(items != null && !items.isEmpty()) {
-				for(String strItem : items.split(";")) {
-					itemDetails.add(Long.valueOf(strItem));
+
+			Set<String> qids = new HashSet<String>();
+			if (items != null && !items.isEmpty()) {
+				for (String strItem : items.split(";")) {
+					qids.add(strItem);
 				}
 			}
-			
+			Set<String> layernames = new HashSet<String>();
+			if (layername != null && !layername.isEmpty()) {
+				for (String strItem : layername.split(";")) {
+					layernames.add(strItem);
+				}
+			}
+			if (qids.isEmpty() || layernames.isEmpty()) {
+				json.addObject("result", false);
+				json.addObject("option", "质检项、图层未选择");
+				return json;
+			}
+
 			Boolean isNewItemSet = itemSetID.compareTo(0L) == 0;
-			if(isNewItemSet) {
-				ItemSetModel record = new ItemSetModel();
-				record.setName(name);
-				record.setLayername(layername);
-				record.setEnable(enable);
-				record.setType(type);
-				record.setSystype(systype);
-				record.setReferdata(referdata);
-				record.setUnit(unit.byteValue());
-				record.setDesc(desc);
-				
-				itemSetID = insertItemset(record);
-				if(itemSetID.compareTo(0L) > 0) {
-					if(setItemSetDetails(itemSetID, itemDetails) > 0)
-						ret = true;
+			if (isNewItemSet) {
+				// POI
+				Set<String> poi = new HashSet<String>();
+				poi.add(LayerElement.POI.toString());
+
+				Set<String> intersection = new HashSet<String>();
+				intersection.addAll(layernames);
+				intersection.retainAll(poi);
+				if (!intersection.isEmpty()) {
+					List<ItemInfoModel> itemInfos = selectItemInfosByOidsAndLayerNames(qids, intersection);
+					if (!itemInfos.isEmpty()) {
+						List<Long> itemDetails = new ArrayList<Long>();
+						Set<String> referLayers = new HashSet<String>();
+						Integer layercount = 0;
+						for (ItemInfoModel itemInfo : itemInfos) {
+							itemDetails.add(itemInfo.getId());
+							String refer = itemInfo.getReferdata();
+							if (refer != null && !refer.isEmpty()) {
+								String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+								for (String r : rs) {
+									referLayers.add(r);
+								}
+
+								Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+								layercount = layercount > rc ? layercount : rc;
+							}
+						}
+
+						StringBuilder sb_layername = new StringBuilder();
+						for (String layer : intersection) {
+							sb_layername.append(layer);
+							sb_layername.append(";");
+						}
+						sb_layername.deleteCharAt(sb_layername.length() - 1);
+
+						StringBuilder sb_referdata = new StringBuilder();
+						if (referLayers != null && referLayers.size() > 0) {
+							for (String layer : referLayers) {
+								sb_referdata.append(layer);
+								sb_referdata.append("|");
+							}
+							sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+							sb_referdata.append(":");
+							sb_referdata.append(layercount);
+						}
+
+						ItemSetModel record = new ItemSetModel();
+						record.setName(name + "_POI");
+						record.setLayername(sb_layername.toString());
+						record.setEnable(enable);
+						record.setType(type);
+						record.setSystype(systype);
+						record.setReferdata(sb_referdata.toString());
+						record.setUnit(unit.byteValue());
+						record.setDesc(desc);
+
+						itemSetID = insertItemset(record);
+						if (itemSetID.compareTo(0L) > 0) {
+							if (setItemSetDetails(itemSetID, itemDetails) > 0)
+								ret = true;
+						}
+					}
 				}
+				// POI
+
+				// Road
+				Set<String> road = new HashSet<String>();
+				road.add(LayerElement.Road.toString());
+
+				intersection.clear();
+				intersection.addAll(layernames);
+				intersection.retainAll(road);
+				if (!intersection.isEmpty()) {
+					List<ItemInfoModel> itemInfos = selectItemInfosByOidsAndLayerNames(qids, intersection);
+					if (!itemInfos.isEmpty()) {
+						List<Long> itemDetails = new ArrayList<Long>();
+						Set<String> referLayers = new HashSet<String>();
+						Integer layercount = 0;
+						for (ItemInfoModel itemInfo : itemInfos) {
+							itemDetails.add(itemInfo.getId());
+							String refer = itemInfo.getReferdata();
+							if (refer != null && !refer.isEmpty()) {
+								String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+								for (String r : rs) {
+									referLayers.add(r);
+								}
+
+								Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+								layercount = layercount > rc ? layercount : rc;
+							}
+						}
+
+						StringBuilder sb_layername = new StringBuilder();
+						for (String layer : intersection) {
+							sb_layername.append(layer);
+							sb_layername.append(";");
+						}
+						sb_layername.deleteCharAt(sb_layername.length() - 1);
+
+						StringBuilder sb_referdata = new StringBuilder();
+						if (referLayers != null && referLayers.size() > 0) {
+							for (String layer : referLayers) {
+								sb_referdata.append(layer);
+								sb_referdata.append("|");
+							}
+							sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+							sb_referdata.append(":");
+							sb_referdata.append(layercount);
+						}
+
+						ItemSetModel record = new ItemSetModel();
+						record.setName(name + "_Road");
+						record.setLayername(sb_layername.toString());
+						record.setEnable(enable);
+						record.setType(type);
+						record.setSystype(systype);
+						record.setReferdata(sb_referdata.toString());
+						record.setUnit(unit.byteValue());
+						record.setDesc(desc);
+
+						itemSetID = insertItemset(record);
+						if (itemSetID.compareTo(0L) > 0) {
+							if (setItemSetDetails(itemSetID, itemDetails) > 0)
+								ret = true;
+						}
+					}
+				}
+				// Road
+
+				// 背景
+				Set<String> backgroud = new HashSet<String>();
+				backgroud.add(LayerElement.Water.toString());
+				backgroud.add(LayerElement.Railway.toString());
+				backgroud.add(LayerElement.Vegetation.toString());
+				backgroud.add(LayerElement.Building.toString());
+				backgroud.add(LayerElement.BuildingLine.toString());
+				backgroud.add(LayerElement.BuildingArea.toString());
+				backgroud.add(LayerElement.Island.toString());
+
+				intersection.clear();
+				intersection.addAll(layernames);
+				intersection.retainAll(backgroud);
+				if (!intersection.isEmpty()) {
+					List<ItemInfoModel> itemInfos = selectItemInfosByOidsAndLayerNames(qids, intersection);
+					if (!itemInfos.isEmpty()) {
+						List<Long> itemDetails = new ArrayList<Long>();
+						Set<String> referLayers = new HashSet<String>();
+						Integer layercount = 0;
+						for (ItemInfoModel itemInfo : itemInfos) {
+							itemDetails.add(itemInfo.getId());
+							String refer = itemInfo.getReferdata();
+							if (refer != null && !refer.isEmpty()) {
+								String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+								for (String r : rs) {
+									referLayers.add(r);
+								}
+
+								Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+								layercount = layercount > rc ? layercount : rc;
+							}
+						}
+
+						StringBuilder sb_layername = new StringBuilder();
+						for (String layer : intersection) {
+							sb_layername.append(layer);
+							sb_layername.append(";");
+						}
+						sb_layername.deleteCharAt(sb_layername.length() - 1);
+
+						StringBuilder sb_referdata = new StringBuilder();
+						if (referLayers != null && referLayers.size() > 0) {
+							for (String layer : referLayers) {
+								sb_referdata.append(layer);
+								sb_referdata.append("|");
+							}
+							sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+							sb_referdata.append(":");
+							sb_referdata.append(layercount);
+						}
+
+						ItemSetModel record = new ItemSetModel();
+						record.setName(name + "_背景");
+						record.setLayername(sb_layername.toString());
+						record.setEnable(enable);
+						record.setType(type);
+						record.setSystype(systype);
+						record.setReferdata(sb_referdata.toString());
+						record.setUnit(unit.byteValue());
+						record.setDesc(desc);
+
+						itemSetID = insertItemset(record);
+						if (itemSetID.compareTo(0L) > 0) {
+							if (setItemSetDetails(itemSetID, itemDetails) > 0)
+								ret = true;
+						}
+					}
+				}
+				// 背景
+
+				// 其它
+				intersection.clear();
+				intersection.addAll(layernames);
+				intersection.removeAll(poi);
+				intersection.removeAll(road);
+				intersection.removeAll(backgroud);
+				if (!intersection.isEmpty()) {
+					List<ItemInfoModel> itemInfos = selectItemInfosByOidsAndLayerNames(qids, intersection);
+					if (!itemInfos.isEmpty()) {
+						List<Long> itemDetails = new ArrayList<Long>();
+						Set<String> referLayers = new HashSet<String>();
+						Integer layercount = 0;
+						for (ItemInfoModel itemInfo : itemInfos) {
+							itemDetails.add(itemInfo.getId());
+							String refer = itemInfo.getReferdata();
+							if (refer != null && !refer.isEmpty()) {
+								String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+								for (String r : rs) {
+									referLayers.add(r);
+								}
+
+								Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+								layercount = layercount > rc ? layercount : rc;
+							}
+						}
+
+						StringBuilder sb_layername = new StringBuilder();
+						for (String layer : intersection) {
+							sb_layername.append(layer);
+							sb_layername.append(";");
+						}
+						sb_layername.deleteCharAt(sb_layername.length() - 1);
+
+						StringBuilder sb_referdata = new StringBuilder();
+						if (referLayers != null && referLayers.size() > 0) {
+							for (String layer : referLayers) {
+								sb_referdata.append(layer);
+								sb_referdata.append("|");
+							}
+							sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+							sb_referdata.append(":");
+							sb_referdata.append(layercount);
+						}
+
+						ItemSetModel record = new ItemSetModel();
+						record.setName(name + "_其它");
+						record.setLayername(sb_layername.toString());
+						record.setEnable(enable);
+						record.setType(type);
+						record.setSystype(systype);
+						record.setReferdata(sb_referdata.toString());
+						record.setUnit(unit.byteValue());
+						record.setDesc(desc);
+
+						itemSetID = insertItemset(record);
+						if (itemSetID.compareTo(0L) > 0) {
+							if (setItemSetDetails(itemSetID, itemDetails) > 0)
+								ret = true;
+						}
+					}
+				}
+				// 其它
 			} else {
-				ItemSetModel record = new ItemSetModel();
-				record.setId(itemSetID);
-				record.setName(name);
-				record.setLayername(layername);
-				record.setEnable(enable);
-				record.setType(type);
-				record.setSystype(systype);
-				record.setReferdata(referdata);
-				record.setUnit(unit.byteValue());
-				record.setDesc(desc);
-				
-				if(updateItemset(record)) {
-					if(setItemSetDetails(itemSetID, itemDetails) > 0)
-						ret = true;
-				}
+				// ItemSetModel record = new ItemSetModel();
+				// record.setId(itemSetID);
+				// record.setName(name);
+				// record.setLayername(layername);
+				// record.setEnable(enable);
+				// record.setType(type);
+				// record.setSystype(systype);
+				// record.setReferdata(referdata);
+				// record.setUnit(unit.byteValue());
+				// record.setDesc(desc);
+				//
+				// if(updateItemset(record)) {
+				// if(setItemSetDetails(itemSetID, itemDetails) > 0)
+				// ret = true;
+				// }
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -325,7 +586,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		logger.debug("LayerManageCtrl-submitItemSet end.");
 		return json;
 	}
-	
+
 	@RequestMapping(params = "atn=deleteitemset")
 	public ModelAndView deleteItemSet(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("LayerManageCtrl-deleteItemSet start.");
@@ -333,11 +594,11 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		Boolean ret = false;
 		try {
 			Long itemSetID = ParamUtils.getLongParameter(request, "itemSetID", -1L);
-			if(itemSetID.compareTo(0L) <= 0) {
+			if (itemSetID.compareTo(0L) <= 0) {
 				json.addObject("result", 0);
 				return json;
 			}
-			
+
 			ret = deleteItemSet(itemSetID);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -389,10 +650,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
 				sql.append(" AND `id` = " + record.getId());
 			}
-			if(record.getName() != null && !record.getName().isEmpty()) {
+			if (record.getName() != null && !record.getName().isEmpty()) {
 				sql.append(" AND `name` like '%" + record.getName() + "%'");
 			}
-			if(record.getLayername() != null && !record.getLayername().isEmpty()) {
+			if (record.getLayername() != null && !record.getLayername().isEmpty()) {
 				sql.append(" AND `layername` like '%" + record.getLayername() + "%'");
 			}
 			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
@@ -404,20 +665,20 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
 				sql.append(" AND `systype` = " + record.getSystype());
 			}
-			if(record.getReferdata() != null && !record.getReferdata().isEmpty()) {
+			if (record.getReferdata() != null && !record.getReferdata().isEmpty()) {
 				sql.append(" AND `referdata` like '%" + record.getReferdata() + "%'");
 			}
 			if (record.getUnit() != null && record.getUnit() >= 0) {
 				sql.append(" AND `unit` = " + record.getUnit());
 			}
-			if(record.getDesc() != null && !record.getDesc().isEmpty()) {
+			if (record.getDesc() != null && !record.getDesc().isEmpty()) {
 				sql.append(" AND `desc` like '%" + record.getDesc() + "%'");
 			}
 			sql.append(" ORDER BY `id` ");
-			if(limit.compareTo(0) > 0) {
+			if (limit.compareTo(0) > 0) {
 				sql.append(" LIMIT " + limit);
 			}
-			if(offset.compareTo(0) > 0) {
+			if (offset.compareTo(0) > 0) {
 				sql.append(" OFFSET " + offset);
 			}
 
@@ -440,7 +701,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			
+
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			new JdbcTemplate(dataSource).update(new PreparedStatementCreator() {
@@ -464,43 +725,43 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		}
 		return ret;
 	}
-	
+
 	private Boolean updateItemset(ItemSetModel record) {
 		Boolean ret = false;
 		try {
 			StringBuffer sql = new StringBuffer();
 			sql.append(" UPDATE tb_itemset ");
 			sql.append(" SET `id` = `id`");
-			if(record.getName() != null) {
+			if (record.getName() != null) {
 				sql.append(", `name` = '" + record.getName() + "'");
 			}
-			if(record.getLayername() != null) {
+			if (record.getLayername() != null) {
 				sql.append(", `layername` = '" + record.getLayername() + "'");
 			}
-			if(record.getType() != null && record.getType().compareTo(0) >= 0) {
+			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
 				sql.append(", `type` = " + record.getType());
 			}
-			if(record.getEnable() != null && record.getEnable().compareTo(0) >= 0) {
+			if (record.getEnable() != null && record.getEnable().compareTo(0) >= 0) {
 				sql.append(", `enable` = " + record.getEnable());
 			}
-			if(record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
+			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
 				sql.append(", `systype` = " + record.getSystype());
 			}
-			if(record.getReferdata() != null) {
+			if (record.getReferdata() != null) {
 				sql.append(", `referdata` = '" + record.getReferdata() + "'");
 			}
-			if(record.getUnit() != null && record.getUnit() >= 0) {
+			if (record.getUnit() != null && record.getUnit() >= 0) {
 				sql.append(", `unit` = " + record.getUnit());
 			}
-			if(record.getDesc() != null) {
+			if (record.getDesc() != null) {
 				sql.append(", `desc` = '" + record.getDesc() + "'");
 			}
-			
+
 			sql.append(" WHERE `id` = " + record.getId());
 
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			
+
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 		} catch (Exception e) {
@@ -509,13 +770,13 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		}
 		return ret;
 	}
-	
+
 	private Boolean deleteItemSet(Long itemSetID) {
 		Boolean ret = false;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" DELETE ");
 			sql.append(" FROM tb_itemset ");
@@ -523,6 +784,13 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
+			
+			StringBuffer sql_del = new StringBuffer();
+			sql_del.append(" DELETE ");
+			sql_del.append(" FROM tb_itemsetdetail ");
+			sql_del.append(" WHERE `itemsetid` = " + itemSetID);
+			
+			ret = ret && new JdbcTemplate(dataSource).update(sql_del.toString()) >= 0;
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = false;
@@ -550,22 +818,22 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		return count;
 	}
 
-	private List<ItemInfoModel> selectQIDs(String oid, String name, Integer limit, Integer offset) {
+	private List<ItemInfoModel> selectItemInfosByItemids(List<Long> itemids) {
 		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT `oid`, `name` ");
-			sql.append(" FROM v_qids ");
-			sql.append(" WHERE 1=1 ");
-			if(oid != null && !oid.isEmpty()) {
-				sql.append(" AND `oid` like '%" + oid + "%'");
+			sql.append(" SELECT * ");
+			sql.append(" FROM tb_iteminfo ");
+			sql.append(" WHERE enable = 1 AND `id` in ( ");
+			for (Long itemid : itemids) {
+				sql.append("'" + itemid + "',");
 			}
-			if(name != null && !name.isEmpty()) {
-				sql.append(" AND `name` like '%" + name + "%'");
-			}
+			sql.deleteCharAt(sql.length() - 1);
+			sql.append(") ");
+			sql.append("GROUP BY `oid`");
 
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
@@ -575,18 +843,76 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		}
 		return itemInfos;
 	}
-	
+
+	private List<ItemInfoModel> selectItemInfosByOidsAndLayerNames(Set<String> oids, Set<String> layernames) {
+		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+		try {
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT * ");
+			sql.append(" FROM tb_iteminfo ");
+			sql.append(" WHERE enable = 1 AND `oid` in ( ");
+			for (String oid : oids) {
+				sql.append("'" + oid + "',");
+			}
+			sql.deleteCharAt(sql.length() - 1);
+			sql.append(") ");
+			sql.append(" AND `layername` in ( ");
+			for (String layername : layernames) {
+				sql.append("'" + layername + "',");
+			}
+			sql.deleteCharAt(sql.length() - 1);
+			sql.append(") ");
+
+			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
+		} catch (Exception e) {
+			e.printStackTrace();
+			itemInfos = new ArrayList<ItemInfoModel>();
+		}
+		return itemInfos;
+	}
+
+	private List<ItemInfoModel> selectQIDs(String oid, String name, Integer limit, Integer offset) {
+		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+		try {
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT `oid`, `name` ");
+			sql.append(" FROM tb_iteminfo ");
+			sql.append(" WHERE enable = 1 ");
+			if (oid != null && !oid.isEmpty()) {
+				sql.append(" AND `oid` like '%" + oid + "%'");
+			}
+			if (name != null && !name.isEmpty()) {
+				sql.append(" AND `name` like '%" + name + "%'");
+			}
+			sql.append("GROUP BY `oid`, `name`");
+
+			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
+		} catch (Exception e) {
+			e.printStackTrace();
+			itemInfos = new ArrayList<ItemInfoModel>();
+		}
+		return itemInfos;
+	}
+
 	private List<Long> getItemSetDetailsByItemSetID(Long itemSetID) {
 		List<Long> items = new ArrayList<Long>();
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT `itemid` ");
 			sql.append(" FROM tb_itemsetdetail ");
 			sql.append(" WHERE `itemsetid` = " + itemSetID);
-			
+
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
 		} catch (Exception e) {
@@ -594,7 +920,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		}
 		return items;
 	}
-	
+
 	private Integer setItemSetDetails(Long itemSetID, List<Long> items) {
 		Integer ret = -1;
 		if (items.size() <= 0)
@@ -602,7 +928,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			
+
 			StringBuffer sql_del = new StringBuffer();
 			sql_del.append(" DELETE ");
 			sql_del.append(" FROM tb_itemsetdetail ");
@@ -632,5 +958,5 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		}
 		return ret;
 	}
-	
+
 }
