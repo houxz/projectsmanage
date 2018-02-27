@@ -360,7 +360,7 @@
 					<td class="configKey">错误筛选集合名称</td>
 					<td class="configValue"><input type="text"
 						class="form-control configValue" id="name"
-						placeholder="请输入集合名"></td>
+						placeholder="请输入错误筛选集合名称"></td>
 				</tr>
 				<tr>
 					<td class="configKey">质检项</td>
@@ -420,7 +420,7 @@
 				<div class="panel-body">
 					<div class="input-group">
 						<input type="input" class="form-control" id="input-expand-node"
-							placeholder="查找人员"
+							placeholder="输入关键字，按回车开始查找"
 							onkeypress="if (event.keyCode==13) { findExpandibleNodess(); }">
 						<div class="input-group-btn">
 							<button type="button" class="btn btn-default" tabindex="-1"

@@ -409,7 +409,7 @@
 					<td class="configKey">图层集合名称</td>
 					<td class="configValue"><input type="text"
 						class="form-control configValue" id="name"
-						placeholder="请输入新项目名"></td>
+						placeholder="请输入图层集合名称"></td>
 				</tr>
 				<tr>
 					<td class="configKey">图层</td>
@@ -477,13 +477,12 @@
 					<td class="configKey">描述</td>
 					<td class="configValue"><input type="text"
 						class="form-control configValue" id="desc"
-						placeholder="请输入新项目名"></td>
+						placeholder="请输入描述"></td>
 				</tr>
 				<tr>
 					<td class="configKey">更新时间</td>
 					<td class="configValue"><input type="text"
-						class="form-control configValue" id="updatetime"
-						placeholder="请输入新项目名"></td>
+						class="form-control configValue" id="updatetime" disabled></td>
 				</tr>
 			</tbody>
 		</table>
