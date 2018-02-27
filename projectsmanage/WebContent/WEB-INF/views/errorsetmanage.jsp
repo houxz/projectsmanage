@@ -88,7 +88,6 @@
 		$("#dlgErrorSet table #type").prop('selectedIndex', 0);
 		$("#dlgErrorSet table #enable").prop('selectedIndex', 0);
 		$("#dlgErrorSet table #systype").prop('selectedIndex', 0);
-		$("#dlgErrorSet table #referdata").val(new String());
 		$("#dlgErrorSet table #unit").prop('selectedIndex', 0);
 		$("#dlgErrorSet table #desc").val(new String());
 		$("#dlgErrorSet table #updatetime").val(new String());
@@ -111,7 +110,6 @@
 					$("#dlgErrorSet table #type").val(errorset.type);
 					$("#dlgErrorSet table #enable").val(errorset.enable);
 					$("#dlgErrorSet table #systype").val(errorset.systype);
-					$("#dlgErrorSet table #referdata").val(errorset.referdata);
 					$("#dlgErrorSet table #unit").val(errorset.unit);
 					$("#dlgErrorSet table #desc").val(errorset.desc);
 					$("#dlgErrorSet table #updatetime").val(errorset.updatetime);
@@ -262,7 +260,6 @@
 		var type = $("#dlgErrorSet table #type").val();
 		var enable = $("#dlgErrorSet table #enable").val();
 		var systype = $("#dlgErrorSet table #systype").val();
-		var referdata = $("#dlgErrorSet table #referdata").val();
 		var unit = $("#dlgErrorSet table #unit").val();
 		var desc = $("#dlgErrorSet table #desc").val();
 		var items = $("#dlgErrorSet table #items").val();
@@ -280,7 +277,6 @@
 			"type" : type,
 			"enable" : enable,
 			"systype" : systype,
-			"referdata" : referdata,
 			"unit" : unit,
 			"desc" : desc,
 			"items" : items
@@ -340,8 +336,6 @@
 						<th data-field="systype" data-formatter="sysFormat"
 							data-filter-control="select"
 							data-filter-data="var:errorsetSysTypes">操作系统</th>
-						<th data-field="referdata" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="200">参考图层</th>
 						<th data-field="unit" data-formatter="unitFormat"
 							data-filter-control="select" data-filter-data="var:errorsetUnits">质检单位</th>
 						<th data-field="desc" data-filter-control="input"
@@ -395,12 +389,6 @@
 								<option value="${sysType.getValue() }">${sysType.getDes() }</option>
 							</c:forEach>
 					</select></td>
-				</tr>
-				<tr>
-					<td class="configKey">参考图层</td>
-					<td class="configValue">
-						<textarea class="form-control" rows="3" id="referdata"></textarea>
-					</td>
 				</tr>
 				<tr>
 					<td class="configKey">质检单位</td>
