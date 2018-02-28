@@ -135,29 +135,41 @@ jQuery.webeditor = {
 		return r;
 	},
 	
-	transJsonData2Tree2 : function(data, idStr, pidStr, pText, childrenStr, cText) {
-		var r = [], hash = {}, len = data.length;
+	transJsonData2Tree2 : function(data, idStr, pidStr, pText, childrenStr, cText, selects) {
+		var r = [], hash = new Map(), len = data.length, slct_nodes = new Set();
+		if(selects && selects.length > 0) {
+			$.each(selects.split(";"), function(index, node){
+				slct_nodes.add(parseInt(node));
+    		});
+		}
 		for (var i = 0; i < len; i++) {
-			var valF = {}, valC = data[i];
 			var qid = data[i][pidStr];
-			if(hash[qid]) {
-				valC["text"] = valC[cText];
-				valC["pid"] = valC[pidStr];
-				hash[qid][childrenStr].push(valC);
-			} else {
-				valF["text"] = valC[pText];
-				valF["pid"] = 0;
-				hash[qid] = valF;
-				hash[qid][childrenStr] = [];
-				valC["text"] = valC[cText];
-				valC["pid"] = valC[pidStr];
-				hash[qid][childrenStr].push(valC);
+			//父节点
+			if(!hash.has(qid)) {
+				var val = {};
+				val["text"] = data[i][pText];
+				val["pid"] = 0;
+				val["state"] = {expanded:false};
+				val[childrenStr] = [];
+				hash.set(qid,val);
 			}
+
+			//子节点
+			var val = data[i];
+			val["text"] = val[cText];
+			val["pid"] = val[pidStr];
+			if(slct_nodes.has(parseInt(val["id"]))){
+				val["state"]= {checked:true};
+				hash.get(val[pidStr])["state"] = {expanded:true};
+			} else {
+				val["state"]= {checked:false};
+			}
+			
+			hash.get(qid)[childrenStr].push(val);
 		}
-		for(var key in hash) {
-			hash[key]["open"] = "false";
-			r.push(hash[key]);
-		}
+		hash.forEach(function(value, key, map){
+			r.push(value);
+		});
 		return r;
 	}
 };

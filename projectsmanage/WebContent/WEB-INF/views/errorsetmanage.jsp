@@ -163,13 +163,14 @@
     }
 	
 	function getErrorTypes() {
+		var selectNodeids = $("#dlgErrorSet table #errorTypes").val();
 		if(!errorTypesTree) {
 			jQuery.post("./errorsetmanage.web", {
 				"atn" : "geterrortypes"
 			}, function(json) {
 				var errorTypes = json.rows;
 				if(errorTypes && errorTypes.length > 0) {//data, idStr, pidStr, pText, childrenStr, cText
-					var data = $.webeditor.transJsonData2Tree2(errorTypes, "id", "qid", "name", "nodes", "desc");
+					var data = $.webeditor.transJsonData2Tree2(errorTypes, "id", "qid", "name", "nodes", "desc", selectNodeids);
 					errorTypesTree = $('#errorTypesTree').treeview(
 						{
 							data : data,
@@ -212,6 +213,10 @@
 			open : function(event, ui) {
 				$(".ui-dialog-titlebar-close").hide();
 			},
+			close : function(event, ui) {
+				errorTypesTree.treeview('uncheckAll', { silent: true });
+	    		errorTypesTree.treeview('collapseAll', { silent: true });
+			},
 			buttons : [ {
 				text : "提交",
 				class : "btn btn-default",
@@ -232,8 +237,6 @@
 			        	$("#dlgErrorSet table #errorTypes").val(value);
 			        	$("#errorTypesCount").text(length);
 			        	
-			        	errorTypesTree.treeview('uncheckAll', { silent: true });
-			    		errorTypesTree.treeview('collapseAll', { silent: true });
 			        	$(this).dialog("close");
 		        	} else {
 		        		$.webeditor.showMsgLabel("alert", "请选择错误类型");
