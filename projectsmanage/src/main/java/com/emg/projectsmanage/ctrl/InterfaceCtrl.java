@@ -562,7 +562,6 @@ public class InterfaceCtrl extends BaseCtrl {
 									valuemodel.setValue(projectid.toString());
 									valuemodel.setModuleid(2);
 									List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
-
 									if (valueList.size() > 0) {
 										for (ConfigValueModel value : valueList) {
 											Long idProcess = value.getProcessId();
@@ -580,13 +579,15 @@ public class InterfaceCtrl extends BaseCtrl {
 												processModelDao.updateByPrimaryKey(process);
 											}
 										}
-										if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
-											ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
-											project.setOverstate(4);
-											projectModelDao.updateByPrimaryKey(project);
-										}
-										status = Boolean.valueOf(true);
 									}
+									// /////////////////////////////////////////////////
+
+									if (totalTask.compareTo(completeTask) == 0) {
+										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
+										project.setOverstate(4); // 项目完成
+										projectModelDao.updateByPrimaryKey(project);
+									}
+									status = Boolean.valueOf(true);
 								}
 							}
 						} else {
