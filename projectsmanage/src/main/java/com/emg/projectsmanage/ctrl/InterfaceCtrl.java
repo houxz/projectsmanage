@@ -50,8 +50,7 @@ import com.sun.jna.WString;
 @RequestMapping("/interface.web")
 public class InterfaceCtrl extends BaseCtrl {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(InterfaceCtrl.class);
+	private static final Logger logger = LoggerFactory.getLogger(InterfaceCtrl.class);
 
 	@Autowired
 	private ProjectModelDao projectModelDao;
@@ -75,7 +74,8 @@ public class InterfaceCtrl extends BaseCtrl {
 	private ConfigDBModelDao configDBModelDao;
 
 	@RequestMapping(params = "action=insertNewProject", method = RequestMethod.POST)
-	private ModelAndView insertNewProject(Model model, HttpSession session,
+	private ModelAndView insertNewProject(Model model,
+			HttpSession session,
 			HttpServletRequest request,
 			@RequestParam("protype") Integer protype,
 			@RequestParam("pdifficulty") Integer pdifficulty,
@@ -121,13 +121,11 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectProjectByID", method = RequestMethod.POST)
-	private ModelAndView selectProjectByID(Model model, HttpSession session,
-			HttpServletRequest request, @RequestParam("pid") String projectID) {
+	private ModelAndView selectProjectByID(Model model, HttpSession session, HttpServletRequest request, @RequestParam("pid") String projectID) {
 		logger.debug("selectProjectByID start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			ProjectModel projects = projectModelDao.selectByPrimaryKey(Long
-					.valueOf(projectID));
+			ProjectModel projects = projectModelDao.selectByPrimaryKey(Long.valueOf(projectID));
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
@@ -141,17 +139,16 @@ public class InterfaceCtrl extends BaseCtrl {
 
 	@RequestMapping(params = "action=selectProjectByProtype", method = RequestMethod.POST)
 	private ModelAndView selectProjectByProtype(Model model,
-			HttpSession session, HttpServletRequest request,
+			HttpSession session,
+			HttpServletRequest request,
 			@RequestParam("systemid") Integer systemid,
 			@RequestParam("protype") Integer protype) {
 		logger.debug("selectProjectByProtype start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			ProjectModelExample example = new ProjectModelExample();
-			example.or().andSystemidEqualTo(systemid)
-					.andProtypeEqualTo(protype);
-			List<ProjectModel> projects = projectModelDao
-					.selectByExample(example);
+			example.or().andSystemidEqualTo(systemid).andProtypeEqualTo(protype);
+			List<ProjectModel> projects = projectModelDao.selectByExample(example);
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
@@ -164,7 +161,8 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectTopProjects", method = RequestMethod.POST)
-	private ModelAndView selectTopProjects(Model model, HttpSession session,
+	private ModelAndView selectTopProjects(Model model,
+			HttpSession session,
 			HttpServletRequest request,
 			@RequestParam("systemid") Integer systemid,
 			@RequestParam("limit") Integer limit) {
@@ -178,8 +176,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			if (limit != null && limit > 0) {
 				example.setLimit(limit);
 			}
-			List<ProjectModel> projects = projectModelDao
-					.selectByExample(example);
+			List<ProjectModel> projects = projectModelDao.selectByExample(example);
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
@@ -192,17 +189,14 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectUndoProjects", method = RequestMethod.POST)
-	private ModelAndView selectUndoProjects(Model model, HttpSession session,
-			HttpServletRequest request,
-			@RequestParam("systemid") Integer systemid) {
+	private ModelAndView selectUndoProjects(Model model, HttpSession session, HttpServletRequest request, @RequestParam("systemid") Integer systemid) {
 		logger.debug("selectUndoProjects start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			ProjectModelExample example = new ProjectModelExample();
 			example.or().andSystemidEqualTo(systemid).andOverstateLessThan(4);
 			example.setOrderByClause("id desc");
-			List<ProjectModel> projects = projectModelDao
-					.selectByExample(example);
+			List<ProjectModel> projects = projectModelDao.selectByExample(example);
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
@@ -216,7 +210,8 @@ public class InterfaceCtrl extends BaseCtrl {
 
 	@RequestMapping(params = "action=selectProjectsByCreatetime", method = RequestMethod.POST)
 	private ModelAndView selectProjectsByCreatetime(Model model,
-			HttpSession session, HttpServletRequest request,
+			HttpSession session,
+			HttpServletRequest request,
 			@RequestParam("systemid") Integer systemid,
 			@RequestParam("starttime") String starttime,
 			@RequestParam("endtime") String endtime) {
@@ -231,8 +226,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			if (!endtime.isEmpty())
 				criteria.andCreatetimeLessThanOrEqualTo(endtime);
 			example.setOrderByClause("id");
-			List<ProjectModel> projects = projectModelDao
-					.selectByExample(example);
+			List<ProjectModel> projects = projectModelDao.selectByExample(example);
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
@@ -246,7 +240,8 @@ public class InterfaceCtrl extends BaseCtrl {
 
 	@RequestMapping(params = "action=selectProjectsByEndtime", method = RequestMethod.POST)
 	private ModelAndView selectProjectsByEndtime(Model model,
-			HttpSession session, HttpServletRequest request,
+			HttpSession session,
+			HttpServletRequest request,
 			@RequestParam("systemid") Integer systemid,
 			@RequestParam("endtime") String endtime) {
 		logger.debug("selectProjectsByEndtime start!");
@@ -258,8 +253,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			if (!endtime.isEmpty())
 				criteria.andCreatetimeLessThanOrEqualTo(endtime);
 			example.setOrderByClause("id");
-			List<ProjectModel> projects = projectModelDao
-					.selectByExample(example);
+			List<ProjectModel> projects = projectModelDao.selectByExample(example);
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
@@ -273,7 +267,8 @@ public class InterfaceCtrl extends BaseCtrl {
 
 	@RequestMapping(params = "action=selectProjectsByStarttime", method = RequestMethod.POST)
 	private ModelAndView selectProjectsByStarttime(Model model,
-			HttpSession session, HttpServletRequest request,
+			HttpSession session,
+			HttpServletRequest request,
 			@RequestParam("systemid") Integer systemid,
 			@RequestParam("starttime") String starttime) {
 		logger.debug("selectProjectsByStarttime start!");
@@ -285,8 +280,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			if (!starttime.isEmpty())
 				criteria.andCreatetimeGreaterThanOrEqualTo(starttime);
 			example.setOrderByClause("id");
-			List<ProjectModel> projects = projectModelDao
-					.selectByExample(example);
+			List<ProjectModel> projects = projectModelDao.selectByExample(example);
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
@@ -299,16 +293,13 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectAllProjects", method = RequestMethod.POST)
-	private ModelAndView selectAllProjects(Model model, HttpSession session,
-			HttpServletRequest request,
-			@RequestParam("systemid") Integer systemid) {
+	private ModelAndView selectAllProjects(Model model, HttpSession session, HttpServletRequest request, @RequestParam("systemid") Integer systemid) {
 		logger.debug("selectAllProjects start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			ProjectModelExample example = new ProjectModelExample();
 			example.or().andSystemidEqualTo(systemid);
-			List<ProjectModel> projects = projectModelDao
-					.selectByExample(example);
+			List<ProjectModel> projects = projectModelDao.selectByExample(example);
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
@@ -321,9 +312,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectCountOfProjects", method = RequestMethod.POST)
-	private ModelAndView selectCountOfProjects(Model model,
-			HttpSession session, HttpServletRequest request,
-			@RequestParam("systemid") Integer systemid) {
+	private ModelAndView selectCountOfProjects(Model model, HttpSession session, HttpServletRequest request, @RequestParam("systemid") Integer systemid) {
 		logger.debug("selectCountOfProjects start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -343,15 +332,15 @@ public class InterfaceCtrl extends BaseCtrl {
 
 	@RequestMapping(params = "action=updateProjectTasknumByID", method = RequestMethod.POST)
 	private ModelAndView updateProjectTasknumByID(Model model,
-			HttpSession session, HttpServletRequest request,
+			HttpSession session,
+			HttpServletRequest request,
 			@RequestParam("pid") String projectID,
 			@RequestParam("tasknum") Integer tasknum) {
 		logger.debug("updateProjectTasknumByID start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean status = false;
 		try {
-			ProjectModel project = projectModelDao.selectByPrimaryKey(Long
-					.valueOf(projectID));
+			ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectID));
 
 			Integer curTasknum = project.getTasknum();
 			if (tasknum > curTasknum) {
@@ -375,15 +364,15 @@ public class InterfaceCtrl extends BaseCtrl {
 
 	@RequestMapping(params = "action=updateProjectOverstateByID", method = RequestMethod.POST)
 	private ModelAndView updateProjectOverstateByID(Model model,
-			HttpSession session, HttpServletRequest request,
+			HttpSession session,
+			HttpServletRequest request,
 			@RequestParam("pid") String projectID,
 			@RequestParam("overstate") Integer overstate) {
 		logger.debug("updateProjectOverstateByID start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean status = false;
 		try {
-			ProjectModel project = projectModelDao.selectByPrimaryKey(Long
-					.valueOf(projectID));
+			ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectID));
 			project.setOverstate(overstate);
 			if (projectModelDao.updateByPrimaryKey(project) > 0)
 				status = true;
@@ -398,9 +387,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=submitTaskByID", method = RequestMethod.POST)
-	private ModelAndView submitTaskByID(Model model, HttpSession session,
-			HttpServletRequest request, @RequestParam("pid") String projectID,
-			@RequestParam("type") Integer type) {
+	private ModelAndView submitTaskByID(Model model, HttpSession session, HttpServletRequest request, @RequestParam("pid") String projectID, @RequestParam("type") Integer type) {
 		logger.debug("submitTaskByID start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean status = false;
@@ -418,7 +405,8 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=submitTaskStatus", method = RequestMethod.POST)
-	private ModelAndView submitTaskStatus(Model model, HttpSession session,
+	private ModelAndView submitTaskStatus(Model model,
+			HttpSession session,
 			HttpServletRequest request,
 			@RequestParam("systemid") Integer systemid,
 			@RequestParam("projectid") String projectid,
@@ -445,8 +433,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				roleid = processafter;
 			}
 
-			String rolename = roleid == RoleType.ROLE_WORKER.getValue() ? RoleType.ROLE_WORKER
-					.getDes() : RoleType.ROLE_CHECKER.getDes();
+			String rolename = roleid == RoleType.ROLE_WORKER.getValue() ? RoleType.ROLE_WORKER.getDes() : RoleType.ROLE_CHECKER.getDes();
 			ProjectsTaskLogModel taskLog = new ProjectsTaskLogModel();
 			taskLog.setSystemid(systemid);
 			taskLog.setProjectid(projectid);
@@ -485,68 +472,55 @@ public class InterfaceCtrl extends BaseCtrl {
 					status = true;
 				} else {// 第一次进入下一阶段
 					if (systemid.compareTo(0) == 0) {// POI视频编辑平台
-						if (roleid == 5 && statebefore == 0
-								&& processbefore == 0 && stateafter == 1
-								&& processafter == 5) {// (0,0) -> (1,5)
+						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)
+																															// ->
+																															// (1,5)
 							if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
 								status = true;
-						} else if (roleid == 6 && statebefore == 3
-								&& processbefore == 5 && stateafter == 1
-								&& processafter == 6) {// (3,5) -> (1,6)
+						} else if (roleid == 6 && statebefore == 3 && processbefore == 5 && stateafter == 1 && processafter == 6) {// (3,5)
+																																	// ->
+																																	// (1,6)
 							if (projectsTaskCountDao.newTask2Check(taskCount) > 0)
 								status = true;
-						} else if (roleid == 5 && statebefore == 1
-								&& processbefore == 5 && stateafter == 2
-								&& processafter == 5) {// (1,5) -> (2,5)
+						} else if (roleid == 5 && statebefore == 1 && processbefore == 5 && stateafter == 2 && processafter == 5) {// (1,5)
+																																	// ->
+																																	// (2,5)
 							if (projectsTaskCountDao.Edit2QC(taskCount) > 0)
 								status = true;
-						} else if (roleid == 5 && statebefore == 1
-								&& processbefore == 5 && stateafter == 3
-								&& processafter == 5) {// (1,5) -> (3,5)
+						} else if (roleid == 5 && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {// (1,5)
+																																	// ->
+																																	// (3,5)
 							if (projectsTaskCountDao.QC2Check(taskCount) > 0)
 								status = true;
-						} else if (roleid == 6 && statebefore == 1
-								&& processbefore == 6 && stateafter == 3
-								&& processafter == 6) {// (1,6) -> (3,6)
+						} else if (roleid == 6 && statebefore == 1 && processbefore == 6 && stateafter == 3 && processafter == 6) {// (1,6)
+																																	// ->
+																																	// (3,6)
 							if (projectsTaskCountDao.taskDone(taskCount) > 0) {
 								ProjectsTaskLogModel projectsTaskLog = new ProjectsTaskLogModel();
 								projectsTaskLog.setSystemid(systemid);
 								projectsTaskLog.setProjectid(projectid);
 								projectsTaskLog.setTaskid(taskid);
-								projectsTaskLog.setRoleid(RoleType.ROLE_WORKER
-										.getValue());
+								projectsTaskLog.setRoleid(RoleType.ROLE_WORKER.getValue());
 								projectsTaskLog.setStatebefore(1);
 								projectsTaskLog.setProcessbefore(5);
 								projectsTaskLog.setStateafter(3);
 								projectsTaskLog.setProcessafter(5);
-								List<ProjectsTaskLogModel> projectsTaskLogs = projectsTaskLogModelDao
-										.select(projectsTaskLog);
-								if (projectsTaskLogs != null
-										&& projectsTaskLogs.size() > 0) {
-									Integer editid = projectsTaskLogs.get(0)
-											.getUserid();
+								List<ProjectsTaskLogModel> projectsTaskLogs = projectsTaskLogModelDao.select(projectsTaskLog);
+								if (projectsTaskLogs != null && projectsTaskLogs.size() > 0) {
+									Integer editid = projectsTaskLogs.get(0).getUserid();
 									taskCount.setUserid(editid);
-									taskCount.setRoleid(RoleType.ROLE_WORKER
-											.getValue());
-									if (projectsTaskCountDao
-											.taskDone(taskCount) > 0) {
+									taskCount.setRoleid(RoleType.ROLE_WORKER.getValue());
+									if (projectsTaskCountDao.taskDone(taskCount) > 0) {
 										Map<String, Object> map = new HashMap<String, Object>();
 										map.put("systemid", systemid);
 										map.put("projectid", projectid);
-										List<ProjectsTaskCountModel> list = projectsTaskCountDao
-												.getProjectsProgress(map);
+										List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
 										if (list != null && list.size() > 0) {
-											ProjectsTaskCountModel projectsCount = list
-													.get(0);
-											if (projectsCount.getTotaltask()
-													.equals(projectsCount
-															.getCompletetask())) {
-												ProjectModel project = projectModelDao
-														.selectByPrimaryKey(Long
-																.valueOf(projectid));
+											ProjectsTaskCountModel projectsCount = list.get(0);
+											if (projectsCount.getTotaltask().equals(projectsCount.getCompletetask())) {
+												ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
 												project.setOverstate(4);
-												projectModelDao
-														.updateByPrimaryKey(project);
+												projectModelDao.updateByPrimaryKey(project);
 											}
 											status = true;
 										}
@@ -557,37 +531,35 @@ public class InterfaceCtrl extends BaseCtrl {
 							status = true;
 						}
 					} else if (systemid.compareTo(349) == 0) {// 综合编辑平台
-						if (roleid == 5 && statebefore == 0
-								&& processbefore == 0 && stateafter == 1
-								&& processafter == 5) {// (0,0) -> (1,5)
+						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)
+																															// ->
+																															// (1,5)
 							if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
 								status = true;
-						} else if (roleid == 5 && statebefore == 1
-								&& processbefore == 5 && stateafter == 3
-								&& processafter == 5) {// (1,5) -> (3,5)
+						} else if (roleid == 5 && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {// (1,5)
+																																	// ->
+																																	// (3,5)
 							if (projectsTaskCountDao.comTaskDone(taskCount) > 0) {
 								Map<String, Object> map = new HashMap<String, Object>();
 								map.put("systemid", systemid);
 								map.put("projectid", projectid);
-								List<ProjectsTaskCountModel> list = projectsTaskCountDao
-										.getProjectsProgress(map);
+								List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
 								if (list != null && list.size() > 0) {
-									ProjectsTaskCountModel projectsCount = list
-											.get(0);
-									if (projectsCount.getTotaltask().compareTo(
-											projectsCount.getCompletetask()) == 0) {
-										ProjectModel project = projectModelDao
-												.selectByPrimaryKey(Long
-														.valueOf(projectid));
+									ProjectsTaskCountModel projectsCount = list.get(0);
+									if (projectsCount.getTotaltask().compareTo(projectsCount.getCompletetask()) == 0) {
+										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
 										project.setOverstate(4);
-										projectModelDao
-												.updateByPrimaryKey(project);
-										
-										//by xiao
-										//项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
-										//先找到该项目关联的所有流程任务
-										/*select processid from tb_config_value where value=2 and configid in
-										(select tb_config.id from tb_config where name="项目id" and moduleid=2)*/
+										projectModelDao.updateByPrimaryKey(project);
+
+										// by xiao
+										// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
+										// 先找到该项目关联的所有流程任务
+										/*
+										 * select processid from tb_config_value
+										 * where value=2 and configid in (select
+										 * tb_config.id from tb_config where
+										 * name="项目id" and moduleid=2)
+										 */
 										ConfigValueModel valuemodel = new ConfigValueModel();
 										valuemodel.setName("项目id");
 										valuemodel.setValue("2");
@@ -595,20 +567,19 @@ public class InterfaceCtrl extends BaseCtrl {
 										List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
 										if (valueList.size() > 0) {
 											for (ConfigValueModel value : valueList) {
-												Long idProcess= value.getProcessId();
+												Long idProcess = value.getProcessId();
 												ProcessModel process = processModelDao.selectByPrimaryKey(idProcess);
 												String sProgress = process.getProgress();
-												if( sProgress.length() > 0)
-												{
+												if (sProgress.length() > 0) {
 													int index = sProgress.lastIndexOf(',');
-													sProgress = sProgress.substring(0, index+1) + "100";
+													sProgress = sProgress.substring(0, index + 1) + "100";
 													process.setProgress(sProgress);
 												}
-												process.setState(3); //流程完成
-												process.setStagestate(3); //阶段完成
+												process.setState(3); // 流程完成
+												process.setStagestate(3); // 阶段完成
 												processModelDao.updateByPrimaryKey(process);
 											}
-											
+
 										}
 									}
 									status = Boolean.valueOf(true);
@@ -618,33 +589,29 @@ public class InterfaceCtrl extends BaseCtrl {
 							status = true;
 						}
 					} else if (systemid.compareTo(332) == 0) {// 批处理工具平台
-						if (statebefore == 12 && processbefore == 51
-								&& stateafter == 11 && processafter == 52) {// (12,51)
-																			// ->
-																			// (11,52)
+						if (statebefore == 12 && processbefore == 51 && stateafter == 11 && processafter == 52) {// (12,51)
+																													// ->
+																													// (11,52)
 							if (projectsTaskCountDao.newTask2QC(taskCount) > 0)
 								status = true;
-						} else if (statebefore == 11 && processbefore == 52
-								&& (stateafter == 2 || stateafter == 22)
-								&& processafter == 52) {// (11,52) -> (2,52) 或者
-														// (11,52) -> (22,52)
+						} else if (statebefore == 11 && processbefore == 52 && (stateafter == 2 || stateafter == 22) && processafter == 52) {// (11,52)
+																																				// ->
+																																				// (2,52)
+																																				// 或者
+																																				// (11,52)
+																																				// ->
+																																				// (22,52)
 							if (projectsTaskCountDao.QCTaskDone(taskCount) > 0) {
 								Map<String, Object> map = new HashMap<String, Object>();
 								map.put("systemid", systemid);
 								map.put("projectid", projectid);
-								List<ProjectsTaskCountModel> list = projectsTaskCountDao
-										.getProjectsProgress(map);
+								List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
 								if (list != null && list.size() > 0) {
-									ProjectsTaskCountModel projectsCount = list
-											.get(0);
-									if (projectsCount.getTotaltask().compareTo(
-											projectsCount.getCompletetask()) == 0) {
-										ProjectModel project = projectModelDao
-												.selectByPrimaryKey(Long
-														.valueOf(projectid));
+									ProjectsTaskCountModel projectsCount = list.get(0);
+									if (projectsCount.getTotaltask().compareTo(projectsCount.getCompletetask()) == 0) {
+										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
 										project.setOverstate(4);
-										projectModelDao
-												.updateByPrimaryKey(project);
+										projectModelDao.updateByPrimaryKey(project);
 									}
 									status = Boolean.valueOf(true);
 								}
@@ -668,7 +635,8 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=checkUserInSystem", method = RequestMethod.POST)
-	private ModelAndView checkUserInSystem(Model model, HttpSession session,
+	private ModelAndView checkUserInSystem(Model model,
+			HttpSession session,
 			HttpServletRequest request,
 			@RequestParam("systemid") Integer systemid,
 			@RequestParam("userid") Integer userid,
@@ -698,8 +666,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectUserRoleByID", method = RequestMethod.POST)
-	private ModelAndView selectUserRoleByID(Model model, HttpSession session,
-			HttpServletRequest request, @RequestParam("id") Integer id) {
+	private ModelAndView selectUserRoleByID(Model model, HttpSession session, HttpServletRequest request, @RequestParam("id") Integer id) {
 		logger.debug("selectUserRoleByID start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -718,9 +685,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectUserRoleByUserID", method = RequestMethod.POST)
-	private ModelAndView selectUserRoleByUserID(Model model,
-			HttpSession session, HttpServletRequest request,
-			@RequestParam("userid") Integer userid) {
+	private ModelAndView selectUserRoleByUserID(Model model, HttpSession session, HttpServletRequest request, @RequestParam("userid") Integer userid) {
 		logger.debug("selectUserRoleByUserID start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -740,9 +705,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectUserRoleByRoleID", method = RequestMethod.POST)
-	private ModelAndView selectUserRoleByRoleID(Model model,
-			HttpSession session, HttpServletRequest request,
-			@RequestParam("roleid") Integer roleid) {
+	private ModelAndView selectUserRoleByRoleID(Model model, HttpSession session, HttpServletRequest request, @RequestParam("roleid") Integer roleid) {
 		logger.debug("selectUserRoleByRoleID start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -762,8 +725,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectAllUserRoles", method = RequestMethod.POST)
-	private ModelAndView selectAllUserRoles(Model model, HttpSession session,
-			HttpServletRequest request) {
+	private ModelAndView selectAllUserRoles(Model model, HttpSession session, HttpServletRequest request) {
 		logger.debug("selectAllUserRoles start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -781,8 +743,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectUserRoleCount", method = RequestMethod.POST)
-	private ModelAndView selectUserRoleCount(Model model, HttpSession session,
-			HttpServletRequest request) {
+	private ModelAndView selectUserRoleCount(Model model, HttpSession session, HttpServletRequest request) {
 		logger.debug("selectUserRoleCount start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -800,7 +761,8 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectNextProject", method = RequestMethod.POST)
-	private ModelAndView selectNextProject(Model model, HttpSession session,
+	private ModelAndView selectNextProject(Model model,
+			HttpSession session,
 			HttpServletRequest request,
 			@RequestParam("systemid") Integer systemid,
 			@RequestParam("userid") Integer userid,
@@ -811,22 +773,20 @@ public class InterfaceCtrl extends BaseCtrl {
 			String projectid = "-1";
 			String name = new String();
 			Integer tasknum = -1;
-			
+
 			ProjectsUserModel record = new ProjectsUserModel();
 			record.setUserid(userid);
-			List<ProjectsUserModel> projectsUserModels = projectsUserModelDao
-					.queryProjectUsers(record);
+			List<ProjectsUserModel> projectsUserModels = projectsUserModelDao.queryProjectUsers(record);
 			List<Long> myProjectIDs = new ArrayList<Long>();
 			myProjectIDs.add(-1L);
 			for (ProjectsUserModel projectsUserModel : projectsUserModels) {
 				myProjectIDs.add(Long.valueOf(projectsUserModel.getPid()));
 			}
-			
+
 			Integer priority = 9999;
 			Integer owner = 1;
-			if(!pid.equals("-1")){
-				ProjectModel curProject = projectModelDao.selectByPrimaryKey(Long
-						.valueOf(pid));
+			if (!pid.equals("-1")) {
+				ProjectModel curProject = projectModelDao.selectByPrimaryKey(Long.valueOf(pid));
 				if (curProject != null) {
 					priority = curProject.getPriority();
 					owner = curProject.getOwner();
@@ -837,41 +797,32 @@ public class InterfaceCtrl extends BaseCtrl {
 					return json;
 				}
 			}
-				
+
 			ProjectModelExample example = new ProjectModelExample();
 			Criteria criteria1 = example.or();
-			criteria1.andSystemidEqualTo(systemid)
-					.andOverstateEqualTo(1)
-					.andOwnerEqualTo(owner)
-					.andPriorityEqualTo(priority)
-					.andIdGreaterThan(Long.valueOf(pid));
+			criteria1.andSystemidEqualTo(systemid).andOverstateEqualTo(1).andOwnerEqualTo(owner).andPriorityEqualTo(priority).andIdGreaterThan(Long.valueOf(pid));
 			Criteria criteria2 = example.or();
-			criteria2.andSystemidEqualTo(systemid)
-					.andOverstateEqualTo(1)
-					.andOwnerEqualTo(owner)
-					.andPriorityLessThan(priority);
-			if(owner.equals(1) && myProjectIDs.size() > 0){
+			criteria2.andSystemidEqualTo(systemid).andOverstateEqualTo(1).andOwnerEqualTo(owner).andPriorityLessThan(priority);
+			if (owner.equals(1) && myProjectIDs.size() > 0) {
 				criteria1.andIdIn(myProjectIDs);
 				criteria2.andIdIn(myProjectIDs);
 			}
 			example.setOrderByClause("priority DESC, id");
 			example.setLimit(1);
 			List<ProjectModel> project = projectModelDao.selectByExample(example);
-			if ((project == null || project.size() <= 0) && owner.equals(1) ) {
+			if ((project == null || project.size() <= 0) && owner.equals(1)) {
 				example.clear();
-				example.or().andSystemidEqualTo(systemid)
-							.andOwnerEqualTo(0)
-							.andOverstateEqualTo(1);
+				example.or().andSystemidEqualTo(systemid).andOwnerEqualTo(0).andOverstateEqualTo(1);
 				example.setOrderByClause("priority DESC, id");
 				example.setLimit(1);
 				project = projectModelDao.selectByExample(example);
 			}
-			if(project != null && project.size() > 0){
+			if (project != null && project.size() > 0) {
 				projectid = project.get(0).getId().toString();
 				tasknum = project.get(0).getTasknum();
 				name = project.get(0).getName();
 			}
-			
+
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("projectid", projectid);
 			map.put("tasknum", tasknum);
@@ -888,9 +839,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=checkUserByUsername", method = RequestMethod.POST)
-	private ModelAndView checkUserByUsername(Model model, HttpSession session,
-			HttpServletRequest request,
-			@RequestParam("username") String username) {
+	private ModelAndView checkUserByUsername(Model model, HttpSession session, HttpServletRequest request, @RequestParam("username") String username) {
 		logger.debug("checkUserByUsername start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -917,7 +866,8 @@ public class InterfaceCtrl extends BaseCtrl {
 
 	@RequestMapping(params = "action=checkUserByUsernameAndPassword", method = RequestMethod.POST)
 	private ModelAndView checkUserByUsernameAndPassword(Model model,
-			HttpSession session, HttpServletRequest request,
+			HttpSession session,
+			HttpServletRequest request,
 			@RequestParam("username") String username,
 			@RequestParam("password") String password) {
 		logger.debug("checkUserByUsernameAndPassword start!");
@@ -946,7 +896,8 @@ public class InterfaceCtrl extends BaseCtrl {
 
 	@RequestMapping(params = "action=checkUserByUsernameAndDepartment", method = RequestMethod.POST)
 	private ModelAndView checkUserByUsernameAndDepartment(Model model,
-			HttpSession session, HttpServletRequest request,
+			HttpSession session,
+			HttpServletRequest request,
 			@RequestParam("username") String username,
 			@RequestParam("department") Integer department) {
 		logger.debug("checkUserByUsernameAndDepartment start!");
@@ -974,8 +925,9 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=checkUserByUsernameAndPasswordAndDepartment", method = RequestMethod.POST)
-	private ModelAndView checkUserByUsernameAndPasswordAndDepartment(
-			Model model, HttpSession session, HttpServletRequest request,
+	private ModelAndView checkUserByUsernameAndPasswordAndDepartment(Model model,
+			HttpSession session,
+			HttpServletRequest request,
 			@RequestParam("username") String username,
 			@RequestParam("password") String password,
 			@RequestParam("department") Integer department) {
@@ -1005,8 +957,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectAllUserInfos", method = RequestMethod.POST)
-	private ModelAndView selectAllUserInfos(Model model, HttpSession session,
-			HttpServletRequest request) {
+	private ModelAndView selectAllUserInfos(Model model, HttpSession session, HttpServletRequest request) {
 		logger.debug("selectAllUserInfos start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -1024,9 +975,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectUserInfoByUsername", method = RequestMethod.POST)
-	private ModelAndView selectUserInfoByUsername(Model model,
-			HttpSession session, HttpServletRequest request,
-			@RequestParam("username") String username) {
+	private ModelAndView selectUserInfoByUsername(Model model, HttpSession session, HttpServletRequest request, @RequestParam("username") String username) {
 		logger.debug("selectUserIDByUsername start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -1051,9 +1000,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectUserInfoByUserID", method = RequestMethod.POST)
-	private ModelAndView selectUserInfoByUserID(Model model,
-			HttpSession session, HttpServletRequest request,
-			@RequestParam("userid") Integer userid) {
+	private ModelAndView selectUserInfoByUserID(Model model, HttpSession session, HttpServletRequest request, @RequestParam("userid") Integer userid) {
 		logger.debug("selectUserIDByUsername start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -1078,13 +1025,11 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectAllDepartment", method = RequestMethod.POST)
-	private ModelAndView selectAllDepartment(Model model, HttpSession session,
-			HttpServletRequest request) {
+	private ModelAndView selectAllDepartment(Model model, HttpSession session, HttpServletRequest request) {
 		logger.debug("selectAllDepartment start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			List<DepartmentModel> departments = emapgoAccountService
-					.getAllDepartment();
+			List<DepartmentModel> departments = emapgoAccountService.getAllDepartment();
 			if (departments != null && departments.size() > 0) {
 				json.addObject("status", true);
 				json.addObject("departments", departments);
@@ -1103,8 +1048,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectProjectByName", method = RequestMethod.POST)
-	private ModelAndView selectProjectByName(Model model, HttpSession session,
-			HttpServletRequest request, @RequestParam("name") String name) {
+	private ModelAndView selectProjectByName(Model model, HttpSession session, HttpServletRequest request, @RequestParam("name") String name) {
 		logger.debug("selectProjectByName start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -1129,7 +1073,8 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=QCUndoProjects", method = RequestMethod.POST)
-	private ModelAndView QCUndoProjects(Model model, HttpSession session,
+	private ModelAndView QCUndoProjects(Model model,
+			HttpSession session,
 			HttpServletRequest request,
 			@RequestParam("systemid") Integer systemid,
 			@RequestParam("limit") Integer limit) {
@@ -1140,8 +1085,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			example.or().andSystemidEqualTo(systemid).andOverstateEqualTo(1);
 			example.or().andSystemidEqualTo(0).andOverstateEqualTo(1);
 			example.setOrderByClause("priority desc, id");
-			List<ProjectModel> projects = projectModelDao
-					.selectByExample(example);
+			List<ProjectModel> projects = projectModelDao.selectByExample(example);
 			json.addObject("status", true);
 			json.addObject("option", projects);
 		} catch (Exception e) {
@@ -1154,8 +1098,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=QCUndoProjectIDs", method = RequestMethod.POST)
-	private ModelAndView QCUndoProjectIDs(Model model, HttpSession session,
-			HttpServletRequest request) {
+	private ModelAndView QCUndoProjectIDs(Model model, HttpSession session, HttpServletRequest request) {
 		logger.debug("QCUndoProjectIDs start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -1163,8 +1106,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			ProjectModelExample example = new ProjectModelExample();
 			example.or().andOverstateEqualTo(1);
 			example.setOrderByClause("priority desc, id");
-			List<ProjectModel> projects = projectModelDao
-					.selectByExample(example);
+			List<ProjectModel> projects = projectModelDao.selectByExample(example);
 			if (projects.size() > 0) {
 				for (ProjectModel project : projects) {
 					ids += project.getId() + ",";
@@ -1181,11 +1123,10 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("QCUndoProjectIDs end!");
 		return json;
 	}
-	
-	//by xiao
+
+	// by xiao
 	@RequestMapping(params = "action=selectProcessByID", method = RequestMethod.POST)
-	private ModelAndView selectProcessByID(Model model, HttpSession session,
-			HttpServletRequest request, @RequestParam("processid") String processID) {
+	private ModelAndView selectProcessByID(Model model, HttpSession session, HttpServletRequest request, @RequestParam("processid") String processID) {
 		logger.debug("selectProcessByID start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -1200,11 +1141,12 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("selectProcessByID end!");
 		return json;
 	}
-	
-	//by xiao
+
+	// by xiao
 	@RequestMapping(params = "action=updateProcessProgressByID", method = RequestMethod.POST)
 	private ModelAndView updateProcessProgressByID(Model model,
-			HttpSession session, HttpServletRequest request,
+			HttpSession session,
+			HttpServletRequest request,
 			@RequestParam("processid") String processID,
 			@RequestParam("stage") Integer stage,
 			@RequestParam("progress") String progress) {
@@ -1212,39 +1154,38 @@ public class InterfaceCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean status = false;
 		try {
-			ProcessModel process = processModelDao.selectByPrimaryKey(Long
-					.valueOf(processID));
+			ProcessModel process = processModelDao.selectByPrimaryKey(Long.valueOf(processID));
 
 			String sProgress = process.getProgress();
-			if( sProgress.length() > 0)
-			{
+			if (sProgress.length() > 0) {
 				int index = 0;
-				for (int i = 0; i < stage-1; i++) {
-					index = sProgress.indexOf(',', index+1);
+				for (int i = 0; i < stage - 1; i++) {
+					index = sProgress.indexOf(',', index + 1);
 				}
 
-				if(stage == 1){
+				if (stage == 1) {
 					sProgress = progress + sProgress.substring(sProgress.indexOf(','));
-				}
-				else if(stage == 4) {
-					sProgress = sProgress.substring(0, index+1) + progress;
-				}
-				else{
-					String s1 = sProgress.substring(0, index+1);
-					String s2 = sProgress.substring(sProgress.indexOf(',', index+1));
+				} else if (stage == 4) {
+					sProgress = sProgress.substring(0, index + 1) + progress;
+				} else {
+					String s1 = sProgress.substring(0, index + 1);
+					String s2 = sProgress.substring(sProgress.indexOf(',', index + 1));
 					sProgress = s1 + progress + s2;
 				}
 				process.setProgress(sProgress);
-				if(progress.compareTo("100") == 0 && stage == process.getStage()) {
-					process.setStagestate(3); //阶段进度为100时，自动将该阶段的状态设置为完成
+				Integer stageStart = 0;
+				Integer projectid = 0;
+				
+				if (progress.compareTo("100") == 0 && stage == process.getStage()) {
+					process.setStagestate(3); // 阶段进度为100时，自动将该阶段的状态设置为完成
 
-					//若下一阶段为自动开启状态，则直接设置为下一阶段开启
-					if(stage < 4) {
+					// 若下一阶段为自动开启状态，则直接设置为下一阶段开启
+					if (stage < 4) {
 						ConfigValueModel modelConfig = new ConfigValueModel();
 						Integer module = 0;
-						if(stage == 1) { //当前为第一阶段时，若完成，自动开始的第二阶段也属于模块1
+						if (stage == 1) { // 当前为第一阶段时，若完成，自动开始的第二阶段也属于模块1
 							module = 1;
-						}else if( stage == 2 || stage == 3) { //当前为第二阶段时，若完成，自动开始的第三杰顿属于模块2
+						} else if (stage == 2 || stage == 3) { // 当前为第二阶段时，若完成，自动开始的第三杰顿属于模块2
 							module = 2;
 						}
 
@@ -1252,15 +1193,30 @@ public class InterfaceCtrl extends BaseCtrl {
 						modelConfig.setName("启动类型");
 						modelConfig.setProcessId(Long.valueOf(processID));
 						ConfigValueModel valueModel = configValueModelDao.selectValueByConfig(modelConfig);
-						if(Integer.valueOf(valueModel.getValue()) == 2) { //自动
-							process.setStage(stage+1); //自动设置为下一阶段开始
+						if (Integer.valueOf(valueModel.getValue()) == 2) { // 自动
+							process.setStage(stage + 1); // 自动设置为下一阶段开始
 							process.setStagestate(1);
 						}
 					}
 				}
-				if (processModelDao.updateByPrimaryKey(process) > 0)
+				if (processModelDao.updateByPrimaryKey(process) > 0) {
 					status = true;
-			}else {
+
+					//质检准备完成时，自动开启质检项目；
+					//改错准备完成时，自动开启改错项目；
+					if (stageStart == 2 || stageStart == 4) {
+						try {
+							ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
+							project.setOverstate(1);
+							projectModelDao.updateByPrimaryKey(project);
+						} catch (Exception e) {
+							e.printStackTrace();
+							json.addObject("option", e.getMessage());
+						}
+					}
+
+				}
+			} else {
 				status = false;
 				json.addObject("option", "进度未更新");
 			}
@@ -1273,13 +1229,10 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("updateProcessProgressByID end!");
 		return json;
 	}
-	
-	//by xiao
+
+	// by xiao
 	@RequestMapping(params = "action=selectNextProcess", method = RequestMethod.POST)
-	private ModelAndView selectNextProcess(Model model, HttpSession session,
-			HttpServletRequest request,
-			@RequestParam("stageid") Integer stageid,
-			@RequestParam("pid") String pid) {
+	private ModelAndView selectNextProcess(Model model, HttpSession session, HttpServletRequest request, @RequestParam("stageid") Integer stageid, @RequestParam("pid") String pid) {
 		logger.debug("selectNextProcess start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -1288,31 +1241,27 @@ public class InterfaceCtrl extends BaseCtrl {
 
 			ProcessModelExample example = new ProcessModelExample();
 			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria1 = example.or();
-			criteria1.andStateEqualTo(1) //流程开始
-			.andStageEqualTo(stageid)
-			.andStagestateEqualTo(1) //阶段开始
-			.andIdGreaterThan(Long.valueOf(pid));
+			criteria1.andStateEqualTo(1) // 流程开始
+					.andStageEqualTo(stageid).andStagestateEqualTo(1) // 阶段开始
+					.andIdGreaterThan(Long.valueOf(pid));
 			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria2 = example.or();
-			criteria2.andStateEqualTo(1) //流程开始
-			.andStageEqualTo(stageid-1)
-			.andStagestateEqualTo(3) //上一个阶段完成
-			.andIdGreaterThan(Long.valueOf(pid));
+			criteria2.andStateEqualTo(1) // 流程开始
+					.andStageEqualTo(stageid - 1).andStagestateEqualTo(3) // 上一个阶段完成
+					.andIdGreaterThan(Long.valueOf(pid));
 			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria3 = example.or();
-			criteria3.andStateEqualTo(1) //流程开始
-			.andStageEqualTo(stageid)
-			.andStagestateEqualTo(2) //阶段暂停
-			.andIdGreaterThan(Long.valueOf(pid));
+			criteria3.andStateEqualTo(1) // 流程开始
+					.andStageEqualTo(stageid).andStagestateEqualTo(2) // 阶段暂停
+					.andIdGreaterThan(Long.valueOf(pid));
 			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria4 = example.or();
-			criteria4.andStateEqualTo(1) //流程开始
-			.andStageEqualTo(stageid)
-			.andStagestateEqualTo(0) //阶段初始
-			.andIdGreaterThan(Long.valueOf(pid));
-			if ( stageid == 1) {
+			criteria4.andStateEqualTo(1) // 流程开始
+					.andStageEqualTo(stageid).andStagestateEqualTo(0) // 阶段初始
+					.andIdGreaterThan(Long.valueOf(pid));
+			if (stageid == 1) {
 				com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria5 = example.or();
-				criteria5.andStateEqualTo(1) //流程开始
-				.andStageEqualTo(0)  //流程初始
-				.andStagestateEqualTo(0) //阶段初始
-				.andIdGreaterThan(Long.valueOf(pid));
+				criteria5.andStateEqualTo(1) // 流程开始
+						.andStageEqualTo(0) // 流程初始
+						.andStagestateEqualTo(0) // 阶段初始
+						.andIdGreaterThan(Long.valueOf(pid));
 			}
 
 			example.setOrderByClause("id");
@@ -1320,7 +1269,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			List<ProcessModel> project = processModelDao.selectByExample(example);
 
 			Boolean status = true;
-			if(project != null && project.size() > 0){
+			if (project != null && project.size() > 0) {
 				ProcessModel modelP = project.get(0);
 				projectid = modelP.getId().toString();
 				name = modelP.getName();
@@ -1328,7 +1277,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				modelP.setStagestate(1);
 				if (processModelDao.updateByPrimaryKey(modelP) > 0) {
 					status = true;
-				}else {
+				} else {
 					status = false;
 					json.addObject("option", "阶段和阶段状态未更新……");
 				}
@@ -1348,9 +1297,10 @@ public class InterfaceCtrl extends BaseCtrl {
 		return json;
 	}
 
-	//by xiao
+	// by xiao
 	@RequestMapping(params = "action=selectProcessConfigs", method = RequestMethod.POST)
-	private ModelAndView selectProcessConfigs(Model model, HttpSession session,
+	private ModelAndView selectProcessConfigs(Model model,
+			HttpSession session,
 			HttpServletRequest request,
 			@RequestParam("processid") Long processid,
 			@RequestParam("moduleid") Integer moduleid) {
@@ -1362,23 +1312,23 @@ public class InterfaceCtrl extends BaseCtrl {
 			value.setModuleid(moduleid);
 			List<ConfigValueModel> configList = configValueModelDao.selectConfigsById(value);
 
-			//数据库配置信息
+			// 数据库配置信息
 			List<ConfigDBModel> dbList = configDBModelDao.selectDbInfos();
-			//将数据库id换成详细信息
-			for(ConfigValueModel modelValue : configList){
-				if(modelValue.getName().endsWith("库")) {
-					for(ConfigDBModel modelDb : dbList) {
-						if(modelDb.getId() == Integer.valueOf(modelValue.getValue())) {
+			// 将数据库id换成详细信息
+			for (ConfigValueModel modelValue : configList) {
+				if (modelValue.getName().endsWith("库")) {
+					for (ConfigDBModel modelDb : dbList) {
+						if (modelDb.getId() == Integer.valueOf(modelValue.getValue())) {
 							Integer dbtype = modelDb.getDbtype();
 							String sdbtype = "";
-							if(dbtype == 1) {
+							if (dbtype == 1) {
 								sdbtype = "mysql";
-							}else if(dbtype == 2) {
+							} else if (dbtype == 2) {
 								sdbtype = "postgre";
 							}
 
-							String sDbInfo = String.format("DBTYPE=%s;DBNAME=%s;SERVER=%s;USER=%s;PWD=%s;PORT=%s;", 
-									sdbtype,modelDb.getDbname(),modelDb.getIp(),modelDb.getUser(),modelDb.getPassword(),modelDb.getPort());
+							String sDbInfo = String.format("DBTYPE=%s;DBNAME=%s;SERVER=%s;USER=%s;PWD=%s;PORT=%s;", sdbtype, modelDb.getDbname(), modelDb.getIp(),
+									modelDb.getUser(), modelDb.getPassword(), modelDb.getPort());
 
 							modelValue.setValue(sDbInfo);
 							break;
@@ -1397,12 +1347,9 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("selectProcessConfigs end!");
 		return json;
 	}
-	
+
 	@RequestMapping(params = "action=test", method = RequestMethod.POST)
-	private ModelAndView test(Model model, HttpSession session,
-			HttpServletRequest request,
-			@RequestParam("key") String key,
-			@RequestParam("value") String value) {
+	private ModelAndView test(Model model, HttpSession session, HttpServletRequest request, @RequestParam("key") String key, @RequestParam("value") String value) {
 		logger.debug("test start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
