@@ -546,43 +546,47 @@ public class InterfaceCtrl extends BaseCtrl {
 								List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
 								if (list != null && list.size() > 0) {
 									ProjectsTaskCountModel projectsCount = list.get(0);
-									if (projectsCount.getTotaltask().compareTo(projectsCount.getCompletetask()) == 0) {
-										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
-										project.setOverstate(4);
-										projectModelDao.updateByPrimaryKey(project);
 
-										// by xiao
-										// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
-										// 先找到该项目关联的所有流程任务
-										/*
-										 * select processid from tb_config_value
-										 * where value=2 and configid in (select
-										 * tb_config.id from tb_config where
-										 * name="项目id" and moduleid=2)
-										 */
-										ConfigValueModel valuemodel = new ConfigValueModel();
-										valuemodel.setName("项目id");
-										valuemodel.setValue("2");
-										valuemodel.setModuleid(2);
-										List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
-										if (valueList.size() > 0) {
-											for (ConfigValueModel value : valueList) {
-												Long idProcess = value.getProcessId();
-												ProcessModel process = processModelDao.selectByPrimaryKey(idProcess);
-												String sProgress = process.getProgress();
-												if (sProgress.length() > 0) {
-													int index = sProgress.lastIndexOf(',');
-													sProgress = sProgress.substring(0, index + 1) + "100";
-													process.setProgress(sProgress);
+									// by xiao 计算任务完成进度
+									Integer totalTask = projectsCount.getTotaltask();
+									Integer completeTask = projectsCount.getCompletetask();
+									Double progress = ((double) completeTask / (double) totalTask) * 100;
+									Integer prog = progress.intValue();
+
+									// by xiao 更新流程进度
+									// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
+									// 先找到该项目关联的所有流程任务
+									ProcessModel process;
+									ConfigValueModel valuemodel = new ConfigValueModel();
+									valuemodel.setName("项目id");
+									valuemodel.setValue(projectid.toString());
+									valuemodel.setModuleid(2);
+									List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
+
+									if (valueList.size() > 0) {
+										for (ConfigValueModel value : valueList) {
+											Long idProcess = value.getProcessId();
+											process = processModelDao.selectByPrimaryKey(idProcess);
+											String sProgress = process.getProgress();
+											if (sProgress.length() > 0) {
+												int index = sProgress.lastIndexOf(',');
+												sProgress = sProgress.substring(0, index + 1) + prog.toString();
+												process.setProgress(sProgress);
+												if (totalTask.compareTo(completeTask) == 0) {
+													// 更新流程状态和阶段状态
+													process.setState(3); // 流程完成
+													process.setStagestate(3); // 阶段完成
 												}
-												process.setState(3); // 流程完成
-												process.setStagestate(3); // 阶段完成
 												processModelDao.updateByPrimaryKey(process);
 											}
-
 										}
+										if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
+											ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
+											project.setOverstate(4);
+											projectModelDao.updateByPrimaryKey(project);
+										}
+										status = Boolean.valueOf(true);
 									}
-									status = Boolean.valueOf(true);
 								}
 							}
 						} else {
@@ -1175,7 +1179,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				process.setProgress(sProgress);
 				Integer stageStart = 0;
 				Integer projectid = 0;
-				
+
 				if (progress.compareTo("100") == 0 && stage == process.getStage()) {
 					process.setStagestate(3); // 阶段进度为100时，自动将该阶段的状态设置为完成
 
@@ -1202,8 +1206,8 @@ public class InterfaceCtrl extends BaseCtrl {
 				if (processModelDao.updateByPrimaryKey(process) > 0) {
 					status = true;
 
-					//质检准备完成时，自动开启质检项目；
-					//改错准备完成时，自动开启改错项目；
+					// 质检准备完成时，自动开启质检项目；
+					// 改错准备完成时，自动开启改错项目；
 					if (stageStart == 2 || stageStart == 4) {
 						try {
 							ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
