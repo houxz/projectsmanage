@@ -369,7 +369,34 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			ProcessModel record = new ProcessModel();
 			record.setId(processid);
 			record.setState(state);
-			ret = processModelDao.updateByPrimaryKeySelective(record);
+			if(processModelDao.updateByPrimaryKeySelective(record) > 0) {
+				List<ProcessConfigValueModel> configValues = processConfigValueModelDao.selectByProcessID(processid);
+				Long projectid332 = -1L;
+				Long projectid349 = -1L;
+				Integer configDBid332 = -1;
+				Integer configDBid349 = -1;
+				for (ProcessConfigValueModel configValue : configValues) {
+					if (configValue.getModuleid().equals(1) && configValue.getConfigid().equals(1)) {
+						configDBid332 = Integer.valueOf(configValue.getValue());
+					} else if (configValue.getModuleid().equals(1) && configValue.getConfigid().equals(3)) {
+						projectid332 = Long.valueOf(configValue.getValue());
+					} else if (configValue.getModuleid().equals(2) && configValue.getConfigid().equals(9)) {
+						configDBid349 = Integer.valueOf(configValue.getValue());
+					} else if (configValue.getModuleid().equals(2) && configValue.getConfigid().equals(11)) {
+						projectid349 = Long.valueOf(configValue.getValue());
+					}
+				}
+				ConfigDBModel configDBModel332 = configDBModelDao.selectByPrimaryKey(configDBid332);
+				ConfigDBModel configDBModel349 = configDBModelDao.selectByPrimaryKey(configDBid349);
+				ProjectModel pro332 = new ProjectModel();
+				pro332.setId(projectid332);
+				pro332.setOverstate(state);
+				updateProject(configDBModel332, pro332);
+				ProjectModel pro349 = new ProjectModel();
+				pro349.setId(projectid349);
+				pro349.setOverstate(state);
+				updateProject(configDBModel349, pro349);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = -1;
@@ -773,6 +800,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			}
 			if(project.getPriority() != null) {
 				sql.append(", `priority` = " + project.getPriority());
+			}
+			if(project.getOverstate() != null) {
+				sql.append(", `overstate` = " + project.getOverstate());
 			}
 			if (project.getOwner() != null) {
 				sql.append(", `owner` = " + project.getOwner());
