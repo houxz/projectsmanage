@@ -9,8 +9,6 @@ public class ErrorSetModel {
 
     private Integer systype;
 
-    private String referdata;
-
     private Byte unit;
 
     private String desc;
@@ -47,14 +45,6 @@ public class ErrorSetModel {
 
     public void setSystype(Integer systype) {
         this.systype = systype;
-    }
-
-    public String getReferdata() {
-        return referdata;
-    }
-
-    public void setReferdata(String referdata) {
-        this.referdata = referdata == null ? null : referdata.trim();
     }
 
     public Byte getUnit() {

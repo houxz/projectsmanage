@@ -102,9 +102,6 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 					case "systype":
 						record.setSystype(Integer.valueOf(filterPara.get(key).toString()));
 						break;
-					case "referdata":
-						record.setReferdata(filterPara.get(key).toString());
-						break;
 					case "unit":
 						record.setUnit(Byte.valueOf(filterPara.get(key).toString()));
 						break;
@@ -138,20 +135,20 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		logger.debug("ErrorSetManageCtrl-getErrorSet start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		ErrorSetModel errorSet = new ErrorSetModel();
-		String errorDetails = new String();
+		String errorsetDetails = new String();
 		try {
-			Long errorsetid = ParamUtils.getLongParameter(request, "itemsetid", -1L);
+			Long errorsetid = ParamUtils.getLongParameter(request, "errorsetid", -1L);
 			ErrorSetModel record = new ErrorSetModel();
 			record.setId(errorsetid);
 			List<ErrorSetModel> rows = selectErrorSets(record, 1, 0);
 			if (rows.size() >= 0) {
 				errorSet = rows.get(0);
-				List<Long> items = getErrorSetDetailsByErrorSetID(errorsetid);
-				if(items.size() > 0) {
-					for(Long item : items) {
-						errorDetails += item + ";";
+				List<Long> details = getErrorSetDetailsByErrorSetID(errorsetid);
+				if(details.size() > 0) {
+					for(Long detail : details) {
+						errorsetDetails += detail + ";";
 					}
-					errorDetails = errorDetails.substring(0, errorDetails.length() - 1);
+					errorsetDetails = errorsetDetails.substring(0, errorsetDetails.length() - 1);
 				}
 			}
 		} catch (Exception e) {
@@ -159,7 +156,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			logger.debug(e.getMessage());
 		}
 		json.addObject("errorset", errorSet);
-		json.addObject("itemDetails", errorDetails);
+		json.addObject("errorsetDetails", errorsetDetails);
 		logger.debug("ErrorSetManageCtrl-getErrorSet end.");
 		return json;
 	}
@@ -188,49 +185,46 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean ret = false;
 		try {
-			Long itemSetID = ParamUtils.getLongParameter(request, "itemSetID", -1L);
+			Long errorSetID = ParamUtils.getLongParameter(request, "errorSetID", -1L);
 			String name = ParamUtils.getParameter(request, "name");
 			Integer type = ParamUtils.getIntParameter(request, "type", -1);
 			Integer systype = ParamUtils.getIntParameter(request, "systype", -1);
-			String referdata = ParamUtils.getParameter(request, "referdata");
 			Integer unit = ParamUtils.getIntParameter(request, "unit", -1);
 			String desc = ParamUtils.getParameter(request, "desc");
-			String items = ParamUtils.getParameter(request, "items");
+			String errorTypes = ParamUtils.getParameter(request, "errorTypes");
 			
-			List<Long> itemDetails = new ArrayList<Long>();
-			if(items != null && !items.isEmpty()) {
-				for(String strItem : items.split(";")) {
-					itemDetails.add(Long.valueOf(strItem));
+			List<Long> errorSetDetails = new ArrayList<Long>();
+			if(errorTypes != null && !errorTypes.isEmpty()) {
+				for(String strItem : errorTypes.split(";")) {
+					errorSetDetails.add(Long.valueOf(strItem));
 				}
 			}
 			
-			Boolean isNewItemSet = itemSetID.compareTo(0L) == 0;
+			Boolean isNewItemSet = errorSetID.compareTo(0L) == 0;
 			if(isNewItemSet) {
 				ErrorSetModel record = new ErrorSetModel();
 				record.setName(name);
 				record.setType(type);
 				record.setSystype(systype);
-				record.setReferdata(referdata);
 				record.setUnit(unit.byteValue());
 				record.setDesc(desc);
 				
-				itemSetID = insertErrorSet(record);
-				if(itemSetID.compareTo(0L) > 0) {
-					if(setErrorSetDetails(itemSetID, itemDetails) > 0)
+				errorSetID = insertErrorSet(record);
+				if(errorSetID.compareTo(0L) > 0) {
+					if(setErrorSetDetails(errorSetID, errorSetDetails) > 0)
 						ret = true;
 				}
 			} else {
 				ErrorSetModel record = new ErrorSetModel();
-				record.setId(itemSetID);
+				record.setId(errorSetID);
 				record.setName(name);
 				record.setType(type);
 				record.setSystype(systype);
-				record.setReferdata(referdata);
 				record.setUnit(unit.byteValue());
 				record.setDesc(desc);
 				
 				if(updateErrorSet(record)) {
-					if(setErrorSetDetails(itemSetID, itemDetails) > 0)
+					if(setErrorSetDetails(errorSetID, errorSetDetails) > 0)
 						ret = true;
 				}
 			}
@@ -249,13 +243,13 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean ret = false;
 		try {
-			Long itemSetID = ParamUtils.getLongParameter(request, "itemSetID", -1L);
-			if(itemSetID.compareTo(0L) <= 0) {
+			Long errorSetID = ParamUtils.getLongParameter(request, "errorSetID", -1L);
+			if(errorSetID.compareTo(0L) <= 0) {
 				json.addObject("result", 0);
 				return json;
 			}
 			
-			ret = deleteErrorSet(itemSetID);
+			ret = deleteErrorSet(errorSetID);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
@@ -315,9 +309,6 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
 				sql.append(" AND `systype` = " + record.getSystype());
 			}
-			if(record.getReferdata() != null && !record.getReferdata().isEmpty()) {
-				sql.append(" AND `referdata` like '%" + record.getReferdata() + "%'");
-			}
 			if (record.getUnit() != null && record.getUnit() >= 0) {
 				sql.append(" AND `unit` = " + record.getUnit());
 			}
@@ -346,8 +337,8 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		Long ret = -1L;
 		try {
 			final StringBuffer sql = new StringBuffer();
-			sql.append(" INSERT INTO tb_errorset (`name`, `type`, `systype`, `referdata`, `unit`, `desc`) ");
-			sql.append(" VALUES (?,?,?,?,?,?) ");
+			sql.append(" INSERT INTO tb_errorset (`name`, `type`, `systype`, `unit`, `desc`) ");
+			sql.append(" VALUES (?,?,?,?,?) ");
 
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -360,9 +351,8 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 					ps.setString(1, record.getName());
 					ps.setInt(2, record.getType() == null ? 0 : record.getType());
 					ps.setInt(3, record.getSystype() == null ? 0 : record.getSystype());
-					ps.setString(4, record.getReferdata());
-					ps.setInt(5, record.getUnit() == null ? 0 : record.getUnit());
-					ps.setString(6, record.getDesc());
+					ps.setInt(4, record.getUnit() == null ? 0 : record.getUnit());
+					ps.setString(5, record.getDesc());
 					return ps;
 				}
 			}, keyHolder);
@@ -388,9 +378,6 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			}
 			if(record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
 				sql.append(", `systype` = " + record.getSystype());
-			}
-			if(record.getReferdata() != null) {
-				sql.append(", `referdata` = '" + record.getReferdata() + "'");
 			}
 			if(record.getUnit() != null && record.getUnit() >= 0) {
 				sql.append(", `unit` = " + record.getUnit());
@@ -426,6 +413,13 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
+			
+			StringBuffer sql_del = new StringBuffer();
+			sql_del.append(" DELETE ");
+			sql_del.append(" FROM tb_errorsetdetail ");
+			sql_del.append(" WHERE `itemsetid` = " + errorSetID);
+			
+			ret = ret && new JdbcTemplate(dataSource).update(sql_del.toString()) >= 0;
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = false;
@@ -492,9 +486,9 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		return items;
 	}
 	
-	private Integer setErrorSetDetails(Long itemSetID, List<Long> items) {
+	private Integer setErrorSetDetails(Long errorSetID, List<Long> errorTypes) {
 		Integer ret = -1;
-		if (items.size() <= 0)
+		if (errorTypes.size() <= 0)
 			return ret;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
@@ -503,7 +497,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			StringBuffer sql_del = new StringBuffer();
 			sql_del.append(" DELETE ");
 			sql_del.append(" FROM tb_errorsetdetail ");
-			sql_del.append(" WHERE `itemsetid` = " + itemSetID);
+			sql_del.append(" WHERE `itemsetid` = " + errorSetID);
 
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
@@ -513,10 +507,10 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				sql.append(" INSERT INTO tb_errorsetdetail");
 				sql.append(" (`itemsetid`, `itemid`) ");
 				sql.append(" VALUES ");
-				for (Long item : items) {
+				for (Long errorType : errorTypes) {
 					sql.append("(");
-					sql.append(itemSetID + ", ");
-					sql.append(item);
+					sql.append(errorSetID + ", ");
+					sql.append(errorType);
 					sql.append(" ),");
 				}
 				sql.deleteCharAt(sql.length() - 1);

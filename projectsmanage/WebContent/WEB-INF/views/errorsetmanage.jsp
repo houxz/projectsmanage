@@ -83,10 +83,9 @@
 	function loadDefaultErrorSet() {
 		$("#dlgErrorSet table #id").val(0);
 		$("#dlgErrorSet table #name").val(new String());
-		$("#dlgErrorSet table #layername").val(new String());
-		$("#layerscount").text(0);
+		$("#dlgErrorSet table #errorTypes").val(new String());
+		$("#errorTypesCount").text(0);
 		$("#dlgErrorSet table #type").prop('selectedIndex', 0);
-		$("#dlgErrorSet table #enable").prop('selectedIndex', 0);
 		$("#dlgErrorSet table #systype").prop('selectedIndex', 0);
 		$("#dlgErrorSet table #unit").prop('selectedIndex', 0);
 		$("#dlgErrorSet table #desc").val(new String());
@@ -102,19 +101,17 @@
 			}, function(json) {
 				if (json.errorset) {
 					var errorset = json.errorset;
+					var errorsetDetails = json.errorsetDetails;
 					
 					$("#dlgErrorSet table #id").val(errorset.id);
 					$("#dlgErrorSet table #name").val(errorset.name);
-					$("#dlgErrorSet table #layername").val(errorset.layername);
-					$("#layerscount").text(errorset.layername.split(";").length);
 					$("#dlgErrorSet table #type").val(errorset.type);
-					$("#dlgErrorSet table #enable").val(errorset.enable);
 					$("#dlgErrorSet table #systype").val(errorset.systype);
 					$("#dlgErrorSet table #unit").val(errorset.unit);
 					$("#dlgErrorSet table #desc").val(errorset.desc);
 					$("#dlgErrorSet table #updatetime").val(errorset.updatetime);
-					$("#dlgErrorSet table #items").val(json.itemDetails);
-					$("#itemscount").text(json.itemDetails ? json.itemDetails.split(";").length : 0);
+					$("#dlgErrorSet table #errorTypes").val(errorsetDetails);
+					$("#errorTypesCount").text(errorsetDetails ? errorsetDetails.split(";").length : 0);
 				}
 			}, "json");
 		}
@@ -232,8 +229,8 @@
 			        		}
 	            		});
 			        	value = value.substring(0, value.length - 1);
-			        	$("#dlgErrorSet table #items").val(value);
-			        	$("#itemscount").text(length);
+			        	$("#dlgErrorSet table #errorTypes").val(value);
+			        	$("#errorTypesCount").text(length);
 			        	
 			        	errorTypesTree.treeview('uncheckAll', { silent: true });
 			    		errorTypesTree.treeview('collapseAll', { silent: true });
@@ -256,13 +253,11 @@
 	function submitErrorSet() {
 		var id = $("#dlgErrorSet table #id").val();
 		var name = $("#dlgErrorSet table #name").val();
-		var layername = $("#dlgErrorSet table #layername").val();
 		var type = $("#dlgErrorSet table #type").val();
-		var enable = $("#dlgErrorSet table #enable").val();
 		var systype = $("#dlgErrorSet table #systype").val();
 		var unit = $("#dlgErrorSet table #unit").val();
 		var desc = $("#dlgErrorSet table #desc").val();
-		var items = $("#dlgErrorSet table #items").val();
+		var errorTypes = $("#dlgErrorSet table #errorTypes").val();
 
 		if (name.length <= 0) {
 			$.webeditor.showMsgLabel("alert", "错误筛选集合名称不能为空");
@@ -273,13 +268,11 @@
 			"atn" : "submiterrorset",
 			"errorSetID" : id,
 			"name" : name,
-			"layername" : layername,
 			"type" : type,
-			"enable" : enable,
 			"systype" : systype,
 			"unit" : unit,
 			"desc" : desc,
-			"items" : items
+			"errorTypes" : errorTypes
 		}, function(json) {
 			if (json.result) {
 				$.webeditor.showMsgLabel("success", "质检集合配置成功");
@@ -363,12 +356,12 @@
 						placeholder="请输入错误筛选集合名称"></td>
 				</tr>
 				<tr>
-					<td class="configKey">质检项</td>
+					<td class="configKey">错误类型</td>
 					<td class="configValue">
-						<input type="hidden" id="items" value="">
+						<input type="hidden" id="errorTypes" value="">
 						<button type="button" class="btn btn-default"
-							onclick="getErrorTypes();">选择质检项</button>
-						<p class="help-block">已选择<span id="itemscount"></span>个质检项</p></td>
+							onclick="getErrorTypes();">选择错误类型</button>
+						<p class="help-block">已选择<span id="errorTypesCount"></span>个错误类型</p></td>
 				</tr>
 				<tr>
 					<td class="configKey">类型</td>
