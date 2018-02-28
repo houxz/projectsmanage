@@ -57,8 +57,6 @@
 	var errorsetTypes = eval('(${errorsetTypes})');
 	var errorsetUnits = eval('(${errorsetUnits})');
 	
-	var errorTypesTree = null;
-	
 	function queryParams(params) {
 		return params;
 	}
@@ -146,60 +144,50 @@
 	}
 	
 	function findExpandibleNodess() {
-    	if(errorTypesTree) {
-    		errorTypesTree.treeview('uncheckAll', { silent: true });
-    		errorTypesTree.treeview('collapseAll', { silent: true });
-    		return errorTypesTree.treeview('search', [ $('#input-expand-node').val(), { ignoreCase: false, exactMatch: false } ]);
-    	} else {
-    		return null;
-    	}
-        
+   		$('#errorTypesTree').treeview('uncheckAll', { silent: true });
+   		$('#errorTypesTree').treeview('collapseAll', { silent: true });
+   		return $('#errorTypesTree').treeview('search', [ $('#input-expand-node').val(), { ignoreCase: false, exactMatch: false } ]);
     }
     function checkExpandibleNodess() {
-    	if(errorTypesTree) {
-        	var expandibleNodes = findExpandibleNodess();
-        	errorTypesTree.treeview('checkNode', [ expandibleNodes, { silent: false }]);
-    	}
+       	var expandibleNodes = findExpandibleNodess();
+       	$('#errorTypesTree').treeview('checkNode', [ expandibleNodes, { silent: false }]);
     }
 	
 	function getErrorTypes() {
 		var selectNodeids = $("#dlgErrorSet table #errorTypes").val();
-		if(!errorTypesTree) {
-			jQuery.post("./errorsetmanage.web", {
-				"atn" : "geterrortypes"
-			}, function(json) {
-				var errorTypes = json.rows;
-				if(errorTypes && errorTypes.length > 0) {//data, idStr, pidStr, pText, childrenStr, cText
-					var data = $.webeditor.transJsonData2Tree2(errorTypes, "id", "qid", "name", "nodes", "desc", selectNodeids);
-					errorTypesTree = $('#errorTypesTree').treeview(
-						{
-							data : data,
-							showIcon : false,
-							showCheckbox : true,
-							highlightSelected : false,
-							expandIcon : 'glyphicon glyphicon-menu-right',
-							collapseIcon : 'glyphicon glyphicon-menu-down',
-							onNodeChecked : function(event, node) {
-								if(node.pid == 0) {
-                            		var children = node.nodes;
-                            		$.each(children, function(index, child){
-                            			errorTypesTree.treeview('checkNode', [ child.nodeId, { silent: false }]);
-                            		});
-                            	}
-							},
-							onNodeUnchecked : function(event, node) {
-								if(node.pid == 0) {
-                            		var children = node.nodes;
-                            		$.each(children, function(index, child){
-                            			errorTypesTree.treeview('uncheckNode', [ child.nodeId, { silent: false }]);
-                            		});
-                            	}
-							}
-						});
-				}
-			}, "json");
-		} else {
-		}
+		jQuery.post("./errorsetmanage.web", {
+			"atn" : "geterrortypes"
+		}, function(json) {
+			var errorTypes = json.rows;
+			if(errorTypes && errorTypes.length > 0) {//data, idStr, pidStr, pText, childrenStr, cText
+				var data = $.webeditor.transJsonData2Tree2(errorTypes, "id", "qid", "name", "nodes", "desc", selectNodeids);
+				$('#errorTypesTree').treeview(
+					{
+						data : data,
+						showIcon : false,
+						showCheckbox : true,
+						highlightSelected : false,
+						expandIcon : 'glyphicon glyphicon-menu-right',
+						collapseIcon : 'glyphicon glyphicon-menu-down',
+						onNodeChecked : function(event, node) {
+							if(node.pid == 0) {
+                           		var children = node.nodes;
+                           		$.each(children, function(index, child){
+                           			$('#errorTypesTree').treeview('checkNode', [ child.nodeId, { silent: false }]);
+                           		});
+                           	}
+						},
+						onNodeUnchecked : function(event, node) {
+							if(node.pid == 0) {
+                           		var children = node.nodes;
+                           		$.each(children, function(index, child){
+                           			$('#errorTypesTree').treeview('uncheckNode', [ child.nodeId, { silent: false }]);
+                           		});
+                           	}
+						}
+					});
+			}
+		}, "json");
 		
 		showErrorTypesDlg();
 	}
@@ -214,16 +202,14 @@
 				$(".ui-dialog-titlebar-close").hide();
 			},
 			close : function(event, ui) {
-				errorTypesTree.treeview('uncheckAll', { silent: true });
-	    		errorTypesTree.treeview('collapseAll', { silent: true });
+				$('#errorTypesTree').treeview('uncheckAll', { silent: true });
+				$('#errorTypesTree').treeview('collapseAll', { silent: true });
 			},
 			buttons : [ {
 				text : "提交",
 				class : "btn btn-default",
 				click : function() {
-					var expandibleNodes = new Array();
-		        	if(errorTypesTree)
-		        		expandibleNodes = errorTypesTree.treeview('getChecked');
+					var expandibleNodes = $('#errorTypesTree').treeview('getChecked');
 		        	if(expandibleNodes && expandibleNodes.length > 0) {
 			        	var length = 0;
 			        	var value = new String();
