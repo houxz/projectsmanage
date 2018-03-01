@@ -572,21 +572,22 @@ public class InterfaceCtrl extends BaseCtrl {
 												String[] arProgress = sProgress.split(",");
 												ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
 												Integer length = alProgress.size();
-												while(length < 4) {
+												while (length < 4) {
 													alProgress.add("0");
 													length++;
 												}
-												//X,X,X,X
-												//质检进度在第四个X
+												// X,X,X,X
+												// 质检进度在第四个X
 												alProgress.set(3, prog.toString());
-												
+
 												StringBuilder sbProgress = new StringBuilder();
-												for(String p : alProgress) {
+												for (String p : alProgress) {
 													sbProgress.append(p);
-													sbProgress.append(",");;
+													sbProgress.append(",");
+													;
 												}
 												sbProgress.deleteCharAt(sbProgress.length() - 1);
-												
+
 												process.setProgress(sbProgress.toString());
 												if (totalTask.compareTo(completeTask) == 0) {
 													// 更新流程状态和阶段状态
@@ -616,13 +617,9 @@ public class InterfaceCtrl extends BaseCtrl {
 																													// (11,52)
 							if (projectsTaskCountDao.newTask2QC(taskCount) > 0)
 								status = true;
-						} else if (statebefore == 11 && processbefore == 52 && (stateafter == 2 || stateafter == 22) && processafter == 52) {// (11,52)
-																																				// ->
-																																				// (2,52)
-																																				// 或者
-																																				// (11,52)
-																																				// ->
-																																				// (22,52)
+						} else if (statebefore == 11 && processbefore == 52 && stateafter == 2 && processafter == 52) {// (11,52)
+																														// ->
+																														// (2,52)
 							if (projectsTaskCountDao.QCTaskDone(taskCount) > 0) {
 								Map<String, Object> map = new HashMap<String, Object>();
 								map.put("systemid", systemid);
@@ -630,10 +627,10 @@ public class InterfaceCtrl extends BaseCtrl {
 								List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
 								if (list != null && list.size() > 0) {
 									ProjectsTaskCountModel projectsCount = list.get(0);
-									
+
 									// by xiao 计算任务完成进度
 									Integer totalTask = projectsCount.getTotaltask();
-									if(totalTask <= 0) {
+									if (totalTask <= 0) {
 										json.addObject("status", false);
 										json.addObject("option", "任务总数未更新");
 										return json;
@@ -660,21 +657,22 @@ public class InterfaceCtrl extends BaseCtrl {
 												String[] arProgress = sProgress.split(",");
 												ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
 												Integer length = alProgress.size();
-												while(length < 4) {
+												while (length < 4) {
 													alProgress.add("0");
 													length++;
 												}
-												//X,X,X,X
-												//质检进度在第二个X
+												// X,X,X,X
+												// 质检进度在第二个X
 												alProgress.set(1, prog.toString());
-												
+
 												StringBuilder sbProgress = new StringBuilder();
-												for(String p : alProgress) {
+												for (String p : alProgress) {
 													sbProgress.append(p);
-													sbProgress.append(",");;
+													sbProgress.append(",");
+													;
 												}
 												sbProgress.deleteCharAt(sbProgress.length() - 1);
-												
+
 												process.setProgress(sbProgress.toString());
 												if (totalTask.compareTo(completeTask) == 0) {
 													// 更新流程状态和阶段状态
@@ -686,7 +684,7 @@ public class InterfaceCtrl extends BaseCtrl {
 										}
 									}
 									// by xiao 计算任务完成进度 end
-									
+
 									if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
 										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
 										project.setOverstate(4);
