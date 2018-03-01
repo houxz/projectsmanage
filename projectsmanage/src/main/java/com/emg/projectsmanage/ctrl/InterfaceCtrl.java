@@ -1,6 +1,7 @@
 package com.emg.projectsmanage.ctrl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -568,9 +569,25 @@ public class InterfaceCtrl extends BaseCtrl {
 											process = processModelDao.selectByPrimaryKey(idProcess);
 											String sProgress = process.getProgress();
 											if (sProgress.length() > 0) {
-												int index = sProgress.lastIndexOf(',');
-												sProgress = sProgress.substring(0, index + 1) + prog.toString();
-												process.setProgress(sProgress);
+												String[] arProgress = sProgress.split(",");
+												ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
+												Integer length = alProgress.size();
+												while(length < 4) {
+													alProgress.add("0");
+													length++;
+												}
+												//X,X,X,X
+												//质检进度在第四个X
+												alProgress.set(3, prog.toString());
+												
+												StringBuilder sbProgress = new StringBuilder();
+												for(String p : alProgress) {
+													sbProgress.append(p);
+													sbProgress.append(",");;
+												}
+												sbProgress.deleteCharAt(sbProgress.length() - 1);
+												
+												process.setProgress(sbProgress.toString());
 												if (totalTask.compareTo(completeTask) == 0) {
 													// 更新流程状态和阶段状态
 													process.setState(3); // 流程完成
@@ -580,7 +597,7 @@ public class InterfaceCtrl extends BaseCtrl {
 											}
 										}
 									}
-									// /////////////////////////////////////////////////
+									// by xiao 计算任务完成进度 end
 
 									if (totalTask.compareTo(completeTask) == 0) {
 										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
@@ -593,7 +610,7 @@ public class InterfaceCtrl extends BaseCtrl {
 						} else {
 							status = true;
 						}
-					} else if (systemid.compareTo(332) == 0) {// 批处理工具平台
+					} else if (systemid.compareTo(332) == 0) {// 批处理工具平台，质检平台
 						if (statebefore == 12 && processbefore == 51 && stateafter == 11 && processafter == 52) {// (12,51)
 																													// ->
 																													// (11,52)
@@ -613,7 +630,64 @@ public class InterfaceCtrl extends BaseCtrl {
 								List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
 								if (list != null && list.size() > 0) {
 									ProjectsTaskCountModel projectsCount = list.get(0);
-									if (projectsCount.getTotaltask().compareTo(projectsCount.getCompletetask()) == 0) {
+									
+									// by xiao 计算任务完成进度
+									Integer totalTask = projectsCount.getTotaltask();
+									if(totalTask <= 0) {
+										json.addObject("status", false);
+										json.addObject("option", "任务总数未更新");
+										return json;
+									}
+									Integer completeTask = projectsCount.getCompletetask();
+									Double progress = ((double) completeTask / (double) totalTask) * 100;
+									Integer prog = progress.intValue();
+
+									// by xiao 更新流程进度
+									// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
+									// 先找到该项目关联的所有流程任务
+									ProcessModel process;
+									ConfigValueModel valuemodel = new ConfigValueModel();
+									valuemodel.setName("项目id");
+									valuemodel.setValue(projectid.toString());
+									valuemodel.setModuleid(1);
+									List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
+									if (valueList.size() > 0) {
+										for (ConfigValueModel value : valueList) {
+											Long idProcess = value.getProcessId();
+											process = processModelDao.selectByPrimaryKey(idProcess);
+											String sProgress = process.getProgress();
+											if (sProgress.length() > 0) {
+												String[] arProgress = sProgress.split(",");
+												ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
+												Integer length = alProgress.size();
+												while(length < 4) {
+													alProgress.add("0");
+													length++;
+												}
+												//X,X,X,X
+												//质检进度在第二个X
+												alProgress.set(1, prog.toString());
+												
+												StringBuilder sbProgress = new StringBuilder();
+												for(String p : alProgress) {
+													sbProgress.append(p);
+													sbProgress.append(",");;
+												}
+												sbProgress.deleteCharAt(sbProgress.length() - 1);
+												
+												process.setProgress(sbProgress.toString());
+												if (totalTask.compareTo(completeTask) == 0) {
+													// 更新流程状态和阶段状态
+													process.setState(3); // 流程完成
+													process.setStagestate(3); // 阶段完成
+												}
+												processModelDao.updateByPrimaryKey(process);
+											}
+										}
+									}
+									// by xiao 计算任务完成进度 end
+									
+									if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
 										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
 										project.setOverstate(4);
 										projectModelDao.updateByPrimaryKey(project);
