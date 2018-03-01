@@ -669,14 +669,12 @@ public class InterfaceCtrl extends BaseCtrl {
 												for (String p : alProgress) {
 													sbProgress.append(p);
 													sbProgress.append(",");
-													;
 												}
 												sbProgress.deleteCharAt(sbProgress.length() - 1);
 
 												process.setProgress(sbProgress.toString());
 												if (totalTask.compareTo(completeTask) == 0) {
 													// 更新流程状态和阶段状态
-													process.setState(3); // 流程完成
 													process.setStagestate(3); // 阶段完成
 												}
 												processModelDao.updateByPrimaryKey(process);
