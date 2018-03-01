@@ -81,6 +81,13 @@
 	function enableFormat(value, row, index) {
 		return itemsetEnables[row.enable];
 	}
+	function referdataFormat(value, row, index) {
+		var html = new Array();
+		html.push("<pre style='word-wrap: break-word; white-space: pre-wrap; white-space: -moz-pre-wrap' >");
+		html.push(value);
+		html.push("</pre>");
+		return html.join("");
+	}
 
 	function loadDefaultItemSet() {
 		$("#dlgItemSet table #id").val(0);
@@ -365,7 +372,7 @@
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr>
-						<th data-field="id" data-filter-control="input"
+						<th data-field="id" data-filter-control="input" data-width="80"
 							data-filter-control-placeholder="">编号
 							<button class="btn btn-default btn-xs" onclick="getItemSet(0);">
 								<span class="glyphicon glyphicon-plus"></span>
@@ -376,21 +383,22 @@
 						<th data-field="layername" data-filter-control="input"
 							data-filter-control-placeholder="">图层</th>
 						<th data-field="type" data-formatter="typeFormat"
-							data-filter-control="select" data-filter-data="var:itemsetTypes">类型</th>
+							data-filter-control="select" data-filter-data="var:itemsetTypes" data-width="80">类型</th>
 						<th data-field="enable" data-formatter="enableFormat"
 							data-filter-control="select"
-							data-filter-data="var:itemsetEnables">状态</th>
+							data-filter-data="var:itemsetEnables" data-width="80">状态</th>
 						<th data-field="systype" data-formatter="sysFormat"
 							data-filter-control="select"
 							data-filter-data="var:itemsetSysTypes">操作系统</th>
-						<th data-field="referdata" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="200">参考图层</th>
+						<th data-field="referdata" data-formatter="referdataFormat"
+							data-filter-control="input" data-filter-control-placeholder=""
+							data-width="200">参考图层</th>
 						<th data-field="unit" data-formatter="unitFormat"
 							data-filter-control="select" data-filter-data="var:itemsetUnits">质检单位</th>
 						<th data-field="desc" data-filter-control="input"
 							data-filter-control-placeholder="">描述</th>
 						<!-- <th data-field="updatetime">更新时间</th> -->
-						<th data-formatter="operationFormat">操作</th>
+						<th data-formatter="operationFormat" data-width="80">操作</th>
 					</tr>
 				</thead>
 			</table>
