@@ -335,7 +335,7 @@
 					$("#dlgItemSet").dialog("close");
 					$('[data-toggle="itemsets"]').bootstrapTable('refresh');
 				} else {
-					$.webeditor.showMsgLabel("alert",json.resultMsg);
+					$.webeditor.showMsgLabel("alert",json.option);
 				}
 			}, "json");
 	}
