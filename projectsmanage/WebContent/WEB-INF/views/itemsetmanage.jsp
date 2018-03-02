@@ -94,6 +94,8 @@
 		$("#dlgItemSet table #name").val(new String());
 		$("#dlgItemSet table #layername").val(new String());
 		$("#layerscount").text(0);
+		$("#dlgItemSet table #items").val(new String());
+		$("#itemscount").text(0);
 		$("#dlgItemSet table #type").prop('selectedIndex', 0);
 		$("#dlgItemSet table #enable").prop('selectedIndex', 0);
 		$("#dlgItemSet table #systype").prop('selectedIndex', 0);
