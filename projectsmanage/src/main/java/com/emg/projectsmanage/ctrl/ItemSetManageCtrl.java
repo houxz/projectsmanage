@@ -300,6 +300,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			}
 
 			Boolean isNewItemSet = itemSetID.compareTo(0L) == 0;
+			Integer itemInfoCount = 0;
 			if (isNewItemSet) {
 				// POI
 				Set<String> poi = new HashSet<String>();
@@ -311,6 +312,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				if (!intersection.isEmpty()) {
 					List<ItemInfoModel> itemInfos = selectItemInfosByOidsAndLayerNames(qids, intersection);
 					if (!itemInfos.isEmpty()) {
+						itemInfoCount += itemInfos.size();
 						List<Long> itemDetails = new ArrayList<Long>();
 						Set<String> referLayers = new HashSet<String>();
 						Integer layercount = 0;
@@ -375,6 +377,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				if (!intersection.isEmpty()) {
 					List<ItemInfoModel> itemInfos = selectItemInfosByOidsAndLayerNames(qids, intersection);
 					if (!itemInfos.isEmpty()) {
+						itemInfoCount += itemInfos.size();
 						List<Long> itemDetails = new ArrayList<Long>();
 						Set<String> referLayers = new HashSet<String>();
 						Integer layercount = 0;
@@ -445,6 +448,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				if (!intersection.isEmpty()) {
 					List<ItemInfoModel> itemInfos = selectItemInfosByOidsAndLayerNames(qids, intersection);
 					if (!itemInfos.isEmpty()) {
+						itemInfoCount += itemInfos.size();
 						List<Long> itemDetails = new ArrayList<Long>();
 						Set<String> referLayers = new HashSet<String>();
 						Integer layercount = 0;
@@ -508,6 +512,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				if (!intersection.isEmpty()) {
 					List<ItemInfoModel> itemInfos = selectItemInfosByOidsAndLayerNames(qids, intersection);
 					if (!itemInfos.isEmpty()) {
+						itemInfoCount += itemInfos.size();
 						List<Long> itemDetails = new ArrayList<Long>();
 						Set<String> referLayers = new HashSet<String>();
 						Integer layercount = 0;
@@ -561,6 +566,12 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					}
 				}
 				// 其它
+				
+				if(itemInfoCount.equals(0)) {
+					json.addObject("result", false);
+					json.addObject("option", "图层与质检项不匹配");
+					return json;
+				}
 			} else {
 				// ItemSetModel record = new ItemSetModel();
 				// record.setId(itemSetID);
