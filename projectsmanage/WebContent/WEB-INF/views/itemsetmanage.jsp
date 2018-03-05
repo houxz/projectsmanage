@@ -28,6 +28,7 @@
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
 <script src="resources/js/webeditor.js"></script>
+<script src="resources/js/common.js"></script>
 <script src="resources/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
@@ -52,11 +53,20 @@
 		});
 	});
 	
+	var itemSelected = new Array();
+	var itemOn = -1;
+	var layerSelected = new Array();
+	var layerOn = -1;
+	
 	var itemsetEnables = eval('(${itemsetEnables})');
 	var itemsetSysTypes = eval('(${itemsetSysTypes})');
 	var itemsetTypes = eval('(${itemsetTypes})');
 	var itemsetUnits = eval('(${itemsetUnits})');
 	var layerEles = eval('(${layerElements})');
+	
+	function indexFormat(value, row, index) {
+		return index;
+	}
 	
 	function queryParams(params) {
 		return params;
@@ -177,6 +187,22 @@
 									field : "name",
 									values : values
 								});
+					},
+					onCheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						if(layerSelected.indexOf(index) < 0) {
+							layerOn = index;
+							layerSelected.push(index);
+							layerSelected.sort(compare);
+						}
+					},
+					onUncheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						var indexIn = layerSelected.indexOf(index);
+						if(indexIn >= 0) {
+							layerOn = layerSelected[indexIn == 0 ? 0 : indexIn -1];
+							layerSelected.splice(indexIn,1).sort(compare);
+						}
 					}
 				});
 		
@@ -193,9 +219,67 @@
 						$(".ui-dialog-titlebar-close").hide();
 					},
 					close : function(event, ui) {
+						layerOn = -1;
+						layerSelected = new Array();
 						$('[data-toggle="layers"]').bootstrapTable("destroy");
 					},
 					buttons : [
+							{
+								text : "<",
+								title : "上一条",
+								class : "btn btn-default",
+								click : function() {
+									if (layerOn < 0) {
+										$('[data-toggle="layers"]').bootstrapTable('scrollTo', 0);
+										$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+									} else {
+										var index = layerSelected.indexOf(layerOn);
+										if (index < 0) {
+											$('[data-toggle="layers"]').bootstrapTable('scrollTo',0);
+										} else if (index > layerSelected.length - 1) {
+											$('[data-toggle="layers"]').bootstrapTable('scrollTo','bottom');
+										} else {
+											if (index == 0) {
+												$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[0] * 31);
+												layerOn = layerSelected[0];
+												$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+											} else {
+												var preIndex = index - 1;
+												$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[preIndex] * 31);
+												layerOn = layerSelected[preIndex];
+											}
+										}
+									}
+								}
+							},
+							{
+								text : ">",
+								title : "下一条",
+								class : "btn btn-default",
+								click : function() {
+									if (layerOn < 0) {
+										$('[data-toggle="layers"]').bootstrapTable('scrollTo', 0);
+									} else {
+										var index = layerSelected.indexOf(layerOn);
+										if (index < 0) {
+											$('[data-toggle="layers"]').bootstrapTable('scrollTo',0);
+										} else if (index > layerSelected.length - 1) {
+											$('[data-toggle="layers"]').bootstrapTable('scrollTo','bottom');
+										} else {
+											if (index == layerSelected.length - 1) {
+												var nextIndex = layerSelected.length - 1;
+												$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[nextIndex] * 31);
+												layerOn = layerSelected[nextIndex];
+												$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+											} else {
+												var nextIndex = index + 1;
+												$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[nextIndex] * 31);
+												layerOn = layerSelected[nextIndex];
+											}
+										}
+									}
+								}
+							},
 							{
 								text : "保存",
 								class : "btn btn-default",
@@ -247,6 +331,22 @@
 									values : values
 								});
 						}
+					},
+					onCheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						if(itemSelected.indexOf(index) < 0) {
+							itemOn = index;
+							itemSelected.push(index);
+							itemSelected.sort(compare);
+						}
+					},
+					onUncheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						var indexIn = itemSelected.indexOf(index);
+						if(indexIn >= 0) {
+							itemOn = itemSelected[indexIn == 0 ? 0 : indexIn -1];
+							itemSelected.splice(indexIn,1).sort(compare);
+						}
 					}
 				});
 		
@@ -263,9 +363,67 @@
 						$(".ui-dialog-titlebar-close").hide();
 					},
 					close : function(event, ui) {
+						itemOn = -1;
+						itemSelected = new Array();
 						$('[data-toggle="items"]').bootstrapTable("destroy");
 					},
 					buttons : [
+							{
+								text : "<",
+								title : "上一条",
+								class : "btn btn-default",
+								click : function() {
+									if (itemOn < 0) {
+										$('[data-toggle="items"]').bootstrapTable('scrollTo', 0);
+										$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+									} else {
+										var index = itemSelected.indexOf(itemOn);
+										if (index < 0) {
+											$('[data-toggle="items"]').bootstrapTable('scrollTo',0);
+										} else if (index > itemSelected.length - 1) {
+											$('[data-toggle="items"]').bootstrapTable('scrollTo','bottom');
+										} else {
+											if (index == 0) {
+												$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[0] * 31);
+												itemOn = itemSelected[0];
+												$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+											} else {
+												var preIndex = index - 1;
+												$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[preIndex] * 31);
+												itemOn = itemSelected[preIndex];
+											}
+										}
+									}
+								}
+							},
+							{
+								text : ">",
+								title : "下一条",
+								class : "btn btn-default",
+								click : function() {
+									if (itemOn < 0) {
+										$('[data-toggle="items"]').bootstrapTable('scrollTo', 0);
+									} else {
+										var index = itemSelected.indexOf(itemOn);
+										if (index < 0) {
+											$('[data-toggle="items"]').bootstrapTable('scrollTo',0);
+										} else if (index > itemSelected.length - 1) {
+											$('[data-toggle="items"]').bootstrapTable('scrollTo','bottom');
+										} else {
+											if (index == itemSelected.length - 1) {
+												var nextIndex = itemSelected.length - 1;
+												$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[nextIndex] * 31);
+												itemOn = itemSelected[nextIndex];
+												$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+											} else {
+												var nextIndex = index + 1;
+												$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[nextIndex] * 31);
+												itemOn = itemSelected[nextIndex];
+											}
+										}
+									}
+								}
+							},
 							{
 								text : "保存",
 								class : "btn btn-default",
@@ -508,6 +666,7 @@
 			<thead>
 				<tr>
 					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
 					<th data-field="id"	data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">编号</th>
 					<th data-field="name" data-filter-control="input"
@@ -529,6 +688,7 @@
 			<thead>
 				<tr>
 					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
 					<th data-field="oid" data-filter-control-placeholder=""
 						data-filter-control="input" data-width="80">QID</th>
 					<th data-field="name" data-filter-control-placeholder=""

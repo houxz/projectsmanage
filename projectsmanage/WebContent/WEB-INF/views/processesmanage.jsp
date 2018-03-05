@@ -1137,7 +1137,7 @@
 			<thead>
 				<tr>
 					<th data-field="state" data-checkbox="true"></th>
-					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat">index</th>
+					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">编号</th>
 					<th data-field="realname" data-filter-control="input"
@@ -1157,7 +1157,7 @@
 			<thead>
 				<tr>
 					<th data-field="state" data-checkbox="true"></th>
-					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat">index</th>
+					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">区域编号</th>
 					<th data-field="type" data-filter-control="select"
@@ -1183,7 +1183,7 @@
 			<thead>
 				<tr>
 					<th data-field="state" data-checkbox="true"></th>
-					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat">index</th>
+					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">编号</th>
 					<th data-field="name" data-filter-control="input"
