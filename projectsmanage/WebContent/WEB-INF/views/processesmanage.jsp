@@ -497,7 +497,7 @@
 					buttons : [
 							{
 								text : "<",
-								title : "跳转到上一条已选人员",
+								title : "上一条",
 								class : "btn btn-default",
 								click : function() {
 									if (workerOn < 0) {
@@ -525,7 +525,7 @@
 							},
 							{
 								text : ">",
-								title : "跳转到下一条已选人员",
+								title : "下一条",
 								class : "btn btn-default",
 								click : function() {
 									if (workerOn < 0) {
@@ -665,7 +665,7 @@
 					buttons : [
 							{
 								text : "<",
-								title : "跳转到上一条已选区域",
+								title : "上一条",
 								class : "btn btn-default",
 								click : function() {
 									if(itemAreaOn < 0) {
@@ -693,7 +693,7 @@
 							},
 							{
 								text : ">",
-								title : "跳转到下一条已选区域",
+								title : "下一条",
 								class : "btn btn-default",
 								click : function() {
 									if(itemAreaOn < 0) {
@@ -817,7 +817,7 @@
 					buttons : [
 								{
 										text : "<",
-										title : "跳转到上一条已选质检集合",
+										title : "上一条",
 										class : "btn btn-default",
 										click : function() {
 											if (itemSetOn < 0) {
@@ -845,7 +845,7 @@
 									},
 									{
 										text : ">",
-										title : "跳转到下一条已选质检集合",
+										title : "下一条",
 										class : "btn btn-default",
 										click : function() {
 											if (itemSetOn < 0) {
