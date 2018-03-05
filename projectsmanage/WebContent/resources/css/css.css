@@ -275,3 +275,7 @@ button {
 .configValue {
 	
 }
+
+.indexHidden {
+	display : none !important;
+}

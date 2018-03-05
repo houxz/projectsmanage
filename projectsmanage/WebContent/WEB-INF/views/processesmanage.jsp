@@ -23,6 +23,7 @@
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
 <script src="resources/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 <script src="resources/js/webeditor.js"></script>
+<script src="resources/js/common.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
 <script
@@ -41,9 +42,9 @@
 				$("[data-toggle='tooltip']").tooltip();
 			}
 		});
-
 	});
-
+	
+	var source = null;
 	var colors = [ "LimeGreen", "MediumSeaGreen", "MediumVioletRed", "Crimson", "Crimson" ];
 	var processStates = eval('(${processStates})');
 	var itemAreaTypes = eval('(${itemAreaTypes})');
@@ -52,14 +53,24 @@
 	var itemsetSysTypes = eval('(${itemsetSysTypes})');
 	var itemsetTypes = eval('(${itemsetTypes})');
 	var itemsetUnits = eval('(${itemsetUnits})');
+	
+	var itemAreaSelected = new Array();
+	var itemAreaOn = -1;
+	var itemSetSelected = new Array();
+	var itemSetOn = -1;
+	var workerSelected = new Array();
+	var workerOn = -1;
 
+	function indexFormat(value, row, index) {
+		return index;
+	}
 	function statesFormat(value, row, index) {
 		return processStates[row.state];
 	}
 	function areaTypesFormat(value, row, index) {
 		return itemAreaTypes[row.type];
 	}
-	
+
 	function enableFormat(value, row, index) {
 		return itemsetEnables[row.enable];
 	}
@@ -81,34 +92,51 @@
 
 		var html = new Array();
 		html.push('<div>');
-		html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="质检准备进度：'
+		html
+				.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="质检准备进度：'
 						+ values[0] + '&#8453;">');
 		html.push('<div class="progress');
 		if (values[0] > 0 && values[0] < 100 && row.state == 1)
 			html.push(' progress-striped active');
 		html.push('"style="margin-bottom: 3px;">');
-		html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
-						+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: ' + values[0] + '%;background-color: ' + colors[0] + ';">'
-						+ ' <span style="margin:0 6px;color: black;">' + values[0] + '&#8453;</span>' + ' </div>');
+		html
+				.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
+						+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
+						+ values[0]
+						+ '%;background-color: '
+						+ colors[0]
+						+ ';">'
+						+ ' <span style="margin:0 6px;color: black;">'
+						+ values[0] + '&#8453;</span>' + ' </div>');
 		html.push('</div></div>');
-		html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="质检进度：' + values[1] + '&#8453;">');
+		html
+				.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="质检进度：'
+						+ values[1] + '&#8453;">');
 		html.push('<div class="progress');
 		if (values[1] > 0 && values[1] < 100 && row.state == 1)
 			html.push(' progress-striped active');
 		html.push('"style="margin-bottom: 3px;">');
-		html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
-						+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: ' + values[1] + '%;background-color: ' + colors[1] + ';">'
-						+ ' <span style="margin:0 6px;color: black;">' + values[1] + '&#8453;</span>' + ' </div>');
+		html
+				.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
+						+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
+						+ values[1]
+						+ '%;background-color: '
+						+ colors[1]
+						+ ';">'
+						+ ' <span style="margin:0 6px;color: black;">'
+						+ values[1] + '&#8453;</span>' + ' </div>');
 		html.push('</div></div></div>');
 
 		html.push('<div>');
-		html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="改错准备进度：'
+		html
+				.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="改错准备进度：'
 						+ values[2] + '&#8453;">');
 		html.push('<div class="progress');
 		if (values[2] > 0 && values[2] < 100 && row.state == 1)
 			html.push(' progress-striped active');
 		html.push('"style="margin-bottom: 3px;">');
-		html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
+		html
+				.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 						+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
 						+ values[2]
 						+ '%;background-color: '
@@ -118,13 +146,15 @@
 						+ values[2] + '&#8453;</span>' + ' </div>');
 		html.push('</div></div>');
 
-		html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="改错进度：'
+		html
+				.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="改错进度：'
 						+ values[3] + '&#8453;">');
 		html.push('<div class="progress');
 		if (values[3] > 0 && values[3] < 100 && row.state == 1)
 			html.push(' progress-striped active');
 		html.push('"style="margin-bottom: 3px;">');
-		html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
+		html
+				.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 						+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
 						+ values[3]
 						+ '%;background-color: '
@@ -139,12 +169,16 @@
 
 	function priFormat(value, row, index) {
 		var html = [];
-		html.push("<select name='priority_" + row.id + "' id='priority_" + row.id + "' onchange='changePriority(" + row.id + ")'  class='form-control'>");
+		html.push("<select name='priority_" + row.id + "' id='priority_"
+				+ row.id + "' onchange='changePriority(" + row.id
+				+ ")'  class='form-control'>");
 		for ( var priorityLevel in priorityLevels) {
 			if (priorityLevel == value) {
-				html.push("<option value='"+ value +"' selected='selected' >" + priorityLevels[value] + "</option>");
+				html.push("<option value='"+ value +"' selected='selected' >"
+						+ priorityLevels[value] + "</option>");
 			} else {
-				html.push("<option value='"+ priorityLevel +"'>" + priorityLevels[priorityLevel] + "</option>");
+				html.push("<option value='"+ priorityLevel +"'>"
+						+ priorityLevels[priorityLevel] + "</option>");
 			}
 		}
 		html.push("</select>");
@@ -158,7 +192,7 @@
 			"state" : state
 		}, function(json) {
 			$('[data-toggle="processes"]').bootstrapTable('refresh');
-			$.webeditor.showMsgLabel("success","项目状态修改成功");
+			$.webeditor.showMsgLabel("success", "项目状态修改成功");
 		}, "json");
 	}
 
@@ -170,17 +204,28 @@
 			"priority" : priority
 		}, function(json) {
 			$('[data-toggle="processes"]').bootstrapTable('refresh');
-			$.webeditor.showMsgLabel("success","项目优先级修改成功");
+			$.webeditor.showMsgLabel("success", "项目优先级修改成功");
 		}, "json");
 	}
 
 	function operationFormat(value, row, index) {
 		var html = new Array();
-		html .push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getConfig(' + row.id + ',\'' + row.name + '\',' + row.priority + ');">配置</button>');
+		html
+				.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getConfig('
+						+ row.id
+						+ ',\''
+						+ row.name
+						+ '\','
+						+ row.priority
+						+ ');">配置</button>');
 		if (row.state == 1) {
-			html .push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,' + row.id + ')">暂停</button>');
+			html
+					.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,'
+							+ row.id + ')">暂停</button>');
 		} else if (row.state == 2 || row.state == 0) {
-			html .push('<button class="btn btn-default" style="margin-bottom:3px;" onclick="changeState(1,' + row.id + ')" >开始</button>');
+			html
+					.push('<button class="btn btn-default" style="margin-bottom:3px;" onclick="changeState(1,'
+							+ row.id + ')" >开始</button>');
 		}
 
 		return html.join('');
@@ -188,7 +233,8 @@
 
 	function projcetsIDFormat(value, row, index) {
 		var html = new Array();
-		html.push('<input type="checkbox" value="' + row.id + '">' + row.id + '');
+		html.push('<input type="checkbox" value="' + row.id + '">' + row.id
+				+ '');
 		return html.join('');
 	}
 
@@ -224,7 +270,9 @@
 				if (json.configValues && json.configValues.length > 0) {
 					var configValues = json.configValues;
 					for ( var index in configValues) {
-						var obj = $("#" + "config_" + configValues[index].moduleid + "_" + configValues[index].configid);
+						var obj = $("#" + "config_"
+								+ configValues[index].moduleid + "_"
+								+ configValues[index].configid);
 						if (obj) {
 							$(obj).val(configValues[index].value);
 						}
@@ -232,20 +280,37 @@
 
 					var config_1_3 = $("#config_1_3").val();
 					var config_1_4 = $("#config_1_4").val();
-					$("#config_1_4").siblings("p").text( "已关联项目:" + config_1_4 + "(" + config_1_3 + ")");
-					
+					$("#config_1_4").siblings("p").text(
+							"已关联项目:" + config_1_4 + "(" + config_1_3 + ")");
+
 					var config_1_6 = $("#config_1_6").val();
-					$("#config_1_6").siblings("p").text("已选择" + (config_1_6 ? config_1_6.split(",").length : 0) + "个质检图层");
+					$("#config_1_6").siblings("p")
+							.text(
+									"已选择"
+											+ (config_1_6 ? config_1_6
+													.split(",").length : 0)
+											+ "个质检图层");
 
 					var config_1_7 = $("#config_1_7").val();
-					$("#config_1_7").siblings("p").text("已选择" + (config_1_7 ? config_1_7.split(",").length : 0) + "个质检区域");
+					$("#config_1_7").siblings("p")
+							.text(
+									"已选择"
+											+ (config_1_7 ? config_1_7
+													.split(",").length : 0)
+											+ "个质检区域");
 
 					var config_2_11 = $("#config_2_11").val();
 					var config_2_12 = $("#config_2_12").val();
-					$("#config_2_12").siblings("p").text("已关联项目:" + config_2_12 + "(" + config_2_11 + ")");
+					$("#config_2_12").siblings("p").text(
+							"已关联项目:" + config_2_12 + "(" + config_2_11 + ")");
 
 					var config_2_18 = $("#config_2_18").val();
-					$("#config_2_18").siblings("p").text("已添加人员" + (config_2_18 ? config_2_18.split(",").length : 0) + "位");
+					$("#config_2_18").siblings("p")
+							.text(
+									"已添加人员"
+											+ (config_2_18 ? config_2_18
+													.split(",").length : 0)
+											+ "位");
 				}
 			}, "json");
 		}
@@ -253,165 +318,286 @@
 	}
 
 	function showConfigDlg(processid, processname, priority) {
-		$("#configDlg").dialog(
-			{
-				modal : true,
-				height : 600,
-				width : document.documentElement.clientWidth * 0.4,
-				title : "项目配置",
-				open : function(event, ui) {
-					$("#config_0_1").val(processid);
-					$("#config_0_2").val(processname);
-					$("#config_0_3").val(priority);
-					$(".ui-dialog-titlebar-close").hide();
-					$('.navbar-example').scrollspy({
-						target : '.navbar-example'
-					});
-				},
-				buttons : [
+		$("#configDlg")
+				.dialog(
 						{
-							text : "提交",
-							class : "btn btn-default",
-							click : function() {
-								var processid = $("#config_0_1").val();
-								var newProcessName = $("#config_0_2").val();
-								var priority = $("#config_0_3").val();
-								var config_1_3 = $("#config_1_3").val();
-								var config_1_4 = $("#config_1_4").val();
-								var config_1_5 = $("#config_1_5").val();
-								var config_1_6 = $("#config_1_6").val();
-								var config_1_7 = $("#config_1_7").val();
-								var config_1_8 = $("#config_1_8").val();
-
-								var config_2_11 = $("#config_2_11").val();
-								var config_2_12 = $("#config_2_12").val();
-								var config_2_17 = $("#config_2_17").val();
-								var config_2_18 = $("#config_2_18").val();
-								var config_2_19 = $("#config_2_19").val();
-								
-								if(!newProcessName || newProcessName.length <= 0) {
-									$.webeditor.showMsgLabel("alert","项目名不能为空");
-									return;
-								}
-
-								jQuery.post(
-									"./processesmanage.web",
+							modal : true,
+							height : 600,
+							width : document.documentElement.clientWidth * 0.4,
+							title : "项目配置",
+							open : function(event, ui) {
+								$("#config_0_1").val(processid);
+								$("#config_0_2").val(processname);
+								$("#config_0_3").val(priority);
+								$(".ui-dialog-titlebar-close").hide();
+								$('.navbar-example').scrollspy({
+									target : '.navbar-example'
+								});
+							},
+							buttons : [
 									{
-										"atn" : "newprocess",
-										"processid" : processid,
-										"newProcessName" : newProcessName,
-										"priority" : priority,
-										"config_1_3" : config_1_3,
-										"config_1_4" : config_1_4,
-										"config_1_5" : config_1_5,
-										"config_1_6" : config_1_6,
-										"config_1_7" : config_1_7,
-										"config_1_8" : config_1_8,
-										"config_2_11" : config_2_11,
-										"config_2_12" : config_2_12,
-										"config_2_17" : config_2_17,
-										"config_2_18" : config_2_18,
-										"config_2_19" : config_2_19
-									},
-									function(json) {
-										if (json.result > 0) {
-											$.webeditor.showMsgLabel("success","项目配置成功");
-											$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
-											$("#configDlg").dialog("close");
-											$('[data-toggle="processes"]').bootstrapTable('refresh');
-										} else {
-											$.webeditor.showMsgLabel("alert",json.resultMsg);
+										text : "提交",
+										class : "btn btn-default",
+										click : function() {
+											var processid = $("#config_0_1")
+													.val();
+											var newProcessName = $(
+													"#config_0_2").val();
+											var priority = $("#config_0_3")
+													.val();
+											var config_1_3 = $("#config_1_3")
+													.val();
+											var config_1_4 = $("#config_1_4")
+													.val();
+											var config_1_5 = $("#config_1_5")
+													.val();
+											var config_1_6 = $("#config_1_6")
+													.val();
+											var config_1_7 = $("#config_1_7")
+													.val();
+											var config_1_8 = $("#config_1_8")
+													.val();
+
+											var config_2_11 = $("#config_2_11")
+													.val();
+											var config_2_12 = $("#config_2_12")
+													.val();
+											var config_2_17 = $("#config_2_17")
+													.val();
+											var config_2_18 = $("#config_2_18")
+													.val();
+											var config_2_19 = $("#config_2_19")
+													.val();
+
+											if (!newProcessName
+													|| newProcessName.length <= 0) {
+												$.webeditor.showMsgLabel(
+														"alert", "项目名不能为空");
+												return;
+											}
+
+											jQuery
+													.post(
+															"./processesmanage.web",
+															{
+																"atn" : "newprocess",
+																"processid" : processid,
+																"newProcessName" : newProcessName,
+																"priority" : priority,
+																"config_1_3" : config_1_3,
+																"config_1_4" : config_1_4,
+																"config_1_5" : config_1_5,
+																"config_1_6" : config_1_6,
+																"config_1_7" : config_1_7,
+																"config_1_8" : config_1_8,
+																"config_2_11" : config_2_11,
+																"config_2_12" : config_2_12,
+																"config_2_17" : config_2_17,
+																"config_2_18" : config_2_18,
+																"config_2_19" : config_2_19
+															},
+															function(json) {
+																if (json.result > 0) {
+																	$.webeditor
+																			.showMsgLabel(
+																					"success",
+																					"项目配置成功");
+																	$(
+																			'[data-toggle="itemAreas"]')
+																			.bootstrapTable(
+																					"destroy");
+																	$(
+																			"#configDlg")
+																			.dialog(
+																					"close");
+																	$(
+																			'[data-toggle="processes"]')
+																			.bootstrapTable(
+																					'refresh');
+																} else {
+																	$.webeditor
+																			.showMsgLabel(
+																					"alert",
+																					json.resultMsg);
+																}
+															}, "json");
 										}
-									}, "json");
-							}
-						}, {
-							text : "关闭",
-							class : "btn btn-default",
-							click : function() {
-								$(this).dialog("close");
-							}
-						} ]
-			});
+									}, {
+										text : "关闭",
+										class : "btn btn-default",
+										click : function() {
+											$(this).dialog("close");
+										}
+									} ]
+						});
 	}
 
 	function getWorkers() {
 		$('[data-toggle="workers"]').bootstrapTable(
-			{
-				locale : 'zh-CN',
-				queryParams : function(params) {
-					if (params.filter != undefined) {
-						var filterObj = eval('(' + params.filter + ')');
-						if (filterObj.state != undefined) {
-							filterObj["state"] = filterObj.state;
-							delete filterObj.state;
-							params.filter = JSON.stringify(filterObj);
+				{
+					locale : 'zh-CN',
+					queryParams : function(params) {
+						if (params.filter != undefined) {
+							var filterObj = eval('(' + params.filter + ')');
+							if (filterObj.state != undefined) {
+								filterObj["state"] = filterObj.state;
+								delete filterObj.state;
+								params.filter = JSON.stringify(filterObj);
+							}
+						}
+						return params;
+					},
+					onLoadSuccess : function(data) {
+						var values = new Array();
+						$.each($("#config_2_18").val().split(","), function(
+								index, domEle) {
+							values[index] = parseInt(domEle);
+						});
+						$('[data-toggle="workers"]').bootstrapTable("checkBy",
+								{
+									field : "id",
+									values : values
+								});
+					},
+					onCheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						if(workerSelected.indexOf(index) < 0) {
+							workerOn = index;
+							workerSelected.push(index);
+							workerSelected.sort(compare);
+						}
+					},
+					onUncheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						var indexIn = workerSelected.indexOf(index);
+						if(indexIn >= 0) {
+							workerOn = workerSelected[indexIn == 0 ? 0 : indexIn -1];
+							workerSelected.splice(indexIn,1).sort(compare);
 						}
 					}
-					return params;
-				},
-				onLoadSuccess : function(data) {
-					var values = new Array();
-					$.each($("#config_2_18").val().split(","), function(index, domEle) {
-						values[index] = parseInt(domEle);
-					});
-					$('[data-toggle="workers"]').bootstrapTable("checkBy",
-							{
-								field : "id",
-								values : values
-							});
-				}
-			});
+				});
 
 		showWorkersDlg();
 	}
 
 	function showWorkersDlg() {
 		$("#workers").dialog(
-			{
-				modal : true,
-				height : 500,
-				width : document.documentElement.clientWidth * 0.3,
-				title : "添加人员",
-				open : function(event, ui) {
-					$(".ui-dialog-titlebar-close").hide();
-				},
-				buttons : [
-					{
-						text : "提交",
-						class : "btn btn-default",
-						click : function() {
-							var selections = $('[data-toggle="workers"]').bootstrapTable('getSelections');
-							var length = selections.length;
-							var value = new String();
-							if (length > 0) {
-								var subStr = "[";
-								$.each(selections, function(index,domEle) {
-									value += domEle.id + ",";
-									subStr += '{"uid":' + domEle.id + ', "username":"' + domEle.realname + '"},';
-								});
-								value = value.substring(0, value.length - 1);
-								subStr = subStr.substring(0, subStr.length - 1);
-								subStr += ']';
-								$("#config_2_18").val(value);
-								$("#config_2_18").siblings("p").text("已添加人员" + length + "位");
-								
-								$('[data-toggle="workers"]').bootstrapTable("destroy");
-								$(this).dialog("close");
-							} else {
-								$.webeditor.showMsgLabel("alert","请选择人员");
-							}
-							
-						}
+				{
+					modal : true,
+					height : 500,
+					width : document.documentElement.clientWidth * 0.3,
+					title : "添加人员",
+					open : function(event, ui) {
+						$(".ui-dialog-titlebar-close").hide();
 					},
-					{
-						text : "关闭",
-						class : "btn btn-default",
-						click : function() {
-							$('[data-toggle="workers"]').bootstrapTable("destroy");
-							$(this).dialog("close");
-						}
-					} ]
-			});
+					close : function() {
+						workerOn = -1;
+						workerSelected = new Array();
+					},
+					buttons : [
+							{
+								text : "<",
+								title : "跳转到上一条已选人员",
+								class : "btn btn-default",
+								click : function() {
+									if (workerOn < 0) {
+										$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
+										$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+									} else {
+										var index = workerSelected.indexOf(workerOn);
+										if (index < 0) {
+											$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
+										} else if (index > workerSelected.length - 1) {
+											$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
+										} else {
+											if (index == 0) {
+												$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
+												workerOn = workerSelected[0];
+												$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+											} else {
+												var preIndex = index - 1;
+												$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[preIndex] * 31);
+												workerOn = workerSelected[preIndex];
+											}
+										}
+									}
+								}
+							},
+							{
+								text : ">",
+								title : "跳转到下一条已选人员",
+								class : "btn btn-default",
+								click : function() {
+									if (workerOn < 0) {
+										$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
+									} else {
+										var index = workerSelected.indexOf(workerOn);
+										if (index < 0) {
+											$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
+										} else if (index > workerSelected.length - 1) {
+											$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
+										} else {
+											if (index == workerSelected.length - 1) {
+												var nextIndex = workerSelected.length - 1;
+												$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
+												workerOn = workerSelected[nextIndex];
+												$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+											} else {
+												var nextIndex = index + 1;
+												$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
+												workerOn = workerSelected[nextIndex];
+											}
+										}
+									}
+								}
+							},
+							{
+								text : "提交",
+								class : "btn btn-default",
+								click : function() {
+									var selections = $(
+											'[data-toggle="workers"]')
+											.bootstrapTable('getSelections');
+									var length = selections.length;
+									var value = new String();
+									if (length > 0) {
+										var subStr = "[";
+										$.each(selections, function(index,
+												domEle) {
+											value += domEle.id + ",";
+											subStr += '{"uid":' + domEle.id
+													+ ', "username":"'
+													+ domEle.realname + '"},';
+										});
+										value = value.substring(0,
+												value.length - 1);
+										subStr = subStr.substring(0,
+												subStr.length - 1);
+										subStr += ']';
+										$("#config_2_18").val(value);
+										$("#config_2_18").siblings("p").text(
+												"已添加人员" + length + "位");
+
+										$('[data-toggle="workers"]')
+												.bootstrapTable("destroy");
+										$(this).dialog("close");
+									} else {
+										$.webeditor.showMsgLabel("alert",
+												"请选择人员");
+									}
+
+								}
+							},
+							{
+								text : "关闭",
+								class : "btn btn-default",
+								click : function() {
+									$('[data-toggle="workers"]')
+											.bootstrapTable("destroy");
+									$(this).dialog("close");
+								}
+							} ]
+				});
 	}
 
 	function getItemAreas() {
@@ -435,10 +621,27 @@
 						$.each($("#config_1_7").val().split(","), function(index, domEle) {
 							values[index] = parseInt(domEle);
 						});
-						$('[data-toggle="itemAreas"]').bootstrapTable("checkBy", {
+						$('[data-toggle="itemAreas"]').bootstrapTable(
+								"checkBy", {
 									field : "id",
 									values : values
 								});
+					},
+					onCheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						if(itemAreaSelected.indexOf(index) < 0) {
+							itemAreaOn = index;
+							itemAreaSelected.push(index);
+							itemAreaSelected.sort(compare);
+						}
+					},
+					onUncheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						var indexIn = itemAreaSelected.indexOf(index);
+						if(indexIn >= 0) {
+							itemAreaOn = itemAreaSelected[indexIn == 0 ? 0 : indexIn -1];
+							itemAreaSelected.splice(indexIn,1).sort(compare);
+						}
 					}
 				});
 
@@ -447,48 +650,116 @@
 
 	function showItemAreasDlg() {
 		$("#itemAreasDlg").dialog(
-			{
-				modal : true,
-				height : 500,
-				width : document.documentElement.clientWidth * 0.3,
-				title : "质检区域配置",
-				open : function(event, ui) {
-					$(".ui-dialog-titlebar-close").hide();
-				},
-				buttons : [
-					{
-						text : "提交",
-						class : "btn btn-default",
-						click : function() {
-							var selections = $('[data-toggle="itemAreas"]').bootstrapTable('getSelections');
-							var length = selections.length;
-							var value = new String();
-							if (length > 0) {
-								$.each(selections, function(index,domEle) {
-									value += domEle.id + ",";
-								});
-								value = value.substring(0,value.length - 1);
-								$("#config_1_7").val(value);
-								$("#config_1_7").siblings("p").text("已选择" + length + "个质检区域");
-								
-								$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
-								$(this).dialog("close");
-							} else {
-								$.webeditor.showMsgLabel("alert","请选择质检区域");
-							}
-						}
+				{
+					modal : true,
+					height : 500,
+					width : 660,
+					title : "质检区域配置",
+					open : function(event, ui) {
+						$(".ui-dialog-titlebar-close").hide();
 					},
-					{
-						text : "关闭",
-						class : "btn btn-default",
-						click : function() {
-							$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
-							$(this).dialog("close");
-						}
-					} ]
-			});
+					close : function() {
+						itemAreaOn = -1;
+						itemAreaSelected = new Array();
+					},
+					buttons : [
+							{
+								text : "<",
+								title : "跳转到上一条已选区域",
+								class : "btn btn-default",
+								click : function() {
+									if(itemAreaOn < 0) {
+										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
+										$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+									} else {
+										var index = itemAreaSelected.indexOf(itemAreaOn);
+										if(index < 0) {
+											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
+										} else if(index > itemAreaSelected.length-1) {
+											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 'bottom');
+										} else {
+											if(index == 0) {
+												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
+												itemAreaOn = itemAreaSelected[0];
+												$.webeditor.showMsgLabel("warning", "已经跳转到第一条");
+											} else {
+												var preIndex = index-1;
+												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[preIndex]*31);
+												itemAreaOn = itemAreaSelected[preIndex];
+											}
+										}
+									}
+								}
+							},
+							{
+								text : ">",
+								title : "跳转到下一条已选区域",
+								class : "btn btn-default",
+								click : function() {
+									if(itemAreaOn < 0) {
+										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
+									} else {
+										var index = itemAreaSelected.indexOf(itemAreaOn);
+										if(index < 0) {
+											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
+										} else if(index > itemAreaSelected.length-1) {
+											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 'bottom');
+										} else {
+											if(index == itemAreaSelected.length-1) {
+												var nextIndex = itemAreaSelected.length-1;
+												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[nextIndex]*31);
+												itemAreaOn = itemAreaSelected[nextIndex];
+												$.webeditor.showMsgLabel("warning", "已经跳转到最后一条");
+											} else {
+												var nextIndex = index+1;
+												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[nextIndex]*31);
+												itemAreaOn = itemAreaSelected[nextIndex];
+											}
+										}
+									}
+								}
+							},
+							{
+								text : "提交",
+								class : "btn btn-default",
+								click : function() {
+									var selections = $(
+											'[data-toggle="itemAreas"]')
+											.bootstrapTable('getSelections');
+									var length = selections.length;
+									var value = new String();
+									if (length > 0) {
+										$.each(selections, function(index,
+												domEle) {
+											value += domEle.id + ",";
+										});
+										value = value.substring(0,
+												value.length - 1);
+										$("#config_1_7").val(value);
+										$("#config_1_7").siblings("p").text(
+												"已选择" + length + "个质检区域");
+
+										$('[data-toggle="itemAreas"]')
+												.bootstrapTable("destroy");
+										$(this).dialog("close");
+									} else {
+										$.webeditor.showMsgLabel("alert",
+												"请选择质检区域");
+									}
+								}
+							},
+							{
+								text : "关闭",
+								class : "btn btn-default",
+								click : function() {
+									$('[data-toggle="itemAreas"]')
+											.bootstrapTable("destroy");
+									$(this).dialog("close");
+								}
+							} ]
+				});
 	}
-	
+
 	function getItemsets() {
 		$('[data-toggle="itemsets"]').bootstrapTable(
 				{
@@ -498,61 +769,184 @@
 					},
 					onLoadSuccess : function(data) {
 						var values = new Array();
-						$.each($("#config_1_6").val().split(","), function(index, domEle) {
+						$.each($("#config_1_6").val().split(","), function(
+								index, domEle) {
 							values[index] = parseInt(domEle);
 						});
-						$('[data-toggle="itemsets"]').bootstrapTable("checkBy", {
+						$('[data-toggle="itemsets"]').bootstrapTable("checkBy",
+								{
 									field : "id",
 									values : values
 								});
+					},
+					onCheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						if(itemSetSelected.indexOf(index) < 0) {
+							itemSetOn = index;
+							itemSetSelected.push(index);
+							itemSetSelected.sort(compare);
+						}
+					},
+					onUncheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						var indexIn = itemSetSelected.indexOf(index);
+						if(indexIn >= 0) {
+							itemSetOn = itemSetSelected[indexIn == 0 ? 0 : indexIn -1];
+							itemSetSelected.splice(indexIn,1).sort(compare);
+						}
 					}
 				});
 
 		showItemsetsDlg();
 	}
-	
+
 	function showItemsetsDlg() {
 		$("#itemsetsDlg").dialog(
-			{
-				modal : true,
-				height : 600,
-				width : document.documentElement.clientWidth * 0.6,
-				title : "质检图层配置",
-				open : function(event, ui) {
-					$(".ui-dialog-titlebar-close").hide();
-				},
-				buttons : [
-					{
-						text : "提交",
-						class : "btn btn-default",
-						click : function() {
-							var selections = $('[data-toggle="itemsets"]').bootstrapTable('getSelections');
-							var length = selections.length;
-							var value = new String();
-							if (length > 0) {
-								$.each(selections, function(index,domEle) {
-									value += domEle.id + ",";
-								});
-								value = value.substring(0,value.length - 1);
-								$("#config_1_6").val(value);
-								$("#config_1_6").siblings("p").text("已选择" + length + "个质检图层");
-								
-								$('[data-toggle="itemsets"]').bootstrapTable("destroy");
-								$(this).dialog("close");
-							} else {
-								$.webeditor.showMsgLabel("alert","请选择质检区域");
-							}
-						}
+				{
+					modal : true,
+					height : 600,
+					width : document.documentElement.clientWidth * 0.6,
+					title : "质检图层配置",
+					open : function(event, ui) {
+						$(".ui-dialog-titlebar-close").hide();
 					},
-					{
-						text : "关闭",
-						class : "btn btn-default",
-						click : function() {
-							$('[data-toggle="itemsets"]').bootstrapTable("destroy");
-							$(this).dialog("close");
-						}
-					} ]
-			});
+					close : function() {
+						itemSetOn = -1;
+						itemSetSelected = new Array();
+					},
+					buttons : [
+								{
+										text : "<",
+										title : "跳转到上一条已选质检集合",
+										class : "btn btn-default",
+										click : function() {
+											if (itemSetOn < 0) {
+												$('[data-toggle="itemSets"]').bootstrapTable('scrollTo', 0);
+												$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+											} else {
+												var index = itemSetSelected.indexOf(itemSetOn);
+												if (index < 0) {
+													$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',0);
+												} else if (index > itemSetSelected.length - 1) {
+													$('[data-toggle="itemSets"]').bootstrapTable('scrollTo','bottom');
+												} else {
+													if (index == 0) {
+														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[0] * 31);
+														itemSetOn = itemSetSelected[0];
+														$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+													} else {
+														var preIndex = index - 1;
+														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[preIndex] * 31);
+														itemSetOn = itemSetSelected[preIndex];
+													}
+												}
+											}
+										}
+									},
+									{
+										text : ">",
+										title : "跳转到下一条已选质检集合",
+										class : "btn btn-default",
+										click : function() {
+											if (itemSetOn < 0) {
+												$('[data-toggle="itemSets"]').bootstrapTable('scrollTo', 0);
+											} else {
+												var index = itemSetSelected.indexOf(itemSetOn);
+												if (index < 0) {
+													$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',0);
+												} else if (index > itemSetSelected.length - 1) {
+													$('[data-toggle="itemSets"]').bootstrapTable('scrollTo','bottom');
+												} else {
+													if (index == itemSetSelected.length - 1) {
+														var nextIndex = itemSetSelected.length - 1;
+														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[nextIndex] * 31);
+														itemSetOn = itemSetSelected[nextIndex];
+														$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+													} else {
+														var nextIndex = index + 1;
+														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[nextIndex] * 31);
+														itemSetOn = itemSetSelected[nextIndex];
+													}
+												}
+											}
+										}
+									},
+									{
+										text : "提交",
+										class : "btn btn-default",
+										click : function() {
+											var selections = $(
+													'[data-toggle="itemsets"]')
+													.bootstrapTable(
+															'getSelections');
+											var length = selections.length;
+											var value = new String();
+											if (length > 0) {
+												$.each(selections, function(
+														index, domEle) {
+													value += domEle.id + ",";
+												});
+												value = value.substring(0,
+														value.length - 1);
+												$("#config_1_6").val(value);
+												$("#config_1_6")
+														.siblings("p")
+														.text(
+																"已选择"
+																		+ length
+																		+ "个质检图层");
+
+												$('[data-toggle="itemsets"]')
+														.bootstrapTable(
+																"destroy");
+												$(this).dialog("close");
+											} else {
+												$.webeditor.showMsgLabel(
+														"alert", "请选择质检区域");
+											}
+										}
+									},
+									{
+										text : "关闭",
+										class : "btn btn-default",
+										click : function() {
+											$('[data-toggle="itemsets"]')
+													.bootstrapTable("destroy");
+											$(this).dialog("close");
+										}
+									} ]
+						});
+	}
+
+	function refreshProgress(obj) {
+		if ($(obj).attr("src").indexOf("stop.jpg") > 0) {
+			$(obj).attr("src", "resources/images/refresh.gif");
+			$(obj).attr("title", "关闭自动刷新项目进度");
+
+			if (!!window.EventSource) {
+				var data = $('[data-toggle="processes"]').bootstrapTable(
+						"getData");
+				if (data && data.length > 0) {
+					for ( var i = 0; i < data.length; i++) {
+
+					}
+					source = new EventSource(
+							'/projectsmanage/sse.web?action=refreshprogress');
+
+					source.onmessage = function(e) {
+						console.log(e.data);
+					};
+				}
+			}
+		} else {
+			$(obj).attr("src", "resources/images/stop.jpg");
+			$(obj).attr("title", "开启自动刷新项目进度");
+
+			if (source) {
+				source.close();
+				source = null;
+			}
+		}
 	}
 </script>
 
@@ -588,7 +982,11 @@
 							data-filter-control="select" data-width="100"
 							data-filter-data="var:processStates">项目状态</th>
 						<th data-field="progress" data-formatter="progressFormat"
-							data-width="500">项目进度</th>
+							data-width="500">项目进度
+							<!-- <img id="refresh" src="resources/images/stop.jpg"
+							style="cursor: pointer;" title="开启自动刷新项目进度"
+							onclick="refreshProgress(this);"> -->
+						</th>
 						<th data-field="createtime" data-filter-control-placeholder=""
 							data-width="200">创建时间</th>
 						<th data-formatter="operationFormat" data-width="70">操作</th>
@@ -739,6 +1137,7 @@
 			<thead>
 				<tr>
 					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat">index</th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">编号</th>
 					<th data-field="realname" data-filter-control="input"
@@ -758,6 +1157,7 @@
 			<thead>
 				<tr>
 					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat">index</th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">区域编号</th>
 					<th data-field="type" data-filter-control="select"
@@ -765,9 +1165,9 @@
 						data-filter-data="var:itemAreaTypes"
 						data-filter-control-placeholder="" data-width="20">区域级别</th>
 					<th data-field="province" data-filter-control="input"
-						data-filter-control-placeholder="" data-width="120">省</th>
+						data-filter-control-placeholder="">省</th>
 					<th data-field="city" data-filter-control="input"
-						data-filter-control-placeholder="" data-width="120">市</th>
+						data-filter-control-placeholder="">市</th>
 				</tr>
 			</thead>
 		</table>
@@ -783,6 +1183,7 @@
 			<thead>
 				<tr>
 					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat">index</th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">编号</th>
 					<th data-field="name" data-filter-control="input"

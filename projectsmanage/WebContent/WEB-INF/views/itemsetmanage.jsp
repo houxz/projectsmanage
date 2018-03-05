@@ -200,7 +200,7 @@
 								text : "保存",
 								class : "btn btn-default",
 								click : function() {
-									var selections = $('[data-toggle="layers"]').bootstrapTable('getSelections');
+									var selections = $('[data-toggle="layers"]').bootstrapTable('getAllSelections');
 									var length = selections.length;
 									
 									if (length > 0) {
@@ -270,7 +270,7 @@
 								text : "保存",
 								class : "btn btn-default",
 								click : function() {
-									var selections = $('[data-toggle="items"]').bootstrapTable('getSelections');
+									var selections = $('[data-toggle="items"]').bootstrapTable('getAllSelections');
 									var length = selections.length;
 									
 									if (length > 0) {
