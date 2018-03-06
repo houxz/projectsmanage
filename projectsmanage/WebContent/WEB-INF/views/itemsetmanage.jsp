@@ -150,7 +150,7 @@
 				{
 					modal : true,
 					height: 600,
-					width : document.documentElement.clientWidth * 0.4,
+					width : 660,
 					title : "质检集合配置",
 					open : function(event, ui) {
 						$(".ui-dialog-titlebar-close").hide();
@@ -187,6 +187,12 @@
 									field : "name",
 									values : values
 								});
+						var curItemSetID = $("#dlgItemSet table #id").val();
+						if(curItemSetID !== "0") {
+							$("#dlgLayers input:checkbox").attr("disabled", true);
+						} else {
+							$("#dlgLayers input:checkbox").removeAttr("disabled");
+						}
 					},
 					onCheck : function(row, element) {
 						var index = parseInt($(element).parent().next().text());
@@ -213,7 +219,7 @@
 		$("#dlgLayers").dialog(
 				{
 					modal : true,
-					width : document.documentElement.clientWidth * 0.3,
+					width : 540,
 					title : "选择图层",
 					open : function(event, ui) {
 						$(".ui-dialog-titlebar-close").hide();
@@ -330,6 +336,12 @@
 									field : "oid",
 									values : values
 								});
+							var curItemSetID = $("#dlgItemSet table #id").val();
+							if(curItemSetID !== "0") {
+								$("#dlgItems input:checkbox").attr("disabled", true);
+							} else {
+								$("#dlgItems input:checkbox").removeAttr("disabled");
+							}
 						}
 					},
 					onCheck : function(row, element) {
@@ -357,7 +369,7 @@
 		$("#dlgItems").dialog(
 				{
 					modal : true,
-					width : document.documentElement.clientWidth * 0.3,
+					width : 540,
 					title : "选择质检项",
 					open : function(event, ui) {
 						$(".ui-dialog-titlebar-close").hide();

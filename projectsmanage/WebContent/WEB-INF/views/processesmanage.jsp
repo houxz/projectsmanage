@@ -493,6 +493,7 @@
 					close : function() {
 						workerOn = -1;
 						workerSelected = new Array();
+						$('[data-toggle="workers"]').bootstrapTable("destroy");
 					},
 					buttons : [
 							{
@@ -578,8 +579,6 @@
 										$("#config_2_18").siblings("p").text(
 												"已添加人员" + length + "位");
 
-										$('[data-toggle="workers"]')
-												.bootstrapTable("destroy");
 										$(this).dialog("close");
 									} else {
 										$.webeditor.showMsgLabel("alert",
@@ -592,8 +591,6 @@
 								text : "关闭",
 								class : "btn btn-default",
 								click : function() {
-									$('[data-toggle="workers"]')
-											.bootstrapTable("destroy");
 									$(this).dialog("close");
 								}
 							} ]
@@ -661,6 +658,7 @@
 					close : function() {
 						itemAreaOn = -1;
 						itemAreaSelected = new Array();
+						$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
 					},
 					buttons : [
 							{
@@ -739,8 +737,6 @@
 										$("#config_1_7").siblings("p").text(
 												"已选择" + length + "个质检区域");
 
-										$('[data-toggle="itemAreas"]')
-												.bootstrapTable("destroy");
 										$(this).dialog("close");
 									} else {
 										$.webeditor.showMsgLabel("alert",
@@ -752,8 +748,6 @@
 								text : "关闭",
 								class : "btn btn-default",
 								click : function() {
-									$('[data-toggle="itemAreas"]')
-											.bootstrapTable("destroy");
 									$(this).dialog("close");
 								}
 							} ]
@@ -813,6 +807,7 @@
 					close : function() {
 						itemSetOn = -1;
 						itemSetSelected = new Array();
+						$('[data-toggle="itemsets"]').bootstrapTable("destroy");
 					},
 					buttons : [
 								{
@@ -896,9 +891,6 @@
 																		+ length
 																		+ "个质检图层");
 
-												$('[data-toggle="itemsets"]')
-														.bootstrapTable(
-																"destroy");
 												$(this).dialog("close");
 											} else {
 												$.webeditor.showMsgLabel(
@@ -910,8 +902,6 @@
 										text : "关闭",
 										class : "btn btn-default",
 										click : function() {
-											$('[data-toggle="itemsets"]')
-													.bootstrapTable("destroy");
 											$(this).dialog("close");
 										}
 									} ]

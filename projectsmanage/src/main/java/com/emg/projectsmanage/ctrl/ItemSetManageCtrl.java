@@ -559,21 +559,18 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					return json;
 				}
 			} else {
-				// ItemSetModel record = new ItemSetModel();
-				// record.setId(itemSetID);
-				// record.setName(name);
-				// record.setLayername(layername);
-				// record.setEnable(enable);
-				// record.setType(type);
-				// record.setSystype(systype);
-				// record.setReferdata(referdata);
-				// record.setUnit(unit.byteValue());
-				// record.setDesc(desc);
-				//
-				// if(updateItemset(record)) {
-				// if(setItemSetDetails(itemSetID, itemDetails) > 0)
-				// ret = true;
-				// }
+				ItemSetModel record = new ItemSetModel();
+				record.setId(itemSetID);
+				record.setName(name);
+				record.setEnable(enable);
+				record.setType(type);
+				record.setSystype(systype);
+				record.setUnit(unit.byteValue());
+				record.setDesc(desc);
+
+				if (updateItemset(record)) {
+					ret = true;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
