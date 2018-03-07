@@ -53,8 +53,10 @@
 		});
 	});
 	
+	var itemFirstIn = true;
 	var itemSelected = new Array();
 	var itemOn = -1;
+	var layerFirstIn = true;
 	var layerSelected = new Array();
 	var layerOn = -1;
 	
@@ -222,11 +224,13 @@
 					width : 540,
 					title : "选择图层",
 					open : function(event, ui) {
+						layerFirstIn = true;
 						$(".ui-dialog-titlebar-close").hide();
 					},
 					close : function(event, ui) {
 						layerOn = -1;
 						layerSelected = new Array();
+						layerFirstIn = true;
 						$('[data-toggle="layers"]').bootstrapTable("destroy");
 					},
 					buttons : [
@@ -235,24 +239,30 @@
 								title : "上一条",
 								class : "btn btn-default",
 								click : function() {
-									if (layerOn < 0) {
-										$('[data-toggle="layers"]').bootstrapTable('scrollTo', 0);
-										$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+									if(layerFirstIn) {
+										$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[0] * 31);
+										layerOn = layerSelected[0];
+										layerFirstIn = false;
 									} else {
-										var index = layerSelected.indexOf(layerOn);
-										if (index < 0) {
-											$('[data-toggle="layers"]').bootstrapTable('scrollTo',0);
-										} else if (index > layerSelected.length - 1) {
-											$('[data-toggle="layers"]').bootstrapTable('scrollTo','bottom');
+										if (layerOn < 0) {
+											$('[data-toggle="layers"]').bootstrapTable('scrollTo', 0);
+											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
 										} else {
-											if (index == 0) {
-												$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[0] * 31);
-												layerOn = layerSelected[0];
-												$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+											var index = layerSelected.indexOf(layerOn);
+											if (index < 0) {
+												$('[data-toggle="layers"]').bootstrapTable('scrollTo',0);
+											} else if (index > layerSelected.length - 1) {
+												$('[data-toggle="layers"]').bootstrapTable('scrollTo','bottom');
 											} else {
-												var preIndex = index - 1;
-												$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[preIndex] * 31);
-												layerOn = layerSelected[preIndex];
+												if (index == 0) {
+													$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[0] * 31);
+													layerOn = layerSelected[0];
+													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+												} else {
+													var preIndex = index - 1;
+													$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[preIndex] * 31);
+													layerOn = layerSelected[preIndex];
+												}
 											}
 										}
 									}
@@ -263,24 +273,30 @@
 								title : "下一条",
 								class : "btn btn-default",
 								click : function() {
-									if (layerOn < 0) {
-										$('[data-toggle="layers"]').bootstrapTable('scrollTo', 0);
+									if(layerFirstIn) {
+										$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[0] * 31);
+										layerOn = layerSelected[0];
+										layerFirstIn = false;
 									} else {
-										var index = layerSelected.indexOf(layerOn);
-										if (index < 0) {
-											$('[data-toggle="layers"]').bootstrapTable('scrollTo',0);
-										} else if (index > layerSelected.length - 1) {
-											$('[data-toggle="layers"]').bootstrapTable('scrollTo','bottom');
+										if (layerOn < 0) {
+											$('[data-toggle="layers"]').bootstrapTable('scrollTo', 0);
 										} else {
-											if (index == layerSelected.length - 1) {
-												var nextIndex = layerSelected.length - 1;
-												$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[nextIndex] * 31);
-												layerOn = layerSelected[nextIndex];
-												$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+											var index = layerSelected.indexOf(layerOn);
+											if (index < 0) {
+												$('[data-toggle="layers"]').bootstrapTable('scrollTo',0);
+											} else if (index > layerSelected.length - 1) {
+												$('[data-toggle="layers"]').bootstrapTable('scrollTo','bottom');
 											} else {
-												var nextIndex = index + 1;
-												$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[nextIndex] * 31);
-												layerOn = layerSelected[nextIndex];
+												if (index == layerSelected.length - 1) {
+													var nextIndex = layerSelected.length - 1;
+													$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[nextIndex] * 31);
+													layerOn = layerSelected[nextIndex];
+													$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+												} else {
+													var nextIndex = index + 1;
+													$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[nextIndex] * 31);
+													layerOn = layerSelected[nextIndex];
+												}
 											}
 										}
 									}
@@ -372,11 +388,13 @@
 					width : 540,
 					title : "选择质检项",
 					open : function(event, ui) {
+						itemFirstIn = true;
 						$(".ui-dialog-titlebar-close").hide();
 					},
 					close : function(event, ui) {
 						itemOn = -1;
 						itemSelected = new Array();
+						itemFirstIn = true;
 						$('[data-toggle="items"]').bootstrapTable("destroy");
 					},
 					buttons : [
@@ -385,24 +403,30 @@
 								title : "上一条",
 								class : "btn btn-default",
 								click : function() {
-									if (itemOn < 0) {
-										$('[data-toggle="items"]').bootstrapTable('scrollTo', 0);
-										$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+									if(itemFirstIn) {
+										$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[0] * 31);
+										itemOn = itemSelected[0];
+										itemFirstIn = false;
 									} else {
-										var index = itemSelected.indexOf(itemOn);
-										if (index < 0) {
-											$('[data-toggle="items"]').bootstrapTable('scrollTo',0);
-										} else if (index > itemSelected.length - 1) {
-											$('[data-toggle="items"]').bootstrapTable('scrollTo','bottom');
+										if (itemOn < 0) {
+											$('[data-toggle="items"]').bootstrapTable('scrollTo', 0);
+											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
 										} else {
-											if (index == 0) {
-												$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[0] * 31);
-												itemOn = itemSelected[0];
-												$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+											var index = itemSelected.indexOf(itemOn);
+											if (index < 0) {
+												$('[data-toggle="items"]').bootstrapTable('scrollTo',0);
+											} else if (index > itemSelected.length - 1) {
+												$('[data-toggle="items"]').bootstrapTable('scrollTo','bottom');
 											} else {
-												var preIndex = index - 1;
-												$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[preIndex] * 31);
-												itemOn = itemSelected[preIndex];
+												if (index == 0) {
+													$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[0] * 31);
+													itemOn = itemSelected[0];
+													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+												} else {
+													var preIndex = index - 1;
+													$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[preIndex] * 31);
+													itemOn = itemSelected[preIndex];
+												}
 											}
 										}
 									}
@@ -413,24 +437,30 @@
 								title : "下一条",
 								class : "btn btn-default",
 								click : function() {
-									if (itemOn < 0) {
-										$('[data-toggle="items"]').bootstrapTable('scrollTo', 0);
+									if(itemFirstIn) {
+										$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[0] * 31);
+										itemOn = itemSelected[0];
+										itemFirstIn = false;
 									} else {
-										var index = itemSelected.indexOf(itemOn);
-										if (index < 0) {
-											$('[data-toggle="items"]').bootstrapTable('scrollTo',0);
-										} else if (index > itemSelected.length - 1) {
-											$('[data-toggle="items"]').bootstrapTable('scrollTo','bottom');
+										if (itemOn < 0) {
+											$('[data-toggle="items"]').bootstrapTable('scrollTo', 0);
 										} else {
-											if (index == itemSelected.length - 1) {
-												var nextIndex = itemSelected.length - 1;
-												$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[nextIndex] * 31);
-												itemOn = itemSelected[nextIndex];
-												$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+											var index = itemSelected.indexOf(itemOn);
+											if (index < 0) {
+												$('[data-toggle="items"]').bootstrapTable('scrollTo',0);
+											} else if (index > itemSelected.length - 1) {
+												$('[data-toggle="items"]').bootstrapTable('scrollTo','bottom');
 											} else {
-												var nextIndex = index + 1;
-												$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[nextIndex] * 31);
-												itemOn = itemSelected[nextIndex];
+												if (index == itemSelected.length - 1) {
+													var nextIndex = itemSelected.length - 1;
+													$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[nextIndex] * 31);
+													itemOn = itemSelected[nextIndex];
+													$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+												} else {
+													var nextIndex = index + 1;
+													$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[nextIndex] * 31);
+													itemOn = itemSelected[nextIndex];
+												}
 											}
 										}
 									}
