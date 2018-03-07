@@ -152,7 +152,7 @@
 				{
 					modal : true,
 					height: 600,
-					width : 660,
+					width : 720,
 					title : "质检集合配置",
 					open : function(event, ui) {
 						$(".ui-dialog-titlebar-close").hide();
@@ -385,7 +385,7 @@
 		$("#dlgItems").dialog(
 				{
 					modal : true,
-					width : 540,
+					width : 600,
 					title : "选择质检项",
 					open : function(event, ui) {
 						itemFirstIn = true;
