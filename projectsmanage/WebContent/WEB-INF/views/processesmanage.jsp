@@ -54,10 +54,13 @@
 	var itemsetTypes = eval('(${itemsetTypes})');
 	var itemsetUnits = eval('(${itemsetUnits})');
 	
+	var itemAreaFirstIn = true;
 	var itemAreaSelected = new Array();
 	var itemAreaOn = -1;
+	var itemSetFirstIn = true;
 	var itemSetSelected = new Array();
 	var itemSetOn = -1;
+	var workerFirstIn = true;
 	var workerSelected = new Array();
 	var workerOn = -1;
 
@@ -488,11 +491,13 @@
 					width : document.documentElement.clientWidth * 0.3,
 					title : "添加人员",
 					open : function(event, ui) {
+						workerFirstIn = true;
 						$(".ui-dialog-titlebar-close").hide();
 					},
 					close : function() {
 						workerOn = -1;
 						workerSelected = new Array();
+						workerFirstIn = true;
 						$('[data-toggle="workers"]').bootstrapTable("destroy");
 					},
 					buttons : [
@@ -501,24 +506,30 @@
 								title : "上一条",
 								class : "btn btn-default",
 								click : function() {
-									if (workerOn < 0) {
-										$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
-										$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+									if(workerFirstIn) {
+										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
+										workerOn = workerSelected[0];
+										workerFirstIn = false;
 									} else {
-										var index = workerSelected.indexOf(workerOn);
-										if (index < 0) {
-											$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
-										} else if (index > workerSelected.length - 1) {
-											$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
+										if (workerOn < 0) {
+											$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
+											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
 										} else {
-											if (index == 0) {
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
-												workerOn = workerSelected[0];
-												$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+											var index = workerSelected.indexOf(workerOn);
+											if (index < 0) {
+												$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
+											} else if (index > workerSelected.length - 1) {
+												$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
 											} else {
-												var preIndex = index - 1;
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[preIndex] * 31);
-												workerOn = workerSelected[preIndex];
+												if (index == 0) {
+													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
+													workerOn = workerSelected[0];
+													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+												} else {
+													var preIndex = index - 1;
+													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[preIndex] * 31);
+													workerOn = workerSelected[preIndex];
+												}
 											}
 										}
 									}
@@ -529,24 +540,30 @@
 								title : "下一条",
 								class : "btn btn-default",
 								click : function() {
-									if (workerOn < 0) {
-										$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
+									if(workerFirstIn) {
+										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
+										workerOn = workerSelected[0];
+										workerFirstIn = false;
 									} else {
-										var index = workerSelected.indexOf(workerOn);
-										if (index < 0) {
-											$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
-										} else if (index > workerSelected.length - 1) {
-											$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
+										if (workerOn < 0) {
+											$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
 										} else {
-											if (index == workerSelected.length - 1) {
-												var nextIndex = workerSelected.length - 1;
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
-												workerOn = workerSelected[nextIndex];
-												$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+											var index = workerSelected.indexOf(workerOn);
+											if (index < 0) {
+												$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
+											} else if (index > workerSelected.length - 1) {
+												$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
 											} else {
-												var nextIndex = index + 1;
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
-												workerOn = workerSelected[nextIndex];
+												if (index == workerSelected.length - 1) {
+													var nextIndex = workerSelected.length - 1;
+													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
+													workerOn = workerSelected[nextIndex];
+													$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+												} else {
+													var nextIndex = index + 1;
+													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
+													workerOn = workerSelected[nextIndex];
+												}
 											}
 										}
 									}
@@ -653,11 +670,13 @@
 					width : 660,
 					title : "质检区域配置",
 					open : function(event, ui) {
+						itemAreaFirstIn = true;
 						$(".ui-dialog-titlebar-close").hide();
 					},
 					close : function() {
 						itemAreaOn = -1;
 						itemAreaSelected = new Array();
+						itemAreaFirstIn = true;
 						$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
 					},
 					buttons : [
@@ -666,24 +685,30 @@
 								title : "上一条",
 								class : "btn btn-default",
 								click : function() {
-									if(itemAreaOn < 0) {
-										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
-										$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+									if(itemAreaFirstIn) {
+										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
+										itemAreaOn = itemAreaSelected[0];
+										itemAreaFirstIn = false;
 									} else {
-										var index = itemAreaSelected.indexOf(itemAreaOn);
-										if(index < 0) {
+										if(itemAreaOn < 0) {
 											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
-										} else if(index > itemAreaSelected.length-1) {
-											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 'bottom');
+											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
 										} else {
-											if(index == 0) {
-												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
-												itemAreaOn = itemAreaSelected[0];
-												$.webeditor.showMsgLabel("warning", "已经跳转到第一条");
+											var index = itemAreaSelected.indexOf(itemAreaOn);
+											if(index < 0) {
+												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
+											} else if(index > itemAreaSelected.length-1) {
+												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 'bottom');
 											} else {
-												var preIndex = index-1;
-												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[preIndex]*31);
-												itemAreaOn = itemAreaSelected[preIndex];
+												if(index == 0) {
+													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
+													itemAreaOn = itemAreaSelected[0];
+													$.webeditor.showMsgLabel("warning", "已经跳转到第一条");
+												} else {
+													var preIndex = index-1;
+													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[preIndex]*31);
+													itemAreaOn = itemAreaSelected[preIndex];
+												}
 											}
 										}
 									}
@@ -694,24 +719,30 @@
 								title : "下一条",
 								class : "btn btn-default",
 								click : function() {
-									if(itemAreaOn < 0) {
-										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
+									if(itemAreaFirstIn) {
+										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
+										itemAreaOn = itemAreaSelected[0];
+										itemAreaFirstIn = false;
 									} else {
-										var index = itemAreaSelected.indexOf(itemAreaOn);
-										if(index < 0) {
+										if(itemAreaOn < 0) {
 											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
-										} else if(index > itemAreaSelected.length-1) {
-											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 'bottom');
 										} else {
-											if(index == itemAreaSelected.length-1) {
-												var nextIndex = itemAreaSelected.length-1;
-												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[nextIndex]*31);
-												itemAreaOn = itemAreaSelected[nextIndex];
-												$.webeditor.showMsgLabel("warning", "已经跳转到最后一条");
+											var index = itemAreaSelected.indexOf(itemAreaOn);
+											if(index < 0) {
+												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
+											} else if(index > itemAreaSelected.length-1) {
+												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 'bottom');
 											} else {
-												var nextIndex = index+1;
-												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[nextIndex]*31);
-												itemAreaOn = itemAreaSelected[nextIndex];
+												if(index == itemAreaSelected.length-1) {
+													var nextIndex = itemAreaSelected.length-1;
+													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[nextIndex]*31);
+													itemAreaOn = itemAreaSelected[nextIndex];
+													$.webeditor.showMsgLabel("warning", "已经跳转到最后一条");
+												} else {
+													var nextIndex = index+1;
+													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[nextIndex]*31);
+													itemAreaOn = itemAreaSelected[nextIndex];
+												}
 											}
 										}
 									}
@@ -802,11 +833,13 @@
 					width : document.documentElement.clientWidth * 0.6,
 					title : "质检图层配置",
 					open : function(event, ui) {
+						itemSetFirstIn = true;
 						$(".ui-dialog-titlebar-close").hide();
 					},
 					close : function() {
 						itemSetOn = -1;
 						itemSetSelected = new Array();
+						itemSetFirstIn = true;
 						$('[data-toggle="itemsets"]').bootstrapTable("destroy");
 					},
 					buttons : [
@@ -815,24 +848,30 @@
 										title : "上一条",
 										class : "btn btn-default",
 										click : function() {
-											if (itemSetOn < 0) {
-												$('[data-toggle="itemSets"]').bootstrapTable('scrollTo', 0);
-												$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+											if(itemSetFirstIn) {
+												$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[0] * 31);
+												itemSetOn = itemSetSelected[0];
+												itemSetFirstIn = false;
 											} else {
-												var index = itemSetSelected.indexOf(itemSetOn);
-												if (index < 0) {
-													$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',0);
-												} else if (index > itemSetSelected.length - 1) {
-													$('[data-toggle="itemSets"]').bootstrapTable('scrollTo','bottom');
+												if (itemSetOn < 0) {
+													$('[data-toggle="itemSets"]').bootstrapTable('scrollTo', 0);
+													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
 												} else {
-													if (index == 0) {
-														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[0] * 31);
-														itemSetOn = itemSetSelected[0];
-														$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+													var index = itemSetSelected.indexOf(itemSetOn);
+													if (index < 0) {
+														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',0);
+													} else if (index > itemSetSelected.length - 1) {
+														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo','bottom');
 													} else {
-														var preIndex = index - 1;
-														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[preIndex] * 31);
-														itemSetOn = itemSetSelected[preIndex];
+														if (index == 0) {
+															$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[0] * 31);
+															itemSetOn = itemSetSelected[0];
+															$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+														} else {
+															var preIndex = index - 1;
+															$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[preIndex] * 31);
+															itemSetOn = itemSetSelected[preIndex];
+														}
 													}
 												}
 											}
@@ -843,24 +882,30 @@
 										title : "下一条",
 										class : "btn btn-default",
 										click : function() {
-											if (itemSetOn < 0) {
-												$('[data-toggle="itemSets"]').bootstrapTable('scrollTo', 0);
+											if(itemSetFirstIn) {
+												$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[0] * 31);
+												itemSetOn = itemSetSelected[0];
+												itemSetFirstIn = false;
 											} else {
-												var index = itemSetSelected.indexOf(itemSetOn);
-												if (index < 0) {
-													$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',0);
-												} else if (index > itemSetSelected.length - 1) {
-													$('[data-toggle="itemSets"]').bootstrapTable('scrollTo','bottom');
+												if (itemSetOn < 0) {
+													$('[data-toggle="itemSets"]').bootstrapTable('scrollTo', 0);
 												} else {
-													if (index == itemSetSelected.length - 1) {
-														var nextIndex = itemSetSelected.length - 1;
-														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[nextIndex] * 31);
-														itemSetOn = itemSetSelected[nextIndex];
-														$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+													var index = itemSetSelected.indexOf(itemSetOn);
+													if (index < 0) {
+														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',0);
+													} else if (index > itemSetSelected.length - 1) {
+														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo','bottom');
 													} else {
-														var nextIndex = index + 1;
-														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[nextIndex] * 31);
-														itemSetOn = itemSetSelected[nextIndex];
+														if (index == itemSetSelected.length - 1) {
+															var nextIndex = itemSetSelected.length - 1;
+															$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[nextIndex] * 31);
+															itemSetOn = itemSetSelected[nextIndex];
+															$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+														} else {
+															var nextIndex = index + 1;
+															$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[nextIndex] * 31);
+															itemSetOn = itemSetSelected[nextIndex];
+														}
 													}
 												}
 											}
