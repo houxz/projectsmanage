@@ -63,7 +63,7 @@
 	
 	function operationFormat(value, row, index) {
 		var html = new Array();
-		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getErrorSet(' + row.id + ');">配置</button>');
+		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getErrorSet(' + row.id + ');">详情</button>');
 		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="deleteErrorSet(' + row.id + ');">删除</button>');
 		return html.join('');
 	}
@@ -121,8 +121,8 @@
 		$("#dlgErrorSet").dialog(
 				{
 					modal : true,
-					height: 600,
-					width : document.documentElement.clientWidth * 0.4,
+					height: 590,
+					width : 720,
 					title : "错误筛选集合配置",
 					open : function(event, ui) {
 						$(".ui-dialog-titlebar-close").hide();
@@ -159,7 +159,7 @@
 			"atn" : "geterrortypes"
 		}, function(json) {
 			var errorTypes = json.rows;
-			if(errorTypes && errorTypes.length > 0) {//data, idStr, pidStr, pText, childrenStr, cText
+			if(errorTypes && errorTypes.length > 0) {
 				var data = $.webeditor.transJsonData2Tree2(errorTypes, "id", "qid", "name", "nodes", "desc", selectNodeids);
 				$('#errorTypesTree').treeview(
 					{
@@ -195,8 +195,8 @@
 	function showErrorTypesDlg() {
 		$("#dlgErrorTypes").dialog({
 			modal : true,
-			width : document.documentElement.clientWidth * 0.4,
-			height: 600,
+			width : 600,
+			height: 500,
 			title : "选择质检项",
 			open : function(event, ui) {
 				$(".ui-dialog-titlebar-close").hide();
@@ -306,24 +306,24 @@
 				<thead>
 					<tr>
 						<th data-field="id" data-filter-control="input"
-							data-filter-control-placeholder="">编号
+							data-filter-control-placeholder="" data-width="80">编号
 							<button class="btn btn-default btn-xs" onclick="getErrorSet(0);">
 								<span class="glyphicon glyphicon-plus"></span>
 							</button>
 						</th>
 						<th data-field="name" data-filter-control="input"
 							data-filter-control-placeholder="">错误筛选集合名称</th>
-						<th data-field="type" data-formatter="typeFormat"
+						<th data-field="type" data-formatter="typeFormat" data-width="80"
 							data-filter-control="select" data-filter-data="var:errorsetTypes">类型</th>
 						<th data-field="systype" data-formatter="sysFormat"
-							data-filter-control="select"
+							data-filter-control="select" data-width="100"
 							data-filter-data="var:errorsetSysTypes">操作系统</th>
-						<th data-field="unit" data-formatter="unitFormat"
+						<th data-field="unit" data-formatter="unitFormat" data-width="80"
 							data-filter-control="select" data-filter-data="var:errorsetUnits">质检单位</th>
 						<th data-field="desc" data-filter-control="input"
 							data-filter-control-placeholder="">描述</th>
 						<!-- <th data-field="updatetime">更新时间</th> -->
-						<th data-formatter="operationFormat">操作</th>
+						<th data-formatter="operationFormat" data-width="80">操作</th>
 					</tr>
 				</thead>
 			</table>
@@ -416,7 +416,7 @@
 						</div>
 					</div>
 				</div>
-				<div id="errorTypesTree" style="height: 406px; overflow: auto;"></div>
+				<div id="errorTypesTree" style="height: 306px; overflow: auto;"></div>
 			</div>
 		</div>
 	</div>

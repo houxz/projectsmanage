@@ -295,27 +295,27 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
-			sql.append(" FROM tb_errorset ");
+			sql.append(" FROM task_bg.tb_errorset ");
 			sql.append(" WHERE 1=1 ");
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
-				sql.append(" AND `id` = " + record.getId());
+				sql.append(" AND id = " + record.getId());
 			}
 			if(record.getName() != null && !record.getName().isEmpty()) {
-				sql.append(" AND `name` like '%" + record.getName() + "%'");
+				sql.append(" AND name like '%" + record.getName() + "%'");
 			}
 			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(" AND `type` = " + record.getType());
+				sql.append(" AND type = " + record.getType());
 			}
 			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(" AND `systype` = " + record.getSystype());
+				sql.append(" AND systype = " + record.getSystype());
 			}
 			if (record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(" AND `unit` = " + record.getUnit());
+				sql.append(" AND unit = " + record.getUnit());
 			}
 			if(record.getDesc() != null && !record.getDesc().isEmpty()) {
-				sql.append(" AND `desc` like '%" + record.getDesc() + "%'");
+				sql.append(" AND desc like '%" + record.getDesc() + "%'");
 			}
-			sql.append(" ORDER BY `id` ");
+			sql.append(" ORDER BY id ");
 			if(limit.compareTo(0) > 0) {
 				sql.append(" LIMIT " + limit);
 			}
@@ -337,7 +337,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		Long ret = -1L;
 		try {
 			final StringBuffer sql = new StringBuffer();
-			sql.append(" INSERT INTO tb_errorset (`name`, `type`, `systype`, `unit`, `desc`) ");
+			sql.append(" INSERT INTO task_bg.tb_errorset (name, type, systype, unit, desc) ");
 			sql.append(" VALUES (?,?,?,?,?) ");
 
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
@@ -368,25 +368,25 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		Boolean ret = false;
 		try {
 			StringBuffer sql = new StringBuffer();
-			sql.append(" UPDATE tb_errorset ");
-			sql.append(" SET `id` = `id`");
+			sql.append(" UPDATE task_bg.tb_errorset ");
+			sql.append(" SET id = id");
 			if(record.getName() != null) {
-				sql.append(", `name` = '" + record.getName() + "'");
+				sql.append(", name = '" + record.getName() + "'");
 			}
 			if(record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(", `type` = " + record.getType());
+				sql.append(", type = " + record.getType());
 			}
 			if(record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(", `systype` = " + record.getSystype());
+				sql.append(", systype = " + record.getSystype());
 			}
 			if(record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(", `unit` = " + record.getUnit());
+				sql.append(", unit = " + record.getUnit());
 			}
 			if(record.getDesc() != null) {
-				sql.append(", `desc` = '" + record.getDesc() + "'");
+				sql.append(", desc = '" + record.getDesc() + "'");
 			}
 			
-			sql.append(" WHERE `id` = " + record.getId());
+			sql.append(" WHERE id = " + record.getId());
 
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -408,16 +408,16 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" DELETE ");
-			sql.append(" FROM tb_errorset ");
-			sql.append(" WHERE `id` = " + errorSetID);
+			sql.append(" FROM task_bg.tb_errorset ");
+			sql.append(" WHERE id = " + errorSetID);
 
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 			
 			StringBuffer sql_del = new StringBuffer();
 			sql_del.append(" DELETE ");
-			sql_del.append(" FROM tb_errorsetdetail ");
-			sql_del.append(" WHERE `itemsetid` = " + errorSetID);
+			sql_del.append(" FROM task_bg.tb_errorsetdetail ");
+			sql_del.append(" WHERE itemsetid = " + errorSetID);
 			
 			ret = ret && new JdbcTemplate(dataSource).update(sql_del.toString()) >= 0;
 		} catch (Exception e) {
@@ -435,7 +435,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT count(*) ");
-			sql.append(" FROM tb_errorset ");
+			sql.append(" FROM task_bg.tb_errorset");
 			sql.append(" WHERE 1=1 ");
 
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
@@ -454,8 +454,8 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT `id`, `qname`, `name`, `qid`, `errortype`, `desc`, `enable`, `unit`, `isexistokerror`, `createtime`, `iswarning`, `uuidruler`, `version`, `keyword`, `updatetime` ");
-			sql.append(" FROM tb_itemconfig ");
+			sql.append(" SELECT id, qname, name, qid, errortype, desc, enable, unit, isexistokerror, createtime, iswarning, uuidruler, version, keyword, updatetime ");
+			sql.append(" FROM task_bg.tb_itemconfig ");
 			sql.append(" WHERE 1=1 ");
 
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
@@ -474,9 +474,9 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT `itemid` ");
-			sql.append(" FROM tb_errorsetdetail ");
-			sql.append(" WHERE `itemsetid` = " + errorSetID);
+			sql.append(" SELECT itemid ");
+			sql.append(" FROM task_bg.tb_errorsetdetail ");
+			sql.append(" WHERE itemsetid = " + errorSetID);
 			
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
@@ -496,8 +496,8 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			
 			StringBuffer sql_del = new StringBuffer();
 			sql_del.append(" DELETE ");
-			sql_del.append(" FROM tb_errorsetdetail ");
-			sql_del.append(" WHERE `itemsetid` = " + errorSetID);
+			sql_del.append(" FROM task_bg.tb_errorsetdetail ");
+			sql_del.append(" WHERE itemsetid = " + errorSetID);
 
 			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
 			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
@@ -505,7 +505,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			if (ret_del >= 0) {
 				StringBuffer sql = new StringBuffer();
 				sql.append(" INSERT INTO tb_errorsetdetail");
-				sql.append(" (`itemsetid`, `itemid`) ");
+				sql.append(" (itemsetid, itemid) ");
 				sql.append(" VALUES ");
 				for (Long errorType : errorTypes) {
 					sql.append("(");

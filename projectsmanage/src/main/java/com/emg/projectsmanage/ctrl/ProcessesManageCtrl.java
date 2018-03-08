@@ -30,6 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.CommonConstants;
+import com.emg.projectsmanage.common.DatabaseType;
 import com.emg.projectsmanage.common.ItemSetEnable;
 import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
@@ -136,8 +137,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				example.setLimit(limit);
 			if (offset.compareTo(0) > 0)
 				example.setOffset(offset);
-			example.setOrderByClause("`priority` desc, `id`");
-			
+			example.setOrderByClause("priority desc, id");
+
 			List<ProcessModel> rows = processModelDao.selectByExample(example);
 			int count = processModelDao.countByExample(example);
 
@@ -170,14 +171,14 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			String strWorkers = ParamUtils.getParameter(request, "config_2_18");
 
 			Boolean isNewProcess = newProcessID.equals(0L);
-			
-			if(newProcessID.compareTo(0L) < 0) {
+
+			if (newProcessID.compareTo(0L) < 0) {
 				ret = -1;
 				json.addObject("result", ret);
 				json.addObject("resultMsg", "保存失败，错误的参数值：processid");
 				return json;
 			}
-			if(newProcessName == null || newProcessName.isEmpty()) {
+			if (newProcessName == null || newProcessName.isEmpty()) {
 				ret = -1;
 				json.addObject("result", ret);
 				json.addObject("resultMsg", "保存失败，项目名称不能为空");
@@ -307,7 +308,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				updateProject(configDBModel349, pro);
 			}
 
-			if(strWorkers != null && !strWorkers.isEmpty()) {
+			if (strWorkers != null && !strWorkers.isEmpty()) {
 				List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
 				for (String strWorker : strWorkers.split(",")) {
 					EmployeeModel worker = new EmployeeModel();
@@ -369,7 +370,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			ProcessModel record = new ProcessModel();
 			record.setId(processid);
 			record.setState(state);
-			if(processModelDao.updateByPrimaryKeySelective(record) > 0) {
+			if (processModelDao.updateByPrimaryKeySelective(record) > 0) {
 				List<ProcessConfigValueModel> configValues = processConfigValueModelDao.selectByProcessID(processid);
 				Long projectid332 = -1L;
 				Long projectid349 = -1L;
@@ -530,7 +531,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		logger.debug("ProcessesManageCtrl-getItemAreas end.");
 		return json;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=getitemsets")
 	public ModelAndView getItemsets(Model model, HttpServletRequest request, HttpSession session) {
@@ -560,9 +561,6 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						break;
 					case "type":
 						itemSetModel.setType(Integer.valueOf(filterPara.get(key).toString()));
-						break;
-					case "enable":
-						itemSetModel.setEnable(Integer.valueOf(filterPara.get(key).toString()));
 						break;
 					case "systype":
 						itemSetModel.setSystype(Integer.valueOf(filterPara.get(key).toString()));
@@ -608,7 +606,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		try {
 			String _filter = ParamUtils.getParameter(request, "filter", "");
 			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
-			
+
 			Map<String, Object> filterPara = null;
 			EmployeeModel employeeModel = new EmployeeModel();
 			if (filter.length() > 0) {
@@ -627,7 +625,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					}
 				}
 			}
-			
+
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(1);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
@@ -644,19 +642,33 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return json;
 	}
 
-	private BasicDataSource getDataSource(String url, String username, String password) {
+	private BasicDataSource getDataSource(ConfigDBModel configDBModel) {
 		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-		dataSource.setUrl(url);
-		dataSource.setUsername(username);
-		dataSource.setPassword(password);
+		Integer dbtype = configDBModel.getDbtype();
+		if (dbtype.equals(DatabaseType.MYSQL.getValue())) {
+			dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+		} else if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+			dataSource.setDriverClassName("org.postgresql.Driver");
+		} else {
+			return null;
+		}
+		dataSource.setUrl(getUrl(configDBModel));
+		dataSource.setUsername(configDBModel.getUser());
+		dataSource.setPassword(configDBModel.getPassword());
 		return dataSource;
 	}
 
 	private String getUrl(ConfigDBModel configDBModel) {
 		StringBuffer url = new StringBuffer();
 		try {
-			url.append("jdbc:mysql://");
+			Integer dbtype = configDBModel.getDbtype();
+			if (dbtype.equals(DatabaseType.MYSQL.getValue())) {
+				url.append("jdbc:mysql://");
+			} else if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				url.append("jdbc:postgresql://");
+			} else {
+				return null;
+			}
 			url.append(configDBModel.getIp());
 			url.append(":");
 			url.append(configDBModel.getPort());
@@ -672,97 +684,112 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 	private List<ItemAreaModel> getItemAreas(ConfigDBModel configDBModel, Integer type, ItemAreaModel itemArea) {
 		List<ItemAreaModel> list = new ArrayList<ItemAreaModel>();
+		BasicDataSource dataSource = null;
 		try {
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
-			sql.append(" FROM tb_city ");
+			sql.append(" SELECT DISTINCT ON (province,city,type) * ");
+			sql.append(" FROM task_bg.tb_city ");
 			sql.append(" WHERE 1=1 ");
 			if (itemArea.getId() != null) {
-				sql.append(" AND `id` = " + itemArea.getId());
+				sql.append(" AND id = " + itemArea.getId());
 			}
 			if (itemArea.getType() != null) {
-				sql.append(" AND `type` = " + itemArea.getType());
+				sql.append(" AND type = " + itemArea.getType());
 			}
 			if (itemArea.getProvince() != null) {
-				sql.append(" AND `province` like '%" + itemArea.getProvince() + "%'");
+				sql.append(" AND province like '%" + itemArea.getProvince() + "%'");
 			}
 			if (itemArea.getCity() != null) {
-				sql.append(" AND `city` like '%" + itemArea.getCity() + "%'");
+				sql.append(" AND city like '%" + itemArea.getCity() + "%'");
 			}
 			if (type.equals(1)) {
 
 			} else if (type.equals(2)) {
 
 			} else if (type.equals(3)) {
-				sql.append(" AND `type` = 2 ");
+				sql.append(" AND type = 2 ");
 			} else {
 				return list;
 			}
-			sql.append(" GROUP BY `province`,`city`");
-			sql.append(" ORDER BY `type`,`id`");
+			sql.append(" ORDER BY type,province,city");
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			dataSource = getDataSource(configDBModel);
 			list = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemAreaModel>(ItemAreaModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			list = new ArrayList<ItemAreaModel>();
+		} finally {
+			try {
+				if (dataSource != null) {
+					dataSource.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return list;
 	}
-	
+
 	private List<ItemSetModel> getItemsets(ConfigDBModel configDBModel, Integer type, ItemSetModel itemset) {
 		List<ItemSetModel> list = new ArrayList<ItemSetModel>();
+		BasicDataSource dataSource = null;
 		try {
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
-			sql.append(" FROM tb_itemset ");
+			sql.append(" FROM task_bg.tb_itemset ");
 			sql.append(" WHERE 1=1 ");
 			if (itemset.getId() != null) {
-				sql.append(" AND `id` = " + itemset.getId());
+				sql.append(" AND id = " + itemset.getId());
 			}
 			if (itemset.getName() != null) {
-				sql.append(" AND `name` like '%" + itemset.getName() + "%'");
+				sql.append(" AND name like '%" + itemset.getName() + "%'");
 			}
 			if (itemset.getLayername() != null) {
-				sql.append(" AND `layername` like '%" + itemset.getLayername() + "%'");
+				sql.append(" AND layername like '%" + itemset.getLayername() + "%'");
 			}
 			if (itemset.getType() != null) {
-				sql.append(" AND `type` = " + itemset.getType());
-			}
-			if (itemset.getEnable() != null) {
-				sql.append(" AND `enable` = " + itemset.getEnable());
+				sql.append(" AND type = " + itemset.getType());
 			}
 			if (itemset.getSystype() != null) {
-				sql.append(" AND `systype` = " + itemset.getSystype());
+				sql.append(" AND systype = " + itemset.getSystype());
 			}
 			if (itemset.getReferdata() != null) {
-				sql.append(" AND `referdata` like '%" + itemset.getReferdata() + "%'");
+				sql.append(" AND referdata like '%" + itemset.getReferdata() + "%'");
 			}
 			if (itemset.getUnit() != null) {
-				sql.append(" AND `unit` = " + itemset.getUnit());
+				sql.append(" AND unit = " + itemset.getUnit());
 			}
 			if (itemset.getDesc() != null) {
-				sql.append(" AND `desc` like '%" + itemset.getDesc() + "%'");
+				sql.append(" AND desc like '%" + itemset.getDesc() + "%'");
 			}
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			dataSource = getDataSource(configDBModel);
 			list = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemSetModel>(ItemSetModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			list = new ArrayList<ItemSetModel>();
+		} finally {
+			try {
+				if (dataSource != null) {
+					dataSource.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return list;
 	}
 
 	private Long newProject(ConfigDBModel configDBModel, final ProjectModel newProject) {
 		Long newProjectID = -1L;
+		BasicDataSource dataSource = null;
 		try {
 			final StringBuffer sql = new StringBuffer();
-			sql.append(" INSERT INTO tb_projects (`protype`, `pdifficulty`, `priority`, `tasknum`, `systemid`, `description`, `createby`, `area`, `name`, `owner`, `overprogress`, `overstate`) ");
+			sql.append(" INSERT INTO tb_projects (protype, pdifficulty, priority, tasknum, systemid, description, createby, area, name, owner, overprogress, overstate) ");
 			sql.append(" VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ");
 
 			KeyHolder keyHolder = new GeneratedKeyHolder();
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			dataSource = getDataSource(configDBModel);
 			new JdbcTemplate(dataSource).update(new PreparedStatementCreator() {
 				public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
 					PreparedStatement ps = conn.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
@@ -785,69 +812,95 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		} catch (Exception e) {
 			e.printStackTrace();
 			newProjectID = -1L;
+		} finally {
+			try {
+				if (dataSource != null) {
+					dataSource.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return newProjectID;
 	}
 
 	private Integer updateProject(ConfigDBModel configDBModel, ProjectModel project) {
 		Integer ret = -1;
+		BasicDataSource dataSource = null;
 		try {
 			StringBuffer sql = new StringBuffer();
 			sql.append(" UPDATE tb_projects ");
-			sql.append(" SET `id` = `id`");
-			if(project.getName() != null) {
-				sql.append(", `name` = '" + project.getName() + "'");
+			sql.append(" SET id = id");
+			if (project.getName() != null) {
+				sql.append(", name = '" + project.getName() + "'");
 			}
-			if(project.getPriority() != null) {
-				sql.append(", `priority` = " + project.getPriority());
+			if (project.getPriority() != null) {
+				sql.append(", priority = " + project.getPriority());
 			}
-			if(project.getOverstate() != null) {
-				sql.append(", `overstate` = " + project.getOverstate());
+			if (project.getOverstate() != null) {
+				sql.append(", overstate = " + project.getOverstate());
 			}
 			if (project.getOwner() != null) {
-				sql.append(", `owner` = " + project.getOwner());
+				sql.append(", owner = " + project.getOwner());
 			}
-			sql.append(" WHERE `id` = " + project.getId());
+			sql.append(" WHERE id = " + project.getId());
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = -1;
+		} finally {
+			try {
+				if (dataSource != null) {
+					dataSource.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return ret;
 	}
 
 	private List<EmployeeModel> getWorkers(ConfigDBModel configDBModel, EmployeeModel employeeModel) {
 		List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
+		BasicDataSource dataSource = null;
 		try {
 			List<Integer> ids = new ArrayList<Integer>();
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
 			sql.append(" FROM tb_user_roles ");
-			sql.append(" WHERE `roleid` in ( " + RoleType.ROLE_WORKER.getValue() + " , " + RoleType.ROLE_CHECKER.getValue() + " )");
+			sql.append(" WHERE roleid in ( " + RoleType.ROLE_WORKER.getValue() + " , " + RoleType.ROLE_CHECKER.getValue() + " )");
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			dataSource = getDataSource(configDBModel);
 			List<UserRoleModel> userRoleModels = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<UserRoleModel>(UserRoleModel.class));
 			for (UserRoleModel userRoleModel : userRoleModels) {
 				Integer id = userRoleModel.getUserid();
 				ids.add(id);
 			}
-			
-			if(employeeModel.getId() != null) {
-				if(ids.contains(employeeModel.getId())) {
+
+			if (employeeModel.getId() != null) {
+				if (ids.contains(employeeModel.getId())) {
 					ids.clear();
 					ids.add(employeeModel.getId());
 				} else {
 					return new ArrayList<EmployeeModel>();
 				}
 			}
-			
-			if(ids.size() > 0)
+
+			if (ids.size() > 0)
 				workers = emapgoAccountService.getEmployeesByIDSAndRealname(ids, employeeModel.getRealname());
 		} catch (Exception e) {
 			e.printStackTrace();
 			workers = new ArrayList<EmployeeModel>();
+		} finally {
+			try {
+				if (dataSource != null) {
+					dataSource.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return workers;
 	}
@@ -856,19 +909,20 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		Integer ret = -1;
 		if (workers.size() <= 0)
 			return ret;
+		BasicDataSource dataSource = null;
 		try {
 			StringBuffer sql_del = new StringBuffer();
 			sql_del.append(" DELETE ");
 			sql_del.append(" FROM tb_projects_user ");
-			sql_del.append(" WHERE `pid` = " + pid);
+			sql_del.append(" WHERE pid = " + pid);
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			dataSource = getDataSource(configDBModel);
 			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 			Integer ret_del = jdbc.update(sql_del.toString());
 			if (ret_del >= 0) {
 				StringBuffer sql = new StringBuffer();
 				sql.append(" INSERT INTO tb_projects_user");
-				sql.append(" (`pid`, `userid`, `username`, `roleid`, `rolename`, `opuid`, `systemid`) ");
+				sql.append(" (pid, userid, username, roleid, rolename, opuid, systemid) ");
 				sql.append(" VALUES ");
 				for (EmployeeModel worker : workers) {
 					sql.append("(");
@@ -888,6 +942,14 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = -1;
+		} finally {
+			try {
+				if (dataSource != null) {
+					dataSource.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return ret;
 	}

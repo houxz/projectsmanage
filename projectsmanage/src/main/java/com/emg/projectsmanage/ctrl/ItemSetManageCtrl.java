@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.emg.projectsmanage.common.DatabaseType;
 import com.emg.projectsmanage.common.ItemSetEnable;
 import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
@@ -65,7 +66,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	 */
 	@RequestMapping()
 	public String openLader(Model model, HttpSession session, HttpServletRequest request) {
-		logger.debug("LayerManageCtrl-openLader start.");
+		logger.debug("ItemSetManageCtrl-openLader start.");
 		try {
 			model.addAttribute("itemsetEnables", ItemSetEnable.toJsonStr());
 			model.addAttribute("itemsetSysTypes", ItemSetSysType.toJsonStr());
@@ -83,7 +84,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=pages")
 	public ModelAndView pages(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("LayerManageCtrl-pages start.");
+		logger.debug("ItemSetManageCtrl-pages start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
@@ -108,9 +109,6 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						break;
 					case "type":
 						record.setType(Integer.valueOf(filterPara.get(key).toString()));
-						break;
-					case "enable":
-						record.setEnable(Integer.valueOf(filterPara.get(key).toString()));
 						break;
 					case "systype":
 						record.setSystype(Integer.valueOf(filterPara.get(key).toString()));
@@ -142,13 +140,13 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			logger.debug(e.getMessage());
 		}
 
-		logger.debug("LayerManageCtrl-pages end.");
+		logger.debug("ItemSetManageCtrl-pages end.");
 		return json;
 	}
 
 	@RequestMapping(params = "atn=getitemset")
 	public ModelAndView getItemSet(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("LayerManageCtrl-getItemSet start.");
+		logger.debug("ItemSetManageCtrl-getItemSet start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		ItemSetModel itemset = new ItemSetModel();
 		StringBuilder sb_items = new StringBuilder();
@@ -177,14 +175,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		}
 		json.addObject("itemset", itemset);
 		json.addObject("items", sb_items.toString());
-		logger.debug("LayerManageCtrl-getItemSet end.");
+		logger.debug("ItemSetManageCtrl-getItemSet end.");
 		return json;
 	}
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=getlayers")
 	public ModelAndView getLayers(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("LayerManageCtrl-getLayerSet start.");
+		logger.debug("ItemSetManageCtrl-getLayerSet start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 		try {
@@ -219,14 +217,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		json.addObject("rows", rows);
 		json.addObject("total", rows.size());
 		json.addObject("result", 1);
-		logger.debug("LayerManageCtrl-getLayerSet end.");
+		logger.debug("ItemSetManageCtrl-getLayerSet end.");
 		return json;
 	}
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=getqids")
 	public ModelAndView getQIDs(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("LayerManageCtrl-getQIDs start.");
+		logger.debug("ItemSetManageCtrl-getQIDs start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		List<ItemInfoModel> items = new ArrayList<ItemInfoModel>();
 		try {
@@ -261,13 +259,13 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		json.addObject("rows", items);
 		json.addObject("total", items.size());
 		json.addObject("result", 1);
-		logger.debug("LayerManageCtrl-getQIDs end.");
+		logger.debug("ItemSetManageCtrl-getQIDs end.");
 		return json;
 	}
 
 	@RequestMapping(params = "atn=submititemset")
 	public ModelAndView submitItemSet(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("LayerManageCtrl-submitItemSet start.");
+		logger.debug("ItemSetManageCtrl-submitItemSet start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean ret = false;
 		try {
@@ -275,7 +273,6 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			String name = ParamUtils.getParameter(request, "name");
 			String layername = ParamUtils.getParameter(request, "layername");
 			Integer type = ParamUtils.getIntParameter(request, "type", -1);
-			Integer enable = ParamUtils.getIntParameter(request, "enable", -1);
 			Integer systype = ParamUtils.getIntParameter(request, "systype", -1);
 			Integer unit = ParamUtils.getIntParameter(request, "unit", -1);
 			String desc = ParamUtils.getParameter(request, "desc");
@@ -349,7 +346,6 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					ItemSetModel record = new ItemSetModel();
 					record.setName(name + "_POI+其他");
 					record.setLayername(sb_layername.toString());
-					record.setEnable(enable);
 					record.setType(type);
 					record.setSystype(systype);
 					record.setReferdata(sb_referdata.toString());
@@ -412,7 +408,6 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					ItemSetModel record = new ItemSetModel();
 					record.setName(name + "_Road+其他");
 					record.setLayername(sb_layername.toString());
-					record.setEnable(enable);
 					record.setType(type);
 					record.setSystype(systype);
 					record.setReferdata(sb_referdata.toString());
@@ -475,7 +470,6 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					ItemSetModel record = new ItemSetModel();
 					record.setName(name + "_POI+Road");
 					record.setLayername(sb_layername.toString());
-					record.setEnable(enable);
 					record.setType(type);
 					record.setSystype(systype);
 					record.setReferdata(sb_referdata.toString());
@@ -538,7 +532,6 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					ItemSetModel record = new ItemSetModel();
 					record.setName(name + "_其他");
 					record.setLayername(sb_layername.toString());
-					record.setEnable(enable);
 					record.setType(type);
 					record.setSystype(systype);
 					record.setReferdata(sb_referdata.toString());
@@ -562,7 +555,6 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				ItemSetModel record = new ItemSetModel();
 				record.setId(itemSetID);
 				record.setName(name);
-				record.setEnable(enable);
 				record.setType(type);
 				record.setSystype(systype);
 				record.setUnit(unit.byteValue());
@@ -577,13 +569,13 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			logger.debug(e.getMessage());
 		}
 		json.addObject("result", ret);
-		logger.debug("LayerManageCtrl-submitItemSet end.");
+		logger.debug("ItemSetManageCtrl-submitItemSet end.");
 		return json;
 	}
 
 	@RequestMapping(params = "atn=deleteitemset")
 	public ModelAndView deleteItemSet(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("LayerManageCtrl-deleteItemSet start.");
+		logger.debug("ItemSetManageCtrl-deleteItemSet start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean ret = false;
 		try {
@@ -599,23 +591,37 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			logger.debug(e.getMessage());
 		}
 		json.addObject("result", ret);
-		logger.debug("LayerManageCtrl-deleteItemSet end.");
+		logger.debug("ItemSetManageCtrl-deleteItemSet end.");
 		return json;
 	}
 
-	private BasicDataSource getDataSource(String url, String username, String password) {
+	private BasicDataSource getDataSource(ConfigDBModel configDBModel) {
 		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-		dataSource.setUrl(url);
-		dataSource.setUsername(username);
-		dataSource.setPassword(password);
+		Integer dbtype = configDBModel.getDbtype();
+		if (dbtype.equals(DatabaseType.MYSQL.getValue())) {
+			dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+		} else if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+			dataSource.setDriverClassName("org.postgresql.Driver");
+		} else {
+			return null;
+		}
+		dataSource.setUrl(getUrl(configDBModel));
+		dataSource.setUsername(configDBModel.getUser());
+		dataSource.setPassword(configDBModel.getPassword());
 		return dataSource;
 	}
 
 	private String getUrl(ConfigDBModel configDBModel) {
 		StringBuffer url = new StringBuffer();
 		try {
-			url.append("jdbc:mysql://");
+			Integer dbtype = configDBModel.getDbtype();
+			if (dbtype.equals(DatabaseType.MYSQL.getValue())) {
+				url.append("jdbc:mysql://");
+			} else if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				url.append("jdbc:postgresql://");
+			} else {
+				return null;
+			}
 			url.append(configDBModel.getIp());
 			url.append(":");
 			url.append(configDBModel.getPort());
@@ -639,36 +645,33 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
-			sql.append(" FROM tb_itemset ");
+			sql.append(" FROM task_bg.tb_itemset ");
 			sql.append(" WHERE 1=1 ");
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
-				sql.append(" AND `id` = " + record.getId());
+				sql.append(" AND id = " + record.getId());
 			}
 			if (record.getName() != null && !record.getName().isEmpty()) {
-				sql.append(" AND `name` like '%" + record.getName() + "%'");
+				sql.append(" AND name like '%" + record.getName() + "%'");
 			}
 			if (record.getLayername() != null && !record.getLayername().isEmpty()) {
-				sql.append(" AND `layername` like '%" + record.getLayername() + "%'");
+				sql.append(" AND layername like '%" + record.getLayername() + "%'");
 			}
 			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(" AND `type` = " + record.getType());
-			}
-			if (record.getEnable() != null && record.getEnable().compareTo(0) >= 0) {
-				sql.append(" AND `enable` = " + record.getEnable());
+				sql.append(" AND type = " + record.getType());
 			}
 			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(" AND `systype` = " + record.getSystype());
+				sql.append(" AND systype = " + record.getSystype());
 			}
 			if (record.getReferdata() != null && !record.getReferdata().isEmpty()) {
-				sql.append(" AND `referdata` like '%" + record.getReferdata() + "%'");
+				sql.append(" AND referdata like '%" + record.getReferdata() + "%'");
 			}
 			if (record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(" AND `unit` = " + record.getUnit());
+				sql.append(" AND unit = " + record.getUnit());
 			}
 			if (record.getDesc() != null && !record.getDesc().isEmpty()) {
-				sql.append(" AND `desc` like '%" + record.getDesc() + "%'");
+				sql.append(" AND desc like '%" + record.getDesc() + "%'");
 			}
-			sql.append(" ORDER BY `id` ");
+			sql.append(" ORDER BY id ");
 			if (limit.compareTo(0) > 0) {
 				sql.append(" LIMIT " + limit);
 			}
@@ -676,7 +679,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(" OFFSET " + offset);
 			}
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			itemSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemSetModel>(ItemSetModel.class));
 
 		} catch (Exception e) {
@@ -690,25 +693,24 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		Long ret = -1L;
 		try {
 			final StringBuffer sql = new StringBuffer();
-			sql.append(" INSERT INTO tb_itemset (`name`, `layername`, `type`, `enable`, `systype`, `referdata`, `unit`, `desc`) ");
-			sql.append(" VALUES (?,?,?,?,?,?,?,?) ");
+			sql.append(" INSERT INTO task_bg.tb_itemset (\"name\", \"layername\", \"type\", \"systype\", \"referdata\", \"unit\", \"desc\") ");
+			sql.append(" VALUES (?,?,?,?,?,?,?) ");
 
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			KeyHolder keyHolder = new GeneratedKeyHolder();
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			new JdbcTemplate(dataSource).update(new PreparedStatementCreator() {
 				public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
 					PreparedStatement ps = conn.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
-					ps.setString(1, record.getName());
-					ps.setString(2, record.getLayername());
+					ps.setString(1, record.getName() == null ? new String() : record.getName());
+					ps.setString(2, record.getLayername() == null ? new String() : record.getLayername());
 					ps.setInt(3, record.getType() == null ? 0 : record.getType());
-					ps.setInt(4, record.getEnable() == null ? 0 : record.getEnable());
-					ps.setInt(5, record.getSystype() == null ? 0 : record.getSystype());
-					ps.setString(6, record.getReferdata());
-					ps.setInt(7, record.getUnit() == null ? 0 : record.getUnit());
-					ps.setString(8, record.getDesc());
+					ps.setInt(4, record.getSystype() == null ? 0 : record.getSystype());
+					ps.setString(5, record.getReferdata() == null ? new String() : record.getReferdata());
+					ps.setInt(6, record.getUnit() == null ? 0 : record.getUnit());
+					ps.setString(7, record.getDesc() == null ? new String() : record.getDesc());
 					return ps;
 				}
 			}, keyHolder);
@@ -724,39 +726,36 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		Boolean ret = false;
 		try {
 			StringBuffer sql = new StringBuffer();
-			sql.append(" UPDATE tb_itemset ");
-			sql.append(" SET `id` = `id`");
+			sql.append(" UPDATE task_bg.tb_itemset ");
+			sql.append(" SET id = id");
 			if (record.getName() != null) {
-				sql.append(", `name` = '" + record.getName() + "'");
+				sql.append(", name = '" + record.getName() + "'");
 			}
 			if (record.getLayername() != null) {
-				sql.append(", `layername` = '" + record.getLayername() + "'");
+				sql.append(", layername = '" + record.getLayername() + "'");
 			}
 			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(", `type` = " + record.getType());
-			}
-			if (record.getEnable() != null && record.getEnable().compareTo(0) >= 0) {
-				sql.append(", `enable` = " + record.getEnable());
+				sql.append(", type = " + record.getType());
 			}
 			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(", `systype` = " + record.getSystype());
+				sql.append(", systype = " + record.getSystype());
 			}
 			if (record.getReferdata() != null) {
-				sql.append(", `referdata` = '" + record.getReferdata() + "'");
+				sql.append(", referdata = '" + record.getReferdata() + "'");
 			}
 			if (record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(", `unit` = " + record.getUnit());
+				sql.append(", unit = " + record.getUnit());
 			}
 			if (record.getDesc() != null) {
-				sql.append(", `desc` = '" + record.getDesc() + "'");
+				sql.append(", desc = '" + record.getDesc() + "'");
 			}
 
-			sql.append(" WHERE `id` = " + record.getId());
+			sql.append(" WHERE id = " + record.getId());
 
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -773,16 +772,16 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" DELETE ");
-			sql.append(" FROM tb_itemset ");
-			sql.append(" WHERE `id` = " + itemSetID);
+			sql.append(" FROM task_bg.tb_itemset ");
+			sql.append(" WHERE id = " + itemSetID);
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 
 			StringBuffer sql_del = new StringBuffer();
 			sql_del.append(" DELETE ");
-			sql_del.append(" FROM tb_itemsetdetail ");
-			sql_del.append(" WHERE `itemsetid` = " + itemSetID);
+			sql_del.append(" FROM task_bg.tb_itemsetdetail ");
+			sql_del.append(" WHERE itemsetid = " + itemSetID);
 
 			ret = ret && new JdbcTemplate(dataSource).update(sql_del.toString()) >= 0;
 		} catch (Exception e) {
@@ -800,10 +799,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT count(*) ");
-			sql.append(" FROM tb_itemset ");
+			sql.append(" FROM task_bg.tb_itemset ");
 			sql.append(" WHERE 1=1 ");
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -819,17 +818,16 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
-			sql.append(" FROM tb_iteminfo ");
-			sql.append(" WHERE enable = 1 AND `id` in ( ");
+			sql.append(" SELECT DISTINCT ON (oid) * ");
+			sql.append(" FROM task_bg.tb_iteminfo ");
+			sql.append(" WHERE enable = 1 AND id in ( ");
 			for (Long itemid : itemids) {
 				sql.append("'" + itemid + "',");
 			}
 			sql.deleteCharAt(sql.length() - 1);
 			sql.append(") ");
-			sql.append("GROUP BY `oid`");
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -853,15 +851,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
-			sql.append(" FROM tb_iteminfo ");
-			sql.append(" WHERE `enable` = 1 ");
-			sql.append(" AND `type` = 0 ");
-			sql.append(" AND `unit` = 0 ");
-			sql.append(" AND `systype` = 86 ");
-			sql.append(" AND `referdata` LIKE '%POI%' ");
-			sql.append(" AND `referdata` NOT LIKE '%Road%' ");
+			sql.append(" FROM task_bg.tb_iteminfo ");
+			sql.append(" WHERE enable = 1 ");
+			sql.append(" AND type = 0 ");
+			sql.append(" AND unit = 0 ");
+			sql.append(" AND systype = 86 ");
+			sql.append(" AND referdata LIKE '%POI%' ");
+			sql.append(" AND referdata NOT LIKE '%Road%' ");
 			if (layernames != null && layernames.size() > 0) {
-				sql.append(" AND `layername` in ( ");
+				sql.append(" AND layername in ( ");
 				for (String layername : layernames) {
 					sql.append("'" + layername + "',");
 				}
@@ -869,7 +867,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 			if (oids != null && oids.size() > 0) {
-				sql.append(" AND `oid` in ( ");
+				sql.append(" AND oid in ( ");
 				for (String oid : oids) {
 					sql.append("'" + oid + "',");
 				}
@@ -877,7 +875,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -901,15 +899,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
-			sql.append(" FROM tb_iteminfo ");
-			sql.append(" WHERE `enable` = 1 ");
-			sql.append(" AND `type` = 0 ");
-			sql.append(" AND `unit` = 0 ");
-			sql.append(" AND `systype` = 86 ");
-			sql.append(" AND `referdata` LIKE '%Road%' ");
-			sql.append(" AND `referdata` NOT LIKE '%POI%' ");
+			sql.append(" FROM task_bg.tb_iteminfo ");
+			sql.append(" WHERE enable = 1 ");
+			sql.append(" AND type = 0 ");
+			sql.append(" AND unit = 0 ");
+			sql.append(" AND systype = 86 ");
+			sql.append(" AND referdata LIKE '%Road%' ");
+			sql.append(" AND referdata NOT LIKE '%POI%' ");
 			if (layernames != null && layernames.size() > 0) {
-				sql.append(" AND `layername` in ( ");
+				sql.append(" AND layername in ( ");
 				for (String layername : layernames) {
 					sql.append("'" + layername + "',");
 				}
@@ -917,7 +915,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 			if (oids != null && oids.size() > 0) {
-				sql.append(" AND `oid` in ( ");
+				sql.append(" AND oid in ( ");
 				for (String oid : oids) {
 					sql.append("'" + oid + "',");
 				}
@@ -925,7 +923,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -949,15 +947,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
-			sql.append(" FROM tb_iteminfo ");
-			sql.append(" WHERE `enable` = 1 ");
-			sql.append(" AND `type` = 0 ");
-			sql.append(" AND `unit` = 0 ");
-			sql.append(" AND `systype` = 86 ");
-			sql.append(" AND (`referdata` LIKE '%Road%POI%' ");
-			sql.append(" OR `referdata` LIKE '%POI%Road%') ");
+			sql.append(" FROM task_bg.tb_iteminfo ");
+			sql.append(" WHERE enable = 1 ");
+			sql.append(" AND type = 0 ");
+			sql.append(" AND unit = 0 ");
+			sql.append(" AND systype = 86 ");
+			sql.append(" AND (referdata LIKE '%Road%POI%' ");
+			sql.append(" OR referdata LIKE '%POI%Road%') ");
 			if (layernames != null && layernames.size() > 0) {
-				sql.append(" AND `layername` in ( ");
+				sql.append(" AND layername in ( ");
 				for (String layername : layernames) {
 					sql.append("'" + layername + "',");
 				}
@@ -965,7 +963,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 			if (oids != null && oids.size() > 0) {
-				sql.append(" AND `oid` in ( ");
+				sql.append(" AND oid in ( ");
 				for (String oid : oids) {
 					sql.append("'" + oid + "',");
 				}
@@ -973,7 +971,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -997,15 +995,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
-			sql.append(" FROM tb_iteminfo ");
-			sql.append(" WHERE `enable` = 1 ");
-			sql.append(" AND `type` = 0 ");
-			sql.append(" AND `unit` = 0 ");
-			sql.append(" AND `systype` = 86 ");
-			sql.append(" AND `referdata` NOT LIKE '%POI%' ");
-			sql.append(" AND `referdata` NOT LIKE '%Road%' ");
+			sql.append(" FROM task_bg.tb_iteminfo ");
+			sql.append(" WHERE enable = 1 ");
+			sql.append(" AND type = 0 ");
+			sql.append(" AND unit = 0 ");
+			sql.append(" AND systype = 86 ");
+			sql.append(" AND referdata NOT LIKE '%POI%' ");
+			sql.append(" AND referdata NOT LIKE '%Road%' ");
 			if (layernames != null && layernames.size() > 0) {
-				sql.append(" AND `layername` in ( ");
+				sql.append(" AND layername in ( ");
 				for (String layername : layernames) {
 					sql.append("'" + layername + "',");
 				}
@@ -1013,7 +1011,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 			if (oids != null && oids.size() > 0) {
-				sql.append(" AND `oid` in ( ");
+				sql.append(" AND oid in ( ");
 				for (String oid : oids) {
 					sql.append("'" + oid + "',");
 				}
@@ -1021,7 +1019,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1037,18 +1035,18 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT `oid`, `name` ");
-			sql.append(" FROM tb_iteminfo ");
+			sql.append(" SELECT oid, name ");
+			sql.append(" FROM task_bg.tb_iteminfo ");
 			sql.append(" WHERE enable = 1 ");
 			if (oid != null && !oid.isEmpty()) {
-				sql.append(" AND `oid` like '%" + oid + "%'");
+				sql.append(" AND oid like '%" + oid + "%'");
 			}
 			if (name != null && !name.isEmpty()) {
-				sql.append(" AND `name` like '%" + name + "%'");
+				sql.append(" AND name like '%" + name + "%'");
 			}
-			sql.append("GROUP BY `oid`, `name`");
+			sql.append("GROUP BY oid, name");
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1064,11 +1062,11 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT `itemid` ");
-			sql.append(" FROM tb_itemsetdetail ");
-			sql.append(" WHERE `itemsetid` = " + itemSetID);
+			sql.append(" SELECT itemid ");
+			sql.append(" FROM task_bg.tb_itemsetdetail ");
+			sql.append(" WHERE itemsetid = " + itemSetID);
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
 		} catch (Exception e) {
 			items = new ArrayList<Long>();
@@ -1086,16 +1084,16 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			StringBuffer sql_del = new StringBuffer();
 			sql_del.append(" DELETE ");
-			sql_del.append(" FROM tb_itemsetdetail ");
-			sql_del.append(" WHERE `itemsetid` = " + itemSetID);
+			sql_del.append(" FROM task_bg.tb_itemsetdetail ");
+			sql_del.append(" WHERE itemsetid = " + itemSetID);
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 			Integer ret_del = jdbc.update(sql_del.toString());
 			if (ret_del >= 0) {
 				StringBuffer sql = new StringBuffer();
 				sql.append(" INSERT INTO tb_itemsetdetail");
-				sql.append(" (`itemsetid`, `itemid`) ");
+				sql.append(" (itemsetid, itemid) ");
 				sql.append(" VALUES ");
 				for (Long item : items) {
 					sql.append("(");

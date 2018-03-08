@@ -90,9 +90,6 @@
 	function unitFormat(value, row, index) {
 		return itemsetUnits[row.unit];
 	}
-	function enableFormat(value, row, index) {
-		return itemsetEnables[row.enable];
-	}
 	function referdataFormat(value, row, index) {
 		var html = new Array();
 		html.push("<pre style='word-wrap: break-word; white-space: pre-wrap; white-space: -moz-pre-wrap' >");
@@ -109,7 +106,6 @@
 		$("#dlgItemSet table #items").val(new String());
 		$("#itemscount").text(0);
 		$("#dlgItemSet table #type").prop('selectedIndex', 0);
-		$("#dlgItemSet table #enable").prop('selectedIndex', 0);
 		$("#dlgItemSet table #systype").prop('selectedIndex', 0);
 		$("#dlgItemSet table #referdata").val(new String());
 		$("#dlgItemSet table #unit").prop('selectedIndex', 0);
@@ -132,7 +128,6 @@
 					$("#dlgItemSet table #layername").val(itemset.layername);
 					$("#layerscount").text(itemset.layername.split(";").length);
 					$("#dlgItemSet table #type").val(itemset.type);
-					$("#dlgItemSet table #enable").val(itemset.enable);
 					$("#dlgItemSet table #systype").val(itemset.systype);
 					$("#dlgItemSet table #referdata").val(itemset.referdata);
 					$("#dlgItemSet table #unit").val(itemset.unit);
@@ -503,7 +498,6 @@
 		var name = $("#dlgItemSet table #name").val();
 		var layername = $("#dlgItemSet table #layername").val();
 		var type = $("#dlgItemSet table #type").val();
-		var enable = $("#dlgItemSet table #enable").val();
 		var systype = $("#dlgItemSet table #systype").val();
 		var referdata = $("#dlgItemSet table #referdata").val();
 		var unit = $("#dlgItemSet table #unit").val();
@@ -522,7 +516,6 @@
 				"name" : name,
 				"layername" : layername,
 				"type" : type,
-				"enable" : enable,
 				"systype" : systype,
 				"referdata" : referdata,
 				"unit" : unit,
@@ -586,9 +579,6 @@
 							data-filter-control-placeholder="">图层</th>
 						<th data-field="type" data-formatter="typeFormat"
 							data-filter-control="select" data-filter-data="var:itemsetTypes" data-width="80">类型</th>
-						<th data-field="enable" data-formatter="enableFormat"
-							data-filter-control="select"
-							data-filter-data="var:itemsetEnables" data-width="80">状态</th>
 						<th data-field="systype" data-formatter="sysFormat"
 							data-filter-control="select"
 							data-filter-data="var:itemsetSysTypes">操作系统</th>
@@ -644,16 +634,6 @@
 							<c:set var="itemsetTypes" value="<%= ItemSetType.values() %>"/>
 							<c:forEach items="${itemsetTypes }" var="itemsetType">
 								<option value="${itemsetType.getValue() }">${itemsetType.getDes() }</option>
-							</c:forEach>
-					</select></td>
-				</tr>
-				<tr>
-					<td class="configKey">状态</td>
-					<td class="configValue"><select
-						class="form-control configValue" id="enable">
-							<c:set var="itemsetEnables" value="<%= ItemSetEnable.values() %>"/>
-							<c:forEach items="${itemsetEnables }" var="itemsetEnable">
-								<option value="${itemsetEnable.getValue() }">${itemsetEnable.getDes() }</option>
 							</c:forEach>
 					</select></td>
 				</tr>

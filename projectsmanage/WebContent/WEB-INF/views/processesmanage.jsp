@@ -74,9 +74,6 @@
 		return itemAreaTypes[row.type];
 	}
 
-	function enableFormat(value, row, index) {
-		return itemsetEnables[row.enable];
-	}
 	function sysFormat(value, row, index) {
 		return itemsetSysTypes[row.systype];
 	}
@@ -85,9 +82,6 @@
 	}
 	function unitFormat(value, row, index) {
 		return itemsetUnits[row.unit];
-	}
-	function enableFormat(value, row, index) {
-		return itemsetEnables[row.enable];
 	}
 
 	function progressFormat(value, row, index) {
@@ -1227,8 +1221,6 @@
 						data-filter-control-placeholder="">图层</th>
 					<!-- <th data-field="type" data-formatter="typeFormat"
 						data-filter-control="select" data-filter-data="var:itemsetTypes">类型</th> -->
-					<!-- <th data-field="enable" data-formatter="enableFormat"
-						data-filter-control="select" data-filter-data="var:itemsetEnables">状态</th> -->
 					<!-- <th data-field="systype" data-formatter="sysFormat"
 						data-filter-control="select"
 						data-filter-data="var:itemsetSysTypes">操作系统</th> -->

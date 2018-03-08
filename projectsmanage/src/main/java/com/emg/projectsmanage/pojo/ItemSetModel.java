@@ -9,8 +9,6 @@ public class ItemSetModel {
 
     private Integer type;
 
-    private Integer enable;
-
     private Integer systype;
 
     private String referdata;
@@ -51,14 +49,6 @@ public class ItemSetModel {
 
     public void setType(Integer type) {
         this.type = type;
-    }
-
-    public Integer getEnable() {
-        return enable;
-    }
-
-    public void setEnable(Integer enable) {
-        this.enable = enable;
     }
 
     public Integer getSystype() {
