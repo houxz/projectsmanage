@@ -534,23 +534,25 @@
 	}
 	
 	function deleteItemSet(itemSetID) {
-		if(!itemSetID || itemSetID <= 0) {
-			$.webeditor.showMsgLabel("alert", "质检集合删除失败");
-			return;
-		}
-		jQuery.post("./itemsetmanage.web",
-			{
-				"atn" : "deleteitemset",
-				"itemSetID" : itemSetID
-			},
-			function(json) {
-				if (json.result > 0) {
-					$.webeditor.showMsgLabel("success","质检集合删除成功");
-					$('[data-toggle="itemsets"]').bootstrapTable('refresh');
-				} else {
-					$.webeditor.showMsgLabel("alert",json.resultMsg);
-				}
-			}, "json");
+		$.webeditor.showConfirmBox("alert","确定要删除质检集合吗？", function(){
+			if(!itemSetID || itemSetID <= 0) {
+				$.webeditor.showMsgLabel("alert", "质检集合删除失败");
+				return;
+			}
+			jQuery.post("./itemsetmanage.web",
+				{
+					"atn" : "deleteitemset",
+					"itemSetID" : itemSetID
+				},
+				function(json) {
+					if (json.result > 0) {
+						$.webeditor.showMsgLabel("success","质检集合删除成功");
+						$('[data-toggle="itemsets"]').bootstrapTable('refresh');
+					} else {
+						$.webeditor.showMsgLabel("alert",json.resultMsg);
+					}
+				}, "json");
+		});
 	}
 </script>
 </head>

@@ -57,6 +57,61 @@ jQuery.webeditor = {
 		}
 		$('#comm_msgbox').dialog(opt);
 	},
+	showConfirmBox : function(type, msg, callback, w, h){
+		var html = new Array();
+		var title = new String();
+		if ("alert" == type) {
+			title = "警告";
+			html.push("<div id=\"comm_confirmbox\">");
+			html.push("    <div class=\"alert alert-danger alert-dismissable\" style=\"margin-bottom: 0; height: 100%;\">");
+			html.push(msg);
+			html.push("    </div>");
+			html.push("</div>");
+		} else if("info" == type) {
+			title = "消息";
+			html.push("<div id=\"comm_confirmbox\">");
+			html.push("    <div class=\"alert alert-success alert-dismissable\" style=\"margin-bottom: 0; height: 100%;\">");
+			html.push(msg);
+			html.push("    </div>");
+			html.push("</div>");
+		} else {
+			title = "消息";
+			html.push("<div id=\"comm_confirmbox\">");
+			html.push("    <div class=\"alert alert-success alert-dismissable\" style=\"margin-bottom: 0; height: 100%;\">");
+			html.push(msg);
+			html.push("    </div>");
+			html.push("</div>");
+		}
+		$("body").append(html.join(""));
+		$("#comm_confirmbox").dialog(
+			{
+				modal : true,
+				width : w ? w : 400,
+				height : h ? h : 300,
+				title : title,
+				resizable: false,
+				open : function(event, ui) {
+					$(".ui-dialog-titlebar-close").hide();
+				},
+				close : function(event, ui) {
+					$("#comm_confirmbox").remove();
+				},
+				buttons : [{
+					text : "确定",
+					class : "btn btn-default",
+					click : function() {
+						callback.call();
+						$(this).dialog("close");
+					}
+				},{
+					text : "取消",
+					class : "btn btn-default",
+					click : function() {
+						$(this).dialog("close");
+					}
+				}]
+			});
+	},
 	showMsgLabel : function(type, msg, w, h) {
 		var speed = 300;
 		var html = new Array();
