@@ -689,7 +689,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT DISTINCT ON (province,city,type) * ");
 			sql.append(" FROM task_bg.tb_city ");
-			sql.append(" WHERE 1=1 ");
+			sql.append(" WHERE type != 3 ");
 			if (itemArea.getId() != null) {
 				sql.append(" AND id = " + itemArea.getId());
 			}

@@ -18,11 +18,11 @@ public enum ItemAreaType {
 	/**
 	 * 2-市
 	 */
-	SOLVED(2, "市"),
+	SOLVED(2, "市");
 	/**
 	 * 3-区
 	 */
-	CLOSE(3, "区");
+//	CLOSE(3, "区");
 
 	private Integer value;
 	private String des;
