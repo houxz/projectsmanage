@@ -172,7 +172,7 @@
 										</c:forEach>
 								</select></td>
 							</tr>
-							<tr>
+							<!-- <tr>
 								<td class="configKey">改错任务组织方式</td>
 								<td><select class="form-control systemSet" id="config_2_13" onchange="typeChange(this);">
 										<option value="0">多要素组织</option>
@@ -188,7 +188,7 @@
 								<td class="configKey">错误距离</td>
 								<td><input type="text" class="form-control systemSet"
 									id="config_2_15" value="10000"></td>
-							</tr>
+							</tr> -->
 							<tr>
 								<td class="configKey"></td>
 								<td><div class="btn-group">
