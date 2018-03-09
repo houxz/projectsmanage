@@ -349,7 +349,7 @@
 								});
 							var curItemSetID = $("#dlgItemSet table #id").val();
 							if(curItemSetID !== "0") {
-								$("#dlgItems input:checkbox").attr("disabled", true);
+								$("#dlgItems input:checkbox:not(:checked)").attr("disabled", true);
 							} else {
 								$("#dlgItems input:checkbox").removeAttr("disabled");
 							}
