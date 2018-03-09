@@ -318,22 +318,22 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			sql.append("tb_errorset ");
 			sql.append(" WHERE 1=1 ");
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
-				sql.append(" AND id = " + record.getId());
+				sql.append(" AND \"id\" = " + record.getId());
 			}
 			if(record.getName() != null && !record.getName().isEmpty()) {
-				sql.append(" AND name like '%" + record.getName() + "%'");
+				sql.append(" AND \"name\" like '%" + record.getName() + "%'");
 			}
 			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(" AND type = " + record.getType());
+				sql.append(" AND \"type\" = " + record.getType());
 			}
 			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(" AND systype = " + record.getSystype());
+				sql.append(" AND \"systype\" = " + record.getSystype());
 			}
 			if (record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(" AND unit = " + record.getUnit());
+				sql.append(" AND \"unit\" = " + record.getUnit());
 			}
 			if(record.getDesc() != null && !record.getDesc().isEmpty()) {
-				sql.append(" AND desc like '%" + record.getDesc() + "%'");
+				sql.append(" AND \"desc\" like '%" + record.getDesc() + "%'");
 			}
 			sql.append(" ORDER BY id ");
 			if(limit.compareTo(0) > 0) {
@@ -366,7 +366,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_errorset ");
-			sql.append(" (name, type, systype, unit, desc) ");
+			sql.append(" (\"name\", \"type\", \"systype\", \"unit\", \"desc\") ");
 			sql.append(" VALUES (?,?,?,?,?) ");
 			
 			KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -378,11 +378,15 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 					ps.setInt(2, record.getType() == null ? 0 : record.getType());
 					ps.setInt(3, record.getSystype() == null ? 0 : record.getSystype());
 					ps.setInt(4, record.getUnit() == null ? 0 : record.getUnit());
-					ps.setString(5, record.getDesc());
+					ps.setString(5, record.getDesc() == null ? new String() : record.getDesc());
 					return ps;
 				}
 			}, keyHolder);
-			ret = keyHolder.getKey().longValue();
+			if(keyHolder.getKeys().size() > 1) {
+				ret = (Long)keyHolder.getKeys().get("id");
+			} else {
+				ret = keyHolder.getKey().longValue();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = -1L;
@@ -405,22 +409,22 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			sql.append("tb_errorset ");
 			sql.append(" SET id = id");
 			if(record.getName() != null) {
-				sql.append(", name = '" + record.getName() + "'");
+				sql.append(", \"name\" = '" + record.getName() + "'");
 			}
 			if(record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(", type = " + record.getType());
+				sql.append(", \"type\" = " + record.getType());
 			}
 			if(record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(", systype = " + record.getSystype());
+				sql.append(", \"systype\" = " + record.getSystype());
 			}
 			if(record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(", unit = " + record.getUnit());
+				sql.append(", \"unit\" = " + record.getUnit());
 			}
 			if(record.getDesc() != null) {
-				sql.append(", desc = '" + record.getDesc() + "'");
+				sql.append(", \"desc\" = '" + record.getDesc() + "'");
 			}
 			
-			sql.append(" WHERE id = " + record.getId());
+			sql.append(" WHERE \"id\" = " + record.getId());
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
@@ -444,7 +448,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_errorset ");
-			sql.append(" WHERE id = " + errorSetID);
+			sql.append(" WHERE \"id\" = " + errorSetID);
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
@@ -455,7 +459,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				sql_del.append(configDBModel.getDbschema()).append(".");
 			}
 			sql_del.append("tb_errorsetdetail ");
-			sql_del.append(" WHERE itemsetid = " + errorSetID);
+			sql_del.append(" WHERE \"itemsetid\" = " + errorSetID);
 			
 			ret = ret && new JdbcTemplate(dataSource).update(sql_del.toString()) >= 0;
 		} catch (Exception e) {
@@ -497,7 +501,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			Integer dbtype = configDBModel.getDbtype();
 			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT id, qname, name, qid, errortype, desc, enable, unit, isexistokerror, createtime, iswarning, uuidruler, version, keyword, updatetime ");
+			sql.append(" SELECT * ");
 			sql.append(" FROM ");
 			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
 				sql.append(configDBModel.getDbschema()).append(".");
@@ -522,12 +526,12 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			Integer dbtype = configDBModel.getDbtype();
 			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT itemid FROM ");
+			sql.append(" SELECT \"itemid\" FROM ");
 			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_errorsetdetail ");
-			sql.append(" WHERE itemsetid = " + errorSetID);
+			sql.append(" WHERE \"itemsetid\" = " + errorSetID);
 			
 			BasicDataSource dataSource = getDataSource(configDBModel);
 			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
@@ -552,7 +556,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				sql_del.append(configDBModel.getDbschema()).append(".");
 			}
 			sql_del.append("tb_errorsetdetail ");
-			sql_del.append(" WHERE itemsetid = " + errorSetID);
+			sql_del.append(" WHERE \"itemsetid\" = " + errorSetID);
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
 			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
@@ -564,7 +568,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 					sql.append(configDBModel.getDbschema()).append(".");
 				}
 				sql.append("tb_errorsetdetail");
-				sql.append(" (itemsetid, itemid) ");
+				sql.append(" (\"itemsetid\", \"itemid\") ");
 				sql.append(" VALUES ");
 				for (Long errorType : errorTypes) {
 					sql.append("(");
