@@ -714,7 +714,11 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					return ps;
 				}
 			}, keyHolder);
-			ret = keyHolder.getKey().longValue();
+			if(keyHolder.getKeys().size() > 1) {
+				ret = (Long)keyHolder.getKeys().get("id");
+			} else {
+				ret = keyHolder.getKey().longValue();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = -1L;
