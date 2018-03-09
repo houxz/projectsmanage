@@ -264,7 +264,7 @@
 			"errorTypes" : errorTypes
 		}, function(json) {
 			if (json.result) {
-				$.webeditor.showMsgLabel("success", "质检集合配置成功");
+				$.webeditor.showMsgLabel("success", "错误筛选集合配置成功");
 				$("#dlgErrorSet").dialog("close");
 				$('[data-toggle="errorsets"]').bootstrapTable('refresh');
 			} else {
@@ -274,21 +274,23 @@
 	}
 
 	function deleteErrorSet(errorSetID) {
-		if (!errorSetID || errorSetID <= 0) {
-			$.webeditor.showMsgLabel("alert", "质检集合删除失败");
-			return;
-		}
-		jQuery.post("./errorsetmanage.web", {
-			"atn" : "deleteerrorset",
-			"errorSetID" : errorSetID
-		}, function(json) {
-			if (json.result > 0) {
-				$.webeditor.showMsgLabel("success", "质检集合删除成功");
-				$('[data-toggle="errorsets"]').bootstrapTable('refresh');
-			} else {
-				$.webeditor.showMsgLabel("alert", json.resultMsg);
+		$.webeditor.showConfirmBox("alert","确定要删除错误筛选集合吗？", function(){
+			if (!errorSetID || errorSetID <= 0) {
+				$.webeditor.showMsgLabel("alert", "错误筛选集合删除失败");
+				return;
 			}
-		}, "json");
+			jQuery.post("./errorsetmanage.web", {
+				"atn" : "deleteerrorset",
+				"errorSetID" : errorSetID
+			}, function(json) {
+				if (json.result > 0) {
+					$.webeditor.showMsgLabel("success", "错误筛选集合删除成功");
+					$('[data-toggle="errorsets"]').bootstrapTable('refresh');
+				} else {
+					$.webeditor.showMsgLabel("alert", json.resultMsg);
+				}
+			}, "json");
+		});
 	}
 </script>
 </head>
