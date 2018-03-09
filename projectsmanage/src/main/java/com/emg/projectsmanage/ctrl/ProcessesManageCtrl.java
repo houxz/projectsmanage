@@ -686,9 +686,13 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		List<ItemAreaModel> list = new ArrayList<ItemAreaModel>();
 		BasicDataSource dataSource = null;
 		try {
+			Integer dbtype = configDBModel.getDbtype();
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT DISTINCT ON (province,city,type) * ");
-			sql.append(" FROM task_bg.tb_city ");
+			sql.append(" SELECT DISTINCT ON (province,city,type) * FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_city ");
 			sql.append(" WHERE type != 3 ");
 			if (itemArea.getId() != null) {
 				sql.append(" AND id = " + itemArea.getId());
@@ -734,9 +738,13 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		List<ItemSetModel> list = new ArrayList<ItemSetModel>();
 		BasicDataSource dataSource = null;
 		try {
+			Integer dbtype = configDBModel.getDbtype();
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
-			sql.append(" FROM task_bg.tb_itemset ");
+			sql.append(" SELECT * FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_itemset ");
 			sql.append(" WHERE 1=1 ");
 			if (itemset.getId() != null) {
 				sql.append(" AND id = " + itemset.getId());

@@ -5,6 +5,7 @@
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="ip" property="ip" jdbcType="VARCHAR" />
     <result column="dbtype" property="dbtype" jdbcType="INTEGER" />
+    <result column="dbschema" property="dbschema" jdbcType="VARCHAR" />
     <result column="connname" property="connname" jdbcType="VARCHAR" />
     <result column="dbname" property="dbname" jdbcType="VARCHAR" />
     <result column="user" property="user" jdbcType="VARCHAR" />
@@ -12,7 +13,7 @@
     <result column="port" property="port" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, ip, dbtype, connname, dbname, user, password, port
+    id, ip, dbtype, dbschema, connname, dbname, user, password, port
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -25,10 +26,10 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.emg.projectsmanage.pojo.ConfigDBModel" >
-    insert into tb_config_db (id, ip, dbtype, 
+    insert into tb_config_db (id, ip, dbtype, dbschema, 
       connname, dbname, user, 
       password, port)
-    values (#{id,jdbcType=INTEGER}, #{ip,jdbcType=VARCHAR}, #{dbtype,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=INTEGER}, #{ip,jdbcType=VARCHAR}, #{dbtype,jdbcType=INTEGER}, #{dbschema,jdbcType=VARCHAR},
       #{connname,jdbcType=VARCHAR}, #{dbname,jdbcType=VARCHAR}, #{user,jdbcType=VARCHAR}, 
       #{password,jdbcType=VARCHAR}, #{port,jdbcType=VARCHAR})
   </insert>
@@ -43,6 +44,9 @@
       </if>
       <if test="dbtype != null" >
         dbtype,
+      </if>
+      <if test="dbschema != null" >
+        dbschema,
       </if>
       <if test="connname != null" >
         connname,
@@ -70,6 +74,9 @@
       <if test="dbtype != null" >
         #{dbtype,jdbcType=INTEGER},
       </if>
+      <if test="dbschema != null" >
+        #{dbschema,jdbcType=VARCHAR},
+      </if>
       <if test="connname != null" >
         #{connname,jdbcType=VARCHAR},
       </if>
@@ -96,6 +103,9 @@
       <if test="dbtype != null" >
         dbtype = #{dbtype,jdbcType=INTEGER},
       </if>
+      <if test="dbschema != null" >
+        dbschema = #{dbschema,jdbcType=VARCHAR},
+      </if>
       <if test="connname != null" >
         connname = #{connname,jdbcType=VARCHAR},
       </if>
@@ -118,6 +128,7 @@
     update tb_config_db
     set ip = #{ip,jdbcType=VARCHAR},
       dbtype = #{dbtype,jdbcType=INTEGER},
+      dbschema = #{dbschema,jdbcType=VARCHAR},
       connname = #{connname,jdbcType=VARCHAR},
       dbname = #{dbname,jdbcType=VARCHAR},
       user = #{user,jdbcType=VARCHAR},

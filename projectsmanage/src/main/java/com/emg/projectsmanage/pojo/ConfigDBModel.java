@@ -7,6 +7,8 @@ public class ConfigDBModel {
 
     private Integer dbtype;
 
+    private String dbschema;
+    
     private String connname;
 
     private String dbname;
@@ -80,4 +82,12 @@ public class ConfigDBModel {
     public void setPort(String port) {
         this.port = port == null ? null : port.trim();
     }
+
+	public String getDbschema() {
+		return dbschema;
+	}
+
+	public void setDbschema(String dbschema) {
+		this.dbschema = dbschema;
+	}
 }

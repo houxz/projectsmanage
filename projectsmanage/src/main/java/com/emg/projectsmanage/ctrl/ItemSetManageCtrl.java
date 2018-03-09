@@ -642,10 +642,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				return itemSets;
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
-			sql.append(" FROM task_bg.tb_itemset ");
+			sql.append(" SELECT * FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_itemset ");
 			sql.append(" WHERE 1=1 ");
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
 				sql.append(" AND id = " + record.getId());
@@ -692,12 +696,17 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	private Long insertItemset(final ItemSetModel record) {
 		Long ret = -1L;
 		try {
-			final StringBuffer sql = new StringBuffer();
-			sql.append(" INSERT INTO task_bg.tb_itemset (\"name\", \"layername\", \"type\", \"systype\", \"referdata\", \"unit\", \"desc\") ");
-			sql.append(" VALUES (?,?,?,?,?,?,?) ");
-
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			Integer dbtype = configDBModel.getDbtype();
+			
+			final StringBuffer sql = new StringBuffer();
+			sql.append(" INSERT INTO ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_itemset (\"name\", \"layername\", \"type\", \"systype\", \"referdata\", \"unit\", \"desc\") ");
+			sql.append(" VALUES (?,?,?,?,?,?,?) ");
 
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			BasicDataSource dataSource = getDataSource(configDBModel);
@@ -729,8 +738,16 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	private Boolean updateItemset(ItemSetModel record) {
 		Boolean ret = false;
 		try {
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" UPDATE task_bg.tb_itemset ");
+			sql.append(" UPDATE ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_itemset ");
 			sql.append(" SET id = id");
 			if (record.getName() != null) {
 				sql.append(", name = '" + record.getName() + "'");
@@ -756,9 +773,6 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			sql.append(" WHERE id = " + record.getId());
 
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
 			BasicDataSource dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 		} catch (Exception e) {
@@ -773,18 +787,25 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" DELETE ");
-			sql.append(" FROM task_bg.tb_itemset ");
+			sql.append(" DELETE FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_itemset ");
 			sql.append(" WHERE id = " + itemSetID);
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 
 			StringBuffer sql_del = new StringBuffer();
-			sql_del.append(" DELETE ");
-			sql_del.append(" FROM task_bg.tb_itemsetdetail ");
+			sql_del.append(" DELETE FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql_del.append(configDBModel.getDbschema()).append(".");
+			}
+			sql_del.append("tb_itemsetdetail ");
 			sql_del.append(" WHERE itemsetid = " + itemSetID);
 
 			ret = ret && new JdbcTemplate(dataSource).update(sql_del.toString()) >= 0;
@@ -800,10 +821,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT count(*) ");
-			sql.append(" FROM task_bg.tb_itemset ");
+			sql.append(" SELECT count(*) FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_itemset ");
 			sql.append(" WHERE 1=1 ");
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
@@ -820,10 +845,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT DISTINCT ON (oid) * ");
-			sql.append(" FROM task_bg.tb_iteminfo ");
+			sql.append(" SELECT DISTINCT ON (oid) * FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_iteminfo ");
 			sql.append(" WHERE enable = 1 AND id in ( ");
 			for (Long itemid : itemids) {
 				sql.append("'" + itemid + "',");
@@ -852,10 +881,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
-			sql.append(" FROM task_bg.tb_iteminfo ");
+			sql.append(" SELECT * FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_iteminfo ");
 			sql.append(" WHERE enable = 1 ");
 			sql.append(" AND type = 0 ");
 			sql.append(" AND unit = 0 ");
@@ -900,10 +933,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
-			sql.append(" FROM task_bg.tb_iteminfo ");
+			sql.append(" SELECT * FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_iteminfo ");
 			sql.append(" WHERE enable = 1 ");
 			sql.append(" AND type = 0 ");
 			sql.append(" AND unit = 0 ");
@@ -948,10 +985,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
-			sql.append(" FROM task_bg.tb_iteminfo ");
+			sql.append(" SELECT * FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_iteminfo ");
 			sql.append(" WHERE enable = 1 ");
 			sql.append(" AND type = 0 ");
 			sql.append(" AND unit = 0 ");
@@ -996,10 +1037,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
-			sql.append(" FROM task_bg.tb_iteminfo ");
+			sql.append(" SELECT * FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_iteminfo ");
 			sql.append(" WHERE enable = 1 ");
 			sql.append(" AND type = 0 ");
 			sql.append(" AND unit = 0 ");
@@ -1037,10 +1082,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT oid, name ");
-			sql.append(" FROM task_bg.tb_iteminfo ");
+			sql.append(" SELECT oid, name FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_iteminfo ");
 			sql.append(" WHERE enable = 1 ");
 			if (oid != null && !oid.isEmpty()) {
 				sql.append(" AND oid like '%" + oid + "%'");
@@ -1064,10 +1113,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT itemid ");
-			sql.append(" FROM task_bg.tb_itemsetdetail ");
+			sql.append(" SELECT itemid FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_itemsetdetail ");
 			sql.append(" WHERE itemsetid = " + itemSetID);
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
@@ -1085,10 +1138,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql_del = new StringBuffer();
-			sql_del.append(" DELETE ");
-			sql_del.append(" FROM task_bg.tb_itemsetdetail ");
+			sql_del.append(" DELETE FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql_del.append(configDBModel.getDbschema()).append(".");
+			}
+			sql_del.append("tb_itemsetdetail ");
 			sql_del.append(" WHERE itemsetid = " + itemSetID);
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
@@ -1096,8 +1153,11 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			Integer ret_del = jdbc.update(sql_del.toString());
 			if (ret_del >= 0) {
 				StringBuffer sql = new StringBuffer();
-				sql.append(" INSERT INTO tb_itemsetdetail");
-				sql.append(" (itemsetid, itemid) ");
+				sql.append(" INSERT INTO ");
+				if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+					sql.append(configDBModel.getDbschema()).append(".");
+				}
+				sql.append("tb_itemsetdetail (itemsetid, itemid) ");
 				sql.append(" VALUES ");
 				for (Long item : items) {
 					sql.append("(");

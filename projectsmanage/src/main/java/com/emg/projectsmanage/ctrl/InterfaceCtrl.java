@@ -1402,7 +1402,7 @@ public class InterfaceCtrl extends BaseCtrl {
 								sdbtype = "postgre";
 							}
 
-							String sDbInfo = String.format("DBTYPE=%s;DBNAME=%s;SERVER=%s;USER=%s;PWD=%s;PORT=%s;", sdbtype, modelDb.getDbname(), modelDb.getIp(),
+							String sDbInfo = String.format("DBTYPE=%s;DBSCHEMA=%s;DBNAME=%s;SERVER=%s;USER=%s;PWD=%s;PORT=%s;", sdbtype, modelDb.getDbschema(), modelDb.getDbname(), modelDb.getIp(),
 									modelDb.getUser(), modelDb.getPassword(), modelDb.getPort());
 
 							modelValue.setValue(sDbInfo);

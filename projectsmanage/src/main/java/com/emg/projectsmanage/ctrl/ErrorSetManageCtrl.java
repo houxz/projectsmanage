@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.emg.projectsmanage.common.DatabaseType;
 import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
 import com.emg.projectsmanage.common.ItemSetUnit;
@@ -259,19 +260,33 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		return json;
 	}
 
-	private BasicDataSource getDataSource(String url, String username, String password) {
+	private BasicDataSource getDataSource(ConfigDBModel configDBModel) {
 		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-		dataSource.setUrl(url);
-		dataSource.setUsername(username);
-		dataSource.setPassword(password);
+		Integer dbtype = configDBModel.getDbtype();
+		if (dbtype.equals(DatabaseType.MYSQL.getValue())) {
+			dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+		} else if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+			dataSource.setDriverClassName("org.postgresql.Driver");
+		} else {
+			return null;
+		}
+		dataSource.setUrl(getUrl(configDBModel));
+		dataSource.setUsername(configDBModel.getUser());
+		dataSource.setPassword(configDBModel.getPassword());
 		return dataSource;
 	}
 
 	private String getUrl(ConfigDBModel configDBModel) {
 		StringBuffer url = new StringBuffer();
 		try {
-			url.append("jdbc:mysql://");
+			Integer dbtype = configDBModel.getDbtype();
+			if (dbtype.equals(DatabaseType.MYSQL.getValue())) {
+				url.append("jdbc:mysql://");
+			} else if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				url.append("jdbc:postgresql://");
+			} else {
+				return null;
+			}
 			url.append(configDBModel.getIp());
 			url.append(":");
 			url.append(configDBModel.getPort());
@@ -292,10 +307,15 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				return errorSets;
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			Integer dbtype = configDBModel.getDbtype();
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
-			sql.append(" FROM task_bg.tb_errorset ");
+			sql.append(" FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_errorset ");
 			sql.append(" WHERE 1=1 ");
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
 				sql.append(" AND id = " + record.getId());
@@ -323,7 +343,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				sql.append(" OFFSET " + offset);
 			}
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			errorSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorSetModel>(ErrorSetModel.class));
 
 		} catch (Exception e) {
@@ -336,15 +356,21 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 	private Long insertErrorSet(final ErrorSetModel record) {
 		Long ret = -1L;
 		try {
-			final StringBuffer sql = new StringBuffer();
-			sql.append(" INSERT INTO task_bg.tb_errorset (name, type, systype, unit, desc) ");
-			sql.append(" VALUES (?,?,?,?,?) ");
-
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			Integer dbtype = configDBModel.getDbtype();
+			
+			final StringBuffer sql = new StringBuffer();
+			sql.append(" INSERT INTO ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_errorset ");
+			sql.append(" (name, type, systype, unit, desc) ");
+			sql.append(" VALUES (?,?,?,?,?) ");
 			
 			KeyHolder keyHolder = new GeneratedKeyHolder();
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			new JdbcTemplate(dataSource).update(new PreparedStatementCreator() {
 				public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
 					PreparedStatement ps = conn.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
@@ -367,8 +393,16 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 	private Boolean updateErrorSet(ErrorSetModel record) {
 		Boolean ret = false;
 		try {
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" UPDATE task_bg.tb_errorset ");
+			sql.append(" UPDATE ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_errorset ");
 			sql.append(" SET id = id");
 			if(record.getName() != null) {
 				sql.append(", name = '" + record.getName() + "'");
@@ -388,10 +422,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			
 			sql.append(" WHERE id = " + record.getId());
 
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -405,18 +436,25 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			Integer dbtype = configDBModel.getDbtype();
 			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" DELETE ");
-			sql.append(" FROM task_bg.tb_errorset ");
+			sql.append(" DELETE FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_errorset ");
 			sql.append(" WHERE id = " + errorSetID);
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 			
 			StringBuffer sql_del = new StringBuffer();
-			sql_del.append(" DELETE ");
-			sql_del.append(" FROM task_bg.tb_errorsetdetail ");
+			sql_del.append(" DELETE FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql_del.append(configDBModel.getDbschema()).append(".");
+			}
+			sql_del.append("tb_errorsetdetail ");
 			sql_del.append(" WHERE itemsetid = " + errorSetID);
 			
 			ret = ret && new JdbcTemplate(dataSource).update(sql_del.toString()) >= 0;
@@ -432,13 +470,17 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT count(*) ");
-			sql.append(" FROM task_bg.tb_errorset");
+			sql.append(" SELECT count(*) FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_errorset");
 			sql.append(" WHERE 1=1 ");
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -452,13 +494,18 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
+			Integer dbtype = configDBModel.getDbtype();
+			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT id, qname, name, qid, errortype, desc, enable, unit, isexistokerror, createtime, iswarning, uuidruler, version, keyword, updatetime ");
-			sql.append(" FROM task_bg.tb_itemconfig ");
+			sql.append(" FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_itemconfig ");
 			sql.append(" WHERE 1=1 ");
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			itemConfigs = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemConfigModel>(ItemConfigModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -472,13 +519,17 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			Integer dbtype = configDBModel.getDbtype();
 			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT itemid ");
-			sql.append(" FROM task_bg.tb_errorsetdetail ");
+			sql.append(" SELECT itemid FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_errorsetdetail ");
 			sql.append(" WHERE itemsetid = " + errorSetID);
 			
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
 		} catch (Exception e) {
 			items = new ArrayList<Long>();
@@ -493,18 +544,26 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			Integer dbtype = configDBModel.getDbtype();
 			
 			StringBuffer sql_del = new StringBuffer();
-			sql_del.append(" DELETE ");
-			sql_del.append(" FROM task_bg.tb_errorsetdetail ");
+			sql_del.append(" DELETE FROM ");
+			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				sql_del.append(configDBModel.getDbschema()).append(".");
+			}
+			sql_del.append("tb_errorsetdetail ");
 			sql_del.append(" WHERE itemsetid = " + errorSetID);
 
-			BasicDataSource dataSource = getDataSource(getUrl(configDBModel), configDBModel.getUser(), configDBModel.getPassword());
+			BasicDataSource dataSource = getDataSource(configDBModel);
 			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 			Integer ret_del = jdbc.update(sql_del.toString());
 			if (ret_del >= 0) {
 				StringBuffer sql = new StringBuffer();
-				sql.append(" INSERT INTO tb_errorsetdetail");
+				sql.append(" INSERT INTO ");
+				if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+					sql.append(configDBModel.getDbschema()).append(".");
+				}
+				sql.append("tb_errorsetdetail");
 				sql.append(" (itemsetid, itemid) ");
 				sql.append(" VALUES ");
 				for (Long errorType : errorTypes) {
