@@ -24,6 +24,7 @@
 <script src="resources/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 <script src="resources/js/webeditor.js"></script>
 <script src="resources/js/common.js"></script>
+<script src="resources/js/consMap.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
 <script
@@ -45,6 +46,8 @@
 	});
 	
 	var source = null;
+	var matchByIDAndIndex = new Map();
+	
 	var colors = [ "LimeGreen", "MediumSeaGreen", "MediumVioletRed", "Crimson", "Crimson" ];
 	var processStates = eval('(${processStates})');
 	var itemAreaTypes = eval('(${itemAreaTypes})');
@@ -953,17 +956,29 @@
 			$(obj).attr("title", "关闭自动刷新项目进度");
 
 			if (!!window.EventSource) {
-				var data = $('[data-toggle="processes"]').bootstrapTable(
-						"getData");
+				var data = $('[data-toggle="processes"]').bootstrapTable("getData");
 				if (data && data.length > 0) {
+					var ids = new Array();
 					for ( var i = 0; i < data.length; i++) {
-
+						matchByIDAndIndex.set(data[i].id, i);
+						ids.push(data[i].id);
 					}
-					source = new EventSource(
-							'/projectsmanage/sse.web?action=refreshprogress');
+					source = new EventSource('/projectsmanage/sse.web?action=refreshprogress&ids=' + ids.join(","));
 
 					source.onmessage = function(e) {
 						console.log(e.data);
+						var progresses = JSON.parse(e.data);
+						if(progresses instanceof Array){
+							for(var index in progresses) {
+								if(matchByIDAndIndex && matchByIDAndIndex.has(progresses[index].id)) {
+									$('[data-toggle="processes"]').bootstrapTable('updateCell', {
+										index: matchByIDAndIndex.get(progresses[index].id),
+										field: "progress",
+										value: progresses[index].progress
+									});
+								}
+							}
+						}
 					};
 				}
 			}

@@ -6,6 +6,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.pojo.ProcessModel;
 import com.emg.projectsmanage.pojo.ProcessModelExample;
@@ -29,18 +34,36 @@ public class SseControler {
 	public @ResponseBody
 	String refreshProgress(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("SseControler-refreshProgress start.");
-		int count = 0;
+		String ret = new String();
 		try {
-			ProcessModelExample example = new ProcessModelExample();
-			Criteria criteria = example.or();
-			List<Long> values = new ArrayList<Long>();
-			criteria.andIdIn(values );
-			List<ProcessModel> processModels = processModelDao.selectByExample(example);
+			String ids = ParamUtils.getParameter(request, "ids");
+			if(ids != null && !ids.isEmpty()) {
+				ProcessModelExample example = new ProcessModelExample();
+				Criteria criteria = example.or();
+				List<Long> values = new ArrayList<Long>();
+				for(String id : ids.split(",")) {
+					values.add(Long.valueOf(id));
+				}
+				criteria.andIdIn(values );
+				List<ProcessModel> processModels = processModelDao.selectByExample(example);
+				if(processModels.size() > 0) {
+					JSONArray array = new JSONArray();
+			        for(ProcessModel processModel : processModels) {
+			        	JSONObject jsonObject = new JSONObject();
+			        	Long id = processModel.getId();
+			        	String progress = processModel.getProgress();
+			        	jsonObject.put("id", id);
+			        	jsonObject.put("progress", progress);
+			        	array.add(jsonObject);
+			        }
+			        ret = array.toString();
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			count = 0;
+			ret = new String();
 		}
 		logger.debug("SseControler-refreshProgress end.");
-		return "data:" + count + "\n\n";
+		return "data:" + ret + "\n\n";
 	}
 }

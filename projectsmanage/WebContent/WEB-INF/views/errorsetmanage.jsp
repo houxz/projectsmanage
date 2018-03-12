@@ -28,6 +28,9 @@
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
 <script src="resources/js/webeditor.js"></script>
+<script src="resources/js/common.js"></script>
+<script src="resources/js/consMap.js"></script>
+<script src="resources/js/consSet.js"></script>
 <script src="resources/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
