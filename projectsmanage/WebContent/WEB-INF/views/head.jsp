@@ -26,6 +26,8 @@
 			return "1006";
 		} else if (url.indexOf("/errorsetmanage.web") > 0) {
 			return "1007";
+		} else if (url.indexOf("/errorsmanage.web") > 0) {
+			return "1008";
 		}
 		return "0000";
 	}%>
@@ -75,6 +77,11 @@
 						access="hasAnyRole('ROLE_POIVIDEOEDIT' ,'ROLE_WORKER' ,'ROLE_CHECKER')">
 						<li class="<%="1005".equals(menucode) ? "active" : ""%>"><a
 							href="<c:url value='capacitycount.web'/>">产能统计</a></li>
+					</sec:authorize>
+					<sec:authorize
+						access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
+						<li class="<%="1008".equals(menucode) ? "active" : ""%>"><a
+							href="<c:url value='errorsmanage.web'/>">错误导出</a></li>
 					</sec:authorize>
 					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
 						<li class="<%="1006".equals(menucode) ? "active" : ""%>"><a
