@@ -3,6 +3,11 @@ package com.emg.projectsmanage.ctrl;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -143,8 +148,44 @@ public class ErrorsManageCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "atn=exporterrors")
-	public void exportErrors(Model model, HttpServletRequest request, HttpSession session, HttpServletResponse response) {
+	public ModelAndView exportErrors(Model model, HttpServletRequest request, HttpSession session, HttpServletResponse response) {
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		logger.debug("ErrorsManageCtrl-exportErrors start.");
+		Integer ret = -1;
+		try {
+			Long batchID = ParamUtils.getLongParameter(request, "batchid", 0);
+			if (batchID == null || batchID == 0) {
+				json.addObject("result", 0);
+				json.addObject("option", "批次信息有误");
+				return json;
+			}
+			Long errorSetID = ParamUtils.getLongParameter(request, "errorsetid", 0);
+			List<Long> itemIDs = getErrorSetDetailsByErrorSetID(errorSetID);
+			List<Long> errortypes = new ArrayList<Long>();
+			if (itemIDs != null && !itemIDs.isEmpty()) {
+				List<ItemConfigModel> itemConfigs = selectErrorTypesByIDs(itemIDs);
+				for (ItemConfigModel itemConfig : itemConfigs) {
+					errortypes.add(itemConfig.getErrortype());
+				}
+			}
+			ErrorModel record = new ErrorModel();
+			record.setBatchid(batchID);
+			List<ErrorModel> errors = selectErrors(record, -1, -1, errortypes);
+			if (errors != null && !errors.isEmpty()) {
+				ret = exportErrors(errors);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		json.addObject("ret", ret);
+		logger.debug("ErrorsManageCtrl-exportErrors end.");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=exporterrors2excel")
+	public void exportErrors2Excel(Model model, HttpServletRequest request, HttpSession session, HttpServletResponse response) {
+		logger.debug("ErrorsManageCtrl-exportErrors2Excel start.");
 		OutputStream out = null;
 		HSSFWorkbook workBook = null;
 		try {
@@ -247,7 +288,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			}
 		}
 
-		logger.debug("ErrorsManageCtrl-exportErrors end.");
+		logger.debug("ErrorsManageCtrl-exportErrors2Excel end.");
 	}
 
 	private BasicDataSource getDataSource(ConfigDBModel configDBModel) {
@@ -431,6 +472,101 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			errors = new ArrayList<ErrorModel>();
 		}
 		return errors;
+	}
+
+	private Integer exportErrors(List<ErrorModel> errors) {
+		Integer ret = -1;
+		Connection connection = null;
+		try {
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(20);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			Integer dbtype = configDBModel.getDbtype();
+
+			StringBuffer prefix = new StringBuffer();
+			StringBuffer suffix = new StringBuffer();
+			String sql = new String();
+			prefix.append(" INSERT INTO ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				prefix.append(configDBModel.getDbschema()).append(".");
+			}
+			prefix.append("tb_error ( ");
+			for (Field field : ErrorModel.class.getDeclaredFields()) {
+				prefix.append(field.getName() + ",");
+				suffix.append("?,");
+			}
+			prefix.deleteCharAt(prefix.length() - 1);
+			suffix.deleteCharAt(suffix.length() - 1);
+			prefix.append(") VALUES ");
+			
+			sql = prefix.toString() + "(" + suffix.toString() + ")";
+
+			String url = getUrl(configDBModel);
+			String user = configDBModel.getUser();
+			String password = configDBModel.getPassword();
+			Class.forName("org.postgresql.Driver");
+			connection = DriverManager.getConnection(url, user, password);
+			if (connection != null && !connection.isClosed()) {
+				connection.setAutoCommit(false);
+				PreparedStatement pst = connection.prepareStatement(sql);
+
+				Integer batch = 10;
+				for (Integer i = 0; i <= errors.size() / batch; i++) {
+					for (int j = 0; j < batch; j++) {
+						Integer index = i * batch + j;
+						if(index.compareTo(errors.size()) < 0) {
+							ErrorModel error = errors.get(index);
+							Field[] fields = error.getClass().getDeclaredFields();
+							for (Integer k = 0; k < fields.length;k++) {
+								Field field = fields[k];
+								field.setAccessible(true);
+								String type = field.getType().getName();
+								switch(type) {
+								case "java.lang.Long":
+									pst.setLong(k+1, Long.valueOf(field.get(error).toString()));
+									break;
+								case "java.lang.Integer":
+									pst.setInt(k+1, Integer.valueOf(field.get(error).toString()));
+									break;
+								case "java.lang.String":
+									pst.setString(k+1, field.get(error).toString());
+									break;
+								case "java.lang.Object":
+									pst.setObject(k+1, field.get(error));
+									break;
+								case "java.util.Date":
+									Timestamp t = Timestamp.valueOf(field.get(error).toString());
+									pst.setTimestamp(k+1, t);
+									break;
+								default:
+									pst.setString(k+1, field.get(error).toString());
+									break;
+								}
+							}
+							pst.addBatch();
+						}
+					}
+					int[] _rets = pst.executeBatch();
+					for(int _ret : _rets) {
+						ret += _ret;
+					}
+					connection.commit();
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			ret = -1;
+		} finally {
+			if(connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				connection = null;
+			}
+		}
+		return ret;
 	}
 
 	private Integer countErrors(ErrorModel record, List<Long> errortypes) {

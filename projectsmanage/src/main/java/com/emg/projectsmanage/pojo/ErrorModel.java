@@ -1,211 +1,235 @@
 package com.emg.projectsmanage.pojo;
 
+import java.util.Date;
+
 public class ErrorModel {
-	private Long id;
-	private Long taskid;
-	private Long blockid;
-	private Long featureid;
-	private Integer layerid;
-	private Long editver;
-	private String updatetime;
-	private String field_name;
-	private String editvalue;
-	private String checkvalue;
-	private String qid;
-	private Long errortype;
-	private Integer level;
-	private Integer modifystate;
-	private Integer errorstate;
-	private String errorremark;
-	private Integer checkroleid;
-	private Integer changeroleid;
-	private String md5;
-	private Long batchid;
-	private Integer isrelated;
-	private String sbound;
-	private String bound;
+    private Long id;
 
-	public Long getId() {
-		return id;
-	}
+    private Long taskid;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    private Long blockid;
 
-	public Long getTaskid() {
-		return taskid;
-	}
+    private Long featureid;
 
-	public void setTaskid(Long taskid) {
-		this.taskid = taskid;
-	}
+    private Integer layerid;
 
-	public Long getBlockid() {
-		return blockid;
-	}
+    private Long editver;
 
-	public void setBlockid(Long blockid) {
-		this.blockid = blockid;
-	}
+    private Date updatetime;
 
-	public Long getFeatureid() {
-		return featureid;
-	}
+    private String field_name;
 
-	public void setFeatureid(Long featureid) {
-		this.featureid = featureid;
-	}
+    private String editvalue;
 
-	public Integer getLayerid() {
-		return layerid;
-	}
+    private String checkvalue;
 
-	public void setLayerid(Integer layerid) {
-		this.layerid = layerid;
-	}
+    private String qid;
 
-	public Long getEditver() {
-		return editver;
-	}
+    private Long errortype;
 
-	public void setEditver(Long editver) {
-		this.editver = editver;
-	}
+    private Integer level;
 
-	public String getUpdatetime() {
-		return updatetime;
-	}
+    private Integer modifystate;
 
-	public void setUpdatetime(String updatetime) {
-		this.updatetime = updatetime;
-	}
+    private Integer errorstate;
 
-	public String getField_name() {
-		return field_name;
-	}
+    private String errorremark;
 
-	public void setField_name(String field_name) {
-		this.field_name = field_name;
-	}
+    private Integer checkroleid;
 
-	public String getEditvalue() {
-		return editvalue;
-	}
+    private Integer changeroleid;
 
-	public void setEditvalue(String editvalue) {
-		this.editvalue = editvalue;
-	}
+    private String md5;
 
-	public String getCheckvalue() {
-		return checkvalue;
-	}
+    private Long batchid;
 
-	public void setCheckvalue(String checkvalue) {
-		this.checkvalue = checkvalue;
-	}
+    private Integer isrelated;
 
-	public String getQid() {
-		return qid;
-	}
+    private String sbound;
 
-	public void setQid(String qid) {
-		this.qid = qid;
-	}
+    private Object bound;
 
-	public Long getErrortype() {
-		return errortype;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setErrortype(Long errortype) {
-		this.errortype = errortype;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public Integer getLevel() {
-		return level;
-	}
+    public Long getTaskid() {
+        return taskid;
+    }
 
-	public void setLevel(Integer level) {
-		this.level = level;
-	}
+    public void setTaskid(Long taskid) {
+        this.taskid = taskid;
+    }
 
-	public Integer getModifystate() {
-		return modifystate;
-	}
+    public Long getBlockid() {
+        return blockid;
+    }
 
-	public void setModifystate(Integer modifystate) {
-		this.modifystate = modifystate;
-	}
+    public void setBlockid(Long blockid) {
+        this.blockid = blockid;
+    }
 
-	public Integer getErrorstate() {
-		return errorstate;
-	}
+    public Long getFeatureid() {
+        return featureid;
+    }
 
-	public void setErrorstate(Integer errorstate) {
-		this.errorstate = errorstate;
-	}
+    public void setFeatureid(Long featureid) {
+        this.featureid = featureid;
+    }
 
-	public String getErrorremark() {
-		return errorremark;
-	}
+    public Integer getLayerid() {
+        return layerid;
+    }
 
-	public void setErrorremark(String errorremark) {
-		this.errorremark = errorremark;
-	}
+    public void setLayerid(Integer layerid) {
+        this.layerid = layerid;
+    }
 
-	public Integer getCheckroleid() {
-		return checkroleid;
-	}
+    public Long getEditver() {
+        return editver;
+    }
 
-	public void setCheckroleid(Integer checkroleid) {
-		this.checkroleid = checkroleid;
-	}
+    public void setEditver(Long editver) {
+        this.editver = editver;
+    }
 
-	public Integer getChangeroleid() {
-		return changeroleid;
-	}
+    public Date getUpdatetime() {
+        return updatetime;
+    }
 
-	public void setChangeroleid(Integer changeroleid) {
-		this.changeroleid = changeroleid;
-	}
+    public void setUpdatetime(Date updatetime) {
+        this.updatetime = updatetime;
+    }
 
-	public String getMd5() {
-		return md5;
-	}
+    public String getFieldName() {
+        return field_name;
+    }
 
-	public void setMd5(String md5) {
-		this.md5 = md5;
-	}
+    public void setFieldName(String fieldName) {
+        this.field_name = fieldName == null ? null : fieldName.trim();
+    }
 
-	public Long getBatchid() {
-		return batchid;
-	}
+    public String getEditvalue() {
+        return editvalue;
+    }
 
-	public void setBatchid(Long batchid) {
-		this.batchid = batchid;
-	}
+    public void setEditvalue(String editvalue) {
+        this.editvalue = editvalue == null ? null : editvalue.trim();
+    }
 
-	public Integer getIsrelated() {
-		return isrelated;
-	}
+    public String getCheckvalue() {
+        return checkvalue;
+    }
 
-	public void setIsrelated(Integer isrelated) {
-		this.isrelated = isrelated;
-	}
+    public void setCheckvalue(String checkvalue) {
+        this.checkvalue = checkvalue == null ? null : checkvalue.trim();
+    }
 
-	public String getSbound() {
-		return sbound;
-	}
+    public String getQid() {
+        return qid;
+    }
 
-	public void setSbound(String sbound) {
-		this.sbound = sbound;
-	}
+    public void setQid(String qid) {
+        this.qid = qid == null ? null : qid.trim();
+    }
 
-	public String getBound() {
-		return bound;
-	}
+    public Long getErrortype() {
+        return errortype;
+    }
 
-	public void setBound(String bound) {
-		this.bound = bound;
-	}
+    public void setErrortype(Long errortype) {
+        this.errortype = errortype;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
+    public Integer getModifystate() {
+        return modifystate;
+    }
+
+    public void setModifystate(Integer modifystate) {
+        this.modifystate = modifystate;
+    }
+
+    public Integer getErrorstate() {
+        return errorstate;
+    }
+
+    public void setErrorstate(Integer errorstate) {
+        this.errorstate = errorstate;
+    }
+
+    public String getErrorremark() {
+        return errorremark;
+    }
+
+    public void setErrorremark(String errorremark) {
+        this.errorremark = errorremark == null ? null : errorremark.trim();
+    }
+
+    public Integer getCheckroleid() {
+        return checkroleid;
+    }
+
+    public void setCheckroleid(Integer checkroleid) {
+        this.checkroleid = checkroleid;
+    }
+
+    public Integer getChangeroleid() {
+        return changeroleid;
+    }
+
+    public void setChangeroleid(Integer changeroleid) {
+        this.changeroleid = changeroleid;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5 == null ? null : md5.trim();
+    }
+
+    public Long getBatchid() {
+        return batchid;
+    }
+
+    public void setBatchid(Long batchid) {
+        this.batchid = batchid;
+    }
+
+    public Integer getIsrelated() {
+        return isrelated;
+    }
+
+    public void setIsrelated(Integer isrelated) {
+        this.isrelated = isrelated;
+    }
+
+    public String getSbound() {
+        return sbound;
+    }
+
+    public void setSbound(String sbound) {
+        this.sbound = sbound == null ? null : sbound.trim();
+    }
+
+    public Object getBound() {
+        return bound;
+    }
+
+    public void setBound(Object bound) {
+        this.bound = bound;
+    }
 }

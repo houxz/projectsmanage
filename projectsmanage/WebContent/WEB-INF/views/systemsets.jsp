@@ -172,6 +172,16 @@
 										</c:forEach>
 								</select></td>
 							</tr>
+							<tr>
+								<td class="configKey">错误导入库</td>
+								<td><select class="form-control systemSet" id="config_0_20">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('error2') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
 							<!-- <tr>
 								<td class="configKey">改错任务组织方式</td>
 								<td><select class="form-control systemSet" id="config_2_13" onchange="typeChange(this);">

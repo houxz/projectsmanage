@@ -81,7 +81,23 @@
 	function exportErrors() {
 		var batchid = $("#batchid").val();
 		var errorsetid = $("#errorset").val();
-		window.open("/projectsmanage/errorsmanage.web?atn=exporterrors&batchid=" + batchid + "&errorsetid=" + errorsetid);
+		jQuery.post("./errorsmanage.web", {
+			"atn" : "exporterrors",
+			"batchid" : batchid,
+			"errorsetid" : errorsetid
+		}, function(json) {
+			if (json.ret && json.ret > 0) {
+				$.webeditor.showMsgLabel("success", "导入成功");
+			} else {
+				$.webeditor.showMsgLabel("alert", "导入失败");
+			}
+		}, "json");
+	}
+	
+	function exportErrors2Excel() {
+		var batchid = $("#batchid").val();
+		var errorsetid = $("#errorset").val();
+		window.open("/projectsmanage/errorsmanage.web?atn=exporterrors2excel&batchid=" + batchid + "&errorsetid=" + errorsetid);
 	}
 	
 </script>
@@ -106,7 +122,7 @@
 				</select>
 				<span class="input-group-btn">
 					<button class="btn btn-default" type="button" onclick="getErrors();">查看筛选结果</button>
-					<button class="btn btn-default" type="button" onclick="exportErrors();">导出错误</button>
+					<button class="btn btn-default" type="button" onclick="exportErrors();">导入错误</button>
 				</span>
 			</div>
 		</div>
