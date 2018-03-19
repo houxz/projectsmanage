@@ -3,6 +3,7 @@
 <mapper namespace="com.emg.projectsmanage.dao.process.ProcessModelDao">
 	<resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.ProcessModel">
 		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="type" property="type" jdbcType="INTEGER" />
 		<result column="name" property="name" jdbcType="VARCHAR" />
 		<result column="priority" property="priority" jdbcType="INTEGER" />
 		<result column="state" property="state" jdbcType="INTEGER" />
@@ -78,8 +79,9 @@
 		</where>
 	</sql>
 	<sql id="Base_Column_List">
-		id, name, priority, state, stage, stagestate, progress, userid, username,
-		createtime, time
+		id, type, name, priority, state, stage, stagestate, progress, userid,
+		username, createtime,
+		time
 	</sql>
 	<select id="selectByExample" resultMap="BaseResultMap"
 		parameterType="com.emg.projectsmanage.pojo.ProcessModelExample">
@@ -120,22 +122,27 @@
 		</if>
 	</delete>
 	<insert id="insert" parameterType="com.emg.projectsmanage.pojo.ProcessModel">
-		insert into tb_process (id, name, state,
-		stage, stagestate, progress,
-		userid, username, createtime,
-		time)
-		values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR},
-		#{state,jdbcType=INTEGER},
-		#{stage,jdbcType=INTEGER}, #{stagestate,jdbcType=INTEGER}, #{progress,jdbcType=VARCHAR},
-		#{userid,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
-		#{createtime,jdbcType=TIMESTAMP},
-		#{time,jdbcType=TIMESTAMP})
+		insert into tb_process (id, type, name,
+		priority, state, stage,
+		stagestate, progress, userid,
+		username, createtime, time
+		)
+		values (#{id,jdbcType=BIGINT}, #{type,jdbcType=INTEGER},
+		#{name,jdbcType=VARCHAR},
+		#{priority,jdbcType=INTEGER}, #{state,jdbcType=INTEGER}, #{stage,jdbcType=INTEGER},
+		#{stagestate,jdbcType=INTEGER}, #{progress,jdbcType=VARCHAR},
+		#{userid,jdbcType=INTEGER},
+		#{username,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP}, #{time,jdbcType=TIMESTAMP}
+		)
 	</insert>
-	<insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.emg.projectsmanage.pojo.ProcessModel">
+	<insert id="insertSelective" parameterType="com.emg.projectsmanage.pojo.ProcessModel">
 		insert into tb_process
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="id != null">
 				id,
+			</if>
+			<if test="type != null">
+				type,
 			</if>
 			<if test="name != null">
 				name,
@@ -171,6 +178,9 @@
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null">
 				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=INTEGER},
 			</if>
 			<if test="name != null">
 				#{name,jdbcType=VARCHAR},
@@ -217,8 +227,14 @@
 			<if test="record.id != null">
 				id = #{record.id,jdbcType=BIGINT},
 			</if>
+			<if test="record.type != null">
+				type = #{record.type,jdbcType=INTEGER},
+			</if>
 			<if test="record.name != null">
 				name = #{record.name,jdbcType=VARCHAR},
+			</if>
+			<if test="record.priority != null">
+				priority = #{record.priority,jdbcType=INTEGER},
 			</if>
 			<if test="record.state != null">
 				state = #{record.state,jdbcType=INTEGER},
@@ -252,7 +268,9 @@
 	<update id="updateByExample" parameterType="map">
 		update tb_process
 		set id = #{record.id,jdbcType=BIGINT},
+		type = #{record.type,jdbcType=INTEGER},
 		name = #{record.name,jdbcType=VARCHAR},
+		priority = #{record.priority,jdbcType=INTEGER},
 		state = #{record.state,jdbcType=INTEGER},
 		stage = #{record.stage,jdbcType=INTEGER},
 		stagestate = #{record.stagestate,jdbcType=INTEGER},
@@ -268,6 +286,9 @@
 	<update id="updateByPrimaryKeySelective" parameterType="com.emg.projectsmanage.pojo.ProcessModel">
 		update tb_process
 		<set>
+			<if test="type != null">
+				type = #{type,jdbcType=INTEGER},
+			</if>
 			<if test="name != null">
 				name = #{name,jdbcType=VARCHAR},
 			</if>
@@ -303,7 +324,9 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.emg.projectsmanage.pojo.ProcessModel">
 		update tb_process
-		set name = #{name,jdbcType=VARCHAR},
+		set type = #{type,jdbcType=INTEGER},
+		name = #{name,jdbcType=VARCHAR},
+		priority = #{priority,jdbcType=INTEGER},
 		state = #{state,jdbcType=INTEGER},
 		stage = #{stage,jdbcType=INTEGER},
 		stagestate = #{stagestate,jdbcType=INTEGER},
