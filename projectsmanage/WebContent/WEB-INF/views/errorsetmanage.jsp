@@ -147,7 +147,6 @@
 	}
 	
 	function findExpandibleNodess() {
-   		$('#errorTypesTree').treeview('uncheckAll', { silent: true });
    		$('#errorTypesTree').treeview('collapseAll', { silent: true });
    		return $('#errorTypesTree').treeview('search', [ $('#input-expand-node').val(), { ignoreCase: false, exactMatch: false } ]);
     }
