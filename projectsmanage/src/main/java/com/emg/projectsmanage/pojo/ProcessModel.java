@@ -3,8 +3,10 @@ package com.emg.projectsmanage.pojo;
 public class ProcessModel {
     private Long id;
 
+    private Integer type;
+
     private String name;
-    
+
     private Integer priority;
 
     private Integer state;
@@ -31,12 +33,28 @@ public class ProcessModel {
         this.id = id;
     }
 
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name == null ? null : name.trim();
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 
     public Integer getState() {
@@ -102,12 +120,4 @@ public class ProcessModel {
     public void setTime(String time) {
         this.time = time;
     }
-
-	public Integer getPriority() {
-		return priority;
-	}
-
-	public void setPriority(Integer priority) {
-		this.priority = priority;
-	}
 }
