@@ -1307,41 +1307,83 @@ public class InterfaceCtrl extends BaseCtrl {
 
 	// by xiao
 	@RequestMapping(params = "action=selectNextProcess", method = RequestMethod.POST)
-	private ModelAndView selectNextProcess(Model model, HttpSession session, HttpServletRequest request, @RequestParam("stageid") Integer stageid, @RequestParam("pid") String pid) {
+	private ModelAndView selectNextProcess(Model model, HttpSession session, HttpServletRequest request, 
+			@RequestParam("stageid") Integer stageid, 
+			@RequestParam("pid") Long pid,
+			@RequestParam("type") Integer type) {
 		logger.debug("selectNextProcess start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			String projectid = "-1";
 			String name = "";
+			
+			ProjectModel curProject = projectModelDao.selectByPrimaryKey(pid);
+			Integer priority = curProject == null ? 2 : curProject.getPriority();
 
 			ProcessModelExample example = new ProcessModelExample();
-			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria1 = example.or();
-			criteria1.andStateEqualTo(1) // 流程开始
+			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria _criteria1 = example.or();
+			_criteria1.andTypeEqualTo(type).andPriorityEqualTo(priority)
+					.andStateEqualTo(1) // 流程开始
 					.andStageEqualTo(stageid).andStagestateEqualTo(1) // 阶段开始
-					.andIdGreaterThan(Long.valueOf(pid));
-			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria2 = example.or();
-			criteria2.andStateEqualTo(1) // 流程开始
+					.andIdGreaterThan(pid);
+			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria _criteria2 = example.or();
+			_criteria2.andTypeEqualTo(type).andPriorityEqualTo(priority)
+					.andStateEqualTo(1) // 流程开始
 					.andStageEqualTo(stageid - 1).andStagestateEqualTo(3) // 上一个阶段完成
-					.andIdGreaterThan(Long.valueOf(pid));
-			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria3 = example.or();
-			criteria3.andStateEqualTo(1) // 流程开始
+					.andIdGreaterThan(pid);
+			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria _criteria3 = example.or();
+			_criteria3.andTypeEqualTo(type).andPriorityEqualTo(priority)
+					.andStateEqualTo(1) // 流程开始
 					.andStageEqualTo(stageid).andStagestateEqualTo(2) // 阶段暂停
-					.andIdGreaterThan(Long.valueOf(pid));
-			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria4 = example.or();
-			criteria4.andStateEqualTo(1) // 流程开始
+					.andIdGreaterThan(pid);
+			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria _criteria4 = example.or();
+			_criteria4.andTypeEqualTo(type).andPriorityEqualTo(priority)
+					.andStateEqualTo(1) // 流程开始
 					.andStageEqualTo(stageid).andStagestateEqualTo(0) // 阶段初始
-					.andIdGreaterThan(Long.valueOf(pid));
+					.andIdGreaterThan(pid);
 			if (stageid == 1) {
-				com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria5 = example.or();
-				criteria5.andStateEqualTo(1) // 流程开始
+				com.emg.projectsmanage.pojo.ProcessModelExample.Criteria _criteria5 = example.or();
+				_criteria5.andTypeEqualTo(type).andPriorityEqualTo(priority)
+						.andStateEqualTo(1) // 流程开始
 						.andStageEqualTo(0) // 流程初始
 						.andStagestateEqualTo(0) // 阶段初始
-						.andIdGreaterThan(Long.valueOf(pid));
+						.andIdGreaterThan(pid);
 			}
 
-			example.setOrderByClause("id");
+			example.setOrderByClause("priority DESC, id");
 			example.setLimit(1);
 			List<ProcessModel> project = processModelDao.selectByExample(example);
+			if(project == null || project.size() <= 0) {
+				example.clear();
+				com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria1 = example.or();
+				criteria1.andTypeEqualTo(type)
+						.andPriorityLessThan(priority)
+						.andStateEqualTo(1) // 流程开始
+						.andStageEqualTo(stageid).andStagestateEqualTo(1); // 阶段开始
+				com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria2 = example.or();
+				criteria2.andTypeEqualTo(type).andPriorityLessThan(priority)
+						.andStateEqualTo(1) // 流程开始
+						.andStageEqualTo(stageid - 1).andStagestateEqualTo(3); // 上一个阶段完成
+				com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria3 = example.or();
+				criteria3.andTypeEqualTo(type).andPriorityLessThan(priority)
+						.andStateEqualTo(1) // 流程开始
+						.andStageEqualTo(stageid).andStagestateEqualTo(2); // 阶段暂停
+				com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria4 = example.or();
+				criteria4.andTypeEqualTo(type).andPriorityLessThan(priority)
+						.andStateEqualTo(1) // 流程开始
+						.andStageEqualTo(stageid).andStagestateEqualTo(0); // 阶段初始
+				if (stageid == 1) {
+					com.emg.projectsmanage.pojo.ProcessModelExample.Criteria criteria5 = example.or();
+					criteria5.andTypeEqualTo(type).andPriorityLessThan(priority)
+							.andStateEqualTo(1) // 流程开始
+							.andStageEqualTo(0) // 流程初始
+							.andStagestateEqualTo(0); // 阶段初始
+				}
+
+				example.setOrderByClause("id");
+				example.setLimit(1);
+				project = processModelDao.selectByExample(example);
+			}
 
 			Boolean status = true;
 			if (project != null && project.size() > 0) {
