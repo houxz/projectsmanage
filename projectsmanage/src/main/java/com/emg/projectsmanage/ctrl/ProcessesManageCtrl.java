@@ -35,11 +35,13 @@ import com.emg.projectsmanage.common.ItemSetEnable;
 import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
 import com.emg.projectsmanage.common.ItemSetUnit;
+import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.PriorityLevel;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ItemAreaType;
 import com.emg.projectsmanage.common.RoleType;
+import com.emg.projectsmanage.common.SystemType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigValueModelDao;
@@ -83,6 +85,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		logger.debug("ProcessesConfigCtrl-openLader start.");
 
 		model.addAttribute("processStates", ProcessState.toJsonStr());
+		model.addAttribute("processTypes", ProcessType.toJsonStr());
 		model.addAttribute("itemAreaTypes", ItemAreaType.toJsonStr());
 		model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
 		model.addAttribute("itemsetEnables", ItemSetEnable.toJsonStr());
@@ -113,6 +116,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					switch (key) {
 					case "id":
 						criteria.andIdEqualTo(Long.valueOf(filterPara.get(key).toString()));
+						break;
+					case "type":
+						criteria.andTypeEqualTo(Integer.valueOf(filterPara.get(key).toString()));
 						break;
 					case "name":
 						criteria.andNameLike("%" + filterPara.get(key).toString() + "%");
@@ -162,6 +168,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		try {
 			Long newProcessID = ParamUtils.getLongParameter(request, "processid", -1L);
 			String newProcessName = ParamUtils.getParameter(request, "newProcessName");
+			Integer type = ParamUtils.getIntParameter(request, "type", 0);
 			Integer priority = ParamUtils.getIntParameter(request, "priority", 0);
 			Integer uid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
 			String username = (String) session.getAttribute(CommonConstants.SESSION_USER_NAME);
@@ -188,6 +195,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			if (isNewProcess) {
 				ProcessModel newProcess = new ProcessModel();
 				newProcess.setName(newProcessName);
+				newProcess.setType(type);
 				newProcess.setPriority(priority);
 				newProcess.setState(0);
 				newProcess.setUserid(uid);
@@ -204,6 +212,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			} else {
 				ProcessModel process = new ProcessModel();
 				process.setId(newProcessID);
+				process.setType(type);
 				process.setName(newProcessName);
 				process.setPriority(priority);
 				processModelDao.updateByPrimaryKeySelective(process);
@@ -215,23 +224,37 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			ProcessConfigModel config332 = processConfigModelDao.selectByPrimaryKey(1);
 			ConfigDBModel configDBModel332 = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config332.getDefaultValue()));
 			if (isNewProcess) {
-				String config_1_4 = newProcessName + "_质检";
+				if(!type.equals(ProcessType.NRFC.getValue())) {
+					String config_1_4 = newProcessName + "_质检";
 
-				ProjectModel newpro = new ProjectModel();
-				newpro.setName(config_1_4);
-				newpro.setSystemid(332);
-				newpro.setCreateby(uid);
-				newpro.setPriority(priority);
+					ProjectModel newpro = new ProjectModel();
+					newpro.setName(config_1_4);
+					newpro.setSystemid(SystemType.CHECK.getValue());
+					newpro.setCreateby(uid);
+					newpro.setPriority(priority);
 
-				projectid332 = newProject(configDBModel332, newpro);
-				if (projectid332 > 0) {
-					ProcessConfigValueModel configValue = new ProcessConfigValueModel();
-					configValue.setProcessid(newProcessID);
-					configValue.setModuleid(1);
-					configValue.setConfigid(3);
-					configValue.setValue(projectid332.toString());
+					projectid332 = newProject(configDBModel332, newpro);
+					if (projectid332 > 0) {
+						ProcessConfigValueModel configValue = new ProcessConfigValueModel();
+						configValue.setProcessid(newProcessID);
+						configValue.setModuleid(1);
+						configValue.setConfigid(3);
+						configValue.setValue(projectid332.toString());
 
-					configValues.add(configValue);
+						configValues.add(configValue);
+
+						ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
+						_configValue.setProcessid(newProcessID);
+						_configValue.setModuleid(1);
+						_configValue.setConfigid(4);
+						_configValue.setValue(config_1_4);
+
+						configValues.add(_configValue);
+					}
+				}
+			} else {
+				if(!type.equals(ProcessType.NRFC.getValue())) {
+					String config_1_4 = newProcessName + "_质检";
 
 					ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
 					_configValue.setProcessid(newProcessID);
@@ -240,33 +263,24 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					_configValue.setValue(config_1_4);
 
 					configValues.add(_configValue);
+
+					ProjectModel pro = new ProjectModel();
+					pro.setId(projectid332);
+					pro.setName(config_1_4);
+					pro.setPriority(priority);
+					updateProject(configDBModel332, pro);
 				}
-			} else {
-				String config_1_4 = newProcessName + "_质检";
-
-				ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
-				_configValue.setProcessid(newProcessID);
-				_configValue.setModuleid(1);
-				_configValue.setConfigid(4);
-				_configValue.setValue(config_1_4);
-
-				configValues.add(_configValue);
-
-				ProjectModel pro = new ProjectModel();
-				pro.setId(projectid332);
-				pro.setName(config_1_4);
-				pro.setPriority(priority);
-				updateProject(configDBModel332, pro);
 			}
 
 			ProcessConfigModel config349 = processConfigModelDao.selectByPrimaryKey(9);
 			ConfigDBModel configDBModel349 = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config349.getDefaultValue()));
 			if (isNewProcess) {
-				String config_2_12 = newProcessName + "_改错";
-
+				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? newProcessName : (newProcessName + "_改错");
+				Integer systemid = type.equals(ProcessType.NRFC.getValue()) ? SystemType.NRFC.getValue() : SystemType.ERROR.getValue();
+				
 				ProjectModel newpro = new ProjectModel();
 				newpro.setName(config_2_12);
-				newpro.setSystemid(349);
+				newpro.setSystemid(systemid);
 				newpro.setCreateby(uid);
 				newpro.setPriority(priority);
 				newpro.setOwner(owner);
@@ -290,7 +304,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					configValues.add(_configValue);
 				}
 			} else {
-				String config_2_12 = newProcessName + "_改错";
+				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? (newProcessName + "_NR/FC") : (newProcessName + "_改错");
 
 				ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
 				_configValue.setProcessid(newProcessID);
@@ -315,7 +329,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					worker.setId(Integer.valueOf(strWorker));
 					workers.add(worker);
 				}
-				setWorkers(configDBModel349, projectid349, workers, uid, 349);
+				setWorkers(configDBModel349, projectid349, workers, uid, SystemType.ERROR.getValue());
 			}
 
 			List<ProcessConfigModel> processConfigs = processConfigModelDao.selectAllProcessConfigModels();

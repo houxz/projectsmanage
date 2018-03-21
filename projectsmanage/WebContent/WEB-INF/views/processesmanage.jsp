@@ -50,6 +50,7 @@
 	
 	var colors = [ "LimeGreen", "MediumSeaGreen", "MediumVioletRed", "Crimson", "Crimson" ];
 	var processStates = eval('(${processStates})');
+	var processTypes = eval('(${processTypes})');
 	var itemAreaTypes = eval('(${itemAreaTypes})');
 	var priorityLevels = eval('(${priorityLevels})');
 	var itemsetEnables = eval('(${itemsetEnables})');
@@ -72,6 +73,9 @@
 	}
 	function statesFormat(value, row, index) {
 		return processStates[row.state];
+	}
+	function typesFormat(value, row, index) {
+		return processTypes[row.type];
 	}
 	function areaTypesFormat(value, row, index) {
 		return itemAreaTypes[row.type];
@@ -217,6 +221,8 @@
 						+ row.name
 						+ '\','
 						+ row.priority
+						+ ','
+						+ row.type
 						+ ');">配置</button>');
 		if (row.state == 1) {
 			html
@@ -246,6 +252,7 @@
 		$("#config_0_1").val(new String());
 		$("#config_0_2").val(new String());
 		$("#config_0_3").val(0);
+		$("#config_0_3").val(1);
 
 		$("#config_1_5").prop('selectedIndex', 0);
 		$("#config_1_6").prop('selectedIndex', 0);
@@ -260,9 +267,10 @@
 		$("#config_2_19").prop('selectedIndex', 0);
 	}
 
-	function getConfig(processid, processname, priority) {
+	function getConfig(processid, processname, priority, processtype) {
 		loadDefaultConfig();
 		if (processid > 0) {
+			$("#config_0_4").attr("disabled", true);
 			jQuery.post("./processesmanage.web", {
 				"atn" : "getconfigvalues",
 				"processid" : processid
@@ -270,57 +278,51 @@
 				if (json.configValues && json.configValues.length > 0) {
 					var configValues = json.configValues;
 					for ( var index in configValues) {
-						var obj = $("#" + "config_"
-								+ configValues[index].moduleid + "_"
-								+ configValues[index].configid);
+						var obj = $("#" + "config_" + configValues[index].moduleid + "_" + configValues[index].configid);
 						if (obj) {
 							$(obj).val(configValues[index].value);
 						}
 					}
+					
+					var config_0_4 = $("#config_0_4").val();
+					if(config_0_4 == 1) {
+						$("#config_1_5").parents("tr").show();
+						$("#config_1_6").parents("tr").show();
+					} else if(config_0_4 == 2) {
+						$("#config_1_5").parents("tr").hide();
+						$("#config_1_6").parents("tr").hide();
+					} else {
+						console.log("getConfig--错误的项目类型：" + config_0_4);
+						$("#config_1_5").parents("tr").show();
+						$("#config_1_6").parents("tr").show();
+					}
 
 					var config_1_3 = $("#config_1_3").val();
 					var config_1_4 = $("#config_1_4").val();
-					$("#config_1_4").siblings("p").text(
-							"已关联项目:" + config_1_4 + "(" + config_1_3 + ")");
+					$("#config_1_4").siblings("p").text("已关联项目:" + config_1_4 + "(" + config_1_3 + ")");
 
 					var config_1_6 = $("#config_1_6").val();
-					$("#config_1_6").siblings("p")
-							.text(
-									"已选择"
-											+ (config_1_6 ? config_1_6
-													.split(",").length : 0)
-											+ "个质检图层");
+					$("#config_1_6").siblings("p").text("已选择" + (config_1_6 ? config_1_6 .split(",").length : 0) + "个质检图层");
 
 					var config_1_7 = $("#config_1_7").val();
-					$("#config_1_7").siblings("p")
-							.text(
-									"已选择"
-											+ (config_1_7 ? config_1_7
-													.split(",").length : 0)
-											+ "个质检区域");
+					$("#config_1_7").siblings("p").text("已选择" + (config_1_7 ? config_1_7 .split(",").length : 0) + "个质检区域");
 
 					var config_2_11 = $("#config_2_11").val();
 					var config_2_12 = $("#config_2_12").val();
-					$("#config_2_12").siblings("p").text(
-							"已关联项目:" + config_2_12 + "(" + config_2_11 + ")");
+					$("#config_2_12").siblings("p").text("已关联项目:" + config_2_12 + "(" + config_2_11 + ")");
 
 					var config_2_18 = $("#config_2_18").val();
-					$("#config_2_18").siblings("p")
-							.text(
-									"已添加人员"
-											+ (config_2_18 ? config_2_18
-													.split(",").length : 0)
-											+ "位");
+					$("#config_2_18").siblings("p").text("已添加人员" + (config_2_18 ? config_2_18.split(",").length : 0) + "位");
 				}
 			}, "json");
+		} else {
+			$("#config_0_4").removeAttr("disabled");
 		}
-		showConfigDlg(processid, processname, priority);
+		showConfigDlg(processid, processname, priority, processtype);
 	}
 
-	function showConfigDlg(processid, processname, priority) {
-		$("#configDlg")
-				.dialog(
-						{
+	function showConfigDlg(processid, processname, priority, processtype) {
+		$("#configDlg").dialog({
 							modal : true,
 							height : 600,
 							width : document.documentElement.clientWidth * 0.4,
@@ -329,6 +331,7 @@
 								$("#config_0_1").val(processid);
 								$("#config_0_2").val(processname);
 								$("#config_0_3").val(priority);
+								$("#config_0_4").val(processtype);
 								$(".ui-dialog-titlebar-close").hide();
 								$('.navbar-example').scrollspy({
 									target : '.navbar-example'
@@ -339,51 +342,35 @@
 										text : "提交",
 										class : "btn btn-default",
 										click : function() {
-											var processid = $("#config_0_1")
-													.val();
-											var newProcessName = $(
-													"#config_0_2").val();
-											var priority = $("#config_0_3")
-													.val();
-											var config_1_3 = $("#config_1_3")
-													.val();
-											var config_1_4 = $("#config_1_4")
-													.val();
-											var config_1_5 = $("#config_1_5")
-													.val();
-											var config_1_6 = $("#config_1_6")
-													.val();
-											var config_1_7 = $("#config_1_7")
-													.val();
-											var config_1_8 = $("#config_1_8")
-													.val();
+											var processid = $("#config_0_1").val();
+											var newProcessName = $("#config_0_2").val();
+											var priority = $("#config_0_3").val();
+											var protype = $("#config_0_4").val();
+											var config_1_3 = $("#config_1_3").val();
+											var config_1_4 = $("#config_1_4").val();
+											var config_1_5 = $("#config_1_5").val();
+											var config_1_6 = $("#config_1_6").val();
+											var config_1_7 = $("#config_1_7").val();
+											var config_1_8 = 2;//$("#config_1_8").val();
 
-											var config_2_11 = $("#config_2_11")
-													.val();
-											var config_2_12 = $("#config_2_12")
-													.val();
-											var config_2_17 = $("#config_2_17")
-													.val();
-											var config_2_18 = $("#config_2_18")
-													.val();
-											var config_2_19 = $("#config_2_19")
-													.val();
+											var config_2_11 = $("#config_2_11").val();
+											var config_2_12 = $("#config_2_12").val();
+											var config_2_17 = 2;//$("#config_2_17").val();
+											var config_2_18 = $("#config_2_18").val();
+											var config_2_19 = $("#config_2_19").val();
 
-											if (!newProcessName
-													|| newProcessName.length <= 0) {
-												$.webeditor.showMsgLabel(
-														"alert", "项目名不能为空");
+											if (!newProcessName || newProcessName.length <= 0) {
+												$.webeditor.showMsgLabel("alert", "项目名不能为空");
 												return;
 											}
 
-											jQuery
-													.post(
-															"./processesmanage.web",
+											jQuery.post("./processesmanage.web",
 															{
 																"atn" : "newprocess",
 																"processid" : processid,
 																"newProcessName" : newProcessName,
 																"priority" : priority,
+																"type" : protype,
 																"config_1_3" : config_1_3,
 																"config_1_4" : config_1_4,
 																"config_1_5" : config_1_5,
@@ -398,27 +385,12 @@
 															},
 															function(json) {
 																if (json.result > 0) {
-																	$.webeditor
-																			.showMsgLabel(
-																					"success",
-																					"项目配置成功");
-																	$(
-																			'[data-toggle="itemAreas"]')
-																			.bootstrapTable(
-																					"destroy");
-																	$(
-																			"#configDlg")
-																			.dialog(
-																					"close");
-																	$(
-																			'[data-toggle="processes"]')
-																			.bootstrapTable(
-																					'refresh');
+																	$.webeditor.showMsgLabel("success","项目配置成功");
+																	$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
+																	$("#configDlg").dialog("close");
+																	$('[data-toggle="processes"]').bootstrapTable('refresh');
 																} else {
-																	$.webeditor
-																			.showMsgLabel(
-																					"alert",
-																					json.resultMsg);
+																	$.webeditor.showMsgLabel("alert",json.resultMsg);
 																}
 															}, "json");
 										}
@@ -570,33 +542,24 @@
 								text : "提交",
 								class : "btn btn-default",
 								click : function() {
-									var selections = $(
-											'[data-toggle="workers"]')
-											.bootstrapTable('getSelections');
+									var selections = $('[data-toggle="workers"]').bootstrapTable('getSelections');
 									var length = selections.length;
 									var value = new String();
 									if (length > 0) {
 										var subStr = "[";
-										$.each(selections, function(index,
-												domEle) {
+										$.each(selections, function(index, domEle) {
 											value += domEle.id + ",";
-											subStr += '{"uid":' + domEle.id
-													+ ', "username":"'
-													+ domEle.realname + '"},';
+											subStr += '{"uid":' + domEle.id + ', "username":"' + domEle.realname + '"},';
 										});
-										value = value.substring(0,
-												value.length - 1);
-										subStr = subStr.substring(0,
-												subStr.length - 1);
+										value = value.substring(0, value.length - 1);
+										subStr = subStr.substring(0, subStr.length - 1);
 										subStr += ']';
 										$("#config_2_18").val(value);
-										$("#config_2_18").siblings("p").text(
-												"已添加人员" + length + "位");
+										$("#config_2_18").siblings("p").text( "已添加人员" + length + "位");
 
 										$(this).dialog("close");
 									} else {
-										$.webeditor.showMsgLabel("alert",
-												"请选择人员");
+										$.webeditor.showMsgLabel("alert", "请选择人员");
 									}
 
 								}
@@ -749,26 +712,20 @@
 								text : "提交",
 								class : "btn btn-default",
 								click : function() {
-									var selections = $(
-											'[data-toggle="itemAreas"]')
-											.bootstrapTable('getSelections');
+									var selections = $('[data-toggle="itemAreas"]').bootstrapTable('getSelections');
 									var length = selections.length;
 									var value = new String();
 									if (length > 0) {
-										$.each(selections, function(index,
-												domEle) {
+										$.each(selections, function(index, domEle) {
 											value += domEle.id + ",";
 										});
-										value = value.substring(0,
-												value.length - 1);
+										value = value.substring(0, value.length - 1);
 										$("#config_1_7").val(value);
-										$("#config_1_7").siblings("p").text(
-												"已选择" + length + "个质检区域");
+										$("#config_1_7").siblings("p").text( "已选择" + length + "个质检区域");
 
 										$(this).dialog("close");
 									} else {
-										$.webeditor.showMsgLabel("alert",
-												"请选择质检区域");
+										$.webeditor.showMsgLabel("alert", "请选择质检区域");
 									}
 								}
 							},
@@ -912,31 +869,20 @@
 										text : "提交",
 										class : "btn btn-default",
 										click : function() {
-											var selections = $(
-													'[data-toggle="itemsets"]')
-													.bootstrapTable(
-															'getSelections');
+											var selections = $('[data-toggle="itemsets"]').bootstrapTable('getSelections');
 											var length = selections.length;
 											var value = new String();
 											if (length > 0) {
-												$.each(selections, function(
-														index, domEle) {
+												$.each(selections, function(index, domEle) {
 													value += domEle.id + ",";
 												});
-												value = value.substring(0,
-														value.length - 1);
+												value = value.substring(0,value.length - 1);
 												$("#config_1_6").val(value);
-												$("#config_1_6")
-														.siblings("p")
-														.text(
-																"已选择"
-																		+ length
-																		+ "个质检图层");
+												$("#config_1_6").siblings("p").text("已选择" + length + "个质检图层");
 
 												$(this).dialog("close");
 											} else {
-												$.webeditor.showMsgLabel(
-														"alert", "请选择质检区域");
+												$.webeditor.showMsgLabel("alert", "请选择质检区域");
 											}
 										}
 									},
@@ -992,6 +938,18 @@
 			}
 		}
 	}
+	
+	function processTypeChange(selectValue) {
+		if(selectValue == 1) {
+			$("#config_1_5").parents("tr").show();
+			$("#config_1_6").parents("tr").show();
+		} else if(selectValue == 2) {
+			$("#config_1_5").parents("tr").hide();
+			$("#config_1_6").parents("tr").hide();
+		} else {
+			console.log("processTypeChange--错误的项目类型：" + selectValue);
+		}
+	}
 </script>
 
 </head>
@@ -1011,12 +969,15 @@
 						<th data-field="id" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">项目编号
 							<button class="btn btn-default btn-xs" title="新建项目"
-								onclick="getConfig(0,'',0);">
+								onclick="getConfig(0,'',0,1);">
 								<span class="glyphicon glyphicon-plus"></span>
 							</button>
 						</th>
 						<th data-field="name" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">项目名称</th>
+						<th data-field="type" data-formatter="typesFormat"
+							data-filter-control="select" data-width="120"
+							data-filter-data="var:processTypes">项目类型</th>
 						<th data-field="username" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">创建者</th>
 						<th data-field="priority" data-formatter="priFormat"
@@ -1031,8 +992,8 @@
 							style="cursor: pointer;" title="开启自动刷新项目进度"
 							onclick="refreshProgress(this);"> -->
 						</th>
-						<th data-field="createtime" data-filter-control-placeholder=""
-							data-width="200">创建时间</th>
+						<!-- <th data-field="createtime" data-filter-control-placeholder=""
+							data-width="200">创建时间</th> -->
 						<th data-formatter="operationFormat" data-width="70">操作</th>
 					</tr>
 				</thead>
@@ -1066,6 +1027,14 @@
 							<td class="configValue"><input type="text"
 								class="form-control configValue" id="config_0_2"
 								placeholder="请输入新项目名"></td>
+						</tr>
+						<tr>
+							<td class="configKey">项目类型</td>
+							<td class="configValue"><select
+								class="form-control configValue" id="config_0_4" onchange="processTypeChange(this.options[this.options.selectedIndex].value);">
+									<option value="1" selected="selected">改错项目</option>
+									<option value="2">NR/FC项目</option>
+							</select></td>
 						</tr>
 						<tr>
 							<td class="configKey">项目优先级</td>
@@ -1121,7 +1090,7 @@
 								onclick="getItemsets();">配置质检图层</button>
 							<p class="help-block">已选择0个质检图层</p></td>
 					</tr>
-					<tr>
+					<tr style="display: none;">
 						<td class="configKey">启动类型</td>
 						<td class="configValue"><select class="form-control"
 							id="config_1_8">
@@ -1141,7 +1110,7 @@
 							value=""> <input type="hidden" id="config_2_12" value="">
 							<p class="help-block">已关联项目&lceil;&rfloor;</p></td>
 					</tr>
-					<tr>
+					<tr style="display: none;">
 						<td class="configKey">启动类型</td>
 						<td class="configValue"><select class="form-control"
 							id="config_2_17">
