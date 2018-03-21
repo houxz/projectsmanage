@@ -265,6 +265,9 @@
 		$("#config_2_18").val(new String());
 		$("#config_2_18").siblings("p").text("已添加人员0位");
 		$("#config_2_19").prop('selectedIndex', 0);
+		
+		$("#config_1_5").parents("tr").show();
+		$("#config_1_6").parents("tr").show();
 	}
 
 	function getConfig(processid, processname, priority, processtype) {
