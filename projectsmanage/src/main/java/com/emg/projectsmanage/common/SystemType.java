@@ -8,21 +8,21 @@ package com.emg.projectsmanage.common;
  */
 public enum SystemType {
 	/**
-	 * 0-未知
+	 * "POI视频编辑平台"
 	 */
-	UNKNOW(0, "未知"),
+	poivideoedit(0, "POI视频编辑平台"),
 	/**
-	 * 332, "质检项目"
+	 * 332, "数据库质检系统"
 	 */
-	CHECK(332, "质检项目"),
+	DBMapChecker(332, "数据库质检系统"),
 	/**
-	 * 349, "改错项目"
+	 * 349, "综合编辑平台"
 	 */
-	ERROR(349, "改错项目"),
+	MapDbEdit(349, "综合编辑平台"),
 	/**
-	 * 349, "改错项目"
+	 * 3491, "综合编辑平台_NRFC编辑"
 	 */
-	NRFC(366, "NR/FC项目");
+	MapDbEdit_NRFC(3491, "综合编辑平台_NRFC编辑");
 
 	private Integer value;
 	private String des;

@@ -424,7 +424,7 @@ public class InterfaceCtrl extends BaseCtrl {
 		try {
 			String username = new String();
 			Integer roleid = RoleType.ROLE_WORKER.getValue();
-			if (systemid.compareTo(SystemType.CHECK.getValue()) == 0) {// 批处理工具平台
+			if (systemid.compareTo(SystemType.DBMapChecker.getValue()) == 0) {// 批处理工具平台
 				username = "系统工具";
 			} else {
 				EmployeeModel record = new EmployeeModel();
@@ -532,7 +532,7 @@ public class InterfaceCtrl extends BaseCtrl {
 						} else {
 							status = true;
 						}
-					} else if (systemid.compareTo(SystemType.ERROR.getValue()) == 0) {// 综合编辑平台
+					} else if (systemid.compareTo(SystemType.MapDbEdit.getValue()) == 0) {// 综合编辑平台
 						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)
 																															// ->
 																															// (1,5)
@@ -612,7 +612,7 @@ public class InterfaceCtrl extends BaseCtrl {
 						} else {
 							status = true;
 						}
-					} else if (systemid.compareTo(SystemType.CHECK.getValue()) == 0) {// 批处理工具平台，质检平台
+					} else if (systemid.compareTo(SystemType.DBMapChecker.getValue()) == 0) {// 批处理工具平台，质检平台
 						if (statebefore == 12 && processbefore == 51 && stateafter == 11 && processafter == 52) {// (12,51)
 																													// ->
 																													// (11,52)

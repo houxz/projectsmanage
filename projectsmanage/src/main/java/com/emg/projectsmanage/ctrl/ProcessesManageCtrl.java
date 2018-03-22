@@ -229,7 +229,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 					ProjectModel newpro = new ProjectModel();
 					newpro.setName(config_1_4);
-					newpro.setSystemid(SystemType.CHECK.getValue());
+					newpro.setSystemid(SystemType.DBMapChecker.getValue());
 					newpro.setCreateby(uid);
 					newpro.setPriority(priority);
 
@@ -276,7 +276,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel349 = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config349.getDefaultValue()));
 			if (isNewProcess) {
 				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? newProcessName : (newProcessName + "_改错");
-				Integer systemid = type.equals(ProcessType.NRFC.getValue()) ? SystemType.NRFC.getValue() : SystemType.ERROR.getValue();
+				Integer systemid = type.equals(ProcessType.NRFC.getValue()) ? SystemType.MapDbEdit_NRFC.getValue() : SystemType.MapDbEdit.getValue();
 				
 				ProjectModel newpro = new ProjectModel();
 				newpro.setName(config_2_12);
@@ -329,7 +329,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					worker.setId(Integer.valueOf(strWorker));
 					workers.add(worker);
 				}
-				setWorkers(configDBModel349, projectid349, workers, uid, SystemType.ERROR.getValue());
+				setWorkers(configDBModel349, projectid349, workers, uid, SystemType.MapDbEdit.getValue());
 			}
 
 			List<ProcessConfigModel> processConfigs = processConfigModelDao.selectAllProcessConfigModels();
