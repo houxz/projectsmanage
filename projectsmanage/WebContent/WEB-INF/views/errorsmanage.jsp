@@ -109,13 +109,14 @@
 			<div class="input-group" style="width: 60%; margin: auto;">
 				<span class="input-group-addon">批次:</span>
 				<select name="batchid" class="form-control" id="batchid">
+					<option value="-1"></option>
 					<c:forEach var="batchid" items="${batchids }">
 						<option value="${batchid }">${batchid }</option>
 					</c:forEach>
 				</select> 
 				<span class="input-group-addon">错误筛选集合:</span> 
 				<select name="errorset" class="form-control" id="errorset">
-					<option value="-1">无</option>
+					<option value="-1"></option>
 					<c:forEach var="errorset" items="${errorSets }">
 						<option value="${errorset['id'] }">${errorset['name'] }</option>
 					</c:forEach>

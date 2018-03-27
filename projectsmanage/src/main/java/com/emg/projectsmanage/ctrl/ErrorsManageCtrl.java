@@ -99,7 +99,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
 
 			Long batchID = ParamUtils.getLongParameter(request, "batchid", 0);
-			if (batchID == null || batchID == 0) {
+			if (batchID == null || batchID <= 0) {
 				json.addObject("result", 0);
 				json.addObject("option", "批次信息有误");
 				return json;
