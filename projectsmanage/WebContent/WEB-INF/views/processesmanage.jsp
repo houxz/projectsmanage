@@ -249,10 +249,11 @@
 	}
 
 	function loadDefaultConfig() {
-		$("#config_0_1").val(new String());
-		$("#config_0_2").val(new String());
-		$("#config_0_3").val(0);
-		$("#config_0_3").val(1);
+		$("#config_processid").val(new String());
+		$("#config_processname").val(new String());
+		$("#config_processpriority").val(0);
+		$("#config_processprotype").val(1);
+		processTypeChange(1);
 
 		$("#config_1_5").prop('selectedIndex', 0);
 		$("#config_1_6").prop('selectedIndex', 0);
@@ -265,15 +266,12 @@
 		$("#config_2_18").val(new String());
 		$("#config_2_18").siblings("p").text("已添加人员0位");
 		$("#config_2_19").prop('selectedIndex', 0);
-		
-		$("#config_1_5").parents("tr").show();
-		$("#config_1_6").parents("tr").show();
 	}
 
 	function getConfig(processid, processname, priority, processtype) {
 		loadDefaultConfig();
 		if (processid > 0) {
-			$("#config_0_4").attr("disabled", true);
+			$("#config_processprotype").attr("disabled", true);
 			jQuery.post("./processesmanage.web", {
 				"atn" : "getconfigvalues",
 				"processid" : processid
@@ -287,18 +285,13 @@
 						}
 					}
 					
-					var config_0_4 = $("#config_0_4").val();
-					if(config_0_4 == 1) {
-						$("#config_1_5").parents("tr").show();
-						$("#config_1_6").parents("tr").show();
-					} else if(config_0_4 == 2) {
-						$("#config_1_5").parents("tr").hide();
-						$("#config_1_6").parents("tr").hide();
-					} else {
-						console.log("getConfig--错误的项目类型：" + config_0_4);
-						$("#config_1_5").parents("tr").show();
-						$("#config_1_6").parents("tr").show();
-					}
+					var config_processprotype = $("#config_processprotype").val();
+					processTypeChange(config_processprotype);
+					
+					var config_0_7 = $("#config_1_7").val();
+					$("#config_0_7").siblings("p").text("已选择" + (config_0_7 ? config_0_7 .split(",").length : 0) + "个区域");
+					var config_0_18 = $("#config_2_18").val();
+					$("#config_0_18").siblings("p").text("已添加人员" + (config_0_18 ? config_0_18.split(",").length : 0) + "位");
 
 					var config_1_3 = $("#config_1_3").val();
 					var config_1_4 = $("#config_1_4").val();
@@ -319,7 +312,7 @@
 				}
 			}, "json");
 		} else {
-			$("#config_0_4").removeAttr("disabled");
+			$("#config_processprotype").removeAttr("disabled");
 		}
 		showConfigDlg(processid, processname, priority, processtype);
 	}
@@ -327,14 +320,14 @@
 	function showConfigDlg(processid, processname, priority, processtype) {
 		$("#configDlg").dialog({
 							modal : true,
-							height : 600,
+							height : 630,
 							width : document.documentElement.clientWidth * 0.4,
 							title : "项目配置",
 							open : function(event, ui) {
-								$("#config_0_1").val(processid);
-								$("#config_0_2").val(processname);
-								$("#config_0_3").val(priority);
-								$("#config_0_4").val(processtype);
+								$("#config_processid").val(processid);
+								$("#config_processname").val(processname);
+								$("#config_processpriority").val(priority);
+								$("#config_processprotype").val(processtype);
 								$(".ui-dialog-titlebar-close").hide();
 								$('.navbar-example').scrollspy({
 									target : '.navbar-example'
@@ -345,10 +338,10 @@
 										text : "提交",
 										class : "btn btn-default",
 										click : function() {
-											var processid = $("#config_0_1").val();
-											var newProcessName = $("#config_0_2").val();
-											var priority = $("#config_0_3").val();
-											var protype = $("#config_0_4").val();
+											var processid = $("#config_processid").val();
+											var newProcessName = $("#config_processname").val();
+											var priority = $("#config_processpriority").val();
+											var protype = $("#config_processprotype").val();
 											var config_1_3 = $("#config_1_3").val();
 											var config_1_4 = $("#config_1_4").val();
 											var config_1_5 = $("#config_1_5").val();
@@ -424,7 +417,8 @@
 					},
 					onLoadSuccess : function(data) {
 						var values = new Array();
-						$.each($("#config_2_18").val().split(","), function(
+						var str_values = $("#config_2_18").val();
+						$.each(str_values.split(","), function(
 								index, domEle) {
 							values[index] = parseInt(domEle);
 						});
@@ -559,6 +553,7 @@
 										subStr += ']';
 										$("#config_2_18").val(value);
 										$("#config_2_18").siblings("p").text( "已添加人员" + length + "位");
+										$("#config_0_18").siblings("p").text( "已添加人员" + length + "位");
 
 										$(this).dialog("close");
 									} else {
@@ -595,7 +590,8 @@
 					},
 					onLoadSuccess : function(data) {
 						var values = new Array();
-						$.each($("#config_1_7").val().split(","), function(index, domEle) {
+						var str_values = $("#config_1_7").val();
+						$.each(str_values.split(","), function(index, domEle) {
 							values[index] = parseInt(domEle);
 						});
 						$('[data-toggle="itemAreas"]').bootstrapTable(
@@ -725,6 +721,7 @@
 										value = value.substring(0, value.length - 1);
 										$("#config_1_7").val(value);
 										$("#config_1_7").siblings("p").text( "已选择" + length + "个质检区域");
+										$("#config_0_7").siblings("p").text( "已选择" + length + "个质检区域");
 
 										$(this).dialog("close");
 									} else {
@@ -786,7 +783,7 @@
 		$("#itemsetsDlg").dialog(
 				{
 					modal : true,
-					height : 600,
+					height : 630,
 					width : document.documentElement.clientWidth * 0.6,
 					title : "质检图层配置",
 					open : function(event, ui) {
@@ -925,6 +922,9 @@
 										field: "progress",
 										value: progresses[index].progress
 									});
+									
+									$(obj).attr("src", "resources/images/refresh.gif");
+									$(obj).attr("title", "关闭自动刷新项目进度");
 								}
 							}
 						}
@@ -944,11 +944,19 @@
 	
 	function processTypeChange(selectValue) {
 		if(selectValue == 1) {
-			$("#config_1_5").parents("tr").show();
-			$("#config_1_6").parents("tr").show();
+			$("#modules li:not(:first-child)").show();
+			$("#config_0_7").parents("tr").hide();
+			$("#config_0_18").parents("tr").hide();
+			$("#config_0_19").parents("tr").hide();
+			$("#sc2").show();
+			$("#sc3").show();
 		} else if(selectValue == 2) {
-			$("#config_1_5").parents("tr").hide();
-			$("#config_1_6").parents("tr").hide();
+			$("#modules li:not(:first-child)").hide();
+			$("#config_0_7").parents("tr").show();
+			$("#config_0_18").parents("tr").show();
+			$("#config_0_19").parents("tr").show();
+			$("#sc2").hide();
+			$("#sc3").hide();
 		} else {
 			console.log("processTypeChange--错误的项目类型：" + selectValue);
 		}
@@ -991,9 +999,9 @@
 							data-filter-data="var:processStates">项目状态</th>
 						<th data-field="progress" data-formatter="progressFormat"
 							data-width="500">项目进度
-							<!-- <img id="refresh" src="resources/images/stop.jpg"
+							<img id="refresh" src="resources/images/stop.jpg"
 							style="cursor: pointer;" title="开启自动刷新项目进度"
-							onclick="refreshProgress(this);"> -->
+							onclick="refreshProgress(this);">
 						</th>
 						<!-- <th data-field="createtime" data-filter-control-placeholder=""
 							data-width="200">创建时间</th> -->
@@ -1006,14 +1014,14 @@
 	</div>
 	<div id="configDlg" style="display: none;">
 		<div id="navbar-example" style="width: 20%; float: left;">
-			<ul class="nav nav-pills nav-stacked">
+			<ul class="nav nav-pills nav-stacked" id="modules">
 				<li class="active"><a href="#sc1">基础配置</a></li>
 				<li><a href="#sc2">质检配置</a></li>
 				<li><a href="#sc3">改错配置</a></li>
 			</ul>
 		</div>
 		<div class="navbar-example"
-			style="width: 79%; height: 472px; float: left; overflow-y: auto;"
+			style="width: 79%; height: 500px; float: left; overflow-y: auto;"
 			data-spy="scroll" data-target="#navbar-example">
 			<div class="panel panel-default" id="sc1">
 				<div class="panel-heading">基础配置</div>
@@ -1022,19 +1030,19 @@
 						<tr>
 							<td class="configKey">项目编号</td>
 							<td class="configValue"><input type="text"
-								class="form-control configValue" id="config_0_1" disabled>
+								class="form-control configValue" id="config_processid" disabled>
 							</td>
 						</tr>
 						<tr>
 							<td class="configKey">项目名称</td>
 							<td class="configValue"><input type="text"
-								class="form-control configValue" id="config_0_2"
+								class="form-control configValue" id="config_processname"
 								placeholder="请输入新项目名"></td>
 						</tr>
 						<tr>
 							<td class="configKey">项目类型</td>
 							<td class="configValue"><select
-								class="form-control configValue" id="config_0_4" onchange="processTypeChange(this.options[this.options.selectedIndex].value);">
+								class="form-control configValue" id="config_processprotype" onchange="processTypeChange(this.options[this.options.selectedIndex].value);">
 									<option value="1" selected="selected">改错项目</option>
 									<option value="2">NR/FC项目</option>
 							</select></td>
@@ -1042,12 +1050,36 @@
 						<tr>
 							<td class="configKey">项目优先级</td>
 							<td class="configValue"><select
-								class="form-control configValue" id="config_0_3">
+								class="form-control configValue" id="config_processpriority">
 									<option value="-2">极低</option>
 									<option value="-1">低</option>
 									<option value="0" selected="selected">一般</option>
 									<option value="1">高</option>
 									<option value="2">极高</option>
+							</select></td>
+						</tr>
+						<tr style="display:none;">
+							<td class="configKey">区域</td>
+							<td class="configValue"><input type="hidden" id="config_0_7"
+								value="">
+								<button type="button" class="btn btn-default"
+									onclick="getItemAreas();">配置区域</button>
+								<p class="help-block">已选择0个区域</p></td>
+						</tr>
+						<tr style="display:none;">
+							<td class="configKey">人员</td>
+							<td class="configValue"><input type="hidden"
+								id="config_0_18" value="">
+								<button type="button" class="btn btn-default"
+									onclick="getWorkers();">添加人员</button>
+								<p class="help-block">已添加人员0位</p></td>
+						</tr>
+						<tr style="display:none;">
+							<td class="configKey">公有私有</td>
+							<td class="configValue"><select class="form-control"
+								id="config_0_19">
+									<option value="0">公有</option>
+									<option value="1">私有</option>
 							</select></td>
 						</tr>
 					</tbody>
@@ -1081,12 +1113,6 @@
 					</tr>
 					<tr>
 						<td class="configKey">质检图层</td>
-						<!-- <td class="configValue"><select class="form-control"
-							id="config_1_6">
-								<option value="1" selected="selected">POI</option>
-								<option value="2">Road</option>
-								<option value="3">背景</option>
-						</select></td> -->
 						<td class="configValue"><input type="hidden" id="config_1_6"
 							value="">
 							<button type="button" class="btn btn-default"
