@@ -143,7 +143,7 @@
 						<th data-field="featureid">featureid</th>
 						<th data-field="layerid">layerid</th>
 						<th data-field="editver">editver</th>
-						<th data-field="field_name">field_name</th>
+						<th data-field="fieldName">field_name</th>
 						<th data-field="editvalue">editvalue</th>
 						<th data-field="checkvalue">checkvalue</th>
 						<th data-field="qid">qid</th>
