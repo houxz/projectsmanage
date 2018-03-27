@@ -204,6 +204,7 @@
 				$(".ui-dialog-titlebar-close").hide();
 			},
 			close : function(event, ui) {
+				$('#input-expand-node').val(new String());
 				$('#errorTypesTree').treeview('uncheckAll', { silent: true });
 				$('#errorTypesTree').treeview('collapseAll', { silent: true });
 			},
