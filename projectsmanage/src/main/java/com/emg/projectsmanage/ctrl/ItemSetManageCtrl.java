@@ -554,14 +554,87 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			} else {
 				ItemSetModel record = new ItemSetModel();
 				record.setId(itemSetID);
-				record.setName(name);
-				record.setType(type);
-				record.setSystype(systype);
-				record.setUnit(unit.byteValue());
-				record.setDesc(desc);
+				List<ItemSetModel> curItemSetList = selectItemSets(record, 1, 0);
+				if (curItemSetList != null && curItemSetList.size() == 1) {
+					ItemSetModel curItemSet = curItemSetList.get(0);
+					String curName = curItemSet.getName();
+					List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+					String newName = new String();
+					String suffix = curName.substring(curName.lastIndexOf("_"));
+					switch (suffix) {
+					case "_POI+其他":
+						newName = name.endsWith("_POI+其他") ? name : name + "_POI+其他";
+						itemInfos = selectPOIAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+						break;
+					case "_Road+其他":
+						newName = name.endsWith("_Road+其他") ? name : name + "_Road+其他";
+						itemInfos = selectRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+						break;
+					case "_POI+Road":
+						newName = name.endsWith("_POI+Road") ? name : name + "_POI+Road";
+						itemInfos = selectPOIRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+						break;
+					case "_其他":
+						newName = name.endsWith("_其他") ? name : name + "_其他";
+						itemInfos = selectOtherItemInfosByOids(layernames, qids, type, systype, unit);
+						break;
+					}
 
-				if (updateItemset(record)) {
-					ret = true;
+					if (!itemInfos.isEmpty()) {
+						List<Long> itemDetails = new ArrayList<Long>();
+						Set<String> referLayers = new HashSet<String>();
+						Set<String> layers = new HashSet<String>();
+						Integer layercount = 0;
+						for (ItemInfoModel itemInfo : itemInfos) {
+							itemDetails.add(itemInfo.getId());
+
+							String layer = itemInfo.getLayername();
+							layers.add(layer);
+
+							String refer = itemInfo.getReferdata();
+							if (refer != null && !refer.isEmpty()) {
+								String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+								for (String r : rs) {
+									referLayers.add(r);
+								}
+
+								Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+								layercount = layercount > rc ? layercount : rc;
+							}
+						}
+
+						StringBuilder sb_layername = new StringBuilder();
+						for (String layer : layers) {
+							sb_layername.append(layer);
+							sb_layername.append(";");
+						}
+						sb_layername.deleteCharAt(sb_layername.length() - 1);
+
+						StringBuilder sb_referdata = new StringBuilder();
+						if (referLayers != null && referLayers.size() > 0) {
+							for (String layer : referLayers) {
+								sb_referdata.append(layer);
+								sb_referdata.append("|");
+							}
+							sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+							sb_referdata.append(":");
+							sb_referdata.append(layercount);
+						}
+
+						ItemSetModel newItemSet = new ItemSetModel();
+						newItemSet.setId(itemSetID);
+						newItemSet.setName(newName);
+						newItemSet.setLayername(sb_layername.toString());
+						newItemSet.setType(type);
+						newItemSet.setSystype(systype);
+						newItemSet.setReferdata(sb_referdata.toString());
+						newItemSet.setUnit(unit.byteValue());
+						newItemSet.setDesc(desc);
+
+						if (updateItemset(newItemSet) && (setItemSetDetails(itemSetID, itemDetails) > 0)) {
+							ret = true;
+						}
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -643,10 +716,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_itemset ");
@@ -699,10 +772,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			final StringBuffer sql = new StringBuffer();
 			sql.append(" INSERT INTO ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_itemset (\"name\", \"layername\", \"type\", \"systype\", \"referdata\", \"unit\", \"desc\") ");
@@ -723,8 +796,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					return ps;
 				}
 			}, keyHolder);
-			if(keyHolder.getKeys().size() > 1) {
-				ret = (Long)keyHolder.getKeys().get("id");
+			if (keyHolder.getKeys().size() > 1) {
+				ret = (Long) keyHolder.getKeys().get("id");
 			} else {
 				ret = keyHolder.getKey().longValue();
 			}
@@ -741,10 +814,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" UPDATE ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_itemset ");
@@ -788,10 +861,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" DELETE FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_itemset ");
@@ -802,7 +875,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			StringBuffer sql_del = new StringBuffer();
 			sql_del.append(" DELETE FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql_del.append(configDBModel.getDbschema()).append(".");
 			}
 			sql_del.append("tb_itemsetdetail ");
@@ -822,10 +895,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT count(*) FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_itemset ");
@@ -870,10 +943,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT DISTINCT ON (oid) * FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_iteminfo ");
@@ -906,10 +979,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_iteminfo ");
@@ -958,10 +1031,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_iteminfo ");
@@ -1010,10 +1083,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_iteminfo ");
@@ -1062,10 +1135,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_iteminfo ");
@@ -1107,10 +1180,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT oid, name FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_iteminfo ");
@@ -1138,10 +1211,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT itemid FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_itemsetdetail ");
@@ -1163,10 +1236,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			StringBuffer sql_del = new StringBuffer();
 			sql_del.append(" DELETE FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql_del.append(configDBModel.getDbschema()).append(".");
 			}
 			sql_del.append("tb_itemsetdetail ");
@@ -1178,7 +1251,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			if (ret_del >= 0) {
 				StringBuffer sql = new StringBuffer();
 				sql.append(" INSERT INTO ");
-				if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
+				if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 					sql.append(configDBModel.getDbschema()).append(".");
 				}
 				sql.append("tb_itemsetdetail (itemsetid, itemid) ");
