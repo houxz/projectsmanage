@@ -275,7 +275,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			ProcessConfigModel config349 = processConfigModelDao.selectByPrimaryKey(9);
 			ConfigDBModel configDBModel349 = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config349.getDefaultValue()));
 			if (isNewProcess) {
-				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? newProcessName : (newProcessName + "_改错");
+				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? (newProcessName + "_NR/FC") : (newProcessName + "_改错");
 				Integer systemid = type.equals(ProcessType.NRFC.getValue()) ? SystemType.MapDbEdit_NRFC.getValue() : SystemType.MapDbEdit.getValue();
 				
 				ProjectModel newpro = new ProjectModel();
