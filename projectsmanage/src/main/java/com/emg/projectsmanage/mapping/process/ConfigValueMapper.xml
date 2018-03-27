@@ -19,7 +19,9 @@
 		<include refid="Base_Column_List" />
 		from tb_config_value,tb_config
 		where processid = #{processid,jdbcType=BIGINT}
-		 AND tb_config_value.moduleid = #{moduleid,jdbcType=INTEGER}
+		<if test="moduleid != null" >
+			AND tb_config_value.moduleid = #{moduleid,jdbcType=INTEGER}
+		</if>
 		 AND tb_config_value.configid = tb_config.id
 	</select>
 	

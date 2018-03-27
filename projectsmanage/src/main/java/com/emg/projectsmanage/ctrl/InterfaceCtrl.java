@@ -1427,7 +1427,9 @@ public class InterfaceCtrl extends BaseCtrl {
 		try {
 			ConfigValueModel value = new ConfigValueModel();
 			value.setProcessId(processid);
-			value.setModuleid(moduleid);
+			if(moduleid != null && moduleid.compareTo(0) > 0) {
+				value.setModuleid(moduleid);
+			}
 			List<ConfigValueModel> configList = configValueModelDao.selectConfigsById(value);
 
 			// 数据库配置信息
