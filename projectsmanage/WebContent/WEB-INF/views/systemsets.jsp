@@ -142,7 +142,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td class="configKey">改错项目库</td>
+								<td class="configKey">编辑项目库</td>
 								<td><select class="form-control systemSet" id="config_2_9">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if
@@ -153,7 +153,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td class="configKey">改错任务库</td>
+								<td class="configKey">编辑任务库</td>
 								<td><select class="form-control systemSet" id="config_2_10">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
@@ -163,7 +163,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td class="configKey">改错错误库</td>
+								<td class="configKey">错误库</td>
 								<td><select class="form-control systemSet" id="config_2_16">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('error') }">
