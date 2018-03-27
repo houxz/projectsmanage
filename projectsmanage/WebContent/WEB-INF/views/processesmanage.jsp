@@ -74,7 +74,7 @@
 	function statesFormat(value, row, index) {
 		return processStates[row.state];
 	}
-	function typesFormat(value, row, index) {
+	function processTypesFormat(value, row, index) {
 		return processTypes[row.type];
 	}
 	function areaTypesFormat(value, row, index) {
@@ -84,7 +84,7 @@
 	function sysFormat(value, row, index) {
 		return itemsetSysTypes[row.systype];
 	}
-	function typeFormat(value, row, index) {
+	function itemsetTypesFormat(value, row, index) {
 		return itemsetTypes[row.type];
 	}
 	function unitFormat(value, row, index) {
@@ -986,7 +986,7 @@
 						</th>
 						<th data-field="name" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">项目名称</th>
-						<th data-field="type" data-formatter="typesFormat"
+						<th data-field="type" data-formatter="processTypesFormat"
 							data-filter-control="select" data-width="120"
 							data-filter-data="var:processTypes">项目类型</th>
 						<th data-field="username" data-filter-control="input"
@@ -1202,7 +1202,7 @@
 					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">区域编号</th>
-					<th data-field="type" data-filter-control="select"
+					<th data-field="areatype" data-filter-control="select"
 						data-formatter="areaTypesFormat"
 						data-filter-data="var:itemAreaTypes"
 						data-filter-control-placeholder="" data-width="20">区域级别</th>
@@ -1232,7 +1232,7 @@
 						data-filter-control-placeholder="">图层集合名称</th>
 					<th data-field="layername" data-filter-control="input"
 						data-filter-control-placeholder="">图层</th>
-					<!-- <th data-field="type" data-formatter="typeFormat"
+					<!-- <th data-field="type" data-formatter="itemsetTypesFormat"
 						data-filter-control="select" data-filter-data="var:itemsetTypes">类型</th> -->
 					<!-- <th data-field="systype" data-formatter="sysFormat"
 						data-filter-control="select"

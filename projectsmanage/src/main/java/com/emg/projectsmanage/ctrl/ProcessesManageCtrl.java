@@ -514,7 +514,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					case "id":
 						itemAreaModel.setId(Integer.valueOf(filterPara.get(key).toString()));
 						break;
-					case "type":
+					case "areatype":
 						itemAreaModel.setType(Integer.valueOf(filterPara.get(key).toString()));
 						break;
 					case "province":
