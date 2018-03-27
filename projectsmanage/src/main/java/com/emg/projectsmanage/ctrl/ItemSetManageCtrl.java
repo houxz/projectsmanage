@@ -830,6 +830,30 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			}
 			sql.append("tb_itemset ");
 			sql.append(" WHERE 1=1 ");
+			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
+				sql.append(" AND id = " + record.getId());
+			}
+			if (record.getName() != null && !record.getName().isEmpty()) {
+				sql.append(" AND name like '%" + record.getName() + "%'");
+			}
+			if (record.getLayername() != null && !record.getLayername().isEmpty()) {
+				sql.append(" AND layername like '%" + record.getLayername() + "%'");
+			}
+			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
+				sql.append(" AND type = " + record.getType());
+			}
+			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
+				sql.append(" AND systype = " + record.getSystype());
+			}
+			if (record.getReferdata() != null && !record.getReferdata().isEmpty()) {
+				sql.append(" AND referdata like '%" + record.getReferdata() + "%'");
+			}
+			if (record.getUnit() != null && record.getUnit() >= 0) {
+				sql.append(" AND unit = " + record.getUnit());
+			}
+			if (record.getDesc() != null && !record.getDesc().isEmpty()) {
+				sql.append(" AND desc like '%" + record.getDesc() + "%'");
+			}
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
 			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);

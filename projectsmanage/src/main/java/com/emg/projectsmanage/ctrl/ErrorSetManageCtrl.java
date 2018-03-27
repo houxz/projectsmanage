@@ -483,6 +483,24 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			}
 			sql.append("tb_errorset");
 			sql.append(" WHERE 1=1 ");
+			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
+				sql.append(" AND \"id\" = " + record.getId());
+			}
+			if(record.getName() != null && !record.getName().isEmpty()) {
+				sql.append(" AND \"name\" like '%" + record.getName() + "%'");
+			}
+			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
+				sql.append(" AND \"type\" = " + record.getType());
+			}
+			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
+				sql.append(" AND \"systype\" = " + record.getSystype());
+			}
+			if (record.getUnit() != null && record.getUnit() >= 0) {
+				sql.append(" AND \"unit\" = " + record.getUnit());
+			}
+			if(record.getDesc() != null && !record.getDesc().isEmpty()) {
+				sql.append(" AND \"desc\" like '%" + record.getDesc() + "%'");
+			}
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
 			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
