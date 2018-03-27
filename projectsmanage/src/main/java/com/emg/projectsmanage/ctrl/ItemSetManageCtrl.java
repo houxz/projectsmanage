@@ -300,7 +300,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			Integer itemInfoCount = 0;
 			if (isNewItemSet) {
 				// POI + 其他
-				List<ItemInfoModel> itemInfos = selectPOIAndOtherItemInfosByOids(layernames, qids);
+				List<ItemInfoModel> itemInfos = selectPOIAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
 				if (!itemInfos.isEmpty()) {
 					itemInfoCount += itemInfos.size();
 					List<Long> itemDetails = new ArrayList<Long>();
@@ -362,7 +362,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 				// Road + 其他
 				itemInfos.clear();
-				itemInfos = selectRoadAndOtherItemInfosByOids(layernames, qids);
+				itemInfos = selectRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
 				if (!itemInfos.isEmpty()) {
 					itemInfoCount += itemInfos.size();
 					List<Long> itemDetails = new ArrayList<Long>();
@@ -424,7 +424,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 				// Road + POI
 				itemInfos.clear();
-				itemInfos = selectPOIRoadAndOtherItemInfosByOids(layernames, qids);
+				itemInfos = selectPOIRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
 				if (!itemInfos.isEmpty()) {
 					itemInfoCount += itemInfos.size();
 					List<Long> itemDetails = new ArrayList<Long>();
@@ -486,7 +486,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 				// 其它
 				itemInfos.clear();
-				itemInfos = selectOtherItemInfosByOids(layernames, qids);
+				itemInfos = selectOtherItemInfosByOids(layernames, qids, type, systype, unit);
 				if (!itemInfos.isEmpty()) {
 					itemInfoCount += itemInfos.size();
 					List<Long> itemDetails = new ArrayList<Long>();
@@ -876,7 +876,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	 *            质检项
 	 * @return
 	 */
-	private List<ItemInfoModel> selectPOIAndOtherItemInfosByOids(Set<String> layernames, Set<String> oids) {
+	private List<ItemInfoModel> selectPOIAndOtherItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
 		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
@@ -890,9 +890,9 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			}
 			sql.append("tb_iteminfo ");
 			sql.append(" WHERE enable = 1 ");
-			sql.append(" AND type = 0 ");
-			sql.append(" AND unit = 0 ");
-			sql.append(" AND systype = 86 ");
+			sql.append(" AND type = " + type);
+			sql.append(" AND unit = " + unit);
+			sql.append(" AND systype = " + systype);
 			sql.append(" AND referdata LIKE '%POI%' ");
 			sql.append(" AND referdata NOT LIKE '%Road%' ");
 			if (layernames != null && layernames.size() > 0) {
@@ -928,7 +928,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	 *            质检项
 	 * @return
 	 */
-	private List<ItemInfoModel> selectRoadAndOtherItemInfosByOids(Set<String> layernames, Set<String> oids) {
+	private List<ItemInfoModel> selectRoadAndOtherItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
 		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
@@ -942,9 +942,9 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			}
 			sql.append("tb_iteminfo ");
 			sql.append(" WHERE enable = 1 ");
-			sql.append(" AND type = 0 ");
-			sql.append(" AND unit = 0 ");
-			sql.append(" AND systype = 86 ");
+			sql.append(" AND type = " + type);
+			sql.append(" AND unit = " + unit);
+			sql.append(" AND systype = " + systype);
 			sql.append(" AND referdata LIKE '%Road%' ");
 			sql.append(" AND referdata NOT LIKE '%POI%' ");
 			if (layernames != null && layernames.size() > 0) {
@@ -980,7 +980,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	 *            质检项
 	 * @return
 	 */
-	private List<ItemInfoModel> selectPOIRoadAndOtherItemInfosByOids(Set<String> layernames, Set<String> oids) {
+	private List<ItemInfoModel> selectPOIRoadAndOtherItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
 		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
@@ -994,9 +994,9 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			}
 			sql.append("tb_iteminfo ");
 			sql.append(" WHERE enable = 1 ");
-			sql.append(" AND type = 0 ");
-			sql.append(" AND unit = 0 ");
-			sql.append(" AND systype = 86 ");
+			sql.append(" AND type = " + type);
+			sql.append(" AND unit = " + unit);
+			sql.append(" AND systype = " + systype);
 			sql.append(" AND (referdata LIKE '%Road%POI%' ");
 			sql.append(" OR referdata LIKE '%POI%Road%') ");
 			if (layernames != null && layernames.size() > 0) {
@@ -1032,7 +1032,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	 *            质检项
 	 * @return
 	 */
-	private List<ItemInfoModel> selectOtherItemInfosByOids(Set<String> layernames, Set<String> oids) {
+	private List<ItemInfoModel> selectOtherItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
 		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
@@ -1046,9 +1046,9 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			}
 			sql.append("tb_iteminfo ");
 			sql.append(" WHERE enable = 1 ");
-			sql.append(" AND type = 0 ");
-			sql.append(" AND unit = 0 ");
-			sql.append(" AND systype = 86 ");
+			sql.append(" AND type = " + type);
+			sql.append(" AND unit = " + unit);
+			sql.append(" AND systype = " + systype);
 			sql.append(" AND referdata NOT LIKE '%POI%' ");
 			sql.append(" AND referdata NOT LIKE '%Road%' ");
 			if (layernames != null && layernames.size() > 0) {
