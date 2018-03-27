@@ -124,9 +124,8 @@
 								<td class="configKey">质检项目库</td>
 								<td><select class="form-control systemSet" id="config_1_1">
 										<c:forEach items="${configDBModels }" var="configDBModel">
-											<c:if
-												test="${configDBModel['connname'].equals('projectmanager') }">
-												<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
+											<c:if test="${configDBModel['connname'].equals('projectmanager') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
 											</c:if>
 										</c:forEach>
 								</select></td>
@@ -136,7 +135,7 @@
 								<td><select class="form-control systemSet" id="config_1_2">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
-												<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
 											</c:if>
 										</c:forEach>
 								</select></td>
@@ -147,7 +146,7 @@
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if
 												test="${configDBModel['connname'].equals('projectmanager') }">
-												<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
 											</c:if>
 										</c:forEach>
 								</select></td>
@@ -157,7 +156,7 @@
 								<td><select class="form-control systemSet" id="config_2_10">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
-												<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
 											</c:if>
 										</c:forEach>
 								</select></td>
@@ -167,7 +166,7 @@
 								<td><select class="form-control systemSet" id="config_2_16">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('error') }">
-												<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
 											</c:if>
 										</c:forEach>
 								</select></td>
@@ -177,7 +176,7 @@
 								<td><select class="form-control systemSet" id="config_0_20">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('error2') }">
-												<option value="${configDBModel['id']}">${configDBModel['dbname']}(${configDBModel['ip']})</option>
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
 											</c:if>
 										</c:forEach>
 								</select></td>
