@@ -548,7 +548,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 				if (itemInfoCount.equals(0)) {
 					json.addObject("result", false);
-					json.addObject("option", "图层与质检项不匹配");
+					json.addObject("option", "图层、质检项、类型、操作系统、质检单位不匹配");
 					return json;
 				}
 			} else {
