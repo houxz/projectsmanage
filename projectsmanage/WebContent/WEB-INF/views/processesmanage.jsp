@@ -1004,7 +1004,7 @@
 							</button>
 						</th>
 						<th data-field="name" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="120">项目名称</th>
+							data-filter-control-placeholder="" data-width="160">项目名称</th>
 						<th data-field="type" data-formatter="processTypesFormat"
 							data-filter-control="select" data-width="120"
 							data-filter-data="var:processTypes">项目类型</th>
@@ -1014,7 +1014,7 @@
 							data-filter-control="select" data-width="120"
 							data-filter-data="var:priorityLevels">优先级</th>
 						<th data-field="state" data-formatter="statesFormat"
-							data-filter-control="select" data-width="100"
+							data-filter-control="select" data-width="80"
 							data-filter-data="var:processStates">项目状态</th>
 						<th data-field="progress" data-formatter="progressFormat"
 							data-width="500">项目进度
