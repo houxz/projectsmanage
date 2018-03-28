@@ -93,7 +93,7 @@
 
     var getCursorPosition = function(el) {
         if ($.fn.bootstrapTable.utils.isIEBrowser()) {
-            if ($(el).is('input')) {
+            if ($(el).is('input') && $(el).attr('type') == 'text') {
                 var pos = 0;
                 if ('selectionStart' in el) {
                     pos = el.selectionStart;
@@ -104,6 +104,7 @@
                     Sel.moveStart('character', -el.value.length);
                     pos = Sel.text.length - SelLength;
                 }
+                console.log(pos);
                 return pos;
             } else {
                 return -1;
@@ -115,7 +116,7 @@
 
     var setCursorPosition = function (el, index) {
         if ($.fn.bootstrapTable.utils.isIEBrowser()) {
-            if(el.setSelectionRange !== undefined) {
+            if($(el).attr('type') == 'text' && el.setSelectionRange !== undefined) {
                 el.setSelectionRange(index, index);
             } else {
                 $(el).val(el.value);
