@@ -243,27 +243,21 @@ button {
 	opacity: 0.5;
 }
 
-.pagination>li>a,
-.pagination>li>span {
+.pagination>li>a,.pagination>li>span {
 	color: #333;
 }
 
-.pagination > .active > a,
-.pagination > .active > span,
-.pagination > .active > a:hover,
-.pagination > .active > span:hover,
-.pagination > .active > a:focus,
-.pagination > .active > span:focus {
+.pagination>.active>a,.pagination>.active>span,.pagination>.active>a:hover,.pagination>.active>span:hover,.pagination>.active>a:focus,.pagination>.active>span:focus
+	{
 	color: #333;
 	background-color: #e7e7e7;
 	border-color: #dddddd;
 }
 
-#navbar-example .nav-pills>li.active>a,
-#navbar-example .nav-pills>li.active>a:focus, 
-#navbar-example .nav-pills>li.active>a:hover {
+#navbar-example .nav-pills>li.active>a,#navbar-example .nav-pills>li.active>a:focus,#navbar-example .nav-pills>li.active>a:hover
+	{
 	color: #333;
-    background-color: #e7e7e7;
+	background-color: #e7e7e7;
 }
 
 .configKey {
@@ -277,5 +271,13 @@ button {
 }
 
 .indexHidden {
-	display : none !important;
+	display: none !important;
+}
+
+.bootstrapColumn {
+	display: block;
+	width: 100%;
+	word-wrap: break-word;
+	white-space: pre-wrap;
+	white-space: -moz-pre-wrap;
 }

@@ -81,6 +81,21 @@
 		return html.join('');
 	}
 	
+	function nameFormat(value, row, index) {
+		var html = new Array();
+		html.push("<div class='bootstrapColumn' >");
+		html.push(value);
+		html.push("</div>");
+		return html.join("");
+	}
+	
+	function layernameFormat(value, row, index) {
+		var html = new Array();
+		html.push("<pre class='bootstrapColumn' >");
+		html.push(value);
+		html.push("</pre>");
+		return html.join("");
+	}
 	function sysFormat(value, row, index) {
 		return itemsetSysTypes[row.systype];
 	}
@@ -92,9 +107,16 @@
 	}
 	function referdataFormat(value, row, index) {
 		var html = new Array();
-		html.push("<pre style='word-wrap: break-word; white-space: pre-wrap; white-space: -moz-pre-wrap' >");
+		html.push("<pre class='bootstrapColumn' >");
 		html.push(value);
 		html.push("</pre>");
+		return html.join("");
+	}
+	function descFormat(value, row, index) {
+		var html = new Array();
+		html.push("<div class='bootstrapColumn' >");
+		html.push(value);
+		html.push("</div>");
 		return html.join("");
 	}
 
@@ -575,22 +597,24 @@
 								<span class="glyphicon glyphicon-plus"></span>
 							</button>
 						</th>
-						<th data-field="name" data-filter-control="input"
-							data-filter-control-placeholder="">质检集合名称</th>
+						<th data-field="name" data-filter-control="input" data-width="120"
+							data-formatter="nameFormat" data-filter-control-placeholder="">质检集合名称</th>
 						<th data-field="layername" data-filter-control="input"
+							data-width="160" data-formatter="layernameFormat"
 							data-filter-control-placeholder="">图层</th>
 						<th data-field="type" data-formatter="typeFormat"
-							data-filter-control="select" data-filter-data="var:itemsetTypes" data-width="80">类型</th>
+							data-filter-control="select" data-filter-data="var:itemsetTypes"
+							data-width="80">类型</th>
 						<th data-field="systype" data-formatter="sysFormat"
-							data-filter-control="select"
+							data-filter-control="select" data-width="100"
 							data-filter-data="var:itemsetSysTypes">操作系统</th>
-						<th data-field="referdata" data-formatter="referdataFormat"
-							data-filter-control="input" data-filter-control-placeholder=""
-							data-width="200">参考图层</th>
-						<th data-field="unit" data-formatter="unitFormat"
+						<th data-field="referdata" data-width="200"
+							data-formatter="referdataFormat" data-filter-control="input"
+							data-filter-control-placeholder="">参考图层</th>
+						<th data-field="unit" data-formatter="unitFormat" data-width="100"
 							data-filter-control="select" data-filter-data="var:itemsetUnits">质检单位</th>
-						<th data-field="desc" data-filter-control="input"
-							data-filter-control-placeholder="">描述</th>
+						<th data-field="desc" data-filter-control="input" data-width="140"
+							data-formatter="descFormat" data-filter-control-placeholder="">描述</th>
 						<!-- <th data-field="updatetime">更新时间</th> -->
 						<th data-formatter="operationFormat" data-width="80">操作</th>
 					</tr>
