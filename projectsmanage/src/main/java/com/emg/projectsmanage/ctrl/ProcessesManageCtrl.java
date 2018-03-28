@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.emg.projectsmanage.common.Common;
 import com.emg.projectsmanage.common.CommonConstants;
-import com.emg.projectsmanage.common.DatabaseSeparator;
 import com.emg.projectsmanage.common.DatabaseType;
 import com.emg.projectsmanage.common.ItemSetEnable;
 import com.emg.projectsmanage.common.ItemSetSysType;
@@ -703,7 +703,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		try {
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT DISTINCT ON (" + separator + "province" + separator + "," + separator + "city" + separator + "," + separator + "type" + separator + ") * FROM ");
@@ -758,7 +758,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		try {
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");

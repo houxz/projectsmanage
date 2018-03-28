@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import com.emg.projectsmanage.common.DatabaseSeparator;
+import com.emg.projectsmanage.common.Common;
 import com.emg.projectsmanage.common.DatabaseType;
 import com.emg.projectsmanage.common.ItemSetEnable;
 import com.emg.projectsmanage.common.ItemSetSysType;
@@ -718,7 +718,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
@@ -776,7 +776,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			final StringBuffer sql = new StringBuffer();
 			sql.append(" INSERT INTO ");
@@ -820,7 +820,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" UPDATE ");
@@ -869,7 +869,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" DELETE FROM ");
@@ -905,7 +905,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT count(*) FROM ");
@@ -955,7 +955,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT DISTINCT ON (" + separator + "oid" + separator + ") * FROM ");
@@ -993,7 +993,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
@@ -1047,7 +1047,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
@@ -1101,7 +1101,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
@@ -1155,7 +1155,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
@@ -1202,8 +1202,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
-
+			String separator = Common.getDatabaseSeparator(dbtype);
+			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT " + separator + "oid" + separator + ", " + separator + "name" + separator + " FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
@@ -1235,7 +1235,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT " + separator + "itemid" + separator + " FROM ");
@@ -1262,7 +1262,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql_del = new StringBuffer();
 			sql_del.append(" DELETE FROM ");

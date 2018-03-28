@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import com.emg.projectsmanage.common.DatabaseSeparator;
+import com.emg.projectsmanage.common.Common;
 import com.emg.projectsmanage.common.DatabaseType;
 import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
@@ -310,7 +310,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
@@ -363,7 +363,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 			
 			final StringBuffer sql = new StringBuffer();
 			sql.append(" INSERT INTO ");
@@ -406,7 +406,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" UPDATE ");
@@ -449,7 +449,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" DELETE FROM ");
@@ -485,7 +485,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT count(*) FROM ");
@@ -554,7 +554,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT " + separator + "itemid" + separator + " FROM ");
@@ -581,7 +581,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			String separator = Common.getDatabaseSeparator(dbtype);
 			
 			StringBuffer sql_del = new StringBuffer();
 			sql_del.append(" DELETE FROM ");

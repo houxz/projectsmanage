@@ -8,11 +8,15 @@ package com.emg.projectsmanage.common;
  */
 public enum DatabaseSeparator {
 	/**
-	 * 1, "MySQL"
+	 * DEFAULT, "`"
+	 */
+	DEFAULT(0, "`"),
+	/**
+	 * MySQL, "`"
 	 */
 	MYSQL(1, "`"),
 	/**
-	 * 2, "PostgreSQL"
+	 * PostgreSQL, "\""
 	 */
 	POSTGRESQL(2, "\"");
 
