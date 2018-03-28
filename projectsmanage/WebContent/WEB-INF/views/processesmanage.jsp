@@ -212,6 +212,34 @@
 		html.push("</select>");
 		return html.join("");
 	}
+	function nameFormat(value, row, index) {
+		var html = new Array();
+		html.push("<div class='bootstrapColumn' >");
+		html.push(value);
+		html.push("</div>");
+		return html.join("");
+	}
+	function layernameFormat(value, row, index) {
+		var html = new Array();
+		html.push("<pre class='bootstrapColumn' >");
+		html.push(value);
+		html.push("</pre>");
+		return html.join("");
+	}
+	function referdataFormat(value, row, index) {
+		var html = new Array();
+		html.push("<pre class='bootstrapColumn' >");
+		html.push(value);
+		html.push("</pre>");
+		return html.join("");
+	}
+	function descFormat(value, row, index) {
+		var html = new Array();
+		html.push("<div class='bootstrapColumn' >");
+		html.push(value);
+		html.push("</div>");
+		return html.join("");
+	}
 
 	function changeState(state, processid) {
 		jQuery.post("./processesmanage.web", {
@@ -816,74 +844,6 @@
 						$('[data-toggle="itemsets"]').bootstrapTable("destroy");
 					},
 					buttons : [
-								{
-										text : "<",
-										title : "上一条",
-										class : "btn btn-default",
-										click : function() {
-											if(itemSetFirstIn) {
-												$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[0] * 31);
-												itemSetOn = itemSetSelected[0];
-												itemSetFirstIn = false;
-											} else {
-												if (itemSetOn < 0) {
-													$('[data-toggle="itemSets"]').bootstrapTable('scrollTo', 0);
-													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
-												} else {
-													var index = itemSetSelected.indexOf(itemSetOn);
-													if (index < 0) {
-														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',0);
-													} else if (index > itemSetSelected.length - 1) {
-														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo','bottom');
-													} else {
-														if (index == 0) {
-															$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[0] * 31);
-															itemSetOn = itemSetSelected[0];
-															$.webeditor.showMsgLabel("warning","已经跳转到第一条");
-														} else {
-															var preIndex = index - 1;
-															$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[preIndex] * 31);
-															itemSetOn = itemSetSelected[preIndex];
-														}
-													}
-												}
-											}
-										}
-									},
-									{
-										text : ">",
-										title : "下一条",
-										class : "btn btn-default",
-										click : function() {
-											if(itemSetFirstIn) {
-												$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[0] * 31);
-												itemSetOn = itemSetSelected[0];
-												itemSetFirstIn = false;
-											} else {
-												if (itemSetOn < 0) {
-													$('[data-toggle="itemSets"]').bootstrapTable('scrollTo', 0);
-												} else {
-													var index = itemSetSelected.indexOf(itemSetOn);
-													if (index < 0) {
-														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',0);
-													} else if (index > itemSetSelected.length - 1) {
-														$('[data-toggle="itemSets"]').bootstrapTable('scrollTo','bottom');
-													} else {
-														if (index == itemSetSelected.length - 1) {
-															var nextIndex = itemSetSelected.length - 1;
-															$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[nextIndex] * 31);
-															itemSetOn = itemSetSelected[nextIndex];
-															$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
-														} else {
-															var nextIndex = index + 1;
-															$('[data-toggle="itemSets"]').bootstrapTable('scrollTo',itemSetSelected[nextIndex] * 31);
-															itemSetOn = itemSetSelected[nextIndex];
-														}
-													}
-												}
-											}
-										}
-									},
 									{
 										text : "提交",
 										class : "btn btn-default",
@@ -1244,12 +1204,14 @@
 			<thead>
 				<tr>
 					<th data-field="state" data-checkbox="true"></th>
-					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
+					<th data-field="index" data-class="indexHidden"
+						data-formatter="indexFormat"></th>
 					<th data-field="id" data-filter-control="input"
-						data-filter-control-placeholder="" data-width="20">编号</th>
-					<th data-field="name" data-filter-control="input"
-						data-filter-control-placeholder="">图层集合名称</th>
+						data-filter-control-placeholder="" data-width="40">编号</th>
+					<th data-field="name" data-filter-control="input" data-width="100"
+						data-formatter="nameFormat" data-filter-control-placeholder="">图层集合名称</th>
 					<th data-field="layername" data-filter-control="input"
+						data-width="160" data-formatter="layernameFormat"
 						data-filter-control-placeholder="">图层</th>
 					<!-- <th data-field="type" data-formatter="itemsetTypesFormat"
 						data-filter-control="select" data-filter-data="var:itemsetTypes">类型</th> -->
@@ -1257,11 +1219,12 @@
 						data-filter-control="select"
 						data-filter-data="var:itemsetSysTypes">操作系统</th> -->
 					<th data-field="referdata" data-filter-control="input"
+						data-formatter="referdataFormat"
 						data-filter-control-placeholder="" data-width="200">参考图层</th>
 					<!-- <th data-field="unit" data-formatter="unitFormat"
 						data-filter-control="select" data-filter-data="var:itemsetUnits">质检单位</th> -->
-					<th data-field="desc" data-filter-control="input"
-						data-filter-control-placeholder="">描述</th>
+					<th data-field="desc" data-filter-control="input" data-width="140"
+						data-formatter="descFormat" data-filter-control-placeholder="">描述</th>
 				</tr>
 			</thead>
 		</table>
