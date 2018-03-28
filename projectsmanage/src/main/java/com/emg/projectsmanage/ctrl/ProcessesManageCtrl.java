@@ -30,6 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.CommonConstants;
+import com.emg.projectsmanage.common.DatabaseSeparator;
 import com.emg.projectsmanage.common.DatabaseType;
 import com.emg.projectsmanage.common.ItemSetEnable;
 import com.emg.projectsmanage.common.ItemSetSysType;
@@ -701,35 +702,38 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		BasicDataSource dataSource = null;
 		try {
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT DISTINCT ON (province,city,type) * FROM ");
+			sql.append(" SELECT DISTINCT ON (" + separator + "province" + separator + "," + separator + "city" + separator + "," + separator + "type" + separator + ") * FROM ");
 			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_city ");
-			sql.append(" WHERE type != 3 ");
+			sql.append(" WHERE " + separator + "type" + separator + " != 3 ");
 			if (itemArea.getId() != null) {
-				sql.append(" AND id = " + itemArea.getId());
+				sql.append(" AND " + separator + "id" + separator + " = " + itemArea.getId());
 			}
 			if (itemArea.getType() != null) {
-				sql.append(" AND type = " + itemArea.getType());
+				sql.append(" AND " + separator + "type" + separator + " = " + itemArea.getType());
 			}
 			if (itemArea.getProvince() != null) {
-				sql.append(" AND province like '%" + itemArea.getProvince() + "%'");
+				sql.append(" AND " + separator + "province" + separator + " like '%" + itemArea.getProvince() + "%'");
 			}
 			if (itemArea.getCity() != null) {
-				sql.append(" AND city like '%" + itemArea.getCity() + "%'");
+				sql.append(" AND " + separator + "city" + separator + " like '%" + itemArea.getCity() + "%'");
 			}
 			if (type.equals(1)) {
 
 			} else if (type.equals(2)) {
 
 			} else if (type.equals(3)) {
-				sql.append(" AND type = 2 ");
+				sql.append(" AND " + separator + "type" + separator + " = 2 ");
 			} else {
 				return list;
 			}
-			sql.append(" ORDER BY type,province,city");
+			sql.append(" ORDER BY " + separator + "type" + separator + "," + separator + "province" + separator + "," + separator + "city" + separator + "");
 
 			dataSource = getDataSource(configDBModel);
 			list = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemAreaModel>(ItemAreaModel.class));
@@ -753,6 +757,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		BasicDataSource dataSource = null;
 		try {
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
 			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
@@ -761,28 +768,28 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			sql.append("tb_itemset ");
 			sql.append(" WHERE 1=1 ");
 			if (itemset.getId() != null) {
-				sql.append(" AND id = " + itemset.getId());
+				sql.append(" AND " + separator + "id" + separator + " = " + itemset.getId());
 			}
 			if (itemset.getName() != null) {
-				sql.append(" AND name like '%" + itemset.getName() + "%'");
+				sql.append(" AND " + separator + "name" + separator + " like '%" + itemset.getName() + "%'");
 			}
 			if (itemset.getLayername() != null) {
-				sql.append(" AND layername like '%" + itemset.getLayername() + "%'");
+				sql.append(" AND " + separator + "layername" + separator + " like '%" + itemset.getLayername() + "%'");
 			}
 			if (itemset.getType() != null) {
-				sql.append(" AND type = " + itemset.getType());
+				sql.append(" AND " + separator + "type" + separator + " = " + itemset.getType());
 			}
 			if (itemset.getSystype() != null) {
-				sql.append(" AND systype = " + itemset.getSystype());
+				sql.append(" AND " + separator + "systype" + separator + " = " + itemset.getSystype());
 			}
 			if (itemset.getReferdata() != null) {
-				sql.append(" AND referdata like '%" + itemset.getReferdata() + "%'");
+				sql.append(" AND " + separator + "referdata" + separator + " like '%" + itemset.getReferdata() + "%'");
 			}
 			if (itemset.getUnit() != null) {
-				sql.append(" AND unit = " + itemset.getUnit());
+				sql.append(" AND " + separator + "unit" + separator + " = " + itemset.getUnit());
 			}
 			if (itemset.getDesc() != null) {
-				sql.append(" AND desc like '%" + itemset.getDesc() + "%'");
+				sql.append(" AND " + separator + "desc" + separator + " like '%" + itemset.getDesc() + "%'");
 			}
 
 			dataSource = getDataSource(configDBModel);

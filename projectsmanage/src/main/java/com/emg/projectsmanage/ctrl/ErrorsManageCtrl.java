@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.emg.projectsmanage.common.DatabaseSeparator;
 import com.emg.projectsmanage.common.DatabaseType;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
@@ -337,9 +338,11 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(16);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT DISTINCT batchid ");
+			sql.append(" SELECT DISTINCT " + separator + "batchid" + separator + " ");
 			sql.append(" FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
@@ -386,14 +389,16 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT \"itemid\" FROM ");
+			sql.append(" SELECT " + separator + "itemid" + separator + " FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_errorsetdetail ");
-			sql.append(" WHERE \"itemsetid\" = " + errorSetID);
+			sql.append(" WHERE " + separator + "itemsetid" + separator + " = " + errorSetID);
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
 			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
@@ -409,6 +414,8 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
@@ -417,7 +424,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_itemconfig ");
-			sql.append(" WHERE \"id\" IN ( ");
+			sql.append(" WHERE " + separator + "id" + separator + " IN ( ");
 			for (Long itemID : itemIDs) {
 				sql.append(itemID + ",");
 			}
@@ -439,6 +446,8 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(16);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
@@ -448,16 +457,16 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			}
 			sql.append("tb_error ");
 			sql.append(" WHERE 1=1 ");
-			sql.append(" AND batchid =  " + record.getBatchid());
+			sql.append(" AND " + separator + "batchid" + separator + " =  " + record.getBatchid());
 			if (errortypes != null && !errortypes.isEmpty()) {
-				sql.append(" AND errortype IN ( ");
+				sql.append(" AND " + separator + "errortype" + separator + " IN ( ");
 				for (Long errortype : errortypes) {
 					sql.append(errortype + ",");
 				}
 				sql.deleteCharAt(sql.length() - 1);
 				sql.append(" ) ");
 			}
-			sql.append(" ORDER BY id ");
+			sql.append(" ORDER BY " + separator + "id" + separator + " ");
 			if (limit.compareTo(0) > 0) {
 				sql.append(" LIMIT " + limit);
 			}
@@ -575,6 +584,8 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(16);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT COUNT(1) ");
@@ -584,9 +595,9 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			}
 			sql.append("tb_error ");
 			sql.append(" WHERE 1=1 ");
-			sql.append(" AND batchid =  " + record.getBatchid());
+			sql.append(" AND " + separator + "batchid" + separator + " =  " + record.getBatchid());
 			if (errortypes != null && !errortypes.isEmpty()) {
-				sql.append(" AND errortype IN ( ");
+				sql.append(" AND " + separator + "errortype" + separator + " IN ( ");
 				for (Long errortype : errortypes) {
 					sql.append(errortype + ",");
 				}

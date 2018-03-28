@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.emg.projectsmanage.common.DatabaseSeparator;
 import com.emg.projectsmanage.common.DatabaseType;
 import com.emg.projectsmanage.common.ItemSetEnable;
 import com.emg.projectsmanage.common.ItemSetSysType;
@@ -717,6 +718,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
 
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
@@ -725,30 +728,30 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			sql.append("tb_itemset ");
 			sql.append(" WHERE 1=1 ");
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
-				sql.append(" AND id = " + record.getId());
+				sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
 			}
 			if (record.getName() != null && !record.getName().isEmpty()) {
-				sql.append(" AND name like '%" + record.getName() + "%'");
+				sql.append(" AND " + separator + "name" + separator + " like '%" + record.getName() + "%'");
 			}
 			if (record.getLayername() != null && !record.getLayername().isEmpty()) {
-				sql.append(" AND layername like '%" + record.getLayername() + "%'");
+				sql.append(" AND " + separator + "layername" + separator + " like '%" + record.getLayername() + "%'");
 			}
 			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(" AND type = " + record.getType());
+				sql.append(" AND " + separator + "type" + separator + " = " + record.getType());
 			}
 			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(" AND systype = " + record.getSystype());
+				sql.append(" AND " + separator + "systype" + separator + " = " + record.getSystype());
 			}
 			if (record.getReferdata() != null && !record.getReferdata().isEmpty()) {
-				sql.append(" AND referdata like '%" + record.getReferdata() + "%'");
+				sql.append(" AND " + separator + "referdata" + separator + " like '%" + record.getReferdata() + "%'");
 			}
 			if (record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(" AND unit = " + record.getUnit());
+				sql.append(" AND " + separator + "unit" + separator + " = " + record.getUnit());
 			}
 			if (record.getDesc() != null && !record.getDesc().isEmpty()) {
-				sql.append(" AND desc like '%" + record.getDesc() + "%'");
+				sql.append(" AND " + separator + "desc" + separator + " like '%" + record.getDesc() + "%'");
 			}
-			sql.append(" ORDER BY id ");
+			sql.append(" ORDER BY " + separator + "id" + separator + " ");
 			if (limit.compareTo(0) > 0) {
 				sql.append(" LIMIT " + limit);
 			}
@@ -772,13 +775,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			final StringBuffer sql = new StringBuffer();
 			sql.append(" INSERT INTO ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
-			sql.append("tb_itemset (\"name\", \"layername\", \"type\", \"systype\", \"referdata\", \"unit\", \"desc\") ");
+			sql.append("tb_itemset (" + separator + "name" + separator + ", " + separator + "layername" + separator + ", " + separator + "type" + separator + ", " + separator + "systype" + separator + ", " + separator + "referdata" + separator + ", " + separator + "unit" + separator + ", " + separator + "desc" + separator + ") ");
 			sql.append(" VALUES (?,?,?,?,?,?,?) ");
 
 			KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -814,6 +819,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" UPDATE ");
@@ -821,27 +828,27 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_itemset ");
-			sql.append(" SET id = id");
+			sql.append(" SET " + separator + "id" + separator + " = id");
 			if (record.getName() != null) {
-				sql.append(", name = '" + record.getName() + "'");
+				sql.append(", " + separator + "name" + separator + " = '" + record.getName() + "'");
 			}
 			if (record.getLayername() != null) {
-				sql.append(", layername = '" + record.getLayername() + "'");
+				sql.append(", " + separator + "layername" + separator + " = '" + record.getLayername() + "'");
 			}
 			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(", type = " + record.getType());
+				sql.append(", " + separator + "type" + separator + " = " + record.getType());
 			}
 			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(", systype = " + record.getSystype());
+				sql.append(", " + separator + "systype" + separator + " = " + record.getSystype());
 			}
 			if (record.getReferdata() != null) {
-				sql.append(", referdata = '" + record.getReferdata() + "'");
+				sql.append(", " + separator + "referdata" + separator + " = '" + record.getReferdata() + "'");
 			}
 			if (record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(", unit = " + record.getUnit());
+				sql.append(", " + separator + "unit" + separator + " = " + record.getUnit());
 			}
 			if (record.getDesc() != null) {
-				sql.append(", desc = '" + record.getDesc() + "'");
+				sql.append(", " + separator + "desc" + separator + " = '" + record.getDesc() + "'");
 			}
 
 			sql.append(" WHERE id = " + record.getId());
@@ -861,6 +868,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" DELETE FROM ");
@@ -868,7 +877,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_itemset ");
-			sql.append(" WHERE id = " + itemSetID);
+			sql.append(" WHERE " + separator + "id" + separator + " = " + itemSetID);
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
@@ -879,7 +888,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql_del.append(configDBModel.getDbschema()).append(".");
 			}
 			sql_del.append("tb_itemsetdetail ");
-			sql_del.append(" WHERE itemsetid = " + itemSetID);
+			sql_del.append(" WHERE " + separator + "itemsetid" + separator + " = " + itemSetID);
 
 			ret = ret && new JdbcTemplate(dataSource).update(sql_del.toString()) >= 0;
 		} catch (Exception e) {
@@ -895,6 +904,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT count(*) FROM ");
@@ -904,28 +915,28 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			sql.append("tb_itemset ");
 			sql.append(" WHERE 1=1 ");
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
-				sql.append(" AND id = " + record.getId());
+				sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
 			}
 			if (record.getName() != null && !record.getName().isEmpty()) {
-				sql.append(" AND name like '%" + record.getName() + "%'");
+				sql.append(" AND " + separator + "name" + separator + " like '%" + record.getName() + "%'");
 			}
 			if (record.getLayername() != null && !record.getLayername().isEmpty()) {
-				sql.append(" AND layername like '%" + record.getLayername() + "%'");
+				sql.append(" AND " + separator + "layername" + separator + " like '%" + record.getLayername() + "%'");
 			}
 			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(" AND type = " + record.getType());
+				sql.append(" AND " + separator + "type" + separator + " = " + record.getType());
 			}
 			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(" AND systype = " + record.getSystype());
+				sql.append(" AND " + separator + "systype" + separator + " = " + record.getSystype());
 			}
 			if (record.getReferdata() != null && !record.getReferdata().isEmpty()) {
-				sql.append(" AND referdata like '%" + record.getReferdata() + "%'");
+				sql.append(" AND " + separator + "referdata" + separator + " like '%" + record.getReferdata() + "%'");
 			}
 			if (record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(" AND unit = " + record.getUnit());
+				sql.append(" AND " + separator + "unit" + separator + " = " + record.getUnit());
 			}
 			if (record.getDesc() != null && !record.getDesc().isEmpty()) {
-				sql.append(" AND desc like '%" + record.getDesc() + "%'");
+				sql.append(" AND " + separator + "desc" + separator + " like '%" + record.getDesc() + "%'");
 			}
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
@@ -943,14 +954,16 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT DISTINCT ON (oid) * FROM ");
+			sql.append(" SELECT DISTINCT ON (" + separator + "oid" + separator + ") * FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_iteminfo ");
-			sql.append(" WHERE enable = 1 AND id in ( ");
+			sql.append(" WHERE " + separator + "enable" + separator + " = 1 AND " + separator + "id" + separator + " in ( ");
 			for (Long itemid : itemids) {
 				sql.append("'" + itemid + "',");
 			}
@@ -979,6 +992,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
@@ -986,14 +1001,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_iteminfo ");
-			sql.append(" WHERE enable = 1 ");
-			sql.append(" AND type = " + type);
-			sql.append(" AND unit = " + unit);
-			sql.append(" AND systype = " + systype);
-			sql.append(" AND referdata LIKE '%POI%' ");
-			sql.append(" AND referdata NOT LIKE '%Road%' ");
+			sql.append(" WHERE " + separator + "enable" + separator + " = 1 ");
+			sql.append(" AND " + separator + "type" + separator + " = " + type);
+			sql.append(" AND " + separator + "unit" + separator + " = " + unit);
+			sql.append(" AND " + separator + "systype" + separator + " = " + systype);
+			sql.append(" AND " + separator + "referdata" + separator + " LIKE '%POI%' ");
+			sql.append(" AND " + separator + "referdata" + separator + " NOT LIKE '%Road%' ");
 			if (layernames != null && layernames.size() > 0) {
-				sql.append(" AND layername in ( ");
+				sql.append(" AND " + separator + "layername" + separator + " in ( ");
 				for (String layername : layernames) {
 					sql.append("'" + layername + "',");
 				}
@@ -1001,7 +1016,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 			if (oids != null && oids.size() > 0) {
-				sql.append(" AND oid in ( ");
+				sql.append(" AND " + separator + "oid" + separator + " in ( ");
 				for (String oid : oids) {
 					sql.append("'" + oid + "',");
 				}
@@ -1031,6 +1046,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
@@ -1038,14 +1055,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_iteminfo ");
-			sql.append(" WHERE enable = 1 ");
-			sql.append(" AND type = " + type);
-			sql.append(" AND unit = " + unit);
-			sql.append(" AND systype = " + systype);
-			sql.append(" AND referdata LIKE '%Road%' ");
-			sql.append(" AND referdata NOT LIKE '%POI%' ");
+			sql.append(" WHERE " + separator + "enable" + separator + " = 1 ");
+			sql.append(" AND " + separator + "type" + separator + " = " + type);
+			sql.append(" AND " + separator + "unit" + separator + " = " + unit);
+			sql.append(" AND " + separator + "systype" + separator + " = " + systype);
+			sql.append(" AND " + separator + "referdata" + separator + " LIKE '%Road%' ");
+			sql.append(" AND " + separator + "referdata" + separator + " NOT LIKE '%POI%' ");
 			if (layernames != null && layernames.size() > 0) {
-				sql.append(" AND layername in ( ");
+				sql.append(" AND " + separator + "layername" + separator + " in ( ");
 				for (String layername : layernames) {
 					sql.append("'" + layername + "',");
 				}
@@ -1053,7 +1070,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 			if (oids != null && oids.size() > 0) {
-				sql.append(" AND oid in ( ");
+				sql.append(" AND " + separator + "oid" + separator + " in ( ");
 				for (String oid : oids) {
 					sql.append("'" + oid + "',");
 				}
@@ -1083,6 +1100,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
@@ -1090,14 +1109,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_iteminfo ");
-			sql.append(" WHERE enable = 1 ");
-			sql.append(" AND type = " + type);
-			sql.append(" AND unit = " + unit);
-			sql.append(" AND systype = " + systype);
-			sql.append(" AND (referdata LIKE '%Road%POI%' ");
-			sql.append(" OR referdata LIKE '%POI%Road%') ");
+			sql.append(" WHERE " + separator + "enable" + separator + " = 1 ");
+			sql.append(" AND " + separator + "type" + separator + " = " + type);
+			sql.append(" AND " + separator + "unit" + separator + " = " + unit);
+			sql.append(" AND " + separator + "systype" + separator + " = " + systype);
+			sql.append(" AND (" + separator + "referdata" + separator + " LIKE '%Road%POI%' ");
+			sql.append(" OR " + separator + "referdata" + separator + " LIKE '%POI%Road%') ");
 			if (layernames != null && layernames.size() > 0) {
-				sql.append(" AND layername in ( ");
+				sql.append(" AND " + separator + "layername" + separator + " in ( ");
 				for (String layername : layernames) {
 					sql.append("'" + layername + "',");
 				}
@@ -1105,7 +1124,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 			if (oids != null && oids.size() > 0) {
-				sql.append(" AND oid in ( ");
+				sql.append(" AND " + separator + "oid" + separator + " in ( ");
 				for (String oid : oids) {
 					sql.append("'" + oid + "',");
 				}
@@ -1135,6 +1154,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
@@ -1142,14 +1163,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_iteminfo ");
-			sql.append(" WHERE enable = 1 ");
-			sql.append(" AND type = " + type);
-			sql.append(" AND unit = " + unit);
-			sql.append(" AND systype = " + systype);
-			sql.append(" AND referdata NOT LIKE '%POI%' ");
-			sql.append(" AND referdata NOT LIKE '%Road%' ");
+			sql.append(" WHERE " + separator + "enable" + separator + " = 1 ");
+			sql.append(" AND " + separator + "type" + separator + " = " + type);
+			sql.append(" AND " + separator + "unit" + separator + " = " + unit);
+			sql.append(" AND " + separator + "systype" + separator + " = " + systype);
+			sql.append(" AND " + separator + "referdata" + separator + " NOT LIKE '%POI%' ");
+			sql.append(" AND " + separator + "referdata" + separator + " NOT LIKE '%Road%' ");
 			if (layernames != null && layernames.size() > 0) {
-				sql.append(" AND layername in ( ");
+				sql.append(" AND " + separator + "layername" + separator + " in ( ");
 				for (String layername : layernames) {
 					sql.append("'" + layername + "',");
 				}
@@ -1157,7 +1178,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 			if (oids != null && oids.size() > 0) {
-				sql.append(" AND oid in ( ");
+				sql.append(" AND " + separator + "oid" + separator + " in ( ");
 				for (String oid : oids) {
 					sql.append("'" + oid + "',");
 				}
@@ -1180,21 +1201,23 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT oid, name FROM ");
+			sql.append(" SELECT " + separator + "oid" + separator + ", " + separator + "name" + separator + " FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_iteminfo ");
-			sql.append(" WHERE enable = 1 ");
+			sql.append(" WHERE " + separator + "enable" + separator + " = 1 ");
 			if (oid != null && !oid.isEmpty()) {
-				sql.append(" AND oid like '%" + oid + "%'");
+				sql.append(" AND " + separator + "oid" + separator + " like '%" + oid + "%'");
 			}
 			if (name != null && !name.isEmpty()) {
-				sql.append(" AND name like '%" + name + "%'");
+				sql.append(" AND " + separator + "name" + separator + " like '%" + name + "%'");
 			}
-			sql.append("GROUP BY oid, name");
+			sql.append("GROUP BY " + separator + "oid" + separator + ", " + separator + "name" + separator + "");
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
@@ -1211,14 +1234,16 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT itemid FROM ");
+			sql.append(" SELECT " + separator + "itemid" + separator + " FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_itemsetdetail ");
-			sql.append(" WHERE itemsetid = " + itemSetID);
+			sql.append(" WHERE " + separator + "itemsetid" + separator + " = " + itemSetID);
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
 			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
@@ -1236,6 +1261,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
+			
+			String separator = dbtype.equals(DatabaseType.POSTGRESQL.getValue()) ? DatabaseSeparator.POSTGRESQL.getSeparator() : DatabaseSeparator.MYSQL.getSeparator();
 
 			StringBuffer sql_del = new StringBuffer();
 			sql_del.append(" DELETE FROM ");
@@ -1243,7 +1270,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql_del.append(configDBModel.getDbschema()).append(".");
 			}
 			sql_del.append("tb_itemsetdetail ");
-			sql_del.append(" WHERE itemsetid = " + itemSetID);
+			sql_del.append(" WHERE " + separator + "itemsetid" + separator + " = " + itemSetID);
 
 			BasicDataSource dataSource = getDataSource(configDBModel);
 			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
@@ -1254,7 +1281,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 					sql.append(configDBModel.getDbschema()).append(".");
 				}
-				sql.append("tb_itemsetdetail (itemsetid, itemid) ");
+				sql.append("tb_itemsetdetail (" + separator + "itemsetid" + separator + ", " + separator + "itemid" + separator + ") ");
 				sql.append(" VALUES ");
 				for (Long item : items) {
 					sql.append("(");
