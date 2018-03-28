@@ -55,9 +55,12 @@
 	
 	var itemFirstIn = true;
 	var itemSelected = new Array();
+	var itemIDSelected = new Array();
 	var itemOn = -1;
+	
 	var layerFirstIn = true;
 	var layerSelected = new Array();
+	var layerNameSelected = new Array();
 	var layerOn = -1;
 	
 	var itemsetEnables = eval('(${itemsetEnables})');
@@ -200,7 +203,10 @@
 					onLoadSuccess : function(data) {
 						var values = new Array();
 						$.each($("#dlgItemSet table #layername").val().split(";"), function(index, domEle) {
-							values[index] = domEle;
+							values.push(domEle);
+						});
+						$.each(layerNameSelected, function(index, domEle) {
+							values.push(domEle);
 						});
 						$('[data-toggle="layers"]').bootstrapTable("checkBy", {
 									field : "name",
@@ -220,6 +226,10 @@
 							layerSelected.push(index);
 							layerSelected.sort(compare);
 						}
+						var name = row.name;
+						if(layerNameSelected.indexOf(name) < 0) {
+							layerNameSelected.push(name);
+						}
 					},
 					onUncheck : function(row, element) {
 						var index = parseInt($(element).parent().next().text());
@@ -227,6 +237,11 @@
 						if(indexIn >= 0) {
 							layerOn = layerSelected[indexIn == 0 ? 0 : indexIn -1];
 							layerSelected.splice(indexIn,1).sort(compare);
+						}
+						var name = row.name;
+						var nameIn = layerNameSelected.indexOf(name);
+						if(nameIn >= 0) {
+							layerNameSelected.splice(nameIn, 1);
 						}
 					}
 				});
@@ -247,6 +262,7 @@
 					close : function(event, ui) {
 						layerOn = -1;
 						layerSelected = new Array();
+						layerNameSelected = new Array();
 						layerFirstIn = true;
 						$('[data-toggle="layers"]').bootstrapTable("destroy");
 					},
@@ -323,16 +339,9 @@
 								text : "保存",
 								class : "btn btn-default",
 								click : function() {
-									var selections = $('[data-toggle="layers"]').bootstrapTable('getAllSelections');
-									var length = selections.length;
-									
+									var length = layerNameSelected.length;
 									if (length > 0) {
-										var value = new String();
-										$.each(selections, function(index,domEle) {
-											value += domEle.name + ";";
-										});
-										value = value.substring(0, value.length - 1);
-										$("#layername").val(value);
+										$("#layername").val(layerNameSelected.join(";"));
 										$("#layerscount").text(length);
 										
 										$(this).dialog("close");
@@ -362,7 +371,10 @@
 						var values = new Array();
 						$.each($("#dlgItemSet table #items").val().split(";"), function(index, domEle) {
 							if(domEle)
-								values[index] = domEle;
+								values.push(domEle);
+						});
+						$.each(itemIDSelected, function(index, domEle) {
+							values.push(domEle);
 						});
 						if(values.length > 0) {
 							$('[data-toggle="items"]').bootstrapTable("checkBy", {
@@ -384,6 +396,10 @@
 							itemSelected.push(index);
 							itemSelected.sort(compare);
 						}
+						var itemID = row.oid;
+						if(itemIDSelected.indexOf(itemID) < 0) {
+							itemIDSelected.push(itemID);
+						}
 					},
 					onUncheck : function(row, element) {
 						var index = parseInt($(element).parent().next().text());
@@ -391,6 +407,11 @@
 						if(indexIn >= 0) {
 							itemOn = itemSelected[indexIn == 0 ? 0 : indexIn -1];
 							itemSelected.splice(indexIn,1).sort(compare);
+						}
+						var itemID = row.oid;
+						var itemIDIn = itemIDSelected.indexOf(itemID);
+						if(itemIDIn >= 0) {
+							itemIDSelected.splice(itemIDIn, 1);
 						}
 					}
 				});
@@ -411,6 +432,7 @@
 					close : function(event, ui) {
 						itemOn = -1;
 						itemSelected = new Array();
+						itemIDSelected = new Array();
 						itemFirstIn = true;
 						$('[data-toggle="items"]').bootstrapTable("destroy");
 					},
@@ -487,16 +509,9 @@
 								text : "保存",
 								class : "btn btn-default",
 								click : function() {
-									var selections = $('[data-toggle="items"]').bootstrapTable('getAllSelections');
-									var length = selections.length;
-									
+									var length = itemIDSelected.length;
 									if (length > 0) {
-										var value = new String();
-										$.each(selections, function(index,domEle) {
-											value += domEle.oid + ";";
-										});
-										value = value.substring(0, value.length - 1);
-										$("#items").val(value);
+										$("#items").val(itemIDSelected.join(";"));
 										$("#itemscount").text(length);
 										
 										$(this).dialog("close");

@@ -60,12 +60,17 @@
 	
 	var itemAreaFirstIn = true;
 	var itemAreaSelected = new Array();
+	var itemAreaIDSelected = new Array();
 	var itemAreaOn = -1;
+	
 	var itemSetFirstIn = true;
 	var itemSetSelected = new Array();
+	var itemSetIDSelected = new Array();
 	var itemSetOn = -1;
+	
 	var workerFirstIn = true;
 	var workerSelected = new Array();
+	var workerIDSelected = new Array();
 	var workerOn = -1;
 
 	function indexFormat(value, row, index) {
@@ -465,9 +470,11 @@
 					onLoadSuccess : function(data) {
 						var values = new Array();
 						var str_values = $("#config_2_18").val();
-						$.each(str_values.split(","), function(
-								index, domEle) {
+						$.each(str_values.split(","), function(index, domEle) {
 							values[index] = parseInt(domEle);
+						});
+						$.each(workerIDSelected, function(index, domEle) {
+							values.push(parseInt(domEle));
 						});
 						$('[data-toggle="workers"]').bootstrapTable("checkBy",
 								{
@@ -482,6 +489,10 @@
 							workerSelected.push(index);
 							workerSelected.sort(compare);
 						}
+						var id = row.id;
+						if(workerIDSelected.indexOf(id) < 0) {
+							workerIDSelected.push(id);
+						}
 					},
 					onUncheck : function(row, element) {
 						var index = parseInt($(element).parent().next().text());
@@ -489,6 +500,11 @@
 						if(indexIn >= 0) {
 							workerOn = workerSelected[indexIn == 0 ? 0 : indexIn -1];
 							workerSelected.splice(indexIn,1).sort(compare);
+						}
+						var id = row.id;
+						var idIn = workerIDSelected.indexOf(id);
+						if(idIn >= 0) {
+							workerIDSelected.splice(idIn, 1);
 						}
 					}
 				});
@@ -586,19 +602,9 @@
 								text : "提交",
 								class : "btn btn-default",
 								click : function() {
-									var selections = $('[data-toggle="workers"]').bootstrapTable('getSelections');
-									var length = selections.length;
-									var value = new String();
+									var length = workerIDSelected.length;
 									if (length > 0) {
-										var subStr = "[";
-										$.each(selections, function(index, domEle) {
-											value += domEle.id + ",";
-											subStr += '{"uid":' + domEle.id + ', "username":"' + domEle.realname + '"},';
-										});
-										value = value.substring(0, value.length - 1);
-										subStr = subStr.substring(0, subStr.length - 1);
-										subStr += ']';
-										$("#config_2_18").val(value);
+										$("#config_2_18").val(workerIDSelected.join(","));
 										$("#config_2_18").siblings("p").text( "已添加人员" + length + "位");
 										$("#config_0_18").siblings("p").text( "已添加人员" + length + "位");
 
@@ -639,7 +645,10 @@
 						var values = new Array();
 						var str_values = $("#config_1_7").val();
 						$.each(str_values.split(","), function(index, domEle) {
-							values[index] = parseInt(domEle);
+							values.push(parseInt(domEle));
+						});
+						$.each(itemAreaIDSelected, function(index, domEle) {
+							values.push(parseInt(domEle));
 						});
 						$('[data-toggle="itemAreas"]').bootstrapTable(
 								"checkBy", {
@@ -654,6 +663,10 @@
 							itemAreaSelected.push(index);
 							itemAreaSelected.sort(compare);
 						}
+						var id = row.id;
+						if(itemAreaIDSelected.indexOf(id) < 0) {
+							itemAreaIDSelected.push(id);
+						}
 					},
 					onUncheck : function(row, element) {
 						var index = parseInt($(element).parent().next().text());
@@ -661,6 +674,11 @@
 						if(indexIn >= 0) {
 							itemAreaOn = itemAreaSelected[indexIn == 0 ? 0 : indexIn -1];
 							itemAreaSelected.splice(indexIn,1).sort(compare);
+						}
+						var id = row.id;
+						var idIn = itemAreaIDSelected.indexOf(id);
+						if(idIn >= 0) {
+							itemAreaIDSelected.splice(idIn, 1);
 						}
 					}
 				});
@@ -682,6 +700,7 @@
 					close : function() {
 						itemAreaOn = -1;
 						itemAreaSelected = new Array();
+						itemAreaIDSelected = new Array();
 						itemAreaFirstIn = true;
 						$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
 					},
@@ -758,15 +777,9 @@
 								text : "提交",
 								class : "btn btn-default",
 								click : function() {
-									var selections = $('[data-toggle="itemAreas"]').bootstrapTable('getSelections');
-									var length = selections.length;
-									var value = new String();
+									var length = itemAreaIDSelected.length;
 									if (length > 0) {
-										$.each(selections, function(index, domEle) {
-											value += domEle.id + ",";
-										});
-										value = value.substring(0, value.length - 1);
-										$("#config_1_7").val(value);
+										$("#config_1_7").val(itemAreaIDSelected.join(","));
 										$("#config_1_7").siblings("p").text( "已选择" + length + "个质检区域");
 										$("#config_0_7").siblings("p").text( "已选择" + length + "个质检区域");
 
@@ -795,9 +808,11 @@
 					},
 					onLoadSuccess : function(data) {
 						var values = new Array();
-						$.each($("#config_1_6").val().split(","), function(
-								index, domEle) {
-							values[index] = parseInt(domEle);
+						$.each($("#config_1_6").val().split(","), function(index, domEle) {
+							values.push(parseInt(domEle));
+						});
+						$.each(itemSetIDSelected, function(index, domEle) {
+							values.push(parseInt(domEle));
 						});
 						$('[data-toggle="itemsets"]').bootstrapTable("checkBy",
 								{
@@ -812,6 +827,10 @@
 							itemSetSelected.push(index);
 							itemSetSelected.sort(compare);
 						}
+						var id = row.id;
+						if(itemSetIDSelected.indexOf(id) < 0) {
+							itemSetIDSelected.push(id);
+						}
 					},
 					onUncheck : function(row, element) {
 						var index = parseInt($(element).parent().next().text());
@@ -819,6 +838,11 @@
 						if(indexIn >= 0) {
 							itemSetOn = itemSetSelected[indexIn == 0 ? 0 : indexIn -1];
 							itemSetSelected.splice(indexIn,1).sort(compare);
+						}
+						var id = row.id;
+						var idIn = itemSetIDSelected.indexOf(id);
+						if(idIn >= 0) {
+							itemSetIDSelected.splice(idIn, 1);
 						}
 					}
 				});
@@ -840,6 +864,7 @@
 					close : function() {
 						itemSetOn = -1;
 						itemSetSelected = new Array();
+						itemSetIDSelected = new Array();
 						itemSetFirstIn = true;
 						$('[data-toggle="itemsets"]').bootstrapTable("destroy");
 					},
@@ -848,14 +873,10 @@
 										text : "提交",
 										class : "btn btn-default",
 										click : function() {
-											var selections = $('[data-toggle="itemsets"]').bootstrapTable('getSelections');
-											var length = selections.length;
+											var length = itemSetIDSelected.length;
 											var value = new String();
 											if (length > 0) {
-												$.each(selections, function(index, domEle) {
-													value += domEle.id + ",";
-												});
-												value = value.substring(0,value.length - 1);
+												value = itemSetIDSelected.join(",");
 												$("#config_1_6").val(value);
 												$("#config_1_6").siblings("p").text("已选择" + length + "个质检图层");
 
