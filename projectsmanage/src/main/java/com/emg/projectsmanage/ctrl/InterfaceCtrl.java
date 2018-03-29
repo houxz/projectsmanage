@@ -1221,16 +1221,16 @@ public class InterfaceCtrl extends BaseCtrl {
 	
 	@RequestMapping(params = "action=selectProcessIDByProjectID", method = RequestMethod.POST)
 	private ModelAndView selectProcessIDByProjectID(Model model, HttpSession session, HttpServletRequest request, 
+			@RequestParam("moduleid") Integer moduleid,
 			@RequestParam("projectid") Long projectid) {
 		logger.debug("selectProcessIDByProjectID start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			ConfigValueModel config = new ConfigValueModel();
-			config.setModuleid(1);//2
-			config.setConfigId(3);//11
+			config.setModuleid(moduleid);
 			config.setValue(projectid.toString());
 			List<ConfigValueModel> configs = configValueModelDao.selectConfigs(config );
-			if(configs.size() >= 0) {
+			if(configs.size() > 0) {
 				model.addAttribute("status", true);
 				model.addAttribute("option", configs.get(0).getProcessId());
 				return json;
