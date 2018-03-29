@@ -54,11 +54,13 @@
 	});
 	
 	var itemFirstIn = true;
+	var itemFirstClick = true;
 	var itemSelected = new Array();
 	var itemIDSelected = new Array();
 	var itemOn = -1;
 	
 	var layerFirstIn = true;
+	var layerFirstClick = true;
 	var layerSelected = new Array();
 	var layerNameSelected = new Array();
 	var layerOn = -1;
@@ -201,17 +203,28 @@
 						return params;
 					},
 					onLoadSuccess : function(data) {
+						layerOn = -1;
+						layerSelected = new Array();
+						layerFirstClick = true;
+						
 						var values = new Array();
-						$.each($("#dlgItemSet table #layername").val().split(";"), function(index, domEle) {
-							values.push(domEle);
-						});
-						$.each(layerNameSelected, function(index, domEle) {
-							values.push(domEle);
-						});
-						$('[data-toggle="layers"]').bootstrapTable("checkBy", {
+						if(layerFirstIn) {
+							$.each($("#dlgItemSet table #layername").val().split(";"), function(index, domEle) {
+								values.push(domEle);
+							});
+						} else {
+							$.each(layerNameSelected, function(index, domEle) {
+								values.push(domEle);
+							});
+						}
+						
+						$('[data-toggle="layers"]').bootstrapTable(
+								"checkBy", {
 									field : "name",
 									values : values
 								});
+						layerFirstIn = false;
+						
 						var curItemSetID = $("#dlgItemSet table #id").val();
 						if(curItemSetID !== "0") {
 							$("#dlgLayers input:checkbox").attr("disabled", true);
@@ -243,6 +256,43 @@
 						if(nameIn >= 0) {
 							layerNameSelected.splice(nameIn, 1);
 						}
+					},
+					onCheckAll : function(rows) {
+						var elements = $('[data-toggle="layers"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							if(layerSelected.indexOf(index) < 0) {
+								layerSelected.push(index);
+							}
+						});
+						layerOn = parseInt($('[data-toggle="layers"] td.indexHidden:last').text());
+						layerSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var name = row.name;
+							if(layerNameSelected.indexOf(name) < 0) {
+								layerNameSelected.push(name);
+							}
+						});
+					},
+					onUncheckAll : function(rows) {
+						var elements = $('[data-toggle="layers"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							var indexIn = layerSelected.indexOf(index);
+							if(indexIn >= 0) {
+								layerOn = layerSelected[indexIn == 0 ? 0 : indexIn -1];
+								layerSelected.splice(indexIn,1).sort(compare);
+							}
+						});
+						layerOn = parseInt($('[data-toggle="layers"] td.indexHidden:last').text());
+						layerSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var name = row.name;
+							var nameIn = layerNameSelected.indexOf(name);
+							if(nameIn >= 0) {
+								layerNameSelected.splice(nameIn, 1);
+							}
+						});
 					}
 				});
 		
@@ -256,6 +306,7 @@
 					width : 540,
 					title : "选择图层",
 					open : function(event, ui) {
+						layerFirstClick = true;
 						layerFirstIn = true;
 						$(".ui-dialog-titlebar-close").hide();
 					},
@@ -263,6 +314,7 @@
 						layerOn = -1;
 						layerSelected = new Array();
 						layerNameSelected = new Array();
+						layerFirstClick = true;
 						layerFirstIn = true;
 						$('[data-toggle="layers"]').bootstrapTable("destroy");
 					},
@@ -272,10 +324,14 @@
 								title : "上一条",
 								class : "btn btn-default",
 								click : function() {
-									if(layerFirstIn) {
+									if(!layerSelected || layerSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(layerFirstClick) {
 										$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[0] * 31);
 										layerOn = layerSelected[0];
-										layerFirstIn = false;
+										layerFirstClick = false;
 									} else {
 										if (layerOn < 0) {
 											$('[data-toggle="layers"]').bootstrapTable('scrollTo', 0);
@@ -306,10 +362,14 @@
 								title : "下一条",
 								class : "btn btn-default",
 								click : function() {
-									if(layerFirstIn) {
+									if(!layerSelected || layerSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(layerFirstClick) {
 										$('[data-toggle="layers"]').bootstrapTable('scrollTo',layerSelected[0] * 31);
 										layerOn = layerSelected[0];
-										layerFirstIn = false;
+										layerFirstClick = false;
 									} else {
 										if (layerOn < 0) {
 											$('[data-toggle="layers"]').bootstrapTable('scrollTo', 0);
@@ -368,14 +428,22 @@
 						return params;
 					},
 					onLoadSuccess : function(data) {
+						itemOn = -1;
+						itemSelected = new Array();
+						itemFirstClick = true;
+						
 						var values = new Array();
-						$.each($("#dlgItemSet table #items").val().split(";"), function(index, domEle) {
-							if(domEle)
+						if(itemFirstIn) {
+							$.each($("#dlgItemSet table #items").val().split(";"), function(index, domEle) {
+								if(domEle)
+									values.push(domEle);
+							});
+						} else {
+							$.each(itemIDSelected, function(index, domEle) {
 								values.push(domEle);
-						});
-						$.each(itemIDSelected, function(index, domEle) {
-							values.push(domEle);
-						});
+							});
+						}
+						
 						if(values.length > 0) {
 							$('[data-toggle="items"]').bootstrapTable("checkBy", {
 									field : "oid",
@@ -388,6 +456,7 @@
 								$("#dlgItems input:checkbox").removeAttr("disabled");
 							}
 						}
+						itemFirstIn = false;
 					},
 					onCheck : function(row, element) {
 						var index = parseInt($(element).parent().next().text());
@@ -413,6 +482,43 @@
 						if(itemIDIn >= 0) {
 							itemIDSelected.splice(itemIDIn, 1);
 						}
+					},
+					onCheckAll : function(rows) {
+						var elements = $('[data-toggle="items"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							if(itemSelected.indexOf(index) < 0) {
+								itemSelected.push(index);
+							}
+						});
+						itemOn = parseInt($('[data-toggle="items"] td.indexHidden:last').text());
+						itemSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var name = row.oid;
+							if(itemIDSelected.indexOf(name) < 0) {
+								itemIDSelected.push(name);
+							}
+						});
+					},
+					onUncheckAll : function(rows) {
+						var elements = $('[data-toggle="items"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							var indexIn = itemSelected.indexOf(index);
+							if(indexIn >= 0) {
+								itemOn = itemSelected[indexIn == 0 ? 0 : indexIn -1];
+								itemSelected.splice(indexIn,1).sort(compare);
+							}
+						});
+						itemOn = parseInt($('[data-toggle="items"] td.indexHidden:last').text());
+						itemSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var name = row.oid;
+							var nameIn = itemIDSelected.indexOf(name);
+							if(nameIn >= 0) {
+								itemIDSelected.splice(nameIn, 1);
+							}
+						});
 					}
 				});
 		
@@ -426,6 +532,7 @@
 					width : 600,
 					title : "选择质检项",
 					open : function(event, ui) {
+						itemFirstClick = true;
 						itemFirstIn = true;
 						$(".ui-dialog-titlebar-close").hide();
 					},
@@ -433,6 +540,7 @@
 						itemOn = -1;
 						itemSelected = new Array();
 						itemIDSelected = new Array();
+						itemFirstClick = true;
 						itemFirstIn = true;
 						$('[data-toggle="items"]').bootstrapTable("destroy");
 					},
@@ -442,10 +550,14 @@
 								title : "上一条",
 								class : "btn btn-default",
 								click : function() {
-									if(itemFirstIn) {
+									if(!itemSelected || itemSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(itemFirstClick) {
 										$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[0] * 31);
 										itemOn = itemSelected[0];
-										itemFirstIn = false;
+										itemFirstClick = false;
 									} else {
 										if (itemOn < 0) {
 											$('[data-toggle="items"]').bootstrapTable('scrollTo', 0);
@@ -476,10 +588,14 @@
 								title : "下一条",
 								class : "btn btn-default",
 								click : function() {
-									if(itemFirstIn) {
+									if(!itemSelected || itemSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(itemFirstClick) {
 										$('[data-toggle="items"]').bootstrapTable('scrollTo',itemSelected[0] * 31);
 										itemOn = itemSelected[0];
-										itemFirstIn = false;
+										itemFirstClick = false;
 									} else {
 										if (itemOn < 0) {
 											$('[data-toggle="items"]').bootstrapTable('scrollTo', 0);

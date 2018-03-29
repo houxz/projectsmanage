@@ -26,9 +26,9 @@
 <script src="resources/js/common.js"></script>
 <script src="resources/js/consMap.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-<script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
+<script src="resources/bootstrap-table-1.11.1/bootstrap-table.js"></script>
 <script
-	src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+	src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.js"></script>
 <script
 	src="resources/bootstrap-table-1.11.1/locale/bootstrap-table-zh-CN.js"></script>
 
@@ -59,16 +59,19 @@
 	var itemsetUnits = eval('(${itemsetUnits})');
 	
 	var itemAreaFirstIn = true;
+	var itemAreaFirstClick = true;
 	var itemAreaSelected = new Array();
 	var itemAreaIDSelected = new Array();
 	var itemAreaOn = -1;
 	
 	var itemSetFirstIn = true;
+	var itemSetFirstClick = true;
 	var itemSetSelected = new Array();
 	var itemSetIDSelected = new Array();
 	var itemSetOn = -1;
 	
 	var workerFirstIn = true;
+	var workerFirstClick = true;
 	var workerSelected = new Array();
 	var workerIDSelected = new Array();
 	var workerOn = -1;
@@ -468,19 +471,28 @@
 						return params;
 					},
 					onLoadSuccess : function(data) {
+						workerOn = -1;
+						workerSelected = new Array();
+						workerFirstClick = true;
+						
 						var values = new Array();
-						var str_values = $("#config_2_18").val();
-						$.each(str_values.split(","), function(index, domEle) {
-							values[index] = parseInt(domEle);
-						});
-						$.each(workerIDSelected, function(index, domEle) {
-							values.push(parseInt(domEle));
-						});
+						if(workerFirstIn) {
+							var str_values = $("#config_2_18").val();
+							$.each(str_values.split(","), function(index, domEle) {
+								values[index] = parseInt(domEle);
+							});
+						} else {
+							$.each(workerIDSelected, function(index, domEle) {
+								values.push(parseInt(domEle));
+							});
+						}
+						
 						$('[data-toggle="workers"]').bootstrapTable("checkBy",
 								{
 									field : "id",
 									values : values
 								});
+						workerFirstIn = false;
 					},
 					onCheck : function(row, element) {
 						var index = parseInt($(element).parent().next().text());
@@ -506,6 +518,43 @@
 						if(idIn >= 0) {
 							workerIDSelected.splice(idIn, 1);
 						}
+					},
+					onCheckAll : function(rows) {
+						var elements = $('[data-toggle="workers"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							if(workerSelected.indexOf(index) < 0) {
+								workerSelected.push(index);
+							}
+						});
+						workerOn = parseInt($('[data-toggle="workers"] td.indexHidden:last').text());
+						workerSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var id = row.id;
+							if(workerIDSelected.indexOf(id) < 0) {
+								workerIDSelected.push(id);
+							}
+						});
+					},
+					onUncheckAll : function(rows) {
+						var elements = $('[data-toggle="workers"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							var indexIn = workerSelected.indexOf(index);
+							if(indexIn >= 0) {
+								workerOn = workerSelected[indexIn == 0 ? 0 : indexIn -1];
+								workerSelected.splice(indexIn,1).sort(compare);
+							}
+						});
+						workerOn = parseInt($('[data-toggle="workers"] td.indexHidden:last').text());
+						workerSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var id = row.id;
+							var idIn = workerIDSelected.indexOf(id);
+							if(idIn >= 0) {
+								workerIDSelected.splice(idIn, 1);
+							}
+						});
 					}
 				});
 
@@ -520,13 +569,16 @@
 					width : document.documentElement.clientWidth * 0.3,
 					title : "添加人员",
 					open : function(event, ui) {
-						workerFirstIn = true;
+						workerFirstClick = true;
+						workerFirstIn= true;
 						$(".ui-dialog-titlebar-close").hide();
 					},
 					close : function() {
 						workerOn = -1;
 						workerSelected = new Array();
-						workerFirstIn = true;
+						workerIDSelected = new Array();
+						workerFirstClick = true;
+						workerFirstIn= true;
 						$('[data-toggle="workers"]').bootstrapTable("destroy");
 					},
 					buttons : [
@@ -535,10 +587,14 @@
 								title : "上一条",
 								class : "btn btn-default",
 								click : function() {
-									if(workerFirstIn) {
+									if(!workerSelected || workerSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(workerFirstClick) {
 										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
 										workerOn = workerSelected[0];
-										workerFirstIn = false;
+										workerFirstClick = false;
 									} else {
 										if (workerOn < 0) {
 											$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
@@ -569,10 +625,14 @@
 								title : "下一条",
 								class : "btn btn-default",
 								click : function() {
-									if(workerFirstIn) {
+									if(!workerSelected || workerSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(workerFirstClick) {
 										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
 										workerOn = workerSelected[0];
-										workerFirstIn = false;
+										workerFirstClick = false;
 									} else {
 										if (workerOn < 0) {
 											$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
@@ -642,19 +702,28 @@
 						return params;
 					},
 					onLoadSuccess : function(data) {
+						itemAreaOn = -1;
+						itemAreaSelected = new Array();
+						itemAreaFirstClick = true;
+						
 						var values = new Array();
-						var str_values = $("#config_1_7").val();
-						$.each(str_values.split(","), function(index, domEle) {
-							values.push(parseInt(domEle));
-						});
-						$.each(itemAreaIDSelected, function(index, domEle) {
-							values.push(parseInt(domEle));
-						});
+						if(itemAreaFirstIn) {
+							var str_values = $("#config_1_7").val();
+							$.each(str_values.split(","), function(index, domEle) {
+								values.push(parseInt(domEle));
+							});
+						} else {
+							$.each(itemAreaIDSelected, function(index, domEle) {
+								values.push(parseInt(domEle));
+							});
+						}
+						
 						$('[data-toggle="itemAreas"]').bootstrapTable(
 								"checkBy", {
 									field : "id",
 									values : values
 								});
+						itemAreaFirstIn = false;
 					},
 					onCheck : function(row, element) {
 						var index = parseInt($(element).parent().next().text());
@@ -680,6 +749,43 @@
 						if(idIn >= 0) {
 							itemAreaIDSelected.splice(idIn, 1);
 						}
+					},
+					onCheckAll : function(rows) {
+						var elements = $('[data-toggle="itemAreas"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							if(itemAreaSelected.indexOf(index) < 0) {
+								itemAreaSelected.push(index);
+							}
+						});
+						itemAreaOn = parseInt($('[data-toggle="itemAreas"] td.indexHidden:last').text());
+						itemAreaSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var id = row.id;
+							if(itemAreaIDSelected.indexOf(id) < 0) {
+								itemAreaIDSelected.push(id);
+							}
+						});
+					},
+					onUncheckAll : function(rows) {
+						var elements = $('[data-toggle="itemAreas"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							var indexIn = itemAreaSelected.indexOf(index);
+							if(indexIn >= 0) {
+								itemAreaOn = itemAreaSelected[indexIn == 0 ? 0 : indexIn -1];
+								itemAreaSelected.splice(indexIn,1).sort(compare);
+							}
+						});
+						itemAreaOn = parseInt($('[data-toggle="itemAreas"] td.indexHidden:last').text());
+						itemAreaSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var id = row.id;
+							var idIn = itemAreaIDSelected.indexOf(id);
+							if(idIn >= 0) {
+								itemAreaIDSelected.splice(idIn, 1);
+							}
+						});
 					}
 				});
 
@@ -694,6 +800,7 @@
 					width : 660,
 					title : "质检区域配置",
 					open : function(event, ui) {
+						itemAreaFirstClick = true;
 						itemAreaFirstIn = true;
 						$(".ui-dialog-titlebar-close").hide();
 					},
@@ -701,6 +808,7 @@
 						itemAreaOn = -1;
 						itemAreaSelected = new Array();
 						itemAreaIDSelected = new Array();
+						itemAreaFirstClick = true;
 						itemAreaFirstIn = true;
 						$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
 					},
@@ -710,10 +818,14 @@
 								title : "上一条",
 								class : "btn btn-default",
 								click : function() {
-									if(itemAreaFirstIn) {
+									if(!itemAreaSelected || itemAreaSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(itemAreaFirstClick) {
 										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
 										itemAreaOn = itemAreaSelected[0];
-										itemAreaFirstIn = false;
+										itemAreaFirstClick = false;
 									} else {
 										if(itemAreaOn < 0) {
 											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
@@ -744,10 +856,14 @@
 								title : "下一条",
 								class : "btn btn-default",
 								click : function() {
-									if(itemAreaFirstIn) {
+									if(!itemAreaSelected || itemAreaSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(itemAreaFirstClick) {
 										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
 										itemAreaOn = itemAreaSelected[0];
-										itemAreaFirstIn = false;
+										itemAreaFirstClick = false;
 									} else {
 										if(itemAreaOn < 0) {
 											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
@@ -807,18 +923,27 @@
 						return params;
 					},
 					onLoadSuccess : function(data) {
+						itemSetOn = -1;
+						itemSetSelected = new Array();
+						itemSetFirstClick = true;
+						
 						var values = new Array();
-						$.each($("#config_1_6").val().split(","), function(index, domEle) {
-							values.push(parseInt(domEle));
-						});
-						$.each(itemSetIDSelected, function(index, domEle) {
-							values.push(parseInt(domEle));
-						});
+						if(itemSetFirstIn) {
+							$.each($("#config_1_6").val().split(","), function(index, domEle) {
+								values.push(parseInt(domEle));
+							});
+						} else {
+							$.each(itemSetIDSelected, function(index, domEle) {
+								values.push(parseInt(domEle));
+							});
+						}
+						
 						$('[data-toggle="itemsets"]').bootstrapTable("checkBy",
 								{
 									field : "id",
 									values : values
 								});
+						itemSetFirstIn = false;
 					},
 					onCheck : function(row, element) {
 						var index = parseInt($(element).parent().next().text());
@@ -844,6 +969,43 @@
 						if(idIn >= 0) {
 							itemSetIDSelected.splice(idIn, 1);
 						}
+					},
+					onCheckAll : function(rows) {
+						var elements = $('[data-toggle="itemsets"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							if(itemSetSelected.indexOf(index) < 0) {
+								itemSetSelected.push(index);
+							}
+						});
+						itemSetOn = parseInt($('[data-toggle="itemsets"] td.indexHidden:last').text());
+						itemSetSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var id = row.id;
+							if(itemSetIDSelected.indexOf(id) < 0) {
+								itemSetIDSelected.push(id);
+							}
+						});
+					},
+					onUncheckAll : function(rows) {
+						var elements = $('[data-toggle="itemsets"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							var indexIn = itemSetSelected.indexOf(index);
+							if(indexIn >= 0) {
+								itemSetOn = itemSetSelected[indexIn == 0 ? 0 : indexIn -1];
+								itemSetSelected.splice(indexIn,1).sort(compare);
+							}
+						});
+						itemSetOn = parseInt($('[data-toggle="itemsets"] td.indexHidden:last').text());
+						itemSetSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var id = row.id;
+							var idIn = itemSetIDSelected.indexOf(id);
+							if(idIn >= 0) {
+								itemSetIDSelected.splice(idIn, 1);
+							}
+						});
 					}
 				});
 
@@ -858,6 +1020,7 @@
 					width : document.documentElement.clientWidth * 0.6,
 					title : "质检图层配置",
 					open : function(event, ui) {
+						itemSetFirstClick = true;
 						itemSetFirstIn = true;
 						$(".ui-dialog-titlebar-close").hide();
 					},
@@ -865,6 +1028,7 @@
 						itemSetOn = -1;
 						itemSetSelected = new Array();
 						itemSetIDSelected = new Array();
+						itemSetFirstClick = true;
 						itemSetFirstIn = true;
 						$('[data-toggle="itemsets"]').bootstrapTable("destroy");
 					},
