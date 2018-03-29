@@ -1202,7 +1202,8 @@ public class InterfaceCtrl extends BaseCtrl {
 
 	// by xiao
 	@RequestMapping(params = "action=selectProcessByID", method = RequestMethod.POST)
-	private ModelAndView selectProcessByID(Model model, HttpSession session, HttpServletRequest request, @RequestParam("processid") String processID) {
+	private ModelAndView selectProcessByID(Model model, HttpSession session, HttpServletRequest request, 
+			@RequestParam("processid") String processID) {
 		logger.debug("selectProcessByID start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -1215,6 +1216,33 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("option", e.getMessage());
 		}
 		logger.debug("selectProcessByID end!");
+		return json;
+	}
+	
+	@RequestMapping(params = "action=selectProcessIDByProjectID", method = RequestMethod.POST)
+	private ModelAndView selectProcessIDByProjectID(Model model, HttpSession session, HttpServletRequest request, 
+			@RequestParam("projectid") Long projectid) {
+		logger.debug("selectProcessIDByProjectID start!");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			ConfigValueModel config = new ConfigValueModel();
+			config.setModuleid(1);//2
+			config.setConfigId(3);//11
+			config.setValue(projectid.toString());
+			List<ConfigValueModel> configs = configValueModelDao.selectConfigs(config );
+			if(configs.size() >= 0) {
+				model.addAttribute("status", true);
+				model.addAttribute("option", configs.get(0).getProcessId());
+				return json;
+			}
+			model.addAttribute("status", false);
+			model.addAttribute("option", new String());
+		} catch (Exception e) {
+			e.printStackTrace();
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+		logger.debug("selectProcessIDByProjectID end!");
 		return json;
 	}
 

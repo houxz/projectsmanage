@@ -35,6 +35,29 @@
 		 (select tb_config.id from tb_config where name=#{name,jdbcType=VARCHAR} AND moduleid = #{moduleid, jdbcType=INTEGER})
 	</select>
 	
+	<select id="selectConfigs" resultMap="BaseResultMap"
+		parameterType="com.emg.projectsmanage.pojo.ConfigValueModel">
+		select *
+		from tb_config_value
+		<where>
+			<if test="idc != null">
+				idc = #{idc,jdbcType=INTEGER}
+			</if>
+			<if test="processid != null">
+				AND processid = #{processid,jdbcType=BIGINT}
+			</if>
+			<if test="moduleid != null">
+				AND moduleid = #{moduleid,jdbcType=INTEGER}
+			</if>
+			<if test="configid != null">
+				AND configid = #{configid,jdbcType=INTEGER}
+			</if>
+			<if test="value != null">
+				AND value = #{value,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	
 	<select id="selectValueByConfig" resultMap="BaseResultMap"
 		parameterType="com.emg.projectsmanage.pojo.ConfigValueModel">
 		select

@@ -21,6 +21,8 @@ public interface ConfigValueModelDao {
     
     ConfigValueModel selectValueByConfig(ConfigValueModel model);
     
+    List<ConfigValueModel> selectConfigs(ConfigValueModel model);
+    
 
  //   ProcessModel selectByPrimaryKey(Long id);
 
