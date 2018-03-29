@@ -26,7 +26,7 @@
 <script src="resources/js/common.js"></script>
 <script src="resources/js/consMap.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-<script src="resources/bootstrap-table-1.11.1/bootstrap-table.js"></script>
+<script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
 <script
 	src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.js"></script>
 <script
@@ -274,7 +274,7 @@
 
 	function operationFormat(value, row, index) {
 		var html = new Array();
-		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getConfig('
+		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="getConfig('
 						+ row.id
 						+ ',\''
 						+ row.name
@@ -282,11 +282,11 @@
 						+ row.priority
 						+ ','
 						+ row.type
-						+ ');">配置</button>');
+						+ ');">配置</div>');
 		if (row.state == 1) {
-			html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,' + row.id + ')">暂停</button>');
+			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,' + row.id + ')">暂停</div>');
 		} else if (row.state == 2 || row.state == 0) {
-			html.push('<button class="btn btn-default" style="margin-bottom:3px;" onclick="changeState(1,' + row.id + ')" >开始</button>');
+			html.push('<div class="btn btn-default" style="margin-bottom:3px;" onclick="changeState(1,' + row.id + ')" >开始</div>');
 		}
 
 		return html.join('');
@@ -1076,7 +1076,7 @@
 					source = new EventSource('/projectsmanage/sse.web?action=refreshprogress&ids=' + ids.join(","));
 
 					source.onmessage = function(e) {
-						console.log(e.data);
+						//console.log(e.data);
 						var progresses = JSON.parse(e.data);
 						if(progresses instanceof Array){
 							for(var index in progresses) {
@@ -1122,7 +1122,7 @@
 			$("#sc2").hide();
 			$("#sc3").hide();
 		} else {
-			console.log("processTypeChange--错误的项目类型：" + selectValue);
+			//console.log("processTypeChange--错误的项目类型：" + selectValue);
 		}
 	}
 </script>
@@ -1143,10 +1143,10 @@
 					<tr>
 						<th data-field="id" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">项目编号
-							<button class="btn btn-default btn-xs" title="新建项目"
+							<div class="btn btn-default btn-xs" title="新建项目"
 								onclick="getConfig(0,'',0,1);">
 								<span class="glyphicon glyphicon-plus"></span>
-							</button>
+							</div>
 						</th>
 						<th data-field="name" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="160">项目名称</th>

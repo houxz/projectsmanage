@@ -104,7 +104,7 @@
                     Sel.moveStart('character', -el.value.length);
                     pos = Sel.text.length - SelLength;
                 }
-                console.log(pos);
+                //console.log(pos);
                 return pos;
             } else {
                 return -1;
@@ -614,10 +614,14 @@
     };
 
     BootstrapTable.prototype.onColumnSearch = function (event) {
+    	if(event.currentTarget.tagName === "INPUT" && event.currentTarget.type === "text" && this.options.searchOnEnterKey && event.keyCode !== 13) {
+        	return;
+        }
+    	
         if ($.inArray(event.keyCode, [37, 38, 39, 40]) > -1) {
             return;
         }
-
+        
         copyValues(this);
         var text = $.trim($(event.currentTarget).val());
         var $field = $(event.currentTarget).closest('[data-field]').data('field');

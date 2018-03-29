@@ -81,8 +81,8 @@
 	
 	function operationFormat(value, row, index) {
 		var html = new Array();
-		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getItemSet(' + row.id + ');">详情</button>');
-		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="deleteItemSet(' + row.id + ');">删除</button>');
+		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="getItemSet(' + row.id + ');">详情</div>');
+		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="deleteItemSet(' + row.id + ');">删除</div>');
 		return html.join('');
 	}
 	
@@ -724,9 +724,9 @@
 					<tr>
 						<th data-field="id" data-filter-control="input" data-width="80"
 							data-filter-control-placeholder="">编号
-							<button class="btn btn-default btn-xs" onclick="getItemSet(0);">
+							<div class="btn btn-default btn-xs" onclick="getItemSet(0);">
 								<span class="glyphicon glyphicon-plus"></span>
-							</button>
+							</div>
 						</th>
 						<th data-field="name" data-filter-control="input" data-width="120"
 							data-formatter="nameFormat" data-filter-control-placeholder="">质检集合名称</th>
