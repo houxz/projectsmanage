@@ -1294,7 +1294,7 @@ public class InterfaceCtrl extends BaseCtrl {
 						}
 
 						modelConfig.setModuleid(module);
-						modelConfig.setName("启动类型");
+						modelConfig.setName("%启动类型");
 						modelConfig.setProcessId(Long.valueOf(processID));
 						ConfigValueModel valueModel = configValueModelDao.selectValueByConfig(modelConfig);
 						if (Integer.valueOf(valueModel.getValue()) == 2) { // 自动
