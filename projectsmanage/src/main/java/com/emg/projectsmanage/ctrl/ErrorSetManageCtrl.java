@@ -303,6 +303,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 
 	private List<ErrorSetModel> selectErrorSets(ErrorSetModel record, Integer limit, Integer offset) {
 		List<ErrorSetModel> errorSets = new ArrayList<ErrorSetModel>();
+		BasicDataSource dataSource = null;
 		try {
 			if (record == null)
 				return errorSets;
@@ -346,18 +347,27 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				sql.append(" OFFSET " + offset);
 			}
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			errorSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorSetModel>(ErrorSetModel.class));
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			errorSets = new ArrayList<ErrorSetModel>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return errorSets;
 	}
 
 	private Long insertErrorSet(final ErrorSetModel record) {
 		Long ret = -1L;
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -375,7 +385,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			sql.append(" VALUES (?,?,?,?,?) ");
 			
 			KeyHolder keyHolder = new GeneratedKeyHolder();
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			new JdbcTemplate(dataSource).update(new PreparedStatementCreator() {
 				public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
 					PreparedStatement ps = conn.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
@@ -395,12 +405,21 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = -1L;
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return ret;
 	}
 	
 	private Boolean updateErrorSet(ErrorSetModel record) {
 		Boolean ret = false;
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -433,17 +452,26 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			
 			sql.append(" WHERE " + separator + "id" + separator + " = " + record.getId());
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = false;
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return ret;
 	}
 	
 	private Boolean deleteErrorSet(Long errorSetID) {
 		Boolean ret = false;
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -459,7 +487,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			sql.append("tb_errorset ");
 			sql.append(" WHERE " + separator + "id" + separator + " = " + errorSetID);
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 			
 			StringBuffer sql_del = new StringBuffer();
@@ -474,12 +502,21 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = false;
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return ret;
 	}
 
 	private Integer countErrorSets(ErrorSetModel record, Integer limit, Integer offset) {
 		Integer count = -1;
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -513,17 +550,26 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				sql.append(" AND " + separator + "desc" + separator + " like '%" + record.getDesc() + "%'");
 			}
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 			count = -1;
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return count;
 	}
 
 	private List<ItemConfigModel> selectErrorTypes() {
 		List<ItemConfigModel> itemConfigs = new ArrayList<ItemConfigModel>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -538,17 +584,26 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			sql.append("tb_itemconfig ");
 			sql.append(" WHERE 1=1 ");
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			itemConfigs = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemConfigModel>(ItemConfigModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			itemConfigs = new ArrayList<ItemConfigModel>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return itemConfigs;
 	}
 	
 	private List<Long> getErrorSetDetailsByErrorSetID(Long errorSetID) {
 		List<Long> items = new ArrayList<Long>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -564,10 +619,18 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			sql.append("tb_errorsetdetail ");
 			sql.append(" WHERE " + separator + "itemsetid" + separator + " = " + errorSetID);
 			
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
 		} catch (Exception e) {
 			items = new ArrayList<Long>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return items;
 	}
@@ -576,6 +639,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		Integer ret = -1;
 		if (errorTypes.size() <= 0)
 			return ret;
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -591,7 +655,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			sql_del.append("tb_errorsetdetail ");
 			sql_del.append(" WHERE " + separator + "itemsetid" + separator + " = " + errorSetID);
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 			Integer ret_del = jdbc.update(sql_del.toString());
 			if (ret_del >= 0) {
@@ -616,6 +680,14 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = -1;
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return ret;
 	}

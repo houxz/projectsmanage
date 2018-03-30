@@ -711,6 +711,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 	private List<ItemSetModel> selectItemSets(ItemSetModel record, Integer limit, Integer offset) {
 		List<ItemSetModel> itemSets = new ArrayList<ItemSetModel>();
+		BasicDataSource dataSource = null;
 		try {
 			if (record == null)
 				return itemSets;
@@ -759,18 +760,28 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(" OFFSET " + offset);
 			}
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			itemSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemSetModel>(ItemSetModel.class));
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			itemSets = new ArrayList<ItemSetModel>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				dataSource = null;
+			}
 		}
 		return itemSets;
 	}
 
 	private Long insertItemset(final ItemSetModel record) {
 		Long ret = -1L;
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -787,7 +798,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			sql.append(" VALUES (?,?,?,?,?,?,?) ");
 
 			KeyHolder keyHolder = new GeneratedKeyHolder();
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			new JdbcTemplate(dataSource).update(new PreparedStatementCreator() {
 				public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
 					PreparedStatement ps = conn.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
@@ -809,12 +820,21 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = -1L;
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return ret;
 	}
 
 	private Boolean updateItemset(ItemSetModel record) {
 		Boolean ret = false;
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -853,17 +873,26 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			sql.append(" WHERE id = " + record.getId());
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = false;
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return ret;
 	}
 
 	private Boolean deleteItemSet(Long itemSetID) {
 		Boolean ret = false;
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -879,7 +908,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			sql.append("tb_itemset ");
 			sql.append(" WHERE " + separator + "id" + separator + " = " + itemSetID);
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 
 			StringBuffer sql_del = new StringBuffer();
@@ -894,12 +923,21 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = false;
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return ret;
 	}
 
 	private Integer countItemSets(ItemSetModel record, Integer limit, Integer offset) {
 		Integer count = -1;
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -939,17 +977,26 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(" AND " + separator + "desc" + separator + " like '%" + record.getDesc() + "%'");
 			}
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 			count = -1;
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return count;
 	}
 
 	private List<ItemInfoModel> selectItemInfosByItemids(List<Long> itemids) {
 		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -970,11 +1017,19 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			sql.deleteCharAt(sql.length() - 1);
 			sql.append(") ");
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			itemInfos = new ArrayList<ItemInfoModel>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return itemInfos;
 	}
@@ -988,6 +1043,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	 */
 	private List<ItemInfoModel> selectPOIAndOtherItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
 		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -1024,11 +1080,19 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			itemInfos = new ArrayList<ItemInfoModel>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return itemInfos;
 	}
@@ -1042,6 +1106,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	 */
 	private List<ItemInfoModel> selectRoadAndOtherItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
 		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -1078,11 +1143,19 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			itemInfos = new ArrayList<ItemInfoModel>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return itemInfos;
 	}
@@ -1096,6 +1169,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	 */
 	private List<ItemInfoModel> selectPOIRoadAndOtherItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
 		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -1132,11 +1206,19 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			itemInfos = new ArrayList<ItemInfoModel>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return itemInfos;
 	}
@@ -1150,6 +1232,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	 */
 	private List<ItemInfoModel> selectOtherItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
 		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -1186,17 +1269,26 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				sql.append(") ");
 			}
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			itemInfos = new ArrayList<ItemInfoModel>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return itemInfos;
 	}
 
 	private List<ItemInfoModel> selectQIDs(String oid, String name, Integer limit, Integer offset) {
 		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -1219,17 +1311,26 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			}
 			sql.append("GROUP BY " + separator + "oid" + separator + ", " + separator + "name" + separator + "");
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			itemInfos = new ArrayList<ItemInfoModel>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return itemInfos;
 	}
 
 	private List<Long> getItemSetDetailsByItemSetID(Long itemSetID) {
 		List<Long> items = new ArrayList<Long>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -1245,10 +1346,18 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			sql.append("tb_itemsetdetail ");
 			sql.append(" WHERE " + separator + "itemsetid" + separator + " = " + itemSetID);
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
 		} catch (Exception e) {
 			items = new ArrayList<Long>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return items;
 	}
@@ -1257,6 +1366,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		Integer ret = -1;
 		if (items.size() <= 0)
 			return ret;
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -1272,7 +1382,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			sql_del.append("tb_itemsetdetail ");
 			sql_del.append(" WHERE " + separator + "itemsetid" + separator + " = " + itemSetID);
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 			Integer ret_del = jdbc.update(sql_del.toString());
 			if (ret_del >= 0) {
@@ -1296,6 +1406,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = -1;
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return ret;
 	}

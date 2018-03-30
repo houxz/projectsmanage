@@ -334,6 +334,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 
 	private List<String> getErrorBatchids() {
 		List<String> batchids = new ArrayList<String>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(16);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -349,17 +350,26 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			}
 			sql.append("tb_error ");
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			batchids = new JdbcTemplate(dataSource).queryForList(sql.toString(), String.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 			batchids = new ArrayList<String>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return batchids;
 	}
 
 	private List<ErrorSetModel> getErrorSets() {
 		List<ErrorSetModel> errorSets = new ArrayList<ErrorSetModel>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -373,18 +383,27 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			}
 			sql.append("tb_errorset ");
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			errorSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorSetModel>(ErrorSetModel.class));
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			errorSets = new ArrayList<ErrorSetModel>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return errorSets;
 	}
 
 	private List<Long> getErrorSetDetailsByErrorSetID(Long errorSetID) {
 		List<Long> items = new ArrayList<Long>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -400,16 +419,25 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			sql.append("tb_errorsetdetail ");
 			sql.append(" WHERE " + separator + "itemsetid" + separator + " = " + errorSetID);
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
 		} catch (Exception e) {
 			items = new ArrayList<Long>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return items;
 	}
 
 	private List<ItemConfigModel> selectErrorTypesByIDs(List<Long> itemIDs) {
 		List<ItemConfigModel> itemConfigs = new ArrayList<ItemConfigModel>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -431,17 +459,26 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			sql.deleteCharAt(sql.length() - 1);
 			sql.append(")");
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			itemConfigs = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemConfigModel>(ItemConfigModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			itemConfigs = new ArrayList<ItemConfigModel>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return itemConfigs;
 	}
 
 	private List<ErrorModel> selectErrors(ErrorModel record, Integer limit, Integer offset, List<Long> errortypes) {
 		List<ErrorModel> errors = new ArrayList<ErrorModel>();
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(16);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -474,11 +511,19 @@ public class ErrorsManageCtrl extends BaseCtrl {
 				sql.append(" OFFSET " + offset);
 			}
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			errors = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorModel>(ErrorModel.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			errors = new ArrayList<ErrorModel>();
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return errors;
 	}
@@ -580,6 +625,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 
 	private Integer countErrors(ErrorModel record, List<Long> errortypes) {
 		Integer ret = -1;
+		BasicDataSource dataSource = null;
 		try {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(16);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -605,11 +651,19 @@ public class ErrorsManageCtrl extends BaseCtrl {
 				sql.append(" ) ");
 			}
 
-			BasicDataSource dataSource = getDataSource(configDBModel);
+			dataSource = getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = -1;
+		} finally {
+			if(dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return ret;
 	}
