@@ -39,6 +39,7 @@ import com.emg.projectsmanage.common.ItemSetType;
 import com.emg.projectsmanage.common.ItemSetUnit;
 import com.emg.projectsmanage.common.LayerElement;
 import com.emg.projectsmanage.common.ParamUtils;
+import com.emg.projectsmanage.common.SystemCPUType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
@@ -300,288 +301,11 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			Boolean isNewItemSet = itemSetID.compareTo(0L) == 0;
 			Integer itemInfoCount = 0;
 			if (isNewItemSet) {
-				// POI + 其他
-				List<ItemInfoModel> itemInfos = selectPOIAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
-				if (!itemInfos.isEmpty()) {
-					itemInfoCount += itemInfos.size();
-					List<Long> itemDetails = new ArrayList<Long>();
-					Set<String> referLayers = new HashSet<String>();
-					Set<String> layers = new HashSet<String>();
-					Integer layercount = 0;
-					for (ItemInfoModel itemInfo : itemInfos) {
-						itemDetails.add(itemInfo.getId());
-
-						String layer = itemInfo.getLayername();
-						layers.add(layer);
-
-						String refer = itemInfo.getReferdata();
-						if (refer != null && !refer.isEmpty()) {
-							String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
-							for (String r : rs) {
-								referLayers.add(r);
-							}
-
-							Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
-							layercount = layercount > rc ? layercount : rc;
-						}
-					}
-
-					StringBuilder sb_layername = new StringBuilder();
-					for (String layer : layers) {
-						sb_layername.append(layer);
-						sb_layername.append(";");
-					}
-					sb_layername.deleteCharAt(sb_layername.length() - 1);
-
-					StringBuilder sb_referdata = new StringBuilder();
-					if (referLayers != null && referLayers.size() > 0) {
-						for (String layer : referLayers) {
-							sb_referdata.append(layer);
-							sb_referdata.append("|");
-						}
-						sb_referdata.deleteCharAt(sb_referdata.length() - 1);
-						sb_referdata.append(":");
-						sb_referdata.append(layercount);
-					}
-
-					ItemSetModel record = new ItemSetModel();
-					record.setName(name + "_POI+其他");
-					record.setLayername(sb_layername.toString());
-					record.setType(type);
-					record.setSystype(systype);
-					record.setReferdata(sb_referdata.toString());
-					record.setUnit(unit.byteValue());
-					record.setDesc(desc);
-
-					itemSetID = insertItemset(record);
-					if (itemSetID.compareTo(0L) > 0) {
-						if (setItemSetDetails(itemSetID, itemDetails) > 0)
-							ret = true;
-					}
-				}
-				// POI + 其他
-
-				// Road + 其他
-				itemInfos.clear();
-				itemInfos = selectRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
-				if (!itemInfos.isEmpty()) {
-					itemInfoCount += itemInfos.size();
-					List<Long> itemDetails = new ArrayList<Long>();
-					Set<String> referLayers = new HashSet<String>();
-					Set<String> layers = new HashSet<String>();
-					Integer layercount = 0;
-					for (ItemInfoModel itemInfo : itemInfos) {
-						itemDetails.add(itemInfo.getId());
-
-						String layer = itemInfo.getLayername();
-						layers.add(layer);
-
-						String refer = itemInfo.getReferdata();
-						if (refer != null && !refer.isEmpty()) {
-							String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
-							for (String r : rs) {
-								referLayers.add(r);
-							}
-
-							Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
-							layercount = layercount > rc ? layercount : rc;
-						}
-					}
-
-					StringBuilder sb_layername = new StringBuilder();
-					for (String layer : layers) {
-						sb_layername.append(layer);
-						sb_layername.append(";");
-					}
-					sb_layername.deleteCharAt(sb_layername.length() - 1);
-
-					StringBuilder sb_referdata = new StringBuilder();
-					if (referLayers != null && referLayers.size() > 0) {
-						for (String layer : referLayers) {
-							sb_referdata.append(layer);
-							sb_referdata.append("|");
-						}
-						sb_referdata.deleteCharAt(sb_referdata.length() - 1);
-						sb_referdata.append(":");
-						sb_referdata.append(layercount);
-					}
-
-					ItemSetModel record = new ItemSetModel();
-					record.setName(name + "_Road+其他");
-					record.setLayername(sb_layername.toString());
-					record.setType(type);
-					record.setSystype(systype);
-					record.setReferdata(sb_referdata.toString());
-					record.setUnit(unit.byteValue());
-					record.setDesc(desc);
-
-					itemSetID = insertItemset(record);
-					if (itemSetID.compareTo(0L) > 0) {
-						if (setItemSetDetails(itemSetID, itemDetails) > 0)
-							ret = true;
-					}
-				}
-				// Road + 其他
-
-				// Road + POI
-				itemInfos.clear();
-				itemInfos = selectPOIRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
-				if (!itemInfos.isEmpty()) {
-					itemInfoCount += itemInfos.size();
-					List<Long> itemDetails = new ArrayList<Long>();
-					Set<String> referLayers = new HashSet<String>();
-					Set<String> layers = new HashSet<String>();
-					Integer layercount = 0;
-					for (ItemInfoModel itemInfo : itemInfos) {
-						itemDetails.add(itemInfo.getId());
-
-						String layer = itemInfo.getLayername();
-						layers.add(layer);
-
-						String refer = itemInfo.getReferdata();
-						if (refer != null && !refer.isEmpty()) {
-							String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
-							for (String r : rs) {
-								referLayers.add(r);
-							}
-
-							Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
-							layercount = layercount > rc ? layercount : rc;
-						}
-					}
-
-					StringBuilder sb_layername = new StringBuilder();
-					for (String layer : layers) {
-						sb_layername.append(layer);
-						sb_layername.append(";");
-					}
-					sb_layername.deleteCharAt(sb_layername.length() - 1);
-
-					StringBuilder sb_referdata = new StringBuilder();
-					if (referLayers != null && referLayers.size() > 0) {
-						for (String layer : referLayers) {
-							sb_referdata.append(layer);
-							sb_referdata.append("|");
-						}
-						sb_referdata.deleteCharAt(sb_referdata.length() - 1);
-						sb_referdata.append(":");
-						sb_referdata.append(layercount);
-					}
-
-					ItemSetModel record = new ItemSetModel();
-					record.setName(name + "_POI+Road");
-					record.setLayername(sb_layername.toString());
-					record.setType(type);
-					record.setSystype(systype);
-					record.setReferdata(sb_referdata.toString());
-					record.setUnit(unit.byteValue());
-					record.setDesc(desc);
-
-					itemSetID = insertItemset(record);
-					if (itemSetID.compareTo(0L) > 0) {
-						if (setItemSetDetails(itemSetID, itemDetails) > 0)
-							ret = true;
-					}
-				}
-				// Road + POI
-
-				// 其它
-				itemInfos.clear();
-				itemInfos = selectOtherItemInfosByOids(layernames, qids, type, systype, unit);
-				if (!itemInfos.isEmpty()) {
-					itemInfoCount += itemInfos.size();
-					List<Long> itemDetails = new ArrayList<Long>();
-					Set<String> referLayers = new HashSet<String>();
-					Set<String> layers = new HashSet<String>();
-					Integer layercount = 0;
-					for (ItemInfoModel itemInfo : itemInfos) {
-						itemDetails.add(itemInfo.getId());
-
-						String layer = itemInfo.getLayername();
-						layers.add(layer);
-
-						String refer = itemInfo.getReferdata();
-						if (refer != null && !refer.isEmpty()) {
-							String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
-							for (String r : rs) {
-								referLayers.add(r);
-							}
-
-							Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
-							layercount = layercount > rc ? layercount : rc;
-						}
-					}
-
-					StringBuilder sb_layername = new StringBuilder();
-					for (String layer : layers) {
-						sb_layername.append(layer);
-						sb_layername.append(";");
-					}
-					sb_layername.deleteCharAt(sb_layername.length() - 1);
-
-					StringBuilder sb_referdata = new StringBuilder();
-					if (referLayers != null && referLayers.size() > 0) {
-						for (String layer : referLayers) {
-							sb_referdata.append(layer);
-							sb_referdata.append("|");
-						}
-						sb_referdata.deleteCharAt(sb_referdata.length() - 1);
-						sb_referdata.append(":");
-						sb_referdata.append(layercount);
-					}
-
-					ItemSetModel record = new ItemSetModel();
-					record.setName(name + "_其他");
-					record.setLayername(sb_layername.toString());
-					record.setType(type);
-					record.setSystype(systype);
-					record.setReferdata(sb_referdata.toString());
-					record.setUnit(unit.byteValue());
-					record.setDesc(desc);
-
-					itemSetID = insertItemset(record);
-					if (itemSetID.compareTo(0L) > 0) {
-						if (setItemSetDetails(itemSetID, itemDetails) > 0)
-							ret = true;
-					}
-				}
-				// 其它
-
-				if (itemInfoCount.equals(0)) {
-					json.addObject("result", false);
-					json.addObject("option", "图层、质检项、类型、操作系统、质检单位不匹配");
-					return json;
-				}
-			} else {
-				ItemSetModel record = new ItemSetModel();
-				record.setId(itemSetID);
-				List<ItemSetModel> curItemSetList = selectItemSets(record, 1, 0);
-				if (curItemSetList != null && curItemSetList.size() == 1) {
-					ItemSetModel curItemSet = curItemSetList.get(0);
-					String curName = curItemSet.getName();
-					List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
-					String newName = new String();
-					String suffix = curName.substring(curName.lastIndexOf("_"));
-					switch (suffix) {
-					case "_POI+其他":
-						newName = name.endsWith("_POI+其他") ? name : name + "_POI+其他";
-						itemInfos = selectPOIAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
-						break;
-					case "_Road+其他":
-						newName = name.endsWith("_Road+其他") ? name : name + "_Road+其他";
-						itemInfos = selectRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
-						break;
-					case "_POI+Road":
-						newName = name.endsWith("_POI+Road") ? name : name + "_POI+Road";
-						itemInfos = selectPOIRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
-						break;
-					case "_其他":
-						newName = name.endsWith("_其他") ? name : name + "_其他";
-						itemInfos = selectOtherItemInfosByOids(layernames, qids, type, systype, unit);
-						break;
-					}
-
+				if (systype.equals(SystemCPUType.X86.getValue())) {
+					// POI + 其他
+					List<ItemInfoModel> itemInfos = selectPOIAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
 					if (!itemInfos.isEmpty()) {
+						itemInfoCount += itemInfos.size();
 						List<Long> itemDetails = new ArrayList<Long>();
 						Set<String> referLayers = new HashSet<String>();
 						Set<String> layers = new HashSet<String>();
@@ -622,21 +346,335 @@ public class ItemSetManageCtrl extends BaseCtrl {
 							sb_referdata.append(layercount);
 						}
 
-						ItemSetModel newItemSet = new ItemSetModel();
-						newItemSet.setId(itemSetID);
-						newItemSet.setName(newName);
-						newItemSet.setLayername(sb_layername.toString());
-						newItemSet.setType(type);
-						newItemSet.setSystype(systype);
-						newItemSet.setReferdata(sb_referdata.toString());
-						newItemSet.setUnit(unit.byteValue());
-						newItemSet.setDesc(desc);
+						ItemSetModel record = new ItemSetModel();
+						record.setName(name + "_POI+其他");
+						record.setLayername(sb_layername.toString());
+						record.setType(type);
+						record.setSystype(systype);
+						record.setReferdata(sb_referdata.toString());
+						record.setUnit(unit.byteValue());
+						record.setDesc(desc);
 
-						if (updateItemset(newItemSet) && (setItemSetDetails(itemSetID, itemDetails) > 0)) {
-							ret = true;
+						itemSetID = insertItemset(record);
+						if (itemSetID.compareTo(0L) > 0) {
+							if (setItemSetDetails(itemSetID, itemDetails) > 0)
+								ret = true;
 						}
 					}
+					// POI + 其他
+
+					// Road + 其他
+					itemInfos.clear();
+					itemInfos = selectRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+					if (!itemInfos.isEmpty()) {
+						itemInfoCount += itemInfos.size();
+						List<Long> itemDetails = new ArrayList<Long>();
+						Set<String> referLayers = new HashSet<String>();
+						Set<String> layers = new HashSet<String>();
+						Integer layercount = 0;
+						for (ItemInfoModel itemInfo : itemInfos) {
+							itemDetails.add(itemInfo.getId());
+
+							String layer = itemInfo.getLayername();
+							layers.add(layer);
+
+							String refer = itemInfo.getReferdata();
+							if (refer != null && !refer.isEmpty()) {
+								String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+								for (String r : rs) {
+									referLayers.add(r);
+								}
+
+								Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+								layercount = layercount > rc ? layercount : rc;
+							}
+						}
+
+						StringBuilder sb_layername = new StringBuilder();
+						for (String layer : layers) {
+							sb_layername.append(layer);
+							sb_layername.append(";");
+						}
+						sb_layername.deleteCharAt(sb_layername.length() - 1);
+
+						StringBuilder sb_referdata = new StringBuilder();
+						if (referLayers != null && referLayers.size() > 0) {
+							for (String layer : referLayers) {
+								sb_referdata.append(layer);
+								sb_referdata.append("|");
+							}
+							sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+							sb_referdata.append(":");
+							sb_referdata.append(layercount);
+						}
+
+						ItemSetModel record = new ItemSetModel();
+						record.setName(name + "_Road+其他");
+						record.setLayername(sb_layername.toString());
+						record.setType(type);
+						record.setSystype(systype);
+						record.setReferdata(sb_referdata.toString());
+						record.setUnit(unit.byteValue());
+						record.setDesc(desc);
+
+						itemSetID = insertItemset(record);
+						if (itemSetID.compareTo(0L) > 0) {
+							if (setItemSetDetails(itemSetID, itemDetails) > 0)
+								ret = true;
+						}
+					}
+					// Road + 其他
+
+					// Road + POI
+					itemInfos.clear();
+					itemInfos = selectPOIRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+					if (!itemInfos.isEmpty()) {
+						itemInfoCount += itemInfos.size();
+						List<Long> itemDetails = new ArrayList<Long>();
+						Set<String> referLayers = new HashSet<String>();
+						Set<String> layers = new HashSet<String>();
+						Integer layercount = 0;
+						for (ItemInfoModel itemInfo : itemInfos) {
+							itemDetails.add(itemInfo.getId());
+
+							String layer = itemInfo.getLayername();
+							layers.add(layer);
+
+							String refer = itemInfo.getReferdata();
+							if (refer != null && !refer.isEmpty()) {
+								String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+								for (String r : rs) {
+									referLayers.add(r);
+								}
+
+								Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+								layercount = layercount > rc ? layercount : rc;
+							}
+						}
+
+						StringBuilder sb_layername = new StringBuilder();
+						for (String layer : layers) {
+							sb_layername.append(layer);
+							sb_layername.append(";");
+						}
+						sb_layername.deleteCharAt(sb_layername.length() - 1);
+
+						StringBuilder sb_referdata = new StringBuilder();
+						if (referLayers != null && referLayers.size() > 0) {
+							for (String layer : referLayers) {
+								sb_referdata.append(layer);
+								sb_referdata.append("|");
+							}
+							sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+							sb_referdata.append(":");
+							sb_referdata.append(layercount);
+						}
+
+						ItemSetModel record = new ItemSetModel();
+						record.setName(name + "_POI+Road");
+						record.setLayername(sb_layername.toString());
+						record.setType(type);
+						record.setSystype(systype);
+						record.setReferdata(sb_referdata.toString());
+						record.setUnit(unit.byteValue());
+						record.setDesc(desc);
+
+						itemSetID = insertItemset(record);
+						if (itemSetID.compareTo(0L) > 0) {
+							if (setItemSetDetails(itemSetID, itemDetails) > 0)
+								ret = true;
+						}
+					}
+					// Road + POI
+
+					// 其它
+					itemInfos.clear();
+					itemInfos = selectOtherItemInfosByOids(layernames, qids, type, systype, unit);
+					if (!itemInfos.isEmpty()) {
+						itemInfoCount += itemInfos.size();
+						List<Long> itemDetails = new ArrayList<Long>();
+						Set<String> referLayers = new HashSet<String>();
+						Set<String> layers = new HashSet<String>();
+						Integer layercount = 0;
+						for (ItemInfoModel itemInfo : itemInfos) {
+							itemDetails.add(itemInfo.getId());
+
+							String layer = itemInfo.getLayername();
+							layers.add(layer);
+
+							String refer = itemInfo.getReferdata();
+							if (refer != null && !refer.isEmpty()) {
+								String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+								for (String r : rs) {
+									referLayers.add(r);
+								}
+
+								Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+								layercount = layercount > rc ? layercount : rc;
+							}
+						}
+
+						StringBuilder sb_layername = new StringBuilder();
+						for (String layer : layers) {
+							sb_layername.append(layer);
+							sb_layername.append(";");
+						}
+						sb_layername.deleteCharAt(sb_layername.length() - 1);
+
+						StringBuilder sb_referdata = new StringBuilder();
+						if (referLayers != null && referLayers.size() > 0) {
+							for (String layer : referLayers) {
+								sb_referdata.append(layer);
+								sb_referdata.append("|");
+							}
+							sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+							sb_referdata.append(":");
+							sb_referdata.append(layercount);
+						}
+
+						ItemSetModel record = new ItemSetModel();
+						record.setName(name + "_其他");
+						record.setLayername(sb_layername.toString());
+						record.setType(type);
+						record.setSystype(systype);
+						record.setReferdata(sb_referdata.toString());
+						record.setUnit(unit.byteValue());
+						record.setDesc(desc);
+
+						itemSetID = insertItemset(record);
+						if (itemSetID.compareTo(0L) > 0) {
+							if (setItemSetDetails(itemSetID, itemDetails) > 0)
+								ret = true;
+						}
+					}
+					// 其它
+				} else if (systype.equals(SystemCPUType.X64.getValue())) {
+					List<ItemInfoModel> itemInfos = selectX64ItemInfosByOids(layernames, qids, type, systype, unit);
+					if (!itemInfos.isEmpty()) {
+						itemInfoCount += itemInfos.size();
+
+						for (ItemInfoModel itemInfo : itemInfos) {
+							List<Long> itemDetails = new ArrayList<Long>();
+							itemDetails.add(itemInfo.getId());
+
+							String layer = itemInfo.getLayername();
+							String refer = itemInfo.getReferdata();
+
+							ItemSetModel record = new ItemSetModel();
+							record.setName(name + "_" + itemInfo.getOid());
+							record.setLayername(layer);
+							record.setType(type);
+							record.setSystype(systype);
+							record.setReferdata(refer);
+							record.setUnit(unit.byteValue());
+							record.setDesc(desc);
+
+							itemSetID = insertItemset(record);
+							if (itemSetID.compareTo(0L) > 0) {
+								if (setItemSetDetails(itemSetID, itemDetails) > 0)
+									ret = true;
+							}
+						}
+
+					}
 				}
+
+			} else {
+				if (systype.equals(SystemCPUType.X86.getValue())) {
+					ItemSetModel record = new ItemSetModel();
+					record.setId(itemSetID);
+					List<ItemSetModel> curItemSetList = selectItemSets(record, 1, 0);
+					if (curItemSetList != null && curItemSetList.size() == 1) {
+						ItemSetModel curItemSet = curItemSetList.get(0);
+						String curName = curItemSet.getName();
+						List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+						String newName = new String();
+						String suffix = curName.substring(curName.lastIndexOf("_"));
+						switch (suffix) {
+						case "_POI+其他":
+							newName = name.endsWith("_POI+其他") ? name : name + "_POI+其他";
+							itemInfos = selectPOIAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+							break;
+						case "_Road+其他":
+							newName = name.endsWith("_Road+其他") ? name : name + "_Road+其他";
+							itemInfos = selectRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+							break;
+						case "_POI+Road":
+							newName = name.endsWith("_POI+Road") ? name : name + "_POI+Road";
+							itemInfos = selectPOIRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+							break;
+						case "_其他":
+							newName = name.endsWith("_其他") ? name : name + "_其他";
+							itemInfos = selectOtherItemInfosByOids(layernames, qids, type, systype, unit);
+							break;
+						}
+
+						if (!itemInfos.isEmpty()) {
+							itemInfoCount += itemInfos.size();
+							List<Long> itemDetails = new ArrayList<Long>();
+							Set<String> referLayers = new HashSet<String>();
+							Set<String> layers = new HashSet<String>();
+							Integer layercount = 0;
+							for (ItemInfoModel itemInfo : itemInfos) {
+								itemDetails.add(itemInfo.getId());
+
+								String layer = itemInfo.getLayername();
+								layers.add(layer);
+
+								String refer = itemInfo.getReferdata();
+								if (refer != null && !refer.isEmpty()) {
+									String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+									for (String r : rs) {
+										referLayers.add(r);
+									}
+
+									Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+									layercount = layercount > rc ? layercount : rc;
+								}
+							}
+
+							StringBuilder sb_layername = new StringBuilder();
+							for (String layer : layers) {
+								sb_layername.append(layer);
+								sb_layername.append(";");
+							}
+							sb_layername.deleteCharAt(sb_layername.length() - 1);
+
+							StringBuilder sb_referdata = new StringBuilder();
+							if (referLayers != null && referLayers.size() > 0) {
+								for (String layer : referLayers) {
+									sb_referdata.append(layer);
+									sb_referdata.append("|");
+								}
+								sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+								sb_referdata.append(":");
+								sb_referdata.append(layercount);
+							}
+
+							ItemSetModel newItemSet = new ItemSetModel();
+							newItemSet.setId(itemSetID);
+							newItemSet.setName(newName);
+							newItemSet.setLayername(sb_layername.toString());
+							newItemSet.setType(type);
+							newItemSet.setSystype(systype);
+							newItemSet.setReferdata(sb_referdata.toString());
+							newItemSet.setUnit(unit.byteValue());
+							newItemSet.setDesc(desc);
+
+							if (updateItemset(newItemSet) && (setItemSetDetails(itemSetID, itemDetails) > 0)) {
+								ret = true;
+							}
+						}
+					}
+				} else if (systype.equals(SystemCPUType.X64.getValue())) {
+					
+				}
+			}
+			
+			if (itemInfoCount.equals(0)) {
+				json.addObject("result", false);
+				json.addObject("option", "图层、质检项、类型、操作系统、质检单位不匹配");
+				return json;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -767,7 +805,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			e.printStackTrace();
 			itemSets = new ArrayList<ItemSetModel>();
 		} finally {
-			if(dataSource != null) {
+			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
@@ -786,7 +824,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			final StringBuffer sql = new StringBuffer();
@@ -794,7 +832,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
-			sql.append("tb_itemset (" + separator + "name" + separator + ", " + separator + "layername" + separator + ", " + separator + "type" + separator + ", " + separator + "systype" + separator + ", " + separator + "referdata" + separator + ", " + separator + "unit" + separator + ", " + separator + "desc" + separator + ") ");
+			sql.append("tb_itemset (" + separator + "name" + separator + ", " + separator + "layername" + separator + ", " + separator + "type" + separator + ", " + separator
+					+ "systype" + separator + ", " + separator + "referdata" + separator + ", " + separator + "unit" + separator + ", " + separator + "desc" + separator + ") ");
 			sql.append(" VALUES (?,?,?,?,?,?,?) ");
 
 			KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -821,7 +860,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			e.printStackTrace();
 			ret = -1L;
 		} finally {
-			if(dataSource != null) {
+			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
@@ -839,7 +878,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
@@ -879,7 +918,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			e.printStackTrace();
 			ret = false;
 		} finally {
-			if(dataSource != null) {
+			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
@@ -897,7 +936,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
@@ -924,7 +963,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			e.printStackTrace();
 			ret = false;
 		} finally {
-			if(dataSource != null) {
+			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
@@ -942,7 +981,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
@@ -983,7 +1022,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			e.printStackTrace();
 			count = -1;
 		} finally {
-			if(dataSource != null) {
+			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
@@ -1001,7 +1040,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
@@ -1023,7 +1062,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			e.printStackTrace();
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
-			if(dataSource != null) {
+			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
@@ -1048,7 +1087,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
@@ -1086,7 +1125,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			e.printStackTrace();
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
-			if(dataSource != null) {
+			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
@@ -1111,7 +1150,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
@@ -1149,7 +1188,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			e.printStackTrace();
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
-			if(dataSource != null) {
+			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
@@ -1174,7 +1213,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
@@ -1212,7 +1251,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			e.printStackTrace();
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
-			if(dataSource != null) {
+			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
@@ -1237,7 +1276,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
@@ -1275,7 +1314,68 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			e.printStackTrace();
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
-			if(dataSource != null) {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return itemInfos;
+	}
+
+	/**
+	 * 获取64位质检项的ItemInfo
+	 * 
+	 * @param oids
+	 *            质检项
+	 * @return
+	 */
+	private List<ItemInfoModel> selectX64ItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
+		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+		BasicDataSource dataSource = null;
+		try {
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT * FROM ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_iteminfo ");
+			sql.append(" WHERE " + separator + "enable" + separator + " = 1 ");
+			sql.append(" AND " + separator + "type" + separator + " = " + type);
+			sql.append(" AND " + separator + "unit" + separator + " = " + unit);
+			sql.append(" AND " + separator + "systype" + separator + " = " + systype);
+			if (layernames != null && layernames.size() > 0) {
+				sql.append(" AND " + separator + "layername" + separator + " in ( ");
+				for (String layername : layernames) {
+					sql.append("'" + layername + "',");
+				}
+				sql.deleteCharAt(sql.length() - 1);
+				sql.append(") ");
+			}
+			if (oids != null && oids.size() > 0) {
+				sql.append(" AND " + separator + "oid" + separator + " in ( ");
+				for (String oid : oids) {
+					sql.append("'" + oid + "',");
+				}
+				sql.deleteCharAt(sql.length() - 1);
+				sql.append(") ");
+			}
+
+			dataSource = getDataSource(configDBModel);
+			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
+		} catch (Exception e) {
+			e.printStackTrace();
+			itemInfos = new ArrayList<ItemInfoModel>();
+		} finally {
+			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
@@ -1293,9 +1393,9 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			String separator = Common.getDatabaseSeparator(dbtype);
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT " + separator + "oid" + separator + ", " + separator + "name" + separator + " FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
@@ -1317,7 +1417,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			e.printStackTrace();
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
-			if(dataSource != null) {
+			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
@@ -1335,7 +1435,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
@@ -1351,7 +1451,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		} catch (Exception e) {
 			items = new ArrayList<Long>();
 		} finally {
-			if(dataSource != null) {
+			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
@@ -1371,7 +1471,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql_del = new StringBuffer();
@@ -1407,7 +1507,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			e.printStackTrace();
 			ret = -1;
 		} finally {
-			if(dataSource != null) {
+			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
