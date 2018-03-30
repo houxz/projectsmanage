@@ -1346,8 +1346,8 @@ public class InterfaceCtrl extends BaseCtrl {
 			String projectid = "-1";
 			String name = "";
 			
-			ProjectModel curProject = projectModelDao.selectByPrimaryKey(pid);
-			Integer priority = curProject == null ? 2 : curProject.getPriority();
+			ProcessModel curProcess = processModelDao.selectByPrimaryKey(pid);
+			Integer priority = curProcess == null ? 2 : curProcess.getPriority();
 
 			ProcessModelExample example = new ProcessModelExample();
 			com.emg.projectsmanage.pojo.ProcessModelExample.Criteria _criteria1 = example.or();
