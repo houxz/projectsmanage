@@ -14,7 +14,7 @@ public enum ItemAreaType {
 	/**
 	 * 1-省
 	 */
-	PROVINCE(1, "省"),
+//	PROVINCE(1, "省"),
 	/**
 	 * 2-市
 	 */

@@ -711,7 +711,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_city ");
-			sql.append(" WHERE " + separator + "type" + separator + " != 3 ");
+			sql.append(" WHERE " + separator + "type" + separator + " in (0, 2) ");
 			if (itemArea.getId() != null) {
 				sql.append(" AND " + separator + "id" + separator + " = " + itemArea.getId());
 			}
