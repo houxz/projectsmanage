@@ -309,6 +309,12 @@
 		$("#config_processpriority").val(0);
 		$("#config_processprotype").val(1);
 		processTypeChange(1);
+		
+		$("#config_0_7").val(new String());
+		$("#config_0_7").siblings("p").text("已选择0个区域");
+		$("#config_0_18").val(new String());
+		$("#config_0_18").siblings("p").text("已添加人员0位");
+		$("#config_0_19").prop('selectedIndex', 0);
 
 		$("#config_1_5").prop('selectedIndex', 0);
 		$("#config_1_6").prop('selectedIndex', 0);
