@@ -371,6 +371,9 @@
 						if (obj) {
 							$(obj).val(configValues[index].value);
 						}
+						if(configValues[index].configid == 19) {
+							$("#config_0_19").val(configValues[index].value);
+						}
 					}
 					
 					var config_processprotype = $("#config_processprotype").val();
@@ -445,7 +448,7 @@
 											var config_2_12 = $("#config_2_12").val();
 											var config_2_17 = 2;//$("#config_2_17").val();
 											var config_2_18 = $("#config_2_18").val();
-											var config_2_19 = $("#config_2_19").val();
+											var config_2_19 = protype == 1 ? $("#config_2_19").val() : $("#config_0_19").val();
 
 											if (!newProcessName || newProcessName.length <= 0) {
 												$.webeditor.showMsgLabel("alert", "项目名不能为空");
