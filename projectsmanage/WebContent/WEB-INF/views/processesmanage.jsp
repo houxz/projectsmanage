@@ -300,6 +300,8 @@
 						+ row.priority
 						+ ','
 						+ row.type
+						+ ','
+						+ row.state
 						+ ');">配置</div>');
 		if (row.state == 1) {
 			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,' + row.id + ')">暂停</div>');
@@ -326,6 +328,7 @@
 		$("#config_processname").val(new String());
 		$("#config_processpriority").val(0);
 		$("#config_processprotype").val(1);
+		$("#config_processstatus").val(0);
 		processTypeChange(1);
 		
 		$("#config_0_7").val(new String());
@@ -347,10 +350,16 @@
 		$("#config_2_19").prop('selectedIndex', 0);
 	}
 
-	function getConfig(processid, processname, priority, processtype) {
+	function getConfig(processid, processname, priority, processtype, state) {
 		loadDefaultConfig();
 		if (processid > 0) {
-			$("#config_processprotype").attr("disabled", true);
+			// $("#config_processprotype").attr("disabled", true);
+			if (state != 0) {
+				disableByProcessType(processtype);
+			}else {
+				$("#config_processprotype").attr("disabled", true);
+				enableByProcessType();
+			}
 			jQuery.post("./processesmanage.web", {
 				"atn" : "getconfigvalues",
 				"processid" : processid
@@ -391,12 +400,14 @@
 				}
 			}, "json");
 		} else {
+			// $("#config_processprotype").removeAttr("disabled");
 			$("#config_processprotype").removeAttr("disabled");
+			enableByProcessType();
 		}
-		showConfigDlg(processid, processname, priority, processtype);
+		showConfigDlg(processid, processname, priority, processtype, state);
 	}
 
-	function showConfigDlg(processid, processname, priority, processtype) {
+	function showConfigDlg(processid, processname, priority, processtype, state) {
 		$("#configDlg").dialog({
 							modal : true,
 							height : 630,
@@ -405,6 +416,8 @@
 							open : function(event, ui) {
 								$("#config_processid").val(processid);
 								$("#config_processname").val(processname);
+								$("#config_processstatus").val(state);
+								
 								$("#config_processpriority").val(priority);
 								$("#config_processprotype").val(processtype);
 								$(".ui-dialog-titlebar-close").hide();
@@ -748,6 +761,12 @@
 									values : values
 								});
 						itemAreaFirstIn = false;
+						var state = $("#config_processstatus").val();
+						if(state !== "0") {
+							$("#itemAreaslist input:checkbox").attr("disabled", true);
+						} else {
+							$("#itemAreaslist input:checkbox").removeAttr("disabled");
+						} 
 					},
 					onCheck : function(row, element) {
 						var index = parseInt($(element).parent().next().text());
@@ -968,6 +987,12 @@
 									values : values
 								});
 						itemSetFirstIn = false;
+						var state = $("#config_processstatus").val();
+						if(state !== "0") {
+							$("#itemsetslist input:checkbox").attr("disabled", true);
+						} else {
+							$("#itemsetslist input:checkbox").removeAttr("disabled");
+						} 
 					},
 					onCheck : function(row, element) {
 						var index = parseInt($(element).parent().next().text());
@@ -1149,6 +1174,37 @@
 			//console.log("processTypeChange--错误的项目类型：" + selectValue);
 		}
 	}
+	
+	function enableByProcessType() {
+		
+		$("#config_processname").removeAttr("disabled");
+		$("#config_1_5").removeAttr("disabled");
+		$("#config_1_6").siblings("button").removeAttr("disabled");
+		$("#config_1_7").siblings("button").removeAttr("disabled");
+		$("#config_processprotype").removeAttr("disabled");
+	
+		$("#config_processname").removeAttr("disabled");
+		// $("#config_processprotype").removeAttr("disabled");
+		$("#config_0_7").siblings("button").removeAttr("disabled");
+	
+	}
+	
+	function disableByProcessType(selectValue) {
+		if(selectValue == 1) {
+			// config_processname,config_1_5
+			$("#config_processname").attr("disabled", true);
+			$("#config_1_5").attr("disabled", true);
+			//$("#config_1_6").siblings("button").attr("disabled", true);
+			// $("#config_1_7").siblings("button").attr("disabled", true);
+			$("#config_processprotype").attr("disabled", true);
+		} else if(selectValue == 2) {
+			$("#config_processname").attr("disabled", true);
+			$("#config_processprotype").attr("disabled", true);
+			// $("#config_0_7").siblings("button").attr("disabled", true);
+		} else {
+			//console.log("processTypeChange--错误的项目类型：" + selectValue);
+		}
+	}
 </script>
 
 </head>
@@ -1168,7 +1224,7 @@
 						<th data-field="id" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">项目编号
 							<div class="btn btn-default btn-xs" title="新建项目"
-								onclick="getConfig(0,'',0,1);">
+								onclick="getConfig(0,'',0,1,0);">
 								<span class="glyphicon glyphicon-plus"></span>
 							</div>
 						</th>
@@ -1225,7 +1281,10 @@
 							<td class="configKey">项目名称</td>
 							<td class="configValue"><input type="text"
 								class="form-control configValue" id="config_processname"
-								placeholder="请输入新项目名"></td>
+								placeholder="请输入新项目名">
+								<input type="text"
+								style="display:none" id="config_processstatus"
+								></td>
 						</tr>
 						<tr>
 							<td class="configKey">项目类型</td>
