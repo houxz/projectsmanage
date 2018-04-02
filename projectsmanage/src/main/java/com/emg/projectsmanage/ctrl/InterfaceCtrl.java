@@ -21,6 +21,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.ProjectModel;
+import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.RoleType;
@@ -444,10 +445,10 @@ public class InterfaceCtrl extends BaseCtrl {
 			taskLog.setTaskid(taskid);
 			taskLog.setUserid(userid);
 			taskLog.setRoleid(roleid);
-			taskLog.setStatebefore(statebefore);
-			taskLog.setProcessbefore(processbefore);
-			taskLog.setStateafter(stateafter);
-			taskLog.setProcessafter(processafter);
+			taskLog.setStatebefore(statebefore == null ? 0 : statebefore);
+			taskLog.setProcessbefore(processbefore == null ? 0 : processbefore);
+			taskLog.setStateafter(stateafter == null ? 0 : stateafter);
+			taskLog.setProcessafter(processafter == null ? 0 : processafter);
 
 			// 判断是否第一次写入
 			int count = projectsTaskLogModelDao.count(taskLog);
@@ -555,7 +556,6 @@ public class InterfaceCtrl extends BaseCtrl {
 									Integer totalTask = projectsCount.getTotaltask();
 									Integer completeTask = projectsCount.getCompletetask();
 									Double progress = ((double) completeTask / (double) totalTask) * 100;
-									Integer prog = progress.intValue();
 
 									// by xiao 更新流程进度
 									// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
@@ -575,13 +575,13 @@ public class InterfaceCtrl extends BaseCtrl {
 												String[] arProgress = sProgress.split(",");
 												ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
 												Integer length = alProgress.size();
-												while (length < 4) {
+												while (length < CommonConstants.PROCESSCOUNT_ERROR) {
 													alProgress.add("0");
 													length++;
 												}
 												// X,X,X,X
 												// 质检进度在第四个X
-												alProgress.set(3, prog.toString());
+												alProgress.set(3, String.format("%.3f", progress));
 
 												StringBuilder sbProgress = new StringBuilder();
 												for (String p : alProgress) {
@@ -613,6 +613,80 @@ public class InterfaceCtrl extends BaseCtrl {
 						} else {
 							status = true;
 						}
+					} else if (systemid.compareTo(SystemType.MapDbEdit_NRFC.getValue()) == 0) {
+						if (stateafter == 3 && processafter == 5) {// (X,X)->(3,5)
+							if (projectsTaskCountDao.newTask2Done(taskCount) > 0) {
+								Map<String, Object> map = new HashMap<String, Object>();
+								map.put("systemid", systemid);
+								map.put("projectid", projectid);
+								List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
+								if (list != null && list.size() > 0) {
+									ProjectsTaskCountModel projectsCount = list.get(0);
+
+									// by xiao 计算任务完成进度
+									Integer totalTask = projectsCount.getTotaltask();
+									if (totalTask <= 0) {
+										json.addObject("status", false);
+										json.addObject("option", "任务总数未更新");
+										return json;
+									}
+									Integer completeTask = projectsCount.getCompletetask();
+									Double progress = ((double) completeTask / (double) totalTask) * 100;
+
+									// by xiao 更新流程进度
+									// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
+									// 先找到该项目关联的所有流程任务
+									ProcessModel process;
+									ConfigValueModel valuemodel = new ConfigValueModel();
+									valuemodel.setName("%项目id");
+									valuemodel.setValue(projectid.toString());
+									valuemodel.setModuleid(2);
+									List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
+									if (valueList.size() > 0) {
+										for (ConfigValueModel value : valueList) {
+											Long idProcess = value.getProcessId();
+											process = processModelDao.selectByPrimaryKey(idProcess);
+											String sProgress = process.getProgress();
+											if (sProgress.length() > 0) {
+												String[] arProgress = sProgress.split(",");
+												ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
+												Integer length = alProgress.size();
+												while (length < CommonConstants.PROCESSCOUNT_NRFC) {
+													alProgress.add("0");
+													length++;
+												}
+												// X,X,X,X
+												// 质检进度在第二个X
+												alProgress.set(1, String.format("%.3f", progress));
+
+												StringBuilder sbProgress = new StringBuilder();
+												for (String p : alProgress) {
+													sbProgress.append(p);
+													sbProgress.append(",");
+												}
+												sbProgress.deleteCharAt(sbProgress.length() - 1);
+
+												process.setProgress(sbProgress.toString());
+												if (totalTask.compareTo(completeTask) == 0) {
+													// 更新流程状态和阶段状态
+													process.setStage(3);
+													process.setStagestate(1); // 阶段完成
+												}
+												processModelDao.updateByPrimaryKey(process);
+											}
+										}
+									}
+									// by xiao 计算任务完成进度 end
+
+									if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
+										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
+										project.setOverstate(4);
+										projectModelDao.updateByPrimaryKey(project);
+									}
+									status = Boolean.valueOf(true);
+								}
+							}
+						}
 					} else if (systemid.compareTo(SystemType.DBMapChecker.getValue()) == 0) {// 批处理工具平台，质检平台
 						if (statebefore == 12 && processbefore == 51 && stateafter == 11 && processafter == 52) {// (12,51)
 																													// ->
@@ -639,14 +713,13 @@ public class InterfaceCtrl extends BaseCtrl {
 									}
 									Integer completeTask = projectsCount.getCompletetask();
 									Double progress = ((double) completeTask / (double) totalTask) * 100;
-									Integer prog = progress.intValue();
 
 									// by xiao 更新流程进度
 									// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
 									// 先找到该项目关联的所有流程任务
 									ProcessModel process;
 									ConfigValueModel valuemodel = new ConfigValueModel();
-									valuemodel.setName("项目id");
+									valuemodel.setName("%项目id");
 									valuemodel.setValue(projectid.toString());
 									valuemodel.setModuleid(1);
 									List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
@@ -659,13 +732,13 @@ public class InterfaceCtrl extends BaseCtrl {
 												String[] arProgress = sProgress.split(",");
 												ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
 												Integer length = alProgress.size();
-												while (length < 4) {
+												while (length < CommonConstants.PROCESSCOUNT_ERROR) {
 													alProgress.add("0");
 													length++;
 												}
 												// X,X,X,X
 												// 质检进度在第二个X
-												alProgress.set(1, prog.toString());
+												alProgress.set(1, String.format("%.3f", progress));
 
 												StringBuilder sbProgress = new StringBuilder();
 												for (String p : alProgress) {
@@ -1260,7 +1333,7 @@ public class InterfaceCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean status = false;
 		try {
-			if(stage <= 0 || stage > 4) {
+			if (stage <= 0 || stage > 4) {
 				json.addObject("status", false);
 				json.addObject("option", "错误的数据范围，stage：" + stage);
 				return json;
@@ -1270,17 +1343,16 @@ public class InterfaceCtrl extends BaseCtrl {
 
 			if (proType.equals(ProcessType.ERROR.getValue())) {
 				String sProgress = process.getProgress();
-				final Integer PROCESSCOUNT_ERROR = 4;
 				if (sProgress.length() > 0) {
 					String[] arProgress = sProgress.split(",");
 					ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
 					Integer length = alProgress.size();
-					while (length < PROCESSCOUNT_ERROR) {
+					while (length < CommonConstants.PROCESSCOUNT_ERROR) {
 						alProgress.add("0");
 						length++;
 					}
 					// X,X,X,X
-					alProgress.set(stage-1, progress.toString());
+					alProgress.set(stage - 1, progress.toString());
 
 					StringBuilder sbProgress = new StringBuilder();
 					for (String p : alProgress) {
@@ -1297,7 +1369,7 @@ public class InterfaceCtrl extends BaseCtrl {
 						process.setStagestate(3); // 阶段进度为100时，自动将该阶段的状态设置为完成
 
 						// 若下一阶段为自动开启状态，则直接设置为下一阶段开启
-						if (stage < PROCESSCOUNT_ERROR) {
+						if (stage < CommonConstants.PROCESSCOUNT_ERROR) {
 							ConfigValueModel modelConfig = new ConfigValueModel();
 							Integer module = 0;
 							if (stage == 1) { // 当前为第一阶段时，若完成，自动开始的第二阶段也属于模块1
@@ -1318,7 +1390,7 @@ public class InterfaceCtrl extends BaseCtrl {
 							modelConfig.setName("%项目id");
 							valueModel = configValueModelDao.selectValueByConfig(modelConfig);
 							projectid = Integer.valueOf(valueModel.getValue());
-						} else if(stage == PROCESSCOUNT_ERROR) {
+						} else if (stage == CommonConstants.PROCESSCOUNT_ERROR) {
 							process.setState(ProcessState.COMPLETE.getValue());
 						}
 					}
@@ -1345,17 +1417,16 @@ public class InterfaceCtrl extends BaseCtrl {
 				}
 			} else if (proType.equals(ProcessType.NRFC.getValue())) {
 				String sProgress = process.getProgress();
-				final Integer PROCESSCOUNT_NRFC = 3;
 				if (sProgress.length() > 0) {
 					String[] arProgress = sProgress.split(",");
 					ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
 					Integer length = alProgress.size();
-					while (length < PROCESSCOUNT_NRFC) {
+					while (length < CommonConstants.PROCESSCOUNT_NRFC) {
 						alProgress.add("0");
 						length++;
 					}
 					// X,X,X
-					alProgress.set(stage-1, progress.toString());
+					alProgress.set(stage - 1, progress.toString());
 
 					StringBuilder sbProgress = new StringBuilder();
 					for (String p : alProgress) {
@@ -1363,18 +1434,18 @@ public class InterfaceCtrl extends BaseCtrl {
 						sbProgress.append(",");
 					}
 					sbProgress.deleteCharAt(sbProgress.length() - 1);
-					
+
 					process.setProgress(sbProgress.toString());
 					Integer stageStart = 0;
 					Integer projectid = 0;
-					
+
 					if (progress.compareTo("100") == 0 && stage == process.getStage()) {
 						process.setStagestate(3); // 阶段进度为100时，自动将该阶段的状态设置为完成
-						
+
 						// 若下一阶段为自动开启状态，则直接设置为下一阶段开启
-						if (stage < PROCESSCOUNT_NRFC) {
+						if (stage < CommonConstants.PROCESSCOUNT_NRFC) {
 							ConfigValueModel modelConfig = new ConfigValueModel();
-							//NR/FC项目默认只有编辑阶段，启动类型只考虑编辑阶段
+							// NR/FC项目默认只有编辑阶段，启动类型只考虑编辑阶段
 							Integer module = 2;
 							modelConfig.setModuleid(module);
 							modelConfig.setName("%启动类型");
@@ -1388,7 +1459,7 @@ public class InterfaceCtrl extends BaseCtrl {
 							modelConfig.setName("%项目id");
 							valueModel = configValueModelDao.selectValueByConfig(modelConfig);
 							projectid = Integer.valueOf(valueModel.getValue());
-						} else if(stage == PROCESSCOUNT_NRFC) {
+						} else if (stage == CommonConstants.PROCESSCOUNT_NRFC) {
 							process.setState(ProcessState.COMPLETE.getValue());
 						}
 					}

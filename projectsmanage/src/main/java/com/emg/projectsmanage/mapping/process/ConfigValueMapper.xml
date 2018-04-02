@@ -32,7 +32,7 @@
 		from tb_config_value
 		where value = #{value,jdbcType=VARCHAR}
 		 AND configid in
-		 (select tb_config.id from tb_config where name=#{name,jdbcType=VARCHAR} AND moduleid = #{moduleid, jdbcType=INTEGER})
+		 (select tb_config.id from tb_config where name like #{name,jdbcType=VARCHAR} AND moduleid = #{moduleid, jdbcType=INTEGER})
 	</select>
 	
 	<select id="selectConfigs" resultMap="BaseResultMap"

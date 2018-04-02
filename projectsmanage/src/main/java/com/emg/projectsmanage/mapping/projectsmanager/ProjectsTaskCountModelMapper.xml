@@ -242,6 +242,14 @@
 		AND `userid` = #{userid,jdbcType=INTEGER}
 		AND `roleid` = #{roleid,jdbcType=INTEGER}
 	</update>
+	<update id="newTask2Done" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		UPDATE tb_projects_task_count
+		SET `totaltask` = `totaltask` + 1, `completetask` = `completetask` + 1
+		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
+		AND `projectid` = #{projectid,jdbcType=BIGINT}
+		AND `userid` = #{userid,jdbcType=INTEGER}
+		AND `roleid` = #{roleid,jdbcType=INTEGER}
+	</update>
 	<update id="Edit2QC" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
 		UPDATE tb_projects_task_count
 		SET `edittask` = `edittask` - 1, `qctask` = `qctask` + 1

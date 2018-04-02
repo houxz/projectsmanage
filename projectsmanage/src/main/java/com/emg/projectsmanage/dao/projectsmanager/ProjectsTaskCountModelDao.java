@@ -26,6 +26,8 @@ public interface ProjectsTaskCountModelDao {
     
     int newTask2QC(ProjectsTaskCountModel record);
     
+    int newTask2Done(ProjectsTaskCountModel record);
+    
     int Edit2QC(ProjectsTaskCountModel record);
     
     int QC2Check(ProjectsTaskCountModel record);
