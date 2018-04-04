@@ -226,7 +226,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel332 = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config332.getDefaultValue()));
 			if (isNewProcess) {
 				if(!type.equals(ProcessType.NRFC.getValue())) {
-					String config_1_4 = newProcessName + "_质检";
+					String config_1_4 = newProcessName + "_质检" + "(" + newProcessID + ")";
 
 					ProjectModel newpro = new ProjectModel();
 					newpro.setName(config_1_4);
@@ -255,7 +255,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			} else {
 				if(!type.equals(ProcessType.NRFC.getValue())) {
-					String config_1_4 = newProcessName + "_质检";
+					String config_1_4 = newProcessName + "_质检" + "(" + newProcessID + ")";
 
 					ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
 					_configValue.setProcessid(newProcessID);
@@ -276,7 +276,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			ProcessConfigModel config349 = processConfigModelDao.selectByPrimaryKey(9);
 			ConfigDBModel configDBModel349 = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config349.getDefaultValue()));
 			if (isNewProcess) {
-				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? (newProcessName + "_NR/FC") : (newProcessName + "_改错");
+				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? (newProcessName + "_NR/FC" + "(" + newProcessID + ")") : (newProcessName + "_改错" + "(" + newProcessID + ")");
 				Integer systemid = type.equals(ProcessType.NRFC.getValue()) ? SystemType.MapDbEdit_NRFC.getValue() : SystemType.MapDbEdit.getValue();
 				
 				ProjectModel newpro = new ProjectModel();
@@ -305,7 +305,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					configValues.add(_configValue);
 				}
 			} else {
-				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? (newProcessName + "_NR/FC") : (newProcessName + "_改错");
+				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? (newProcessName + "_NR/FC" + "(" + newProcessID + ")") : (newProcessName + "_改错" + "(" + newProcessID + ")");
 
 				ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
 				_configValue.setProcessid(newProcessID);
