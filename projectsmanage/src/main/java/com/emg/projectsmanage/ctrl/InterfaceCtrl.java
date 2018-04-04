@@ -82,6 +82,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	private ModelAndView insertNewProject(Model model,
 			HttpSession session,
 			HttpServletRequest request,
+			@RequestParam("processid") Long processid,
 			@RequestParam("protype") Integer protype,
 			@RequestParam("pdifficulty") Integer pdifficulty,
 			@RequestParam("priority") Integer priority,
@@ -98,6 +99,7 @@ public class InterfaceCtrl extends BaseCtrl {
 		Long projectid = -1L;
 		try {
 			ProjectModel project = new ProjectModel();
+			project.setProcessid(processid);
 			project.setProtype(protype);
 			project.setPdifficulty(pdifficulty);
 			project.setPriority(0);
