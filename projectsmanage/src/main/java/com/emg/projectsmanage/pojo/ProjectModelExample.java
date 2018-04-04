@@ -184,6 +184,66 @@ public class ProjectModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andProcessidIsNull() {
+            addCriterion("processid is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidIsNotNull() {
+            addCriterion("processid is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidEqualTo(Long value) {
+            addCriterion("processid =", value, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidNotEqualTo(Long value) {
+            addCriterion("processid <>", value, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidGreaterThan(Long value) {
+            addCriterion("processid >", value, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidGreaterThanOrEqualTo(Long value) {
+            addCriterion("processid >=", value, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidLessThan(Long value) {
+            addCriterion("processid <", value, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidLessThanOrEqualTo(Long value) {
+            addCriterion("processid <=", value, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidIn(List<Long> values) {
+            addCriterion("processid in", values, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidNotIn(List<Long> values) {
+            addCriterion("processid not in", values, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidBetween(Long value1, Long value2) {
+            addCriterion("processid between", value1, value2, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidNotBetween(Long value1, Long value2) {
+            addCriterion("processid not between", value1, value2, "processid");
+            return (Criteria) this;
+        }
+
         public Criteria andProtypeIsNull() {
             addCriterion("protype is null");
             return (Criteria) this;

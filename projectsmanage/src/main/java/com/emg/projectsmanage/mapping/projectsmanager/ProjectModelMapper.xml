@@ -3,6 +3,7 @@
 <mapper namespace="com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao">
 	<resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.ProjectModel">
 		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="processid" property="processid" jdbcType="BIGINT" />
 		<result column="protype" property="protype" jdbcType="INTEGER" />
 		<result column="pdifficulty" property="pdifficulty" jdbcType="INTEGER" />
 		<result column="priority" property="priority" jdbcType="INTEGER" />
@@ -33,7 +34,8 @@
 									and ${criterion.condition} #{criterion.value}
 								</when>
 								<when test="criterion.betweenValue">
-									and ${criterion.condition} #{criterion.value} and
+									and ${criterion.condition} #{criterion.value}
+									and
 									#{criterion.secondValue}
 								</when>
 								<when test="criterion.listValue">
@@ -65,7 +67,8 @@
 									and ${criterion.condition} #{criterion.value}
 								</when>
 								<when test="criterion.betweenValue">
-									and ${criterion.condition} #{criterion.value} and
+									and ${criterion.condition} #{criterion.value}
+									and
 									#{criterion.secondValue}
 								</when>
 								<when test="criterion.listValue">
@@ -83,9 +86,11 @@
 		</where>
 	</sql>
 	<sql id="Base_Column_List">
-		id, protype, pdifficulty, priority, tasknum, systemid, description,
+		id, processid, protype, pdifficulty, priority, tasknum,
+		systemid, description,
 		createby, createtime,
-		area, name, owner, overprogress, overstate, poitotckdisl, poitotckdisr
+		area, name, owner,
+		overprogress, overstate, poitotckdisl, poitotckdisr
 	</sql>
 	<select id="selectByExample" resultMap="BaseResultMap"
 		parameterType="com.emg.projectsmanage.pojo.ProjectModelExample">
@@ -116,7 +121,8 @@
 		where id = #{id,jdbcType=BIGINT}
 	</select>
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-		delete from tb_projects
+		delete from
+		tb_projects
 		where id = #{id,jdbcType=BIGINT}
 	</delete>
 	<delete id="deleteByExample" parameterType="com.emg.projectsmanage.pojo.ProjectModelExample">
@@ -127,18 +133,23 @@
 	</delete>
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id"
 		parameterType="com.emg.projectsmanage.pojo.ProjectModel">
-		insert into tb_projects (id, protype, pdifficulty,
+		insert into tb_projects (id, processid, protype,
+		pdifficulty,
 		priority, tasknum, systemid,
-		description, createby, createtime,
+		description, createby,
+		createtime,
 		area, name, owner,
 		overprogress, overstate, poitotckdisl,
 		poitotckdisr)
-		values (#{id,jdbcType=BIGINT}, #{protype,jdbcType=INTEGER},
+		values (#{id,jdbcType=BIGINT},
+		#{processid,jdbcType=BIGINT}, #{protype,jdbcType=INTEGER},
 		#{pdifficulty,jdbcType=INTEGER},
-		#{priority,jdbcType=INTEGER}, #{tasknum,jdbcType=INTEGER}, #{systemid,jdbcType=INTEGER},
+		#{priority,jdbcType=INTEGER},
+		#{tasknum,jdbcType=INTEGER}, #{systemid,jdbcType=INTEGER},
 		#{description,jdbcType=VARCHAR}, #{createby,jdbcType=INTEGER},
 		#{createtime,jdbcType=TIMESTAMP},
-		#{area,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{owner,jdbcType=INTEGER},
+		#{area,jdbcType=VARCHAR},
+		#{name,jdbcType=VARCHAR}, #{owner,jdbcType=INTEGER},
 		#{overprogress,jdbcType=VARCHAR}, #{overstate,jdbcType=INTEGER},
 		#{poitotckdisl,jdbcType=DOUBLE},
 		#{poitotckdisr,jdbcType=DOUBLE})
@@ -148,6 +159,9 @@
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="id != null">
 				id,
+			</if>
+			<if test="processid != null">
+				processid,
 			</if>
 			<if test="protype != null">
 				protype,
@@ -198,6 +212,9 @@
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null">
 				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="processid != null">
+				#{processid,jdbcType=BIGINT},
 			</if>
 			<if test="protype != null">
 				#{protype,jdbcType=INTEGER},
@@ -259,6 +276,9 @@
 			<if test="record.id != null">
 				id = #{record.id,jdbcType=BIGINT},
 			</if>
+			<if test="record.processid != null">
+				processid = #{record.processid,jdbcType=BIGINT},
+			</if>
 			<if test="record.protype != null">
 				protype = #{record.protype,jdbcType=INTEGER},
 			</if>
@@ -312,21 +332,37 @@
 	<update id="updateByExample" parameterType="map">
 		update tb_projects
 		set id = #{record.id,jdbcType=BIGINT},
-		protype = #{record.protype,jdbcType=INTEGER},
-		pdifficulty = #{record.pdifficulty,jdbcType=INTEGER},
-		priority = #{record.priority,jdbcType=INTEGER},
-		tasknum = #{record.tasknum,jdbcType=INTEGER},
-		systemid = #{record.systemid,jdbcType=INTEGER},
-		description = #{record.description,jdbcType=VARCHAR},
-		createby = #{record.createby,jdbcType=INTEGER},
-		createtime = #{record.createtime,jdbcType=TIMESTAMP},
-		area = #{record.area,jdbcType=VARCHAR},
-		name = #{record.name,jdbcType=VARCHAR},
-		owner = #{record.owner,jdbcType=INTEGER},
-		overprogress = #{record.overprogress,jdbcType=VARCHAR},
-		overstate = #{record.overstate,jdbcType=INTEGER},
-		poitotckdisl = #{record.poitotckdisl,jdbcType=DOUBLE},
-		poitotckdisr = #{record.poitotckdisr,jdbcType=DOUBLE}
+		processid = #{record.processid,jdbcType=BIGINT},
+		protype =
+		#{record.protype,jdbcType=INTEGER},
+		pdifficulty =
+		#{record.pdifficulty,jdbcType=INTEGER},
+		priority =
+		#{record.priority,jdbcType=INTEGER},
+		tasknum =
+		#{record.tasknum,jdbcType=INTEGER},
+		systemid =
+		#{record.systemid,jdbcType=INTEGER},
+		description =
+		#{record.description,jdbcType=VARCHAR},
+		createby =
+		#{record.createby,jdbcType=INTEGER},
+		createtime =
+		#{record.createtime,jdbcType=TIMESTAMP},
+		area =
+		#{record.area,jdbcType=VARCHAR},
+		name =
+		#{record.name,jdbcType=VARCHAR},
+		owner =
+		#{record.owner,jdbcType=INTEGER},
+		overprogress =
+		#{record.overprogress,jdbcType=VARCHAR},
+		overstate =
+		#{record.overstate,jdbcType=INTEGER},
+		poitotckdisl =
+		#{record.poitotckdisl,jdbcType=DOUBLE},
+		poitotckdisr =
+		#{record.poitotckdisr,jdbcType=DOUBLE}
 		<if test="_parameter != null">
 			<include refid="Update_By_Example_Where_Clause" />
 		</if>
@@ -334,6 +370,9 @@
 	<update id="updateByPrimaryKeySelective" parameterType="com.emg.projectsmanage.pojo.ProjectModel">
 		update tb_projects
 		<set>
+			<if test="processid != null">
+				processid = #{processid,jdbcType=BIGINT},
+			</if>
 			<if test="protype != null">
 				protype = #{protype,jdbcType=INTEGER},
 			</if>
@@ -384,21 +423,32 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.emg.projectsmanage.pojo.ProjectModel">
 		update tb_projects
-		set protype = #{protype,jdbcType=INTEGER},
-		pdifficulty = #{pdifficulty,jdbcType=INTEGER},
-		priority = #{priority,jdbcType=INTEGER},
+		set processid = #{processid,jdbcType=BIGINT},
+		protype =
+		#{protype,jdbcType=INTEGER},
+		pdifficulty =
+		#{pdifficulty,jdbcType=INTEGER},
+		priority =
+		#{priority,jdbcType=INTEGER},
 		tasknum = #{tasknum,jdbcType=INTEGER},
 		systemid = #{systemid,jdbcType=INTEGER},
-		description = #{description,jdbcType=VARCHAR},
-		createby = #{createby,jdbcType=INTEGER},
-		createtime = #{createtime,jdbcType=TIMESTAMP},
+		description =
+		#{description,jdbcType=VARCHAR},
+		createby =
+		#{createby,jdbcType=INTEGER},
+		createtime =
+		#{createtime,jdbcType=TIMESTAMP},
 		area = #{area,jdbcType=VARCHAR},
-		name = #{name,jdbcType=VARCHAR},
+		name
+		= #{name,jdbcType=VARCHAR},
 		owner = #{owner,jdbcType=INTEGER},
 		overprogress = #{overprogress,jdbcType=VARCHAR},
-		overstate = #{overstate,jdbcType=INTEGER},
-		poitotckdisl = #{poitotckdisl,jdbcType=DOUBLE},
-		poitotckdisr = #{poitotckdisr,jdbcType=DOUBLE}
+		overstate =
+		#{overstate,jdbcType=INTEGER},
+		poitotckdisl =
+		#{poitotckdisl,jdbcType=DOUBLE},
+		poitotckdisr =
+		#{poitotckdisr,jdbcType=DOUBLE}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 </mapper>

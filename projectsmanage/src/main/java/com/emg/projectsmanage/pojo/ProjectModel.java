@@ -5,6 +5,8 @@ import java.util.List;
 public class ProjectModel {
     private Long id;
 
+    private Long processid;
+
     private Integer protype;
 
     private Integer pdifficulty;
@@ -49,6 +51,14 @@ public class ProjectModel {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getProcessid() {
+        return processid;
+    }
+
+    public void setProcessid(Long processid) {
+        this.processid = processid;
     }
 
     public Integer getProtype() {
