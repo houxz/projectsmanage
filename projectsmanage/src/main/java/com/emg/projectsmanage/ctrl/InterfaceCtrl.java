@@ -562,7 +562,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									// 先找到该项目关联的所有流程任务
 									ProcessModel process;
 									ConfigValueModel valuemodel = new ConfigValueModel();
-									valuemodel.setName("项目id");
+									valuemodel.setName("%项目id");
 									valuemodel.setValue(projectid.toString());
 									valuemodel.setModuleid(2);
 									List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
