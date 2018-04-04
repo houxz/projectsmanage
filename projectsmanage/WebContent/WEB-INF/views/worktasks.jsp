@@ -84,7 +84,7 @@
 						<th data-field="roleid" data-formatter="roleFormat"
 							data-filter-control="select" data-filter-data="var:roleForSelect"
 							data-width="80">角色名称</th>
-						<th data-field="projectid" data-filter-control="input"
+						<th data-field="processid" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="60">项目编号</th>
 						<th data-field="projectname" data-filter-control="input"
 							data-filter-control-placeholder=""

@@ -107,6 +107,9 @@ public class WorkTasksCtrl extends BaseCtrl {
 					case "projectname":
 						map.put("projectname", "%" + filterPara.get(key).toString() + "%");
 						break;
+					case "processid":
+						map.put("processid", filterPara.get(key).toString());
+						break;
 					default:
 						break;
 					}

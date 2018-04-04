@@ -76,6 +76,10 @@ public class ProjectsProcessCtrl extends BaseCtrl {
 						map.put("projectname", "%" + filterPara.get(key).toString() + "%");
 						criteria.andNameLike("%" + filterPara.get(key).toString() + "%");
 						break;
+					case "processid":
+						map.put("processid", filterPara.get(key).toString());
+						criteria.andProcessidEqualTo(Long.valueOf(filterPara.get(key).toString()));
+						break;
 					default:
 						break;
 					}

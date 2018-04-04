@@ -9,6 +9,7 @@ public class ProjectsTaskCountModel {
 	private Integer systemid;
 	private String projectid;
 	private String projectname;
+	private String processid;
 	private Integer totaltask;
 	private Integer idletask;
 	private Integer edittask;
@@ -99,5 +100,11 @@ public class ProjectsTaskCountModel {
 	}
 	public void setIdletask(Integer idletask) {
 		this.idletask = idletask;
+	}
+	public String getProcessid() {
+		return processid;
+	}
+	public void setProcessid(String processid) {
+		this.processid = processid;
 	}
 }

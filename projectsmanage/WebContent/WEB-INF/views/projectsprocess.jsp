@@ -59,7 +59,7 @@
 				data-align='center'>
 				<thead>
 					<tr>
-						<th data-field="projectid" data-width="70" data-filter-control="input" data-filter-control-placeholder="">项目编号</th>
+						<th data-field="processid" data-width="70" data-filter-control="input" data-filter-control-placeholder="">项目编号</th>
 						<th data-field="projectname" data-width="320" data-filter-control="input" data-filter-control-placeholder="">项目名称</th>
 						<th data-field="totaltask" data-sortable="true">任务总数</th>
 						<th data-field="idletask" data-sortable="true">空闲任务</th>

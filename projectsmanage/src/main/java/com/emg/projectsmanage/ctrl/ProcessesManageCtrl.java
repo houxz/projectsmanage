@@ -226,9 +226,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel332 = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config332.getDefaultValue()));
 			if (isNewProcess) {
 				if(!type.equals(ProcessType.NRFC.getValue())) {
-					String config_1_4 = newProcessName + "_质检" + "(" + newProcessID + ")";
+					String config_1_4 = newProcessName + "_质检";
 
 					ProjectModel newpro = new ProjectModel();
+					newpro.setProcessid(newProcessID);
 					newpro.setName(config_1_4);
 					newpro.setSystemid(SystemType.DBMapChecker.getValue());
 					newpro.setCreateby(uid);
@@ -255,7 +256,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			} else {
 				if(!type.equals(ProcessType.NRFC.getValue())) {
-					String config_1_4 = newProcessName + "_质检" + "(" + newProcessID + ")";
+					String config_1_4 = newProcessName + "_质检";
 
 					ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
 					_configValue.setProcessid(newProcessID);
@@ -276,10 +277,11 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			ProcessConfigModel config349 = processConfigModelDao.selectByPrimaryKey(9);
 			ConfigDBModel configDBModel349 = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config349.getDefaultValue()));
 			if (isNewProcess) {
-				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? (newProcessName + "_NR/FC" + "(" + newProcessID + ")") : (newProcessName + "_改错" + "(" + newProcessID + ")");
+				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? (newProcessName + "_NR/FC") : (newProcessName + "_改错");
 				Integer systemid = type.equals(ProcessType.NRFC.getValue()) ? SystemType.MapDbEdit_NRFC.getValue() : SystemType.MapDbEdit.getValue();
 				
 				ProjectModel newpro = new ProjectModel();
+				newpro.setProcessid(newProcessID);
 				newpro.setName(config_2_12);
 				newpro.setSystemid(systemid);
 				newpro.setCreateby(uid);
@@ -305,7 +307,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					configValues.add(_configValue);
 				}
 			} else {
-				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? (newProcessName + "_NR/FC" + "(" + newProcessID + ")") : (newProcessName + "_改错" + "(" + newProcessID + ")");
+				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? (newProcessName + "_NR/FC") : (newProcessName + "_改错");
 
 				ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
 				_configValue.setProcessid(newProcessID);
@@ -814,26 +816,27 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		BasicDataSource dataSource = null;
 		try {
 			final StringBuffer sql = new StringBuffer();
-			sql.append(" INSERT INTO tb_projects (protype, pdifficulty, priority, tasknum, systemid, description, createby, area, name, owner, overprogress, overstate) ");
-			sql.append(" VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ");
+			sql.append(" INSERT INTO tb_projects (processid, protype, pdifficulty, priority, tasknum, systemid, description, createby, area, name, owner, overprogress, overstate) ");
+			sql.append(" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ");
 
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			dataSource = getDataSource(configDBModel);
 			new JdbcTemplate(dataSource).update(new PreparedStatementCreator() {
 				public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
 					PreparedStatement ps = conn.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
-					ps.setInt(1, 0);
+					ps.setLong(1, newProject.getProcessid() == null ? 0 : newProject.getProcessid());
 					ps.setInt(2, 0);
-					ps.setInt(3, newProject.getPriority() == null ? 0 : newProject.getPriority());
-					ps.setInt(4, 0);
-					ps.setInt(5, newProject.getSystemid() == null ? 0 : newProject.getSystemid());
-					ps.setString(6, new String());
-					ps.setInt(7, newProject.getCreateby() == null ? 0 : newProject.getCreateby());
-					ps.setString(8, new String());
-					ps.setString(9, newProject.getName() == null ? new String() : newProject.getName());
-					ps.setInt(10, newProject.getOwner() == null ? 0 : newProject.getOwner());
-					ps.setString(11, new String());
-					ps.setInt(12, 0);
+					ps.setInt(3, 0);
+					ps.setInt(4, newProject.getPriority() == null ? 0 : newProject.getPriority());
+					ps.setInt(5, 0);
+					ps.setInt(6, newProject.getSystemid() == null ? 0 : newProject.getSystemid());
+					ps.setString(7, new String());
+					ps.setInt(8, newProject.getCreateby() == null ? 0 : newProject.getCreateby());
+					ps.setString(9, new String());
+					ps.setString(10, newProject.getName() == null ? new String() : newProject.getName());
+					ps.setInt(11, newProject.getOwner() == null ? 0 : newProject.getOwner());
+					ps.setString(12, new String());
+					ps.setInt(13, 0);
 					return ps;
 				}
 			}, keyHolder);
