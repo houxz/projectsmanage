@@ -1328,7 +1328,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			HttpServletRequest request,
 			@RequestParam("processid") Long processID,
 			@RequestParam("stage") Integer stage,
-			@RequestParam("progress") String progress) {
+			@RequestParam("progress") Float progress) {
 		logger.debug("updateProcessProgressByID start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean status = false;
@@ -1365,7 +1365,7 @@ public class InterfaceCtrl extends BaseCtrl {
 					Integer stageStart = 0;
 					Integer projectid = 0;
 
-					if (progress.compareTo("100") == 0 && stage == process.getStage()) {
+					if (progress.compareTo(Float.valueOf(100)) == 0 && stage == process.getStage()) {
 						process.setStagestate(3); // 阶段进度为100时，自动将该阶段的状态设置为完成
 
 						// 若下一阶段为自动开启状态，则直接设置为下一阶段开启
@@ -1439,7 +1439,7 @@ public class InterfaceCtrl extends BaseCtrl {
 					Integer stageStart = 0;
 					Integer projectid = 0;
 
-					if (progress.compareTo("100") == 0 && stage == process.getStage()) {
+					if (progress.compareTo(Float.valueOf(100)) == 0 && stage == process.getStage()) {
 						process.setStagestate(3); // 阶段进度为100时，自动将该阶段的状态设置为完成
 
 						// 若下一阶段为自动开启状态，则直接设置为下一阶段开启
