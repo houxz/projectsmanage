@@ -1,9 +1,5 @@
 package com.emg.projectsmanage.ctrl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,23 +12,15 @@ import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSONObject;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import com.emg.projectsmanage.common.Common;
-import com.emg.projectsmanage.common.DatabaseType;
 import com.emg.projectsmanage.common.ItemSetEnable;
 import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
@@ -42,6 +30,7 @@ import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.SystemCPUType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
+import com.emg.projectsmanage.dao.task.ItemSetModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ItemInfoModel;
 import com.emg.projectsmanage.pojo.ItemSetModel;
@@ -57,6 +46,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	private ProcessConfigModelDao processConfigModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
+	
+	private ItemSetModelDao itemSetModelDao = new ItemSetModelDao();
 
 	/**
 	 * 系统配置页面
@@ -131,8 +122,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				}
 			}
 
-			List<ItemSetModel> rows = selectItemSets(record, limit, offset);
-			Integer count = countItemSets(record, limit, offset);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, limit, offset);
+			Integer count = itemSetModelDao.countItemSets(configDBModel, record, limit, offset);
 
 			json.addObject("rows", rows);
 			json.addObject("total", count);
@@ -156,12 +149,14 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			Long itemsetid = ParamUtils.getLongParameter(request, "itemsetid", -1L);
 			ItemSetModel record = new ItemSetModel();
 			record.setId(itemsetid);
-			List<ItemSetModel> rows = selectItemSets(record, 1, 0);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, 1, 0);
 			if (rows.size() >= 0) {
 				itemset = rows.get(0);
-				List<Long> itemids = getItemSetDetailsByItemSetID(itemsetid);
+				List<Long> itemids = itemSetModelDao.getItemSetDetailsByItemSetID(configDBModel, itemsetid);
 				if (itemids.size() > 0) {
-					List<ItemInfoModel> itemInfos = selectItemInfosByItemids(itemids);
+					List<ItemInfoModel> itemInfos = itemSetModelDao.selectItemInfosByItemids(configDBModel, itemids);
 					if (itemInfos != null && itemInfos.size() > 0) {
 						for (ItemInfoModel itemInfo : itemInfos) {
 							sb_items.append(itemInfo.getOid());
@@ -253,7 +248,9 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					}
 				}
 			}
-			items = selectQIDs(oid, name, limit, offset);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			items = itemSetModelDao.selectQIDs(configDBModel, oid, name, limit, offset);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
@@ -297,13 +294,16 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				json.addObject("option", "质检项、图层未选择");
 				return json;
 			}
+			
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			Boolean isNewItemSet = itemSetID.compareTo(0L) == 0;
 			Integer itemInfoCount = 0;
 			if (isNewItemSet) {
 				if (systype.equals(SystemCPUType.X86.getValue())) {
 					// POI + 其他
-					List<ItemInfoModel> itemInfos = selectPOIAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+					List<ItemInfoModel> itemInfos = itemSetModelDao.selectPOIAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
 					if (!itemInfos.isEmpty()) {
 						itemInfoCount += itemInfos.size();
 						List<Long> itemDetails = new ArrayList<Long>();
@@ -355,9 +355,9 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						record.setUnit(unit.byteValue());
 						record.setDesc(desc);
 
-						itemSetID = insertItemset(record);
+						itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
 						if (itemSetID.compareTo(0L) > 0) {
-							if (setItemSetDetails(itemSetID, itemDetails) > 0)
+							if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
 								ret = true;
 						}
 					}
@@ -365,7 +365,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 					// Road + 其他
 					itemInfos.clear();
-					itemInfos = selectRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+					itemInfos = itemSetModelDao.selectRoadAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
 					if (!itemInfos.isEmpty()) {
 						itemInfoCount += itemInfos.size();
 						List<Long> itemDetails = new ArrayList<Long>();
@@ -416,10 +416,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						record.setReferdata(sb_referdata.toString());
 						record.setUnit(unit.byteValue());
 						record.setDesc(desc);
-
-						itemSetID = insertItemset(record);
+						
+						itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
 						if (itemSetID.compareTo(0L) > 0) {
-							if (setItemSetDetails(itemSetID, itemDetails) > 0)
+							if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
 								ret = true;
 						}
 					}
@@ -427,7 +427,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 					// Road + POI
 					itemInfos.clear();
-					itemInfos = selectPOIRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+					itemInfos = itemSetModelDao.selectPOIRoadAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
 					if (!itemInfos.isEmpty()) {
 						itemInfoCount += itemInfos.size();
 						List<Long> itemDetails = new ArrayList<Long>();
@@ -479,9 +479,9 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						record.setUnit(unit.byteValue());
 						record.setDesc(desc);
 
-						itemSetID = insertItemset(record);
+						itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
 						if (itemSetID.compareTo(0L) > 0) {
-							if (setItemSetDetails(itemSetID, itemDetails) > 0)
+							if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
 								ret = true;
 						}
 					}
@@ -489,7 +489,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 					// 其它
 					itemInfos.clear();
-					itemInfos = selectOtherItemInfosByOids(layernames, qids, type, systype, unit);
+					itemInfos = itemSetModelDao.selectOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
 					if (!itemInfos.isEmpty()) {
 						itemInfoCount += itemInfos.size();
 						List<Long> itemDetails = new ArrayList<Long>();
@@ -541,15 +541,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						record.setUnit(unit.byteValue());
 						record.setDesc(desc);
 
-						itemSetID = insertItemset(record);
+						itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
 						if (itemSetID.compareTo(0L) > 0) {
-							if (setItemSetDetails(itemSetID, itemDetails) > 0)
+							if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
 								ret = true;
 						}
 					}
 					// 其它
 				} else if (systype.equals(SystemCPUType.X64.getValue())) {
-					List<ItemInfoModel> itemInfos = selectX64ItemInfosByOids(layernames, qids, type, systype, unit);
+					List<ItemInfoModel> itemInfos = itemSetModelDao.selectX64ItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
 					if (!itemInfos.isEmpty()) {
 						itemInfoCount += itemInfos.size();
 
@@ -568,10 +568,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 							record.setReferdata(refer);
 							record.setUnit(unit.byteValue());
 							record.setDesc(desc);
-
-							itemSetID = insertItemset(record);
+							
+							itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
 							if (itemSetID.compareTo(0L) > 0) {
-								if (setItemSetDetails(itemSetID, itemDetails) > 0)
+								if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
 									ret = true;
 							}
 						}
@@ -583,7 +583,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				if (systype.equals(SystemCPUType.X86.getValue())) {
 					ItemSetModel record = new ItemSetModel();
 					record.setId(itemSetID);
-					List<ItemSetModel> curItemSetList = selectItemSets(record, 1, 0);
+					List<ItemSetModel> curItemSetList = itemSetModelDao.selectItemSets(configDBModel, record, 1, 0);
 					if (curItemSetList != null && curItemSetList.size() == 1) {
 						ItemSetModel curItemSet = curItemSetList.get(0);
 						String curName = curItemSet.getName();
@@ -593,19 +593,19 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						switch (suffix) {
 						case "_POI+其他":
 							newName = name.endsWith("_POI+其他") ? name : name + "_POI+其他";
-							itemInfos = selectPOIAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+							itemInfos = itemSetModelDao.selectPOIAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
 							break;
 						case "_Road+其他":
 							newName = name.endsWith("_Road+其他") ? name : name + "_Road+其他";
-							itemInfos = selectRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+							itemInfos = itemSetModelDao.selectRoadAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
 							break;
 						case "_POI+Road":
 							newName = name.endsWith("_POI+Road") ? name : name + "_POI+Road";
-							itemInfos = selectPOIRoadAndOtherItemInfosByOids(layernames, qids, type, systype, unit);
+							itemInfos = itemSetModelDao.selectPOIRoadAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
 							break;
 						case "_其他":
 							newName = name.endsWith("_其他") ? name : name + "_其他";
-							itemInfos = selectOtherItemInfosByOids(layernames, qids, type, systype, unit);
+							itemInfos = itemSetModelDao.selectOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
 							break;
 						}
 
@@ -661,7 +661,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 							newItemSet.setUnit(unit.byteValue());
 							newItemSet.setDesc(desc);
 
-							if (updateItemset(newItemSet) && (setItemSetDetails(itemSetID, itemDetails) > 0)) {
+							if (itemSetModelDao.updateItemset(configDBModel, newItemSet) && (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)) {
 								ret = true;
 							}
 						}
@@ -696,8 +696,11 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				json.addObject("result", 0);
 				return json;
 			}
+			
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
-			ret = deleteItemSet(itemSetID);
+			ret = itemSetModelDao.deleteItemSet(configDBModel, itemSetID);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
@@ -705,817 +708,6 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		json.addObject("result", ret);
 		logger.debug("ItemSetManageCtrl-deleteItemSet end.");
 		return json;
-	}
-
-	private BasicDataSource getDataSource(ConfigDBModel configDBModel) {
-		BasicDataSource dataSource = new BasicDataSource();
-		Integer dbtype = configDBModel.getDbtype();
-		if (dbtype.equals(DatabaseType.MYSQL.getValue())) {
-			dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-		} else if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-			dataSource.setDriverClassName("org.postgresql.Driver");
-		} else {
-			return null;
-		}
-		dataSource.setUrl(getUrl(configDBModel));
-		dataSource.setUsername(configDBModel.getUser());
-		dataSource.setPassword(configDBModel.getPassword());
-		return dataSource;
-	}
-
-	private String getUrl(ConfigDBModel configDBModel) {
-		StringBuffer url = new StringBuffer();
-		try {
-			Integer dbtype = configDBModel.getDbtype();
-			if (dbtype.equals(DatabaseType.MYSQL.getValue())) {
-				url.append("jdbc:mysql://");
-			} else if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				url.append("jdbc:postgresql://");
-			} else {
-				return null;
-			}
-			url.append(configDBModel.getIp());
-			url.append(":");
-			url.append(configDBModel.getPort());
-			url.append("/");
-			url.append(configDBModel.getDbname());
-			url.append("?characterEncoding=UTF-8");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new String();
-		}
-		return url.toString();
-	}
-
-	private List<ItemSetModel> selectItemSets(ItemSetModel record, Integer limit, Integer offset) {
-		List<ItemSetModel> itemSets = new ArrayList<ItemSetModel>();
-		BasicDataSource dataSource = null;
-		try {
-			if (record == null)
-				return itemSets;
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_itemset ");
-			sql.append(" WHERE 1=1 ");
-			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
-				sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
-			}
-			if (record.getName() != null && !record.getName().isEmpty()) {
-				sql.append(" AND " + separator + "name" + separator + " like '%" + record.getName() + "%'");
-			}
-			if (record.getLayername() != null && !record.getLayername().isEmpty()) {
-				sql.append(" AND " + separator + "layername" + separator + " like '%" + record.getLayername() + "%'");
-			}
-			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(" AND " + separator + "type" + separator + " = " + record.getType());
-			}
-			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(" AND " + separator + "systype" + separator + " = " + record.getSystype());
-			}
-			if (record.getReferdata() != null && !record.getReferdata().isEmpty()) {
-				sql.append(" AND " + separator + "referdata" + separator + " like '%" + record.getReferdata() + "%'");
-			}
-			if (record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(" AND " + separator + "unit" + separator + " = " + record.getUnit());
-			}
-			if (record.getDesc() != null && !record.getDesc().isEmpty()) {
-				sql.append(" AND " + separator + "desc" + separator + " like '%" + record.getDesc() + "%'");
-			}
-			sql.append(" ORDER BY " + separator + "id" + separator + " ");
-			if (limit.compareTo(0) > 0) {
-				sql.append(" LIMIT " + limit);
-			}
-			if (offset.compareTo(0) > 0) {
-				sql.append(" OFFSET " + offset);
-			}
-
-			dataSource = getDataSource(configDBModel);
-			itemSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemSetModel>(ItemSetModel.class));
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			itemSets = new ArrayList<ItemSetModel>();
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				dataSource = null;
-			}
-		}
-		return itemSets;
-	}
-
-	private Long insertItemset(final ItemSetModel record) {
-		Long ret = -1L;
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			final StringBuffer sql = new StringBuffer();
-			sql.append(" INSERT INTO ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_itemset (" + separator + "name" + separator + ", " + separator + "layername" + separator + ", " + separator + "type" + separator + ", " + separator
-					+ "systype" + separator + ", " + separator + "referdata" + separator + ", " + separator + "unit" + separator + ", " + separator + "desc" + separator + ") ");
-			sql.append(" VALUES (?,?,?,?,?,?,?) ");
-
-			KeyHolder keyHolder = new GeneratedKeyHolder();
-			dataSource = getDataSource(configDBModel);
-			new JdbcTemplate(dataSource).update(new PreparedStatementCreator() {
-				public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
-					PreparedStatement ps = conn.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
-					ps.setString(1, record.getName() == null ? new String() : record.getName());
-					ps.setString(2, record.getLayername() == null ? new String() : record.getLayername());
-					ps.setInt(3, record.getType() == null ? 0 : record.getType());
-					ps.setInt(4, record.getSystype() == null ? 0 : record.getSystype());
-					ps.setString(5, record.getReferdata() == null ? new String() : record.getReferdata());
-					ps.setInt(6, record.getUnit() == null ? 0 : record.getUnit());
-					ps.setString(7, record.getDesc() == null ? new String() : record.getDesc());
-					return ps;
-				}
-			}, keyHolder);
-			if (keyHolder.getKeys().size() > 1) {
-				ret = (Long) keyHolder.getKeys().get("id");
-			} else {
-				ret = keyHolder.getKey().longValue();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			ret = -1L;
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return ret;
-	}
-
-	private Boolean updateItemset(ItemSetModel record) {
-		Boolean ret = false;
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" UPDATE ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_itemset ");
-			sql.append(" SET " + separator + "id" + separator + " = id");
-			if (record.getName() != null) {
-				sql.append(", " + separator + "name" + separator + " = '" + record.getName() + "'");
-			}
-			if (record.getLayername() != null) {
-				sql.append(", " + separator + "layername" + separator + " = '" + record.getLayername() + "'");
-			}
-			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(", " + separator + "type" + separator + " = " + record.getType());
-			}
-			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(", " + separator + "systype" + separator + " = " + record.getSystype());
-			}
-			if (record.getReferdata() != null) {
-				sql.append(", " + separator + "referdata" + separator + " = '" + record.getReferdata() + "'");
-			}
-			if (record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(", " + separator + "unit" + separator + " = " + record.getUnit());
-			}
-			if (record.getDesc() != null) {
-				sql.append(", " + separator + "desc" + separator + " = '" + record.getDesc() + "'");
-			}
-
-			sql.append(" WHERE id = " + record.getId());
-
-			dataSource = getDataSource(configDBModel);
-			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
-		} catch (Exception e) {
-			e.printStackTrace();
-			ret = false;
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return ret;
-	}
-
-	private Boolean deleteItemSet(Long itemSetID) {
-		Boolean ret = false;
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" DELETE FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_itemset ");
-			sql.append(" WHERE " + separator + "id" + separator + " = " + itemSetID);
-
-			dataSource = getDataSource(configDBModel);
-			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
-
-			StringBuffer sql_del = new StringBuffer();
-			sql_del.append(" DELETE FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql_del.append(configDBModel.getDbschema()).append(".");
-			}
-			sql_del.append("tb_itemsetdetail ");
-			sql_del.append(" WHERE " + separator + "itemsetid" + separator + " = " + itemSetID);
-
-			ret = ret && new JdbcTemplate(dataSource).update(sql_del.toString()) >= 0;
-		} catch (Exception e) {
-			e.printStackTrace();
-			ret = false;
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return ret;
-	}
-
-	private Integer countItemSets(ItemSetModel record, Integer limit, Integer offset) {
-		Integer count = -1;
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT count(*) FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_itemset ");
-			sql.append(" WHERE 1=1 ");
-			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
-				sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
-			}
-			if (record.getName() != null && !record.getName().isEmpty()) {
-				sql.append(" AND " + separator + "name" + separator + " like '%" + record.getName() + "%'");
-			}
-			if (record.getLayername() != null && !record.getLayername().isEmpty()) {
-				sql.append(" AND " + separator + "layername" + separator + " like '%" + record.getLayername() + "%'");
-			}
-			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(" AND " + separator + "type" + separator + " = " + record.getType());
-			}
-			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(" AND " + separator + "systype" + separator + " = " + record.getSystype());
-			}
-			if (record.getReferdata() != null && !record.getReferdata().isEmpty()) {
-				sql.append(" AND " + separator + "referdata" + separator + " like '%" + record.getReferdata() + "%'");
-			}
-			if (record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(" AND " + separator + "unit" + separator + " = " + record.getUnit());
-			}
-			if (record.getDesc() != null && !record.getDesc().isEmpty()) {
-				sql.append(" AND " + separator + "desc" + separator + " like '%" + record.getDesc() + "%'");
-			}
-
-			dataSource = getDataSource(configDBModel);
-			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-			count = -1;
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return count;
-	}
-
-	private List<ItemInfoModel> selectItemInfosByItemids(List<Long> itemids) {
-		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT DISTINCT ON (" + separator + "oid" + separator + ") * FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_iteminfo ");
-			sql.append(" WHERE " + separator + "enable" + separator + " = 1 AND " + separator + "id" + separator + " in ( ");
-			for (Long itemid : itemids) {
-				sql.append("'" + itemid + "',");
-			}
-			sql.deleteCharAt(sql.length() - 1);
-			sql.append(") ");
-
-			dataSource = getDataSource(configDBModel);
-			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
-		} catch (Exception e) {
-			e.printStackTrace();
-			itemInfos = new ArrayList<ItemInfoModel>();
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return itemInfos;
-	}
-
-	/**
-	 * 获取质检项分类属于 POI+其他 的ItemInfo
-	 * 
-	 * @param oids
-	 *            质检项
-	 * @return
-	 */
-	private List<ItemInfoModel> selectPOIAndOtherItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
-		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_iteminfo ");
-			sql.append(" WHERE " + separator + "enable" + separator + " = 1 ");
-			sql.append(" AND " + separator + "type" + separator + " = " + type);
-			sql.append(" AND " + separator + "unit" + separator + " = " + unit);
-			sql.append(" AND " + separator + "systype" + separator + " = " + systype);
-			sql.append(" AND " + separator + "referdata" + separator + " LIKE '%POI%' ");
-			sql.append(" AND " + separator + "referdata" + separator + " NOT LIKE '%Road%' ");
-			if (layernames != null && layernames.size() > 0) {
-				sql.append(" AND " + separator + "layername" + separator + " in ( ");
-				for (String layername : layernames) {
-					sql.append("'" + layername + "',");
-				}
-				sql.deleteCharAt(sql.length() - 1);
-				sql.append(") ");
-			}
-			if (oids != null && oids.size() > 0) {
-				sql.append(" AND " + separator + "oid" + separator + " in ( ");
-				for (String oid : oids) {
-					sql.append("'" + oid + "',");
-				}
-				sql.deleteCharAt(sql.length() - 1);
-				sql.append(") ");
-			}
-
-			dataSource = getDataSource(configDBModel);
-			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
-		} catch (Exception e) {
-			e.printStackTrace();
-			itemInfos = new ArrayList<ItemInfoModel>();
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return itemInfos;
-	}
-
-	/**
-	 * 获取质检项分类属于 Road+其他 的ItemInfo
-	 * 
-	 * @param oids
-	 *            质检项
-	 * @return
-	 */
-	private List<ItemInfoModel> selectRoadAndOtherItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
-		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_iteminfo ");
-			sql.append(" WHERE " + separator + "enable" + separator + " = 1 ");
-			sql.append(" AND " + separator + "type" + separator + " = " + type);
-			sql.append(" AND " + separator + "unit" + separator + " = " + unit);
-			sql.append(" AND " + separator + "systype" + separator + " = " + systype);
-			sql.append(" AND " + separator + "referdata" + separator + " LIKE '%Road%' ");
-			sql.append(" AND " + separator + "referdata" + separator + " NOT LIKE '%POI%' ");
-			if (layernames != null && layernames.size() > 0) {
-				sql.append(" AND " + separator + "layername" + separator + " in ( ");
-				for (String layername : layernames) {
-					sql.append("'" + layername + "',");
-				}
-				sql.deleteCharAt(sql.length() - 1);
-				sql.append(") ");
-			}
-			if (oids != null && oids.size() > 0) {
-				sql.append(" AND " + separator + "oid" + separator + " in ( ");
-				for (String oid : oids) {
-					sql.append("'" + oid + "',");
-				}
-				sql.deleteCharAt(sql.length() - 1);
-				sql.append(") ");
-			}
-
-			dataSource = getDataSource(configDBModel);
-			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
-		} catch (Exception e) {
-			e.printStackTrace();
-			itemInfos = new ArrayList<ItemInfoModel>();
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return itemInfos;
-	}
-
-	/**
-	 * 获取质检项分类属于 POI+Road+其他 的ItemInfo
-	 * 
-	 * @param oids
-	 *            质检项
-	 * @return
-	 */
-	private List<ItemInfoModel> selectPOIRoadAndOtherItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
-		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_iteminfo ");
-			sql.append(" WHERE " + separator + "enable" + separator + " = 1 ");
-			sql.append(" AND " + separator + "type" + separator + " = " + type);
-			sql.append(" AND " + separator + "unit" + separator + " = " + unit);
-			sql.append(" AND " + separator + "systype" + separator + " = " + systype);
-			sql.append(" AND (" + separator + "referdata" + separator + " LIKE '%Road%POI%' ");
-			sql.append(" OR " + separator + "referdata" + separator + " LIKE '%POI%Road%') ");
-			if (layernames != null && layernames.size() > 0) {
-				sql.append(" AND " + separator + "layername" + separator + " in ( ");
-				for (String layername : layernames) {
-					sql.append("'" + layername + "',");
-				}
-				sql.deleteCharAt(sql.length() - 1);
-				sql.append(") ");
-			}
-			if (oids != null && oids.size() > 0) {
-				sql.append(" AND " + separator + "oid" + separator + " in ( ");
-				for (String oid : oids) {
-					sql.append("'" + oid + "',");
-				}
-				sql.deleteCharAt(sql.length() - 1);
-				sql.append(") ");
-			}
-
-			dataSource = getDataSource(configDBModel);
-			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
-		} catch (Exception e) {
-			e.printStackTrace();
-			itemInfos = new ArrayList<ItemInfoModel>();
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return itemInfos;
-	}
-
-	/**
-	 * 获取质检项分类属于 其他 的ItemInfo
-	 * 
-	 * @param oids
-	 *            质检项
-	 * @return
-	 */
-	private List<ItemInfoModel> selectOtherItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
-		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_iteminfo ");
-			sql.append(" WHERE " + separator + "enable" + separator + " = 1 ");
-			sql.append(" AND " + separator + "type" + separator + " = " + type);
-			sql.append(" AND " + separator + "unit" + separator + " = " + unit);
-			sql.append(" AND " + separator + "systype" + separator + " = " + systype);
-			sql.append(" AND " + separator + "referdata" + separator + " NOT LIKE '%POI%' ");
-			sql.append(" AND " + separator + "referdata" + separator + " NOT LIKE '%Road%' ");
-			if (layernames != null && layernames.size() > 0) {
-				sql.append(" AND " + separator + "layername" + separator + " in ( ");
-				for (String layername : layernames) {
-					sql.append("'" + layername + "',");
-				}
-				sql.deleteCharAt(sql.length() - 1);
-				sql.append(") ");
-			}
-			if (oids != null && oids.size() > 0) {
-				sql.append(" AND " + separator + "oid" + separator + " in ( ");
-				for (String oid : oids) {
-					sql.append("'" + oid + "',");
-				}
-				sql.deleteCharAt(sql.length() - 1);
-				sql.append(") ");
-			}
-
-			dataSource = getDataSource(configDBModel);
-			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
-		} catch (Exception e) {
-			e.printStackTrace();
-			itemInfos = new ArrayList<ItemInfoModel>();
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return itemInfos;
-	}
-
-	/**
-	 * 获取64位质检项的ItemInfo
-	 * 
-	 * @param oids
-	 *            质检项
-	 * @return
-	 */
-	private List<ItemInfoModel> selectX64ItemInfosByOids(Set<String> layernames, Set<String> oids, Integer type, Integer systype, Integer unit) {
-		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_iteminfo ");
-			sql.append(" WHERE " + separator + "enable" + separator + " = 1 ");
-			sql.append(" AND " + separator + "type" + separator + " = " + type);
-			sql.append(" AND " + separator + "unit" + separator + " = " + unit);
-			sql.append(" AND " + separator + "systype" + separator + " = " + systype);
-			if (layernames != null && layernames.size() > 0) {
-				sql.append(" AND " + separator + "layername" + separator + " in ( ");
-				for (String layername : layernames) {
-					sql.append("'" + layername + "',");
-				}
-				sql.deleteCharAt(sql.length() - 1);
-				sql.append(") ");
-			}
-			if (oids != null && oids.size() > 0) {
-				sql.append(" AND " + separator + "oid" + separator + " in ( ");
-				for (String oid : oids) {
-					sql.append("'" + oid + "',");
-				}
-				sql.deleteCharAt(sql.length() - 1);
-				sql.append(") ");
-			}
-
-			dataSource = getDataSource(configDBModel);
-			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
-		} catch (Exception e) {
-			e.printStackTrace();
-			itemInfos = new ArrayList<ItemInfoModel>();
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return itemInfos;
-	}
-
-	private List<ItemInfoModel> selectQIDs(String oid, String name, Integer limit, Integer offset) {
-		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT " + separator + "oid" + separator + ", " + separator + "name" + separator + " FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_iteminfo ");
-			sql.append(" WHERE " + separator + "enable" + separator + " = 1 ");
-			if (oid != null && !oid.isEmpty()) {
-				sql.append(" AND " + separator + "oid" + separator + " like '%" + oid + "%'");
-			}
-			if (name != null && !name.isEmpty()) {
-				sql.append(" AND " + separator + "name" + separator + " like '%" + name + "%'");
-			}
-			sql.append("GROUP BY " + separator + "oid" + separator + ", " + separator + "name" + separator + "");
-
-			dataSource = getDataSource(configDBModel);
-			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
-		} catch (Exception e) {
-			e.printStackTrace();
-			itemInfos = new ArrayList<ItemInfoModel>();
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return itemInfos;
-	}
-
-	private List<Long> getItemSetDetailsByItemSetID(Long itemSetID) {
-		List<Long> items = new ArrayList<Long>();
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT " + separator + "itemid" + separator + " FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_itemsetdetail ");
-			sql.append(" WHERE " + separator + "itemsetid" + separator + " = " + itemSetID);
-
-			dataSource = getDataSource(configDBModel);
-			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
-		} catch (Exception e) {
-			items = new ArrayList<Long>();
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return items;
-	}
-
-	private Integer setItemSetDetails(Long itemSetID, List<Long> items) {
-		Integer ret = -1;
-		if (items.size() <= 0)
-			return ret;
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql_del = new StringBuffer();
-			sql_del.append(" DELETE FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql_del.append(configDBModel.getDbschema()).append(".");
-			}
-			sql_del.append("tb_itemsetdetail ");
-			sql_del.append(" WHERE " + separator + "itemsetid" + separator + " = " + itemSetID);
-
-			dataSource = getDataSource(configDBModel);
-			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
-			Integer ret_del = jdbc.update(sql_del.toString());
-			if (ret_del >= 0) {
-				StringBuffer sql = new StringBuffer();
-				sql.append(" INSERT INTO ");
-				if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-					sql.append(configDBModel.getDbschema()).append(".");
-				}
-				sql.append("tb_itemsetdetail (" + separator + "itemsetid" + separator + ", " + separator + "itemid" + separator + ") ");
-				sql.append(" VALUES ");
-				for (Long item : items) {
-					sql.append("(");
-					sql.append(itemSetID + ", ");
-					sql.append(item);
-					sql.append(" ),");
-				}
-				sql.deleteCharAt(sql.length() - 1);
-				ret = jdbc.update(sql.toString());
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			ret = -1;
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return ret;
 	}
 
 }

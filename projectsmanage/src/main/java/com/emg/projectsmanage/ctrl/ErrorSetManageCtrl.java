@@ -1,9 +1,5 @@
 package com.emg.projectsmanage.ctrl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,29 +9,22 @@ import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSONObject;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import com.emg.projectsmanage.common.Common;
-import com.emg.projectsmanage.common.DatabaseType;
 import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
 import com.emg.projectsmanage.common.ItemSetUnit;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
+import com.emg.projectsmanage.dao.task.ErrorSetModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ErrorSetModel;
 import com.emg.projectsmanage.pojo.ItemConfigModel;
@@ -51,6 +40,8 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 	private ProcessConfigModelDao processConfigModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
+	
+	private ErrorSetModelDao errorSetModelDao = new ErrorSetModelDao();
 
 	/**
 	 * 系统配置页面
@@ -117,8 +108,11 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				}
 			}
 
-			List<ErrorSetModel> rows = selectErrorSets(record, limit, offset);
-			Integer count = countErrorSets(record, limit, offset);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			
+			List<ErrorSetModel> rows = errorSetModelDao.selectErrorSets(configDBModel, record, limit, offset);
+			Integer count = errorSetModelDao.countErrorSets(configDBModel, record, limit, offset);
 
 			json.addObject("rows", rows);
 			json.addObject("total", count);
@@ -140,12 +134,15 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		String errorsetDetails = new String();
 		try {
 			Long errorsetid = ParamUtils.getLongParameter(request, "errorsetid", -1L);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			
 			ErrorSetModel record = new ErrorSetModel();
 			record.setId(errorsetid);
-			List<ErrorSetModel> rows = selectErrorSets(record, 1, 0);
+			List<ErrorSetModel> rows = errorSetModelDao.selectErrorSets(configDBModel, record, 1, 0);
 			if (rows.size() >= 0) {
 				errorSet = rows.get(0);
-				List<Long> details = getErrorSetDetailsByErrorSetID(errorsetid);
+				List<Long> details = errorSetModelDao.getErrorSetDetailsByErrorSetID(configDBModel, errorsetid);
 				if(details.size() > 0) {
 					for(Long detail : details) {
 						errorsetDetails += detail + ";";
@@ -169,7 +166,9 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		List<ItemConfigModel> errorTypes = new ArrayList<ItemConfigModel>();
 		try {
-			errorTypes = selectErrorTypes();
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			errorTypes = errorSetModelDao.selectErrorTypes(configDBModel);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
@@ -201,6 +200,8 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 					errorSetDetails.add(Long.valueOf(strItem));
 				}
 			}
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			
 			Boolean isNewItemSet = errorSetID.compareTo(0L) == 0;
 			if(isNewItemSet) {
@@ -211,9 +212,9 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				record.setUnit(unit.byteValue());
 				record.setDesc(desc);
 				
-				errorSetID = insertErrorSet(record);
+				errorSetID = errorSetModelDao.insertErrorSet(configDBModel, record);
 				if(errorSetID.compareTo(0L) > 0) {
-					if(setErrorSetDetails(errorSetID, errorSetDetails) > 0)
+					if(errorSetModelDao.setErrorSetDetails(configDBModel, errorSetID, errorSetDetails) > 0)
 						ret = true;
 				}
 			} else {
@@ -225,8 +226,8 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				record.setUnit(unit.byteValue());
 				record.setDesc(desc);
 				
-				if(updateErrorSet(record)) {
-					if(setErrorSetDetails(errorSetID, errorSetDetails) > 0)
+				if(errorSetModelDao.updateErrorSet(configDBModel, record)) {
+					if(errorSetModelDao.setErrorSetDetails(configDBModel, errorSetID, errorSetDetails) > 0)
 						ret = true;
 				}
 			}
@@ -251,7 +252,10 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				return json;
 			}
 			
-			ret = deleteErrorSet(errorSetID);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			
+			ret = errorSetModelDao.deleteErrorSet(configDBModel, errorSetID);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
@@ -261,435 +265,4 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		return json;
 	}
 
-	private BasicDataSource getDataSource(ConfigDBModel configDBModel) {
-		BasicDataSource dataSource = new BasicDataSource();
-		Integer dbtype = configDBModel.getDbtype();
-		if (dbtype.equals(DatabaseType.MYSQL.getValue())) {
-			dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-		} else if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-			dataSource.setDriverClassName("org.postgresql.Driver");
-		} else {
-			return null;
-		}
-		dataSource.setUrl(getUrl(configDBModel));
-		dataSource.setUsername(configDBModel.getUser());
-		dataSource.setPassword(configDBModel.getPassword());
-		return dataSource;
-	}
-
-	private String getUrl(ConfigDBModel configDBModel) {
-		StringBuffer url = new StringBuffer();
-		try {
-			Integer dbtype = configDBModel.getDbtype();
-			if (dbtype.equals(DatabaseType.MYSQL.getValue())) {
-				url.append("jdbc:mysql://");
-			} else if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				url.append("jdbc:postgresql://");
-			} else {
-				return null;
-			}
-			url.append(configDBModel.getIp());
-			url.append(":");
-			url.append(configDBModel.getPort());
-			url.append("/");
-			url.append(configDBModel.getDbname());
-			url.append("?characterEncoding=UTF-8");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new String();
-		}
-		return url.toString();
-	}
-
-	private List<ErrorSetModel> selectErrorSets(ErrorSetModel record, Integer limit, Integer offset) {
-		List<ErrorSetModel> errorSets = new ArrayList<ErrorSetModel>();
-		BasicDataSource dataSource = null;
-		try {
-			if (record == null)
-				return errorSets;
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-			
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
-			sql.append(" FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_errorset ");
-			sql.append(" WHERE 1=1 ");
-			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
-				sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
-			}
-			if(record.getName() != null && !record.getName().isEmpty()) {
-				sql.append(" AND " + separator + "name" + separator + " like '%" + record.getName() + "%'");
-			}
-			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(" AND " + separator + "type" + separator + " = " + record.getType());
-			}
-			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(" AND " + separator + "systype" + separator + " = " + record.getSystype());
-			}
-			if (record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(" AND " + separator + "unit" + separator + " = " + record.getUnit());
-			}
-			if(record.getDesc() != null && !record.getDesc().isEmpty()) {
-				sql.append(" AND " + separator + "desc" + separator + " like '%" + record.getDesc() + "%'");
-			}
-			sql.append(" ORDER BY id ");
-			if(limit.compareTo(0) > 0) {
-				sql.append(" LIMIT " + limit);
-			}
-			if(offset.compareTo(0) > 0) {
-				sql.append(" OFFSET " + offset);
-			}
-
-			dataSource = getDataSource(configDBModel);
-			errorSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorSetModel>(ErrorSetModel.class));
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			errorSets = new ArrayList<ErrorSetModel>();
-		} finally {
-			if(dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return errorSets;
-	}
-
-	private Long insertErrorSet(final ErrorSetModel record) {
-		Long ret = -1L;
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-			
-			String separator = Common.getDatabaseSeparator(dbtype);
-			
-			final StringBuffer sql = new StringBuffer();
-			sql.append(" INSERT INTO ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_errorset ");
-			sql.append(" (" + separator + "name" + separator + ", " + separator + "type" + separator + ", " + separator + "systype" + separator + ", " + separator + "unit" + separator + ", " + separator + "desc" + separator + ") ");
-			sql.append(" VALUES (?,?,?,?,?) ");
-			
-			KeyHolder keyHolder = new GeneratedKeyHolder();
-			dataSource = getDataSource(configDBModel);
-			new JdbcTemplate(dataSource).update(new PreparedStatementCreator() {
-				public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
-					PreparedStatement ps = conn.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
-					ps.setString(1, record.getName());
-					ps.setInt(2, record.getType() == null ? 0 : record.getType());
-					ps.setInt(3, record.getSystype() == null ? 0 : record.getSystype());
-					ps.setInt(4, record.getUnit() == null ? 0 : record.getUnit());
-					ps.setString(5, record.getDesc() == null ? new String() : record.getDesc());
-					return ps;
-				}
-			}, keyHolder);
-			if(keyHolder.getKeys().size() > 1) {
-				ret = (Long)keyHolder.getKeys().get("id");
-			} else {
-				ret = keyHolder.getKey().longValue();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			ret = -1L;
-		} finally {
-			if(dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return ret;
-	}
-	
-	private Boolean updateErrorSet(ErrorSetModel record) {
-		Boolean ret = false;
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-			
-			String separator = Common.getDatabaseSeparator(dbtype);
-			
-			StringBuffer sql = new StringBuffer();
-			sql.append(" UPDATE ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_errorset ");
-			sql.append(" SET id = id");
-			if(record.getName() != null) {
-				sql.append(", " + separator + "name" + separator + " = '" + record.getName() + "'");
-			}
-			if(record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(", " + separator + "type" + separator + " = " + record.getType());
-			}
-			if(record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(", " + separator + "systype" + separator + " = " + record.getSystype());
-			}
-			if(record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(", " + separator + "unit" + separator + " = " + record.getUnit());
-			}
-			if(record.getDesc() != null) {
-				sql.append(", " + separator + "desc" + separator + " = '" + record.getDesc() + "'");
-			}
-			
-			sql.append(" WHERE " + separator + "id" + separator + " = " + record.getId());
-
-			dataSource = getDataSource(configDBModel);
-			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
-		} catch (Exception e) {
-			e.printStackTrace();
-			ret = false;
-		} finally {
-			if(dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return ret;
-	}
-	
-	private Boolean deleteErrorSet(Long errorSetID) {
-		Boolean ret = false;
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-			
-			String separator = Common.getDatabaseSeparator(dbtype);
-			
-			StringBuffer sql = new StringBuffer();
-			sql.append(" DELETE FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_errorset ");
-			sql.append(" WHERE " + separator + "id" + separator + " = " + errorSetID);
-
-			dataSource = getDataSource(configDBModel);
-			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
-			
-			StringBuffer sql_del = new StringBuffer();
-			sql_del.append(" DELETE FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
-				sql_del.append(configDBModel.getDbschema()).append(".");
-			}
-			sql_del.append("tb_errorsetdetail ");
-			sql_del.append(" WHERE " + separator + "itemsetid" + separator + " = " + errorSetID);
-			
-			ret = ret && new JdbcTemplate(dataSource).update(sql_del.toString()) >= 0;
-		} catch (Exception e) {
-			e.printStackTrace();
-			ret = false;
-		} finally {
-			if(dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return ret;
-	}
-
-	private Integer countErrorSets(ErrorSetModel record, Integer limit, Integer offset) {
-		Integer count = -1;
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-			
-			String separator = Common.getDatabaseSeparator(dbtype);
-			
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT count(*) FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_errorset");
-			sql.append(" WHERE 1=1 ");
-			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
-				sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
-			}
-			if(record.getName() != null && !record.getName().isEmpty()) {
-				sql.append(" AND " + separator + "name" + separator + " like '%" + record.getName() + "%'");
-			}
-			if (record.getType() != null && record.getType().compareTo(0) >= 0) {
-				sql.append(" AND " + separator + "type" + separator + " = " + record.getType());
-			}
-			if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
-				sql.append(" AND " + separator + "systype" + separator + " = " + record.getSystype());
-			}
-			if (record.getUnit() != null && record.getUnit() >= 0) {
-				sql.append(" AND " + separator + "unit" + separator + " = " + record.getUnit());
-			}
-			if(record.getDesc() != null && !record.getDesc().isEmpty()) {
-				sql.append(" AND " + separator + "desc" + separator + " like '%" + record.getDesc() + "%'");
-			}
-
-			dataSource = getDataSource(configDBModel);
-			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-			count = -1;
-		} finally {
-			if(dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return count;
-	}
-
-	private List<ItemConfigModel> selectErrorTypes() {
-		List<ItemConfigModel> itemConfigs = new ArrayList<ItemConfigModel>();
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-			
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
-			sql.append(" FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_itemconfig ");
-			sql.append(" WHERE 1=1 ");
-
-			dataSource = getDataSource(configDBModel);
-			itemConfigs = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemConfigModel>(ItemConfigModel.class));
-		} catch (Exception e) {
-			e.printStackTrace();
-			itemConfigs = new ArrayList<ItemConfigModel>();
-		} finally {
-			if(dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return itemConfigs;
-	}
-	
-	private List<Long> getErrorSetDetailsByErrorSetID(Long errorSetID) {
-		List<Long> items = new ArrayList<Long>();
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-			
-			String separator = Common.getDatabaseSeparator(dbtype);
-			
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT " + separator + "itemid" + separator + " FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_errorsetdetail ");
-			sql.append(" WHERE " + separator + "itemsetid" + separator + " = " + errorSetID);
-			
-			dataSource = getDataSource(configDBModel);
-			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
-		} catch (Exception e) {
-			items = new ArrayList<Long>();
-		} finally {
-			if(dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return items;
-	}
-	
-	private Integer setErrorSetDetails(Long errorSetID, List<Long> errorTypes) {
-		Integer ret = -1;
-		if (errorTypes.size() <= 0)
-			return ret;
-		BasicDataSource dataSource = null;
-		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			Integer dbtype = configDBModel.getDbtype();
-			
-			String separator = Common.getDatabaseSeparator(dbtype);
-			
-			StringBuffer sql_del = new StringBuffer();
-			sql_del.append(" DELETE FROM ");
-			if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
-				sql_del.append(configDBModel.getDbschema()).append(".");
-			}
-			sql_del.append("tb_errorsetdetail ");
-			sql_del.append(" WHERE " + separator + "itemsetid" + separator + " = " + errorSetID);
-
-			dataSource = getDataSource(configDBModel);
-			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
-			Integer ret_del = jdbc.update(sql_del.toString());
-			if (ret_del >= 0) {
-				StringBuffer sql = new StringBuffer();
-				sql.append(" INSERT INTO ");
-				if(dbtype.equals(DatabaseType.POSTGRESQL.getValue())){
-					sql.append(configDBModel.getDbschema()).append(".");
-				}
-				sql.append("tb_errorsetdetail");
-				sql.append(" (" + separator + "itemsetid" + separator + ", " + separator + "itemid" + separator + ") ");
-				sql.append(" VALUES ");
-				for (Long errorType : errorTypes) {
-					sql.append("(");
-					sql.append(errorSetID + ", ");
-					sql.append(errorType);
-					sql.append(" ),");
-				}
-				sql.deleteCharAt(sql.length() - 1);
-				ret = jdbc.update(sql.toString());
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			ret = -1;
-		} finally {
-			if(dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return ret;
-	}
-	
 }
