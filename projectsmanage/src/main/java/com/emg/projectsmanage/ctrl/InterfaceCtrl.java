@@ -925,6 +925,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			String projectid = "-1";
 			String name = new String();
 			Integer tasknum = -1;
+			Long processid = -1L;
 
 			ProjectsUserModel record = new ProjectsUserModel();
 			record.setUserid(userid);
@@ -971,12 +972,14 @@ public class InterfaceCtrl extends BaseCtrl {
 			}
 			if (project != null && project.size() > 0) {
 				projectid = project.get(0).getId().toString();
+				processid = project.get(0).getProcessid();
 				tasknum = project.get(0).getTasknum();
 				name = project.get(0).getName();
 			}
 
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("projectid", projectid);
+			map.put("processid", processid);
 			map.put("tasknum", tasknum);
 			map.put("name", name);
 			model.addAttribute("status", true);
