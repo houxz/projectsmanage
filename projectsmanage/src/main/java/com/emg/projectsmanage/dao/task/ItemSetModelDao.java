@@ -65,10 +65,10 @@ public class ItemSetModelDao {
 				sql.append(" AND " + separator + "desc" + separator + " like '%" + record.getDesc() + "%'");
 			}
 			sql.append(" ORDER BY " + separator + "id" + separator + " ");
-			if (limit.compareTo(0) > 0) {
+			if (limit != null && limit.compareTo(0) > 0) {
 				sql.append(" LIMIT " + limit);
 			}
-			if (offset.compareTo(0) > 0) {
+			if (offset != null && offset.compareTo(0) > 0) {
 				sql.append(" OFFSET " + offset);
 			}
 
