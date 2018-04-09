@@ -1,9 +1,5 @@
 package com.emg.projectsmanage.ctrl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -14,22 +10,15 @@ import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSONObject;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import com.emg.projectsmanage.common.Common;
 import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.ItemSetEnable;
 import com.emg.projectsmanage.common.ItemSetSysType;
@@ -46,6 +35,9 @@ import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigValueModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
+import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
+import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
+import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
 import com.emg.projectsmanage.dao.task.ItemSetModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.EmployeeModel;
@@ -56,6 +48,7 @@ import com.emg.projectsmanage.pojo.ProcessConfigValueModel;
 import com.emg.projectsmanage.pojo.ProcessModel;
 import com.emg.projectsmanage.pojo.ProcessModelExample;
 import com.emg.projectsmanage.pojo.ProjectModel;
+import com.emg.projectsmanage.pojo.ProjectsUserModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
 import com.emg.projectsmanage.pojo.ProcessModelExample.Criteria;
 import com.emg.projectsmanage.service.EmapgoAccountService;
@@ -80,6 +73,15 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 	@Autowired
 	private EmapgoAccountService emapgoAccountService;
+	
+	@Autowired
+	private ProjectModelDao projectModelDao;
+	
+	@Autowired
+	private UserRoleModelDao userRoleModelDao;
+	
+	@Autowired
+	private ProjectsUserModelDao projectsUserModelDao;
 	
 	private ItemSetModelDao itemSetModelDao = new ItemSetModelDao();
 
@@ -224,8 +226,6 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 			List<ProcessConfigValueModel> configValues = new ArrayList<ProcessConfigValueModel>();
 
-			ProcessConfigModel config332 = processConfigModelDao.selectByPrimaryKey(1);
-			ConfigDBModel configDBModel332 = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config332.getDefaultValue()));
 			if (isNewProcess) {
 				if(!type.equals(ProcessType.NRFC.getValue())) {
 					String config_1_4 = newProcessName + "_质检";
@@ -236,8 +236,11 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					newpro.setSystemid(SystemType.DBMapChecker.getValue());
 					newpro.setCreateby(uid);
 					newpro.setPriority(priority);
+					newpro.setOwner(owner);
 
-					projectid332 = newProject(configDBModel332, newpro);
+					if (projectModelDao.insert(newpro) > 0) {
+						projectid332 = newpro.getId();
+					}
 					if (projectid332 > 0) {
 						ProcessConfigValueModel configValue = new ProcessConfigValueModel();
 						configValue.setProcessid(newProcessID);
@@ -272,12 +275,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					pro.setId(projectid332);
 					pro.setName(config_1_4);
 					pro.setPriority(priority);
-					updateProject(configDBModel332, pro);
+					projectModelDao.updateByPrimaryKeySelective(pro);
 				}
 			}
 
-			ProcessConfigModel config349 = processConfigModelDao.selectByPrimaryKey(9);
-			ConfigDBModel configDBModel349 = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config349.getDefaultValue()));
 			if (isNewProcess) {
 				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? (newProcessName + "_NR/FC") : (newProcessName + "_改错");
 				Integer systemid = type.equals(ProcessType.NRFC.getValue()) ? SystemType.MapDbEdit_NRFC.getValue() : SystemType.MapDbEdit.getValue();
@@ -290,7 +291,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				newpro.setPriority(priority);
 				newpro.setOwner(owner);
 
-				projectid349 = newProject(configDBModel349, newpro);
+				if (projectModelDao.insert(newpro) > 0) {
+					projectid349 = newpro.getId();
+				}
 				if (projectid349 > 0) {
 					ProcessConfigValueModel configValue = new ProcessConfigValueModel();
 					configValue.setProcessid(newProcessID);
@@ -324,7 +327,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				pro.setName(config_2_12);
 				pro.setPriority(priority);
 				pro.setOwner(owner);
-				updateProject(configDBModel349, pro);
+				projectModelDao.updateByPrimaryKeySelective(pro);
 			}
 
 			if (strWorkers != null && !strWorkers.isEmpty()) {
@@ -334,7 +337,23 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					worker.setId(Integer.valueOf(strWorker));
 					workers.add(worker);
 				}
-				setWorkers(configDBModel349, projectid349, workers, uid, SystemType.MapDbEdit.getValue());
+				
+				//setWorkers(configDBModel349, projectid349, workers, uid, SystemType.MapDbEdit.getValue());
+				ProjectsUserModel record = new ProjectsUserModel();
+				record.setPid(projectid349.toString());
+				if (projectsUserModelDao.delete(record ) >= 0) {
+					for (EmployeeModel worker : workers) {
+						ProjectsUserModel ur = new ProjectsUserModel();
+						ur.setPid(projectid349.toString());
+						ur.setUsername(worker.getRealname());
+						ur.setUserid(worker.getId());
+						ur.setRoleid(RoleType.ROLE_WORKER.getValue());
+						ur.setRolename(RoleType.ROLE_WORKER.getDes());
+						ur.setOpuid(uid);
+						ur.setSystemid(SystemType.MapDbEdit.getValue());
+						projectsUserModelDao.insert(ur);
+					}
+				}
 			}
 
 			List<ProcessConfigModel> processConfigs = processConfigModelDao.selectAllProcessConfigModels();
@@ -370,6 +389,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
+			json.addObject("result", -1);
+			json.addObject("option", e.getMessage());
+			return json;
 		}
 		json.addObject("result", ret);
 
@@ -393,29 +415,23 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				List<ProcessConfigValueModel> configValues = processConfigValueModelDao.selectByProcessID(processid);
 				Long projectid332 = -1L;
 				Long projectid349 = -1L;
-				Integer configDBid332 = -1;
-				Integer configDBid349 = -1;
 				for (ProcessConfigValueModel configValue : configValues) {
 					if (configValue.getModuleid().equals(1) && configValue.getConfigid().equals(1)) {
-						configDBid332 = Integer.valueOf(configValue.getValue());
 					} else if (configValue.getModuleid().equals(1) && configValue.getConfigid().equals(3)) {
 						projectid332 = Long.valueOf(configValue.getValue());
 					} else if (configValue.getModuleid().equals(2) && configValue.getConfigid().equals(9)) {
-						configDBid349 = Integer.valueOf(configValue.getValue());
 					} else if (configValue.getModuleid().equals(2) && configValue.getConfigid().equals(11)) {
 						projectid349 = Long.valueOf(configValue.getValue());
 					}
 				}
-				ConfigDBModel configDBModel332 = configDBModelDao.selectByPrimaryKey(configDBid332);
-				ConfigDBModel configDBModel349 = configDBModelDao.selectByPrimaryKey(configDBid349);
 				ProjectModel pro332 = new ProjectModel();
 				pro332.setId(projectid332);
 				pro332.setOverstate(state);
-				updateProject(configDBModel332, pro332);
+				projectModelDao.updateByPrimaryKeySelective(pro332);
 				ProjectModel pro349 = new ProjectModel();
 				pro349.setId(projectid349);
 				pro349.setOverstate(state);
-				updateProject(configDBModel349, pro349);
+				projectModelDao.updateByPrimaryKeySelective(pro349);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -444,29 +460,23 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				List<ProcessConfigValueModel> configValues = processConfigValueModelDao.selectByProcessID(processid);
 				Long projectid332 = -1L;
 				Long projectid349 = -1L;
-				Integer configDBid332 = -1;
-				Integer configDBid349 = -1;
 				for (ProcessConfigValueModel configValue : configValues) {
 					if (configValue.getModuleid().equals(1) && configValue.getConfigid().equals(1)) {
-						configDBid332 = Integer.valueOf(configValue.getValue());
 					} else if (configValue.getModuleid().equals(1) && configValue.getConfigid().equals(3)) {
 						projectid332 = Long.valueOf(configValue.getValue());
 					} else if (configValue.getModuleid().equals(2) && configValue.getConfigid().equals(9)) {
-						configDBid349 = Integer.valueOf(configValue.getValue());
 					} else if (configValue.getModuleid().equals(2) && configValue.getConfigid().equals(11)) {
 						projectid349 = Long.valueOf(configValue.getValue());
 					}
 				}
-				ConfigDBModel configDBModel332 = configDBModelDao.selectByPrimaryKey(configDBid332);
-				ConfigDBModel configDBModel349 = configDBModelDao.selectByPrimaryKey(configDBid349);
 				ProjectModel pro332 = new ProjectModel();
 				pro332.setId(projectid332);
 				pro332.setPriority(priority);
-				updateProject(configDBModel332, pro332);
+				projectModelDao.updateByPrimaryKey(pro332);
 				ProjectModel pro349 = new ProjectModel();
 				pro349.setId(projectid349);
 				pro349.setPriority(priority);
-				updateProject(configDBModel349, pro349);
+				projectModelDao.updateByPrimaryKey(pro349);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -602,7 +612,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
-			itemsets = itemSetModelDao.selectItemSets(configDBModel, itemSetModel, null, null);
+			itemsets = itemSetModelDao.selectItemSets(configDBModel, itemSetModel, -1, -1);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
@@ -643,11 +653,40 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					}
 				}
 			}
+			
+			UserRoleModel record = new UserRoleModel();
+			record.setRoleid(RoleType.ROLE_WORKER.getValue());
+			List<UserRoleModel> userRoleModels = userRoleModelDao.query(record );
+			
+			List<Integer> ids = new ArrayList<Integer>();
+			for (UserRoleModel userRoleModel : userRoleModels) {
+				Integer id = userRoleModel.getUserid();
+				ids.add(id);
+			}
+			
+			record.setRoleid(RoleType.ROLE_CHECKER.getValue());
+			userRoleModels.clear();
+			userRoleModels = userRoleModelDao.query(record );
+			for (UserRoleModel userRoleModel : userRoleModels) {
+				Integer id = userRoleModel.getUserid();
+				ids.add(id);
+			}
+			
+			if (employeeModel.getId() != null) {
+				if (ids.contains(employeeModel.getId())) {
+					ids.clear();
+					ids.add(employeeModel.getId());
+				} else {
+					json.addObject("rows", workers);
+					json.addObject("count", workers.size());
+					json.addObject("result", 1);
+					return json;
+				}
+			}
 
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(1);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			if (ids.size() > 0)
+				workers = emapgoAccountService.getEmployeesByIDSAndRealname(ids, employeeModel.getRealname());
 
-			workers = getWorkers(configDBModel, employeeModel);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.debug(e.getMessage());
@@ -660,178 +699,4 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return json;
 	}
 
-	private Long newProject(ConfigDBModel configDBModel, final ProjectModel newProject) {
-		Long newProjectID = -1L;
-		BasicDataSource dataSource = null;
-		try {
-			final StringBuffer sql = new StringBuffer();
-			sql.append(" INSERT INTO tb_projects (processid, protype, pdifficulty, priority, tasknum, systemid, description, createby, area, name, owner, overprogress, overstate) ");
-			sql.append(" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ");
-
-			KeyHolder keyHolder = new GeneratedKeyHolder();
-			dataSource = Common.getDataSource(configDBModel);
-			new JdbcTemplate(dataSource).update(new PreparedStatementCreator() {
-				public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
-					PreparedStatement ps = conn.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
-					ps.setLong(1, newProject.getProcessid() == null ? 0 : newProject.getProcessid());
-					ps.setInt(2, 0);
-					ps.setInt(3, 0);
-					ps.setInt(4, newProject.getPriority() == null ? 0 : newProject.getPriority());
-					ps.setInt(5, 0);
-					ps.setInt(6, newProject.getSystemid() == null ? 0 : newProject.getSystemid());
-					ps.setString(7, new String());
-					ps.setInt(8, newProject.getCreateby() == null ? 0 : newProject.getCreateby());
-					ps.setString(9, new String());
-					ps.setString(10, newProject.getName() == null ? new String() : newProject.getName());
-					ps.setInt(11, newProject.getOwner() == null ? 0 : newProject.getOwner());
-					ps.setString(12, new String());
-					ps.setInt(13, 0);
-					return ps;
-				}
-			}, keyHolder);
-			newProjectID = keyHolder.getKey().longValue();
-		} catch (Exception e) {
-			e.printStackTrace();
-			newProjectID = -1L;
-		} finally {
-			try {
-				if (dataSource != null) {
-					dataSource.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return newProjectID;
-	}
-
-	private Integer updateProject(ConfigDBModel configDBModel, ProjectModel project) {
-		Integer ret = -1;
-		BasicDataSource dataSource = null;
-		try {
-			StringBuffer sql = new StringBuffer();
-			sql.append(" UPDATE tb_projects ");
-			sql.append(" SET id = id");
-			if (project.getName() != null) {
-				sql.append(", name = '" + project.getName() + "'");
-			}
-			if (project.getPriority() != null) {
-				sql.append(", priority = " + project.getPriority());
-			}
-			if (project.getOverstate() != null) {
-				sql.append(", overstate = " + project.getOverstate());
-			}
-			if (project.getOwner() != null) {
-				sql.append(", owner = " + project.getOwner());
-			}
-			sql.append(" WHERE id = " + project.getId());
-
-			dataSource = Common.getDataSource(configDBModel);
-			ret = new JdbcTemplate(dataSource).update(sql.toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-			ret = -1;
-		} finally {
-			try {
-				if (dataSource != null) {
-					dataSource.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return ret;
-	}
-
-	private List<EmployeeModel> getWorkers(ConfigDBModel configDBModel, EmployeeModel employeeModel) {
-		List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
-		BasicDataSource dataSource = null;
-		try {
-			List<Integer> ids = new ArrayList<Integer>();
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
-			sql.append(" FROM tb_user_roles ");
-			sql.append(" WHERE roleid in ( " + RoleType.ROLE_WORKER.getValue() + " , " + RoleType.ROLE_CHECKER.getValue() + " )");
-
-			dataSource = Common.getDataSource(configDBModel);
-			List<UserRoleModel> userRoleModels = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<UserRoleModel>(UserRoleModel.class));
-			for (UserRoleModel userRoleModel : userRoleModels) {
-				Integer id = userRoleModel.getUserid();
-				ids.add(id);
-			}
-
-			if (employeeModel.getId() != null) {
-				if (ids.contains(employeeModel.getId())) {
-					ids.clear();
-					ids.add(employeeModel.getId());
-				} else {
-					return new ArrayList<EmployeeModel>();
-				}
-			}
-
-			if (ids.size() > 0)
-				workers = emapgoAccountService.getEmployeesByIDSAndRealname(ids, employeeModel.getRealname());
-		} catch (Exception e) {
-			e.printStackTrace();
-			workers = new ArrayList<EmployeeModel>();
-		} finally {
-			try {
-				if (dataSource != null) {
-					dataSource.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return workers;
-	}
-
-	private Integer setWorkers(ConfigDBModel configDBModel, Long pid, List<EmployeeModel> workers, Integer opuid, Integer systemid) {
-		Integer ret = -1;
-		if (workers.size() <= 0)
-			return ret;
-		BasicDataSource dataSource = null;
-		try {
-			StringBuffer sql_del = new StringBuffer();
-			sql_del.append(" DELETE ");
-			sql_del.append(" FROM tb_projects_user ");
-			sql_del.append(" WHERE pid = " + pid);
-
-			dataSource = Common.getDataSource(configDBModel);
-			JdbcTemplate jdbc = new JdbcTemplate(dataSource);
-			Integer ret_del = jdbc.update(sql_del.toString());
-			if (ret_del >= 0) {
-				StringBuffer sql = new StringBuffer();
-				sql.append(" INSERT INTO tb_projects_user");
-				sql.append(" (pid, userid, username, roleid, rolename, opuid, systemid) ");
-				sql.append(" VALUES ");
-				for (EmployeeModel worker : workers) {
-					sql.append("(");
-					sql.append(pid + ", ");
-					sql.append(worker.getId() + ", ");
-					sql.append("'" + worker.getRealname() + "', ");
-					sql.append(RoleType.ROLE_WORKER.getValue() + ", ");
-					sql.append("'" + RoleType.ROLE_WORKER.getDes() + "', ");
-					sql.append(opuid + ", ");
-					sql.append(systemid);
-					sql.append(" ),");
-				}
-				sql.deleteCharAt(sql.length() - 1);
-				ret = jdbc.update(sql.toString());
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			ret = -1;
-		} finally {
-			try {
-				if (dataSource != null) {
-					dataSource.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return ret;
-	}
 }
