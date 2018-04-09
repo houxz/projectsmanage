@@ -107,115 +107,115 @@
 		if(processType == 1) {
 		
 			html.push('<div>');
-			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="质检准备进度：' + values[0] + '&#8453;">');
+			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="质检准备进度：' + parseFloat(values[0]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
 			if (values[0] > 0 && values[0] < 100 && row.state == 1)
 				html.push(' progress-striped active');
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ values[0]
+							+ parseFloat(values[0]).toFixed(3)
 							+ '%;background-color: '
 							+ colors[0]
 							+ ';">'
 							+ ' <span style="margin:0 6px;color: black;">'
-							+ values[0] + '&#8453;</span>' + ' </div>');
+							+ parseFloat(values[0]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div>');
 			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="质检进度：'
-							+ values[1] + '&#8453;">');
+							+ parseFloat(values[1]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
 			if (values[1] > 0 && values[1] < 100 && row.state == 1)
 				html.push(' progress-striped active');
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ values[1]
+							+ parseFloat(values[1]).toFixed(3)
 							+ '%;background-color: '
 							+ colors[1]
 							+ ';">'
 							+ ' <span style="margin:0 6px;color: black;">'
-							+ values[1] + '&#8453;</span>' + ' </div>');
+							+ parseFloat(values[1]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div></div>');
 	
 			html.push('<div>');
 			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="改错准备进度：'
-							+ values[2] + '&#8453;">');
+							+ parseFloat(values[2]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
 			if (values[2] > 0 && values[2] < 100 && row.state == 1)
 				html.push(' progress-striped active');
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ values[2]
+							+ parseFloat(values[2]).toFixed(3)
 							+ '%;background-color: '
 							+ colors[2]
 							+ ';">'
 							+ ' <span style="margin:0 6px;color: black;">'
-							+ values[2] + '&#8453;</span>' + ' </div>');
+							+ parseFloat(values[2]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div>');
 	
-			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="改错进度：' + values[3] + '&#8453;">');
+			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="改错进度：' + parseFloat(values[3]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
 			if (values[3] > 0 && values[3] < 100 && row.state == 1)
 				html.push(' progress-striped active');
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ values[3]
+							+ parseFloat(values[3]).toFixed(3)
 							+ '%;background-color: '
 							+ colors[3]
 							+ ';">'
 							+ ' <span style="margin:0 6px;color: black;">'
-							+ values[3] + '&#8453;</span>' + ' </div>');
+							+ parseFloat(values[3]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div></div>');
 		} else if(processType == 2) {
 			html.push('<div>');
-			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="编辑准备进度：' + values[0] + '&#8453;">');
+			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="编辑准备进度：' + parseFloat(values[0]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
 			if (values[0] > 0 && values[0] < 100 && row.state == 1)
 				html.push(' progress-striped active');
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ values[0]
+							+ parseFloat(values[0]).toFixed(3)
 							+ '%;background-color: '
 							+ colors[0]
 							+ ';">'
 							+ ' <span style="margin:0 6px;color: black;">'
-							+ values[0] + '&#8453;</span>' + ' </div>');
+							+ parseFloat(values[0]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div>');
 			
 			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="编辑进度：'
-							+ values[1] + '&#8453;">');
+							+ parseFloat(values[1]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
 			if (values[1] > 0 && values[1] < 100 && row.state == 1)
 				html.push(' progress-striped active');
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ values[1]
+							+ parseFloat(values[1]).toFixed(3)
 							+ '%;background-color: '
 							+ colors[1]
 							+ ';">'
 							+ ' <span style="margin:0 6px;color: black;">'
-							+ values[1] + '&#8453;</span>' + ' </div>');
+							+ parseFloat(values[1]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div></div>');
 			
 			html.push('<div>');
 			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="待发布准备进度：'
-							+ values[2] + '&#8453;">');
+							+ parseFloat(values[2]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
 			if (values[2] > 0 && values[2] < 100 && row.state == 1)
 				html.push(' progress-striped active');
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ values[2]
+							+ parseFloat(values[2]).toFixed(3)
 							+ '%;background-color: '
 							+ colors[2]
 							+ ';">'
 							+ ' <span style="margin:0 6px;color: black;">'
-							+ values[2] + '&#8453;</span>' + ' </div>');
+							+ parseFloat(values[2]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div>');
 		}
 		return html.join('');
