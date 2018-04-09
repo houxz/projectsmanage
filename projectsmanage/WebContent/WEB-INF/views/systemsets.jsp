@@ -120,7 +120,7 @@
 					<div class="panel-heading">项目基础配置</div>
 					<div class="panel-body">
 						<table class="table">
-							<tr>
+							<!-- <tr>
 								<td class="configKey">质检项目库</td>
 								<td><select class="form-control systemSet" id="config_1_1">
 										<c:forEach items="${configDBModels }" var="configDBModel">
@@ -129,7 +129,7 @@
 											</c:if>
 										</c:forEach>
 								</select></td>
-							</tr>
+							</tr> -->
 							<tr>
 								<td class="configKey">质检任务库</td>
 								<td><select class="form-control systemSet" id="config_1_2">
@@ -140,7 +140,7 @@
 										</c:forEach>
 								</select></td>
 							</tr>
-							<tr>
+							<!-- <tr>
 								<td class="configKey">编辑项目库</td>
 								<td><select class="form-control systemSet" id="config_2_9">
 										<c:forEach items="${configDBModels }" var="configDBModel">
@@ -150,7 +150,7 @@
 											</c:if>
 										</c:forEach>
 								</select></td>
-							</tr>
+							</tr> -->
 							<tr>
 								<td class="configKey">编辑任务库</td>
 								<td><select class="form-control systemSet" id="config_2_10">
