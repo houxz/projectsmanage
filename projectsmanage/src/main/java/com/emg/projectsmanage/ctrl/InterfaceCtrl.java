@@ -616,8 +616,11 @@ public class InterfaceCtrl extends BaseCtrl {
 							status = true;
 						}
 					} else if (systemid.compareTo(SystemType.MapDbEdit_NRFC.getValue()) == 0) {
-						if (stateafter == 3 && processafter == 5) {// (X,X)->(3,5)
-							if (projectsTaskCountDao.newTask2Done(taskCount) > 0) {
+						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)->(1,5)
+							if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
+								status = true;
+						} else if (roleid == 5 && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {// (1,5)->(3,5)
+							if (projectsTaskCountDao.comTaskDone(taskCount) > 0) {
 								Map<String, Object> map = new HashMap<String, Object>();
 								map.put("systemid", systemid);
 								map.put("projectid", projectid);
