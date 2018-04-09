@@ -454,6 +454,26 @@
 												$.webeditor.showMsgLabel("alert", "项目名不能为空");
 												return;
 											}
+											if(protype == 1){
+												if(!config_1_7 || config_1_7.lenth <= 0) {
+													$.webeditor.showMsgLabel("alert", "没有配置质检区域");
+													return;
+												}
+												if(!config_1_6 || config_1_6.lenth <= 0) {
+													$.webeditor.showMsgLabel("alert", "没有配置质检图层");
+													return;
+												}
+											}
+											if(protype == 2) {
+												if(!config_1_7 || config_1_7.lenth <= 0) {
+													$.webeditor.showMsgLabel("alert", "没有配置区域");
+													return;
+												}
+											}
+											if(config_2_19 == 1 && (!config_2_18 || config_2_18.length <= 0)) {
+												$.webeditor.showMsgLabel("alert", "私有项目需要添加人员");
+												return;
+											}
 
 											jQuery.post("./processesmanage.web",
 															{
