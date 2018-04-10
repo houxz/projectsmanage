@@ -161,7 +161,7 @@
 										</c:forEach>
 								</select></td>
 							</tr>
-							<!-- <tr>
+							<tr>
 								<td class="configKey">错误库</td>
 								<td><select class="form-control systemSet" id="config_2_16">
 										<c:forEach items="${configDBModels }" var="configDBModel">
@@ -171,7 +171,7 @@
 										</c:forEach>
 								</select></td>
 							</tr>
-							<tr>
+							<!-- <tr>
 								<td class="configKey">错误导入库</td>
 								<td><select class="form-control systemSet" id="config_0_20">
 										<c:forEach items="${configDBModels }" var="configDBModel">
