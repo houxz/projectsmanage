@@ -234,6 +234,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					newpro.setProcessid(newProcessID);
 					newpro.setName(config_1_4);
 					newpro.setSystemid(SystemType.DBMapChecker.getValue());
+					newpro.setProtype(0);
+					newpro.setPdifficulty(0);
+					newpro.setTasknum(-1);
+					newpro.setOverstate(0);
 					newpro.setCreateby(uid);
 					newpro.setPriority(priority);
 					newpro.setOwner(owner);
@@ -287,6 +291,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				newpro.setProcessid(newProcessID);
 				newpro.setName(config_2_12);
 				newpro.setSystemid(systemid);
+				newpro.setProtype(0);
+				newpro.setPdifficulty(0);
+				newpro.setTasknum(-1);
+				newpro.setOverstate(0);
 				newpro.setCreateby(uid);
 				newpro.setPriority(priority);
 				newpro.setOwner(owner);
