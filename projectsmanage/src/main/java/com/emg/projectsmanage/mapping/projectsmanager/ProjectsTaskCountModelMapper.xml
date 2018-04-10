@@ -35,7 +35,7 @@
 				AND t.`userid` = #{userid}
 			</if>
 		</where>
-		GROUP BY t.`userid`,t.`roleid`
+		GROUP BY t.`userid`,t.`username`,t.`roleid`,t.`rolename`
 	</select>
 	<select id="getProjectsProgressByUserid" resultMap="BaseResultMap"
 		parameterType="java.util.Map">
