@@ -480,11 +480,11 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				ProjectModel pro332 = new ProjectModel();
 				pro332.setId(projectid332);
 				pro332.setPriority(priority);
-				projectModelDao.updateByPrimaryKey(pro332);
+				projectModelDao.updateByPrimaryKeySelective(pro332);
 				ProjectModel pro349 = new ProjectModel();
 				pro349.setId(projectid349);
 				pro349.setPriority(priority);
-				projectModelDao.updateByPrimaryKey(pro349);
+				projectModelDao.updateByPrimaryKeySelective(pro349);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
