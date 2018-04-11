@@ -29,6 +29,7 @@ import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.PriorityLevel;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ItemAreaType;
+import com.emg.projectsmanage.common.ProjectState;
 import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.common.SystemType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
@@ -48,6 +49,7 @@ import com.emg.projectsmanage.pojo.ProcessConfigValueModel;
 import com.emg.projectsmanage.pojo.ProcessModel;
 import com.emg.projectsmanage.pojo.ProcessModelExample;
 import com.emg.projectsmanage.pojo.ProjectModel;
+import com.emg.projectsmanage.pojo.ProjectModelExample;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
 import com.emg.projectsmanage.pojo.ProcessModelExample.Criteria;
@@ -420,26 +422,13 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			record.setId(processid);
 			record.setState(state);
 			if (processModelDao.updateByPrimaryKeySelective(record) > 0) {
-				List<ProcessConfigValueModel> configValues = processConfigValueModelDao.selectByProcessID(processid);
-				Long projectid332 = -1L;
-				Long projectid349 = -1L;
-				for (ProcessConfigValueModel configValue : configValues) {
-					if (configValue.getModuleid().equals(1) && configValue.getConfigid().equals(1)) {
-					} else if (configValue.getModuleid().equals(1) && configValue.getConfigid().equals(3)) {
-						projectid332 = Long.valueOf(configValue.getValue());
-					} else if (configValue.getModuleid().equals(2) && configValue.getConfigid().equals(9)) {
-					} else if (configValue.getModuleid().equals(2) && configValue.getConfigid().equals(11)) {
-						projectid349 = Long.valueOf(configValue.getValue());
-					}
-				}
-				ProjectModel pro332 = new ProjectModel();
-				pro332.setId(projectid332);
-				pro332.setOverstate(state);
-				projectModelDao.updateByPrimaryKeySelective(pro332);
-				ProjectModel pro349 = new ProjectModel();
-				pro349.setId(projectid349);
-				pro349.setOverstate(state);
-				projectModelDao.updateByPrimaryKeySelective(pro349);
+				ProjectModel project = new ProjectModel();
+				project.setOverstate(state);
+				ProjectModelExample example = new ProjectModelExample();
+				com.emg.projectsmanage.pojo.ProjectModelExample.Criteria criteria = example.or();
+				criteria.andProcessidEqualTo(processid);
+				criteria.andOverstateNotEqualTo(ProjectState.COMPLETE.getValue());
+				ret = projectModelDao.updateByExampleSelective(project, example);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -465,26 +454,11 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			record.setId(processid);
 			record.setPriority(priority);
 			if (processModelDao.updateByPrimaryKeySelective(record) > 0) {
-				List<ProcessConfigValueModel> configValues = processConfigValueModelDao.selectByProcessID(processid);
-				Long projectid332 = -1L;
-				Long projectid349 = -1L;
-				for (ProcessConfigValueModel configValue : configValues) {
-					if (configValue.getModuleid().equals(1) && configValue.getConfigid().equals(1)) {
-					} else if (configValue.getModuleid().equals(1) && configValue.getConfigid().equals(3)) {
-						projectid332 = Long.valueOf(configValue.getValue());
-					} else if (configValue.getModuleid().equals(2) && configValue.getConfigid().equals(9)) {
-					} else if (configValue.getModuleid().equals(2) && configValue.getConfigid().equals(11)) {
-						projectid349 = Long.valueOf(configValue.getValue());
-					}
-				}
-				ProjectModel pro332 = new ProjectModel();
-				pro332.setId(projectid332);
-				pro332.setPriority(priority);
-				projectModelDao.updateByPrimaryKeySelective(pro332);
-				ProjectModel pro349 = new ProjectModel();
-				pro349.setId(projectid349);
-				pro349.setPriority(priority);
-				projectModelDao.updateByPrimaryKeySelective(pro349);
+				ProjectModel project = new ProjectModel();
+				project.setPriority(priority);
+				ProjectModelExample example = new ProjectModelExample();
+				example.or().andProcessidEqualTo(processid);
+				ret = projectModelDao.updateByExampleSelective(project, example);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
