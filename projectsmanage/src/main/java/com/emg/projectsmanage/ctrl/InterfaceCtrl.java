@@ -1565,7 +1565,7 @@ public class InterfaceCtrl extends BaseCtrl {
 							.andStagestateEqualTo(0); // 阶段初始
 				}
 
-				example.setOrderByClause("id");
+				example.setOrderByClause("priority DESC, id");
 				example.setLimit(1);
 				project = processModelDao.selectByExample(example);
 			}
