@@ -202,7 +202,7 @@
 			html.push('</div></div></div>');
 			
 			html.push('<div>');
-			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="待发布准备进度：'
+			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="发布准备进度：'
 							+ parseFloat(values[2]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
 			if (values[2] > 0 && values[2] < 100 && row.state == 1)
