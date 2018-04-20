@@ -1,3 +1,4 @@
+<%@page import="com.emg.projectsmanage.common.ProcessType"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt'%>
@@ -168,7 +169,7 @@
 							+ ' <span style="margin:0 6px;color: black;">'
 							+ parseFloat(values[3]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div></div>');
-		} else if(processType == 2) {
+		} else if(processType == 2 || processType == 3) {
 			html.push('<div>');
 			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="编辑准备进度：' + parseFloat(values[0]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
@@ -1186,7 +1187,7 @@
 			$("#config_0_19").parents("tr").hide();
 			$("#sc2").show();
 			$("#sc3").show();
-		} else if(selectValue == 2) {
+		} else if(selectValue == 2 || selectValue == 3) {
 			$("#modules li:not(:first-child)").hide();
 			$("#config_0_7").parents("tr").show();
 			$("#config_0_18").parents("tr").show();
@@ -1254,7 +1255,7 @@
 						<th data-field="name" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="160">项目名称</th>
 						<th data-field="type" data-formatter="processTypesFormat"
-							data-filter-control="select" data-width="120"
+							data-filter-control="select" data-width="140"
 							data-filter-data="var:processTypes">项目类型</th>
 						<th data-field="username" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">创建者</th>
@@ -1313,8 +1314,10 @@
 							<td class="configKey">项目类型</td>
 							<td class="configValue"><select
 								class="form-control configValue" id="config_processprotype" onchange="processTypeChange(this.options[this.options.selectedIndex].value);">
-									<option value="1" selected="selected">改错项目</option>
-									<option value="2">NR/FC项目</option>
+									<c:set var="processTypes" value="<%= ProcessType.values() %>"/>
+									<c:forEach items="${processTypes }" var="processType">
+										<option value="${processType.getValue() }">${processType.getDes() }</option>
+									</c:forEach>
 							</select></td>
 						</tr>
 						<tr>

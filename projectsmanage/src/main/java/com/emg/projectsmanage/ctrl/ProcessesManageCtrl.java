@@ -198,7 +198,22 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				json.addObject("resultMsg", "保存失败，项目名称不能为空");
 				return json;
 			}
+			
+			String suffix = new String();
+			Integer systemid = -1;
+			
+			if(type.equals(ProcessType.ERROR.getValue())){
+				suffix = "_改错";
+				systemid = SystemType.MapDbEdit.getValue();
+			} else if(type.equals(ProcessType.NRFC.getValue())) {
+				suffix = "_NR/FC";
+				systemid = SystemType.MapDbEdit_NRFC.getValue();
+			} else if(type.equals(ProcessType.ATTACH.getValue())) {
+				suffix = "_关系附属表";
+				systemid = SystemType.MapDbEdit_Attach.getValue();
+			}
 
+			//新建/更新流程
 			if (isNewProcess) {
 				ProcessModel newProcess = new ProcessModel();
 				newProcess.setName(newProcessName);
@@ -228,8 +243,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 			List<ProcessConfigValueModel> configValues = new ArrayList<ProcessConfigValueModel>();
 
+			//创建/更新质检项目
 			if (isNewProcess) {
-				if(!type.equals(ProcessType.NRFC.getValue())) {
+				if(!type.equals(ProcessType.NRFC.getValue()) && !type.equals(ProcessType.ATTACH.getValue())) {
 					String config_1_4 = newProcessName + "_质检";
 
 					ProjectModel newpro = new ProjectModel();
@@ -266,7 +282,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					}
 				}
 			} else {
-				if(!type.equals(ProcessType.NRFC.getValue())) {
+				if(!type.equals(ProcessType.NRFC.getValue()) && !type.equals(ProcessType.ATTACH.getValue())) {
 					String config_1_4 = newProcessName + "_质检";
 
 					ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
@@ -285,13 +301,11 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			}
 
+			//创建/更新改错项目
 			if (isNewProcess) {
-				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? (newProcessName + "_NR/FC") : (newProcessName + "_改错");
-				Integer systemid = type.equals(ProcessType.NRFC.getValue()) ? SystemType.MapDbEdit_NRFC.getValue() : SystemType.MapDbEdit.getValue();
-				
 				ProjectModel newpro = new ProjectModel();
 				newpro.setProcessid(newProcessID);
-				newpro.setName(config_2_12);
+				newpro.setName(newProcessName + suffix);
 				newpro.setSystemid(systemid);
 				newpro.setProtype(0);
 				newpro.setPdifficulty(0);
@@ -317,29 +331,29 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					_configValue.setProcessid(newProcessID);
 					_configValue.setModuleid(2);
 					_configValue.setConfigid(12);
-					_configValue.setValue(config_2_12);
+					_configValue.setValue(newProcessName + suffix);
 
 					configValues.add(_configValue);
 				}
 			} else {
-				String config_2_12 = type.equals(ProcessType.NRFC.getValue()) ? (newProcessName + "_NR/FC") : (newProcessName + "_改错");
 
 				ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
 				_configValue.setProcessid(newProcessID);
 				_configValue.setModuleid(2);
 				_configValue.setConfigid(12);
-				_configValue.setValue(config_2_12);
+				_configValue.setValue(newProcessName + suffix);
 
 				configValues.add(_configValue);
 
 				ProjectModel pro = new ProjectModel();
 				pro.setId(projectid349);
-				pro.setName(config_2_12);
+				pro.setName(newProcessName + suffix);
 				pro.setPriority(priority);
 				pro.setOwner(owner);
 				projectModelDao.updateByPrimaryKeySelective(pro);
 			}
 
+			//更新作业人员
 			if (strWorkers != null && !strWorkers.isEmpty()) {
 				List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
 				for (String strWorker : strWorkers.split(",")) {

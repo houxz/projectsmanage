@@ -14,7 +14,11 @@ public enum ProcessType {
 	/**
 	 * 2, "NR/FC项目"
 	 */
-	NRFC(2, "NR/FC项目");
+	NRFC(2, "NR/FC项目"),
+	/**
+	 * 3, "关系附属表项目"
+	 */
+	ATTACH(3, "关系附属表项目");
 
 	private Integer value;
 	private String des;

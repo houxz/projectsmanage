@@ -615,7 +615,8 @@ public class InterfaceCtrl extends BaseCtrl {
 						} else {
 							status = true;
 						}
-					} else if (systemid.compareTo(SystemType.MapDbEdit_NRFC.getValue()) == 0) {
+					} else if (systemid.compareTo(SystemType.MapDbEdit_NRFC.getValue()) == 0 ||
+							systemid.compareTo(SystemType.MapDbEdit_Attach.getValue()) == 0) {
 						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)->(1,5)
 							if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
 								status = true;

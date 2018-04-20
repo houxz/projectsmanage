@@ -22,7 +22,11 @@ public enum SystemType {
 	/**
 	 * 3491, "综合编辑平台_NRFC编辑"
 	 */
-	MapDbEdit_NRFC(3491, "综合编辑平台_NRFC编辑");
+	MapDbEdit_NRFC(3491, "综合编辑平台_NRFC编辑"),
+	/**
+	 * 3492, "综合编辑平台_关系附属表"
+	 */
+	MapDbEdit_Attach(3492, "综合编辑平台_关系附属表");
 
 	private Integer value;
 	private String des;
