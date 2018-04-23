@@ -24,6 +24,7 @@ import com.emg.projectsmanage.common.ItemSetEnable;
 import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
 import com.emg.projectsmanage.common.ItemSetUnit;
+import com.emg.projectsmanage.common.OwnerStatus;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.PriorityLevel;
@@ -258,7 +259,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					newpro.setOverstate(0);
 					newpro.setCreateby(uid);
 					newpro.setPriority(priority);
-					newpro.setOwner(owner);
+					newpro.setOwner(OwnerStatus.PUBLIC.getValue());
 
 					if (projectModelDao.insert(newpro) > 0) {
 						projectid332 = newpro.getId();
