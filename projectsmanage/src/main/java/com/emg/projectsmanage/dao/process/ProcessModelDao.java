@@ -27,4 +27,6 @@ public interface ProcessModelDao {
     int updateByPrimaryKeySelective(ProcessModel record);
 
     int updateByPrimaryKey(ProcessModel record);
+    
+    int getRowNumByByPrimaryKey(Long id);
 }

@@ -337,4 +337,11 @@
 		time = #{time,jdbcType=TIMESTAMP}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
+	<select id="getRowNumByByPrimaryKey"  parameterType="java.lang.Long" resultType="java.lang.Integer">
+		select m.rowNum from
+		(select p.id,(@i :=@i + 1) AS rowNum
+		from tb_process p,(SELECT @i := 0) AS it
+		order by priority desc, id) as m
+		where m.id = #{id,jdbcType=BIGINT}
+	</select>
 </mapper>

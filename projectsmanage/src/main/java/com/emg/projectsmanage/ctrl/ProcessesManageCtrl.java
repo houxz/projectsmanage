@@ -173,8 +173,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		logger.debug("ProcessesManageCtrl-createNewProcess start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Integer ret = -1;
+		Long newProcessID = -1L;
 		try {
-			Long newProcessID = ParamUtils.getLongParameter(request, "processid", -1L);
+			newProcessID = ParamUtils.getLongParameter(request, "processid", -1L);
 			String newProcessName = ParamUtils.getParameter(request, "newProcessName");
 			Integer type = ParamUtils.getIntParameter(request, "type", 0);
 			Integer priority = ParamUtils.getIntParameter(request, "priority", 0);
@@ -419,8 +420,28 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			return json;
 		}
 		json.addObject("result", ret);
+		json.addObject("pid", newProcessID);
 
 		logger.debug("ProcessesManageCtrl-createNewProcess end.");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=getRNByProcessID")
+	public ModelAndView getRowNumByProcessID(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ProcessesManageCtrl-getRowNumByProcessID start.");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		Integer ret = -1;
+		try {
+			Long processid = ParamUtils.getLongParameter(request, "processid", -1);
+			ret = processModelDao.getRowNumByByPrimaryKey(processid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ret = -1;
+			logger.debug(e.getMessage());
+		}
+		json.addObject("ret", ret);
+
+		logger.debug("ProcessesManageCtrl-getRowNumByProcessID end.");
 		return json;
 	}
 

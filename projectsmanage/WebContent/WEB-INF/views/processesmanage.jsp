@@ -497,7 +497,7 @@
 															},
 															function(json) {
 																if (json.result > 0) {
-																	$.webeditor.showMsgLabel("success","项目配置成功");
+																	$.webeditor.showMsgLabel("success",'项目配置成功，<div class="btn btn-default btn-xs" onclick="gotoPage(' + json.pid + ');">跳转</div>到所在页');
 																	$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
 																	$("#configDlg").dialog("close");
 																	$('[data-toggle="processes"]').bootstrapTable('refresh');
@@ -515,7 +515,20 @@
 									} ]
 						});
 	}
-
+	
+	function gotoPage(processID) {
+		jQuery.post("./processesmanage.web", {
+			"atn" : "getRNByProcessID",
+			"processid" : processID
+		}, function(json) {
+			var pageSize = $(".page-size").text();
+			if(pageSize == "All") return;
+			var pageNum = Math.ceil(parseInt(json.ret)/parseInt(pageSize));
+			$('[data-toggle="processes"]').bootstrapTable('selectPage', pageNum);
+		}, "json");
+		
+	}
+	
 	function getWorkers() {
 		$('[data-toggle="workers"]').bootstrapTable(
 				{
