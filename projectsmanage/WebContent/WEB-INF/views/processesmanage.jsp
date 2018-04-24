@@ -287,7 +287,7 @@
 			"priority" : priority
 		}, function(json) {
 			$('[data-toggle="processes"]').bootstrapTable('refresh');
-			$.webeditor.showMsgLabel("success", "项目优先级修改成功");
+			$.webeditor.showMsgLabel("success",'项目优先级修改成功，<div class="btn btn-default btn-xs" onclick="gotoPage(' + processid + ');">跳转</div>到所在页');
 		}, "json");
 	}
 
@@ -497,10 +497,10 @@
 															},
 															function(json) {
 																if (json.result > 0) {
-																	$.webeditor.showMsgLabel("success",'项目配置成功，<div class="btn btn-default btn-xs" onclick="gotoPage(' + json.pid + ');">跳转</div>到所在页');
 																	$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
 																	$("#configDlg").dialog("close");
 																	$('[data-toggle="processes"]').bootstrapTable('refresh');
+																	$.webeditor.showMsgLabel("success",'项目配置成功，<div class="btn btn-default btn-xs" onclick="gotoPage(' + json.pid + ');">跳转</div>到所在页');
 																} else {
 																	$.webeditor.showMsgLabel("alert",json.resultMsg);
 																}
