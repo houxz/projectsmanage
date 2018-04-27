@@ -1424,7 +1424,7 @@ public class InterfaceCtrl extends BaseCtrl {
 					status = false;
 					json.addObject("option", "进度未更新");
 				}
-			} else if (proType.equals(ProcessType.NRFC.getValue())) {
+			} else if (proType.equals(ProcessType.NRFC.getValue()) || proType.equals(ProcessType.ATTACH.getValue())) {
 				String sProgress = process.getProgress();
 				if (sProgress.length() > 0) {
 					String[] arProgress = sProgress.split(",");
