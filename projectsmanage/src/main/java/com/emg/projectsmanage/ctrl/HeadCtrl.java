@@ -24,8 +24,6 @@ public class HeadCtrl extends BaseCtrl {
 	private CommService commService;
 	@Autowired
 	private EmapgoAccountService emapgoAccountService;
-	@Autowired
-	private MessageModelService messageModelService;
 
 	@RequestMapping()
 	public String head(Model model, HttpSession session, HttpServletRequest request) {
