@@ -18,7 +18,9 @@ public enum ProcessType {
 	/**
 	 * 3, "关系附属表项目"
 	 */
-	ATTACH(3, "关系附属表项目");
+	ATTACH(3, "关系附属表项目"),
+	
+	COUNTRY(4, "全国质检");
 
 	private Integer value;
 	private String des;

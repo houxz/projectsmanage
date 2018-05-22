@@ -214,7 +214,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				suffix = "_关系附属表";
 				systemid = SystemType.MapDbEdit_Attach.getValue();
 			}
-
+			else if(type.equals(ProcessType.COUNTRY.getValue())) {
+				suffix = "_全国质检";
+				systemid = SystemType.MapDbEdit_Country.getValue();
+			}
 			//新建/更新流程
 			if (isNewProcess) {
 				ProcessModel newProcess = new ProcessModel();
@@ -224,7 +227,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				newProcess.setState(0);
 				newProcess.setUserid(uid);
 				newProcess.setUsername(username);
-
+				if(type.equals(ProcessType.COUNTRY.getValue())) {
+					newProcess.setProgress("0,0");
+				}
 				if (processModelDao.insertSelective(newProcess) <= 0) {
 					ret = -1;
 					json.addObject("result", ret);
@@ -304,7 +309,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			}
 
 			//创建/更新改错项目
-			if (isNewProcess) {
+			if (isNewProcess && !type.equals(ProcessType.COUNTRY.getValue())) {
 				ProjectModel newpro = new ProjectModel();
 				newpro.setProcessid(newProcessID);
 				newpro.setName(newProcessName + suffix);
@@ -337,7 +342,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 					configValues.add(_configValue);
 				}
-			} else {
+			} else if(!isNewProcess) {
 
 				ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
 				_configValue.setProcessid(newProcessID);

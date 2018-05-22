@@ -16,6 +16,12 @@ public class CommonConstants {
 	public static final Integer PROCESSCOUNT_ERROR = 4;
 	
 	/**
+	 * 全国质检项目阶段数：默认为2个阶段
+	 * 1： 质检准备， 2， 质检
+	 */
+	public static final Integer PROCESSCOUNT_COUNTRY = 2;
+	
+	/**
 	 * NR/FC项目阶段数，默认为3个阶段
 	 * 1：编辑准备，2：编辑，3：待发布准备。
 	 */

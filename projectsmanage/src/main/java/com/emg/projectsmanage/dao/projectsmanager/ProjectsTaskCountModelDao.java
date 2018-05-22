@@ -14,6 +14,13 @@ public interface ProjectsTaskCountModelDao {
     
     List<ProjectsTaskCountModel> getProjectsProgress(Map<String, Object> map);
     
+    /**
+     * 获取附属表的信息，liuniu
+     * @param map
+     * @return
+     */
+    List<ProjectsTaskCountModel> getProjectsProgressAttach(Map<String, Object> map);
+    
     int countProjectsProgress(Map<String, Object> map);
     
     int count(ProjectsTaskCountModel record);

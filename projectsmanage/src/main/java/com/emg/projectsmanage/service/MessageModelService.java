@@ -41,8 +41,8 @@ public class MessageModelService {
 		return messageModelDao.getMessagesByContact(map);
 	}
 
-	@Caching(evict = { 
-			@CacheEvict(value = CACHEVALUE, key = "('UNCHECKCOUNT-').concat(#userID)"), 
+	@Caching(evict = {
+			@CacheEvict(value = CACHEVALUE, key = "('UNCHECKCOUNT-').concat(#userID)"),
 			@CacheEvict(value = CACHEVALUE, key = "('CONTACTS-').concat(#userID)"),
 			@CacheEvict(value = CACHEVALUE, key = "('MESSAGES-').concat(#userID).concat('-').concat(#contactID)")})
 	public Boolean checkMessage(Integer userID, Integer contactID, String messageIDs) {
@@ -52,8 +52,8 @@ public class MessageModelService {
 		return messageModelDao.checkMessage(map);
 	}
 
-	@Caching(evict = { 
-			@CacheEvict(value = CACHEVALUE, key = "('UNCHECKCOUNT-').concat(#message.receiver)"), 
+	@Caching(evict = {
+			@CacheEvict(value = CACHEVALUE, key = "('UNCHECKCOUNT-').concat(#message.receiver)"),
 			@CacheEvict(value = CACHEVALUE, key = "('CONTACTS-').concat(#message.receiver)"),
 			@CacheEvict(value = CACHEVALUE, key = "('CONTACTS-').concat(#message.sender)"),
 			@CacheEvict(value = CACHEVALUE, key = "('MESSAGES-').concat(#message.receiver).concat('-').concat(#message.sender)"),
