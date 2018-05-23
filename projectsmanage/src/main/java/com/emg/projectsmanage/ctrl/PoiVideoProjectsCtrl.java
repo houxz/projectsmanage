@@ -52,8 +52,7 @@ public class PoiVideoProjectsCtrl {
 			// 分页
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
-			String _filter = ParamUtils.getParameter(request, "filter", "");
-			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
+			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> filterPara = null;
 

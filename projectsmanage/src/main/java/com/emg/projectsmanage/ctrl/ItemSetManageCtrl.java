@@ -82,8 +82,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
-			String _filter = ParamUtils.getParameter(request, "filter", "");
-			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
+			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> filterPara = null;
 			ItemSetModel record = new ItemSetModel();
@@ -183,8 +182,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 		try {
-			String _filter = ParamUtils.getParameter(request, "filter", "");
-			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
+			String filter = ParamUtils.getParameter(request, "filter", "");
 			Map<String, Object> filterPara = new HashMap<String, Object>();
 			if (filter != null && !filter.isEmpty()) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
@@ -227,8 +225,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
-			String _filter = ParamUtils.getParameter(request, "filter", "");
-			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
+			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> filterPara = null;
 			String oid = new String(), name = new String();

@@ -83,8 +83,7 @@ public class WorkTasksCtrl extends BaseCtrl {
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
 			String sort = ParamUtils.getParameter(request, "sort", "");
 			String order = ParamUtils.getParameter(request, "order", "");
-			String _filter = ParamUtils.getParameter(request, "filter", "");
-			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
+			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> map = new HashMap<String, Object>();
 			if (!hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {

@@ -112,8 +112,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		try {
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
-			String _filter = ParamUtils.getParameter(request, "filter", "");
-			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
+			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> filterPara = null;
 			ProcessModelExample example = new ProcessModelExample();
@@ -213,8 +212,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			} else if(type.equals(ProcessType.ATTACH.getValue())) {
 				suffix = "_关系附属表";
 				systemid = SystemType.MapDbEdit_Attach.getValue();
-			}
-			else if(type.equals(ProcessType.COUNTRY.getValue())) {
+			} else if(type.equals(ProcessType.COUNTRY.getValue())) {
 				suffix = "_全国质检";
 				systemid = SystemType.MapDbEdit_Country.getValue();
 			}
@@ -539,8 +537,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		List<ItemAreaModel> itemAreas = new ArrayList<ItemAreaModel>();
 		try {
 			Integer type = ParamUtils.getIntParameter(request, "type", -1);
-			String _filter = ParamUtils.getParameter(request, "filter", "");
-			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
+			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> filterPara = null;
 			ItemAreaModel itemAreaModel = new ItemAreaModel();
@@ -591,8 +588,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		List<ItemSetModel> itemsets = new ArrayList<ItemSetModel>();
 		try {
-			String _filter = ParamUtils.getParameter(request, "filter", "");
-			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
+			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> filterPara = null;
 			ItemSetModel itemSetModel = new ItemSetModel();
@@ -655,8 +651,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
 		try {
-			String _filter = ParamUtils.getParameter(request, "filter", "");
-			String filter = new String(_filter.getBytes("iso-8859-1"), "utf-8");
+			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> filterPara = null;
 			EmployeeModel employeeModel = new EmployeeModel();
