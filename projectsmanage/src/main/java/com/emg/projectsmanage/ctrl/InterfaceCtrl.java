@@ -716,7 +716,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									// by xiao 计算任务完成进度
 									Integer totalTask = projectsCount.getTotaltask();
 									Integer completeTask = projectsCount.getCompletetask();
-									Double progress = ((double) completeTask / (double) totalTask) * 100;
+//									Double progress = ((double) completeTask / (double) totalTask) * 100;
 
 									// by xiao 更新流程进度
 									// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
