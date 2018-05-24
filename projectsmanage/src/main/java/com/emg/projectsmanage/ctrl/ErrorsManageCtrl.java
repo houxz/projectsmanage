@@ -38,6 +38,7 @@ import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.task.ErrorModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
+import com.emg.projectsmanage.pojo.ErrorAndErrorRelatedModel;
 import com.emg.projectsmanage.pojo.ErrorModel;
 import com.emg.projectsmanage.pojo.ErrorSetModel;
 import com.emg.projectsmanage.pojo.ItemConfigModel;
@@ -53,7 +54,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 	private ProcessConfigModelDao processConfigModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
-	
+
 	private ErrorModelDao errorModelDao = new ErrorModelDao();
 
 	/**
@@ -102,7 +103,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 				return json;
 			}
 			Long errorSetID = ParamUtils.getLongParameter(request, "errorsetid", 0);
-			
+
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			List<Long> itemIDs = errorModelDao.getErrorSetDetailsByErrorSetID(configDBModel, errorSetID);
@@ -131,7 +132,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 					}
 				}
 			}
-			
+
 			ProcessConfigModel _config = processConfigModelDao.selectByPrimaryKey(16);
 			ConfigDBModel _configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(_config.getDefaultValue()));
 
@@ -177,11 +178,12 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			record.setBatchid(batchID);
 			ProcessConfigModel _config = processConfigModelDao.selectByPrimaryKey(16);
 			ConfigDBModel _configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(_config.getDefaultValue()));
-			List<ErrorModel> errors = errorModelDao.selectErrors(_configDBModel, record, -1, -1, errortypes);
-			if (errors != null && !errors.isEmpty()) {
+
+			List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(_configDBModel, record, errortypes);
+			if (errorAndRelateds != null && !errorAndRelateds.isEmpty()) {
 				ProcessConfigModel __config = processConfigModelDao.selectByPrimaryKey(20);
 				ConfigDBModel __configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(__config.getDefaultValue()));
-				ret = errorModelDao.exportErrors(__configDBModel, errors);
+				ret = errorModelDao.exportErrors(__configDBModel, errorAndRelateds);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -191,7 +193,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 		logger.debug("ErrorsManageCtrl-exportErrors end.");
 		return json;
 	}
-	
+
 	@RequestMapping(params = "atn=exporterrors2excel")
 	public void exportErrors2Excel(Model model, HttpServletRequest request, HttpSession session, HttpServletResponse response) {
 		logger.debug("ErrorsManageCtrl-exportErrors2Excel start.");
