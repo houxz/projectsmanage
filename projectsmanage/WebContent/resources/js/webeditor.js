@@ -32,7 +32,7 @@ jQuery.webeditor = {
 		} else {
 			title = "消息";
 			html.push("<div id=\"comm_msgbox\">");
-			html.push("    <div class=\"alert alert-success alert-dismissable\" style=\"margin-bottom: 0;\">");
+			html.push("    <div class=\"alert alert-dismissable\" style=\"margin-bottom: 0;\">");
 			html.push(msg);
 			html.push("    </div>");
 			html.push("</div>");
@@ -45,11 +45,6 @@ jQuery.webeditor = {
 			modal : true,
 			open : function(event, ui) {
 				$(".ui-dialog-titlebar-close").hide();
-			},
-			buttons : {
-				"确定" : function() {
-					$(this).dialog("close");
-				}
 			}
 		};
 		if (h) {
@@ -58,6 +53,7 @@ jQuery.webeditor = {
 		$('#comm_msgbox').dialog(opt);
 	},
 	showConfirmBox : function(type, msg, callback, w, h){
+		$("#comm_confirmbox").remove();
 		var html = new Array();
 		var title = new String();
 		if ("alert" == type) {
@@ -77,7 +73,7 @@ jQuery.webeditor = {
 		} else {
 			title = "消息";
 			html.push("<div id=\"comm_confirmbox\">");
-			html.push("    <div class=\"alert alert-success alert-dismissable\" style=\"margin-bottom: 0; height: 100%;\">");
+			html.push("    <div class=\"alert alert-dismissable\" style=\"margin-bottom: 0; height: 100%;\">");
 			html.push(msg);
 			html.push("    </div>");
 			html.push("</div>");

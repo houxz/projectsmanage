@@ -79,6 +79,7 @@
 	}
 	
 	function exportErrors() {
+		$.webeditor.showMsgBox("", "导入中...");
 		var batchid = $("#batchid").val();
 		var errorsetid = $("#errorset").val();
 		jQuery.post("./errorsmanage.web", {
@@ -87,8 +88,10 @@
 			"errorsetid" : errorsetid
 		}, function(json) {
 			if (json.ret && json.ret > 0) {
+				$("#comm_msgbox").remove();
 				$.webeditor.showMsgLabel("success", "导入成功");
 			} else {
+				$("#comm_msgbox").remove();
 				$.webeditor.showMsgLabel("alert", "导入失败");
 			}
 		}, "json");
