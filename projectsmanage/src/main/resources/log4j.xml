@@ -11,7 +11,7 @@
 	</appender>
 
 	<appender name="dailyFileLoger" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="File" value="/var/log/tomcat8/system.log" />
+		<param name="File" value="${projectsmanage}WEB-INF/logs/system.log" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="[%d{MMdd HH:mm:ss SSS\} %-5p] [%t] %c{3\} - %m%n" />
