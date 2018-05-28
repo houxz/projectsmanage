@@ -173,7 +173,7 @@
 							</tr>
 							<tr>
 								<td class="configKey">错误导入库</td>
-								<td><select class="form-control systemSet" id="config_0_20">
+								<td><select class="form-control systemSet" id="config_2_20">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('error2') }">
 												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
