@@ -472,7 +472,11 @@ public class InterfaceCtrl extends BaseCtrl {
 					taskCount.setQctask(0);
 					taskCount.setChecktask(0);
 					taskCount.setCompletetask(0);
-					projectsTaskCountDao.newProjectsProgress(taskCount);
+					try{
+						projectsTaskCountDao.newProjectsProgress(taskCount);
+					}catch(Exception e){
+						logger.error(e.getMessage());
+					}
 				}
 
 				if (count > 0) {// 非第一次进入下一阶段
