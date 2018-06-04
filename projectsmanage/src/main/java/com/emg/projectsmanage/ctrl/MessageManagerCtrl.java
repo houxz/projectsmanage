@@ -41,7 +41,7 @@ public class MessageManagerCtrl extends BaseCtrl {
 				contacts = messageModelService.getMyContacts(userid);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		json.addObject("contacts", contacts);
 		return json;
@@ -59,7 +59,7 @@ public class MessageManagerCtrl extends BaseCtrl {
 				messageModels = messageModelService.getMessagesByContact(userid, contactID);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		json.addObject("messageModels", messageModels);
 		return json;

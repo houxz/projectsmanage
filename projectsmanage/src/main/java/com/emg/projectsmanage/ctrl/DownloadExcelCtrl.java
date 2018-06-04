@@ -10,6 +10,8 @@ import javax.servlet.http.HttpSession;
 
 import me.chyxion.xls.TableToXls;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -18,6 +20,8 @@ import com.emg.projectsmanage.common.ParamUtils;
 @Controller
 @RequestMapping("/downloadexcel.web")
 public class DownloadExcelCtrl {
+	
+	private static final Logger logger = LoggerFactory.getLogger(DownloadExcelCtrl.class);
 
 	@RequestMapping
 	public void download(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -34,7 +38,7 @@ public class DownloadExcelCtrl {
 			TableToXls.process(html, out);
 			out.flush();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		} finally {
 			if (out != null) {
 				out.close();

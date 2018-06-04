@@ -159,8 +159,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			json.addObject("total", count);
 			json.addObject("result", 1);
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 		}
 
 		logger.debug("ProcessesManageCtrl-pages end.");
@@ -416,8 +415,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				ret = processConfigValueModelDao.insert(configValues);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 			json.addObject("result", -1);
 			json.addObject("option", e.getMessage());
 			return json;
@@ -438,9 +436,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Long processid = ParamUtils.getLongParameter(request, "processid", -1);
 			ret = processModelDao.getRowNumByByPrimaryKey(processid);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			ret = -1;
-			logger.debug(e.getMessage());
 		}
 		json.addObject("ret", ret);
 
@@ -470,9 +467,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				ret = projectModelDao.updateByExampleSelective(project, example);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			ret = -1;
-			logger.debug(e.getMessage());
 		}
 		json.addObject("ret", ret);
 
@@ -500,9 +496,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				ret = projectModelDao.updateByExampleSelective(project, example);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			ret = -1;
-			logger.debug(e.getMessage());
 		}
 		json.addObject("ret", ret);
 
@@ -519,9 +514,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Long processid = ParamUtils.getLongParameter(request, "processid", -1);
 			configValues = processConfigValueModelDao.selectByProcessID(processid);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			configValues = new ArrayList<ProcessConfigValueModel>();
-			logger.debug(e.getMessage());
 		}
 		json.addObject("configValues", configValues);
 
@@ -570,8 +564,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 			itemAreas = itemSetModelDao.getItemAreas(configDBModel, type, itemAreaModel);
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		json.addObject("rows", itemAreas);
 		json.addObject("count", itemAreas.size());
@@ -633,8 +626,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 			itemsets = itemSetModelDao.selectItemSets(configDBModel, itemSetModel, -1, -1);
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		json.addObject("rows", itemsets);
 		json.addObject("count", itemsets.size());
@@ -706,8 +698,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				workers = emapgoAccountService.getEmployeesByIDSAndRealname(ids, employeeModel.getRealname());
 
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		json.addObject("rows", workers);
 		json.addObject("count", workers.size());

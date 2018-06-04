@@ -61,7 +61,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 
 			return "errorsetmanage";
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return "redirect:login.jsp";
 		}
 	}
@@ -117,8 +117,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			json.addObject("total", count);
 			json.addObject("result", 1);
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 		}
 
 		logger.debug("ErrorSetManageCtrl-pages end.");
@@ -150,8 +149,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		json.addObject("errorset", errorSet);
 		json.addObject("errorsetDetails", errorsetDetails);
@@ -169,8 +167,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			errorTypes = errorSetModelDao.selectErrorTypes(configDBModel);
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		json.addObject("rows", errorTypes);
 		json.addObject("total", errorTypes.size());
@@ -231,8 +228,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		json.addObject("result", ret);
 		logger.debug("ErrorSetManageCtrl-submitErrorSet end.");
@@ -256,8 +252,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			
 			ret = errorSetModelDao.deleteErrorSet(configDBModel, errorSetID);
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		json.addObject("result", ret);
 		logger.debug("ErrorSetManageCtrl-deleteErrorSet end.");

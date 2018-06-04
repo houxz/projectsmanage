@@ -46,7 +46,7 @@ public class SystemSetsCtrl extends BaseCtrl {
 
 			return "systemsets";
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return "redirect:login.jsp";
 		}
 	}
@@ -74,8 +74,7 @@ public class SystemSetsCtrl extends BaseCtrl {
 			}
 			json.addObject("ret", 1);
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 		}
 
 		logger.debug("SystemSetsCtrl-setDefaultValues end.");
@@ -91,8 +90,7 @@ public class SystemSetsCtrl extends BaseCtrl {
 			json.addObject("ret", 1);
 			json.addObject("configs", processConfigs);
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 		}
 
 		logger.debug("SystemSetsCtrl-setDefaultValues end.");

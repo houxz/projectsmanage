@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -21,6 +23,9 @@ import com.emg.projectsmanage.pojo.ErrorSetModel;
 import com.emg.projectsmanage.pojo.ItemConfigModel;
 
 public class ErrorSetModelDao {
+	
+	private static final Logger logger = LoggerFactory.getLogger(ErrorSetModelDao.class);
+	
 	public List<ErrorSetModel> selectErrorSets(ConfigDBModel configDBModel, ErrorSetModel record, Integer limit, Integer offset) {
 		List<ErrorSetModel> errorSets = new ArrayList<ErrorSetModel>();
 		BasicDataSource dataSource = null;
@@ -69,14 +74,14 @@ public class ErrorSetModelDao {
 			errorSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorSetModel>(ErrorSetModel.class));
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			errorSets = new ArrayList<ErrorSetModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -120,14 +125,14 @@ public class ErrorSetModelDao {
 				ret = keyHolder.getKey().longValue();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			ret = -1L;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -170,14 +175,14 @@ public class ErrorSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			ret = false;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -213,14 +218,14 @@ public class ErrorSetModelDao {
 
 			ret = ret && new JdbcTemplate(dataSource).update(sql_del.toString()) >= 0;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			ret = false;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -264,14 +269,14 @@ public class ErrorSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			count = -1;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -296,14 +301,14 @@ public class ErrorSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemConfigs = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemConfigModel>(ItemConfigModel.class));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			itemConfigs = new ArrayList<ItemConfigModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -335,7 +340,7 @@ public class ErrorSetModelDao {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -383,14 +388,14 @@ public class ErrorSetModelDao {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			ret = -1;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}

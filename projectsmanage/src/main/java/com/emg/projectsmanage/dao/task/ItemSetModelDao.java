@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -23,6 +25,9 @@ import com.emg.projectsmanage.pojo.ItemInfoModel;
 import com.emg.projectsmanage.pojo.ItemSetModel;
 
 public class ItemSetModelDao {
+	
+	private static final Logger logger = LoggerFactory.getLogger(ItemSetModelDao.class);
+	
 	public List<ItemSetModel> selectItemSets(ConfigDBModel configDBModel, ItemSetModel record, Integer limit, Integer offset) {
 		List<ItemSetModel> itemSets = new ArrayList<ItemSetModel>();
 		BasicDataSource dataSource = null;
@@ -76,14 +81,14 @@ public class ItemSetModelDao {
 			itemSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemSetModel>(ItemSetModel.class));
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			itemSets = new ArrayList<ItemSetModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 				dataSource = null;
 			}
@@ -129,14 +134,14 @@ public class ItemSetModelDao {
 				ret = keyHolder.getKey().longValue();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			ret = -1L;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -185,14 +190,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			ret = false;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -228,14 +233,14 @@ public class ItemSetModelDao {
 
 			ret = ret && new JdbcTemplate(dataSource).update(sql_del.toString()) >= 0;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			ret = false;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -285,14 +290,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			count = -1;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -323,14 +328,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -384,14 +389,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -445,14 +450,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -506,14 +511,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -567,14 +572,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -626,14 +631,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -666,14 +671,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -705,7 +710,7 @@ public class ItemSetModelDao {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -752,14 +757,14 @@ public class ItemSetModelDao {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			ret = -1;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -807,7 +812,7 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			list = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemAreaModel>(ItemAreaModel.class));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			list = new ArrayList<ItemAreaModel>();
 		} finally {
 			try {
@@ -815,7 +820,7 @@ public class ItemSetModelDao {
 					dataSource.close();
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 		}
 		return list;

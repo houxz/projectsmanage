@@ -99,8 +99,7 @@ public class ProjectsProcessCtrl extends BaseCtrl {
 			json.addObject("total", count);
 			json.addObject("result", 1);
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 		}
 
 		logger.debug("ProjectsProcessCtrl-pages end.");

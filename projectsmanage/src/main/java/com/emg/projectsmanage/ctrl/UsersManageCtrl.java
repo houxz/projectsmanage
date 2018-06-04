@@ -55,7 +55,7 @@ public class UsersManageCtrl extends BaseCtrl {
 			model.addAttribute("rolelist", rolelist);
 			return "usersmanage";
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return "redirect:login.jsp";
 		}
 	}

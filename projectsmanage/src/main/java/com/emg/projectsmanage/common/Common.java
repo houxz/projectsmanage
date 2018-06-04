@@ -6,7 +6,7 @@ import com.emg.projectsmanage.pojo.ConfigDBModel;
 
 public class Common {
 
-	public static String getDatabaseSeparator(Integer databaseType) {
+	public static String getDatabaseSeparator(Integer databaseType) throws Exception {
 		String separator = new String();
 		if (databaseType.equals(DatabaseType.POSTGRESQL.getValue())) {
 			separator = DatabaseSeparator.POSTGRESQL.getSeparator();
@@ -19,31 +19,26 @@ public class Common {
 		return separator;
 	}
 
-	public static String getUrl(ConfigDBModel configDBModel) {
+	public static String getUrl(ConfigDBModel configDBModel) throws Exception {
 		StringBuffer url = new StringBuffer();
-		try {
-			Integer dbtype = configDBModel.getDbtype();
-			if (dbtype.equals(DatabaseType.MYSQL.getValue())) {
-				url.append("jdbc:mysql://");
-			} else if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				url.append("jdbc:postgresql://");
-			} else {
-				return null;
-			}
-			url.append(configDBModel.getIp());
-			url.append(":");
-			url.append(configDBModel.getPort());
-			url.append("/");
-			url.append(configDBModel.getDbname());
-			url.append("?characterEncoding=UTF-8");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new String();
+		Integer dbtype = configDBModel.getDbtype();
+		if (dbtype.equals(DatabaseType.MYSQL.getValue())) {
+			url.append("jdbc:mysql://");
+		} else if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+			url.append("jdbc:postgresql://");
+		} else {
+			return null;
 		}
+		url.append(configDBModel.getIp());
+		url.append(":");
+		url.append(configDBModel.getPort());
+		url.append("/");
+		url.append(configDBModel.getDbname());
+		url.append("?characterEncoding=UTF-8");
 		return url.toString();
 	}
 
-	public static BasicDataSource getDataSource(ConfigDBModel configDBModel) {
+	public static BasicDataSource getDataSource(ConfigDBModel configDBModel) throws Exception {
 		BasicDataSource dataSource = new BasicDataSource();
 		Integer dbtype = configDBModel.getDbtype();
 		if (dbtype.equals(DatabaseType.MYSQL.getValue())) {

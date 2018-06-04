@@ -4,6 +4,9 @@ import javax.servlet.http.HttpSession;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -13,6 +16,9 @@ import com.emg.projectsmanage.pojo.MessageModel;
 
 @ServerEndpoint(value = "/socket.web", configurator = GetHttpSessionConfigurator.class)
 public class WebSocketCtrl {
+	
+	private static final Logger logger = LoggerFactory.getLogger(WebSocketCtrl.class);
+	
 	private static int onlineCount = 0;
 
 	public static HashMap<Integer, WebSocketCtrl> webSocketSet = new HashMap<Integer, WebSocketCtrl>();
@@ -52,7 +58,7 @@ public class WebSocketCtrl {
 			} else {
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 
