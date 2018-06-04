@@ -13,18 +13,6 @@
 		<result column="control" property="control" jdbcType="VARCHAR" />
 		<result column="defaultValue" property="defaultValue" jdbcType="VARCHAR" />
 	</resultMap>
-	<select id="selectAllConfigModuleModels" resultType="java.util.Map">
-		SELECT *
-		FROM tb_config_module
-	</select>
-	<select id="selectAllConfigTypeModels" resultType="java.util.Map">
-		SELECT *
-		FROM tb_config_type
-	</select>
-	<select id="selectAllConfigValueRangeModels" resultType="java.util.Map">
-		SELECT *
-		FROM tb_config_value_range
-	</select>
 	<select id="selectAllConfigDBModels" resultType="java.util.Map">
 		SELECT *
 		FROM tb_config_db
