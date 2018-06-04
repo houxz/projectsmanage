@@ -1363,11 +1363,11 @@ public class InterfaceCtrl extends BaseCtrl {
 			if (departments != null && departments.size() > 0) {
 				json.addObject("status", true);
 				json.addObject("departments", departments);
-				logger.warn("selectAllDepartment warning: " + departments.size());
+				logger.warn("ZSEN: " + departments.size());
 			} else {
 				json.addObject("status", true);
 				json.addObject("option", null);
-				logger.warn("selectAllDepartment warning: null");
+				logger.warn("ZSEN: null");
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
