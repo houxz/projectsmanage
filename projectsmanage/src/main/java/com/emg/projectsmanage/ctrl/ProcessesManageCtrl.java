@@ -234,7 +234,6 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					return json;
 				}
 				newProcessID = newProcess.getId();
-				System.out.println("---------------->createNewProcess:  new " + newProcessID);
 			} else {
 				ProcessModel process = new ProcessModel();
 				process.setId(newProcessID);
@@ -242,7 +241,6 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				process.setName(newProcessName);
 				process.setPriority(priority);
 				processModelDao.updateByPrimaryKeySelective(process);
-				System.out.println("---------------->createNewProcess:  update " + newProcessID);
 			}
 
 			List<ProcessConfigValueModel> configValues = new ArrayList<ProcessConfigValueModel>();

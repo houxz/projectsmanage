@@ -1363,11 +1363,11 @@ public class InterfaceCtrl extends BaseCtrl {
 			if (departments != null && departments.size() > 0) {
 				json.addObject("status", true);
 				json.addObject("departments", departments);
-				logger.warn("ZSEN: " + departments.size());
+				logger.warn("ZSEN -> " + departments.size());
 			} else {
 				json.addObject("status", true);
 				json.addObject("option", null);
-				logger.warn("ZSEN: null");
+				logger.warn("ZSEN -> null");
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -1739,6 +1739,9 @@ public class InterfaceCtrl extends BaseCtrl {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
+			logger.error("processID: " + processID);
+			logger.error("stage: " + stage);
+			logger.error("progress: " + progress);
 			status = false;
 			json.addObject("option", e.getMessage());
 		}
