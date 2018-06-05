@@ -1518,9 +1518,17 @@ public class InterfaceCtrl extends BaseCtrl {
 			if (stage <= 0 || stage > 4) {
 				json.addObject("status", false);
 				json.addObject("option", "错误的数据范围，stage：" + stage);
+				logger.error("错误的数据范围，stage：" + stage);
 				return json;
 			}
 			ProcessModel process = processModelDao.selectByPrimaryKey(processID);
+			if (process == null || process.getId() == null || process.getId().compareTo(0L) <= 0) {
+				json.addObject("status", false);
+				json.addObject("option", "未找到流程，ID：" + processID);
+				logger.error("未找到流程，ID：" + processID);
+				return json;
+			}
+			
 			Integer proType = process.getType();
 
 			if (proType.equals(ProcessType.ERROR.getValue())) {
