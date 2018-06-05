@@ -60,7 +60,7 @@ public class SseControler {
 				}
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			ret = new String();
 		}
 		logger.debug("SseControler-refreshProgress end.");

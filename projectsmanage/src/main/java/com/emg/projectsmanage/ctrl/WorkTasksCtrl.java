@@ -129,7 +129,7 @@ public class WorkTasksCtrl extends BaseCtrl {
 			json.addObject("total", count);
 			json.addObject("result", 1);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 
 		logger.debug("WorkTasksCtrl-pages end.");

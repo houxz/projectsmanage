@@ -52,14 +52,14 @@ public class ErrorModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			batchids = new JdbcTemplate(dataSource).queryForList(sql.toString(), String.class);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			batchids = new ArrayList<String>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -84,14 +84,14 @@ public class ErrorModelDao {
 			errorSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorSetModel>(ErrorSetModel.class));
 
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			errorSets = new ArrayList<ErrorSetModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -123,7 +123,7 @@ public class ErrorModelDao {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -155,14 +155,14 @@ public class ErrorModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemConfigs = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemConfigModel>(ItemConfigModel.class));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			itemConfigs = new ArrayList<ItemConfigModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -205,14 +205,14 @@ public class ErrorModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			errors = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorModel>(ErrorModel.class));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			errors = new ArrayList<ErrorModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -255,14 +255,14 @@ public class ErrorModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			errors = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorAndErrorRelatedModel>(ErrorAndErrorRelatedModel.class));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			errors = new ArrayList<ErrorAndErrorRelatedModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -410,14 +410,14 @@ public class ErrorModelDao {
 			}
 
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			ret = -1;
 		} finally {
 			if (connection != null) {
 				try {
 					connection.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 				connection = null;
 			}
@@ -453,14 +453,14 @@ public class ErrorModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			errorRelateds = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorRelatedModel>(ErrorRelatedModel.class));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			errorRelateds = new ArrayList<ErrorRelatedModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -573,14 +573,14 @@ public class ErrorModelDao {
 			}
 
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			ret = -1;
 		} finally {
 			if (connection != null) {
 				try {
 					connection.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 				connection = null;
 			}
@@ -617,14 +617,14 @@ public class ErrorModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			ret = -1;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}

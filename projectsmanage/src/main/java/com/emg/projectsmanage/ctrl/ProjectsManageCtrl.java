@@ -131,7 +131,7 @@ public class ProjectsManageCtrl extends BaseCtrl {
 				model.addAttribute("checkers", "({})");
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		logger.debug("ProjectsManageCtrl-openLader end.");
 		return "projectsmanage";
@@ -251,7 +251,7 @@ public class ProjectsManageCtrl extends BaseCtrl {
 			json.addObject("result", 0);
 		} catch (Exception e) {
 			json.addObject("result", 1);
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		logger.debug("ProjectsManageCtrl-addMaker end.");
 		return json;
@@ -273,7 +273,7 @@ public class ProjectsManageCtrl extends BaseCtrl {
 				json.addObject("result", 0);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("result", 0);
 		}
 		logger.debug("ProjectsManageCtrl-resetDiff end.");
@@ -296,7 +296,7 @@ public class ProjectsManageCtrl extends BaseCtrl {
 				json.addObject("result", 0);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("result", 0);
 		}
 		logger.debug("ProjectsManageCtrl-resetPriority end.");
@@ -319,7 +319,7 @@ public class ProjectsManageCtrl extends BaseCtrl {
 				json.addObject("result", 0);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("result", 0);
 		}
 		logger.debug("ProjectsManageCtrl-resetPaccess end.");
@@ -342,7 +342,7 @@ public class ProjectsManageCtrl extends BaseCtrl {
 			json.addObject("priorityLevels", priorityLevels);
 			json.addObject("result", 1);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("result", 0);
 		}
 		logger.debug("ProjectsManageCtrl-skillAndDiffAndPri end.");
@@ -365,7 +365,7 @@ public class ProjectsManageCtrl extends BaseCtrl {
 				json.addObject("result", 0);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("result", 0);
 		}
 		logger.debug("-changeState end.");

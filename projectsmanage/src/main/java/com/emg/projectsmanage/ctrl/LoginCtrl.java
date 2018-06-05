@@ -108,7 +108,7 @@ public class LoginCtrl extends BaseCtrl {
 				return "redirect:login.jsp";
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			return "redirect:login.jsp";
 		}
 	}

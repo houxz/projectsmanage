@@ -81,14 +81,14 @@ public class ItemSetModelDao {
 			itemSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemSetModel>(ItemSetModel.class));
 
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			itemSets = new ArrayList<ItemSetModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 				dataSource = null;
 			}
@@ -134,14 +134,14 @@ public class ItemSetModelDao {
 				ret = keyHolder.getKey().longValue();
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			ret = -1L;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -190,14 +190,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			ret = new JdbcTemplate(dataSource).update(sql.toString()) >= 0;
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			ret = false;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -233,14 +233,14 @@ public class ItemSetModelDao {
 
 			ret = ret && new JdbcTemplate(dataSource).update(sql_del.toString()) >= 0;
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			ret = false;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -290,14 +290,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			count = -1;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -328,14 +328,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -389,14 +389,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -450,14 +450,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -511,14 +511,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -572,14 +572,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -631,14 +631,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -671,14 +671,14 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			itemInfos = new ArrayList<ItemInfoModel>();
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -710,7 +710,7 @@ public class ItemSetModelDao {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -757,14 +757,14 @@ public class ItemSetModelDao {
 			}
 
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			ret = -1;
 		} finally {
 			if (dataSource != null) {
 				try {
 					dataSource.close();
 				} catch (SQLException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -812,7 +812,7 @@ public class ItemSetModelDao {
 			dataSource = Common.getDataSource(configDBModel);
 			list = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemAreaModel>(ItemAreaModel.class));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			list = new ArrayList<ItemAreaModel>();
 		} finally {
 			try {
@@ -820,7 +820,7 @@ public class ItemSetModelDao {
 					dataSource.close();
 				}
 			} catch (SQLException e) {
-				logger.error(e.getMessage());
+				logger.error(e.getMessage(), e);
 			}
 		}
 		return list;

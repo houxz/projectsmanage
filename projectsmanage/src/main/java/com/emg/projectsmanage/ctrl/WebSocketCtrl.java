@@ -58,7 +58,7 @@ public class WebSocketCtrl {
 			} else {
 			}
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 	}
 

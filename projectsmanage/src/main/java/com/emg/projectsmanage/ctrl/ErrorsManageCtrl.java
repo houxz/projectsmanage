@@ -81,7 +81,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 
 			return "errorsmanage";
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			return "redirect:login.jsp";
 		}
 	}
@@ -143,7 +143,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			json.addObject("total", count);
 			json.addObject("result", 1);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 
 		logger.debug("ErrorsManageCtrl-pages end.");
@@ -185,7 +185,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 				ret = errorModelDao.exportErrors(__configDBModel, errorAndRelateds);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 
 		json.addObject("ret", ret);
@@ -284,20 +284,20 @@ public class ErrorsManageCtrl extends BaseCtrl {
 				out.flush();
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		} finally {
 			if (workBook != null) {
 				try {
 					workBook.close();
 				} catch (Exception e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 			if (out != null) {
 				try {
 					out.close();
 				} catch (IOException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}

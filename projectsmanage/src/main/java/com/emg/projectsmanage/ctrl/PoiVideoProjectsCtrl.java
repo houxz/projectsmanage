@@ -129,7 +129,7 @@ public class PoiVideoProjectsCtrl {
 			json.addObject("result", 1);
 		} catch (Exception e) {
 			json.addObject("result", 0);
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		logger.debug("-getProjects end.");
 		return json;

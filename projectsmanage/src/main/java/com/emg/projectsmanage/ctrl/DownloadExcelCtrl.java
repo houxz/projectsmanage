@@ -38,7 +38,7 @@ public class DownloadExcelCtrl {
 			TableToXls.process(html, out);
 			out.flush();
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		} finally {
 			if (out != null) {
 				out.close();

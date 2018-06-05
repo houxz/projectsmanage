@@ -69,7 +69,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			return "itemsetmanage";
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			return "redirect:login.jsp";
 		}
 	}
@@ -130,7 +130,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			json.addObject("total", count);
 			json.addObject("result", 1);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 
 		logger.debug("ItemSetManageCtrl-pages end.");
@@ -165,7 +165,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				}
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		json.addObject("itemset", itemset);
 		json.addObject("items", sb_items.toString());
@@ -204,7 +204,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				rows.add(row);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		json.addObject("rows", rows);
 		json.addObject("total", rows.size());
@@ -246,7 +246,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			items = itemSetModelDao.selectQIDs(configDBModel, oid, name, limit, offset);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		json.addObject("rows", items);
 		json.addObject("total", items.size());
@@ -670,7 +670,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				return json;
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		json.addObject("result", ret);
 		logger.debug("ItemSetManageCtrl-submitItemSet end.");
@@ -694,7 +694,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			ret = itemSetModelDao.deleteItemSet(configDBModel, itemSetID);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		json.addObject("result", ret);
 		logger.debug("ItemSetManageCtrl-deleteItemSet end.");

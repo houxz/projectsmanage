@@ -117,7 +117,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				status = true;
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			status = false;
 			json.addObject("option", e.getMessage());
 		}
@@ -136,7 +136,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -159,7 +159,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -187,7 +187,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -207,7 +207,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -237,7 +237,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -264,7 +264,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -291,7 +291,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -310,7 +310,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", true);
 			model.addAttribute("option", projects);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -329,7 +329,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", true);
 			model.addAttribute("option", count);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -360,7 +360,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				json.addObject("option", "任务数未增加");
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			status = false;
 			json.addObject("option", e.getMessage());
 		}
@@ -384,7 +384,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			if (projectModelDao.updateByPrimaryKey(project) > 0)
 				status = true;
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			status = false;
 			json.addObject("option", e.getMessage());
 		}
@@ -402,7 +402,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			status = false;
 			json.addObject("option", "未知的操作类型");
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			status = false;
 			json.addObject("option", e.getMessage());
 		}
@@ -475,7 +475,7 @@ public class InterfaceCtrl extends BaseCtrl {
 					try{
 						projectsTaskCountDao.newProjectsProgress(taskCount);
 					}catch(Exception e){
-						logger.error(e.getMessage());
+						logger.error(e.getMessage(), e);
 					}
 				}
 
@@ -952,7 +952,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				}
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			status = false;
 			json.addObject("option", e.getMessage());
 		}
@@ -983,7 +983,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				json.addObject("option", false);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1003,7 +1003,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("status", true);
 			json.addObject("option", roleusers);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1022,7 +1022,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("status", true);
 			json.addObject("option", roleusers);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1042,7 +1042,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("status", true);
 			json.addObject("option", roleusers);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1060,7 +1060,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("status", true);
 			json.addObject("option", roleusers);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1078,7 +1078,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("status", true);
 			json.addObject("option", count);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1160,7 +1160,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", true);
 			model.addAttribute("option", map);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1185,7 +1185,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				json.addObject("option", false);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1215,7 +1215,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				json.addObject("option", false);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1245,7 +1245,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				json.addObject("option", false);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1277,7 +1277,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				json.addObject("option", false);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1295,7 +1295,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("status", true);
 			json.addObject("option", employees);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1320,7 +1320,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				json.addObject("option", null);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1345,7 +1345,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				json.addObject("option", null);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1370,7 +1370,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				logger.warn("ZSEN -> null");
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1395,7 +1395,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				json.addObject("option", false);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1421,7 +1421,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("status", true);
 			json.addObject("option", projects);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1448,7 +1448,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("status", true);
 			json.addObject("option", ids);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1466,7 +1466,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", true);
 			model.addAttribute("option", process);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1495,7 +1495,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", false);
 			model.addAttribute("option", new String());
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1587,7 +1587,7 @@ public class InterfaceCtrl extends BaseCtrl {
 								project.setOverstate(1);
 								projectModelDao.updateByPrimaryKey(project);
 							} catch (Exception e) {
-								logger.error(e.getMessage());
+								logger.error(e.getMessage(), e);
 								json.addObject("option", e.getMessage());
 							}
 						}
@@ -1655,7 +1655,7 @@ public class InterfaceCtrl extends BaseCtrl {
 								project.setOverstate(1);
 								projectModelDao.updateByPrimaryKey(project);
 							} catch (Exception e) {
-								logger.error(e.getMessage());
+								logger.error(e.getMessage(), e);
 								json.addObject("option", e.getMessage());
 							}
 						}
@@ -1726,7 +1726,7 @@ public class InterfaceCtrl extends BaseCtrl {
 								project.setOverstate(1);
 								projectModelDao.updateByPrimaryKey(project);
 							} catch (Exception e) {
-								logger.error(e.getMessage());
+								logger.error(e.getMessage(), e);
 								json.addObject("option", e.getMessage());
 							}
 						}
@@ -1738,7 +1738,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				}
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			logger.error("processID: " + processID);
 			logger.error("stage: " + stage);
 			logger.error("progress: " + progress);
@@ -1842,7 +1842,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", status);
 			model.addAttribute("option", map);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1895,7 +1895,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("status", true);
 			model.addAttribute("option", configList);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
@@ -1910,7 +1910,7 @@ public class InterfaceCtrl extends BaseCtrl {
 		try {
 			JNATest.Instance.say(new WString("Hello World!"));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}

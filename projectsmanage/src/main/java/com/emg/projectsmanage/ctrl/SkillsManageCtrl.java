@@ -65,7 +65,7 @@ public class SkillsManageCtrl extends BaseCtrl {
 			model.addAttribute("skillLevels", skillLevels);
 			return "skillsmanage";
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			return "redirect:login.jsp";
 		}
 	}
@@ -84,7 +84,7 @@ public class SkillsManageCtrl extends BaseCtrl {
 			List<Map<String, Object>> eplelist = emapgoAccountService.getEmployeeListForZTree();
 			json.addObject("eplelist", eplelist);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		logger.debug("SkillsManageCtrl-getEmployeeTree end!");
 		return json;
@@ -135,7 +135,7 @@ public class SkillsManageCtrl extends BaseCtrl {
 			json.addObject("epleSkillList", em);
 			json.addObject("result", 0);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("result", 1);
 		}
 		logger.debug("SkillsManageCtrl-getEpleLevel end!");
@@ -154,7 +154,7 @@ public class SkillsManageCtrl extends BaseCtrl {
 			employeeSkillModelDao.delEmployDetail(emParam);
 			json.addObject("result", 0);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("result", 1);
 		}
 		logger.debug("SkillsManageCtrl-delEleSkill end!");
@@ -207,7 +207,7 @@ public class SkillsManageCtrl extends BaseCtrl {
 
 			json.addObject("result", 1);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			json.addObject("result", 0);
 			json.addObject("msg", e.getMessage());
 		}
