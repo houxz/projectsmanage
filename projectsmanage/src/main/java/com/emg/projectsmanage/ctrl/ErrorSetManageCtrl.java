@@ -101,7 +101,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 						record.setDesc(filterPara.get(key).toString());
 						break;
 					default:
-						logger.debug("未处理的筛选项：" + key);
+						logger.error("未处理的筛选项：" + key);
 						break;
 					}
 				}

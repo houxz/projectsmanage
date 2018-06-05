@@ -127,7 +127,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 						record.setId(Long.valueOf(filterPara.get(key).toString()));
 						break;
 					default:
-						logger.debug("未处理的筛选项：" + key);
+						logger.error("未处理的筛选项：" + key);
 						break;
 					}
 				}

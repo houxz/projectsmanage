@@ -140,7 +140,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						criteria.andUsernameLike("%" + filterPara.get(key).toString() + "%");
 						break;
 					default:
-						logger.debug("未处理的筛选项：" + key);
+						logger.error("未处理的筛选项：" + key);
 						break;
 					}
 				}
@@ -551,7 +551,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						itemAreaModel.setCity(filterPara.get(key).toString());
 						break;
 					default:
-						logger.debug("未处理的筛选项：" + key);
+						logger.error("未处理的筛选项：" + key);
 						break;
 					}
 				}
@@ -613,7 +613,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						itemSetModel.setDesc(filterPara.get(key).toString());
 						break;
 					default:
-						logger.debug("未处理的筛选项：" + key);
+						logger.error("未处理的筛选项：" + key);
 						break;
 					}
 				}
@@ -656,7 +656,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						employeeModel.setRealname(filterPara.get(key).toString());
 						break;
 					default:
-						logger.debug("未处理的筛选项：" + key);
+						logger.error("未处理的筛选项：" + key);
 						break;
 					}
 				}

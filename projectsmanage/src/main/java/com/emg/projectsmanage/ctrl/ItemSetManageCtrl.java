@@ -115,7 +115,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						record.setDesc(filterPara.get(key).toString());
 						break;
 					default:
-						logger.debug("未处理的筛选项：" + key);
+						logger.error("未处理的筛选项：" + key);
 						break;
 					}
 				}
@@ -237,7 +237,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						name = filterPara.get(key).toString();
 						break;
 					default:
-						logger.debug("未处理的筛选项：" + key);
+						logger.error("未处理的筛选项：" + key);
 						break;
 					}
 				}
