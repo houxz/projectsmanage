@@ -1521,6 +1521,12 @@ public class InterfaceCtrl extends BaseCtrl {
 				logger.error("错误的数据范围，stage：" + stage);
 				return json;
 			}
+			if (processID.compareTo(0L) <= 0) {
+				json.addObject("status", false);
+				json.addObject("option", "错误的数据范围，processID：" + processID);
+				logger.error("错误的数据范围，processID：" + processID);
+				return json;
+			}
 			ProcessModel process = processModelDao.selectByPrimaryKey(processID);
 			if (process == null || process.getId() == null || process.getId().compareTo(0L) <= 0) {
 				json.addObject("status", false);
@@ -1851,6 +1857,9 @@ public class InterfaceCtrl extends BaseCtrl {
 			model.addAttribute("option", map);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			logger.error("stageid: " + stageid);
+			logger.error("pid: " + pid);
+			logger.error("type: " + type);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());
 		}
