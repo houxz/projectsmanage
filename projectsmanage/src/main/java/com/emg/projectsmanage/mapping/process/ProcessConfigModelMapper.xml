@@ -13,11 +13,7 @@
 		<result column="control" property="control" jdbcType="VARCHAR" />
 		<result column="defaultValue" property="defaultValue" jdbcType="VARCHAR" />
 	</resultMap>
-	<select id="selectAllConfigDBModels" resultType="java.util.Map">
-		SELECT *
-		FROM tb_config_db
-	</select>
-	<select id="selectAllProcessConfigModels" resultMap="BaseResultMap">
+	<select id="selectAllProcessConfigModels" parameterType="java.lang.Integer" resultMap="BaseResultMap">
 		SELECT
 			tc.`id`,
 			tc.`moduleid`,
@@ -27,22 +23,15 @@
 			tct.`type`,
 			tct.`style`,
 			tct.`control`,
-			tc.`defaultvalue`
+			tcd.`defaultvalue`
 		FROM
 			tb_config tc
-		JOIN tb_config_module tcm ON tc.moduleid = tcm.id
-		JOIN tb_config_type tct ON tc.type = tct.id
+		JOIN tb_config_module tcm ON tc.`moduleid` = tcm.`id`
+		JOIN tb_config_type tct ON tc.`type` = tct.`id`
+		LEFT JOIN tb_config_default tcd ON tcd.`processtype` IN (0, #{processType,jdbcType=INTEGER})
+		AND tcd.`configid` = tc.`id`
 	</select>
-	<update id="updateDefaultValueSelective" parameterType="com.emg.projectsmanage.pojo.ProcessConfigModel">
-		update tb_config
-		<set>
-			<if test="defaultValue != null">
-				defaultValue = #{defaultValue,jdbcType=VARCHAR},
-			</if>
-		</set>
-		where id = #{id,jdbcType=INTEGER}
-	</update>
-	<select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+	<select id="selectByPrimaryKey" parameterType="java.util.Map" resultMap="BaseResultMap">
 		SELECT
 			tc.`id`,
 			tc.`moduleid`,
@@ -52,11 +41,13 @@
 			tct.`type`,
 			tct.`style`,
 			tct.`control`,
-			tc.`defaultvalue`
+			tcd.`defaultvalue`
 		FROM
 			tb_config tc
-		JOIN tb_config_module tcm ON tc.moduleid = tcm.id
-		JOIN tb_config_type tct ON tc.type = tct.id
+		JOIN tb_config_module tcm ON tc.`moduleid` = tcm.`id`
+		JOIN tb_config_type tct ON tc.`type` = tct.`id`
+		LEFT JOIN tb_config_default tcd ON tcd.`processtype` IN (0, #{processType,jdbcType=INTEGER})
+		AND tcd.`configid` = tc.`id`
 		WHERE tc.`id` = #{id,jdbcType=INTEGER}
 	</select>
 </mapper>

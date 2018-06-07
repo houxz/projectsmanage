@@ -2,6 +2,7 @@
 <%@page import="com.emg.projectsmanage.common.ItemSetEnable"%>
 <%@page import="com.emg.projectsmanage.common.ItemSetSysType"%>
 <%@page import="com.emg.projectsmanage.common.ItemSetUnit"%>
+<%@page import="com.emg.projectsmanage.common.ProcessType"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c"%>
@@ -70,6 +71,7 @@
 	var itemsetTypes = eval('(${itemsetTypes})');
 	var itemsetUnits = eval('(${itemsetUnits})');
 	var layerEles = eval('(${layerElements})');
+	var processTypes = eval('(${processTypes})');
 	
 	function indexFormat(value, row, index) {
 		return index;
@@ -81,8 +83,8 @@
 	
 	function operationFormat(value, row, index) {
 		var html = new Array();
-		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="getItemSet(' + row.id + ');">详情</div>');
-		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="deleteItemSet(' + row.id + ');">删除</div>');
+		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="getItemSet(' + row.id + ',' + row.processType + ');">详情</div>');
+		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="deleteItemSet(' + row.id + ',' + row.processType + ');">删除</div>');
 		return html.join('');
 	}
 	
@@ -92,6 +94,9 @@
 		html.push(value);
 		html.push("</div>");
 		return html.join("");
+	}
+	function processTypeFormat(value, row, index) {
+		return processTypes[row.processType];
 	}
 	
 	function layernameFormat(value, row, index) {
@@ -140,18 +145,20 @@
 		$("#dlgItemSet table #updatetime").val(new String());
 	}
 
-	function getItemSet(itemsetid) {
+	function getItemSet(itemsetid, processType) {
 		loadDefaultItemSet();
 		if (itemsetid > 0) {
 			jQuery.post("./itemsetmanage.web", {
 				"atn" : "getitemset",
-				"itemsetid" : itemsetid
+				"itemsetid" : itemsetid,
+				"processType" : processType
 			}, function(json) {
 				if (json.itemset) {
 					var itemset = json.itemset;
 					
 					$("#dlgItemSet table #id").val(itemset.id);
 					$("#dlgItemSet table #name").val(itemset.name);
+					$("#dlgItemSet table #processType").val(itemset.processType);
 					$("#dlgItemSet table #layername").val(itemset.layername);
 					$("#layerscount").text(itemset.layername.split(";").length);
 					$("#dlgItemSet table #type").val(itemset.type);
@@ -425,6 +432,7 @@
 				{
 					locale : 'zh-CN',
 					queryParams : function(params) {
+						params["processType"] = $("#dlgItemSet table #processType").val();
 						return params;
 					},
 					onLoadSuccess : function(data) {
@@ -656,6 +664,7 @@
 		var unit = $("#dlgItemSet table #unit").val();
 		var desc = $("#dlgItemSet table #desc").val();
 		var items = $("#dlgItemSet table #items").val();
+		var processType = $("#dlgItemSet table #processType").val();
 		
 		if(name.length <= 0) {
 			$.webeditor.showMsgLabel("alert", "图层集合名称不能为空");
@@ -673,7 +682,8 @@
 				"referdata" : referdata,
 				"unit" : unit,
 				"desc" : desc,
-				"items" : items
+				"items" : items,
+				"processType" : processType
 			},
 			function(json) {
 				if (json.result) {
@@ -686,7 +696,7 @@
 			}, "json");
 	}
 	
-	function deleteItemSet(itemSetID) {
+	function deleteItemSet(itemSetID, processType) {
 		$.webeditor.showConfirmBox("alert","确定要删除质检集合吗？", function(){
 			if(!itemSetID || itemSetID <= 0) {
 				$.webeditor.showMsgLabel("alert", "质检集合删除失败");
@@ -695,7 +705,8 @@
 			jQuery.post("./itemsetmanage.web",
 				{
 					"atn" : "deleteitemset",
-					"itemSetID" : itemSetID
+					"itemSetID" : itemSetID,
+					"processType" : processType
 				},
 				function(json) {
 					if (json.result > 0) {
@@ -724,12 +735,14 @@
 					<tr>
 						<th data-field="id" data-filter-control="input" data-width="80"
 							data-filter-control-placeholder="">编号
-							<div class="btn btn-default btn-xs" onclick="getItemSet(0);">
+							<div class="btn btn-default btn-xs" onclick="getItemSet(0,0);">
 								<span class="glyphicon glyphicon-plus"></span>
 							</div>
 						</th>
 						<th data-field="name" data-filter-control="input" data-width="140"
 							data-formatter="nameFormat" data-filter-control-placeholder="">质检集合名称</th>
+						<th data-field="processType" data-filter-control="select" data-width="120"
+							data-formatter="processTypeFormat" data-filter-data="var:processTypes">适用项目类型</th>
 						<th data-field="layername" data-filter-control="input"
 							data-width="180" data-formatter="layernameFormat"
 							data-filter-control-placeholder="">图层</th>
@@ -744,7 +757,7 @@
 							data-filter-control-placeholder="">参考图层</th>
 						<th data-field="unit" data-formatter="unitFormat" data-width="100"
 							data-filter-control="select" data-filter-data="var:itemsetUnits">质检单位</th>
-						<th data-field="desc" data-filter-control="input" data-width="160"
+						<th data-field="desc" data-filter-control="input" data-width="100"
 							data-formatter="descFormat" data-filter-control-placeholder="">描述</th>
 						<!-- <th data-field="updatetime">更新时间</th> -->
 						<th data-formatter="operationFormat" data-width="70">操作</th>
@@ -767,6 +780,16 @@
 					<td class="configValue"><input type="text"
 						class="form-control configValue" id="name"
 						placeholder="请输入图层集合名称"></td>
+				</tr>
+				<tr>
+					<td class="configKey">适用项目类型</td>
+					<td class="configValue"><select
+						class="form-control configValue" id="processType">
+							<c:set var="processTypes" value="<%= ProcessType.values() %>"/>
+							<c:forEach items="${processTypes }" var="processType">
+								<option value="${processType.getValue() }">${processType.getDes() }</option>
+							</c:forEach>
+					</select></td>
 				</tr>
 				<tr>
 					<td class="configKey">图层</td>

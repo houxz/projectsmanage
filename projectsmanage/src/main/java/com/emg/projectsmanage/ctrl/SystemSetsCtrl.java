@@ -2,8 +2,6 @@ package com.emg.projectsmanage.ctrl;
 
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -17,8 +15,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.ParamUtils;
-import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
-import com.emg.projectsmanage.pojo.ProcessConfigModel;
+import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
+import com.emg.projectsmanage.dao.process.ConfigDefaultModelDao;
+import com.emg.projectsmanage.pojo.ConfigDBModel;
+import com.emg.projectsmanage.pojo.ConfigDefaultModel;
+import com.emg.projectsmanage.pojo.ConfigDefaultModelExample;
 
 @Controller
 @RequestMapping("/systemsets.web")
@@ -27,7 +28,9 @@ public class SystemSetsCtrl extends BaseCtrl {
 	private static final Logger logger = LoggerFactory.getLogger(SystemSetsCtrl.class);
 
 	@Autowired
-	private ProcessConfigModelDao processConfigModelDao;
+	private ConfigDBModelDao configDBModelDao;
+	@Autowired
+	private ConfigDefaultModelDao configDefaultModelDao;
 
 	/**
 	 * 系统配置页面
@@ -39,9 +42,9 @@ public class SystemSetsCtrl extends BaseCtrl {
 	 */
 	@RequestMapping()
 	public String openLader(Model model, HttpSession session, HttpServletRequest request) {
-		logger.debug("SystemSetsCtrl-openLader start.");
+		logger.debug("start");
 		try {
-			List<Map<String, Object>> configDBModels = processConfigModelDao.selectAllConfigDBModels();
+			List<ConfigDBModel> configDBModels = configDBModelDao.selectAllConfigDBModels();
 			model.addAttribute("configDBModels", configDBModels);
 
 			return "systemsets";
@@ -53,7 +56,7 @@ public class SystemSetsCtrl extends BaseCtrl {
 
 	@RequestMapping(params = "atn=setdefaultvalues")
 	public ModelAndView setDefaultValues(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("SystemSetsCtrl-setDefaultValues start.");
+		logger.debug("start");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			Enumeration<String> paramNames = request.getParameterNames();
@@ -63,37 +66,38 @@ public class SystemSetsCtrl extends BaseCtrl {
 					continue;
 
 				String[] a = paramName.split("_");
-				Integer configid = Integer.valueOf(a[2]);
+				Integer id = Integer.valueOf(a[1]);
 				String defaultValue = ParamUtils.getParameter(request, paramName);
 
-				ProcessConfigModel config = new ProcessConfigModel();
-				config.setId(configid);
-				config.setDefaultValue(defaultValue);
-				
-				processConfigModelDao.updateDefaultValueSelective(config);
+				ConfigDefaultModel record = new ConfigDefaultModel();
+				record.setId(id);
+				record.setDefaultvalue(defaultValue);
+				configDefaultModelDao.updateByPrimaryKeySelective(record );
 			}
 			json.addObject("ret", 1);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 
-		logger.debug("SystemSetsCtrl-setDefaultValues end.");
+		logger.debug("end");
 		return json;
 	}
 
 	@RequestMapping(params = "atn=getdefaultvalues")
 	public ModelAndView getDefaultValues(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("SystemSetsCtrl-setDefaultValues start.");
+		logger.debug("start");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			List<ProcessConfigModel> processConfigs = processConfigModelDao.selectAllProcessConfigModels();
+			ConfigDefaultModelExample example = new ConfigDefaultModelExample();
+			example.or().andEditableEqualTo(Byte.valueOf("1"));
+			List<ConfigDefaultModel> configDefaultModels = configDefaultModelDao.selectByExample(example);
 			json.addObject("ret", 1);
-			json.addObject("configs", processConfigs);
+			json.addObject("configDefaultModels", configDefaultModels);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 
-		logger.debug("SystemSetsCtrl-setDefaultValues end.");
+		logger.debug("end");
 		return json;
 	}
 }

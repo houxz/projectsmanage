@@ -7,12 +7,8 @@ import com.emg.projectsmanage.pojo.ProcessConfigModel;;
 
 public interface ProcessConfigModelDao {
 	
-	List<Map<String, Object>> selectAllConfigDBModels();
+	List<ProcessConfigModel> selectAllProcessConfigModels(Integer processType);
 	
-	List<ProcessConfigModel> selectAllProcessConfigModels();
-	
-	int updateDefaultValueSelective(ProcessConfigModel record);
-	
-	ProcessConfigModel selectByPrimaryKey(Integer id);
+	ProcessConfigModel selectByPrimaryKey(Map<String, Integer> map);
 
 }

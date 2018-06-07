@@ -39,27 +39,13 @@
 			"atn" : "getdefaultvalues"
 		}, function(json) {
 			if (json.ret && json.ret == 1) {
-				var configs = json.configs;
-        		for(var index in configs) {
-        			var moduleid = configs[index].moduleid;
-        			var configid = configs[index].id;
-        			var defaultValue = configs[index].defaultValue;
-        			var obj = $("#config_" + moduleid + "_" + configid);
+				var configDefaultModels = json.configDefaultModels;
+        		for(var index in configDefaultModels) {
+        			var configid = configDefaultModels[index].id;
+        			var defaultValue = configDefaultModels[index].defaultvalue;
+        			var obj = $("#config_" + configid);
         			if(obj) {
         				$(obj).val(defaultValue);
-        			}
-        			if(moduleid == 2 && configid == 13) {
-        				if(defaultValue == 0) {
-        					$("#config_2_14").addClass("systemSet");
-        					$("#config_2_14").parents("tr").show();
-        					$("#config_2_15").addClass("systemSet");
-        					$("#config_2_15").parents("tr").show();
-        				} else {
-        					$("#config_2_14").removeClass("systemSet");
-        					$("#config_2_14").parents("tr").hide();
-        					$("#config_2_15").removeClass("systemSet");
-        					$("#config_2_15").parents("tr").hide();
-        				}
         			}
         		}
 			}
@@ -87,21 +73,6 @@
 		}, "json");
 	}
 	
-	function typeChange(obj) {
-		var type = $(obj).val();
-		if(type == 1) {
-			$("#config_2_14").removeClass("systemSet");
-			$("#config_2_14").parents("tr").hide();
-			$("#config_2_15").removeClass("systemSet");
-			$("#config_2_15").parents("tr").hide();
-		} else {
-			$("#config_2_14").addClass("systemSet");
-			$("#config_2_14").parents("tr").show();
-			$("#config_2_15").addClass("systemSet");
-			$("#config_2_15").parents("tr").show();
-		}
-		
-	}
 </script>
 </head>
 <body>
@@ -120,19 +91,9 @@
 					<div class="panel-heading">项目基础配置</div>
 					<div class="panel-body">
 						<table class="table">
-							<!-- <tr>
-								<td class="configKey">质检项目库</td>
-								<td><select class="form-control systemSet" id="config_1_1">
-										<c:forEach items="${configDBModels }" var="configDBModel">
-											<c:if test="${configDBModel['connname'].equals('projectmanager') }">
-												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
-											</c:if>
-										</c:forEach>
-								</select></td>
-							</tr> -->
 							<tr>
-								<td class="configKey">质检任务库</td>
-								<td><select class="form-control systemSet" id="config_1_2">
+								<td class="configKey">改错项目质检任务库</td>
+								<td><select class="form-control systemSet" id="config_2">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
 												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
@@ -140,20 +101,9 @@
 										</c:forEach>
 								</select></td>
 							</tr>
-							<!-- <tr>
-								<td class="configKey">编辑项目库</td>
-								<td><select class="form-control systemSet" id="config_2_9">
-										<c:forEach items="${configDBModels }" var="configDBModel">
-											<c:if
-												test="${configDBModel['connname'].equals('projectmanager') }">
-												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
-											</c:if>
-										</c:forEach>
-								</select></td>
-							</tr> -->
 							<tr>
-								<td class="configKey">编辑任务库</td>
-								<td><select class="form-control systemSet" id="config_2_10">
+								<td class="configKey">NR/FC项目质检任务库</td>
+								<td><select class="form-control systemSet" id="config_3">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
 												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
@@ -161,9 +111,61 @@
 										</c:forEach>
 								</select></td>
 							</tr>
+							<tr>
+								<td class="configKey">关系附属表项目质检任务库</td>
+								<td><select class="form-control systemSet" id="config_4">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('task') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">全国质检项目质检任务库</td>
+								<td><select class="form-control systemSet" id="config_5">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('task') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							
+							<tr>
+								<td class="configKey">改错项目编辑任务库</td>
+								<td><select class="form-control systemSet" id="config_9">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('task') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">NR/FC项目编辑任务库</td>
+								<td><select class="form-control systemSet" id="config_10">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('task') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">关系附属表项目编辑任务库</td>
+								<td><select class="form-control systemSet" id="config_11">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('task') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							
 							<tr>
 								<td class="configKey">错误库</td>
-								<td><select class="form-control systemSet" id="config_2_16">
+								<td><select class="form-control systemSet" id="config_15">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('error') }">
 												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
@@ -173,7 +175,7 @@
 							</tr>
 							<tr>
 								<td class="configKey">错误导入库</td>
-								<td><select class="form-control systemSet" id="config_2_20">
+								<td><select class="form-control systemSet" id="config_17">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('error2') }">
 												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
@@ -181,23 +183,6 @@
 										</c:forEach>
 								</select></td>
 							</tr>
-							<!-- <tr>
-								<td class="configKey">改错任务组织方式</td>
-								<td><select class="form-control systemSet" id="config_2_13" onchange="typeChange(this);">
-										<option value="0">多要素组织</option>
-										<option value="1">单要素组织</option>
-								</select></td>
-							</tr>
-							<tr>
-								<td class="configKey">错误个数</td>
-								<td><input type="text" class="form-control systemSet"
-									id="config_2_14" value="100"></td>
-							</tr>
-							<tr>
-								<td class="configKey">错误距离</td>
-								<td><input type="text" class="form-control systemSet"
-									id="config_2_15" value="10000"></td>
-							</tr> -->
 							<tr>
 								<td class="configKey"></td>
 								<td><div class="btn-group">

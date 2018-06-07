@@ -1,6 +1,7 @@
 package com.emg.projectsmanage.ctrl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
 import com.emg.projectsmanage.common.ItemSetUnit;
+import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
@@ -40,7 +42,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 	private ProcessConfigModelDao processConfigModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
-	
+
 	private ErrorSetModelDao errorSetModelDao = new ErrorSetModelDao();
 
 	/**
@@ -58,6 +60,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			model.addAttribute("errorsetSysTypes", ItemSetSysType.toJsonStr());
 			model.addAttribute("errorsetTypes", ItemSetType.toJsonStr());
 			model.addAttribute("errorsetUnits", ItemSetUnit.toJsonStr());
+			model.addAttribute("processTypes", ProcessType.toJsonStr());
 
 			return "errorsetmanage";
 		} catch (Exception e) {
@@ -78,6 +81,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 
 			Map<String, Object> filterPara = null;
 			ErrorSetModel record = new ErrorSetModel();
+			Integer processType = -1;
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {
@@ -87,6 +91,9 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 						break;
 					case "name":
 						record.setName(filterPara.get(key).toString());
+						break;
+					case "processType":
+						processType = Integer.valueOf(filterPara.get(key).toString());
 						break;
 					case "type":
 						record.setType(Integer.valueOf(filterPara.get(key).toString()));
@@ -107,15 +114,68 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				}
 			}
 
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			
-			List<ErrorSetModel> rows = errorSetModelDao.selectErrorSets(configDBModel, record, limit, offset);
-			Integer count = errorSetModelDao.countErrorSets(configDBModel, record, limit, offset);
+			if (processType.compareTo(0) > 0) {
+				Map<String, Integer> map = new HashMap<String, Integer>();
+				map.put("id", 2);
+				map.put("processType", processType);
+				ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
-			json.addObject("rows", rows);
-			json.addObject("total", count);
-			json.addObject("result", 1);
+				record.setProcessType(processType);
+				List<ErrorSetModel> rows = errorSetModelDao.selectErrorSets(configDBModel, record, limit, offset);
+				Integer count = errorSetModelDao.countErrorSets(configDBModel, record, limit, offset);
+
+				json.addObject("rows", rows);
+				json.addObject("total", count);
+				json.addObject("result", 1);
+			} else {
+				HashMap<Integer, Integer> counts = new HashMap<Integer, Integer>();
+				Integer total = 0;
+				HashMap<ProcessType, Integer[]> doProTypes = new HashMap<ProcessType, Integer[]>();
+				List<ErrorSetModel> totalRows = new ArrayList<ErrorSetModel>();
+				for (ProcessType pType : ProcessType.values()) {
+					Map<String, Integer> map = new HashMap<String, Integer>();
+					map.put("id", 2);
+					map.put("processType", pType.getValue());
+					ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+					Integer count = errorSetModelDao.countErrorSets(configDBModel, record, limit, offset);
+					if (count.compareTo(0) >= 0) {
+						total += count;
+						counts.put(pType.getValue(), count);
+					} else {
+						counts.put(pType.getValue(), 0);
+					}
+				}
+				for (ProcessType pType : ProcessType.values()) {
+					Integer count = counts.get(pType.getValue());
+					if(count.compareTo(0) <= 0) continue;
+					if (count.compareTo(offset) < 0) {
+						offset = offset - count;
+					} else if (count.compareTo(offset) >= 0 && count.compareTo(offset + limit) < 0) {
+						doProTypes.put(pType, new Integer[] { offset, count - offset });
+						limit = limit - (count - offset);
+						offset = 0;
+					} else if (count.compareTo(offset + limit) >= 0) {
+						doProTypes.put(pType, new Integer[] { offset, limit });
+						break;
+					}
+				}
+				for (ProcessType doProType : doProTypes.keySet()) {
+					Map<String, Integer> map = new HashMap<String, Integer>();
+					map.put("id", 2);
+					map.put("processType", doProType.getValue());
+					ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+					record.setProcessType(doProType.getValue());
+					List<ErrorSetModel> rows = errorSetModelDao.selectErrorSets(configDBModel, record, doProTypes.get(doProType)[1], doProTypes.get(doProType)[0]);
+					totalRows.addAll(rows);
+				}
+
+				json.addObject("rows", totalRows);
+				json.addObject("total", total);
+				json.addObject("result", 1);
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -132,17 +192,22 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		String errorsetDetails = new String();
 		try {
 			Long errorsetid = ParamUtils.getLongParameter(request, "errorsetid", -1L);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("id", 2);
+			map.put("processType", processType);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			
+
 			ErrorSetModel record = new ErrorSetModel();
 			record.setId(errorsetid);
 			List<ErrorSetModel> rows = errorSetModelDao.selectErrorSets(configDBModel, record, 1, 0);
 			if (rows.size() >= 0) {
 				errorSet = rows.get(0);
 				List<Long> details = errorSetModelDao.getErrorSetDetailsByErrorSetID(configDBModel, errorsetid);
-				if(details.size() > 0) {
-					for(Long detail : details) {
+				if (details.size() > 0) {
+					for (Long detail : details) {
 						errorsetDetails += detail + ";";
 					}
 					errorsetDetails = errorsetDetails.substring(0, errorsetDetails.length() - 1);
@@ -163,7 +228,12 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		List<ItemConfigModel> errorTypes = new ArrayList<ItemConfigModel>();
 		try {
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("id", 2);
+			map.put("processType", processType);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			errorTypes = errorSetModelDao.selectErrorTypes(configDBModel);
 		} catch (Exception e) {
@@ -175,7 +245,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		logger.debug("ErrorSetManageCtrl-getErrorTypes end.");
 		return json;
 	}
-	
+
 	@RequestMapping(params = "atn=submiterrorset")
 	public ModelAndView submitErrorSet(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ErrorSetManageCtrl-submitErrorSet start.");
@@ -189,28 +259,32 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			Integer unit = ParamUtils.getIntParameter(request, "unit", -1);
 			String desc = ParamUtils.getParameter(request, "desc");
 			String errorTypes = ParamUtils.getParameter(request, "errorTypes");
-			
+			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+
 			List<Long> errorSetDetails = new ArrayList<Long>();
-			if(errorTypes != null && !errorTypes.isEmpty()) {
-				for(String strItem : errorTypes.split(";")) {
+			if (errorTypes != null && !errorTypes.isEmpty()) {
+				for (String strItem : errorTypes.split(";")) {
 					errorSetDetails.add(Long.valueOf(strItem));
 				}
 			}
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("id", 2);
+			map.put("processType", processType);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			
+
 			Boolean isNewItemSet = errorSetID.compareTo(0L) == 0;
-			if(isNewItemSet) {
+			if (isNewItemSet) {
 				ErrorSetModel record = new ErrorSetModel();
 				record.setName(name);
 				record.setType(type);
 				record.setSystype(systype);
 				record.setUnit(unit.byteValue());
 				record.setDesc(desc);
-				
+
 				errorSetID = errorSetModelDao.insertErrorSet(configDBModel, record);
-				if(errorSetID.compareTo(0L) > 0) {
-					if(errorSetModelDao.setErrorSetDetails(configDBModel, errorSetID, errorSetDetails) > 0)
+				if (errorSetID.compareTo(0L) > 0) {
+					if (errorSetModelDao.setErrorSetDetails(configDBModel, errorSetID, errorSetDetails) > 0)
 						ret = true;
 				}
 			} else {
@@ -221,9 +295,9 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				record.setSystype(systype);
 				record.setUnit(unit.byteValue());
 				record.setDesc(desc);
-				
-				if(errorSetModelDao.updateErrorSet(configDBModel, record)) {
-					if(errorSetModelDao.setErrorSetDetails(configDBModel, errorSetID, errorSetDetails) > 0)
+
+				if (errorSetModelDao.updateErrorSet(configDBModel, record)) {
+					if (errorSetModelDao.setErrorSetDetails(configDBModel, errorSetID, errorSetDetails) > 0)
 						ret = true;
 				}
 			}
@@ -234,7 +308,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		logger.debug("ErrorSetManageCtrl-submitErrorSet end.");
 		return json;
 	}
-	
+
 	@RequestMapping(params = "atn=deleteerrorset")
 	public ModelAndView deleteErrorSet(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ErrorSetManageCtrl-deleteErrorSet start.");
@@ -242,14 +316,18 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		Boolean ret = false;
 		try {
 			Long errorSetID = ParamUtils.getLongParameter(request, "errorSetID", -1L);
-			if(errorSetID.compareTo(0L) <= 0) {
+			if (errorSetID.compareTo(0L) <= 0) {
 				json.addObject("result", 0);
 				return json;
 			}
-			
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("id", 2);
+			map.put("processType", processType);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			
+
 			ret = errorSetModelDao.deleteErrorSet(configDBModel, errorSetID);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

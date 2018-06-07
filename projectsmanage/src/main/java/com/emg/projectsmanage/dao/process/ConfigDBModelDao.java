@@ -5,6 +5,9 @@ import java.util.List;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 
 public interface ConfigDBModelDao {
+	
+	List<ConfigDBModel> selectAllConfigDBModels();
+	
     int deleteByPrimaryKey(Integer id);
 
     int insert(ConfigDBModel record);

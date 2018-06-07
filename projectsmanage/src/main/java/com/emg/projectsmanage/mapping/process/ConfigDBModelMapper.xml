@@ -15,6 +15,11 @@
   <sql id="Base_Column_List" >
     id, ip, dbtype, dbschema, connname, dbname, user, password, port
   </sql>
+  <select id="selectAllConfigDBModels" resultMap="BaseResultMap">
+	select
+	<include refid="Base_Column_List" />
+	from tb_config_db
+  </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />

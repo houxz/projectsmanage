@@ -74,7 +74,11 @@ public enum LayerElement {
 	/**
 	 * 17, "国家级行政区划"
 	 */
-	Country(17, "国家级行政区划");
+	Country(17, "国家级行政区划"),
+	/**
+	 * 18, "国家级行政区划"
+	 */
+	Lane(18, "附属表");
 
 	private Integer value;
 	private String des;

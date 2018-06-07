@@ -1,6 +1,7 @@
 <%@page import="com.emg.projectsmanage.common.ItemSetType"%>
 <%@page import="com.emg.projectsmanage.common.ItemSetSysType"%>
 <%@page import="com.emg.projectsmanage.common.ItemSetUnit"%>
+<%@page import="com.emg.projectsmanage.common.ProcessType"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c"%>
@@ -59,15 +60,20 @@
 	var errorsetSysTypes = eval('(${errorsetSysTypes})');
 	var errorsetTypes = eval('(${errorsetTypes})');
 	var errorsetUnits = eval('(${errorsetUnits})');
+	var processTypes = eval('(${processTypes})');
 	
 	function queryParams(params) {
 		return params;
 	}
 	
+	function processTypeFormat(value, row, index) {
+		return processTypes[row.processType];
+	}
+	
 	function operationFormat(value, row, index) {
 		var html = new Array();
-		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getErrorSet(' + row.id + ');">详情</button>');
-		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="deleteErrorSet(' + row.id + ');">删除</button>');
+		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="getErrorSet(' + row.id + ',' + row.processType + ');">详情</button>');
+		html.push('<button class="btn btn-default"  style="margin-bottom:3px;" onclick="deleteErrorSet(' + row.id + ',' + row.processType + ');">删除</button>');
 		return html.join('');
 	}
 	
@@ -93,12 +99,13 @@
 		$("#dlgErrorSet table #updatetime").val(new String());
 	}
 
-	function getErrorSet(errorsetid) {
+	function getErrorSet(errorsetid, processType) {
 		loadDefaultErrorSet();
 		if (errorsetid > 0) {
 			jQuery.post("./errorsetmanage.web", {
 				"atn" : "geterrorset",
-				"errorsetid" : errorsetid
+				"errorsetid" : errorsetid,
+				"processType" : processType
 			}, function(json) {
 				if (json.errorset) {
 					var errorset = json.errorset;
@@ -157,8 +164,11 @@
 	
 	function getErrorTypes() {
 		var selectNodeids = $("#dlgErrorSet table #errorTypes").val();
+		var processType = $("#dlgErrorSet table #processType").val();
+		
 		jQuery.post("./errorsetmanage.web", {
-			"atn" : "geterrortypes"
+			"atn" : "geterrortypes",
+			"processType" : processType
 		}, function(json) {
 			var errorTypes = json.rows;
 			if(errorTypes && errorTypes.length > 0) {
@@ -250,6 +260,7 @@
 		var unit = $("#dlgErrorSet table #unit").val();
 		var desc = $("#dlgErrorSet table #desc").val();
 		var errorTypes = $("#dlgErrorSet table #errorTypes").val();
+		var processType = $("#dlgErrorSet table #processType").val();
 
 		if (name.length <= 0) {
 			$.webeditor.showMsgLabel("alert", "错误筛选集合名称不能为空");
@@ -264,7 +275,8 @@
 			"systype" : systype,
 			"unit" : unit,
 			"desc" : desc,
-			"errorTypes" : errorTypes
+			"errorTypes" : errorTypes,
+			"processType" : processType
 		}, function(json) {
 			if (json.result) {
 				$.webeditor.showMsgLabel("success", "错误筛选集合配置成功");
@@ -276,7 +288,7 @@
 		}, "json");
 	}
 
-	function deleteErrorSet(errorSetID) {
+	function deleteErrorSet(errorSetID, processType) {
 		$.webeditor.showConfirmBox("alert","确定要删除错误筛选集合吗？", function(){
 			if (!errorSetID || errorSetID <= 0) {
 				$.webeditor.showMsgLabel("alert", "错误筛选集合删除失败");
@@ -284,7 +296,8 @@
 			}
 			jQuery.post("./errorsetmanage.web", {
 				"atn" : "deleteerrorset",
-				"errorSetID" : errorSetID
+				"errorSetID" : errorSetID,
+				"processType" : processType
 			}, function(json) {
 				if (json.result > 0) {
 					$.webeditor.showMsgLabel("success", "错误筛选集合删除成功");
@@ -312,12 +325,14 @@
 					<tr>
 						<th data-field="id" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="80">编号
-							<button class="btn btn-default btn-xs" onclick="getErrorSet(0);">
+							<button class="btn btn-default btn-xs" onclick="getErrorSet(0,0);">
 								<span class="glyphicon glyphicon-plus"></span>
 							</button>
 						</th>
 						<th data-field="name" data-filter-control="input"
 							data-filter-control-placeholder="">错误筛选集合名称</th>
+						<th data-field="processType" data-filter-control="select" data-width="120"
+							data-formatter="processTypeFormat" data-filter-data="var:processTypes">适用项目类型</th>
 						<th data-field="type" data-formatter="typeFormat" data-width="80"
 							data-filter-control="select" data-filter-data="var:errorsetTypes">类型</th>
 						<th data-field="systype" data-formatter="sysFormat"
@@ -348,6 +363,16 @@
 					<td class="configValue"><input type="text"
 						class="form-control configValue" id="name"
 						placeholder="请输入错误筛选集合名称"></td>
+				</tr>
+				<tr>
+					<td class="configKey">适用项目类型</td>
+					<td class="configValue"><select
+						class="form-control configValue" id="processType">
+							<c:set var="processTypes" value="<%= ProcessType.values() %>"/>
+							<c:forEach items="${processTypes }" var="processType">
+								<option value="${processType.getValue() }">${processType.getDes() }</option>
+							</c:forEach>
+					</select></td>
 				</tr>
 				<tr>
 					<td class="configKey">错误类型</td>

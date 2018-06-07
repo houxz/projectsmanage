@@ -35,11 +35,12 @@ public class ItemSetModelDao {
 			if (record == null)
 				return itemSets;
 			Integer dbtype = configDBModel.getDbtype();
+			Integer processType = record.getProcessType();
 
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * FROM ");
+			sql.append(" SELECT *, " + processType + " AS processType FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}

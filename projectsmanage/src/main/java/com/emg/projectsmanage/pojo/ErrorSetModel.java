@@ -4,6 +4,8 @@ public class ErrorSetModel {
     private Long id;
 
     private String name;
+    
+    private Integer processType;
 
     private Integer type;
 
@@ -70,4 +72,12 @@ public class ErrorSetModel {
     public void setUpdatetime(String updatetime) {
         this.updatetime = updatetime;
     }
+
+	public Integer getProcessType() {
+		return processType;
+	}
+
+	public void setProcessType(Integer processType) {
+		this.processType = processType;
+	}
 }

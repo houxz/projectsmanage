@@ -886,6 +886,7 @@
 							}
 						}
 						params["type"] = $("#config_1_5").val();
+						params["processType"] = $("#config_processprotype").val();
 						return params;
 					},
 					onLoadSuccess : function(data) {
@@ -1113,6 +1114,7 @@
 				{
 					locale : 'zh-CN',
 					queryParams : function(params) {
+						params["processType"] = $("#config_processprotype").val();
 						return params;
 					},
 					onLoadSuccess : function(data) {

@@ -26,6 +26,7 @@ import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
 import com.emg.projectsmanage.common.ItemSetUnit;
 import com.emg.projectsmanage.common.LayerElement;
+import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.SystemCPUType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
@@ -46,7 +47,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	private ProcessConfigModelDao processConfigModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
-	
+
 	private ItemSetModelDao itemSetModelDao = new ItemSetModelDao();
 
 	/**
@@ -66,6 +67,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			model.addAttribute("itemsetTypes", ItemSetType.toJsonStr());
 			model.addAttribute("itemsetUnits", ItemSetUnit.toJsonStr());
 			model.addAttribute("layerElements", LayerElement.toJsonStr());
+			model.addAttribute("processTypes", ProcessType.toJsonStr());
 
 			return "itemsetmanage";
 		} catch (Exception e) {
@@ -86,6 +88,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			Map<String, Object> filterPara = null;
 			ItemSetModel record = new ItemSetModel();
+			Integer processType = -1;
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {
@@ -95,6 +98,9 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						break;
 					case "name":
 						record.setName(filterPara.get(key).toString());
+						break;
+					case "processType":
+						processType = Integer.valueOf(filterPara.get(key).toString());
 						break;
 					case "layername":
 						record.setLayername(filterPara.get(key).toString());
@@ -121,14 +127,67 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				}
 			}
 
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, limit, offset);
-			Integer count = itemSetModelDao.countItemSets(configDBModel, record, limit, offset);
+			if (processType.compareTo(0) > 0) {
+				Map<String, Integer> map = new HashMap<String, Integer>();
+				map.put("id", 2);
+				map.put("processType", processType);
+				ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+				record.setProcessType(processType);
+				List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, limit, offset);
+				Integer count = itemSetModelDao.countItemSets(configDBModel, record, limit, offset);
 
-			json.addObject("rows", rows);
-			json.addObject("total", count);
-			json.addObject("result", 1);
+				json.addObject("rows", rows);
+				json.addObject("total", count);
+				json.addObject("result", 1);
+			} else {
+				HashMap<Integer, Integer> counts = new HashMap<Integer, Integer>();
+				Integer total = 0;
+				HashMap<ProcessType, Integer[]> doProTypes = new HashMap<ProcessType, Integer[]>();
+				List<ItemSetModel> totalRows = new ArrayList<ItemSetModel>();
+				for (ProcessType pType : ProcessType.values()) {
+					Map<String, Integer> map = new HashMap<String, Integer>();
+					map.put("id", 2);
+					map.put("processType", pType.getValue());
+					ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+					Integer count = itemSetModelDao.countItemSets(configDBModel, record, limit, offset);
+					if (count.compareTo(0) >= 0) {
+						total += count;
+						counts.put(pType.getValue(), count);
+					} else {
+						counts.put(pType.getValue(), 0);
+					}
+				}
+				for (ProcessType pType : ProcessType.values()) {
+					Integer count = counts.get(pType.getValue());
+					if(count.compareTo(0) <= 0) continue;
+					if (count.compareTo(offset) < 0) {
+						offset = offset - count;
+					} else if (count.compareTo(offset) >= 0 && count.compareTo(offset + limit) < 0) {
+						doProTypes.put(pType, new Integer[] { offset, count - offset });
+						limit = limit - (count - offset);
+						offset = 0;
+					} else if (count.compareTo(offset + limit) >= 0) {
+						doProTypes.put(pType, new Integer[] { offset, limit });
+						break;
+					}
+				}
+				for (ProcessType doProType : doProTypes.keySet()) {
+					Map<String, Integer> map = new HashMap<String, Integer>();
+					map.put("id", 2);
+					map.put("processType", doProType.getValue());
+					ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+					record.setProcessType(doProType.getValue());
+					List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, doProTypes.get(doProType)[1], doProTypes.get(doProType)[0]);
+					totalRows.addAll(rows);
+				}
+
+				json.addObject("rows", totalRows);
+				json.addObject("total", total);
+				json.addObject("result", 1);
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -145,10 +204,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		StringBuilder sb_items = new StringBuilder();
 		try {
 			Long itemsetid = ParamUtils.getLongParameter(request, "itemsetid", -1L);
+			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
 			ItemSetModel record = new ItemSetModel();
 			record.setId(itemsetid);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("id", 2);
+			map.put("processType", processType);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			record.setProcessType(processType);
 			List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, 1, 0);
 			if (rows.size() >= 0) {
 				itemset = rows.get(0);
@@ -223,6 +287,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
 			String filter = ParamUtils.getParameter(request, "filter", "");
+			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
 
 			Map<String, Object> filterPara = null;
 			String oid = new String(), name = new String();
@@ -242,7 +307,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					}
 				}
 			}
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("id", 2);
+			map.put("processType", processType);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			items = itemSetModelDao.selectQIDs(configDBModel, oid, name, limit, offset);
 		} catch (Exception e) {
@@ -269,6 +337,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			Integer unit = ParamUtils.getIntParameter(request, "unit", -1);
 			String desc = ParamUtils.getParameter(request, "desc");
 			String items = ParamUtils.getParameter(request, "items");
+			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
 
 			Set<String> qids = new HashSet<String>();
 			if (items != null && !items.isEmpty()) {
@@ -287,8 +356,11 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				json.addObject("option", "质检项、图层未选择");
 				return json;
 			}
-			
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("id", 2);
+			map.put("processType", processType);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			Boolean isNewItemSet = itemSetID.compareTo(0L) == 0;
@@ -409,7 +481,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						record.setReferdata(sb_referdata.toString());
 						record.setUnit(unit.byteValue());
 						record.setDesc(desc);
-						
+
 						itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
 						if (itemSetID.compareTo(0L) > 0) {
 							if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
@@ -561,7 +633,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 							record.setReferdata(refer);
 							record.setUnit(unit.byteValue());
 							record.setDesc(desc);
-							
+
 							itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
 							if (itemSetID.compareTo(0L) > 0) {
 								if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
@@ -660,10 +732,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						}
 					}
 				} else if (systype.equals(SystemCPUType.X64.getValue())) {
-					
+
 				}
 			}
-			
+
 			if (itemInfoCount.equals(0)) {
 				json.addObject("result", false);
 				json.addObject("option", "图层、质检项、类型、操作系统、质检单位不匹配");
@@ -689,7 +761,12 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				return json;
 			}
 			
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("id", 2);
+			map.put("processType", processType);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			ret = itemSetModelDao.deleteItemSet(configDBModel, itemSetID);

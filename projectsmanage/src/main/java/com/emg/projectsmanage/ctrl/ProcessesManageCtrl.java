@@ -2,6 +2,7 @@ package com.emg.projectsmanage.ctrl;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -382,7 +383,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			}
 
-			List<ProcessConfigModel> processConfigs = processConfigModelDao.selectAllProcessConfigModels();
+			List<ProcessConfigModel> processConfigs = processConfigModelDao.selectAllProcessConfigModels(type);
 			for (ProcessConfigModel processConfig : processConfigs) {
 				Integer moduleid = processConfig.getModuleid();
 				Integer configid = processConfig.getId();
@@ -529,6 +530,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		List<ItemAreaModel> itemAreas = new ArrayList<ItemAreaModel>();
 		try {
 			Integer type = ParamUtils.getIntParameter(request, "type", -1);
+			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
 			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> filterPara = null;
@@ -557,7 +559,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			}
 
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("id", 2);
+			map.put("processType", processType);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			itemAreas = itemSetModelDao.getItemAreas(configDBModel, type, itemAreaModel);
@@ -580,6 +585,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		List<ItemSetModel> itemsets = new ArrayList<ItemSetModel>();
 		try {
 			String filter = ParamUtils.getParameter(request, "filter", "");
+			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
 
 			Map<String, Object> filterPara = null;
 			ItemSetModel itemSetModel = new ItemSetModel();
@@ -619,7 +625,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			}
 
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(2);
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("id", 2);
+			map.put("processType", processType);
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			itemsets = itemSetModelDao.selectItemSets(configDBModel, itemSetModel, -1, -1);

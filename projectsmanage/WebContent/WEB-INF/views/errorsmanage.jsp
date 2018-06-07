@@ -1,6 +1,4 @@
-<%@page import="com.emg.projectsmanage.common.ItemSetType"%>
-<%@page import="com.emg.projectsmanage.common.ItemSetSysType"%>
-<%@page import="com.emg.projectsmanage.common.ItemSetUnit"%>
+<%@page import="com.emg.projectsmanage.common.ProcessType"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c"%>
@@ -63,6 +61,7 @@
 	function queryParams(params) {
 		params["batchid"] = $("#batchid").val();
 		params["errorsetid"] = $("#errorset").val();
+		params["processType"] = $("#processType").val();
 		return params;
 	}
 	
@@ -78,14 +77,37 @@
 		$('[data-toggle="errors"]').bootstrapTable("refresh");
 	}
 	
+	function getErrorSets (processType) {
+		jQuery.post("./errorsmanage.web", {
+			"atn" : "geterrorsets",
+			"processType" : processType
+		}, function(json) {
+			if (json.ret && json.ret > 0) {
+				var errorSets = json.errorsets;
+				if(errorSets && errorSets.length > 0) {
+					$("#errorset").empty();
+					$.each(errorSets, function(i, errorSet){
+						$("#errorset").append('<option value="' + errorSet.id + '">' + errorSet.name + '</option>');
+					});
+					$("#errorset").flexselect();
+				}
+			} else {
+				$.webeditor.showMsgLabel("alert", "获取ErrorSets失败");
+			}
+		}, "json");
+	}
+	
 	function exportErrors() {
 		$.webeditor.showMsgBox("", "导入中...");
 		var batchid = $("#batchid").val();
 		var errorsetid = $("#errorset").val();
+		var processType = $("#processType").val();
+		
 		jQuery.post("./errorsmanage.web", {
 			"atn" : "exporterrors",
 			"batchid" : batchid,
-			"errorsetid" : errorsetid
+			"errorsetid" : errorsetid,
+			"processType" : processType
 		}, function(json) {
 			if (json.ret && json.ret > 0) {
 				$("#comm_msgbox").remove();
@@ -97,19 +119,20 @@
 		}, "json");
 	}
 	
-	function exportErrors2Excel() {
-		var batchid = $("#batchid").val();
-		var errorsetid = $("#errorset").val();
-		window.open("/projectsmanage/errorsmanage.web?atn=exporterrors2excel&batchid=" + batchid + "&errorsetid=" + errorsetid);
-	}
-	
 </script>
 </head>
 <body>
 	<div class="container" style="max-width: 80%;">
 		<div id="headdiv"></div>
 		<div style="margin: 20px auto;">
-			<div class="input-group" style="width: 60%; margin: auto;">
+			<div class="input-group" style="width: 80%; margin: auto;">
+				<span class="input-group-addon">适用项目类型:</span>
+				<select name="processType" class="form-control" id="processType" onchange="getErrorSets(this.options[this.options.selectedIndex].value);">
+					<c:set var="processTypes" value="<%= ProcessType.values() %>"/>
+						<c:forEach items="${processTypes }" var="processType">
+							<option value="${processType.getValue() }">${processType.getDes() }</option>
+						</c:forEach>
+				</select>
 				<span class="input-group-addon">批次:</span>
 				<select name="batchid" class="form-control" id="batchid">
 					<option value="-1"></option>

@@ -33,11 +33,12 @@ public class ErrorSetModelDao {
 			if (record == null)
 				return errorSets;
 			Integer dbtype = configDBModel.getDbtype();
+			Integer processType = record.getProcessType();
 
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * ");
+			sql.append(" SELECT *, " + processType + " AS processType ");
 			sql.append(" FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");

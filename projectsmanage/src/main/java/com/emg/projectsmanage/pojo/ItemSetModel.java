@@ -4,6 +4,8 @@ public class ItemSetModel {
     private Long id;
 
     private String name;
+    
+    private Integer processType;
 
     private String layername;
 
@@ -90,4 +92,12 @@ public class ItemSetModel {
     public void setUpdatetime(String updatetime) {
         this.updatetime = updatetime;
     }
+
+	public Integer getProcessType() {
+		return processType;
+	}
+
+	public void setProcessType(Integer processType) {
+		this.processType = processType;
+	}
 }
