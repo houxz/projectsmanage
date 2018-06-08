@@ -161,7 +161,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				}
 				for (ProcessType pType : ProcessType.values()) {
 					Integer count = counts.get(pType.getValue());
-					if(count.compareTo(0) <= 0) continue;
+					if (count.compareTo(0) <= 0)
+						continue;
 					if (count.compareTo(offset) < 0) {
 						offset = offset - count;
 					} else if (count.compareTo(offset) >= 0 && count.compareTo(offset + limit) < 0) {
@@ -569,13 +570,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 							String refer = itemInfo.getReferdata();
 							if (refer != null && !refer.isEmpty()) {
-								String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
-								for (String r : rs) {
-									referLayers.add(r);
-								}
+								if (refer.contains(":")) {
+									String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+									for (String r : rs) {
+										referLayers.add(r);
+									}
 
-								Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
-								layercount = layercount > rc ? layercount : rc;
+									Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+									layercount = layercount > rc ? layercount : rc;
+								}
 							}
 						}
 
@@ -760,7 +763,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				json.addObject("result", 0);
 				return json;
 			}
-			
+
 			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
 
 			Map<String, Integer> map = new HashMap<String, Integer>();

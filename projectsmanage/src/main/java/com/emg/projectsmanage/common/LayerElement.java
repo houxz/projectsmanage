@@ -78,7 +78,19 @@ public enum LayerElement {
 	/**
 	 * 18, "国家级行政区划"
 	 */
-	Lane(18, "附属表");
+	Direction(18, "方向"),
+	/**
+	 * 19, "转向"
+	 */
+	Turn(19, "转向"),
+	/**
+	 * 18, "国家级行政区划"
+	 */
+	Lane(20, "车道"),
+	/**
+	 * 18, "国家级行政区划"
+	 */
+	JunctionView(21, "路口放大图");
 
 	private Integer value;
 	private String des;
