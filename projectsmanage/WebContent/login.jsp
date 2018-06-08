@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>登陆</title>
+<title>欢迎</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -40,7 +40,7 @@
 		<div id="headdiv"></div>
 		<div class="row">
 			<div class="col-md-offset-1">
-				<h1>任务管理系统</h1>
+				<h1>项目管理系统</h1>
 			</div>
 			<div class="col-md-offset-1 col-md-3" style="margin-top: 60px;">
 				<c:if test="${not empty param.login_error}">
