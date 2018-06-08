@@ -1890,7 +1890,9 @@ public class InterfaceCtrl extends BaseCtrl {
 			for (ConfigValueModel modelValue : configList) {
 				if (modelValue.getName().endsWith("库")) {
 					for (ConfigDBModel modelDb : dbList) {
-						if (modelDb.getId() == Integer.valueOf(modelValue.getValue())) {
+						if (modelValue.getValue() != null && 
+								!modelValue.getValue().isEmpty() && 
+								(modelDb.getId() == Integer.valueOf(modelValue.getValue()))) {
 							Integer dbtype = modelDb.getDbtype();
 							String sdbtype = "";
 							if (dbtype == 1) {
