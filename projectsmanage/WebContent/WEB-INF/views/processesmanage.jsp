@@ -99,7 +99,7 @@
 	function unitFormat(value, row, index) {
 		return itemsetUnits[row.unit];
 	}
-
+	
 	function progressFormat(value, row, index) {
 		var values = value.split(',');
 		var processType = row.type;
@@ -115,7 +115,7 @@
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[0]).toFixed(3)
+							+ (parseFloat(values[0]).toFixed(3) > 100 ? 100 : parseFloat(values[0]).toFixed(3))
 							+ '%;background-color: '
 							+ colors[0]
 							+ ';">'
@@ -130,7 +130,7 @@
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[1]).toFixed(3)
+							+ (parseFloat(values[1]).toFixed(3) > 100 ? 100 : parseFloat(values[1]).toFixed(3))
 							+ '%;background-color: '
 							+ colors[1]
 							+ ';">'
@@ -147,7 +147,7 @@
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[2]).toFixed(3)
+							+ (parseFloat(values[2]).toFixed(3) > 100 ? 100 : parseFloat(values[2]).toFixed(3))
 							+ '%;background-color: '
 							+ colors[2]
 							+ ';">'
@@ -162,7 +162,7 @@
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[3]).toFixed(3)
+							+ (parseFloat(values[3]).toFixed(3) > 100 ? 100 : parseFloat(values[3]).toFixed(3))
 							+ '%;background-color: '
 							+ colors[3]
 							+ ';">'
@@ -178,7 +178,7 @@
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[0]).toFixed(3)
+							+ (parseFloat(values[0]).toFixed(3) > 100 ? 100 : parseFloat(values[0]).toFixed(3))
 							+ '%;background-color: '
 							+ colors[0]
 							+ ';">'
@@ -194,7 +194,7 @@
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[1]).toFixed(3)
+							+ (parseFloat(values[1]).toFixed(3) > 100 ? 100 : parseFloat(values[1]).toFixed(3))
 							+ '%;background-color: '
 							+ colors[1]
 							+ ';">'
@@ -211,7 +211,7 @@
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[2]).toFixed(3)
+							+ (parseFloat(values[2]).toFixed(3) > 100 ? 100 : parseFloat(values[2]).toFixed(3))
 							+ '%;background-color: '
 							+ colors[2]
 							+ ';">'
@@ -227,7 +227,7 @@
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[0]).toFixed(3)
+							+ (parseFloat(values[0]).toFixed(3) > 100 ? 100 : parseFloat(values[0]).toFixed(3))
 							+ '%;background-color: '
 							+ colors[0]
 							+ ';">'
@@ -243,7 +243,7 @@
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[1]).toFixed(3)
+							+ (parseFloat(values[1]).toFixed(3) > 100 ? 100 : parseFloat(values[1]).toFixed(3))
 							+ '%;background-color: '
 							+ colors[1]
 							+ ';">'
@@ -260,7 +260,7 @@
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[2]).toFixed(3)
+							+ (parseFloat(values[2]).toFixed(3) > 100 ? 100 : parseFloat(values[2]).toFixed(3))
 							+ '%;background-color: '
 							+ colors[2]
 							+ ';">'
@@ -277,7 +277,7 @@
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[0]).toFixed(3)
+							+ (parseFloat(values[0]).toFixed(3) > 100 ? 100 : parseFloat(values[0]).toFixed(3))
 							+ '%;background-color: '
 							+ colors[0]
 							+ ';">'
@@ -292,45 +292,13 @@
 			html.push('"style="margin-bottom: 3px;">');
 			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[1]).toFixed(3)
+							+ (parseFloat(values[1]).toFixed(3) > 100 ? 100 : parseFloat(values[1]).toFixed(3))
 							+ '%;background-color: '
 							+ colors[1]
 							+ ';">'
 							+ ' <span style="margin:0 6px;color: black;">'
 							+ parseFloat(values[1]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div></div>');
-	
-			/* html.push('<div>');
-			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="改错准备进度：'
-							+ parseFloat(values[2]).toFixed(3) + '&#8453;">');
-			html.push('<div class="progress');
-			if (values[2] > 0 && values[2] < 100 && row.state == 1)
-				html.push(' progress-striped active');
-			html.push('"style="margin-bottom: 3px;">');
-			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
-							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[2]).toFixed(3)
-							+ '%;background-color: '
-							+ colors[2]
-							+ ';">'
-							+ ' <span style="margin:0 6px;color: black;">'
-							+ parseFloat(values[2]).toFixed(3) + '&#8453;</span>' + ' </div>');
-			html.push('</div></div>');
-	
-			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="改错进度：' + parseFloat(values[3]).toFixed(3) + '&#8453;">');
-			html.push('<div class="progress');
-			if (values[3] > 0 && values[3] < 100 && row.state == 1)
-				html.push(' progress-striped active');
-			html.push('"style="margin-bottom: 3px;">');
-			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
-							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-							+ parseFloat(values[3]).toFixed(3)
-							+ '%;background-color: '
-							+ colors[3]
-							+ ';">'
-							+ ' <span style="margin:0 6px;color: black;">'
-							+ parseFloat(values[3]).toFixed(3) + '&#8453;</span>' + ' </div>');
-			html.push('</div></div></div>'); */
 		}
 		return html.join('');
 	}
