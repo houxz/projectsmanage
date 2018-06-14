@@ -1504,27 +1504,33 @@ public class InterfaceCtrl extends BaseCtrl {
 			@RequestParam("stage") Integer stage,
 			@RequestParam("progress") Float progress) {
 		logger.warn("START");
-		logger.warn("processID: " + processID);
-		logger.warn("stage: " + stage);
-		logger.warn("progress: " + progress);
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean status = false;
 		try {
 			if (stage <= 0 || stage > 4) {
 				json.addObject("status", false);
 				json.addObject("option", "错误的数据范围<stage>:" + stage);
+				logger.warn("processID: " + processID);
+				logger.warn("stage: " + stage);
+				logger.warn("progress: " + progress);
 				logger.error("错误的数据范围<stage>:" + stage);
 				return json;
 			}
 			if (processID.compareTo(0L) <= 0) {
 				json.addObject("status", false);
 				json.addObject("option", "错误的数据范围<processID>:" + processID);
+				logger.warn("processID: " + processID);
+				logger.warn("stage: " + stage);
+				logger.warn("progress: " + progress);
 				logger.error("错误的数据范围<processID>:" + processID);
 				return json;
 			}
 			if (progress.compareTo((float) 0) <= 0) {
 				json.addObject("status", false);
 				json.addObject("option", "错误的数据范围<progress>:" + progress);
+				logger.warn("processID: " + processID);
+				logger.warn("stage: " + stage);
+				logger.warn("progress: " + progress);
 				logger.error("错误的数据范围<progress>:" + progress);
 				return json;
 			}
@@ -1532,6 +1538,9 @@ public class InterfaceCtrl extends BaseCtrl {
 			if (process == null || process.getId() == null || process.getId().compareTo(0L) <= 0) {
 				json.addObject("status", false);
 				json.addObject("option", "未找到流程<ID>:" + processID);
+				logger.warn("processID: " + processID);
+				logger.warn("stage: " + stage);
+				logger.warn("progress: " + progress);
 				logger.error("未找到流程<ID>:" + processID);
 				return json;
 			}
