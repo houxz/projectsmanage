@@ -226,7 +226,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				newProcess.setUserid(uid);
 				newProcess.setUsername(username);
 				if(type.equals(ProcessType.COUNTRY.getValue())) {
-					newProcess.setProgress("0,0");
+					newProcess.setProgress("0,0,0,0");
 				}
 				if (processModelDao.insertSelective(newProcess) <= 0) {
 					ret = -1;
