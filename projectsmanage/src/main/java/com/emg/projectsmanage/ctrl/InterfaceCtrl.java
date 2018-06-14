@@ -472,9 +472,9 @@ public class InterfaceCtrl extends BaseCtrl {
 					taskCount.setQctask(0);
 					taskCount.setChecktask(0);
 					taskCount.setCompletetask(0);
-					try{
+					try {
 						projectsTaskCountDao.newProjectsProgress(taskCount);
-					}catch(Exception e){
+					} catch (Exception e) {
 						logger.error(e.getMessage(), e);
 					}
 				}
@@ -619,8 +619,7 @@ public class InterfaceCtrl extends BaseCtrl {
 						} else {
 							status = true;
 						}
-					} else if (systemid.compareTo(SystemType.MapDbEdit_NRFC.getValue()) == 0 ||
-							systemid.compareTo(SystemType.MapDbEdit_Attach.getValue()) == 0) {
+					} else if (systemid.compareTo(SystemType.MapDbEdit_NRFC.getValue()) == 0 || systemid.compareTo(SystemType.MapDbEdit_Attach.getValue()) == 0) {
 						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)->(1,5)
 							if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
 								status = true;
@@ -689,8 +688,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									// by xiao 计算任务完成进度 end
 
 									if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
-										ProjectModel project = projectModelDao
-												.selectByPrimaryKey(Long.valueOf(projectid));
+										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
 										project.setOverstate(4);
 										projectModelDao.updateByPrimaryKey(project);
 									}
@@ -699,14 +697,12 @@ public class InterfaceCtrl extends BaseCtrl {
 							}
 						}
 					} else if (systemid.compareTo(SystemType.MapDbEdit_Country.getValue()) == 0) {// 全国质检
-						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1
-								&& processafter == 5) {// (0,0)
+						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)
 							// ->
 							// (1,5)
 							if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
 								status = true;
-						} else if (roleid == 5 && statebefore == 1 && processbefore == 5 && stateafter == 3
-								&& processafter == 5) {// (1,5)
+						} else if (roleid == 5 && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {// (1,5)
 							// ->
 							// (3,5)
 							if (projectsTaskCountDao.comTaskDone(taskCount) > 0) {
@@ -720,7 +716,8 @@ public class InterfaceCtrl extends BaseCtrl {
 									// by xiao 计算任务完成进度
 									Integer totalTask = projectsCount.getTotaltask();
 									Integer completeTask = projectsCount.getCompletetask();
-//									Double progress = ((double) completeTask / (double) totalTask) * 100;
+									// Double progress = ((double) completeTask
+									// / (double) totalTask) * 100;
 
 									// by xiao 更新流程进度
 									// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
@@ -730,8 +727,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									valuemodel.setName("%项目id");
 									valuemodel.setValue(projectid.toString());
 									valuemodel.setModuleid(2);
-									List<ConfigValueModel> valueList = configValueModelDao
-											.selectProcessIdByConfig(valuemodel);
+									List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
 									if (valueList.size() > 0) {
 										for (ConfigValueModel value : valueList) {
 											Long idProcess = value.getProcessId();
@@ -739,8 +735,7 @@ public class InterfaceCtrl extends BaseCtrl {
 											String sProgress = process.getProgress();
 											if (sProgress.length() > 0) {
 												String[] arProgress = sProgress.split(",");
-												ArrayList<String> alProgress = new ArrayList<String>(
-														Arrays.asList(arProgress));
+												ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
 												Integer length = alProgress.size();
 												while (length < CommonConstants.PROCESSCOUNT_COUNTRY) {
 													alProgress.add("0");
@@ -748,8 +743,10 @@ public class InterfaceCtrl extends BaseCtrl {
 												}
 												// X,X,X,X
 												// 质检进度在第四个X
-												// alProgress.set(3, String.format("%.3f", progress));
-												
+												// alProgress.set(3,
+												// String.format("%.3f",
+												// progress));
+
 												StringBuilder sbProgress = new StringBuilder();
 												for (String p : alProgress) {
 													sbProgress.append(p);
@@ -770,8 +767,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									// by xiao 计算任务完成进度 end
 
 									if (totalTask.compareTo(completeTask) == 0) {
-										ProjectModel project = projectModelDao
-												.selectByPrimaryKey(Long.valueOf(projectid));
+										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
 										project.setOverstate(4); // 项目完成
 										projectModelDao.updateByPrimaryKey(project);
 									}
@@ -781,13 +777,12 @@ public class InterfaceCtrl extends BaseCtrl {
 						} else {
 							status = true;
 						}
-					} else if ( systemid.compareTo(SystemType.MapDbEdit_Attach.getValue()) == 0) {
-						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1
-								&& processafter == 5) {// (0,0)->(1,5)
+					} else if (systemid.compareTo(SystemType.MapDbEdit_Attach.getValue()) == 0) {
+						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)->(1,5)
 							if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
 								status = true;
 						} else if (roleid == 6 && statebefore == 1 && processbefore == 6 && stateafter == 3 && processafter == 6) {// (1,6)->(3,6)
-								
+
 							logger.debug("submitTaskStatus begin!");
 							if (projectsTaskCountDao.comTaskDone(taskCount) > 0) {
 								Map<String, Object> map = new HashMap<String, Object>();
@@ -815,8 +810,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									valuemodel.setName("%项目id");
 									valuemodel.setValue(projectid.toString());
 									valuemodel.setModuleid(2);
-									List<ConfigValueModel> valueList = configValueModelDao
-											.selectProcessIdByConfig(valuemodel);
+									List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
 									if (valueList.size() > 0) {
 										for (ConfigValueModel value : valueList) {
 											Long idProcess = value.getProcessId();
@@ -824,8 +818,7 @@ public class InterfaceCtrl extends BaseCtrl {
 											String sProgress = process.getProgress();
 											if (sProgress.length() > 0) {
 												String[] arProgress = sProgress.split(",");
-												ArrayList<String> alProgress = new ArrayList<String>(
-														Arrays.asList(arProgress));
+												ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
 												Integer length = alProgress.size();
 												while (length < CommonConstants.PROCESSCOUNT_NRFC) {
 													alProgress.add("0");
@@ -855,8 +848,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									// by xiao 计算任务完成进度 end
 
 									if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
-										ProjectModel project = projectModelDao
-												.selectByPrimaryKey(Long.valueOf(projectid));
+										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
 										project.setOverstate(4);
 										projectModelDao.updateByPrimaryKey(project);
 									}
@@ -1511,30 +1503,39 @@ public class InterfaceCtrl extends BaseCtrl {
 			@RequestParam("processid") Long processID,
 			@RequestParam("stage") Integer stage,
 			@RequestParam("progress") Float progress) {
-		logger.debug("updateProcessProgressByID start!");
+		logger.warn("START");
+		logger.warn("processID: " + processID);
+		logger.warn("stage: " + stage);
+		logger.warn("progress: " + progress);
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean status = false;
 		try {
 			if (stage <= 0 || stage > 4) {
 				json.addObject("status", false);
-				json.addObject("option", "错误的数据范围，stage：" + stage);
-				logger.error("错误的数据范围，stage：" + stage);
+				json.addObject("option", "错误的数据范围<stage>:" + stage);
+				logger.error("错误的数据范围<stage>:" + stage);
 				return json;
 			}
 			if (processID.compareTo(0L) <= 0) {
 				json.addObject("status", false);
-				json.addObject("option", "错误的数据范围，processID：" + processID);
-				logger.error("错误的数据范围，processID：" + processID);
+				json.addObject("option", "错误的数据范围<processID>:" + processID);
+				logger.error("错误的数据范围<processID>:" + processID);
+				return json;
+			}
+			if (progress.compareTo((float) 0) <= 0) {
+				json.addObject("status", false);
+				json.addObject("option", "错误的数据范围<progress>:" + progress);
+				logger.error("错误的数据范围<progress>:" + progress);
 				return json;
 			}
 			ProcessModel process = processModelDao.selectByPrimaryKey(processID);
 			if (process == null || process.getId() == null || process.getId().compareTo(0L) <= 0) {
 				json.addObject("status", false);
-				json.addObject("option", "未找到流程，ID：" + processID);
-				logger.error("未找到流程，ID：" + processID);
+				json.addObject("option", "未找到流程<ID>:" + processID);
+				logger.error("未找到流程<ID>:" + processID);
 				return json;
 			}
-			
+
 			Integer proType = process.getType();
 
 			if (proType.equals(ProcessType.ERROR.getValue())) {
@@ -1760,7 +1761,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("option", e.getMessage());
 		}
 		json.addObject("status", status);
-		logger.debug("updateProcessProgressByID end!");
+		logger.warn("END");
 		return json;
 	}
 
@@ -1890,9 +1891,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			for (ConfigValueModel modelValue : configList) {
 				if (modelValue.getName().endsWith("库")) {
 					for (ConfigDBModel modelDb : dbList) {
-						if (modelValue.getValue() != null && 
-								!modelValue.getValue().isEmpty() && 
-								(modelDb.getId() == Integer.valueOf(modelValue.getValue()))) {
+						if (modelValue.getValue() != null && !modelValue.getValue().isEmpty() && (modelDb.getId() == Integer.valueOf(modelValue.getValue()))) {
 							Integer dbtype = modelDb.getDbtype();
 							String sdbtype = "";
 							if (dbtype == 1) {
