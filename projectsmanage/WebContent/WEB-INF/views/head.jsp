@@ -42,7 +42,7 @@
 		<div class="container-fluid">
 			<div class="navbar-header" style="width: 16%; min-width: 160px;">
 				<a class="navbar-brand headicon" href="#"></a> <span
-					class="headword"><strong>任务管理系统</strong></span>
+					class="headword"><strong>项目管理系统</strong></span>
 			</div>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
