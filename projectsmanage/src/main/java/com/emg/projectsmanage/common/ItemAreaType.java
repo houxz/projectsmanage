@@ -8,9 +8,9 @@ package com.emg.projectsmanage.common;
  */
 public enum ItemAreaType {
 	/**
-	 * 0-全国
+	 * 0-国家
 	 */
-	ALL(0, "全国"),
+	COUNTRY(0, "国家"),
 	/**
 	 * 1-省
 	 */
@@ -18,7 +18,7 @@ public enum ItemAreaType {
 	/**
 	 * 2-市
 	 */
-	SOLVED(2, "市");
+	CITY(2, "市");
 	/**
 	 * 3-区
 	 */
