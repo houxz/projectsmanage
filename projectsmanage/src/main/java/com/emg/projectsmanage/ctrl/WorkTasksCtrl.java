@@ -26,7 +26,6 @@ import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
 import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
-import com.emg.projectsmanage.service.EmapgoAccountService;
 
 @Controller
 @RequestMapping("/worktasks.web")
@@ -36,9 +35,6 @@ public class WorkTasksCtrl extends BaseCtrl {
 
 	@Autowired
 	private ProjectsTaskCountModelDao projectsTaskCountDao;
-
-	@Autowired
-	private EmapgoAccountService emapgoAccountService;
 
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {

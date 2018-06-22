@@ -59,7 +59,9 @@ public class RedisCache {
 			shard = tail.get(tail.firstKey());
 		}
 		JedisPool pool = new JedisPool(jedisPoolConfig, shard.get("host").toString(), Integer.valueOf(shard.get("port")));
-		return pool.getResource();
+		Jedis ret = pool.getResource();
+		pool.close();
+		return ret;
 	}
 
 	/**

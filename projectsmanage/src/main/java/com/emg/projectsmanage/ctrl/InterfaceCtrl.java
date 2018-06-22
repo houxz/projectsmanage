@@ -45,7 +45,6 @@ import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
 import com.emg.projectsmanage.pojo.ProjectsTaskLogModel;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
-import com.emg.projectsmanage.service.CommService;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 
 import com.emg.projectsmanage.library.JNATest;
@@ -61,8 +60,6 @@ public class InterfaceCtrl extends BaseCtrl {
 	private ProjectModelDao projectModelDao;
 	@Autowired
 	private ProjectsUserModelDao projectsUserModelDao;
-	@Autowired
-	private CommService commService;
 	@Autowired
 	private UserRoleModelDao userRoleModelDao;
 	@Autowired

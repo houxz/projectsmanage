@@ -21,7 +21,6 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
-import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.projectsmanage.pojo.ProjectModelExample;
 import com.emg.projectsmanage.pojo.ProjectModelExample.Criteria;
 import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
@@ -34,9 +33,6 @@ public class ProjectsProcessCtrl extends BaseCtrl {
 
 	@Autowired
 	private ProjectsTaskCountModelDao projectsTaskCountDao;
-
-	@Autowired
-	private ProjectsUserModelDao projectsUserModelDao;
 
 	@Autowired
 	private ProjectModelDao projectModelDao;

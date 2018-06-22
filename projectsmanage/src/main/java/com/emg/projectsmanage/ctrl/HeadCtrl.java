@@ -11,7 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.pojo.EmployeeModel;
-import com.emg.projectsmanage.service.CommService;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 
 @Controller
@@ -19,8 +18,6 @@ import com.emg.projectsmanage.service.EmapgoAccountService;
 public class HeadCtrl extends BaseCtrl {
 
 	private static final Logger logger = LoggerFactory.getLogger(HeadCtrl.class);
-	@Autowired
-	private CommService commService;
 	@Autowired
 	private EmapgoAccountService emapgoAccountService;
 

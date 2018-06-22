@@ -26,7 +26,6 @@ import com.emg.projectsmanage.dao.projectsmanager.LogModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
 import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.LogModel;
-import com.emg.projectsmanage.service.CommService;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 
 @Controller
@@ -43,9 +42,6 @@ public class LoginCtrl extends BaseCtrl {
 
 	@Autowired
 	private UserRoleModelDao userRoleModelDao;
-
-	@Autowired
-	private CommService commService;
 
 	@RequestMapping()
 	public String login(Model model, HttpSession session, HttpServletRequest request) {
