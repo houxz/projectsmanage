@@ -5,6 +5,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="sec"
 	uri="http://www.springframework.org/security/tags"%>
+<script>
 <%!String getMenuCode(String url) {
 		if (url.indexOf("/systemsets.web") > 0) {
 			return "990";

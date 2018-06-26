@@ -431,7 +431,7 @@
 			<div class="panel panel-default" style="margin-bottom: 0;">
 				<div class="panel-body">
 					<div class="input-group">
-						<input type="input" class="form-control" id="input-expand-node"
+						<input class="form-control" id="input-expand-node"
 							placeholder="输入关键字，按回车开始查找"
 							onkeypress="if (event.keyCode==13) { findExpandibleNodess(); }">
 						<div class="input-group-btn">

@@ -160,7 +160,7 @@
 				<div class="panel panel-default">
 					<div class="panel-body">
 						<div class="input-group">
-							<input type="input" class="form-control" id="input-expand-node"
+							<input class="form-control" id="input-expand-node"
 								placeholder="查找人员">
 							<div class="input-group-btn">
 								<button type="button" class="btn btn-default" tabindex="-1"
@@ -224,6 +224,7 @@
 				</div>
 			</div>
 		</div>
+	</div>
 	</div>
 </body>
 </html>
