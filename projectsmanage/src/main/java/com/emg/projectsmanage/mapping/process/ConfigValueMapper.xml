@@ -10,7 +10,7 @@
 		<result column="name" property="name" jdbcType="VARCHAR" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		tb_config_value.id as ida, processid, configid, value, name
+		tb_config_value.id as ida, processid, tb_config_value.moduleid, configid, value, name
 	</sql>
 	
 	<select id="selectConfigsById" resultMap="BaseResultMap"
