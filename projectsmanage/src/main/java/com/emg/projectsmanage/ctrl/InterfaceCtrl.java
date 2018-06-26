@@ -1500,7 +1500,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			@RequestParam("processid") Long processID,
 			@RequestParam("stage") Integer stage,
 			@RequestParam("progress") Float progress) {
-		logger.warn("START");
+		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean status = false;
 		try {
@@ -1767,7 +1767,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("option", e.getMessage());
 		}
 		json.addObject("status", status);
-		logger.warn("END");
+		logger.debug("END");
 		return json;
 	}
 
