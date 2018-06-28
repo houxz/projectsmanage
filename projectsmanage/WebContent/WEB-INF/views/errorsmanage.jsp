@@ -90,6 +90,7 @@
 						$("#errorset").append('<option value="' + errorSet.id + '">' + errorSet.name + '</option>');
 					});
 					$("#errorset").flexselect();
+					$("#errorset").val(null);
 				}
 			} else {
 				$.webeditor.showMsgLabel("alert", "获取ErrorSets失败");
