@@ -11,6 +11,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -310,10 +311,10 @@ public class ErrorModelDao {
 				 * 每次插入条数
 				 */
 				Integer batch = 2000;
-				HashSet<Long> errorids = new HashSet<Long>();
+				LinkedHashSet<Long> errorids = new LinkedHashSet<Long>();
 				ConcurrentHashMap<Long, Long> mact = new ConcurrentHashMap<Long, Long>();
 				for (Integer i = 0; i <= errorAndRelateds.size() / batch; i++) {
-					HashSet<Long> curBatchErrors = new HashSet<Long>();
+					LinkedHashSet<Long> curBatchErrors = new LinkedHashSet<Long>();
 					for (int j = 0; j < batch; j++) {
 						Integer index = i * batch + j;
 						if (index.compareTo(errorAndRelateds.size()) < 0) {
@@ -384,8 +385,11 @@ public class ErrorModelDao {
 					Integer k = 0;
 					Iterator<Long> it = curBatchErrors.iterator();
 					while (rs.next()) {
-						mact.put(Long.valueOf(it.next().toString()), rs.getLong(1));
+						String before = it.next().toString();
+						Long after = rs.getLong(1);
+						mact.put(Long.valueOf(before), after);
 						k++;
+						logger.warn("----------------------->ZSEN: " + before + " - " + after);
 					}
 					for (int _ret : _rets) {
 						ret += _ret;
