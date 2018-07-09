@@ -2,6 +2,7 @@ package com.emg.projectsmanage.ctrl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,14 +21,20 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.pojo.EmployeeModel;
+import com.emg.projectsmanage.pojo.ProcessConfigModel;
+import com.emg.projectsmanage.pojo.ProcessConfigValueModel;
 import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.common.CommonConstants;
+import com.emg.projectsmanage.common.OwnerStatus;
+import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.common.SystemType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ConfigValueModelDao;
+import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
+import com.emg.projectsmanage.dao.process.ProcessConfigValueModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
@@ -70,6 +77,10 @@ public class InterfaceCtrl extends BaseCtrl {
 	private ProjectsTaskCountModelDao projectsTaskCountDao;
 	@Autowired
 	private ProcessModelDao processModelDao;
+	@Autowired
+	private ProcessConfigModelDao processConfigModelDao;
+	@Autowired
+	private ProcessConfigValueModelDao processConfigValueModelDao;
 	@Autowired
 	private ConfigValueModelDao configValueModelDao;
 	@Autowired
@@ -1443,6 +1454,114 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("option", e.getMessage());
 		}
 		logger.debug("QCUndoProjectIDs end!");
+		return json;
+	}
+	
+	@RequestMapping(params = "action=insertNewProcess", method = RequestMethod.POST)
+	private ModelAndView insertNewProcess(Model model, HttpSession session, HttpServletRequest request, 
+			@RequestParam("type") Integer newProcessType,
+			@RequestParam("name") String newProcessName) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			String suffix = new String();
+			Integer systemid = -1;
+			
+			if(newProcessType.equals(ProcessType.ERROR.getValue())){
+				suffix = "_改错";
+				systemid = SystemType.MapDbEdit.getValue();
+			} else if(newProcessType.equals(ProcessType.NRFC.getValue())) {
+				suffix = "_NR/FC";
+				systemid = SystemType.MapDbEdit_NRFC.getValue();
+			} else if(newProcessType.equals(ProcessType.ATTACH.getValue())) {
+				suffix = "_关系附属表";
+				systemid = SystemType.MapDbEdit_Attach.getValue();
+			} else if(newProcessType.equals(ProcessType.COUNTRY.getValue())) {
+				suffix = "_全国质检";
+				systemid = SystemType.MapDbEdit_Country.getValue();
+			} else if(newProcessType.equals(ProcessType.POIEDIT.getValue())) {
+				suffix = "_POI编辑";
+				systemid = SystemType.poivideoedit.getValue();
+			}
+			
+			ProcessModel newProcess = new ProcessModel();
+			newProcess.setName(newProcessName);
+			newProcess.setType(newProcessType);
+			newProcess.setPriority(0);
+			newProcess.setState(0);
+			newProcess.setUserid(0);
+			newProcess.setUsername("系统工具");
+			if(newProcessType.equals(ProcessType.POIEDIT.getValue())) {
+				newProcess.setProgress("0,0");
+			} else {
+				newProcess.setProgress("0,0,0,0");
+			}
+			if (processModelDao.insertSelective(newProcess) <= 0) {
+				json.addObject("result", false);
+				json.addObject("resultMsg", "新建流程失败");
+				return json;
+			}
+			Long newProcessID = newProcess.getId();
+			
+			String projectName = newProcessName + suffix;
+			ProjectModel newpro = new ProjectModel();
+			newpro.setProcessid(newProcessID);
+			newpro.setName(projectName);
+			newpro.setSystemid(systemid);
+			newpro.setProtype(0);
+			newpro.setPdifficulty(0);
+			newpro.setTasknum(-1);
+			newpro.setOverstate(0);
+			newpro.setCreateby(0);
+			newpro.setPriority(0);
+			newpro.setOwner(OwnerStatus.PUBLIC.getValue());
+			
+			if (projectModelDao.insert(newpro) <= 0) {
+				json.addObject("result", false);
+				json.addObject("resultMsg", "新建流程失败");
+				return json;
+			}
+			Long projectid = newpro.getId();
+			
+			List<ProcessConfigValueModel> configValues = new ArrayList<ProcessConfigValueModel>();
+
+			configValues.add(new ProcessConfigValueModel(newProcessID, 2, 11, projectid.toString()));
+			configValues.add(new ProcessConfigValueModel(newProcessID, 2, 12, projectName));
+			
+			List<ProcessConfigModel> processConfigs = processConfigModelDao.selectAllProcessConfigModels(newProcessType);
+			for (ProcessConfigModel processConfig : processConfigs) {
+				Integer moduleid = processConfig.getModuleid();
+				Integer configid = processConfig.getId();
+				String defaultValue = processConfig.getDefaultValue() == null ? new String() : processConfig.getDefaultValue().toString();
+
+				if ((moduleid.equals(1) && configid.equals(3)) || (moduleid.equals(1) && configid.equals(4)) || (moduleid.equals(2) && configid.equals(11))
+						|| (moduleid.equals(2) && configid.equals(12)))
+					continue;
+
+				Enumeration<String> paramNames = request.getParameterNames();
+				while (paramNames.hasMoreElements()) {
+					String paramName = paramNames.nextElement();
+					if (!paramName.equals("config_" + moduleid + "_" + configid))
+						continue;
+					defaultValue = ParamUtils.getParameter(request, paramName);
+				}
+
+				configValues.add(new ProcessConfigValueModel(newProcessID, moduleid, configid, defaultValue));
+			}
+
+			if (processConfigValueModelDao.deleteByProcessID(newProcessID) >= 0) {
+				processConfigValueModelDao.insert(configValues);
+			}
+			
+			json.addObject("status", true);
+			json.addObject("option", newProcessID);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("result", false);
+			json.addObject("resultMsg", e.getMessage());
+			return json;
+		}
+		logger.debug("END");
 		return json;
 	}
 

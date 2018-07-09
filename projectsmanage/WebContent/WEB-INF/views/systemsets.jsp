@@ -162,6 +162,16 @@
 										</c:forEach>
 								</select></td>
 							</tr>
+							<tr>
+								<td class="configKey">POI项目编辑任务库</td>
+								<td><select class="form-control systemSet" id="config_19">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('task') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
 							
 							<tr>
 								<td class="configKey">错误库</td>

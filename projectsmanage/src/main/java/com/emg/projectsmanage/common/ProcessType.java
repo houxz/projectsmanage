@@ -22,7 +22,11 @@ public enum ProcessType {
 	/**
 	 * 4, "全国质检项目"
 	 */
-	COUNTRY(4, "全国质检项目");
+	COUNTRY(4, "全国质检项目"),
+	/**
+	 * 5, "POI编辑项目"
+	 */
+	POIEDIT(5, "POI编辑项目");
 
 	private Integer value;
 	private String des;

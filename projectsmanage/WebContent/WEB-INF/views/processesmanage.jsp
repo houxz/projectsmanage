@@ -299,6 +299,37 @@
 							+ ' <span style="margin:0 6px;color: black;">'
 							+ parseFloat(values[1]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div></div>');
+		} else if(processType == 5) {
+			html.push('<div>');
+			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="POI编辑准备进度：' + parseFloat(values[0]).toFixed(3) + '&#8453;">');
+			html.push('<div class="progress');
+			if (values[0] > 0 && values[0] < 100 && row.state == 1)
+				html.push(' progress-striped active');
+			html.push('"style="margin-bottom: 3px;">');
+			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
+							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
+							+ (parseFloat(values[0]).toFixed(3) > 100 ? 100 : parseFloat(values[0]).toFixed(3))
+							+ '%;background-color: '
+							+ colors[0]
+							+ ';">'
+							+ ' <span style="margin:0 6px;color: black;">'
+							+ parseFloat(values[0]).toFixed(3) + '&#8453;</span>' + ' </div>');
+			html.push('</div></div>');
+			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="POI编辑进度：'
+							+ parseFloat(values[1]).toFixed(3) + '&#8453;">');
+			html.push('<div class="progress');
+			if (values[1] > 0 && values[1] < 100 && row.state == 1)
+				html.push(' progress-striped active');
+			html.push('"style="margin-bottom: 3px;">');
+			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
+							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
+							+ (parseFloat(values[1]).toFixed(3) > 100 ? 100 : parseFloat(values[1]).toFixed(3))
+							+ '%;background-color: '
+							+ colors[1]
+							+ ';">'
+							+ ' <span style="margin:0 6px;color: black;">'
+							+ parseFloat(values[1]).toFixed(3) + '&#8453;</span>' + ' </div>');
+			html.push('</div></div></div>');
 		}
 		return html.join('');
 	}
@@ -374,17 +405,19 @@
 
 	function operationFormat(value, row, index) {
 		var html = new Array();
-		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="getConfig('
-						+ row.id
-						+ ',\''
-						+ row.name
-						+ '\','
-						+ row.priority
-						+ ','
-						+ row.type
-						+ ','
-						+ row.state
-						+ ');">配置</div>');
+		if (row.type != 5) {
+			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="getConfig('
+							+ row.id
+							+ ',\''
+							+ row.name
+							+ '\','
+							+ row.priority
+							+ ','
+							+ row.type
+							+ ','
+							+ row.state
+							+ ');">配置</div>');
+		}
 		if (row.state == 1) {
 			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,' + row.id + ')">暂停</div>');
 		} else if (row.state == 2 || row.state == 0) {

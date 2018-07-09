@@ -1,53 +1,64 @@
 package com.emg.projectsmanage.pojo;
 
 public class ProcessConfigValueModel {
-    private Integer id;
+	private Integer id;
 
-    private Long processid;
+	private Long processid;
 
-    private Integer moduleid;
+	private Integer moduleid;
 
-    private Integer configid;
+	private Integer configid;
 
-    private String value;
+	private String value;
 
-    public Integer getId() {
-        return id;
-    }
+	public ProcessConfigValueModel() {
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	}
 
-    public Long getProcessid() {
-        return processid;
-    }
+	public ProcessConfigValueModel(Long processid, Integer moduleid, Integer configid, String value) {
+		this.processid = processid;
+		this.moduleid = moduleid;
+		this.configid = configid;
+		this.value = value;
+	}
 
-    public void setProcessid(Long processid) {
-        this.processid = processid;
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public Integer getModuleid() {
-        return moduleid;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public void setModuleid(Integer moduleid) {
-        this.moduleid = moduleid;
-    }
+	public Long getProcessid() {
+		return processid;
+	}
 
-    public Integer getConfigid() {
-        return configid;
-    }
+	public void setProcessid(Long processid) {
+		this.processid = processid;
+	}
 
-    public void setConfigid(Integer configid) {
-        this.configid = configid;
-    }
+	public Integer getModuleid() {
+		return moduleid;
+	}
 
-    public String getValue() {
-        return value;
-    }
+	public void setModuleid(Integer moduleid) {
+		this.moduleid = moduleid;
+	}
 
-    public void setValue(String value) {
-        this.value = value == null ? null : value.trim();
-    }
+	public Integer getConfigid() {
+		return configid;
+	}
+
+	public void setConfigid(Integer configid) {
+		this.configid = configid;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value == null ? null : value.trim();
+	}
 }

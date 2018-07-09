@@ -267,34 +267,14 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						projectid332 = newpro.getId();
 					}
 					if (projectid332 > 0) {
-						ProcessConfigValueModel configValue = new ProcessConfigValueModel();
-						configValue.setProcessid(newProcessID);
-						configValue.setModuleid(1);
-						configValue.setConfigid(3);
-						configValue.setValue(projectid332.toString());
-
-						configValues.add(configValue);
-
-						ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
-						_configValue.setProcessid(newProcessID);
-						_configValue.setModuleid(1);
-						_configValue.setConfigid(4);
-						_configValue.setValue(config_1_4);
-
-						configValues.add(_configValue);
+						configValues.add(new ProcessConfigValueModel(newProcessID, 1, 3, projectid332.toString()));
+						configValues.add(new ProcessConfigValueModel(newProcessID, 1, 4, config_1_4));
 					}
 				}
 			} else {
 				if(!type.equals(ProcessType.NRFC.getValue()) && !type.equals(ProcessType.ATTACH.getValue())) {
 					String config_1_4 = newProcessName + "_质检";
-
-					ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
-					_configValue.setProcessid(newProcessID);
-					_configValue.setModuleid(1);
-					_configValue.setConfigid(4);
-					_configValue.setValue(config_1_4);
-
-					configValues.add(_configValue);
+					configValues.add(new ProcessConfigValueModel(newProcessID, 1, 4, config_1_4));
 
 					ProjectModel pro = new ProjectModel();
 					pro.setId(projectid332);
@@ -322,31 +302,11 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					projectid349 = newpro.getId();
 				}
 				if (projectid349 > 0) {
-					ProcessConfigValueModel configValue = new ProcessConfigValueModel();
-					configValue.setProcessid(newProcessID);
-					configValue.setModuleid(2);
-					configValue.setConfigid(11);
-					configValue.setValue(projectid349.toString());
-
-					configValues.add(configValue);
-
-					ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
-					_configValue.setProcessid(newProcessID);
-					_configValue.setModuleid(2);
-					_configValue.setConfigid(12);
-					_configValue.setValue(newProcessName + suffix);
-
-					configValues.add(_configValue);
+					configValues.add(new ProcessConfigValueModel(newProcessID, 2, 11, projectid349.toString()));
+					configValues.add(new ProcessConfigValueModel(newProcessID, 2, 12, newProcessName + suffix));
 				}
 			} else if(!isNewProcess) {
-
-				ProcessConfigValueModel _configValue = new ProcessConfigValueModel();
-				_configValue.setProcessid(newProcessID);
-				_configValue.setModuleid(2);
-				_configValue.setConfigid(12);
-				_configValue.setValue(newProcessName + suffix);
-
-				configValues.add(_configValue);
+				configValues.add(new ProcessConfigValueModel(newProcessID, 2, 12, newProcessName + suffix));
 
 				ProjectModel pro = new ProjectModel();
 				pro.setId(projectid349);
@@ -401,13 +361,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					defaultValue = ParamUtils.getParameter(request, paramName);
 				}
 
-				ProcessConfigValueModel configValue = new ProcessConfigValueModel();
-				configValue.setProcessid(newProcessID);
-				configValue.setModuleid(moduleid);
-				configValue.setConfigid(configid);
-				configValue.setValue(defaultValue);
-
-				configValues.add(configValue);
+				configValues.add(new ProcessConfigValueModel(newProcessID, moduleid, configid, defaultValue));
 			}
 
 			if (processConfigValueModelDao.deleteByProcessID(newProcessID) >= 0) {
