@@ -1369,20 +1369,21 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=selectProjectByName", method = RequestMethod.POST)
-	private ModelAndView selectProjectByName(Model model, HttpSession session, HttpServletRequest request, @RequestParam("name") String name) {
+	private ModelAndView selectProjectByName(Model model, HttpSession session, HttpServletRequest request,
+			@RequestParam("name") String name,
+			@RequestParam("proType") Integer proType,
+			@RequestParam("systemid") Integer systemid) {
 		logger.debug("selectProjectByName start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			ProjectModelExample example = new ProjectModelExample();
-			example.or().andNameEqualTo(name);
-			int ret = projectModelDao.countByExample(example);
-			if (ret > 0) {
-				json.addObject("status", true);
-				json.addObject("option", true);
-			} else {
-				json.addObject("status", true);
-				json.addObject("option", false);
-			}
+			example.or().andNameEqualTo(name)
+						.andProtypeEqualTo(proType)
+						.andSystemidEqualTo(systemid);
+			
+			List<ProjectModel> ret = projectModelDao.selectByExample(example);
+			json.addObject("status", true);
+			json.addObject("option", ret);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			json.addObject("status", false);

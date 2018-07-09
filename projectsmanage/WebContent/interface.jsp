@@ -49,7 +49,7 @@
 	              {"name":"基于username获取用户信息","type":"post","action":"selectUserInfoByUsername","params":["username"]},
 	              {"name":"基于userid获取用户信息","type":"post","action":"selectUserInfoByUserID","params":["userid"]},
 	              {"name":"获取部门列表","type":"post","action":"selectAllDepartment","params":[]},
-	              {"name":"判断项目name是否存在","type":"post","action":"selectProjectByName","params":["name"]},
+	              {"name":"基于项目name获取项目信息","type":"post","action":"selectProjectByName","params":["name","proType","systemid"]},
 	              {"name":"获取QC质检项目","type":"post","action":"QCUndoProjects","params":["systemid", "limit"]},
 	              {"name":"获取QC质检项目id","type":"post","action":"QCUndoProjectIDs","params":[]},
 	];
