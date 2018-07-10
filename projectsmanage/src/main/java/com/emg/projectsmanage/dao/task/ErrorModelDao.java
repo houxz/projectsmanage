@@ -219,8 +219,57 @@ public class ErrorModelDao {
 		}
 		return errors;
 	}
+	
+	public Integer countErrorAndErrorRelateds(ConfigDBModel configDBModel, ErrorModel record, List<Long> errortypes) {
+		Integer ret = -1;
+		BasicDataSource dataSource = null;
+		try {
+			Integer dbtype = configDBModel.getDbtype();
 
-	public List<ErrorAndErrorRelatedModel> selectErrorAndErrorRelateds(ConfigDBModel configDBModel, ErrorModel record, List<Long> errortypes) {
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT COUNT(*)");
+			sql.append(" FROM ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_error te ");
+			sql.append(" LEFT JOIN ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_error_related ter ");
+			sql.append(" ON ter." + separator + "errorid" + separator + " = te." + separator + "id" + separator + " ");
+			sql.append(" WHERE 1=1 ");
+			sql.append(" AND te." + separator + "batchid" + separator + " =  " + record.getBatchid());
+			if (errortypes != null && !errortypes.isEmpty()) {
+				sql.append(" AND te." + separator + "errortype" + separator + " IN ( ");
+				for (Long errortype : errortypes) {
+					sql.append(errortype + ",");
+				}
+				sql.deleteCharAt(sql.length() - 1);
+				sql.append(" ) ");
+			}
+
+			dataSource = Common.getDataSource(configDBModel);
+			ret = new JdbcTemplate(dataSource).queryForObject(sql.toString(), Integer.class);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			ret = -1;
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return ret;
+	}
+
+	public List<ErrorAndErrorRelatedModel> selectErrorAndErrorRelateds(ConfigDBModel configDBModel, ErrorModel record, List<Long> errortypes, Integer limit, Integer offset) {
 		List<ErrorAndErrorRelatedModel> errors = new ArrayList<ErrorAndErrorRelatedModel>();
 		BasicDataSource dataSource = null;
 		try {
@@ -252,6 +301,8 @@ public class ErrorModelDao {
 				sql.append(" ) ");
 			}
 			sql.append(" ORDER BY te." + separator + "id" + separator + " ");
+			sql.append(" LIMIT " + limit);
+			sql.append(" OFFSET " + offset);
 
 			dataSource = Common.getDataSource(configDBModel);
 			errors = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorAndErrorRelatedModel>(ErrorAndErrorRelatedModel.class));
@@ -389,7 +440,6 @@ public class ErrorModelDao {
 						Long after = rs.getLong(1);
 						mact.put(Long.valueOf(before), after);
 						k++;
-						logger.warn("----------------------->ZSEN: " + before + " - " + after);
 					}
 					for (int _ret : _rets) {
 						ret += _ret;

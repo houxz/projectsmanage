@@ -211,14 +211,24 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			ProcessConfigModel _config = processConfigModelDao.selectByPrimaryKey(_map);
 			ConfigDBModel _configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(_config.getDefaultValue()));
 
-			List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(_configDBModel, record, errortypes);
-			if (errorAndRelateds != null && !errorAndRelateds.isEmpty()) {
-				Map<String, Integer> __map = new HashMap<String, Integer>();
-				__map.put("id", 20);
-				__map.put("processType", -1);
-				ProcessConfigModel __config = processConfigModelDao.selectByPrimaryKey(__map);
-				ConfigDBModel __configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(__config.getDefaultValue()));
-				ret = errorModelDao.exportErrors(__configDBModel, errorAndRelateds);
+			/**
+			 * 每次处理条数
+			 */
+			Integer batchNum = 50000, curNum = 0;
+			Integer totalNum = errorModelDao.countErrorAndErrorRelateds(_configDBModel, record, errortypes);
+			Map<String, Integer> __map = new HashMap<String, Integer>();
+			__map.put("id", 20);
+			__map.put("processType", -1);
+			ProcessConfigModel __config = processConfigModelDao.selectByPrimaryKey(__map);
+			ConfigDBModel __configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(__config.getDefaultValue()));
+			while (curNum < totalNum) {
+				logger.warn("-----------ZSEN START ON curNum: " + curNum);
+				List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(_configDBModel, record, errortypes, batchNum, curNum);
+				if (errorAndRelateds != null && !errorAndRelateds.isEmpty()) {
+					ret += errorModelDao.exportErrors(__configDBModel, errorAndRelateds);
+					logger.warn("errorAndRelateds num : " + errorAndRelateds.size());
+					curNum += batchNum;
+				}
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
