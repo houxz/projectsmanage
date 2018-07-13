@@ -1460,7 +1460,8 @@ public class InterfaceCtrl extends BaseCtrl {
 	@RequestMapping(params = "action=insertNewProcess", method = RequestMethod.POST)
 	private ModelAndView insertNewProcess(Model model, HttpSession session, HttpServletRequest request, 
 			@RequestParam("type") Integer newProcessType,
-			@RequestParam("name") String newProcessName) {
+			@RequestParam("name") String newProcessName,
+			@RequestParam("priority") Integer newProcessPriority) {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -1480,14 +1481,14 @@ public class InterfaceCtrl extends BaseCtrl {
 				suffix = "_全国质检";
 				systemid = SystemType.MapDbEdit_Country.getValue();
 			} else if(newProcessType.equals(ProcessType.POIEDIT.getValue())) {
-				suffix = "_POI编辑";
+				suffix = "";
 				systemid = SystemType.poivideoedit.getValue();
 			}
 			
 			ProcessModel newProcess = new ProcessModel();
 			newProcess.setName(newProcessName);
 			newProcess.setType(newProcessType);
-			newProcess.setPriority(0);
+			newProcess.setPriority(newProcessPriority);
 			newProcess.setState(0);
 			newProcess.setUserid(0);
 			newProcess.setUsername("系统工具");
@@ -1513,7 +1514,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			newpro.setTasknum(-1);
 			newpro.setOverstate(0);
 			newpro.setCreateby(0);
-			newpro.setPriority(0);
+			newpro.setPriority(newProcessPriority);
 			newpro.setOwner(OwnerStatus.PUBLIC.getValue());
 			
 			if (projectModelDao.insert(newpro) <= 0) {
