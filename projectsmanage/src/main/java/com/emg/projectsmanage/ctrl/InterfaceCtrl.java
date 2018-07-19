@@ -1461,7 +1461,8 @@ public class InterfaceCtrl extends BaseCtrl {
 	private ModelAndView insertNewProcess(Model model, HttpSession session, HttpServletRequest request, 
 			@RequestParam("type") Integer newProcessType,
 			@RequestParam("name") String newProcessName,
-			@RequestParam("priority") Integer newProcessPriority) {
+			@RequestParam(value = "priority", required = false, defaultValue = "0") Integer newProcessPriority,
+			@RequestParam(value = "state", required = false, defaultValue = "0") Integer newProcessState) {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -1489,7 +1490,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			newProcess.setName(newProcessName);
 			newProcess.setType(newProcessType);
 			newProcess.setPriority(newProcessPriority);
-			newProcess.setState(0);
+			newProcess.setState(newProcessState);
 			newProcess.setUserid(0);
 			newProcess.setUsername("系统工具");
 			if(newProcessType.equals(ProcessType.POIEDIT.getValue())) {
@@ -1512,7 +1513,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			newpro.setProtype(0);
 			newpro.setPdifficulty(0);
 			newpro.setTasknum(-1);
-			newpro.setOverstate(0);
+			newpro.setOverstate(newProcessState);
 			newpro.setCreateby(0);
 			newpro.setPriority(newProcessPriority);
 			newpro.setOwner(OwnerStatus.PUBLIC.getValue());
