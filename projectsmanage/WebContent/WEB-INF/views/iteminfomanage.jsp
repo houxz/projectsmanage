@@ -203,18 +203,23 @@
 	}
 	
 	function deleteItemInfo(itemInfoID) {
-		jQuery.post("./iteminfo.web", {
-			"atn" : "deleteiteminfo",
-			"id" : itemInfoID
-		}, function(json) {
-			if (json.result) {
-				$.webeditor.showMsgLabel("success", "删除成功");
-				$("#dlgItemInfo").dialog("close");
-				$('[data-toggle="iteminfos"]').bootstrapTable('refresh');
-			} else {
-				$.webeditor.showMsgLabel("alert", "删除失败");
+		$.webeditor.showConfirmBox("alert","确定要删除这个质检项吗？", function(){
+			if(!itemInfoID || itemInfoID <= 0) {
+				$.webeditor.showMsgLabel("alert", "质检项删除失败");
+				return;
 			}
-		}, "json");
+			jQuery.post("./iteminfo.web", {
+				"atn" : "deleteiteminfo",
+				"id" : itemInfoID
+			}, function(json) {
+				if (json.result) {
+					$.webeditor.showMsgLabel("success", "质检项删除成功");
+					$('[data-toggle="iteminfos"]').bootstrapTable('refresh');
+				} else {
+					$.webeditor.showMsgLabel("alert", "质检项删除失败");
+				}
+			}, "json");
+		});
 	}
 	
 </script>
@@ -233,14 +238,14 @@
 				<thead>
 					<tr>
 						<th data-field="id" data-filter-control="input" data-width="80"
-							data-filter-control-placeholder="">编号
+							data-filter-control-placeholder="">序号
 							<div class="btn btn-default btn-xs" onclick="getItemInfo(0);">
 								<span class="glyphicon glyphicon-plus"></span>
 							</div>
 						</th>
 						
 						<th data-field="oid" data-filter-control="input" data-width="140"
-							data-formatter="" data-filter-control-placeholder="">oid</th>
+							data-formatter="" data-filter-control-placeholder="">质检项编号</th>
 							
 						<th data-field="name" data-filter-control="input" data-width="140"
 							data-formatter="" data-filter-control-placeholder="">质检项名称</th>
@@ -264,7 +269,7 @@
 							data-filter-control="input" data-filter-control-placeholder="">参考图层</th>
 							
 						<th data-field="module" data-formatter="" data-width="100"
-							data-filter-control="input" data-filter-control-placeholder="">module</th>
+							data-filter-control="input" data-filter-control-placeholder="">备注</th>
 							
 						<th data-field="updatetime" data-width="100">更新时间</th>
 						
@@ -278,22 +283,22 @@
 		<table class="table">
 			<tbody>
 				<tr>
-					<td class="configKey">编号</td>
+					<td class="configKey">序号</td>
 					<td class="configValue"><input type="text"
 						class="form-control configValue" id="id" readonly>
 					</td>
 				</tr>
 				<tr>
-					<td class="configKey">oid</td>
+					<td class="configKey">质检项编号</td>
 					<td class="configValue"><input type="text"
 						class="form-control configValue" id="oid"
-						placeholder="请输入oid"></td>
+						placeholder="请输入质检项编号"></td>
 				</tr>
 				<tr>
 					<td class="configKey">质检项名称</td>
 					<td class="configValue"><input type="text"
 						class="form-control configValue" id="name"
-						placeholder="质检项名称"></td>
+						placeholder="请输入质检项名称"></td>
 				</tr>
 				<tr>
 					<td class="configKey">图层</td>
@@ -352,10 +357,10 @@
 					</td>
 				</tr>
 				<tr>
-					<td class="configKey">module</td>
+					<td class="configKey">备注</td>
 					<td class="configValue"><input type="text"
 						class="form-control configValue" id="module"
-						placeholder="请输入module"></td>
+						placeholder="请输入备注"></td>
 				</tr>
 				<tr>
 					<td class="configKey">更新时间</td>
