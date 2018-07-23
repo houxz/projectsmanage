@@ -91,6 +91,26 @@
 		<property name="maxWait" value="${process.maxWait}" />
 	</bean>
 	
+	<!-- pepro -->
+	<bean id="dataSourceMySqlForPepro" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${pepro.driverClassName}" />
+		<property name="url" value="${pepro.url}" />
+		<property name="username" value="${pepro.username}" />
+		<property name="password" value="${pepro.password}" />
+		<property name="initialSize" value="${pepro.initialSize}" />
+		<property name="maxIdle" value="${pepro.maxIdle}" />
+		<property name="minIdle" value="${pepro.minIdle}" />
+		<property name="maxActive" value="${pepro.maxActive}" />
+		<property name="logAbandoned" value="${pepro.logAbandoned}" />
+		<property name="validationQuery" value="${pepro.validationQuery}" />
+		<property name="testOnBorrow" value="${pepro.testOnBorrow}" />
+		<property name="testWhileIdle" value="${pepro.testWhileIdle}" />
+		<property name="removeAbandoned" value="${pepro.removeAbandoned}" />
+		<property name="removeAbandonedTimeout" value="${pepro.removeAbandonedTimeout}" />
+		<property name="maxWait" value="${pepro.maxWait}" />
+	</bean>
+	
 	<!-- emapgoaccount库 mybatis配置 -->
 	<bean id="sqlSessionFactoryForEmapgoaccount" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSourceMySqlForAccount" />
@@ -134,4 +154,16 @@
 		<property name="basePackage" value="com.emg.projectsmanage.dao.process" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForProcess" />
 	</bean>
+	
+	<!-- Pepro库 qctask模式下的mybatis配置 -->
+	<bean id="sqlSessionFactoryForPepro" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceMySqlForPepro" />
+		<property name="mapperLocations"
+			value="classpath:com/emg/projectsmanage/mapping/pepro/qctask/*.xml" />
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.emg.projectsmanage.dao.pepro.qctask" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForPepro" />
+	</bean>
+	
 </beans>

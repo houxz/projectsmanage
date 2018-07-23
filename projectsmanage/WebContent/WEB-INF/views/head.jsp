@@ -29,6 +29,8 @@
 			return "1007";
 		} else if (url.indexOf("/errorsmanage.web") > 0) {
 			return "1008";
+		} else if (url.indexOf("/iteminfo.web") > 0) {
+			return "1009";
 		}
 		return "0000";
 	}%>
@@ -82,6 +84,10 @@
 					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
 						<li class="<%="1007".equals(menucode) ? "active" : ""%>"><a
 							href="<c:url value='errorsetmanage.web'/>">错误筛选配置</a></li>
+					</sec:authorize>
+					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
+						<li class="<%="1009".equals(menucode) ? "active" : ""%>"><a
+							href="<c:url value='iteminfo.web'/>">质检项配置</a></li>
 					</sec:authorize>
 					<sec:authorize access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
 						<li class="<%="990".equals(menucode) ? "active" : ""%>"><a

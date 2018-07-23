@@ -4,7 +4,8 @@
   "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 <generatorConfiguration>
 	<!-- 数据库驱动 -->
-	<classPathEntry location="D:\generator\postgresql-9.2-1003-jdbc4.jar" />
+	<classPathEntry
+		location="D:\generator\postgresql-9.2-1003-jdbc4.jar" />
 	<context id="DB2Tables" targetRuntime="MyBatis3">
 		<commentGenerator>
 			<property name="suppressDate" value="true" />
@@ -13,32 +14,35 @@
 		</commentGenerator>
 		<!--数据库链接URL，用户名、密码 -->
 		<jdbcConnection driverClass="org.postgresql.Driver"
-			connectionURL="jdbc:postgresql://192.168.0.72:5432/errorlog_zs2"
+			connectionURL="jdbc:postgresql://192.168.0.84:5432/pepro"
 			userId="postgres" password="123456">
 		</jdbcConnection>
 		<javaTypeResolver>
 			<property name="forceBigDecimals" value="false" />
 		</javaTypeResolver>
 		<!-- 生成模型的包名和位置 -->
-		<javaModelGenerator targetPackage="pojo"
-			targetProject="src">
+		<javaModelGenerator
+			targetPackage="com.emg.projectsmanage.pojo"
+			targetProject="projectsmanage">
 			<property name="enableSubPackages" value="true" />
 			<property name="trimStrings" value="true" />
 		</javaModelGenerator>
 		<!-- 生成映射文件的包名和位置 -->
-		<sqlMapGenerator targetPackage="mapping"
-			targetProject="src">
+		<sqlMapGenerator
+			targetPackage="com.emg.projectsmanage.mapping.pepro"
+			targetProject="projectsmanage">
 			<property name="enableSubPackages" value="true" />
 		</sqlMapGenerator>
 		<!-- 生成DAO的包名和位置 -->
 		<javaClientGenerator type="XMLMAPPER"
-			targetPackage="dao" targetProject="src">
+			targetPackage="com.emg.projectsmanage.dao.pepro"
+			targetProject="projectsmanage">
 			<property name="enableSubPackages" value="true" />
 		</javaClientGenerator>
 		<!-- 要生成的表 tableName是数据库中的表名或视图名 domainObjectName是实体类名 -->
-		<table schema="public" tableName="tb_error" domainObjectName="ErrorModel"
-			enableCountByExample="false" enableUpdateByExample="false"
-			enableDeleteByExample="false" enableSelectByExample="false"
-			selectByExampleQueryId="false"></table>
+		<table schema="qctask" tableName="tb_iteminfo"
+			domainObjectName="ItemInfoModel" enableCountByExample="true"
+			enableUpdateByExample="true" enableDeleteByExample="true"
+			enableSelectByExample="true" selectByExampleQueryId="true"></table>
 	</context>
 </generatorConfiguration>  
