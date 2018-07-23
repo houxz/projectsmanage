@@ -115,11 +115,20 @@ public enum LayerElement {
 	public void setValue(Integer value) {
 		this.value = value;
 	}
-	
+
 	public static String toJsonStr() {
 		String str = new String("{");
 		for (LayerElement val : LayerElement.values()) {
 			str += "\"" + val.getValue() + "\":\"" + val.getDes() + "\",";
+		}
+		str += "}";
+		return str;
+	}
+
+	public static String layers() {
+		String str = new String("{");
+		for (LayerElement val : LayerElement.values()) {
+			str += "\"" + val.toString() + "\":\"" + val.toString() + "\",";
 		}
 		str += "}";
 		return str;
