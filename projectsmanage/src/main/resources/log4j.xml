@@ -20,7 +20,7 @@
 
 	<!-- Application Loggers -->
 	<logger name="com.emg">
-		<level value="debug" />
+		<level value="warn" />
 	</logger>
 
 	<!-- 3rdparty Loggers -->
