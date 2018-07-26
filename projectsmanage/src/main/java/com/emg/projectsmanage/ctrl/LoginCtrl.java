@@ -58,7 +58,7 @@ public class LoginCtrl extends BaseCtrl {
 				SecurityContext context = SecurityContextHolder.getContext();
 				context.setAuthentication(null);
 				SecurityContextHolder.clearContext();
-				logger.debug("user : " + account + " deny to login.");
+				logger.error("user : " + account + " deny to login.");
 				return "redirect:login.jsp";
 			}
 
@@ -100,7 +100,13 @@ public class LoginCtrl extends BaseCtrl {
 				logger.debug("LoginCtrl-login end to worker page.");
 				return "redirect:worktasks.web";
 			} else {
-				logger.debug("LoginCtrl-login end to login page.");
+				if (session != null) {
+					session.invalidate();
+				}
+				SecurityContext context = SecurityContextHolder.getContext();
+				context.setAuthentication(null);
+				SecurityContextHolder.clearContext();
+				logger.error("user has no power getting in : " + account);
 				return "redirect:login.jsp";
 			}
 		} catch (Exception e) {

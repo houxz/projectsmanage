@@ -15,10 +15,10 @@
 	rel="stylesheet" />
 <link href="resources/css/css.css" rel="stylesheet" />
 
-<script src="resources/jquery/jquery-3.2.1.min.js" /></script>
-<script src="resources/js/jquery.formvalidate.js" /></script>
-<script src="resources/js/validatezh.js" /></script>
-<script src="resources/js/webeditor.js" /></script>
+<script src="resources/jquery/jquery-3.2.1.min.js" ></script>
+<script src="resources/js/jquery.formvalidate.js" ></script>
+<script src="resources/js/validatezh.js" ></script>
+<script src="resources/js/webeditor.js" ></script>
 
 <script type="text/javascript">
 	$(document).ready(function() {
