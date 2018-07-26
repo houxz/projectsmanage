@@ -222,11 +222,9 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			ProcessConfigModel __config = processConfigModelDao.selectByPrimaryKey(__map);
 			ConfigDBModel __configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(__config.getDefaultValue()));
 			while (curNum < totalNum) {
-				logger.warn("-----------ZSEN START ON curNum: " + curNum);
 				List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(_configDBModel, record, errortypes, batchNum, curNum);
 				if (errorAndRelateds != null && !errorAndRelateds.isEmpty()) {
 					ret += errorModelDao.exportErrors(__configDBModel, errorAndRelateds);
-					logger.warn("errorAndRelateds num : " + errorAndRelateds.size());
 					curNum += batchNum;
 				}
 			}
