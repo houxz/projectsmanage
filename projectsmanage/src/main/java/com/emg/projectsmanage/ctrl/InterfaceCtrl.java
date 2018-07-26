@@ -361,7 +361,6 @@ public class InterfaceCtrl extends BaseCtrl {
 				logger.error("Can not find Project :" + projectID);
 				json.addObject("option", "Can not find Project :" + projectID);
 				json.addObject("status", false);
-				logger.debug("ERROR");
 				return json;
 			}
 
@@ -396,6 +395,14 @@ public class InterfaceCtrl extends BaseCtrl {
 		Boolean status = false;
 		try {
 			ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectID));
+			
+			if(project == null) {
+				logger.error("Can not find Project :" + projectID);
+				json.addObject("option", "Can not find Project :" + projectID);
+				json.addObject("status", false);
+				return json;
+			}
+			
 			project.setOverstate(overstate);
 			if (projectModelDao.updateByPrimaryKey(project) > 0)
 				status = true;
@@ -1606,7 +1613,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			config.setModuleid(moduleid);
 			config.setValue(projectid.toString());
 			List<ConfigValueModel> configs = configValueModelDao.selectConfigs(config);
-			if (configs.size() > 0) {
+			if (configs != null && configs.size() > 0) {
 				model.addAttribute("status", true);
 				model.addAttribute("option", configs.get(0).getProcessId());
 				return json;
