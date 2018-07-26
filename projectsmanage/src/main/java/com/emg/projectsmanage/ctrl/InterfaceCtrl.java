@@ -351,11 +351,19 @@ public class InterfaceCtrl extends BaseCtrl {
 			HttpServletRequest request,
 			@RequestParam("pid") String projectID,
 			@RequestParam("tasknum") Integer tasknum) {
-		logger.debug("updateProjectTasknumByID start!");
+		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean status = false;
 		try {
 			ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectID));
+			
+			if(project == null) {
+				logger.error("Can not find Project :" + projectID);
+				json.addObject("option", "Can not find Project :" + projectID);
+				json.addObject("status", false);
+				logger.debug("ERROR");
+				return json;
+			}
 
 			Integer curTasknum = project.getTasknum();
 			if (tasknum > curTasknum) {
@@ -373,7 +381,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			json.addObject("option", e.getMessage());
 		}
 		json.addObject("status", status);
-		logger.debug("updateProjectTasknumByID end!");
+		logger.debug("END");
 		return json;
 	}
 
