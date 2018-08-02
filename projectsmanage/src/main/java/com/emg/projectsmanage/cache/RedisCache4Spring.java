@@ -16,9 +16,9 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 
-public class RedisCache2 implements Cache {
+public class RedisCache4Spring implements Cache {
 
-	private static final Logger logger = LoggerFactory.getLogger(RedisCache2.class);
+	private static final Logger logger = LoggerFactory.getLogger(RedisCache4Spring.class);
 
 	private RedisTemplate<String, Object> redisTemplate;
 	private String name;
