@@ -7,11 +7,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.Cache;
 import org.springframework.stereotype.Component;
 
 import com.emg.projectsmanage.common.SerializationUtil;
@@ -22,7 +24,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 @Component
-public class RedisCache {
+public class RedisCache implements Cache {
 	
 	private static final Logger log = LoggerFactory.getLogger(ProcessesManageCtrl.class);
 
@@ -354,5 +356,59 @@ public class RedisCache {
 
 	public void setProName(String proName) {
 		this.proName = proName;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object getNativeCache() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ValueWrapper get(Object key) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> T get(Object key, Class<T> type) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> T get(Object key, Callable<T> valueLoader) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void put(Object key, Object value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ValueWrapper putIfAbsent(Object key, Object value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void evict(Object key) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+		
 	}
 }

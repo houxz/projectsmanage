@@ -9,7 +9,8 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 		http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm.xsd">
 
-	<beans:import resource="./spring-ehcache.xml" />
+	<!-- <beans:import resource="./spring-ehcache.xml" /> -->
+	<beans:import resource="./redis-context.xml" />
 	
 	<context:property-placeholder location="WEB-INF/spring/version.properties" ignore-unresolvable="true"/>
 	

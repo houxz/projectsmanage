@@ -27,7 +27,7 @@ public class RedisCacheEvictAspect {
 	private RedisCache redisCache;
 
 	// 切入点
-	@Pointcut(value = "@annotation(com.emg.projectsmanage.cache.RedisCacheEvict)")
+	@Pointcut(value = "@annotation(RedisCacheEvict)")
 	private void pointcut() {
 
 	}

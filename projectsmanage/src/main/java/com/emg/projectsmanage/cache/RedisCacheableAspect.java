@@ -21,7 +21,7 @@ public class RedisCacheableAspect {
 	private RedisCache redisCache;
 
 	// 切入点
-	@Pointcut(value = "@annotation(com.emg.projectsmanage.cache.RedisCacheable)")
+	@Pointcut(value = "@annotation(RedisCacheable)")
 	private void pointcut() {
 
 	}
