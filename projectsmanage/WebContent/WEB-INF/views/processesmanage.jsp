@@ -569,7 +569,7 @@
 												$.webeditor.showMsgLabel("alert", "项目名不能为空");
 												return;
 											}
-											if(protype == 1){
+											if(protype == 1 || protype == 4){
 												if(!config_1_7 || config_1_7.lenth <= 0) {
 													$.webeditor.showMsgLabel("alert", "没有配置质检区域");
 													return;
@@ -579,7 +579,7 @@
 													return;
 												}
 											}
-											if(protype == 2) {
+											if(protype == 2 || protype == 3) {
 												if(!config_1_7 || config_1_7.lenth <= 0) {
 													$.webeditor.showMsgLabel("alert", "没有配置区域");
 													return;
@@ -1309,7 +1309,7 @@
 	}
 	
 	function processTypeChange(selectValue) {
-		if(selectValue == 1) {
+		if(selectValue == 1 || selectValue == 4) {
 			$("#modules li:not(:first-child)").show();
 			$("#config_0_7").parents("tr").hide();
 			$("#config_0_18").parents("tr").hide();
