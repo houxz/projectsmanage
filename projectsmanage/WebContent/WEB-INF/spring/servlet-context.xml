@@ -9,8 +9,10 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 		http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm.xsd">
 
-	<!-- <beans:import resource="./spring-ehcache.xml" /> -->
-	<beans:import resource="./redis-context.xml" />
+	<!-- 缓存功能开启，只有一个启用 -->
+	<beans:import resource="./spring-ehcache.xml" />
+	<!-- <beans:import resource="./redis-context.xml" />
+	缓存功能开启，只有一个启用 -->
 	
 	<context:property-placeholder location="WEB-INF/spring/version.properties" ignore-unresolvable="true"/>
 	
