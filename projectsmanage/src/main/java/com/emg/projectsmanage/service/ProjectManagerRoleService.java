@@ -14,11 +14,12 @@ import com.emg.projectsmanage.pojo.RoleModel;
 @Service
 public class ProjectManagerRoleService {
 	final static private String CACHEVALUE = "ProjectManagerRoleCache";
+	final static private String CACHEKEYGENERATOR = "baseCacheKeyGenerator";
 
 	@Autowired
 	private RoleModelDao roleModelDao;
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public RoleModel getWorkerRole() {
 		RoleModel roleparam = new RoleModel();
 		roleparam.setName(RoleType.ROLE_WORKER.toString());
@@ -30,7 +31,7 @@ public class ProjectManagerRoleService {
 			return null;
 	}
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public RoleModel getCheckerRole() {
 		RoleModel roleparam = new RoleModel();
 		roleparam.setName(RoleType.ROLE_CHECKER.toString());
@@ -42,7 +43,7 @@ public class ProjectManagerRoleService {
 			return null;
 	}
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<RoleModel> getAllEnabledRoles() {
 		RoleModel roleparam = new RoleModel();
 		roleparam.setEnabled(1);

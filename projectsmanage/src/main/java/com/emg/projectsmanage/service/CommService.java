@@ -16,6 +16,7 @@ import com.emg.projectsmanage.pojo.SystemModel;
 @Service
 public class CommService {
 	final static private String CACHEVALUE = "CommCache";
+	final static private String CACHEKEYGENERATOR = "baseCacheKeyGenerator";
 
 	@Autowired
 	private MetadataDao metadataDao;
@@ -23,7 +24,7 @@ public class CommService {
 	@Autowired
 	private SystemModelDao systemModelDao;
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<MetadataModel> getDifficuties() {
 		Map<String, String> moduleAndKey = new HashMap<String, String>();
 		String module = "projectmanager.projects";
@@ -33,7 +34,7 @@ public class CommService {
 		return metadataDao.selectByModuleAndKey(moduleAndKey);
 	}
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<MetadataModel> getSkillLevels() {
 		Map<String, String> moduleAndKey = new HashMap<String, String>();
 		String module = "projectmanager.skill";
@@ -43,7 +44,7 @@ public class CommService {
 		return metadataDao.selectByModuleAndKey(moduleAndKey);
 	}
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<MetadataModel> getSkillModules() {
 		Map<String, String> moduleAndKey = new HashMap<String, String>();
 		String module = "projectmanager.skill";
@@ -53,7 +54,7 @@ public class CommService {
 		return metadataDao.selectByModuleAndKey(moduleAndKey);
 	}
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<MetadataModel> queryAllErrorStates() {
 		Map<String, String> moduleAndKey = new HashMap<String, String>();
 		String module = "error.errorstate";
@@ -63,7 +64,7 @@ public class CommService {
 		return metadataDao.selectByModuleAndKey(moduleAndKey);
 	}
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<MetadataModel> queryAllErrorModifyStates() {
 		Map<String, String> moduleAndKey = new HashMap<String, String>();
 		String module = "error.modifystate";
@@ -73,7 +74,7 @@ public class CommService {
 		return metadataDao.selectByModuleAndKey(moduleAndKey);
 	}
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<MetadataModel> queryAllOprationType() {
 		Map<String, String> moduleAndKey = new HashMap<String, String>();
 		String module = "evidence.action";
@@ -83,7 +84,7 @@ public class CommService {
 		return metadataDao.selectByModuleAndKey(moduleAndKey);
 	}
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<SystemModel> getAllSystems() {
 		return systemModelDao.getAllSystems();
 	}

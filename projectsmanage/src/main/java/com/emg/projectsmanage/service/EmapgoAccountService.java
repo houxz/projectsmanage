@@ -16,6 +16,7 @@ import com.emg.projectsmanage.pojo.EmployeeModel;
 @Service
 public class EmapgoAccountService {
 	final static private String CACHEVALUE = "EmapAccountCache";
+	final static private String CACHEKEYGENERATOR = "baseCacheKeyGenerator";
 
 	@Autowired
 	private DepartmentModelDao departmentModelDao;
@@ -23,29 +24,29 @@ public class EmapgoAccountService {
 	@Autowired
 	private EmployeeModelDao employeeModelDao;
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<DepartmentModel> getAllDepartment() {
 		return departmentModelDao.getAllDepartment();
 	}
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<EmployeeModel> getAllEmployees() {
 		return employeeModelDao.getAllEmployees();
 	}
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName + #record.id + #record.username + #record.password + #record.department")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public EmployeeModel getOneEmployee(EmployeeModel record) {
 		return employeeModelDao.getOneEmployee(record);
 	}
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName + #ids")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<EmployeeModel> getEmployeeByIDS(List<Integer> ids) {
 		Map<String, List<Integer>> map = new HashMap<String, List<Integer>>();
 		map.put("ids", ids);
 		return employeeModelDao.getEmployeeByIDS(map);
 	}
 	
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName + #ids + #realname")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<EmployeeModel> getEmployeesByIDSAndRealname(List<Integer> ids, String realname) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("ids", ids);
@@ -54,7 +55,7 @@ public class EmapgoAccountService {
 		return employeeModelDao.getEmployeesByIDSAndRealname(map);
 	}
 
-	@Cacheable(value = CACHEVALUE, key = "#root.methodName")
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<Map<String, Object>> getEmployeeListForZTree() {
 		return employeeModelDao.getEmployeeListForZTree();
 	}
