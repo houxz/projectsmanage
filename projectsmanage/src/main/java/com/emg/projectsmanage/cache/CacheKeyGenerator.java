@@ -2,6 +2,7 @@ package com.emg.projectsmanage.cache;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.interceptor.KeyGenerator;
@@ -36,9 +37,13 @@ public class CacheKeyGenerator implements KeyGenerator {
 			if (param == null) {
 				key.append("NULL");
 			} else if (ClassUtils.isPrimitiveArray(param.getClass()) || ClassUtils.isPrimitiveWrapperArray(param.getClass())) {
-				int length = Array.getLength(param);
-				for (int i = 0; i < length; i++) {
+				for (int i = 0, length = Array.getLength(param); i < length; i++) {
 					key.append(Array.get(param, i));
+					key.append(',');
+				}
+			} else if(param instanceof List) {
+				for (int i = 0, length = ((List<?>) param).size(); i < length; i++) {
+					key.append(((List<?>) param).get(i));
 					key.append(',');
 				}
 			} else if (ClassUtils.isPrimitiveOrWrapper(param.getClass()) || param instanceof String) {
