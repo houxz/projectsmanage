@@ -776,6 +776,8 @@ public class ItemSetModelDao {
 		List<ItemAreaModel> list = new ArrayList<ItemAreaModel>();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)	return list;
+			
 			Integer dbtype = configDBModel.getDbtype();
 			
 			String separator = Common.getDatabaseSeparator(dbtype);

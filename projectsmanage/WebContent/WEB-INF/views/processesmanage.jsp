@@ -405,19 +405,17 @@
 
 	function operationFormat(value, row, index) {
 		var html = new Array();
-		if (row.type != 5) {
-			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="getConfig('
-							+ row.id
-							+ ',\''
-							+ row.name
-							+ '\','
-							+ row.priority
-							+ ','
-							+ row.type
-							+ ','
-							+ row.state
-							+ ');">配置</div>');
-		}
+		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="getConfig('
+						+ row.id
+						+ ',\''
+						+ row.name
+						+ '\','
+						+ row.priority
+						+ ','
+						+ row.type
+						+ ','
+						+ row.state
+						+ ');">配置</div>');
 		if (row.state == 1) {
 			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,' + row.id + ')">暂停</div>');
 		} else if (row.state == 2 || row.state == 0) {
@@ -1316,7 +1314,7 @@
 			$("#config_0_19").parents("tr").hide();
 			$("#sc2").show();
 			$("#sc3").show();
-		} else if(selectValue == 2 || selectValue == 3) {
+		} else if(selectValue == 2 || selectValue == 3 || selectValue == 5) {
 			$("#modules li:not(:first-child)").hide();
 			$("#config_0_7").parents("tr").show();
 			$("#config_0_18").parents("tr").show();
