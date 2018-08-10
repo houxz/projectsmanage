@@ -451,7 +451,7 @@ public class InterfaceCtrl extends BaseCtrl {
 		Boolean status = false;
 		try {
 			String username = new String();
-			Integer roleid = RoleType.ROLE_WORKER.getValue();
+			RoleType roleType = RoleType.UNKNOW;
 			if (systemid.compareTo(SystemType.DBMapChecker.getValue()) == 0) {// 批处理工具平台
 				username = "系统工具";
 			} else {
@@ -460,16 +460,20 @@ public class InterfaceCtrl extends BaseCtrl {
 				EmployeeModel employee = emapgoAccountService.getOneEmployee(record);
 				username = employee.getRealname();
 
-				roleid = processafter;
+				if (processafter.equals(52)) {
+					roleType = RoleType.ROLE_WORKER;
+				} else {
+					roleType = RoleType.valueOf(processafter);
+				}
 			}
 
-			String rolename = roleid == RoleType.ROLE_WORKER.getValue() ? RoleType.ROLE_WORKER.getDes() : RoleType.ROLE_CHECKER.getDes();
+			String rolename = roleType.getDes();
 			ProjectsTaskLogModel taskLog = new ProjectsTaskLogModel();
 			taskLog.setSystemid(systemid);
 			taskLog.setProjectid(projectid);
 			taskLog.setTaskid(taskid);
 			taskLog.setUserid(userid);
-			taskLog.setRoleid(roleid);
+			taskLog.setRoleid(roleType.getValue());
 			taskLog.setStatebefore(statebefore == null ? 0 : statebefore);
 			taskLog.setProcessbefore(processbefore == null ? 0 : processbefore);
 			taskLog.setStateafter(stateafter == null ? 0 : stateafter);
@@ -484,7 +488,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				taskCount.setSystemid(systemid);
 				taskCount.setUserid(userid);
 				taskCount.setUsername(username);
-				taskCount.setRoleid(roleid);
+				taskCount.setRoleid(roleType.getValue());
 				taskCount.setRolename(rolename);
 				taskCount.setProjectid(projectid);
 				// tb_projects_task_count查看是不是已经写入统计项了
@@ -506,27 +510,27 @@ public class InterfaceCtrl extends BaseCtrl {
 					status = true;
 				} else {// 第一次进入下一阶段
 					if (systemid.compareTo(0) == 0) {// POI视频编辑平台
-						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)
+						if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)
 																															// ->
 																															// (1,5)
 							if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
 								status = true;
-						} else if (roleid == 6 && statebefore == 3 && processbefore == 5 && stateafter == 1 && processafter == 6) {// (3,5)
+						} else if (roleType.equals(RoleType.ROLE_CHECKER) && statebefore == 3 && processbefore == 5 && stateafter == 1 && processafter == 6) {// (3,5)
 																																	// ->
 																																	// (1,6)
 							if (projectsTaskCountDao.newTask2Check(taskCount) > 0)
 								status = true;
-						} else if (roleid == 5 && statebefore == 1 && processbefore == 5 && stateafter == 2 && processafter == 5) {// (1,5)
+						} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 2 && processafter == 5) {// (1,5)
 																																	// ->
 																																	// (2,5)
 							if (projectsTaskCountDao.Edit2QC(taskCount) > 0)
 								status = true;
-						} else if (roleid == 5 && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {// (1,5)
+						} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {// (1,5)
 																																	// ->
 																																	// (3,5)
 							if (projectsTaskCountDao.QC2Check(taskCount) > 0)
 								status = true;
-						} else if (roleid == 6 && statebefore == 1 && processbefore == 6 && stateafter == 3 && processafter == 6) {// (1,6)
+						} else if (roleType.equals(RoleType.ROLE_CHECKER) && statebefore == 1 && processbefore == 6 && stateafter == 3 && processafter == 6) {// (1,6)
 																																	// ->
 																																	// (3,6)
 							if (projectsTaskCountDao.taskDone(taskCount) > 0) {
@@ -565,12 +569,12 @@ public class InterfaceCtrl extends BaseCtrl {
 							status = true;
 						}
 					} else if (systemid.compareTo(SystemType.MapDbEdit.getValue()) == 0) {// 综合编辑平台
-						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)
+						if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)
 																															// ->
 																															// (1,5)
 							if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
 								status = true;
-						} else if (roleid == 5 && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {// (1,5)
+						} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {// (1,5)
 																																	// ->
 																																	// (3,5)
 							if (projectsTaskCountDao.comTaskDone(taskCount) > 0) {
@@ -643,10 +647,10 @@ public class InterfaceCtrl extends BaseCtrl {
 							status = true;
 						}
 					} else if (systemid.compareTo(SystemType.MapDbEdit_NRFC.getValue()) == 0) {
-						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)->(1,5)
+						if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)->(1,5)
 							if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
 								status = true;
-						} else if (roleid == 5 && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {// (1,5)->(3,5)
+						} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {// (1,5)->(3,5)
 							if (projectsTaskCountDao.comTaskDone(taskCount) > 0) {
 								Map<String, Object> map = new HashMap<String, Object>();
 								map.put("systemid", systemid);
@@ -720,12 +724,12 @@ public class InterfaceCtrl extends BaseCtrl {
 							}
 						}
 					} else if (systemid.compareTo(SystemType.MapDbEdit_Country.getValue()) == 0) {// 全国质检
-						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)
+						if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)
 							// ->
 							// (1,5)
 							if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
 								status = true;
-						} else if (roleid == 5 && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {// (1,5)
+						} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {// (1,5)
 							// ->
 							// (3,5)
 							if (projectsTaskCountDao.comTaskDone(taskCount) > 0) {
@@ -801,10 +805,10 @@ public class InterfaceCtrl extends BaseCtrl {
 							status = true;
 						}
 					} else if (systemid.compareTo(SystemType.MapDbEdit_Attach.getValue()) == 0) {
-						if (roleid == 5 && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)->(1,5)
+						if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {// (0,0)->(1,5)
 							if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
 								status = true;
-						} else if (roleid == 6 && statebefore == 1 && processbefore == 6 && stateafter == 3 && processafter == 6) {// (1,6)->(3,6)
+						} else if (roleType.equals(RoleType.ROLE_CHECKER) && statebefore == 1 && processbefore == 6 && stateafter == 3 && processafter == 6) {// (1,6)->(3,6)
 
 							logger.debug("submitTaskStatus begin!");
 							if (projectsTaskCountDao.comTaskDone(taskCount) > 0) {

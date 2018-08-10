@@ -2,8 +2,10 @@ package com.emg.projectsmanage.ctrl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -46,23 +48,30 @@ public class WorkTasksCtrl extends BaseCtrl {
 		}
 		List<ProjectsTaskCountModel> projectsTaskCountModels = projectsTaskCountDao.groupProjectsProgressByUseridAndRoleid(map);
 		List<ProjectsUserModel> users = new ArrayList<ProjectsUserModel>();
+		Set<Integer> userIDs = new HashSet<Integer>();
 		List<ProjectsUserModel> roles = new ArrayList<ProjectsUserModel>();
+		Set<Integer> roleIDs = new HashSet<Integer>();
 
 		for (ProjectsTaskCountModel projectsTaskCountModel : projectsTaskCountModels) {
 			Integer userid = projectsTaskCountModel.getUserid();
 			String username = projectsTaskCountModel.getUsername();
-			ProjectsUserModel user = new ProjectsUserModel();
-			user.setUserid(userid);
-			user.setUsername(username);
 			Integer roleid = projectsTaskCountModel.getRoleid();
 			String rolename = projectsTaskCountModel.getRolename();
-			ProjectsUserModel role = new ProjectsUserModel();
-			role.setRoleid(roleid);
-			role.setRolename(rolename);
-			if (!users.contains(user))
+			
+			if (!userIDs.contains(userid)) {
+				ProjectsUserModel user = new ProjectsUserModel();
+				user.setUserid(userid);
+				user.setUsername(username);
 				users.add(user);
-			if (!roles.contains(role))
+				userIDs.add(userid);
+			}
+			if (!roleIDs.contains(roleid)) {
+				ProjectsUserModel role = new ProjectsUserModel();
+				role.setRoleid(roleid);
+				role.setRolename(rolename);
 				roles.add(role);
+				roleIDs.add(roleid);
+			}
 		}
 		model.addAttribute("users", users.size() > 0 ? JSONArray.fromObject(users).toString() : "({})");
 		model.addAttribute("roles", roles.size() > 0 ? JSONArray.fromObject(roles).toString() : "({})");

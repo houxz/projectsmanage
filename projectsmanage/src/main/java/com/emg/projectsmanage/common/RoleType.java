@@ -8,28 +8,43 @@ package com.emg.projectsmanage.common;
  */
 public enum RoleType {
 	/**
-	 * 系统管理员
+	 * 0, "未知角色"
+	 */
+	UNKNOW(0, "未知角色"),
+	/**
+	 * 1, "系统管理员"
 	 */
 	ROLE_ADMIN(1, "系统管理员"),
 	/**
-	 * 管理人员
+	 * 7, "流程管理人员"
 	 */
 	ROLE_PROCESSMANAGER(7, "流程管理人员"),
 	/**
-	 * 管理人员
+	 * 2, "管理人员"
 	 */
 	ROLE_POIVIDEOEDIT(2, "管理人员"),
 	/**
-	 * 编辑人员
+	 * 5, "编辑人员"
 	 */
 	ROLE_WORKER(5, "编辑人员"),
 	/**
-	 * 校验人员
+	 * 6, "校验人员"
 	 */
 	ROLE_CHECKER(6, "校验人员");
 
 	private Integer value;
 	private String des;
+
+	public static RoleType valueOf(Integer value) {
+		RoleType ret = RoleType.UNKNOW;
+		for(RoleType roleType : RoleType.values()) {
+			if(roleType.getValue().equals(value)) {
+				ret = roleType;
+				break;
+			}
+		}
+		return ret;
+	}
 
 	public String getDes() {
 		return des;
