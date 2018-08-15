@@ -819,6 +819,7 @@ public class InterfaceCtrl extends BaseCtrl {
 								if (list != null && list.size() > 0) {
 									ProjectsTaskCountModel projectsCount = list.get(0);
 
+									// by xiao 计算任务完成进度
 									Integer totalTask = projectsCount.getTotaltask();
 									if (totalTask <= 0) {
 										json.addObject("status", false);
@@ -828,6 +829,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									Integer completeTask = projectsCount.getCompletetask();
 									Double progress = ((double) completeTask / (double) totalTask) * 100;
 
+									// by xiao 更新流程进度
 									// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
 									// 先找到该项目关联的所有流程任务
 									ProcessModel process;
