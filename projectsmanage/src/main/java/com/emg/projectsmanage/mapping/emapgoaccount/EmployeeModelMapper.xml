@@ -28,7 +28,7 @@
 		<include refid="Base_Column_List" />
 		FROM TB_EMPLOYEE
 		<where>
-			`enabled` = 1 AND `isshow` = 1
+			`enabled` = 1
 			<if test="id != null">
 				`id` = #{id,jdbcType=INTEGER}
 			</if>
@@ -60,7 +60,7 @@
 		<include refid="Base_Column_List" />
 		FROM TB_EMPLOYEE
 		<where>
-			`enabled` = 1 AND `isshow` = 1
+			`enabled` = 1
 			<if test="ids != null">
 				`id` in
 				<foreach item="id" index="index" collection="ids" open="("
@@ -77,7 +77,7 @@
 		<include refid="Base_Column_List" />
 		FROM TB_EMPLOYEE
 		<where>
-			`enabled` = 1 AND `isshow` = 1
+			`enabled` = 1
 			<if test="ids != null">
 				`id` in
 				<foreach item="id" index="index" collection="ids" open="("
