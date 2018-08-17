@@ -30,7 +30,7 @@
 		<where>
 			`enabled` = 1
 			<if test="id != null">
-				`id` = #{id,jdbcType=INTEGER}
+				AND `id` = #{id,jdbcType=INTEGER}
 			</if>
 			<if test="realname != null">
 				AND `realname` = #{realname,jdbcType=VARCHAR}
@@ -62,7 +62,7 @@
 		<where>
 			`enabled` = 1
 			<if test="ids != null">
-				`id` in
+				AND `id` in
 				<foreach item="id" index="index" collection="ids" open="("
 					separator="," close=")">
 					#{id}
@@ -79,7 +79,7 @@
 		<where>
 			`enabled` = 1
 			<if test="ids != null">
-				`id` in
+				AND `id` in
 				<foreach item="id" index="index" collection="ids" open="("
 					separator="," close=")">
 					#{id}
