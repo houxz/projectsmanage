@@ -18,15 +18,17 @@
 		parameterType="com.emg.projectsmanage.pojo.EmployeeModel">
 		SELECT
 		<include refid="Base_Column_List" />
-		FROM tb_employee
+		FROM TB_EMPLOYEE
+		WHERE `enabled` = 1 AND `isshow` = 1
 	</select>
 
 	<select id="getOneEmployee" resultMap="BaseResultMap"
 		parameterType="com.emg.projectsmanage.pojo.EmployeeModel">
 		SELECT
 		<include refid="Base_Column_List" />
-		FROM tb_employee
+		FROM TB_EMPLOYEE
 		<where>
+			`enabled` = 1 AND `isshow` = 1
 			<if test="id != null">
 				`id` = #{id,jdbcType=INTEGER}
 			</if>
@@ -56,8 +58,9 @@
 		parameterType="java.util.Map">
 		SELECT
 		<include refid="Base_Column_List" />
-		FROM tb_employee
+		FROM TB_EMPLOYEE
 		<where>
+			`enabled` = 1 AND `isshow` = 1
 			<if test="ids != null">
 				`id` in
 				<foreach item="id" index="index" collection="ids" open="("
@@ -72,8 +75,9 @@
 		parameterType="java.util.Map">
 		SELECT
 		<include refid="Base_Column_List" />
-		FROM tb_employee
+		FROM TB_EMPLOYEE
 		<where>
+			`enabled` = 1 AND `isshow` = 1
 			<if test="ids != null">
 				`id` in
 				<foreach item="id" index="index" collection="ids" open="("
@@ -96,7 +100,7 @@
 			'1' AS isdept,
 			IF (`id` = 1 OR `id` = 2, 'true', 'false') AS open
 		FROM
-			`tb_department`
+			`TB_DEPARTMENT`
 		UNION
 		SELECT
 			CONV(`id`, 10, 10) AS id,
@@ -106,8 +110,8 @@
 			'0' AS isdept,
 			'false' AS open
 		FROM
-			`tb_employee`
+			`TB_EMPLOYEE`
 		WHERE
-			`isshow` = 1
+			`enabled` = 1 AND `isshow` = 1
 	</select>
 </mapper>

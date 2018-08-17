@@ -16,7 +16,7 @@
 		parameterType="com.emg.projectsmanage.pojo.DepartmentModel">
 		SELECT
 		<include refid="Base_Column_List" />
-		FROM tb_department
+		FROM TB_DEPARTMENT
 		<where>
 			<if test="id != null">
 				`id` = #{id,jdbcType=INTEGER}
