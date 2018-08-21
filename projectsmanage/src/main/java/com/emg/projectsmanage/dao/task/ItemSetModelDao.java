@@ -252,6 +252,8 @@ public class ItemSetModelDao {
 		Integer count = -1;
 		BasicDataSource dataSource = null;
 		try {
+			if(configDBModel == null)	return count;
+			
 			Integer dbtype = configDBModel.getDbtype();
 
 			String separator = Common.getDatabaseSeparator(dbtype);
