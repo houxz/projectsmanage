@@ -30,7 +30,7 @@ public class ErrorSetModelDao {
 		List<ErrorSetModel> errorSets = new ArrayList<ErrorSetModel>();
 		BasicDataSource dataSource = null;
 		try {
-			if (record == null)
+			if (record == null || configDBModel == null)
 				return errorSets;
 			Integer dbtype = configDBModel.getDbtype();
 			Integer processType = record.getProcessType();
@@ -93,6 +93,8 @@ public class ErrorSetModelDao {
 		Long ret = -1L;
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)	return ret;
+			
 			Integer dbtype = configDBModel.getDbtype();
 
 			String separator = Common.getDatabaseSeparator(dbtype);
@@ -144,6 +146,8 @@ public class ErrorSetModelDao {
 		Boolean ret = false;
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)	return ret;
+			
 			Integer dbtype = configDBModel.getDbtype();
 
 			String separator = Common.getDatabaseSeparator(dbtype);
@@ -194,6 +198,8 @@ public class ErrorSetModelDao {
 		Boolean ret = false;
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)	return ret;
+			
 			Integer dbtype = configDBModel.getDbtype();
 
 			String separator = Common.getDatabaseSeparator(dbtype);
@@ -237,6 +243,8 @@ public class ErrorSetModelDao {
 		Integer count = -1;
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)	return count;
+			
 			Integer dbtype = configDBModel.getDbtype();
 
 			String separator = Common.getDatabaseSeparator(dbtype);
@@ -288,6 +296,8 @@ public class ErrorSetModelDao {
 		List<ItemConfigModel> itemConfigs = new ArrayList<ItemConfigModel>();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)	return itemConfigs;
+			
 			Integer dbtype = configDBModel.getDbtype();
 
 			StringBuffer sql = new StringBuffer();
@@ -320,6 +330,8 @@ public class ErrorSetModelDao {
 		List<Long> items = new ArrayList<Long>();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)	return items;
+			
 			Integer dbtype = configDBModel.getDbtype();
 
 			String separator = Common.getDatabaseSeparator(dbtype);
@@ -350,7 +362,7 @@ public class ErrorSetModelDao {
 
 	public Integer setErrorSetDetails(ConfigDBModel configDBModel, Long errorSetID, List<Long> errorTypes) {
 		Integer ret = -1;
-		if (errorTypes.size() <= 0)
+		if (errorTypes.size() <= 0 || configDBModel == null)
 			return ret;
 		BasicDataSource dataSource = null;
 		try {
