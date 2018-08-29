@@ -43,13 +43,30 @@
 				<h1>项目管理系统</h1>
 			</div>
 			<div class="col-md-offset-1 col-md-3" style="margin-top: 60px;">
-				<c:if test="${not empty param.login_error}">
-					<div class="label label-warning">您的登录没有成功。</div>
-					<br />
-					<div class="label label-warning">
-						<c:out
-							value="${fn:replace(SPRING_SECURITY_LAST_EXCEPTION.message, 'Bad credentials', '用户名或密码不正确，请重新输入。')}" />
-					</div>
+				<c:if test="${not empty param.login_error }">
+					<c:choose>
+						<c:when test="${param.login_error == 1}">
+							<div class="label label-warning">您的登录没有成功。</div>
+							<br />
+							<div class="label label-warning">
+								<c:out value="用户名或密码不正确，请重新输入。" />
+							</div>
+						</c:when>
+						<c:when test="${param.login_error == 2}">
+							<div class="label label-warning">您的登录没有成功。</div>
+							<br />
+							<div class="label label-warning">
+								<c:out value="没有权限，请联系管理员分配权限。" />
+							</div>
+						</c:when>
+						<c:otherwise>
+							<div class="label label-warning">您的登录没有成功。</div>
+							<br />
+							<div class="label label-warning">
+								<c:out value="未知原因。" />
+							</div>
+						</c:otherwise>
+					</c:choose>
 					<%
 						session.invalidate();
 					%>
@@ -59,8 +76,7 @@
 					<div class="form-group">
 						<label for="username">用户名：</label> <input type="text"
 							class="form-control required" id="username" name="username"
-							placeholder="请输入您的用户名" data-trim maxlength="50"
-							value='<c:if test="${not empty param.login_error}"><c:out value="${LOCAL_LAST_USERNAME}"/></c:if>' />
+							placeholder="请输入您的用户名" data-trim maxlength="50" />
 					</div>
 					<div class="form-group">
 						<label for="password">密码：</label> <input type="password"

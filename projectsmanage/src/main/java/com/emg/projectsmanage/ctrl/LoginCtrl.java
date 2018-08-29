@@ -45,7 +45,7 @@ public class LoginCtrl extends BaseCtrl {
 
 	@RequestMapping()
 	public String login(Model model, HttpSession session, HttpServletRequest request) {
-		logger.debug("LoginCtrl-login start.");
+		logger.debug("START");
 		try {
 			String account = getLoginAccount(session);
 			Integer userid = 0;
@@ -115,7 +115,7 @@ public class LoginCtrl extends BaseCtrl {
 				context.setAuthentication(null);
 				SecurityContextHolder.clearContext();
 				logger.error("user has no power getting in : " + account);
-				return "redirect:login.jsp";
+				return "redirect:login.jsp?login_error=2";
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

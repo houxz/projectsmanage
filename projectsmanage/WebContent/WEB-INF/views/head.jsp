@@ -99,7 +99,7 @@
 						<c:when test="${islogin}">
 							<li><a href="#"><c:out value="${account}" /></a></li>
 							<li id="limsg"></li>
-							<li><a href="<c:url value='./logout'/>">退出</a></li>
+							<li><a href="<c:url value='./logout.web'/>">退出</a></li>
 						</c:when>
 						<c:otherwise>
 							<li><a href="javascript:void(0);" id="loginbtn">登陆</a></li>
