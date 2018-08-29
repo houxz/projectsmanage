@@ -35,8 +35,7 @@
 		return "0000";
 	}%>
 <%
-	String menucode = getMenuCode(ParamUtils.getAttribute(request,
-			"fromurl"));
+	String menucode = getMenuCode(ParamUtils.getAttribute(request, "fromurl"));
 	Integer userID = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
 %>
 </script>
@@ -49,7 +48,7 @@
 			</div>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
-					<sec:authorize access="hasAnyRole('ROLE_ADMIN' )">
+					<sec:authorize access="hasAnyRole('ROLE_ADMIN' ,'ROLE_SUPERADMIN')">
 						<li class="<%="999".equals(menucode) ? "active" : ""%>"><a
 							href="<c:url value='usersmanage.web'/>">人员信息管理</a></li>
 					</sec:authorize>
@@ -67,11 +66,11 @@
 						<li class="<%="1004".equals(menucode) ? "active" : ""%>"><a
 							href="<c:url value='projectsprocess.web'/>">项目进度</a></li>
 					</sec:authorize>
-					<!-- <sec:authorize
+					<sec:authorize
 						access="hasAnyRole('ROLE_POIVIDEOEDIT' ,'ROLE_WORKER' ,'ROLE_CHECKER')">
 						<li class="<%="1005".equals(menucode) ? "active" : ""%>"><a
 							href="<c:url value='capacitycount.web'/>">产能统计</a></li>
-					</sec:authorize> -->
+					</sec:authorize>
 					<sec:authorize
 						access="hasAnyRole('ROLE_POIVIDEOEDIT' )">
 						<li class="<%="1008".equals(menucode) ? "active" : ""%>"><a

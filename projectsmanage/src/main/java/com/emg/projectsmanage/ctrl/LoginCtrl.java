@@ -48,27 +48,48 @@ public class LoginCtrl extends BaseCtrl {
 		logger.debug("LoginCtrl-login start.");
 		try {
 			String account = getLoginAccount(session);
-			EmployeeModel record = new EmployeeModel();
-			record.setUsername(account);
-			EmployeeModel user = emapgoAccountService.getOneEmployee(record);
-			if (user == null) {
-				if (session != null) {
-					session.invalidate();
+			Integer userid = 0;
+			String realname = new String();
+			if(!hasRole(request, RoleType.ROLE_SUPERADMIN.toString())) {
+				EmployeeModel record = new EmployeeModel();
+				record.setUsername(account);
+				EmployeeModel user = emapgoAccountService.getOneEmployee(record);
+				if (user == null) {
+					if (session != null) {
+						session.invalidate();
+					}
+					SecurityContext context = SecurityContextHolder.getContext();
+					context.setAuthentication(null);
+					SecurityContextHolder.clearContext();
+					logger.error("user : " + account + " deny to login.");
+					return "redirect:login.jsp";
 				}
-				SecurityContext context = SecurityContextHolder.getContext();
-				context.setAuthentication(null);
-				SecurityContextHolder.clearContext();
-				logger.error("user : " + account + " deny to login.");
-				return "redirect:login.jsp";
+			
+				userid = user.getId();
+				realname = user.getRealname();
+	
+				List<GrantedAuthority> newAuths = new ArrayList<GrantedAuthority>();
+				for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
+					newAuths.add(ga);
+				}
+				List<Map<String, Object>> authlist = userRoleModelDao.getEpleRoles(user.getId());
+				for (Map<String, Object> auth : authlist) {
+					newAuths.add(new SimpleGrantedAuthority(MapUtils.getString(auth, "rolename")));
+				}
+	
+				SecurityContextHolder.getContext().setAuthentication(
+						new UsernamePasswordAuthenticationToken(SecurityContextHolder.getContext().getAuthentication().getPrincipal(), SecurityContextHolder.getContext()
+								.getAuthentication().getCredentials(), newAuths));
+			
+			} else {
+				userid = -1;
+				realname = "超级管理员";
 			}
-
-			Integer userid = user.getId();
-
+			
 			session.setAttribute(CommonConstants.SESSION_USER_ACC, account);
-
 			session.setAttribute(CommonConstants.SESSION_USER_ID, userid);
-			session.setAttribute(CommonConstants.SESSION_USER_NAME, user.getRealname());
-
+			session.setAttribute(CommonConstants.SESSION_USER_NAME, realname);
+			
 			LogModel log = new LogModel();
 			log.setType("LOGIN");
 			log.setKey(userid.toString());
@@ -77,20 +98,7 @@ public class LoginCtrl extends BaseCtrl {
 			log.setIp(getRemortIP(request));
 			logModelDao.log(log);
 
-			List<GrantedAuthority> newAuths = new ArrayList<GrantedAuthority>();
-			for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
-				newAuths.add(ga);
-			}
-			List<Map<String, Object>> authlist = userRoleModelDao.getEpleRoles(user.getId());
-			for (Map<String, Object> auth : authlist) {
-				newAuths.add(new SimpleGrantedAuthority(MapUtils.getString(auth, "rolename")));
-			}
-
-			SecurityContextHolder.getContext().setAuthentication(
-					new UsernamePasswordAuthenticationToken(SecurityContextHolder.getContext().getAuthentication().getPrincipal(), SecurityContextHolder.getContext()
-							.getAuthentication().getCredentials(), newAuths));
-
-			if (hasRole(request, RoleType.ROLE_ADMIN.toString())) {
+			if (hasRole(request, RoleType.ROLE_ADMIN.toString()) || hasRole(request, RoleType.ROLE_SUPERADMIN.toString())) {
 				logger.debug("LoginCtrl-login end to admin page.");
 				return "redirect:usersmanage.web";
 			} else if (hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {

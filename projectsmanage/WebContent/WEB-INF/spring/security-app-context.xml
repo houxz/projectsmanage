@@ -25,7 +25,12 @@
 		</session-management>
 	</http>
 
-	<authentication-manager alias="am">
+	<authentication-manager id="am">
+		<authentication-provider>
+			<user-service id="userDetailsService">
+				<user name="admin" password="emapgo123!@#" authorities="ROLE_SUPERADMIN" />
+			</user-service>
+		</authentication-provider>
 		<authentication-provider user-service-ref="userService">
 			<password-encoder hash="md5" />
 		</authentication-provider>
