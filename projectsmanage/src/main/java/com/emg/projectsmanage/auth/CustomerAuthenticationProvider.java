@@ -34,13 +34,19 @@ public class CustomerAuthenticationProvider implements AuthenticationProvider {
 
 			CustomUserDetails userDetails = this.customUserDetailsService.loadUserByUsername(authentication.getName());
 
-			if (DigestUtils.md5DigestAsHex(password.getBytes()).equals(userDetails.getPassword())) {
-				loginRet = true;
-				return new UsernamePasswordAuthenticationToken(userDetails, authentication.getCredentials(),
-						userDetails.getAuthorities());
-			} else {
+			if (userDetails == null) {
 				loginRet = false;
-				logger.error("Wrong Password: " + password);
+				logger.error("User not exist: " + username);
+			} else {
+
+				if (DigestUtils.md5DigestAsHex(password.getBytes()).equals(userDetails.getPassword())) {
+					loginRet = true;
+					return new UsernamePasswordAuthenticationToken(userDetails, authentication.getCredentials(),
+							userDetails.getAuthorities());
+				} else {
+					loginRet = false;
+					logger.error("Wrong Password: " + password);
+				}
 			}
 
 		} catch (Exception e) {

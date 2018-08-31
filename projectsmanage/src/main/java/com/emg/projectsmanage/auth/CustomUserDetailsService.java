@@ -30,10 +30,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Override
 	public CustomUserDetails loadUserByUsername(String username) {
-		CustomUserDetails userDetails = new CustomUserDetails();
+		CustomUserDetails userDetails = null;
 		try {
-			userDetails.setUsername(username);
 			AuthorityModel authority = emapgoAccountService.getAuthorityByUsername(username);
+			if(authority == null)	return userDetails;
+			
+			userDetails = new CustomUserDetails();
+			userDetails.setUsername(username);
 			userDetails.setPassword(authority.getPassword());
 			userDetails.setEnabled(authority.getEnabled().equals(1));
 	
