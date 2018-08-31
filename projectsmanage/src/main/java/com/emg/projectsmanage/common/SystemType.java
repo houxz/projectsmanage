@@ -8,7 +8,11 @@ package com.emg.projectsmanage.common;
  */
 public enum SystemType {
 	/**
-	 * "POI视频编辑平台"
+	 * (-99, "未知系统"
+	 */
+	Unknow(-99, "未知系统"),
+	/**
+	 * 0, "POI视频编辑平台"
 	 */
 	poivideoedit(0, "POI视频编辑平台"),
 	/**
@@ -55,6 +59,17 @@ public enum SystemType {
 
 	public void setValue(Integer value) {
 		this.value = value;
+	}
+	
+	public static SystemType valueOf(Integer value) {
+		SystemType ret = SystemType.Unknow;
+		for(SystemType sysType : SystemType.values()) {
+			if(sysType.getValue().equals(value)) {
+				ret = sysType;
+				break;
+			}
+		}
+		return ret;
 	}
 	
 	public static String toJsonStr() {
