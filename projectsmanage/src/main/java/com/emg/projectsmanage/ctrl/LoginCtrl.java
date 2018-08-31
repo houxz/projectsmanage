@@ -1,19 +1,11 @@
 package com.emg.projectsmanage.ctrl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -23,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.dao.projectsmanager.LogModelDao;
-import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
 import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.LogModel;
 import com.emg.projectsmanage.service.EmapgoAccountService;
@@ -39,9 +30,6 @@ public class LoginCtrl extends BaseCtrl {
 
 	@Autowired
 	private LogModelDao logModelDao;
-
-	@Autowired
-	private UserRoleModelDao userRoleModelDao;
 
 	@RequestMapping()
 	public String login(Model model, HttpSession session, HttpServletRequest request) {
@@ -68,19 +56,6 @@ public class LoginCtrl extends BaseCtrl {
 				userid = user.getId();
 				realname = user.getRealname();
 	
-				List<GrantedAuthority> newAuths = new ArrayList<GrantedAuthority>();
-				for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
-					newAuths.add(ga);
-				}
-				List<Map<String, Object>> authlist = userRoleModelDao.getEpleRoles(user.getId());
-				for (Map<String, Object> auth : authlist) {
-					newAuths.add(new SimpleGrantedAuthority(MapUtils.getString(auth, "rolename")));
-				}
-	
-				SecurityContextHolder.getContext().setAuthentication(
-						new UsernamePasswordAuthenticationToken(SecurityContextHolder.getContext().getAuthentication().getPrincipal(), SecurityContextHolder.getContext()
-								.getAuthentication().getCredentials(), newAuths));
-			
 			} else {
 				userid = -1;
 				realname = "超级管理员";

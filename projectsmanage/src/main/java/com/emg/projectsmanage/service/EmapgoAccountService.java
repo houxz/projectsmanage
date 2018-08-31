@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.emg.projectsmanage.dao.emapgoaccount.AuthorityModelDao;
 import com.emg.projectsmanage.dao.emapgoaccount.DepartmentModelDao;
 import com.emg.projectsmanage.dao.emapgoaccount.EmployeeModelDao;
+import com.emg.projectsmanage.pojo.AuthorityModel;
 import com.emg.projectsmanage.pojo.DepartmentModel;
 import com.emg.projectsmanage.pojo.EmployeeModel;
 
@@ -23,6 +25,9 @@ public class EmapgoAccountService {
 
 	@Autowired
 	private EmployeeModelDao employeeModelDao;
+	
+	@Autowired
+	private AuthorityModelDao authorityModelDao;
 
 	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<DepartmentModel> getAllDepartment() {
@@ -58,5 +63,10 @@ public class EmapgoAccountService {
 	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<Map<String, Object>> getEmployeeListForZTree() {
 		return employeeModelDao.getEmployeeListForZTree();
+	}
+	
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
+	public AuthorityModel getAuthorityByUsername(String username) {
+		return authorityModelDao.getAuthorityByUsername(username);
 	}
 }

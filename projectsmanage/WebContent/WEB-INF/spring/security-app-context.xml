@@ -24,6 +24,10 @@
 				max-sessions="1" />
 		</session-management>
 	</http>
+	
+	<beans:bean id="customerAuthenticationProvider" class="com.emg.projectsmanage.auth.CustomerAuthenticationProvider">
+		<beans:property name="customUserDetailsService" ref="customUserDetailsService" />
+	</beans:bean>
 
 	<authentication-manager id="am">
 		<authentication-provider>
@@ -31,16 +35,8 @@
 				<user name="admin" password="emapgo123!@#" authorities="ROLE_SUPERADMIN" />
 			</user-service>
 		</authentication-provider>
-		<authentication-provider user-service-ref="userService">
-			<password-encoder hash="md5" />
-		</authentication-provider>
+		<authentication-provider ref="customerAuthenticationProvider" />
 	</authentication-manager>
-
-	<beans:bean id="userService"
-		class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
-		<beans:property name="dataSource" ref="dataSourceMySqlForAccount" />
-		<beans:property name="enableGroups" value="true" />
-	</beans:bean>
 
 	<beans:bean id="loggerListener"
 		class="org.springframework.security.authentication.event.LoggerListener" />
