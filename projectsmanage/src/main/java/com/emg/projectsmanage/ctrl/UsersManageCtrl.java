@@ -183,9 +183,14 @@ public class UsersManageCtrl extends BaseCtrl {
 			UserRoleModel record = new UserRoleModel();
 			record.setId(urid);
 			int ret = userRoleModelDao.delEpleRole(record);
-			if (ret > 0)
+			if (ret > 0) {
+				EmployeeModel user = new EmployeeModel();
+				user.setId(urid);
+				EmployeeModel employee = emapgoAccountService.getOneEmployee(user );
+				sessionService.KickOutUser(employee.getUsername());
+				
 				json.addObject("result", 1);
-			else
+			} else
 				json.addObject("result", 0);
 		} catch (Exception e) {
 			json.addObject("result", 0);
