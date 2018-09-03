@@ -17,10 +17,12 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
+import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.RoleModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 import com.emg.projectsmanage.service.ProjectManagerRoleService;
+import com.emg.projectsmanage.service.SessionService;
 
 @Controller
 @RequestMapping("/usersmanage.web")
@@ -36,6 +38,9 @@ public class UsersManageCtrl extends BaseCtrl {
 
 	@Autowired
 	private UserRoleModelDao userRoleModelDao;
+	
+	@Autowired
+	private SessionService sessionService;
 
 	/**
 	 * 开发权限管理页面
@@ -155,6 +160,11 @@ public class UsersManageCtrl extends BaseCtrl {
 				record.setRoleid(roleid);
 				userRoleModelDao.delEpleRole(record);
 				userRoleModelDao.addEpleRole(record);
+				
+				EmployeeModel user = new EmployeeModel();
+				user.setId(Integer.valueOf(userids[i]));
+				EmployeeModel employee = emapgoAccountService.getOneEmployee(user );
+				sessionService.KickOutUser(employee.getUsername());
 			}
 			json.addObject("result", 1);
 		} catch (Exception e) {
