@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
 
@@ -24,6 +26,7 @@ public class CustomerAuthenticationProvider implements AuthenticationProvider {
 	@Override
 	public Authentication authenticate(Authentication authentication) {
 		Boolean loginRet = false;
+		String msg = new String();
 		String username = new String();
 		String password = new String();
 		try {
@@ -34,30 +37,34 @@ public class CustomerAuthenticationProvider implements AuthenticationProvider {
 
 			CustomUserDetails userDetails = this.customUserDetailsService.loadUserByUsername(authentication.getName());
 
-			if (userDetails == null) {
-				loginRet = false;
-				logger.error("User not exist: " + username);
+			if (DigestUtils.md5DigestAsHex(password.getBytes()).equals(userDetails.getPassword())) {
+				loginRet = true;
+				return new UsernamePasswordAuthenticationToken(userDetails, authentication.getCredentials(),
+						userDetails.getAuthorities());
 			} else {
-
-				if (DigestUtils.md5DigestAsHex(password.getBytes()).equals(userDetails.getPassword())) {
-					loginRet = true;
-					return new UsernamePasswordAuthenticationToken(userDetails, authentication.getCredentials(),
-							userDetails.getAuthorities());
-				} else {
-					loginRet = false;
-					logger.error("Wrong Password: " + password);
-				}
+				loginRet = false;
+				msg = String.format("Wrong Password: %s", password);
+				logger.error(msg);
 			}
-
+		} catch (UsernameNotFoundException e) {
+			loginRet = false;
+			msg = String.format("User not exist: %s", username);
+			logger.error(msg);
+		} catch (SessionAuthenticationException e) {
+			loginRet = false;
+			msg = String.format("User duplicate login: %s", username);
+			logger.error(msg);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		} finally {
-			LogModel log = new LogModel();
-			log.setType("TRYLOGIN");
-			log.setKey(username);
-			log.setValue(password);
-			log.setSessionid(loginRet.toString());
-			logModelDao.log(log);
+			if (!loginRet) {
+				LogModel log = new LogModel();
+				log.setType("TRYLOGIN");
+				log.setKey(username);
+				log.setValue(password);
+				log.setSessionid(msg);
+				logModelDao.log(log);
+			}
 		}
 
 		return null;

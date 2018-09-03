@@ -18,7 +18,7 @@
 			password-parameter="password" always-use-default-target="true"
 			authentication-failure-url="/login.jsp?login_error=1" />
 		<http-basic />
-		<logout invalidate-session="true" logout-success-url="/login.jsp" />
+		<logout invalidate-session="true" logout-success-url="/login.jsp?logout=1" />
 		<session-management>
 			<concurrency-control error-if-maximum-exceeded="true"
 				max-sessions="1" />

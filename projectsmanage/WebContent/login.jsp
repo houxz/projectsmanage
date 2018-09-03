@@ -60,7 +60,35 @@
 							</div>
 						</c:when>
 						<c:otherwise>
-							<div class="label label-warning">您的登录没有成功。</div>
+							<div class="label label-warning">操作没有成功。</div>
+							<br />
+							<div class="label label-warning">
+								<c:out value="未知原因。" />
+							</div>
+						</c:otherwise>
+					</c:choose>
+					<%
+						session.invalidate();
+					%>
+				</c:if>
+				<c:if test="${not empty param.logout }">
+					<c:choose>
+						<c:when test="${param.logout == 1}">
+							<div class="label label-warning">您已退出登录。</div>
+							<br />
+							<div class="label label-warning">
+								<c:out value="如需要，请重新登录。" />
+							</div>
+						</c:when>
+						<c:when test="${param.logout == 2}">
+							<div class="label label-warning">登录超时。</div>
+							<br />
+							<div class="label label-warning">
+								<c:out value="请重新登录。" />
+							</div>
+						</c:when>
+						<c:otherwise>
+							<div class="label label-warning">退出失败。</div>
 							<br />
 							<div class="label label-warning">
 								<c:out value="未知原因。" />
