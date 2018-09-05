@@ -22,7 +22,7 @@
 
 	<bean id="systemsets" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="990" />
-		<property name="url" value="/systemsets.web" />
+		<property name="url" value="/projectsmanage/systemsets.web" />
 		<property name="label" value="系统配置" />
 		<property name="roleSet">
 			<set>
@@ -34,7 +34,7 @@
 	
 	<bean id="usersmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="999" />
-		<property name="url" value="/usersmanage.web" />
+		<property name="url" value="/projectsmanage/usersmanage.web" />
 		<property name="label" value="人员信息管理" />
 		<property name="roleSet">
 			<set>
@@ -47,7 +47,7 @@
 	
 	<bean id="skillsmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1000" />
-		<property name="url" value="/skillsmanage.web" />
+		<property name="url" value="/projectsmanage/skillsmanage.web" />
 		<property name="label" value="人员技能管理" />
 		<property name="roleSet">
 			<set>
@@ -59,7 +59,7 @@
 	
 	<bean id="processesmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1001" />
-		<property name="url" value="/processesmanage.web" />
+		<property name="url" value="/projectsmanage/processesmanage.web" />
 		<property name="label" value="项目管理" />
 		<property name="roleSet">
 			<set>
@@ -71,7 +71,7 @@
 	
 	<bean id="projectsmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1002" />
-		<property name="url" value="/projectsmanage.web" />
+		<property name="url" value="/projectsmanage/projectsmanage.web" />
 		<property name="label" value="子项目管理" />
 		<property name="roleSet">
 			<set>
@@ -83,7 +83,7 @@
 	
 	<bean id="worktasks" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1003" />
-		<property name="url" value="/worktasks.web" />
+		<property name="url" value="/projectsmanage/worktasks.web" />
 		<property name="label" value="作业任务" />
 		<property name="roleSet">
 			<set>
@@ -97,7 +97,7 @@
 	
 	<bean id="projectsprocess" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1004" />
-		<property name="url" value="/projectsprocess.web" />
+		<property name="url" value="/projectsmanage/projectsprocess.web" />
 		<property name="label" value="项目进度" />
 		<property name="roleSet">
 			<set>
@@ -111,7 +111,7 @@
 	
 	<bean id="capacitycount" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1005" />
-		<property name="url" value="/capacitycount.web" />
+		<property name="url" value="/projectsmanage/capacitycount.web" />
 		<property name="label" value="产能统计" />
 		<property name="roleSet">
 			<set>
@@ -125,7 +125,7 @@
 	
 	<bean id="itemsetmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1006" />
-		<property name="url" value="/itemsetmanage.web" />
+		<property name="url" value="/projectsmanage/itemsetmanage.web" />
 		<property name="label" value="质检集合配置" />
 		<property name="roleSet">
 			<set>
@@ -137,7 +137,7 @@
 	
 	<bean id="errorsetmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1007" />
-		<property name="url" value="/errorsetmanage.web" />
+		<property name="url" value="/projectsmanage/errorsetmanage.web" />
 		<property name="label" value="错误筛选配置" />
 		<property name="roleSet">
 			<set>
@@ -149,7 +149,7 @@
 	
 	<bean id="errorsmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1008" />
-		<property name="url" value="/errorsmanage.web" />
+		<property name="url" value="/projectsmanage/errorsmanage.web" />
 		<property name="label" value="错误导出" />
 		<property name="roleSet">
 			<set>
@@ -161,7 +161,7 @@
 	
 	<bean id="iteminfo" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1009" />
-		<property name="url" value="/iteminfo.web" />
+		<property name="url" value="/projectsmanage/iteminfo.web" />
 		<property name="label" value="质检项配置" />
 		<property name="roleSet">
 			<set>

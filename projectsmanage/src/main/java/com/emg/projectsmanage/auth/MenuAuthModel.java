@@ -4,13 +4,13 @@ import java.util.Set;
 
 import com.emg.projectsmanage.common.RoleType;
 
-public class MenuAuthModel {
+public class MenuAuthModel implements Comparable<MenuAuthModel> {
 	private Integer code;
 	private String url;
 	private String label;
 	private Set<RoleType> roleSet;
 	private Boolean enabled;
-	private Boolean active;
+	private Boolean active = false;
 	
 	public String getUrl() {
 		return url;
@@ -52,6 +52,19 @@ public class MenuAuthModel {
 	}
 	public void setActive(Boolean active) {
 		this.active = active;
+	}
+	
+	@Override
+	public int compareTo(MenuAuthModel obj) {
+		if(((MenuAuthModel)obj).getCode().equals(this.code) &&
+			((MenuAuthModel)obj).getUrl().equals(this.url) &&
+			((MenuAuthModel)obj).getLabel().equals(this.label) &&
+			((MenuAuthModel)obj).getRoleSet().equals(this.roleSet) &&
+			((MenuAuthModel)obj).getEnabled().equals(this.enabled) &&
+			((MenuAuthModel)obj).getActive().equals(this.active)) {
+			return 0;
+		} else
+			return 1;
 	}
 	
 }

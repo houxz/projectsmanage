@@ -22,7 +22,7 @@
 	<!-- 缓存功能开启，只有一个启用 -->
 	<beans:import resource="./spring-ehcache.xml" />
 	<!-- 页面head配置，以及权限相关 -->
-	<beans:import resource="./menuauths.xml" />
+	<beans:import resource="./menu-context.xml" />
 	<!-- <beans:import resource="./redis-context.xml" />
 	缓存功能开启，只有一个启用 -->
 	

@@ -25,8 +25,6 @@ public class AuthMonitorInterceptor extends HandlerInterceptorAdapter {
 		Boolean ret = false;
 		
 		String requestUri = request.getRequestURI();
-		String contextPath = request.getContextPath();
-		String url = requestUri.substring(contextPath.length());
 		
 		Set<RoleType> auths = new HashSet<RoleType>();
 		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
@@ -34,7 +32,7 @@ public class AuthMonitorInterceptor extends HandlerInterceptorAdapter {
 		}
 
 		for (MenuAuthModel menuAuthModel : menuConfig.getMenus()) {
-			if(menuAuthModel.getEnabled() && menuAuthModel.getUrl().equalsIgnoreCase(url)) {
+			if(menuAuthModel.getEnabled() && menuAuthModel.getUrl().equalsIgnoreCase(requestUri)) {
 				Set<RoleType> result = new HashSet<RoleType>();
 				Set<RoleType> roleSet = menuAuthModel.getRoleSet();
 				result.clear();
