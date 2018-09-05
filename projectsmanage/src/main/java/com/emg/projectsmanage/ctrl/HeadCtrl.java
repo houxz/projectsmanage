@@ -1,22 +1,14 @@
 package com.emg.projectsmanage.ctrl;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.emg.projectsmanage.auth.MenuAuthModel;
 import com.emg.projectsmanage.common.ParamUtils;
-import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.config.MenuConfig;
 
 @Controller
