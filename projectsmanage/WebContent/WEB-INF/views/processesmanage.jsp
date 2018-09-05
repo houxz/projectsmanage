@@ -37,17 +37,33 @@
 	$(document).ready(function() {
 		$.webeditor.getHead();
 		//$.webeditor.getFoot();
-
+		
 		$('[data-toggle="processes"]').bootstrapTable({
 			locale : 'zh-CN',
 			onLoadSuccess : function(data) {
 				$("[data-toggle='tooltip']").tooltip();
+			},
+			onPostHeader : function() {
+				console.log("onPostBody：" + autoRefreshProcess);
+				if (!!window.EventSource) {
+					if (autoRefreshProcess) {
+						$("#imgRefresh").attr("src", "resources/images/refresh.gif");
+						$("#imgRefresh").attr("title", "关闭自动刷新项目进度");
+					} else {
+						$("#imgRefresh").attr("src", "resources/images/stop.jpg");
+						$("#imgRefresh").attr("title", "开启自动刷新项目进度");
+					}
+				} else {
+					$("#imgRefresh").remove();
+				}
 			}
 		});
+		
 	});
 	
 	var source = null;
 	var matchByIDAndIndex = new Map();
+	var autoRefreshProcess = false;
 	
 	var colors = [ "LimeGreen", "MediumSeaGreen", "MediumVioletRed", "Crimson", "Crimson" ];
 	var processStates = eval('(${processStates})');
@@ -1261,44 +1277,38 @@
 	}
 
 	function refreshProgress(obj) {
-		if ($(obj).attr("src").indexOf("stop.jpg") > 0) {
-			$(obj).attr("src", "resources/images/refresh.gif");
-			$(obj).attr("title", "关闭自动刷新项目进度");
+		if (!autoRefreshProcess) {
+			autoRefreshProcess = !autoRefreshProcess;
+			
+			var data = $('[data-toggle="processes"]').bootstrapTable("getData");
+			if (data && data.length > 0) {
+				var ids = new Array();
+				for ( var i = 0; i < data.length; i++) {
+					matchByIDAndIndex.set(data[i].id, i);
+					ids.push(data[i].id);
+				}
+				source = new EventSource('/projectsmanage/sse.web?action=refreshprogress&ids=' + ids.join(","));
 
-			if (!!window.EventSource) {
-				var data = $('[data-toggle="processes"]').bootstrapTable("getData");
-				if (data && data.length > 0) {
-					var ids = new Array();
-					for ( var i = 0; i < data.length; i++) {
-						matchByIDAndIndex.set(data[i].id, i);
-						ids.push(data[i].id);
-					}
-					source = new EventSource('/projectsmanage/sse.web?action=refreshprogress&ids=' + ids.join(","));
-
-					source.onmessage = function(e) {
-						//console.log(e.data);
-						var progresses = JSON.parse(e.data);
-						if(progresses instanceof Array){
-							for(var index in progresses) {
-								if(matchByIDAndIndex && matchByIDAndIndex.has(progresses[index].id)) {
-									$('[data-toggle="processes"]').bootstrapTable('updateCell', {
-										index: matchByIDAndIndex.get(progresses[index].id),
-										field: "progress",
-										value: progresses[index].progress
-									});
-									
-									$(obj).attr("src", "resources/images/refresh.gif");
-									$(obj).attr("title", "关闭自动刷新项目进度");
-								}
+				source.onmessage = function(e) {
+					var progresses = JSON.parse(e.data);
+					if(progresses instanceof Array){
+						for(var index in progresses) {
+							if(matchByIDAndIndex && matchByIDAndIndex.has(progresses[index].id)) {
+								$('[data-toggle="processes"]').bootstrapTable('updateCell', {
+									index: matchByIDAndIndex.get(progresses[index].id),
+									field: "progress",
+									value: progresses[index].progress
+								});
 							}
 						}
-					};
-				}
+					}
+				};
 			}
 		} else {
-			$(obj).attr("src", "resources/images/stop.jpg");
-			$(obj).attr("title", "开启自动刷新项目进度");
-
+			autoRefreshProcess = !autoRefreshProcess;
+			$("#imgRefresh").attr("src", "resources/images/stop.jpg");
+			$("#imgRefresh").attr("title", "开启自动刷新项目进度");
+			
 			if (source) {
 				source.close();
 				source = null;
@@ -1394,12 +1404,8 @@
 							data-filter-data="var:processStates">项目状态</th>
 						<th data-field="progress" data-formatter="progressFormat"
 							data-width="500">项目进度
-							<img id="refresh" src="resources/images/stop.jpg"
-							style="cursor: pointer;" title="开启自动刷新项目进度"
-							onclick="refreshProgress(this);">
+							<img id="imgRefresh" src="resources/images/stop.jpg" style="cursor: pointer;" title="开启自动刷新项目进度"  onclick="refreshProgress(this);">
 						</th>
-						<!-- <th data-field="createtime" data-filter-control-placeholder=""
-							data-width="200">创建时间</th> -->
 						<th data-formatter="operationFormat" data-width="70">操作</th>
 					</tr>
 				</thead>
