@@ -11,6 +11,7 @@ public class MenuAuthModel implements Comparable<MenuAuthModel> {
 	private Set<RoleType> roleSet;
 	private Boolean enabled;
 	private Boolean active = false;
+	private Boolean isshow = false;
 	
 	public String getUrl() {
 		return url;
@@ -65,6 +66,12 @@ public class MenuAuthModel implements Comparable<MenuAuthModel> {
 			return 0;
 		} else
 			return 1;
+	}
+	public Boolean getIsshow() {
+		return isshow;
+	}
+	public void setIsshow(Boolean isshow) {
+		this.isshow = isshow;
 	}
 	
 }

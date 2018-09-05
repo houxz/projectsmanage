@@ -37,7 +37,7 @@ public class HeadCtrl extends BaseCtrl {
 		}
 
 		for (MenuAuthModel menuAuthModel : menuConfig.getMenus()) {
-			if(menuAuthModel.getEnabled()) {
+			if(menuAuthModel.getEnabled() && menuAuthModel.getIsshow()) {
 				if(fromurl.indexOf(menuAuthModel.getUrl()) >= 0) {
 					menuAuthModel.setActive(true);
 				} else {

@@ -16,6 +16,8 @@
 				<ref bean="errorsetmanage" />
 				<ref bean="iteminfo" />
 				<ref bean="systemsets" />
+				<ref bean="sse" />
+				<ref bean="socket" />
 			</set>
 		</property>
 	</bean>
@@ -30,6 +32,7 @@
 			</set>
 		</property>
 		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
 	</bean>
 	
 	<bean id="usersmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
@@ -43,6 +46,7 @@
 			</set>
 		</property>
 		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
 	</bean>
 	
 	<bean id="skillsmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
@@ -55,6 +59,7 @@
 			</set>
 		</property>
 		<property name="enabled" value="false" />
+		<property name="isshow" value="false" />
 	</bean>
 	
 	<bean id="processesmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
@@ -67,6 +72,7 @@
 			</set>
 		</property>
 		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
 	</bean>
 	
 	<bean id="projectsmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
@@ -79,6 +85,7 @@
 			</set>
 		</property>
 		<property name="enabled" value="false" />
+		<property name="isshow" value="false" />
 	</bean>
 	
 	<bean id="worktasks" class="com.emg.projectsmanage.auth.MenuAuthModel">
@@ -93,6 +100,7 @@
 			</set>
 		</property>
 		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
 	</bean>
 	
 	<bean id="projectsprocess" class="com.emg.projectsmanage.auth.MenuAuthModel">
@@ -107,6 +115,7 @@
 			</set>
 		</property>
 		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
 	</bean>
 	
 	<bean id="capacitycount" class="com.emg.projectsmanage.auth.MenuAuthModel">
@@ -121,6 +130,7 @@
 			</set>
 		</property>
 		<property name="enabled" value="false" />
+		<property name="isshow" value="false" />
 	</bean>
 	
 	<bean id="itemsetmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
@@ -133,6 +143,7 @@
 			</set>
 		</property>
 		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
 	</bean>
 	
 	<bean id="errorsetmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
@@ -145,6 +156,7 @@
 			</set>
 		</property>
 		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
 	</bean>
 	
 	<bean id="errorsmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
@@ -157,6 +169,7 @@
 			</set>
 		</property>
 		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
 	</bean>
 	
 	<bean id="iteminfo" class="com.emg.projectsmanage.auth.MenuAuthModel">
@@ -169,6 +182,46 @@
 			</set>
 		</property>
 		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
+	
+	<bean id="downloadexcel" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="1010" />
+		<property name="url" value="/projectsmanage/downloadexcel.web" />
+		<property name="label" value="Excel下载" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+			</set>
+		</property>
+		<property name="enabled" value="false" />
+		<property name="isshow" value="false" />
+	</bean>
+	
+	<bean id="sse" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="1011" />
+		<property name="url" value="/projectsmanage/sse.web" />
+		<property name="label" value="SSE通信" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="false" />
+	</bean>
+	
+	<bean id="socket" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="1012" />
+		<property name="url" value="/projectsmanage/socket.web" />
+		<property name="label" value="SOCKET通信" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="false" />
 	</bean>
 
 </beans>
