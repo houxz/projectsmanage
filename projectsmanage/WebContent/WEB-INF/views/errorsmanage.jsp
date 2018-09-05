@@ -78,6 +78,8 @@
 	}
 	
 	function getErrorSets (processType) {
+		$("#errorset").empty();
+		$("#batchid").empty();
 		jQuery.post("./errorsmanage.web", {
 			"atn" : "geterrorsets",
 			"processType" : processType
@@ -85,12 +87,19 @@
 			if (json.ret && json.ret > 0) {
 				var errorSets = json.errorsets;
 				if(errorSets && errorSets.length > 0) {
-					$("#errorset").empty();
 					$.each(errorSets, function(i, errorSet){
 						$("#errorset").append('<option value="' + errorSet.id + '">' + errorSet.name + '</option>');
 					});
 					$("#errorset").flexselect();
 					$("#errorset").val(null);
+				}
+				var batchids = json.batchids;
+				if(batchids && batchids.length > 0) {
+					$.each(batchids, function(i, batchid){
+						$("#batchid").append('<option value="' + batchid + '">' + batchid + '</option>');
+					});
+					$("#batchid").flexselect();
+					$("#batchid").val(null);
 				}
 			} else {
 				$.webeditor.showMsgLabel("alert", "获取ErrorSets失败");

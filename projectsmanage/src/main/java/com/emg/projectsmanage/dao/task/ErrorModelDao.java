@@ -48,7 +48,7 @@ public class ErrorModelDao {
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
-			sql.append("tb_error ");
+			sql.append("tb_task_batch ");
 
 			dataSource = Common.getDataSource(configDBModel);
 			batchids = new JdbcTemplate(dataSource).queryForList(sql.toString(), String.class);

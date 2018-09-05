@@ -16,6 +16,10 @@ public enum RoleType {
 	 */
 	ROLE_ADMIN(1, "系统管理员"),
 	/**
+	 * 2, "系统管理员"
+	 */
+	ROLE_USER(2, "普通用户"),
+	/**
 	 * -1, "超级管理员"
 	 */
 	ROLE_SUPERADMIN(-1, "超级管理员"),

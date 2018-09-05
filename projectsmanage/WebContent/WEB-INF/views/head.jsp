@@ -36,7 +36,7 @@
 	}%>
 <%
 	String menucode = getMenuCode(ParamUtils.getAttribute(request, "fromurl"));
-	Integer userID = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
+	String account = session.getAttribute(CommonConstants.SESSION_USER_NAME).toString();
 %>
 </script>
 <div class="headline">
@@ -95,16 +95,9 @@
 				</ul>
 
 				<ul class="nav navbar-nav navbar-right" style="width: 24%;">
-					<c:choose>
-						<c:when test="${islogin}">
-							<li><a href="#"><c:out value="${account}" /></a></li>
-							<li id="limsg"></li>
-							<li><a href="<c:url value='./logout.web'/>">退出</a></li>
-						</c:when>
-						<c:otherwise>
-							<li><a href="javascript:void(0);" id="loginbtn">登陆</a></li>
-						</c:otherwise>
-					</c:choose>
+					<li><a href="#"><c:out value="<%=account%>" /></a></li>
+					<li id="limsg"></li>
+					<li><a href="<c:url value='./logout.web'/>">退出</a></li>
 				</ul>
 			</div>
 		</div>

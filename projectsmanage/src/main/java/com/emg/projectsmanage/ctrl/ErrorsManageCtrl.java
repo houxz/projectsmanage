@@ -58,17 +58,14 @@ public class ErrorsManageCtrl extends BaseCtrl {
 		logger.debug("ErrorsManageCtrl-openLader start.");
 		try {
 			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 16);
-			map.put("processType", -1);
+			map.put("id", 2);
+			map.put("processType", ProcessType.ERROR.getValue());
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			List<String> batchids = errorModelDao.getErrorBatchids(configDBModel);
 			model.addAttribute("batchids", batchids);
 
-			Map<String, Integer> _map = new HashMap<String, Integer>();
-			_map.put("id", 2);
-			_map.put("processType", ProcessType.ERROR.getValue());
-			ProcessConfigModel _config = processConfigModelDao.selectByPrimaryKey(_map);
+			ProcessConfigModel _config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel _configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(_config.getDefaultValue()));
 			List<ErrorSetModel> errorSets = errorModelDao.getErrorSets(_configDBModel);
 			model.addAttribute("errorSets", errorSets);
@@ -164,8 +161,10 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			List<ErrorSetModel> errorSets = errorModelDao.getErrorSets(configDBModel);
+			List<String> batchids = errorModelDao.getErrorBatchids(configDBModel);
 
 			json.addObject("errorsets", errorSets);
+			json.addObject("batchids", batchids);
 			json.addObject("ret", 1);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
