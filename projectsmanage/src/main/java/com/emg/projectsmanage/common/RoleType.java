@@ -12,21 +12,18 @@ public enum RoleType {
 	 */
 	UNKNOW(0, "未知角色"),
 	/**
-	 * 1, "系统管理员"
-	 */
-	ROLE_ADMIN(1, "系统管理员"),
-	/**
-	 * 2, "系统管理员"
-	 */
-	ROLE_USER(2, "普通用户"),
-	/**
 	 * -1, "超级管理员"
 	 */
 	ROLE_SUPERADMIN(-1, "超级管理员"),
 	/**
-	 * 7, "流程管理人员"
+	 * -2, "研发管理员"
 	 */
-	ROLE_PROCESSMANAGER(7, "流程管理人员"),
+	ROLE_YANFAADMIN(-2, "研发管理员"),
+	/**
+	 * 1, "高级管理员"
+	 */
+	ROLE_ADMIN(1, "高级管理员"),
+	
 	/**
 	 * 2, "管理人员"
 	 */
@@ -38,15 +35,7 @@ public enum RoleType {
 	/**
 	 * 6, "校验人员"
 	 */
-	ROLE_CHECKER(6, "校验人员"),
-	/**
-	 * 7, "错误导出人员"
-	 */
-	ROLE_ERROR(7, "错误导出人员"),
-	/**
-	 * 8, "质检项配置人员"
-	 */
-	ROLE_ITEM(8, "质检项配置人员");
+	ROLE_CHECKER(6, "校验人员");
 
 	private Integer value;
 	private String des;

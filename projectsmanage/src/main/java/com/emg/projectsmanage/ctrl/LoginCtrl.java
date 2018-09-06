@@ -38,7 +38,16 @@ public class LoginCtrl extends BaseCtrl {
 			String account = getLoginAccount(session);
 			Integer userid = 0;
 			String realname = new String();
-			if(!hasRole(request, RoleType.ROLE_SUPERADMIN.toString())) {
+			if(hasRole(request, RoleType.ROLE_SUPERADMIN.toString())) {
+				userid = RoleType.ROLE_SUPERADMIN.getValue();
+				realname = RoleType.ROLE_SUPERADMIN.getDes();
+			} else if(hasRole(request, RoleType.ROLE_YANFAADMIN.toString())) {
+				userid = RoleType.ROLE_YANFAADMIN.getValue();
+				realname = RoleType.ROLE_YANFAADMIN.getDes();
+			} else if(hasRole(request, RoleType.ROLE_ADMIN.toString())) {
+				userid = RoleType.ROLE_ADMIN.getValue();
+				realname = RoleType.ROLE_ADMIN.getDes();
+			} else {
 				EmployeeModel record = new EmployeeModel();
 				record.setUsername(account);
 				EmployeeModel user = emapgoAccountService.getOneEmployee(record);
@@ -55,10 +64,6 @@ public class LoginCtrl extends BaseCtrl {
 			
 				userid = user.getId();
 				realname = user.getRealname();
-	
-			} else {
-				userid = -1;
-				realname = "超级管理员";
 			}
 			
 			session.setAttribute(CommonConstants.SESSION_USER_ACC, account);
@@ -73,7 +78,7 @@ public class LoginCtrl extends BaseCtrl {
 			log.setIp(getRemortIP(request));
 			logModelDao.log(log);
 
-			if (hasRole(request, RoleType.ROLE_ADMIN.toString()) || hasRole(request, RoleType.ROLE_SUPERADMIN.toString())) {
+			if (hasRole(request, RoleType.ROLE_ADMIN.toString()) || hasRole(request, RoleType.ROLE_YANFAADMIN.toString()) || hasRole(request, RoleType.ROLE_SUPERADMIN.toString())) {
 				logger.debug("LoginCtrl-login end to admin page.");
 				return "redirect:usersmanage.web";
 			} else if (hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
@@ -82,12 +87,6 @@ public class LoginCtrl extends BaseCtrl {
 			} else if (hasRole(request, RoleType.ROLE_WORKER.toString()) || hasRole(request, RoleType.ROLE_CHECKER.toString())) {
 				logger.debug("LoginCtrl-login end to worker page.");
 				return "redirect:worktasks.web";
-			} else if (hasRole(request, RoleType.ROLE_ERROR.toString())) {
-				logger.debug("LoginCtrl-login end to errorsmanage page.");
-				return "redirect:errorsmanage.web";
-			} else if (hasRole(request, RoleType.ROLE_ITEM.toString())) {
-				logger.debug("LoginCtrl-login end to iteminfo page.");
-				return "redirect:iteminfo.web";
 			} else {
 				if (session != null) {
 					session.invalidate();
