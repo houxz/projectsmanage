@@ -183,7 +183,7 @@
 										</c:forEach>
 								</select></td>
 							</tr>
-							<tr>
+							<!-- <tr>
 								<td class="configKey">错误导入库</td>
 								<td><select class="form-control systemSet" id="config_17">
 										<c:forEach items="${configDBModels }" var="configDBModel">
@@ -192,7 +192,7 @@
 											</c:if>
 										</c:forEach>
 								</select></td>
-							</tr>
+							</tr> -->
 							<tr>
 								<td class="configKey"></td>
 								<td><div class="btn-group">

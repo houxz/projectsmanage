@@ -8,9 +8,13 @@
 		<property name="menus">
 			<set>
 				<ref bean="usersmanage" />
+				<!-- <ref bean="skillsmanage" /> -->
 				<ref bean="processesmanage" />
+				<!-- <ref bean="projectsmanage" /> -->
 				<ref bean="worktasks" />
 				<ref bean="projectsprocess" />
+				<!-- <ref bean="capacitycount" /> -->
+				<!-- <ref bean="downloadexcel" /> -->
 				<ref bean="errorsmanage" />
 				<ref bean="itemsetmanage" />
 				<ref bean="errorsetmanage" />
@@ -22,20 +26,6 @@
 		</property>
 	</bean>
 
-	<bean id="systemsets" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="990" />
-		<property name="url" value="/projectsmanage/systemsets.web" />
-		<property name="label" value="系统配置" />
-		<property name="roleSet">
-			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_SUPERADMIN</value>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_ADMIN</value>
-			</set>
-		</property>
-		<property name="enabled" value="true" />
-		<property name="isshow" value="true" />
-	</bean>
-	
 	<bean id="usersmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="999" />
 		<property name="url" value="/projectsmanage/usersmanage.web" />
@@ -79,7 +69,7 @@
 	<bean id="projectsmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1002" />
 		<property name="url" value="/projectsmanage/projectsmanage.web" />
-		<property name="label" value="子项目管理" />
+		<property name="label" value="附属项目管理" />
 		<property name="roleSet">
 			<set>
 				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
@@ -134,6 +124,32 @@
 		<property name="isshow" value="false" />
 	</bean>
 	
+	<bean id="downloadexcel" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="1010" />
+		<property name="url" value="/projectsmanage/downloadexcel.web" />
+		<property name="label" value="Excel下载" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+			</set>
+		</property>
+		<property name="enabled" value="false" />
+		<property name="isshow" value="false" />
+	</bean>
+	
+	<bean id="errorsmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="1008" />
+		<property name="url" value="/projectsmanage/errorsmanage.web" />
+		<property name="label" value="错误导出" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_ERROR</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
+	
 	<bean id="itemsetmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1006" />
 		<property name="url" value="/projectsmanage/itemsetmanage.web" />
@@ -153,20 +169,7 @@
 		<property name="label" value="错误筛选配置" />
 		<property name="roleSet">
 			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
-			</set>
-		</property>
-		<property name="enabled" value="true" />
-		<property name="isshow" value="true" />
-	</bean>
-	
-	<bean id="errorsmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1008" />
-		<property name="url" value="/projectsmanage/errorsmanage.web" />
-		<property name="label" value="错误导出" />
-		<property name="roleSet">
-			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_ERROR</value>
 			</set>
 		</property>
 		<property name="enabled" value="true" />
@@ -179,24 +182,25 @@
 		<property name="label" value="质检项配置" />
 		<property name="roleSet">
 			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_ITEM</value>
 			</set>
 		</property>
 		<property name="enabled" value="true" />
 		<property name="isshow" value="true" />
 	</bean>
 	
-	<bean id="downloadexcel" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1010" />
-		<property name="url" value="/projectsmanage/downloadexcel.web" />
-		<property name="label" value="Excel下载" />
+	<bean id="systemsets" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="990" />
+		<property name="url" value="/projectsmanage/systemsets.web" />
+		<property name="label" value="系统配置" />
 		<property name="roleSet">
 			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_SUPERADMIN</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_ADMIN</value>
 			</set>
 		</property>
-		<property name="enabled" value="false" />
-		<property name="isshow" value="false" />
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
 	</bean>
 	
 	<bean id="sse" class="com.emg.projectsmanage.auth.MenuAuthModel">

@@ -38,7 +38,15 @@ public enum RoleType {
 	/**
 	 * 6, "校验人员"
 	 */
-	ROLE_CHECKER(6, "校验人员");
+	ROLE_CHECKER(6, "校验人员"),
+	/**
+	 * 7, "错误导出人员"
+	 */
+	ROLE_ERROR(7, "错误导出人员"),
+	/**
+	 * 8, "质检项配置人员"
+	 */
+	ROLE_ITEM(8, "质检项配置人员");
 
 	private Integer value;
 	private String des;
