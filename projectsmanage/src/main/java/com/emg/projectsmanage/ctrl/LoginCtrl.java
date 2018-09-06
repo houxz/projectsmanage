@@ -82,6 +82,12 @@ public class LoginCtrl extends BaseCtrl {
 			} else if (hasRole(request, RoleType.ROLE_WORKER.toString()) || hasRole(request, RoleType.ROLE_CHECKER.toString())) {
 				logger.debug("LoginCtrl-login end to worker page.");
 				return "redirect:worktasks.web";
+			} else if (hasRole(request, RoleType.ROLE_ERROR.toString())) {
+				logger.debug("LoginCtrl-login end to errorsmanage page.");
+				return "redirect:errorsmanage.web";
+			} else if (hasRole(request, RoleType.ROLE_ITEM.toString())) {
+				logger.debug("LoginCtrl-login end to iteminfo page.");
+				return "redirect:iteminfo.web";
 			} else {
 				if (session != null) {
 					session.invalidate();
