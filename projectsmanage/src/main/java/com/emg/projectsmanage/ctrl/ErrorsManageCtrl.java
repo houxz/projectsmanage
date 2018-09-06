@@ -1,7 +1,6 @@
 package com.emg.projectsmanage.ctrl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,16 +20,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.ParamUtils;
-import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
-import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.task.ErrorModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ErrorAndErrorRelatedModel;
 import com.emg.projectsmanage.pojo.ErrorModel;
 import com.emg.projectsmanage.pojo.ErrorSetModel;
 import com.emg.projectsmanage.pojo.ItemConfigModel;
-import com.emg.projectsmanage.pojo.ProcessConfigModel;
 
 @Controller
 @RequestMapping("/errorsmanage.web")
@@ -38,8 +34,6 @@ public class ErrorsManageCtrl extends BaseCtrl {
 
 	private static final Logger logger = LoggerFactory.getLogger(ErrorsManageCtrl.class);
 
-	@Autowired
-	private ProcessConfigModelDao processConfigModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
 
@@ -57,17 +51,34 @@ public class ErrorsManageCtrl extends BaseCtrl {
 	public String openLader(Model model, HttpSession session, HttpServletRequest request) {
 		logger.debug("ErrorsManageCtrl-openLader start.");
 		try {
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 2);
-			map.put("processType", ProcessType.ERROR.getValue());
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			List<String> batchids = errorModelDao.getErrorBatchids(configDBModel);
+			List<ConfigDBModel> configDBModelsForQctask = new ArrayList<ConfigDBModel>();
+			List<ConfigDBModel> configDBModelsForQcerror = new ArrayList<ConfigDBModel>();
+			List<ConfigDBModel> configDBModelsForQcerror2 = new ArrayList<ConfigDBModel>();
+			ConfigDBModel configDBModelFirstQctask = null;
+
+			List<ConfigDBModel> configDBModels = configDBModelDao.selectAllConfigDBModels();
+			for (ConfigDBModel configDBModel : configDBModels) {
+				if (configDBModel.getConnname().equalsIgnoreCase("task")) {
+					configDBModelsForQctask.add(configDBModel);
+					if (configDBModelFirstQctask == null) {
+						configDBModelFirstQctask = configDBModel;
+					}
+				} else if (configDBModel.getConnname().equalsIgnoreCase("error")) {
+					configDBModelsForQcerror.add(configDBModel);
+				} else if (configDBModel.getConnname().equalsIgnoreCase("error2")) {
+					configDBModelsForQcerror2.add(configDBModel);
+				}
+
+			}
+			
+			model.addAttribute("taskdbs", configDBModelsForQctask);
+			model.addAttribute("errordbs", configDBModelsForQcerror);
+			model.addAttribute("error2dbs", configDBModelsForQcerror2);
+			
+			List<String> batchids = errorModelDao.getErrorBatchids(configDBModelFirstQctask);
 			model.addAttribute("batchids", batchids);
 
-			ProcessConfigModel _config = processConfigModelDao.selectByPrimaryKey(map);
-			ConfigDBModel _configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(_config.getDefaultValue()));
-			List<ErrorSetModel> errorSets = errorModelDao.getErrorSets(_configDBModel);
+			List<ErrorSetModel> errorSets = errorModelDao.getErrorSets(configDBModelFirstQctask);
 			model.addAttribute("errorSets", errorSets);
 
 			return "errorsmanage";
@@ -94,13 +105,10 @@ public class ErrorsManageCtrl extends BaseCtrl {
 				return json;
 			}
 			Long errorSetID = ParamUtils.getLongParameter(request, "errorsetid", 0);
-			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+			Integer taskdb = ParamUtils.getIntParameter(request, "taskdb", -1);
+			Integer errordb = ParamUtils.getIntParameter(request, "errordb", -1);
 
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 2);
-			map.put("processType", processType);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(taskdb);
 			List<Long> itemIDs = errorModelDao.getErrorSetDetailsByErrorSetID(configDBModel, errorSetID);
 			List<Long> errortypes = new ArrayList<Long>();
 			if (itemIDs != null && !itemIDs.isEmpty()) {
@@ -128,11 +136,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 				}
 			}
 
-			Map<String, Integer> _map = new HashMap<String, Integer>();
-			_map.put("id", 16);
-			_map.put("processType", -1);
-			ProcessConfigModel _config = processConfigModelDao.selectByPrimaryKey(_map);
-			ConfigDBModel _configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(_config.getDefaultValue()));
+			ConfigDBModel _configDBModel = configDBModelDao.selectByPrimaryKey(errordb);
 
 			List<ErrorModel> rows = errorModelDao.selectErrors(_configDBModel, record, limit, offset, errortypes);
 			Integer count = errorModelDao.countErrors(_configDBModel, record, errortypes);
@@ -149,17 +153,14 @@ public class ErrorsManageCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "atn=geterrorsets")
-	public ModelAndView getErrorSets(Model model, HttpServletRequest request, HttpSession session, HttpServletResponse response) {
+	public ModelAndView getErrorSets(Model model, HttpServletRequest request, HttpSession session,
+			HttpServletResponse response) {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		logger.debug("start");
 		try {
-			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
-			
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 2);
-			map.put("processType", processType);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			Integer taskdb = ParamUtils.getIntParameter(request, "taskdb", -1);
+
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(taskdb);
 			List<ErrorSetModel> errorSets = errorModelDao.getErrorSets(configDBModel);
 			List<String> batchids = errorModelDao.getErrorBatchids(configDBModel);
 
@@ -175,25 +176,30 @@ public class ErrorsManageCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "atn=exporterrors")
-	public ModelAndView exportErrors(Model model, HttpServletRequest request, HttpSession session, HttpServletResponse response) {
+	public ModelAndView exportErrors(Model model, HttpServletRequest request, HttpSession session,
+			HttpServletResponse response) {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		logger.debug("ErrorsManageCtrl-exportErrors start.");
 		Integer ret = -1;
 		try {
 			Long batchID = ParamUtils.getLongParameter(request, "batchid", 0);
-			if (batchID == null || batchID == 0) {
+			Long errorSetID = ParamUtils.getLongParameter(request, "errorsetid", 0);
+			Integer taskdb = ParamUtils.getIntParameter(request, "taskdb", -1);
+			Integer errordb = ParamUtils.getIntParameter(request, "errordb", -1);
+			Integer error2db = ParamUtils.getIntParameter(request, "error2db", -1);
+			
+			if (batchID == null || batchID.equals(0L) ||
+					errorSetID == null || errorSetID.equals(0L) ||
+					taskdb == null || taskdb.equals(-1) ||
+					errordb == null || errordb.equals(-1) ||
+					error2db == null || error2db.equals(-1)) {
 				json.addObject("result", 0);
-				json.addObject("option", "批次信息有误");
+				json.addObject("option", "参数有误");
 				return json;
 			}
-			Long errorSetID = ParamUtils.getLongParameter(request, "errorsetid", 0);
-			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+			
 
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 2);
-			map.put("processType", processType);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(taskdb);
 			List<Long> itemIDs = errorModelDao.getErrorSetDetailsByErrorSetID(configDBModel, errorSetID);
 			List<Long> errortypes = new ArrayList<Long>();
 			if (itemIDs != null && !itemIDs.isEmpty()) {
@@ -204,22 +210,14 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			}
 			ErrorModel record = new ErrorModel();
 			record.setBatchid(batchID);
-			Map<String, Integer> _map = new HashMap<String, Integer>();
-			_map.put("id", 16);
-			_map.put("processType", -1);
-			ProcessConfigModel _config = processConfigModelDao.selectByPrimaryKey(_map);
-			ConfigDBModel _configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(_config.getDefaultValue()));
+			ConfigDBModel _configDBModel = configDBModelDao.selectByPrimaryKey(errordb);
 
 			/**
 			 * 每次处理条数
 			 */
-			Integer batchNum = 50000, curNum = 0;
+			Integer batchNum = 20000, curNum = 0;
 			Integer totalNum = errorModelDao.countErrorAndErrorRelateds(_configDBModel, record, errortypes);
-			Map<String, Integer> __map = new HashMap<String, Integer>();
-			__map.put("id", 20);
-			__map.put("processType", -1);
-			ProcessConfigModel __config = processConfigModelDao.selectByPrimaryKey(__map);
-			ConfigDBModel __configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(__config.getDefaultValue()));
+			ConfigDBModel __configDBModel = configDBModelDao.selectByPrimaryKey(error2db);
 			while (curNum < totalNum) {
 				List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(_configDBModel, record, errortypes, batchNum, curNum);
 				if (errorAndRelateds != null && !errorAndRelateds.isEmpty()) {

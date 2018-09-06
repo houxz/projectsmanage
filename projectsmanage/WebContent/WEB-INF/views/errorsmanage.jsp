@@ -1,4 +1,3 @@
-<%@page import="com.emg.projectsmanage.common.ProcessType"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c"%>
@@ -61,7 +60,8 @@
 	function queryParams(params) {
 		params["batchid"] = $("#batchid").val();
 		params["errorsetid"] = $("#errorset").val();
-		params["processType"] = $("#processType").val();
+		params["taskdb"] = $("#taskdb").val();
+		params["errordb"] = $("#errordb").val();
 		return params;
 	}
 	
@@ -77,12 +77,12 @@
 		$('[data-toggle="errors"]').bootstrapTable("refresh");
 	}
 	
-	function getErrorSets (processType) {
+	function getErrorSets (taskdb) {
 		$("#errorset").empty();
 		$("#batchid").empty();
 		jQuery.post("./errorsmanage.web", {
 			"atn" : "geterrorsets",
-			"processType" : processType
+			"taskdb" : taskdb
 		}, function(json) {
 			if (json.ret && json.ret > 0) {
 				var errorSets = json.errorsets;
@@ -111,20 +111,24 @@
 		$.webeditor.showMsgBox("", "导入中...");
 		var batchid = $("#batchid").val();
 		var errorsetid = $("#errorset").val();
-		var processType = $("#processType").val();
+		var taskdb = $("#taskdb").val();
+		var errordb = $("#errordb").val();
+		var error2db = $("#error2db").val();
 		
 		jQuery.post("./errorsmanage.web", {
 			"atn" : "exporterrors",
 			"batchid" : batchid,
 			"errorsetid" : errorsetid,
-			"processType" : processType
+			"taskdb" : taskdb,
+			"errordb" : errordb,
+			"error2db" : error2db
 		}, function(json) {
 			if (json.ret && json.ret > 0) {
 				$("#comm_msgbox").remove();
-				$.webeditor.showMsgLabel("success", "导入成功");
+				$.webeditor.showConfirmBox("success", "导入成功");
 			} else {
 				$("#comm_msgbox").remove();
-				$.webeditor.showMsgLabel("alert", "导入失败");
+				$.webeditor.showConfirmBox("alert", "导入失败");
 			}
 		}, "json");
 	}
@@ -132,17 +136,32 @@
 </script>
 </head>
 <body>
-	<div class="container" style="max-width: 80%;">
+	<div class="container" style="max-width: 90%;">
 		<div id="headdiv"></div>
 		<div style="margin: 20px auto;">
-			<div class="input-group" style="width: 80%; margin: auto;">
-				<span class="input-group-addon">适用项目类型:</span>
-				<select name="processType" class="form-control" id="processType" onchange="getErrorSets(this.options[this.options.selectedIndex].value);">
-					<c:set var="processTypes" value="<%= ProcessType.values() %>"/>
-						<c:forEach items="${processTypes }" var="processType">
-							<option value="${processType.getValue() }">${processType.getDes() }</option>
-						</c:forEach>
+			<div class="input-group" style="width: 100%; margin: auto;">
+				<span class="input-group-addon">质检任务库:</span>
+				<select name="taskdb" class="form-control" id="taskdb" onchange="getErrorSets(this.options[this.options.selectedIndex].value);">
+					<c:forEach items="${taskdbs }" var="dbmodel">
+						<option value="${dbmodel['id'] }">${dbmodel['dbname']}<c:if test="${not empty dbmodel['dbschema']}">.${dbmodel['dbschema']}</c:if>(${dbmodel['ip']}:${dbmodel['port']})</option>
+					</c:forEach>
 				</select>
+				<span class="input-group-addon">质检错误库:</span>
+				<select name="errordb" class="form-control" id="errordb" onchange="getErrorSets(this.options[this.options.selectedIndex].value);">
+					<c:forEach items="${errordbs }" var="dbmodel">
+						<option value="${dbmodel['id'] }">${dbmodel['dbname']}<c:if test="${not empty dbmodel['dbschema']}">.${dbmodel['dbschema']}</c:if>(${dbmodel['ip']}:${dbmodel['port']})</option>
+					</c:forEach>
+				</select>
+				<span class="input-group-addon">导入错误库:</span>
+				<select name="error2db" class="form-control" id="error2db" onchange="getErrorSets(this.options[this.options.selectedIndex].value);">
+					<c:forEach items="${error2dbs }" var="dbmodel">
+						<option value="${dbmodel['id'] }">${dbmodel['dbname']}<c:if test="${not empty dbmodel['dbschema']}">.${dbmodel['dbschema']}</c:if>(${dbmodel['ip']}:${dbmodel['port']})</option>
+					</c:forEach>
+				</select>
+			</div>
+		</div>
+		<div style="margin: 20px auto;">
+			<div class="input-group" style="width: 100%; margin: auto;">
 				<span class="input-group-addon">批次:</span>
 				<select name="batchid" class="form-control" id="batchid">
 					<option value="-1"></option>
@@ -157,7 +176,7 @@
 						<option value="${errorset['id'] }">${errorset['name'] }</option>
 					</c:forEach>
 				</select>
-				<span class="input-group-btn">
+				<span class="input-group-btn" style="width: 40%; margin: auto;">
 					<button class="btn btn-default" type="button" onclick="getErrors();">查看筛选结果</button>
 					<button class="btn btn-default" type="button" onclick="exportErrors();">导入错误</button>
 				</span>
