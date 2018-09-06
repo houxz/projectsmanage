@@ -45,7 +45,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		userDetails.setEnabled(authority.getEnabled().equals(1));
 
 		List<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
-		auths.add(new SimpleGrantedAuthority(authority.getRolename()));
+//		auths.add(new SimpleGrantedAuthority(authority.getRolename()));不再继承人员库的权限，只采用项目管理系统的权限
 		Integer userid = authority.getId();
 		List<Map<String, Object>> authlist = userRoleModelDao.getEpleRoles(userid);
 		for (Map<String, Object> auth : authlist) {
