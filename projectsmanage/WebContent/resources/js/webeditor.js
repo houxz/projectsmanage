@@ -1,15 +1,9 @@
-/**
- * 图片编辑系统
- */
 jQuery.webeditor = {
 	getHead : function() {
 		$("#headdiv").load("head.web?fromurl=" + location.href);
 	},
 	getFoot : function() {
 		$("#footdiv").load("foot.web?r=" + Math.random());
-	},
-	gotoLogin : function(webpath) {
-		top.location.href = webpath + "login.jsp";
 	},
 	showMsgBox : function(type, msg, w, h) {
 		$("#comm_msgbox").remove();
