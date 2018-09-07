@@ -99,14 +99,17 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Long batchID = ParamUtils.getLongParameter(request, "batchid", 0);
-			if (batchID == null || batchID <= 0) {
-				json.addObject("result", 0);
-				json.addObject("option", "批次信息有误");
-				return json;
-			}
 			Long errorSetID = ParamUtils.getLongParameter(request, "errorsetid", 0);
 			Integer taskdb = ParamUtils.getIntParameter(request, "taskdb", -1);
 			Integer errordb = ParamUtils.getIntParameter(request, "errordb", -1);
+			
+			if (taskdb == null || taskdb.equals(-1) ||
+					errordb == null || errordb.equals(-1)) {
+				json.addObject("result", 0);
+				json.addObject("option", "参数有误");
+				return json;
+			}
+			
 
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(taskdb);
 			List<Long> itemIDs = errorModelDao.getErrorSetDetailsByErrorSetID(configDBModel, errorSetID);
@@ -188,9 +191,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			Integer errordb = ParamUtils.getIntParameter(request, "errordb", -1);
 			Integer error2db = ParamUtils.getIntParameter(request, "error2db", -1);
 			
-			if (batchID == null || batchID.equals(0L) ||
-					errorSetID == null || errorSetID.equals(0L) ||
-					taskdb == null || taskdb.equals(-1) ||
+			if (taskdb == null || taskdb.equals(-1) ||
 					errordb == null || errordb.equals(-1) ||
 					error2db == null || error2db.equals(-1)) {
 				json.addObject("result", 0);
@@ -209,7 +210,8 @@ public class ErrorsManageCtrl extends BaseCtrl {
 				}
 			}
 			ErrorModel record = new ErrorModel();
-			record.setBatchid(batchID);
+			if(batchID != null && batchID.compareTo(0L) > 0)
+				record.setBatchid(batchID);
 			ConfigDBModel _configDBModel = configDBModelDao.selectByPrimaryKey(errordb);
 
 			/**

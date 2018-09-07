@@ -149,13 +149,13 @@
 					</c:forEach>
 				</select>
 				<span class="input-group-addon">质检错误库:</span>
-				<select name="errordb" class="form-control" id="errordb" onchange="getErrorSets(this.options[this.options.selectedIndex].value);">
+				<select name="errordb" class="form-control" id="errordb">
 					<c:forEach items="${errordbs }" var="dbmodel">
 						<option value="${dbmodel['id'] }">${dbmodel['dbname']}<c:if test="${not empty dbmodel['dbschema']}">.${dbmodel['dbschema']}</c:if>(${dbmodel['ip']}:${dbmodel['port']})</option>
 					</c:forEach>
 				</select>
 				<span class="input-group-addon">导入错误库:</span>
-				<select name="error2db" class="form-control" id="error2db" onchange="getErrorSets(this.options[this.options.selectedIndex].value);">
+				<select name="error2db" class="form-control" id="error2db">
 					<c:forEach items="${error2dbs }" var="dbmodel">
 						<option value="${dbmodel['id'] }">${dbmodel['dbname']}<c:if test="${not empty dbmodel['dbschema']}">.${dbmodel['dbschema']}</c:if>(${dbmodel['ip']}:${dbmodel['port']})</option>
 					</c:forEach>
