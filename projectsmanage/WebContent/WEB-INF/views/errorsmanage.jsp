@@ -124,11 +124,11 @@
 			"error2db" : error2db
 		}, function(json) {
 			if (json.ret && json.ret > 0) {
-				$.webeditor.showConfirmBox("success", "导入成功", function(){
+				$.webeditor.showCheckBox("success", "导入成功", function(){
 					$("#comm_msgbox").remove();
 				});
 			} else {
-				$.webeditor.showConfirmBox("alert", "导入失败", function(){
+				$.webeditor.showCheckBox("alert", "导入失败", function(){
 					$("#comm_msgbox").remove();
 				});
 			}
