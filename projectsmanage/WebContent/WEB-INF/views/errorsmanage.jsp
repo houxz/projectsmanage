@@ -124,11 +124,13 @@
 			"error2db" : error2db
 		}, function(json) {
 			if (json.ret && json.ret > 0) {
-				$("#comm_msgbox").remove();
-				$.webeditor.showConfirmBox("success", "导入成功");
+				$.webeditor.showConfirmBox("success", "导入成功", function(){
+					$("#comm_msgbox").remove();
+				});
 			} else {
-				$("#comm_msgbox").remove();
-				$.webeditor.showConfirmBox("alert", "导入失败");
+				$.webeditor.showConfirmBox("alert", "导入失败", function(){
+					$("#comm_msgbox").remove();
+				});
 			}
 		}, "json");
 	}
