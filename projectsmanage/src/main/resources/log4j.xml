@@ -17,10 +17,24 @@
 			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss\} %-5p] - [ %l ] %m%n" />
 		</layout>
 	</appender>
+	
+	<appender name="schedulerFileLoger" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="${projectsmanage}WEB-INF/schedulerlogs/system.log" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss\} %-5p] - [ %l ] %m%n" />
+		</layout>
+	</appender>
 
 	<!-- Application Loggers -->
 	<logger name="com.emg">
 		<level value="warn" />
+	</logger>
+	
+	<logger name="com.emg.projectsmanage.scheduler" additivity="false">
+		<level value="debug" />
+		<appender-ref ref="console" />
+		<appender-ref ref="schedulerFileLoger"/>
 	</logger>
 
 	<!-- 3rdparty Loggers -->
@@ -49,6 +63,7 @@
 		<priority value="warn" />
 		<appender-ref ref="console" />
 		<appender-ref ref="dailyFileLoger" />
+		<appender-ref ref="schedulerFileLoger" />
 	</root>
 
 </log4j:configuration>
