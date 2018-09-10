@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 
 import com.emg.projectsmanage.common.Common;
 import com.emg.projectsmanage.common.DatabaseType;
@@ -30,6 +31,7 @@ import com.emg.projectsmanage.pojo.ErrorRelatedModel;
 import com.emg.projectsmanage.pojo.ErrorSetModel;
 import com.emg.projectsmanage.pojo.ItemConfigModel;
 
+@Component
 public class ErrorModelDao {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ErrorModelDao.class);

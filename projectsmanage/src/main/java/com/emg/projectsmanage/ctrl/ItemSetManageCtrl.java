@@ -47,8 +47,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	private ProcessConfigModelDao processConfigModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
-
-	private ItemSetModelDao itemSetModelDao = new ItemSetModelDao();
+	@Autowired
+	private ItemSetModelDao itemSetModelDao;
 
 	/**
 	 * 系统配置页面

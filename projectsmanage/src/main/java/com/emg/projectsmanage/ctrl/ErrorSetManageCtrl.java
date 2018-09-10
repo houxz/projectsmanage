@@ -42,8 +42,8 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 	private ProcessConfigModelDao processConfigModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
-
-	private ErrorSetModelDao errorSetModelDao = new ErrorSetModelDao();
+	@Autowired
+	private ErrorSetModelDao errorSetModelDao;
 
 	/**
 	 * 系统配置页面

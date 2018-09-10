@@ -36,8 +36,8 @@ public class ErrorsManageCtrl extends BaseCtrl {
 
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
-
-	private ErrorModelDao errorModelDao = new ErrorModelDao();
+	@Autowired
+	private ErrorModelDao errorModelDao;
 
 	/**
 	 * 系统配置页面

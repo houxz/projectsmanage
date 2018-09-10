@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
 
 import com.emg.projectsmanage.common.Common;
 import com.emg.projectsmanage.common.DatabaseType;
@@ -22,6 +23,7 @@ import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ErrorSetModel;
 import com.emg.projectsmanage.pojo.ItemConfigModel;
 
+@Component
 public class ErrorSetModelDao {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ErrorSetModelDao.class);

@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
 
 import com.emg.projectsmanage.common.Common;
 import com.emg.projectsmanage.common.DatabaseType;
@@ -24,6 +25,7 @@ import com.emg.projectsmanage.pojo.ItemAreaModel;
 import com.emg.projectsmanage.pojo.ItemInfoModel;
 import com.emg.projectsmanage.pojo.ItemSetModel;
 
+@Component
 public class ItemSetModelDao {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ItemSetModelDao.class);
