@@ -158,6 +158,31 @@ public class TaskModelDao {
 				sql = sql.deleteCharAt(sql.length() - 1);
 				sql.append(" )");
 			}
+			if (stateMaps != null && stateMaps.size() > 0) {
+				sql.append(" AND ( ");
+				for (StateMap stateMap : stateMaps) {
+					sql.append(" ( ");
+					if (stateMap.getState() != null) {
+						sql.append(" ( state = " + stateMap.getState() + ") AND");
+					}
+					if (stateMap.getCheckid() != null) {
+						if (stateMap.getCheckid().equals(-1)) {
+							sql.append(" ( ISNULL(checkid) OR checkid <= 0) AND");
+						} else if (stateMap.getCheckid().equals(1)) {
+							sql.append(" ( checkid > 0) AND");
+						}
+					}
+					if (stateMap.getTasktype() != null) {
+						sql.append(" ( tasktype = " + stateMap.getTasktype() + ") AND");
+					}
+					if (stateMap.getProcess() != null) {
+						sql.append(" ( process = " + stateMap.getProcess() + ")");
+					}
+					sql.append(" ) OR");
+				}
+				sql = sql.delete(sql.length() - 2, sql.length());
+				sql.append(" )");
+			}
 			if (record.getEditid() != null && record.getEditid().compareTo(0) > 0) {
 				sql.append(" AND " + separator + "editid" + separator + " = " + (record.getEditid() + 500000));
 			} else if (record.getEditid() != null && record.getEditid().compareTo(0) == 0) {
