@@ -13,6 +13,7 @@
 				<!-- <ref bean="projectsmanage" /> -->
 				<ref bean="worktasks" />
 				<ref bean="projectsprocess" />
+				<ref bean="tasksmanage" />
 				<!-- <ref bean="capacitycount" /> -->
 				<!-- <ref bean="downloadexcel" /> -->
 				<ref bean="errorsmanage" />
@@ -99,6 +100,21 @@
 		<property name="code" value="1004" />
 		<property name="url" value="/projectsmanage/projectsprocess.web" />
 		<property name="label" value="项目进度" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_WORKER</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_CHECKER</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
+	
+	<bean id="tasksmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="1013" />
+		<property name="url" value="/projectsmanage/tasksmanage.web" />
+		<property name="label" value="任务列表" />
 		<property name="roleSet">
 			<set>
 				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
