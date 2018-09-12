@@ -299,7 +299,8 @@
 		AND `projectid` = #{projectid,jdbcType=BIGINT}
 		AND `userid` = #{userid,jdbcType=INTEGER}
 		AND `roleid` = #{roleid,jdbcType=INTEGER}
-	</update><update id="newTask2QC" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+	</update>
+	<update id="newTask2QC" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
 		UPDATE tb_projects_task_count
 		SET `totaltask` = `totaltask` + 1, `qctask` = `qctask` + 1
 		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
@@ -307,7 +308,7 @@
 		AND `userid` = #{userid,jdbcType=INTEGER}
 		AND `roleid` = #{roleid,jdbcType=INTEGER}
 	</update>
-	<update id="newTask2Done" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+	<update id="newTaskDone" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
 		UPDATE tb_projects_task_count
 		SET `totaltask` = `totaltask` + 1, `completetask` = `completetask` + 1
 		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
@@ -315,9 +316,25 @@
 		AND `userid` = #{userid,jdbcType=INTEGER}
 		AND `roleid` = #{roleid,jdbcType=INTEGER}
 	</update>
-	<update id="Edit2QC" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+	<update id="edit2QC" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
 		UPDATE tb_projects_task_count
 		SET `edittask` = `edittask` - 1, `qctask` = `qctask` + 1
+		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
+		AND `projectid` = #{projectid,jdbcType=BIGINT}
+		AND `userid` = #{userid,jdbcType=INTEGER}
+		AND `roleid` = #{roleid,jdbcType=INTEGER}
+	</update>
+	<update id="edit2Check" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		UPDATE tb_projects_task_count
+		SET `edittask` = `edittask` - 1, `checktask` = `checktask` + 1
+		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
+		AND `projectid` = #{projectid,jdbcType=BIGINT}
+		AND `userid` = #{userid,jdbcType=INTEGER}
+		AND `roleid` = #{roleid,jdbcType=INTEGER}
+	</update>
+	<update id="editTaskDone" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		UPDATE tb_projects_task_count
+		SET `edittask` = `edittask` - 1, `completetask` = `completetask` + 1
 		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
 		AND `projectid` = #{projectid,jdbcType=BIGINT}
 		AND `userid` = #{userid,jdbcType=INTEGER}
@@ -331,25 +348,17 @@
 		AND `userid` = #{userid,jdbcType=INTEGER}
 		AND `roleid` = #{roleid,jdbcType=INTEGER}
 	</update>
-	<update id="taskDone" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
-		UPDATE tb_projects_task_count
-		SET `checktask` = `checktask` - 1, `completetask` = `completetask` + 1
-		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
-		AND `projectid` = #{projectid,jdbcType=BIGINT}
-		AND `userid` = #{userid,jdbcType=INTEGER}
-		AND `roleid` = #{roleid,jdbcType=INTEGER}
-	</update>
-	<update id="comTaskDone" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
-		UPDATE tb_projects_task_count
-		SET `edittask` = `edittask` - 1, `completetask` = `completetask` + 1
-		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
-		AND `projectid` = #{projectid,jdbcType=BIGINT}
-		AND `userid` = #{userid,jdbcType=INTEGER}
-		AND `roleid` = #{roleid,jdbcType=INTEGER}
-	</update>
 	<update id="QCTaskDone" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
 		UPDATE tb_projects_task_count
 		SET `qctask` = `qctask` - 1, `completetask` = `completetask` + 1
+		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
+		AND `projectid` = #{projectid,jdbcType=BIGINT}
+		AND `userid` = #{userid,jdbcType=INTEGER}
+		AND `roleid` = #{roleid,jdbcType=INTEGER}
+	</update>
+	<update id="checkTaskDone" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
+		UPDATE tb_projects_task_count
+		SET `checktask` = `checktask` - 1, `completetask` = `completetask` + 1
 		WHERE `systemid` = #{systemid,jdbcType=INTEGER}
 		AND `projectid` = #{projectid,jdbcType=BIGINT}
 		AND `userid` = #{userid,jdbcType=INTEGER}

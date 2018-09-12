@@ -453,7 +453,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			SystemType systemType = SystemType.valueOf(systemid);
 			
 			String username = new String();
-			RoleType roleType = RoleType.UNKNOW;
+			RoleType roleType = RoleType.UNKNOWN;
 			if (systemType.equals(SystemType.DBMapChecker)) {// 批处理工具平台
 				username = "系统工具";
 			} else {
@@ -525,7 +525,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									status = true;
 							// (1,5)->(2,5)
 							} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 2 && processafter == 5) {
-								if (projectsTaskCountDao.Edit2QC(taskCount) > 0)
+								if (projectsTaskCountDao.edit2QC(taskCount) > 0)
 									status = true;
 							// (1,5)->(3,5)
 							} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {
@@ -533,7 +533,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									status = true;
 							// (1,6)->(3,6)
 							} else if (roleType.equals(RoleType.ROLE_CHECKER) && statebefore == 1 && processbefore == 6 && stateafter == 3 && processafter == 6) {
-								if (projectsTaskCountDao.taskDone(taskCount) > 0) {
+								if (projectsTaskCountDao.checkTaskDone(taskCount) > 0) {
 									ProjectsTaskLogModel projectsTaskLog = new ProjectsTaskLogModel();
 									projectsTaskLog.setSystemid(systemType.getValue());
 									projectsTaskLog.setProjectid(projectid);
@@ -548,7 +548,7 @@ public class InterfaceCtrl extends BaseCtrl {
 										Integer editid = projectsTaskLogs.get(0).getUserid();
 										taskCount.setUserid(editid);
 										taskCount.setRoleid(RoleType.ROLE_WORKER.getValue());
-										if (projectsTaskCountDao.taskDone(taskCount) > 0) {
+										if (projectsTaskCountDao.checkTaskDone(taskCount) > 0) {
 											Map<String, Object> map = new HashMap<String, Object>();
 											map.put("systemid", systemType.getValue());
 											map.put("projectid", projectid);
@@ -576,7 +576,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									status = true;
 							// (1,5)->(3,5)
 							} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {
-								if (projectsTaskCountDao.comTaskDone(taskCount) > 0) {
+								if (projectsTaskCountDao.editTaskDone(taskCount) > 0) {
 									Map<String, Object> map = new HashMap<String, Object>();
 									map.put("systemid", systemType.getValue());
 									map.put("projectid", projectid);
@@ -653,7 +653,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									status = true;
 							// (1,5)->(3,5)
 							} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {
-								if (projectsTaskCountDao.comTaskDone(taskCount) > 0) {
+								if (projectsTaskCountDao.editTaskDone(taskCount) > 0) {
 									Map<String, Object> map = new HashMap<String, Object>();
 									map.put("systemid", systemType.getValue());
 									map.put("projectid", projectid);
@@ -733,7 +733,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									status = true;
 							// (1,5)->(3,5)
 							} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {
-								if (projectsTaskCountDao.comTaskDone(taskCount) > 0) {
+								if (projectsTaskCountDao.editTaskDone(taskCount) > 0) {
 									Map<String, Object> map = new HashMap<String, Object>();
 									map.put("systemid", systemType.getValue());
 									map.put("projectid", projectid);
@@ -811,10 +811,52 @@ public class InterfaceCtrl extends BaseCtrl {
 							if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {
 								if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
 									status = true;
+							// (0,0)->(1,6)
+							} else if (roleType.equals(RoleType.ROLE_CHECKER) && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 6) {
+								if (projectsTaskCountDao.newTask2Check(taskCount) > 0) {
+									ProjectsTaskLogModel projectsTaskLog = new ProjectsTaskLogModel();
+									projectsTaskLog.setSystemid(systemType.getValue());
+									projectsTaskLog.setProjectid(projectid);
+									projectsTaskLog.setTaskid(taskid);
+									projectsTaskLog.setRoleid(RoleType.ROLE_WORKER.getValue());
+									projectsTaskLog.setStatebefore(0);
+									projectsTaskLog.setProcessbefore(0);
+									projectsTaskLog.setStateafter(1);
+									projectsTaskLog.setProcessafter(5);
+									List<ProjectsTaskLogModel> projectsTaskLogs = projectsTaskLogModelDao.select(projectsTaskLog);
+									if (projectsTaskLogs != null && projectsTaskLogs.size() > 0) {
+										Integer editid = projectsTaskLogs.get(0).getUserid();
+										taskCount.setUserid(editid);
+										taskCount.setRoleid(RoleType.ROLE_WORKER.getValue());
+										if (projectsTaskCountDao.edit2Check(taskCount) > 0) {
+											status = true;
+										}
+									}
+								}
 							// (1,6)->(3,6)
 							} else if (roleType.equals(RoleType.ROLE_CHECKER) && statebefore == 1 && processbefore == 6 && stateafter == 3 && processafter == 6) {
 	
-								if (projectsTaskCountDao.comTaskDone(taskCount) > 0) {
+								if (projectsTaskCountDao.checkTaskDone(taskCount) > 0) {
+									
+									ProjectsTaskLogModel projectsTaskLog = new ProjectsTaskLogModel();
+									projectsTaskLog.setSystemid(systemType.getValue());
+									projectsTaskLog.setProjectid(projectid);
+									projectsTaskLog.setTaskid(taskid);
+									projectsTaskLog.setRoleid(RoleType.ROLE_WORKER.getValue());
+									projectsTaskLog.setStatebefore(0);
+									projectsTaskLog.setProcessbefore(0);
+									projectsTaskLog.setStateafter(1);
+									projectsTaskLog.setProcessafter(5);
+									List<ProjectsTaskLogModel> projectsTaskLogs = projectsTaskLogModelDao.select(projectsTaskLog);
+									if (projectsTaskLogs != null && projectsTaskLogs.size() > 0) {
+										Integer editid = projectsTaskLogs.get(0).getUserid();
+										taskCount.setUserid(editid);
+										taskCount.setRoleid(RoleType.ROLE_WORKER.getValue());
+										if (projectsTaskCountDao.checkTaskDone(taskCount) > 0) {
+											
+										}
+									}
+									
 									Map<String, Object> map = new HashMap<String, Object>();
 									map.put("systemid", systemType.getValue());
 									map.put("projectid", projectid);
@@ -876,7 +918,6 @@ public class InterfaceCtrl extends BaseCtrl {
 											}
 										}
 										// by xiao 计算任务完成进度 end
-	
 										if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
 											ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
 											project.setOverstate(4);
