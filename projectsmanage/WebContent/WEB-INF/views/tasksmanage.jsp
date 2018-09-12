@@ -1,3 +1,4 @@
+<%@page import="com.emg.projectsmanage.common.ProcessType"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c"%>
@@ -107,9 +108,18 @@
 							data-filter-control="input" data-filter-control-placeholder="">
 							项目名称</th>
 						
-						<th data-field="processtype" data-width="140" data-formatter="processTypeFormat" 
-							data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="3">
-							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+						<c:choose>
+							<c:when test="${not empty param.process}">
+								<th data-field="processtype" data-width="140" data-formatter="processTypeFormat" 
+									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="${param.process}">
+									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+							</c:when>
+							<c:otherwise>
+								<th data-field="processtype" data-width="140" data-formatter="processTypeFormat" 
+									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="<%= ProcessType.ATTACH.getValue() %>">
+									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+							</c:otherwise>
+						</c:choose>
 						
 						<th data-field="id" data-width="70"
 							data-filter-control="input" data-filter-control-placeholder="">

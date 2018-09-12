@@ -741,8 +741,18 @@
 						</th>
 						<th data-field="name" data-filter-control="input" data-width="140"
 							data-formatter="nameFormat" data-filter-control-placeholder="">质检集合名称</th>
-						<th data-field="processType" data-filter-control="select" data-width="120"
-							data-formatter="processTypeFormat" data-filter-data="var:processTypes" data-filter-default-value="1">适用项目类型</th>
+						<c:choose>
+							<c:when test="${not empty param.process}">
+								<th data-field="processType" data-width="120" data-formatter="processTypeFormat" 
+									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="${param.process}">
+									&nbsp;&nbsp;&nbsp;&nbsp;适用项目类型&nbsp;&nbsp;&nbsp;&nbsp;</th>
+							</c:when>
+							<c:otherwise>
+								<th data-field="processType" data-width="120" data-formatter="processTypeFormat" 
+									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="<%= ProcessType.ERROR.getValue() %>">
+									&nbsp;&nbsp;&nbsp;&nbsp;适用项目类型&nbsp;&nbsp;&nbsp;&nbsp;</th>
+							</c:otherwise>
+						</c:choose>
 						<th data-field="layername" data-filter-control="input"
 							data-width="180" data-formatter="layernameFormat"
 							data-filter-control-placeholder="">图层</th>
