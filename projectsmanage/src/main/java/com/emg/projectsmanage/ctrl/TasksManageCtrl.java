@@ -199,6 +199,10 @@ public class TasksManageCtrl extends BaseCtrl {
 				json.addObject("rows", rows);
 				json.addObject("total", count);
 				json.addObject("result", 1);
+			} else {
+				json.addObject("rows", new ArrayList<TaskModel>());
+				json.addObject("total", 0);
+				json.addObject("result", 1);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
