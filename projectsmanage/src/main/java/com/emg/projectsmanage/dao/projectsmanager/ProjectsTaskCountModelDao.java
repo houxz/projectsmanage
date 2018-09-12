@@ -14,8 +14,6 @@ public interface ProjectsTaskCountModelDao {
     
     List<ProjectsTaskCountModel> getProjectsProgress(Map<String, Object> map);
     
-    List<ProjectsTaskCountModel> getProjectsProgressAttach(Map<String, Object> map);
-    
     int countProjectsProgress(Map<String, Object> map);
     
     int count(ProjectsTaskCountModel record);

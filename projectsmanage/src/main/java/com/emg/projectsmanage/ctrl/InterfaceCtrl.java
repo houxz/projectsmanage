@@ -860,7 +860,7 @@ public class InterfaceCtrl extends BaseCtrl {
 									Map<String, Object> map = new HashMap<String, Object>();
 									map.put("systemid", systemType.getValue());
 									map.put("projectid", projectid);
-									List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgressAttach(map);
+									List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
 									if (list != null && list.size() > 0) {
 										ProjectsTaskCountModel projectsCount = list.get(0);
 	
