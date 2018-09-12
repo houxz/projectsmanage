@@ -97,7 +97,7 @@ public class TaskModelDao {
 					}
 					if (stateMap.getCheckid() != null) {
 						if (stateMap.getCheckid().equals(-1)) {
-							sql.append(" ( ISNULL(checkid) OR checkid <= 0) AND");
+							sql.append(" ( checkid IS NULL OR checkid <= 0) AND");
 						} else if (stateMap.getCheckid().equals(1)) {
 							sql.append(" ( checkid > 0) AND");
 						}
@@ -199,7 +199,7 @@ public class TaskModelDao {
 					}
 					if (stateMap.getCheckid() != null) {
 						if (stateMap.getCheckid().equals(-1)) {
-							sql.append(" ( ISNULL(checkid) OR checkid <= 0) AND");
+							sql.append(" ( checkid IS NULL OR checkid <= 0) AND");
 						} else if (stateMap.getCheckid().equals(1)) {
 							sql.append(" ( checkid > 0) AND");
 						}
