@@ -13,7 +13,9 @@ import org.springframework.stereotype.Component;
 
 import com.emg.projectsmanage.common.Common;
 import com.emg.projectsmanage.common.DatabaseType;
+import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.StateMap;
+import com.emg.projectsmanage.common.TaskTypeEnum;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.TaskModel;
@@ -26,6 +28,25 @@ public class TaskModelDao {
 
 	@Autowired
 	private EmapgoAccountService emapgoAccountService;
+	
+	private TaskTypeEnum getTaskType(ProcessType processType) {
+		TaskTypeEnum tasktype = TaskTypeEnum.UNKNOWN;
+		switch (processType) {
+		case ERROR:
+			tasktype = TaskTypeEnum.ERROR;
+			break;
+		case NRFC:
+			tasktype = TaskTypeEnum.NRFC;
+			break;
+		case ATTACH:
+			tasktype = TaskTypeEnum.ATTACH;
+			break;
+		default:
+			tasktype = TaskTypeEnum.UNKNOWN;
+			break;
+		}
+		return tasktype;
+	}
 
 	public List<TaskModel> selectTaskModels(ConfigDBModel configDBModel, TaskModel record, List<Long> projectids,
 			List<StateMap> stateMaps, Integer limit, Integer offset) {
@@ -35,32 +56,37 @@ public class TaskModelDao {
 			if (record == null || configDBModel == null)
 				return tasks;
 			Integer dbtype = configDBModel.getDbtype();
-			Integer processType = record.getProcesstype();
+			ProcessType processType = ProcessType.valueOf(record.getProcesstype());
+			TaskTypeEnum tasktype = getTaskType(processType);
 
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT *, " + processType
+			sql.append(" SELECT *, " + processType.getValue()
 					+ " AS processType, to_char(operatetime, 'YYYY-MM-DD HH24:MI:SS') AS opttime FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_task ");
-			sql.append(" WHERE 1=1 ");
+			sql.append(" WHERE tasktype = " + tasktype.getValue());
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
 				sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
 			}
 			if (record.getName() != null && !record.getName().isEmpty()) {
 				sql.append(" AND " + separator + "name" + separator + " like '%" + record.getName() + "%'");
 			}
-			if (projectids != null && projectids.size() > 0) {
-				sql.append(" AND " + separator + "projectid" + separator + " in( ");
-				for (Long projectid : projectids) {
-					sql.append(projectid);
-					sql.append(",");
+			if (projectids != null) {
+				if(projectids.size() > 0) {
+					sql.append(" AND " + separator + "projectid" + separator + " in( ");
+					for (Long projectid : projectids) {
+						sql.append(projectid);
+						sql.append(",");
+					}
+					sql = sql.deleteCharAt(sql.length() - 1);
+					sql.append(" )");
+				} else {
+					return tasks;
 				}
-				sql = sql.deleteCharAt(sql.length() - 1);
-				sql.append(" )");
 			}
 			if (stateMaps != null && stateMaps.size() > 0) {
 				sql.append(" AND ( ");
@@ -132,6 +158,8 @@ public class TaskModelDao {
 			if (record == null || configDBModel == null)
 				return count;
 			Integer dbtype = configDBModel.getDbtype();
+			ProcessType processType = ProcessType.valueOf(record.getProcesstype());
+			TaskTypeEnum tasktype = getTaskType(processType);
 
 			String separator = Common.getDatabaseSeparator(dbtype);
 
@@ -142,21 +170,25 @@ public class TaskModelDao {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_task ");
-			sql.append(" WHERE 1=1 ");
+			sql.append(" WHERE tasktype = " + tasktype.getValue());
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
 				sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
 			}
 			if (record.getName() != null && !record.getName().isEmpty()) {
 				sql.append(" AND " + separator + "name" + separator + " like '%" + record.getName() + "%'");
 			}
-			if (projectids != null && projectids.size() > 0) {
-				sql.append(" AND " + separator + "projectid" + separator + " in( ");
-				for (Long projectid : projectids) {
-					sql.append(projectid);
-					sql.append(",");
+			if (projectids != null) {
+				if(projectids.size() > 0) {
+					sql.append(" AND " + separator + "projectid" + separator + " in( ");
+					for (Long projectid : projectids) {
+						sql.append(projectid);
+						sql.append(",");
+					}
+					sql = sql.deleteCharAt(sql.length() - 1);
+					sql.append(" )");
+				} else {
+					return 0;
 				}
-				sql = sql.deleteCharAt(sql.length() - 1);
-				sql.append(" )");
 			}
 			if (stateMaps != null && stateMaps.size() > 0) {
 				sql.append(" AND ( ");

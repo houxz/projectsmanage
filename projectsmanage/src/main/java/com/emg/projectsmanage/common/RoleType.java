@@ -10,7 +10,7 @@ public enum RoleType {
 	/**
 	 * 0, "未知角色"
 	 */
-	UNKNOW(0, "未知角色"),
+	UNKNOWN(0, "未知角色"),
 	/**
 	 * -1, "超级管理员"
 	 */
@@ -41,7 +41,7 @@ public enum RoleType {
 	private String des;
 
 	public static RoleType valueOf(Integer value) {
-		RoleType ret = RoleType.UNKNOW;
+		RoleType ret = RoleType.UNKNOWN;
 		for(RoleType roleType : RoleType.values()) {
 			if(roleType.getValue().equals(value)) {
 				ret = roleType;

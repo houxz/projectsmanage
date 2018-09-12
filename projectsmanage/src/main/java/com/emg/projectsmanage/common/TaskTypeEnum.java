@@ -6,31 +6,23 @@ package com.emg.projectsmanage.common;
  * @author zsen
  * 
  */
-public enum ProcessType {
+public enum TaskTypeEnum {
 	/**
-	 * -1, "未知项目类型"
+	 * -1, "改错项目"
 	 */
-	UNKNOWN(-1, "未知项目类型"),
+	UNKNOWN(-1, "未知任务类型"),
 	/**
-	 * 1, "改错项目"
+	 * 11, "改错任务"
 	 */
-	ERROR(1, "改错项目"),
+	ERROR(11, "改错任务"),
 	/**
-	 * 2, "NR/FC项目"
+	 * 12, "NR/FC项目"
 	 */
-	NRFC(2, "NR/FC项目"),
+	NRFC(12, "NR/FC任务"),
 	/**
-	 * 3, "关系附属表项目"
+	 * 13, "关系附属表项目"
 	 */
-	ATTACH(3, "关系附属表项目"),
-	/**
-	 * 4, "全国质检项目"
-	 */
-	COUNTRY(4, "全国质检项目"),
-	/**
-	 * 5, "POI编辑项目"
-	 */
-	POIEDIT(5, "POI编辑项目");
+	ATTACH(13, "关系附属表任务");
 
 	private Integer value;
 	private String des;
@@ -43,7 +35,7 @@ public enum ProcessType {
 		this.des = des;
 	}
 
-	private ProcessType(Integer value, String des) {
+	private TaskTypeEnum(Integer value, String des) {
 		this.setValue(value);
 		this.des = des;
 	}
@@ -56,9 +48,9 @@ public enum ProcessType {
 		this.value = value;
 	}
 	
-	public static ProcessType valueOf(Integer value) {
-		ProcessType ret = ProcessType.UNKNOWN;
-		for(ProcessType v : ProcessType.values()) {
+	public static TaskTypeEnum valueOf(Integer value) {
+		TaskTypeEnum ret = TaskTypeEnum.UNKNOWN;
+		for(TaskTypeEnum v : TaskTypeEnum.values()) {
 			if(v.getValue().equals(value)) {
 				ret = v;
 				break;
@@ -69,7 +61,7 @@ public enum ProcessType {
 	
 	public static String toJsonStr() {
 		String str = new String("{");
-		for (ProcessType val : ProcessType.values()) {
+		for (TaskTypeEnum val : TaskTypeEnum.values()) {
 			str += "\"" + val.getValue() + "\":\"" + val.getDes() + "\",";
 		}
 		str += "}";

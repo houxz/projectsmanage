@@ -106,11 +106,11 @@ public class TasksManageCtrl extends BaseCtrl {
 			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			TaskModel record = new TaskModel();
-			Integer processType = 3;
+			ProcessType processType = ProcessType.ATTACH;
 
 			Map<String, Object> filterPara = null;
-			List<Long> projectids = new ArrayList<Long>();
-			List<ProjectModel> projects = new ArrayList<ProjectModel>();
+			List<Long> projectids = null;
+			List<ProjectModel> projects = null;
 			ProjectModelExample example = new ProjectModelExample();
 			List<StateMap> stateMaps = new ArrayList<StateMap>();
 			if (filter.length() > 0) {
@@ -121,6 +121,7 @@ public class TasksManageCtrl extends BaseCtrl {
 						Long processid = Long.valueOf(filterPara.get(key).toString());
 						example.clear();
 						example.or().andProcessidEqualTo(processid);
+						projects = new ArrayList<ProjectModel>();
 						projects.addAll(projectModelDao.selectByExample(example));
 						break;
 					case "processname":
@@ -134,10 +135,11 @@ public class TasksManageCtrl extends BaseCtrl {
 						}
 						example.clear();
 						example.or().andProcessidIn(processids);
+						projects = new ArrayList<ProjectModel>();
 						projects.addAll(projectModelDao.selectByExample(example));
 						break;
 					case "processtype":
-						processType = Integer.valueOf(filterPara.get(key).toString());
+						processType = ProcessType.valueOf(Integer.valueOf(filterPara.get(key).toString()));
 						break;
 					case "id":
 						record.setId(Long.valueOf(filterPara.get(key).toString()));
@@ -161,41 +163,41 @@ public class TasksManageCtrl extends BaseCtrl {
 				}
 			}
 
-			for (ProjectModel project : projects) {
-				projectids.add(project.getId());
+			if(projects != null) {
+				projectids = new ArrayList<Long>();
+				for (ProjectModel project : projects) {
+					projectids.add(project.getId());
+				}
 			}
 
-			if (processType.compareTo(0) > 0) {
-				Map<String, Integer> map = new HashMap<String, Integer>();
-				map.put("id", 10);
-				map.put("processType", processType);
-				ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
-				if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
-					ConfigDBModel configDBModel = configDBModelDao
-							.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-					record.setProcesstype(processType);
-					List<TaskModel> rows = taskModelDao.selectTaskModels(configDBModel, record, projectids, stateMaps,
-							limit, offset);
-					for (TaskModel row : rows) {
-						if (row == null)
-							continue;
-						
-						ProjectModel project = projectModelDao.selectByPrimaryKey(row.getProjectid());
-						if (project != null) {
-							ProcessModel processModel = processModelDao.selectByPrimaryKey(project.getProcessid());
-							if (processModel != null) {
-								row.setProcessid(processModel.getId());
-								row.setProcessname(processModel.getName());
-								row.setStatedes(getStateDes(row));
-							}
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("id", 10);
+			map.put("processType", processType.getValue());
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+				ConfigDBModel configDBModel = configDBModelDao
+						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+				record.setProcesstype(processType.getValue());
+				List<TaskModel> rows = taskModelDao.selectTaskModels(configDBModel, record, projectids, stateMaps,
+						limit, offset);
+				for (TaskModel row : rows) {
+					if (row == null)
+						continue;
+
+					ProjectModel project = projectModelDao.selectByPrimaryKey(row.getProjectid());
+					if (project != null) {
+						ProcessModel processModel = processModelDao.selectByPrimaryKey(project.getProcessid());
+						if (processModel != null) {
+							row.setProcessid(processModel.getId());
+							row.setProcessname(processModel.getName());
+							row.setStatedes(getStateDes(row));
 						}
 					}
-					Integer count = taskModelDao.countTaskModels(configDBModel, record, projectids, stateMaps);
-					json.addObject("rows", rows);
-					json.addObject("total", count);
-					json.addObject("result", 1);
 				}
-
+				Integer count = taskModelDao.countTaskModels(configDBModel, record, projectids, stateMaps);
+				json.addObject("rows", rows);
+				json.addObject("total", count);
+				json.addObject("result", 1);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
