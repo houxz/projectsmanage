@@ -1,14 +1,34 @@
 package com.emg.projectsmanage.ctrl;
 
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
 
+import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.transaction.TransactionFactory;
+import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.SqlSessionTemplate;
+import org.mybatis.spring.mapper.MapperFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +51,8 @@ import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.common.SystemType;
+import com.emg.projectsmanage.dao.pepro.edittask.TaskModelDao;
+import com.emg.projectsmanage.dao.pepro.qctask.ItemInfoModelDao;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ConfigValueModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
@@ -52,6 +74,8 @@ import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
 import com.emg.projectsmanage.pojo.ProjectsTaskLogModel;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
+import com.emg.projectsmanage.pojo.edittask.TaskModel;
+import com.emg.projectsmanage.pojo.qctask.ItemInfoModel;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 
 import com.emg.projectsmanage.library.JNATest;
@@ -85,7 +109,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	private ConfigValueModelDao configValueModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
-
+	
 	@RequestMapping(params = "action=insertNewProject", method = RequestMethod.POST)
 	private ModelAndView insertNewProject(Model model,
 			HttpSession session,
@@ -2107,7 +2131,22 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("test start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			JNATest.Instance.say(new WString("Hello World!"));
+			Properties properties = new Properties();
+			properties.setProperty("driver", "org.postgresql.Driver");
+			properties.setProperty("url", "jdbc:postgresql://192.168.0.184:5432/pepro");
+			properties.setProperty("username", "postgres");
+			properties.setProperty("password", "123456");
+	        Reader reader = Resources.getResourceAsReader("../spring/mybatis-context.xml");
+	        //创建数据工厂
+	        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
+	        SqlSessionFactory sqlSessionFactory = builder.build(reader, properties);
+	        SqlSession sqlSession = sqlSessionFactory.openSession();
+	        TaskModelDao dao = sqlSession.getMapper(TaskModelDao.class);
+	        dao.selectByPrimaryKey(11L);
+	        //释放会话
+	        sqlSession.clearCache();
+	        sqlSession.close();
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			json.addObject("status", false);

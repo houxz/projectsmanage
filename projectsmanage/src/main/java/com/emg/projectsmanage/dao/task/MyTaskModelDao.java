@@ -22,9 +22,9 @@ import com.emg.projectsmanage.pojo.TaskModel;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 
 @Component
-public class TaskModelDao {
+public class MyTaskModelDao {
 
-	private static final Logger logger = LoggerFactory.getLogger(TaskModelDao.class);
+	private static final Logger logger = LoggerFactory.getLogger(MyTaskModelDao.class);
 
 	@Autowired
 	private EmapgoAccountService emapgoAccountService;

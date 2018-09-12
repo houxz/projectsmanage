@@ -23,7 +23,7 @@ import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
-import com.emg.projectsmanage.dao.task.TaskModelDao;
+import com.emg.projectsmanage.dao.task.MyTaskModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
@@ -43,7 +43,7 @@ public class TasksManageCtrl extends BaseCtrl {
 	private static final Logger logger = LoggerFactory.getLogger(TasksManageCtrl.class);
 
 	@Autowired
-	private TaskModelDao taskModelDao;
+	private MyTaskModelDao taskModelDao;
 
 	@Autowired
 	private ProcessConfigModelDao processConfigModelDao;

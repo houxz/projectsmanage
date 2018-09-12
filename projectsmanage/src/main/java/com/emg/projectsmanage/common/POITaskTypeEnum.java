@@ -1,6 +1,6 @@
 package com.emg.projectsmanage.common;
 
-public enum CapacityTaskTypeEnum {
+public enum POITaskTypeEnum {
 	/**
 	 * 15101, "POI客投制作"
 	 */
@@ -57,7 +57,7 @@ public enum CapacityTaskTypeEnum {
 	private Integer value;
 	private String des;
 
-	private CapacityTaskTypeEnum(Integer value, String des) {
+	private POITaskTypeEnum(Integer value, String des) {
 		this.setValue(value);
 		this.des = des;
 	}

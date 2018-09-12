@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.projectsmanage.dao.pepro.edittask.TaskModelDao" >
+  <resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.edittask.TaskModel" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="blockid" property="blockid" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="tasktype" property="tasktype" jdbcType="INTEGER" />
+    <result column="flowtype" property="flowtype" jdbcType="INTEGER" />
+    <result column="state" property="state" jdbcType="INTEGER" />
+    <result column="process" property="process" jdbcType="INTEGER" />
+    <result column="editid" property="editid" jdbcType="INTEGER" />
+    <result column="checkid" property="checkid" jdbcType="INTEGER" />
+    <result column="projectid" property="projectid" jdbcType="BIGINT" />
+    <result column="referdata" property="referdata" jdbcType="VARCHAR" />
+    <result column="batchid" property="batchid" jdbcType="BIGINT" />
+    <result column="editlist" property="editlist" jdbcType="VARCHAR" />
+    <result column="priority" property="priority" jdbcType="INTEGER" />
+    <result column="rank" property="rank" jdbcType="INTEGER" />
+    <result column="operatetime" property="operatetime" jdbcType="TIMESTAMP" />
+    <result column="systype" property="systype" jdbcType="INTEGER" />
+    <result column="starttime" property="starttime" jdbcType="TIMESTAMP" />
+    <result column="endtime" property="endtime" jdbcType="TIMESTAMP" />
+    <result column="time" property="time" jdbcType="VARCHAR" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, blockid, name, tasktype, flowtype, state, process, editid, checkid, projectid, 
+    referdata, batchid, editlist, priority, rank, operatetime, systype, starttime, endtime, 
+    time, ip
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.emg.projectsmanage.pojo.edittask.TaskModelExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from edittask.tb_task
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from edittask.tb_task
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from edittask.tb_task
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.emg.projectsmanage.pojo.edittask.TaskModelExample" >
+    delete from edittask.tb_task
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.emg.projectsmanage.pojo.edittask.TaskModel" >
+    insert into edittask.tb_task (id, blockid, name, 
+      tasktype, flowtype, state, 
+      process, editid, checkid, 
+      projectid, referdata, batchid, 
+      editlist, priority, rank, 
+      operatetime, systype, starttime, 
+      endtime, time, ip
+      )
+    values (#{id,jdbcType=BIGINT}, #{blockid,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
+      #{tasktype,jdbcType=INTEGER}, #{flowtype,jdbcType=INTEGER}, #{state,jdbcType=INTEGER}, 
+      #{process,jdbcType=INTEGER}, #{editid,jdbcType=INTEGER}, #{checkid,jdbcType=INTEGER}, 
+      #{projectid,jdbcType=BIGINT}, #{referdata,jdbcType=VARCHAR}, #{batchid,jdbcType=BIGINT}, 
+      #{editlist,jdbcType=VARCHAR}, #{priority,jdbcType=INTEGER}, #{rank,jdbcType=INTEGER}, 
+      #{operatetime,jdbcType=TIMESTAMP}, #{systype,jdbcType=INTEGER}, #{starttime,jdbcType=TIMESTAMP}, 
+      #{endtime,jdbcType=TIMESTAMP}, #{time,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.emg.projectsmanage.pojo.edittask.TaskModel" >
+    insert into edittask.tb_task
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="blockid != null" >
+        blockid,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="tasktype != null" >
+        tasktype,
+      </if>
+      <if test="flowtype != null" >
+        flowtype,
+      </if>
+      <if test="state != null" >
+        state,
+      </if>
+      <if test="process != null" >
+        process,
+      </if>
+      <if test="editid != null" >
+        editid,
+      </if>
+      <if test="checkid != null" >
+        checkid,
+      </if>
+      <if test="projectid != null" >
+        projectid,
+      </if>
+      <if test="referdata != null" >
+        referdata,
+      </if>
+      <if test="batchid != null" >
+        batchid,
+      </if>
+      <if test="editlist != null" >
+        editlist,
+      </if>
+      <if test="priority != null" >
+        priority,
+      </if>
+      <if test="rank != null" >
+        rank,
+      </if>
+      <if test="operatetime != null" >
+        operatetime,
+      </if>
+      <if test="systype != null" >
+        systype,
+      </if>
+      <if test="starttime != null" >
+        starttime,
+      </if>
+      <if test="endtime != null" >
+        endtime,
+      </if>
+      <if test="time != null" >
+        time,
+      </if>
+      <if test="ip != null" >
+        ip,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="blockid != null" >
+        #{blockid,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="tasktype != null" >
+        #{tasktype,jdbcType=INTEGER},
+      </if>
+      <if test="flowtype != null" >
+        #{flowtype,jdbcType=INTEGER},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="process != null" >
+        #{process,jdbcType=INTEGER},
+      </if>
+      <if test="editid != null" >
+        #{editid,jdbcType=INTEGER},
+      </if>
+      <if test="checkid != null" >
+        #{checkid,jdbcType=INTEGER},
+      </if>
+      <if test="projectid != null" >
+        #{projectid,jdbcType=BIGINT},
+      </if>
+      <if test="referdata != null" >
+        #{referdata,jdbcType=VARCHAR},
+      </if>
+      <if test="batchid != null" >
+        #{batchid,jdbcType=BIGINT},
+      </if>
+      <if test="editlist != null" >
+        #{editlist,jdbcType=VARCHAR},
+      </if>
+      <if test="priority != null" >
+        #{priority,jdbcType=INTEGER},
+      </if>
+      <if test="rank != null" >
+        #{rank,jdbcType=INTEGER},
+      </if>
+      <if test="operatetime != null" >
+        #{operatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="systype != null" >
+        #{systype,jdbcType=INTEGER},
+      </if>
+      <if test="starttime != null" >
+        #{starttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endtime != null" >
+        #{endtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null" >
+        #{ip,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.emg.projectsmanage.pojo.edittask.TaskModelExample" resultType="java.lang.Integer" >
+    select count(*) from edittask.tb_task
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update edittask.tb_task
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.blockid != null" >
+        blockid = #{record.blockid,jdbcType=BIGINT},
+      </if>
+      <if test="record.name != null" >
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tasktype != null" >
+        tasktype = #{record.tasktype,jdbcType=INTEGER},
+      </if>
+      <if test="record.flowtype != null" >
+        flowtype = #{record.flowtype,jdbcType=INTEGER},
+      </if>
+      <if test="record.state != null" >
+        state = #{record.state,jdbcType=INTEGER},
+      </if>
+      <if test="record.process != null" >
+        process = #{record.process,jdbcType=INTEGER},
+      </if>
+      <if test="record.editid != null" >
+        editid = #{record.editid,jdbcType=INTEGER},
+      </if>
+      <if test="record.checkid != null" >
+        checkid = #{record.checkid,jdbcType=INTEGER},
+      </if>
+      <if test="record.projectid != null" >
+        projectid = #{record.projectid,jdbcType=BIGINT},
+      </if>
+      <if test="record.referdata != null" >
+        referdata = #{record.referdata,jdbcType=VARCHAR},
+      </if>
+      <if test="record.batchid != null" >
+        batchid = #{record.batchid,jdbcType=BIGINT},
+      </if>
+      <if test="record.editlist != null" >
+        editlist = #{record.editlist,jdbcType=VARCHAR},
+      </if>
+      <if test="record.priority != null" >
+        priority = #{record.priority,jdbcType=INTEGER},
+      </if>
+      <if test="record.rank != null" >
+        rank = #{record.rank,jdbcType=INTEGER},
+      </if>
+      <if test="record.operatetime != null" >
+        operatetime = #{record.operatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.systype != null" >
+        systype = #{record.systype,jdbcType=INTEGER},
+      </if>
+      <if test="record.starttime != null" >
+        starttime = #{record.starttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.endtime != null" >
+        endtime = #{record.endtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.time != null" >
+        time = #{record.time,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ip != null" >
+        ip = #{record.ip,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update edittask.tb_task
+    set id = #{record.id,jdbcType=BIGINT},
+      blockid = #{record.blockid,jdbcType=BIGINT},
+      name = #{record.name,jdbcType=VARCHAR},
+      tasktype = #{record.tasktype,jdbcType=INTEGER},
+      flowtype = #{record.flowtype,jdbcType=INTEGER},
+      state = #{record.state,jdbcType=INTEGER},
+      process = #{record.process,jdbcType=INTEGER},
+      editid = #{record.editid,jdbcType=INTEGER},
+      checkid = #{record.checkid,jdbcType=INTEGER},
+      projectid = #{record.projectid,jdbcType=BIGINT},
+      referdata = #{record.referdata,jdbcType=VARCHAR},
+      batchid = #{record.batchid,jdbcType=BIGINT},
+      editlist = #{record.editlist,jdbcType=VARCHAR},
+      priority = #{record.priority,jdbcType=INTEGER},
+      rank = #{record.rank,jdbcType=INTEGER},
+      operatetime = #{record.operatetime,jdbcType=TIMESTAMP},
+      systype = #{record.systype,jdbcType=INTEGER},
+      starttime = #{record.starttime,jdbcType=TIMESTAMP},
+      endtime = #{record.endtime,jdbcType=TIMESTAMP},
+      time = #{record.time,jdbcType=VARCHAR},
+      ip = #{record.ip,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.emg.projectsmanage.pojo.edittask.TaskModel" >
+    update edittask.tb_task
+    <set >
+      <if test="blockid != null" >
+        blockid = #{blockid,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="tasktype != null" >
+        tasktype = #{tasktype,jdbcType=INTEGER},
+      </if>
+      <if test="flowtype != null" >
+        flowtype = #{flowtype,jdbcType=INTEGER},
+      </if>
+      <if test="state != null" >
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="process != null" >
+        process = #{process,jdbcType=INTEGER},
+      </if>
+      <if test="editid != null" >
+        editid = #{editid,jdbcType=INTEGER},
+      </if>
+      <if test="checkid != null" >
+        checkid = #{checkid,jdbcType=INTEGER},
+      </if>
+      <if test="projectid != null" >
+        projectid = #{projectid,jdbcType=BIGINT},
+      </if>
+      <if test="referdata != null" >
+        referdata = #{referdata,jdbcType=VARCHAR},
+      </if>
+      <if test="batchid != null" >
+        batchid = #{batchid,jdbcType=BIGINT},
+      </if>
+      <if test="editlist != null" >
+        editlist = #{editlist,jdbcType=VARCHAR},
+      </if>
+      <if test="priority != null" >
+        priority = #{priority,jdbcType=INTEGER},
+      </if>
+      <if test="rank != null" >
+        rank = #{rank,jdbcType=INTEGER},
+      </if>
+      <if test="operatetime != null" >
+        operatetime = #{operatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="systype != null" >
+        systype = #{systype,jdbcType=INTEGER},
+      </if>
+      <if test="starttime != null" >
+        starttime = #{starttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endtime != null" >
+        endtime = #{endtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="time != null" >
+        time = #{time,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null" >
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.emg.projectsmanage.pojo.edittask.TaskModel" >
+    update edittask.tb_task
+    set blockid = #{blockid,jdbcType=BIGINT},
+      name = #{name,jdbcType=VARCHAR},
+      tasktype = #{tasktype,jdbcType=INTEGER},
+      flowtype = #{flowtype,jdbcType=INTEGER},
+      state = #{state,jdbcType=INTEGER},
+      process = #{process,jdbcType=INTEGER},
+      editid = #{editid,jdbcType=INTEGER},
+      checkid = #{checkid,jdbcType=INTEGER},
+      projectid = #{projectid,jdbcType=BIGINT},
+      referdata = #{referdata,jdbcType=VARCHAR},
+      batchid = #{batchid,jdbcType=BIGINT},
+      editlist = #{editlist,jdbcType=VARCHAR},
+      priority = #{priority,jdbcType=INTEGER},
+      rank = #{rank,jdbcType=INTEGER},
+      operatetime = #{operatetime,jdbcType=TIMESTAMP},
+      systype = #{systype,jdbcType=INTEGER},
+      starttime = #{starttime,jdbcType=TIMESTAMP},
+      endtime = #{endtime,jdbcType=TIMESTAMP},
+      time = #{time,jdbcType=VARCHAR},
+      ip = #{ip,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

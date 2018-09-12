@@ -1,6 +1,6 @@
 package com.emg.projectsmanage.common;
 
-public enum CapacityTaskEnum {
+public enum CapacityTaskStateEnum {
 	/**
 	 * 0：新任务
 	 */
@@ -21,7 +21,7 @@ public enum CapacityTaskEnum {
 	private Integer value;
 	private String des;
 
-	private CapacityTaskEnum(Integer value, String des) {
+	private CapacityTaskStateEnum(Integer value, String des) {
 		this.setValue(value);
 		this.des = des;
 	}

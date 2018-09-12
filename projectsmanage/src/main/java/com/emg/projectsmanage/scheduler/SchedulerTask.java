@@ -2,7 +2,9 @@ package com.emg.projectsmanage.scheduler;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +14,17 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.emg.projectsmanage.common.CapacityTaskEnum;
+import com.emg.projectsmanage.common.CapacityTaskStateEnum;
+import com.emg.projectsmanage.common.ProcessType;
+import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
+import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.CapacityTaskModelDao;
+import com.emg.projectsmanage.dao.task.MyTaskModelDao;
 import com.emg.projectsmanage.pojo.CapacityTaskModel;
 import com.emg.projectsmanage.pojo.CapacityTaskModelExample;
+import com.emg.projectsmanage.pojo.ConfigDBModel;
+import com.emg.projectsmanage.pojo.ProcessConfigModel;
+import com.emg.projectsmanage.pojo.TaskModel;
 import com.emg.projectsmanage.pojo.CapacityTaskModelExample.Criteria;
 
 @Component
@@ -28,6 +37,15 @@ public class SchedulerTask {
 
 	@Autowired
 	private CapacityTaskModelDao capacityTaskModelDao;
+	
+	@Autowired
+	private ProcessConfigModelDao processConfigModelDao;
+	
+	@Autowired
+	private ConfigDBModelDao configDBModelDao;
+	
+	@Autowired
+	private MyTaskModelDao taskModelDao;
 
 	/**
 	 * 创建每天的任务 凌晨1点创建
@@ -41,13 +59,24 @@ public class SchedulerTask {
 		String time = new SimpleDateFormat("yyyy-MM-dd").format(now);
 		try {
 			CapacityTaskModel record = new CapacityTaskModel();
-			record.setStarttime(now);
-			record.setState(CapacityTaskEnum.NEW.getValue());
-			record.setTime(time);
-			capacityTaskModelDao.insertSelective(record);
-			Long curTaskID = record.getId();
+			for (ProcessType processType : ProcessType.values()) {
+				if (processType.equals(ProcessType.UNKNOWN))
+					continue;
+				try {
+					record.setProcesstype(processType.getValue());
+					record.setStarttime(now);
+					record.setState(CapacityTaskStateEnum.NEW.getValue());
+					record.setTime(time);
+					capacityTaskModelDao.insertSelective(record);
+					Long curTaskID = record.getId();
 
-			logger.debug(String.format("Scheduler new task created, curTaskID: %s, time: %s.", curTaskID, time));
+					logger.debug(
+							String.format("Scheduler new task created, curTaskID: %s, time: %s.", curTaskID, time));
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+
 		} catch (DuplicateKeyException e) {
 			logger.error(String.format("Scheduler task( %s ) exist.", time));
 		} catch (Exception e) {
@@ -68,7 +97,7 @@ public class SchedulerTask {
 		try {
 			CapacityTaskModelExample example = new CapacityTaskModelExample();
 			Criteria criteria = example.or();
-			criteria.andStateEqualTo(CapacityTaskEnum.NEW.getValue());
+			criteria.andStateEqualTo(CapacityTaskStateEnum.NEW.getValue());
 			List<CapacityTaskModel> newTasks = capacityTaskModelDao.selectByExample(example);
 
 			for (CapacityTaskModel newTask : newTasks) {
@@ -77,25 +106,47 @@ public class SchedulerTask {
 					CapacityTaskModel record = new CapacityTaskModel();
 					record.setId(curTaskID);
 					record.setStarttime(new Date());
-					record.setState(CapacityTaskEnum.DOING.getValue());
+					record.setState(CapacityTaskStateEnum.DOING.getValue());
 					capacityTaskModelDao.updateByPrimaryKeySelective(record);
+					
+					ProcessType processType = ProcessType.valueOf(newTask.getProcesstype());
+					if(processType.equals(ProcessType.UNKNOWN)) continue;
 
-					logger.debug(String.format("Scheduler task( %s ) started.", newTask.getTime()));
-					
-					
-					
-					logger.debug(String.format("Scheduler task( %s ) finished.", newTask.getTime()));
+					if (processType.equals(ProcessType.POIEDIT)) {
+						logger.debug(String.format("Scheduler POIEDIT task( %s ) started.", newTask.getTime()));
+						
+						Map<String, Integer> map = new HashMap<String, Integer>();
+						map.put("id", 10);
+						map.put("processType", processType.getValue());
+						ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+						if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+							ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+							
+							TaskModel taskR = new TaskModel();
+							taskR.setProcesstype(processType.getValue());
+							List<TaskModel> tasks = taskModelDao.selectTaskModels(configDBModel, taskR , null, null, null, null);
+							
+							logger.debug(String.format("Scheduler POIEDIT task( %s ) finished.", newTask.getTime()));
 
-					record = new CapacityTaskModel();
-					record.setId(curTaskID);
-					record.setState(CapacityTaskEnum.FINISHED.getValue());
-					capacityTaskModelDao.updateByPrimaryKeySelective(record);
+							record = new CapacityTaskModel();
+							record.setId(curTaskID);
+							record.setState(CapacityTaskStateEnum.FINISHED.getValue());
+							capacityTaskModelDao.updateByPrimaryKeySelective(record);
+						} else {
+							logger.error("Scheduler POIEDIT task( %s ) has no configs.");
+							record = new CapacityTaskModel();
+							record.setId(curTaskID);
+							record.setState(CapacityTaskStateEnum.ERROR.getValue());
+							capacityTaskModelDao.updateByPrimaryKeySelective(record);
+						}
+					}
+					
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
 					Long curTaskID = newTask.getId();
 					CapacityTaskModel record = new CapacityTaskModel();
 					record.setId(curTaskID);
-					record.setState(CapacityTaskEnum.ERROR.getValue());
+					record.setState(CapacityTaskStateEnum.ERROR.getValue());
 					capacityTaskModelDao.updateByPrimaryKeySelective(record);
 				}
 			}
