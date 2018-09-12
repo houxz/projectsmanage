@@ -68,6 +68,7 @@ public class TasksManageCtrl extends BaseCtrl {
 		List<EmployeeModel> editers = new ArrayList<EmployeeModel>();
 		List<EmployeeModel> checkers = new ArrayList<EmployeeModel>();
 		for (ProcessType pType : ProcessType.values()) {
+			if(pType.equals(ProcessType.UNKNOWN)) continue;
 			Map<String, Integer> map = new HashMap<String, Integer>();
 			map.put("id", 10);
 			map.put("processType", pType.getValue());

@@ -134,6 +134,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				HashMap<ProcessType, Integer[]> doProTypes = new HashMap<ProcessType, Integer[]>();
 				List<ErrorSetModel> totalRows = new ArrayList<ErrorSetModel>();
 				for (ProcessType pType : ProcessType.values()) {
+					if(pType.equals(ProcessType.UNKNOWN)) continue;
 					Map<String, Integer> map = new HashMap<String, Integer>();
 					map.put("id", 2);
 					map.put("processType", pType.getValue());
@@ -148,6 +149,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 					}
 				}
 				for (ProcessType pType : ProcessType.values()) {
+					if(pType.equals(ProcessType.UNKNOWN)) continue;
 					Integer count = counts.get(pType.getValue());
 					if(count.compareTo(0) <= 0) continue;
 					if (count.compareTo(offset) < 0) {

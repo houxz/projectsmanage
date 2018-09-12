@@ -146,6 +146,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				HashMap<ProcessType, Integer[]> doProTypes = new HashMap<ProcessType, Integer[]>();
 				List<ItemSetModel> totalRows = new ArrayList<ItemSetModel>();
 				for (ProcessType pType : ProcessType.values()) {
+					if(pType.equals(ProcessType.UNKNOWN)) continue;
 					Map<String, Integer> map = new HashMap<String, Integer>();
 					map.put("id", 2);
 					map.put("processType", pType.getValue());
@@ -160,6 +161,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					}
 				}
 				for (ProcessType pType : ProcessType.values()) {
+					if(pType.equals(ProcessType.UNKNOWN)) continue;
 					Integer count = counts.get(pType.getValue());
 					if (count.compareTo(0) <= 0)
 						continue;
