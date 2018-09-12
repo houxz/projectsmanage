@@ -114,6 +114,7 @@
 					$("#dlgErrorSet table #id").val(errorset.id);
 					$("#dlgErrorSet table #name").val(errorset.name);
 					$("#dlgErrorSet table #type").val(errorset.type);
+					$("#dlgErrorSet table #processType").val(errorset.processType);
 					$("#dlgErrorSet table #systype").val(errorset.systype);
 					$("#dlgErrorSet table #unit").val(errorset.unit);
 					$("#dlgErrorSet table #desc").val(errorset.desc);
@@ -332,7 +333,7 @@
 						<th data-field="name" data-filter-control="input"
 							data-filter-control-placeholder="">错误筛选集合名称</th>
 						<th data-field="processType" data-filter-control="select" data-width="120"
-							data-formatter="processTypeFormat" data-filter-data="var:processTypes">适用项目类型</th>
+							data-formatter="processTypeFormat" data-filter-data="var:processTypes" data-filter-default-value="1">适用项目类型</th>
 						<th data-field="type" data-formatter="typeFormat" data-width="80"
 							data-filter-control="select" data-filter-data="var:errorsetTypes">类型</th>
 						<th data-field="systype" data-formatter="sysFormat"

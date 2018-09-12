@@ -88,7 +88,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			Map<String, Object> filterPara = null;
 			ItemSetModel record = new ItemSetModel();
-			Integer processType = -1;
+			ProcessType processType = ProcessType.ERROR;
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {
@@ -100,7 +100,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						record.setName(filterPara.get(key).toString());
 						break;
 					case "processType":
-						processType = Integer.valueOf(filterPara.get(key).toString());
+						processType = ProcessType.valueOf(Integer.valueOf(filterPara.get(key).toString()));
 						break;
 					case "layername":
 						record.setLayername(filterPara.get(key).toString());
@@ -127,70 +127,18 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				}
 			}
 
-			if (processType.compareTo(0) > 0) {
-				Map<String, Integer> map = new HashMap<String, Integer>();
-				map.put("id", 2);
-				map.put("processType", processType);
-				ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
-				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-				record.setProcessType(processType);
-				List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, limit, offset);
-				Integer count = itemSetModelDao.countItemSets(configDBModel, record, limit, offset);
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("id", 2);
+			map.put("processType", processType.getValue());
+			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			record.setProcessType(processType.getValue());
+			List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, limit, offset);
+			Integer count = itemSetModelDao.countItemSets(configDBModel, record, limit, offset);
 
-				json.addObject("rows", rows);
-				json.addObject("total", count);
-				json.addObject("result", 1);
-			} else {
-				HashMap<Integer, Integer> counts = new HashMap<Integer, Integer>();
-				Integer total = 0;
-				HashMap<ProcessType, Integer[]> doProTypes = new HashMap<ProcessType, Integer[]>();
-				List<ItemSetModel> totalRows = new ArrayList<ItemSetModel>();
-				for (ProcessType pType : ProcessType.values()) {
-					if(pType.equals(ProcessType.UNKNOWN)) continue;
-					Map<String, Integer> map = new HashMap<String, Integer>();
-					map.put("id", 2);
-					map.put("processType", pType.getValue());
-					ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
-					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-					Integer count = itemSetModelDao.countItemSets(configDBModel, record, limit, offset);
-					if (count.compareTo(0) >= 0) {
-						total += count;
-						counts.put(pType.getValue(), count);
-					} else {
-						counts.put(pType.getValue(), 0);
-					}
-				}
-				for (ProcessType pType : ProcessType.values()) {
-					if(pType.equals(ProcessType.UNKNOWN)) continue;
-					Integer count = counts.get(pType.getValue());
-					if (count.compareTo(0) <= 0)
-						continue;
-					if (count.compareTo(offset) < 0) {
-						offset = offset - count;
-					} else if (count.compareTo(offset) >= 0 && count.compareTo(offset + limit) < 0) {
-						doProTypes.put(pType, new Integer[] { offset, count - offset });
-						limit = limit - (count - offset);
-						offset = 0;
-					} else if (count.compareTo(offset + limit) >= 0) {
-						doProTypes.put(pType, new Integer[] { offset, limit });
-						break;
-					}
-				}
-				for (ProcessType doProType : doProTypes.keySet()) {
-					Map<String, Integer> map = new HashMap<String, Integer>();
-					map.put("id", 2);
-					map.put("processType", doProType.getValue());
-					ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
-					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-					record.setProcessType(doProType.getValue());
-					List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, doProTypes.get(doProType)[1], doProTypes.get(doProType)[0]);
-					totalRows.addAll(rows);
-				}
-
-				json.addObject("rows", totalRows);
-				json.addObject("total", total);
-				json.addObject("result", 1);
-			}
+			json.addObject("rows", rows);
+			json.addObject("total", count);
+			json.addObject("result", 1);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

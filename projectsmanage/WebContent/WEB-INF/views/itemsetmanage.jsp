@@ -742,7 +742,7 @@
 						<th data-field="name" data-filter-control="input" data-width="140"
 							data-formatter="nameFormat" data-filter-control-placeholder="">质检集合名称</th>
 						<th data-field="processType" data-filter-control="select" data-width="120"
-							data-formatter="processTypeFormat" data-filter-data="var:processTypes">适用项目类型</th>
+							data-formatter="processTypeFormat" data-filter-data="var:processTypes" data-filter-default-value="1">适用项目类型</th>
 						<th data-field="layername" data-filter-control="input"
 							data-width="180" data-formatter="layernameFormat"
 							data-filter-control-placeholder="">图层</th>
