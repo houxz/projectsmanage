@@ -224,27 +224,6 @@
 								</button>
 							</span>
 						</div>
-						<!-- /input-group -->
-						<hr />
-						<blockquote>
-							<p>
-								仅添加权限。<br />输入权限名称和描述，点击添加权限。
-							</p>
-						</blockquote>
-						<div class="input-group" style="width: 60%; margin: 2px 5%;">
-							<span class="input-group-addon">权限名称：</span> <input type="text"
-								class="form-control required" id="rolename" name="rolename"
-								placeholder="请输入权限名称" value='' />
-						</div>
-						<div class="input-group" style="width: 60%; margin: 2px 5%;">
-							<span class="input-group-addon">权限描述：</span> <input type="text"
-								class="form-control required" id="roleremark" name="roleremark"
-								placeholder="请输入权限说明" value='' />
-						</div>
-						<button type="button" class="btn btn-default" name="register"
-							onclick="addRole();" style="margin: 2px 5%;">
-							<span class="glyphicon glyphicon-plus" aria-hidden="true">&nbsp;</span>添加权限
-						</button>
 					</div>
 				</div>
 			</div>
