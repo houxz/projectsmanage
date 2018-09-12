@@ -22,9 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.ParamUtils;
-import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
 import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
@@ -42,10 +40,10 @@ public class WorkTasksCtrl extends BaseCtrl {
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("WorkTasksCtrl-openLader start.");
 		Map<String, Object> map = new HashMap<String, Object>();
-		if (!hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
-			Integer userid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
-			map.put("userid", userid);
-		}
+//		if (!hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
+//			Integer userid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
+//			map.put("userid", userid);
+//		}
 		List<ProjectsTaskCountModel> projectsTaskCountModels = projectsTaskCountDao.groupProjectsProgressByUseridAndRoleid(map);
 		List<ProjectsUserModel> users = new ArrayList<ProjectsUserModel>();
 		Set<Integer> userIDs = new HashSet<Integer>();
@@ -91,10 +89,10 @@ public class WorkTasksCtrl extends BaseCtrl {
 			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> map = new HashMap<String, Object>();
-			if (!hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
-				Integer userid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
-				map.put("userid", userid);
-			}
+//			if (!hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
+//				Integer userid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
+//				map.put("userid", userid);
+//			}
 			if (filter.length() > 0) {
 				Map<String, Object> filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {
