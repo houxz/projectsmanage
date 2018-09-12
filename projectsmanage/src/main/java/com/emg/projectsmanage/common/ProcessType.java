@@ -70,6 +70,7 @@ public enum ProcessType {
 	public static String toJsonStr() {
 		String str = new String("{");
 		for (ProcessType val : ProcessType.values()) {
+			if(val.equals(UNKNOWN)) continue;
 			str += "\"" + val.getValue() + "\":\"" + val.getDes() + "\",";
 		}
 		str += "}";

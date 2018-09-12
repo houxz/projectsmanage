@@ -62,6 +62,7 @@ public enum TaskTypeEnum {
 	public static String toJsonStr() {
 		String str = new String("{");
 		for (TaskTypeEnum val : TaskTypeEnum.values()) {
+			if(val.equals(UNKNOWN)) continue;
 			str += "\"" + val.getValue() + "\":\"" + val.getDes() + "\",";
 		}
 		str += "}";
