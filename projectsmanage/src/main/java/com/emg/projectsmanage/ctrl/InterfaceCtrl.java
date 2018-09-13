@@ -25,7 +25,9 @@ import com.emg.projectsmanage.pojo.ProcessConfigValueModel;
 import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.OwnerStatus;
+import com.emg.projectsmanage.common.POITaskTypeEnum;
 import com.emg.projectsmanage.common.ParamUtils;
+import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.RoleType;
@@ -39,6 +41,7 @@ import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskLogModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
+import com.emg.projectsmanage.dao.task.TaskModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ConfigValueModel;
 import com.emg.projectsmanage.pojo.DepartmentModel;
@@ -49,6 +52,7 @@ import com.emg.projectsmanage.pojo.ProjectModelExample.Criteria;
 import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
 import com.emg.projectsmanage.pojo.ProjectsTaskLogModel;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
+import com.emg.projectsmanage.pojo.TaskModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 import com.emg.projectsmanage.service.ProcessConfigModelService;
@@ -81,6 +85,9 @@ public class InterfaceCtrl extends BaseCtrl {
 	private ConfigValueModelDao configValueModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
+	
+	@Autowired
+	private TaskModelDao taskModelDao;
 	
 	@RequestMapping(params = "action=insertNewProject", method = RequestMethod.POST)
 	private ModelAndView insertNewProject(Model model,
@@ -2104,7 +2111,13 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("test start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, ProcessType.POIEDIT);
+			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+				List<TaskModel> tasks = taskModelDao.getTaskByTime(configDBModel, POITaskTypeEnum.FEISHICE, value);
+				json.addObject("status", true);
+				json.addObject("option", tasks);
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			json.addObject("status", false);

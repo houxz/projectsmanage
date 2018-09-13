@@ -8,7 +8,7 @@
 
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<!-- DB 配置 开始 -->
-	<context:property-placeholder location="WEB-INF/spring/db84.properties" ignore-unresolvable="true"/>
+	<context:property-placeholder location="WEB-INF/spring/db3.246.properties" ignore-unresolvable="true"/>
 
 	<!-- MySql 配置 -->
 	<bean id="dataSourceMySqlForAccount" class="org.apache.commons.dbcp.BasicDataSource"
