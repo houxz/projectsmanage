@@ -51,7 +51,6 @@ import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.common.SystemType;
-import com.emg.projectsmanage.dao.pepro.edittask.TaskModelDao;
 import com.emg.projectsmanage.dao.pepro.qctask.ItemInfoModelDao;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ConfigValueModelDao;
@@ -74,7 +73,6 @@ import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
 import com.emg.projectsmanage.pojo.ProjectsTaskLogModel;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
-import com.emg.projectsmanage.pojo.edittask.TaskModel;
 import com.emg.projectsmanage.pojo.qctask.ItemInfoModel;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 
@@ -2127,25 +2125,33 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=test", method = RequestMethod.POST)
-	private ModelAndView test(Model model, HttpSession session, HttpServletRequest request, @RequestParam("key") String key, @RequestParam("value") String value) {
+	private ModelAndView test(Model model, HttpSession session, HttpServletRequest request, 
+			@RequestParam(value = "key", required = false, defaultValue = "") String key, 
+			@RequestParam(value = "value", required = false, defaultValue = "") String value) {
 		logger.debug("test start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			Properties properties = new Properties();
-			properties.setProperty("driver", "org.postgresql.Driver");
-			properties.setProperty("url", "jdbc:postgresql://192.168.0.184:5432/pepro");
-			properties.setProperty("username", "postgres");
-			properties.setProperty("password", "123456");
-	        Reader reader = Resources.getResourceAsReader("../spring/mybatis-context.xml");
-	        //创建数据工厂
-	        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
-	        SqlSessionFactory sqlSessionFactory = builder.build(reader, properties);
-	        SqlSession sqlSession = sqlSessionFactory.openSession();
-	        TaskModelDao dao = sqlSession.getMapper(TaskModelDao.class);
-	        dao.selectByPrimaryKey(11L);
-	        //释放会话
-	        sqlSession.clearCache();
-	        sqlSession.close();
+//			Properties properties = new Properties();
+//			properties.setProperty("driver", "org.postgresql.Driver");
+//			properties.setProperty("url", "jdbc:postgresql://192.168.0.84:5432/pepro");
+//			properties.setProperty("username", "postgres");
+//			properties.setProperty("password", "123456");
+//			
+//	        PooledDataSourceFactory pooledDataSourceFactory = new PooledDataSourceFactory();
+//	        pooledDataSourceFactory.setProperties(properties);
+//	        DataSource dataSource = pooledDataSourceFactory.getDataSource();
+//	        TransactionFactory transactionFactory = new JdbcTransactionFactory();
+//	        Environment environment =  new Environment("development", transactionFactory, dataSource); 
+//	        Configuration configuration = new Configuration(environment); 
+//	        configuration.addMapper(TaskModelDao.class); 
+//	        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
+//	        SqlSession sqlSession = sqlSessionFactory.openSession();
+//	        
+//	        TaskModelDao dao = sqlSession.getMapper(TaskModelDao.class);
+//	        TaskModel t = dao.selectByPrimaryKey(11L);
+//	        logger.debug(t.getName());
+//	        sqlSession.clearCache();
+//	        sqlSession.close();
 			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
