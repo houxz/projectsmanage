@@ -29,13 +29,13 @@
 		</javaModelGenerator>
 		<!-- 生成映射文件的包名和位置 -->
 		<sqlMapGenerator
-			targetPackage="com.emg.projectsmanage.mapping.pepro"
+			targetPackage="com.emg.projectsmanage.mapper.pepro"
 			targetProject="projectsmanage">
 			<property name="enableSubPackages" value="true" />
 		</sqlMapGenerator>
 		<!-- 生成DAO的包名和位置 -->
 		<javaClientGenerator type="XMLMAPPER"
-			targetPackage="com.emg.projectsmanage.dao.pepro"
+			targetPackage="com.emg.projectsmanage.mapper.pepro"
 			targetProject="projectsmanage">
 			<property name="enableSubPackages" value="true" />
 		</javaClientGenerator>

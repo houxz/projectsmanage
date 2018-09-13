@@ -19,7 +19,7 @@ import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.CapacityTaskModelDao;
-import com.emg.projectsmanage.dao.task.MyTaskModelDao;
+import com.emg.projectsmanage.dao.task.TaskModelDao;
 import com.emg.projectsmanage.pojo.CapacityTaskModel;
 import com.emg.projectsmanage.pojo.CapacityTaskModelExample;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
@@ -44,9 +44,6 @@ public class SchedulerTask {
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
 	
-	@Autowired
-	private MyTaskModelDao taskModelDao;
-
 	/**
 	 * 创建每天的任务 凌晨1点创建
 	 */
@@ -120,11 +117,6 @@ public class SchedulerTask {
 						map.put("processType", processType.getValue());
 						ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 						if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
-							ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-							
-							TaskModel taskR = new TaskModel();
-							taskR.setProcesstype(processType.getValue());
-							List<TaskModel> tasks = taskModelDao.selectTaskModels(configDBModel, taskR , null, null, null, null);
 							
 							logger.debug(String.format("Scheduler POIEDIT task( %s ) finished.", newTask.getTime()));
 

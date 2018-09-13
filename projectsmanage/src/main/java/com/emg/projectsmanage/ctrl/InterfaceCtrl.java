@@ -1,34 +1,13 @@
 package com.emg.projectsmanage.ctrl;
 
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.sql.DataSource;
-
-import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.apache.ibatis.transaction.TransactionFactory;
-import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
-import org.mybatis.spring.SqlSessionTemplate;
-import org.mybatis.spring.mapper.MapperFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +30,6 @@ import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.common.SystemType;
-import com.emg.projectsmanage.dao.pepro.qctask.ItemInfoModelDao;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ConfigValueModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
@@ -73,11 +51,7 @@ import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
 import com.emg.projectsmanage.pojo.ProjectsTaskLogModel;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
-import com.emg.projectsmanage.pojo.qctask.ItemInfoModel;
 import com.emg.projectsmanage.service.EmapgoAccountService;
-
-import com.emg.projectsmanage.library.JNATest;
-import com.sun.jna.WString;
 
 @Controller
 @RequestMapping("/interface.web")
@@ -1450,7 +1424,6 @@ public class InterfaceCtrl extends BaseCtrl {
 			if (departments != null && departments.size() > 0) {
 				json.addObject("status", true);
 				json.addObject("departments", departments);
-				logger.warn("ZSEN -> " + departments.size());
 			} else {
 				json.addObject("status", false);
 				json.addObject("option", null);
@@ -2131,28 +2104,7 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("test start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-//			Properties properties = new Properties();
-//			properties.setProperty("driver", "org.postgresql.Driver");
-//			properties.setProperty("url", "jdbc:postgresql://192.168.0.84:5432/pepro");
-//			properties.setProperty("username", "postgres");
-//			properties.setProperty("password", "123456");
-//			
-//	        PooledDataSourceFactory pooledDataSourceFactory = new PooledDataSourceFactory();
-//	        pooledDataSourceFactory.setProperties(properties);
-//	        DataSource dataSource = pooledDataSourceFactory.getDataSource();
-//	        TransactionFactory transactionFactory = new JdbcTransactionFactory();
-//	        Environment environment =  new Environment("development", transactionFactory, dataSource); 
-//	        Configuration configuration = new Configuration(environment); 
-//	        configuration.addMapper(TaskModelDao.class); 
-//	        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
-//	        SqlSession sqlSession = sqlSessionFactory.openSession();
-//	        
-//	        TaskModelDao dao = sqlSession.getMapper(TaskModelDao.class);
-//	        TaskModel t = dao.selectByPrimaryKey(11L);
-//	        logger.debug(t.getName());
-//	        sqlSession.clearCache();
-//	        sqlSession.close();
-			
+
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			json.addObject("status", false);

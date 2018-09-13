@@ -23,7 +23,7 @@ import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
-import com.emg.projectsmanage.dao.task.MyTaskModelDao;
+import com.emg.projectsmanage.dao.task.TaskModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
@@ -43,7 +43,7 @@ public class TasksManageCtrl extends BaseCtrl {
 	private static final Logger logger = LoggerFactory.getLogger(TasksManageCtrl.class);
 
 	@Autowired
-	private MyTaskModelDao taskModelDao;
+	private TaskModelDao taskModelDao;
 
 	@Autowired
 	private ProcessConfigModelDao processConfigModelDao;
@@ -56,7 +56,7 @@ public class TasksManageCtrl extends BaseCtrl {
 
 	@Autowired
 	private ProcessModelDao processModelDao;
-
+	
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START");
@@ -68,7 +68,8 @@ public class TasksManageCtrl extends BaseCtrl {
 		List<EmployeeModel> editers = new ArrayList<EmployeeModel>();
 		List<EmployeeModel> checkers = new ArrayList<EmployeeModel>();
 		for (ProcessType pType : ProcessType.values()) {
-			if(pType.equals(ProcessType.UNKNOWN)) continue;
+			if (pType.equals(ProcessType.UNKNOWN))
+				continue;
 			Map<String, Integer> map = new HashMap<String, Integer>();
 			map.put("id", 10);
 			map.put("processType", pType.getValue());
@@ -77,7 +78,7 @@ public class TasksManageCtrl extends BaseCtrl {
 				ConfigDBModel configDBModel = configDBModelDao
 						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 				editers.addAll(taskModelDao.groupEditers(configDBModel, pType.getValue()));
-				checkers.addAll(taskModelDao.groupEditers(configDBModel, pType.getValue()));
+				checkers.addAll(taskModelDao.groupCheckers(configDBModel, pType.getValue()));
 			}
 		}
 		if (editers.size() > 0) {
@@ -164,7 +165,7 @@ public class TasksManageCtrl extends BaseCtrl {
 				}
 			}
 
-			if(projects != null) {
+			if (projects != null) {
 				projectids = new ArrayList<Long>();
 				for (ProjectModel project : projects) {
 					projectids.add(project.getId());
@@ -179,8 +180,7 @@ public class TasksManageCtrl extends BaseCtrl {
 				ConfigDBModel configDBModel = configDBModelDao
 						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 				record.setProcesstype(processType.getValue());
-				List<TaskModel> rows = taskModelDao.selectTaskModels(configDBModel, record, projectids, stateMaps,
-						limit, offset);
+				List<TaskModel> rows = taskModelDao.selectTaskModels(configDBModel, record, projectids, stateMaps, limit, offset);
 				for (TaskModel row : rows) {
 					if (row == null)
 						continue;
