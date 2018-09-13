@@ -1,7 +1,6 @@
 package com.emg.projectsmanage.ctrl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,12 +25,12 @@ import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
-import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.task.ErrorSetModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ErrorSetModel;
 import com.emg.projectsmanage.pojo.ItemConfigModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
+import com.emg.projectsmanage.service.ProcessConfigModelService;
 
 @Controller
 @RequestMapping("/errorsetmanage.web")
@@ -40,7 +39,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 	private static final Logger logger = LoggerFactory.getLogger(ErrorSetManageCtrl.class);
 
 	@Autowired
-	private ProcessConfigModelDao processConfigModelDao;
+	private ProcessConfigModelService processConfigModelService;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
 	@Autowired
@@ -115,10 +114,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				}
 			}
 
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
-			map.put("processType", processType.getValue());
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			record.setProcessType(processType.getValue());
@@ -144,17 +140,14 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		String errorsetDetails = new String();
 		try {
 			Long errorsetid = ParamUtils.getLongParameter(request, "errorsetid", -1L);
-			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
 
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
-			map.put("processType", processType);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			ErrorSetModel record = new ErrorSetModel();
 			record.setId(errorsetid);
-			record.setProcessType(processType);
+			record.setProcessType(processType.getValue());
 			List<ErrorSetModel> rows = errorSetModelDao.selectErrorSets(configDBModel, record, 1, 0);
 			if (rows.size() >= 0) {
 				errorSet = rows.get(0);
@@ -181,12 +174,9 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		List<ItemConfigModel> errorTypes = new ArrayList<ItemConfigModel>();
 		try {
-			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
 
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
-			map.put("processType", processType);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			errorTypes = errorSetModelDao.selectErrorTypes(configDBModel);
 		} catch (Exception e) {
@@ -212,7 +202,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			Integer unit = ParamUtils.getIntParameter(request, "unit", -1);
 			String desc = ParamUtils.getParameter(request, "desc");
 			String errorTypes = ParamUtils.getParameter(request, "errorTypes");
-			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
 
 			List<Long> errorSetDetails = new ArrayList<Long>();
 			if (errorTypes != null && !errorTypes.isEmpty()) {
@@ -220,10 +210,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 					errorSetDetails.add(Long.valueOf(strItem));
 				}
 			}
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
-			map.put("processType", processType);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			Boolean isNewItemSet = errorSetID.compareTo(0L) == 0;
@@ -273,12 +260,9 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				json.addObject("result", 0);
 				return json;
 			}
-			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
 
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
-			map.put("processType", processType);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			ret = errorSetModelDao.deleteErrorSet(configDBModel, errorSetID);

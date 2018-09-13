@@ -32,7 +32,6 @@ import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.common.SystemType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ConfigValueModelDao;
-import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigValueModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
@@ -52,6 +51,7 @@ import com.emg.projectsmanage.pojo.ProjectsTaskLogModel;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
 import com.emg.projectsmanage.service.EmapgoAccountService;
+import com.emg.projectsmanage.service.ProcessConfigModelService;
 
 @Controller
 @RequestMapping("/interface.web")
@@ -74,7 +74,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	@Autowired
 	private ProcessModelDao processModelDao;
 	@Autowired
-	private ProcessConfigModelDao processConfigModelDao;
+	private ProcessConfigModelService processConfigModelService;
 	@Autowired
 	private ProcessConfigValueModelDao processConfigValueModelDao;
 	@Autowired
@@ -1590,7 +1590,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			configValues.add(new ProcessConfigValueModel(newProcessID, 2, 11, projectid.toString()));
 			configValues.add(new ProcessConfigValueModel(newProcessID, 2, 12, projectName));
 			
-			List<ProcessConfigModel> processConfigs = processConfigModelDao.selectAllProcessConfigModels(newProcessType);
+			List<ProcessConfigModel> processConfigs = processConfigModelService.selectAllProcessConfigModels(newProcessType);
 			for (ProcessConfigModel processConfig : processConfigs) {
 				Integer moduleid = processConfig.getModuleid();
 				Integer configid = processConfig.getId();

@@ -26,6 +26,7 @@ import com.emg.projectsmanage.pojo.CapacityTaskModelExample;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
 import com.emg.projectsmanage.pojo.TaskModel;
+import com.emg.projectsmanage.service.ProcessConfigModelService;
 import com.emg.projectsmanage.pojo.CapacityTaskModelExample.Criteria;
 
 @Component
@@ -40,7 +41,7 @@ public class SchedulerTask {
 	private CapacityTaskModelDao capacityTaskModelDao;
 	
 	@Autowired
-	private ProcessConfigModelDao processConfigModelDao;
+	private ProcessConfigModelService processConfigModelService;
 	
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
@@ -113,10 +114,7 @@ public class SchedulerTask {
 					if (processType.equals(ProcessType.POIEDIT)) {
 						logger.debug(String.format("Scheduler POIEDIT task( %s ) started.", newTask.getTime()));
 						
-						Map<String, Integer> map = new HashMap<String, Integer>();
-						map.put("id", ProcessConfigEnum.BIANJIRENWUKU.getValue());
-						map.put("processType", processType.getValue());
-						ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+						ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
 						if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
 							
 							logger.debug(String.format("Scheduler POIEDIT task( %s ) finished.", newTask.getTime()));

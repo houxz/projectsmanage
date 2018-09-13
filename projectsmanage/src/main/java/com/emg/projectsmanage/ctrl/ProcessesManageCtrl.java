@@ -2,7 +2,6 @@ package com.emg.projectsmanage.ctrl;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,6 @@ import com.emg.projectsmanage.common.ProjectState;
 import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.common.SystemType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
-import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigValueModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
@@ -57,6 +55,7 @@ import com.emg.projectsmanage.pojo.ProjectsUserModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
 import com.emg.projectsmanage.pojo.ProcessModelExample.Criteria;
 import com.emg.projectsmanage.service.EmapgoAccountService;
+import com.emg.projectsmanage.service.ProcessConfigModelService;
 
 @Controller
 @RequestMapping("/processesmanage.web")
@@ -71,7 +70,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 	private ConfigDBModelDao configDBModelDao;
 
 	@Autowired
-	private ProcessConfigModelDao processConfigModelDao;
+	private ProcessConfigModelService processConfigModelService;
 
 	@Autowired
 	private ProcessConfigValueModelDao processConfigValueModelDao;
@@ -344,7 +343,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			}
 
-			List<ProcessConfigModel> processConfigs = processConfigModelDao.selectAllProcessConfigModels(type);
+			List<ProcessConfigModel> processConfigs = processConfigModelService.selectAllProcessConfigModels(type);
 			for (ProcessConfigModel processConfig : processConfigs) {
 				Integer moduleid = processConfig.getModuleid();
 				Integer configid = processConfig.getId();
@@ -485,7 +484,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		List<ItemAreaModel> itemAreas = new ArrayList<ItemAreaModel>();
 		try {
 			Integer type = ParamUtils.getIntParameter(request, "type", -1);
-			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
 			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> filterPara = null;
@@ -514,10 +513,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			}
 
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
-			map.put("processType", processType);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			itemAreas = itemSetModelDao.getItemAreas(configDBModel, type, itemAreaModel);
@@ -540,7 +536,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		List<ItemSetModel> itemsets = new ArrayList<ItemSetModel>();
 		try {
 			String filter = ParamUtils.getParameter(request, "filter", "");
-			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
 
 			Map<String, Object> filterPara = null;
 			ItemSetModel itemSetModel = new ItemSetModel();
@@ -580,10 +576,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			}
 
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
-			map.put("processType", processType);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			itemsets = itemSetModelDao.selectItemSets(configDBModel, itemSetModel, -1, -1);

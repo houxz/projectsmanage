@@ -31,12 +31,12 @@ import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.SystemCPUType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
-import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
 import com.emg.projectsmanage.dao.task.ItemSetModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ItemInfoModel;
 import com.emg.projectsmanage.pojo.ItemSetModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
+import com.emg.projectsmanage.service.ProcessConfigModelService;
 
 @Controller
 @RequestMapping("/itemsetmanage.web")
@@ -45,7 +45,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	private static final Logger logger = LoggerFactory.getLogger(ItemSetManageCtrl.class);
 
 	@Autowired
-	private ProcessConfigModelDao processConfigModelDao;
+	private ProcessConfigModelService processConfigModelService;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
 	@Autowired
@@ -128,10 +128,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				}
 			}
 
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
-			map.put("processType", processType.getValue());
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			record.setProcessType(processType.getValue());
 			List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, limit, offset);
@@ -156,15 +153,13 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		StringBuilder sb_items = new StringBuilder();
 		try {
 			Long itemsetid = ParamUtils.getLongParameter(request, "itemsetid", -1L);
-			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
+			
 			ItemSetModel record = new ItemSetModel();
 			record.setId(itemsetid);
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
-			map.put("processType", processType);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			record.setProcessType(processType);
+			record.setProcessType(processType.getValue());
 			List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, 1, 0);
 			if (rows.size() >= 0) {
 				itemset = rows.get(0);
@@ -239,7 +234,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
 			String filter = ParamUtils.getParameter(request, "filter", "");
-			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
 
 			Map<String, Object> filterPara = null;
 			String oid = new String(), name = new String();
@@ -259,10 +254,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					}
 				}
 			}
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
-			map.put("processType", processType);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			items = itemSetModelDao.selectQIDs(configDBModel, oid, name, limit, offset);
 		} catch (Exception e) {
@@ -289,7 +281,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			Integer unit = ParamUtils.getIntParameter(request, "unit", -1);
 			String desc = ParamUtils.getParameter(request, "desc");
 			String items = ParamUtils.getParameter(request, "items");
-			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
 
 			Set<String> qids = new HashSet<String>();
 			if (items != null && !items.isEmpty()) {
@@ -309,10 +301,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				return json;
 			}
 
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
-			map.put("processType", processType);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			Boolean isNewItemSet = itemSetID.compareTo(0L) == 0;
@@ -715,12 +704,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				return json;
 			}
 
-			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
-
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
-			map.put("processType", processType);
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
 			ret = itemSetModelDao.deleteItemSet(configDBModel, itemSetID);

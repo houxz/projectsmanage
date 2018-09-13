@@ -33,6 +33,7 @@ import com.emg.projectsmanage.pojo.ProcessModelExample;
 import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.pojo.ProjectModelExample;
 import com.emg.projectsmanage.pojo.TaskModel;
+import com.emg.projectsmanage.service.ProcessConfigModelService;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -47,7 +48,7 @@ public class TasksManageCtrl extends BaseCtrl {
 	private TaskModelDao taskModelDao;
 
 	@Autowired
-	private ProcessConfigModelDao processConfigModelDao;
+	private ProcessConfigModelService processConfigModelService;
 
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
@@ -71,10 +72,7 @@ public class TasksManageCtrl extends BaseCtrl {
 		for (ProcessType pType : ProcessType.values()) {
 			if (pType.equals(ProcessType.UNKNOWN))
 				continue;
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.BIANJIRENWUKU.getValue());
-			map.put("processType", pType.getValue());
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, pType);
 			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
 				ConfigDBModel configDBModel = configDBModelDao
 						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -173,10 +171,7 @@ public class TasksManageCtrl extends BaseCtrl {
 				}
 			}
 
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", ProcessConfigEnum.BIANJIRENWUKU.getValue());
-			map.put("processType", processType.getValue());
-			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
 			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
 				ConfigDBModel configDBModel = configDBModelDao
 						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
