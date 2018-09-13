@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.emg.projectsmanage.common.CapacityTaskStateEnum;
+import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
@@ -113,7 +114,7 @@ public class SchedulerTask {
 						logger.debug(String.format("Scheduler POIEDIT task( %s ) started.", newTask.getTime()));
 						
 						Map<String, Integer> map = new HashMap<String, Integer>();
-						map.put("id", 10);
+						map.put("id", ProcessConfigEnum.BIANJIRENWUKU.getValue());
 						map.put("processType", processType.getValue());
 						ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 						if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {

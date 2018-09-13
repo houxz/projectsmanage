@@ -29,6 +29,7 @@ import com.emg.projectsmanage.common.OwnerStatus;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.PriorityLevel;
+import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ItemAreaType;
 import com.emg.projectsmanage.common.ProjectState;
@@ -514,7 +515,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			}
 
 			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 2);
+			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
 			map.put("processType", processType);
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -580,7 +581,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			}
 
 			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 2);
+			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
 			map.put("processType", processType);
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));

@@ -1,25 +1,85 @@
 package com.emg.projectsmanage.common;
 
 public enum ProcessConfigEnum {
+	/**
+	 * 1, "质检项目库"
+	 */
 	ZHIJIANXIANGMUKU(1, "质检项目库"),
+	/**
+	 * 2, "质检任务库"
+	 */
 	ZHIJIANRENWUKU(2, "质检任务库"),
+	/**
+	 * 3, "质检项目ID"
+	 */
 	ZHIJIANXIANGMUID(3, "质检项目ID"),
+	/**
+	 * 4, "质检项目名称"
+	 */
 	ZHIJIANXIANGMUMINGCHENG(4, "质检项目名称"),
+	/**
+	 * 5, "质检集合"
+	 */
 	ZHIJIANJIHE(5, "质检集合"),
+	/**
+	 * 6, "质检图层"
+	 */
 	ZHIJIANTUCENG(6, "质检图层"),
+	/**
+	 * 7, "质检区域"
+	 */
 	ZHIJIANQUYU(7, "质检区域"),
+	/**
+	 * 8, "质检启动类型"
+	 */
 	ZHIJIANQIDONGLEIXING(8, "质检启动类型"),
+	/**
+	 * 9, "编辑项目库"
+	 */
 	BIANJIXIANGMUKU(9, "编辑项目库"),
+	/**
+	 * 10, "编辑任务库"
+	 */
 	BIANJIRENWUKU(10, "编辑任务库"),
+	/**
+	 * 11, "编辑项目ID"
+	 */
 	BIANJIXIANGMUID(11, "编辑项目ID"),
+	/**
+	 * 12, "编辑项目名称"
+	 */
 	BIANJIXIANGMUMINGCHENG(12, "编辑项目名称"),
+	/**
+	 * 13, "改错任务组织方式"
+	 */
 	GAICUORENWUZUZHIFANGSHI(13, "改错任务组织方式"),
+	/**
+	 * 14, "错误个数"
+	 */
 	CUOWUGESHU(14, "错误个数"),
+	/**
+	 * 15, "错误距离"
+	 */
 	CUOWUJULI(15, "错误距离"),
+	/**
+	 * 16, "错误库"
+	 */
 	CUOWUKU(16, "错误库"),
+	/**
+	 * 17, "编辑启动类型"
+	 */
 	BIANJIQIDONGLEIXING(17, "编辑启动类型"),
+	/**
+	 * 18, "改错人员"
+	 */
 	GAICUORENYUAN(18, "改错人员"),
+	/**
+	 * 19, "公有私有"
+	 */
 	GONGYOUSIYOU(19, "公有私有"),
+	/**
+	 * 20, "错误导入库"
+	 */
 	CUOWUDAORUKU(20, "错误导入库");
 
 	private Integer value;

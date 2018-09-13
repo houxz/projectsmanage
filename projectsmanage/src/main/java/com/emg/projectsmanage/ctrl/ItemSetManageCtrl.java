@@ -28,6 +28,7 @@ import com.emg.projectsmanage.common.ItemSetUnit;
 import com.emg.projectsmanage.common.LayerElement;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.ParamUtils;
+import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.SystemCPUType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigModelDao;
@@ -128,7 +129,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			}
 
 			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 2);
+			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
 			map.put("processType", processType.getValue());
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -159,7 +160,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ItemSetModel record = new ItemSetModel();
 			record.setId(itemsetid);
 			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 2);
+			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
 			map.put("processType", processType);
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -259,7 +260,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				}
 			}
 			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 2);
+			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
 			map.put("processType", processType);
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -309,7 +310,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			}
 
 			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 2);
+			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
 			map.put("processType", processType);
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -717,7 +718,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
 
 			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 2);
+			map.put("id", ProcessConfigEnum.ZHIJIANRENWUKU.getValue());
 			map.put("processType", processType);
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));

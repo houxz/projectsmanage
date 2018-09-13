@@ -17,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.ParamUtils;
+import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.StateMap;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
@@ -71,7 +72,7 @@ public class TasksManageCtrl extends BaseCtrl {
 			if (pType.equals(ProcessType.UNKNOWN))
 				continue;
 			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 10);
+			map.put("id", ProcessConfigEnum.BIANJIRENWUKU.getValue());
 			map.put("processType", pType.getValue());
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
@@ -173,7 +174,7 @@ public class TasksManageCtrl extends BaseCtrl {
 			}
 
 			Map<String, Integer> map = new HashMap<String, Integer>();
-			map.put("id", 10);
+			map.put("id", ProcessConfigEnum.BIANJIRENWUKU.getValue());
 			map.put("processType", processType.getValue());
 			ProcessConfigModel config = processConfigModelDao.selectByPrimaryKey(map);
 			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
