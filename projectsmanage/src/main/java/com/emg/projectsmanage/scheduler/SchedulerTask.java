@@ -264,6 +264,14 @@ public class SchedulerTask {
 
 							if (uniqRecords != null && !uniqRecords.isEmpty()) {
 								for (CapacityModel capacityModel : uniqRecords.values()) {
+									if(capacityModel.getErrorcount().equals(0) &&
+											capacityModel.getTaskcount().equals(0) &&
+											capacityModel.getModifypoi().equals(0) &&
+											capacityModel.getCreatepoi().equals(0) &&
+											capacityModel.getDeletepoi().equals(0) &&
+											capacityModel.getConfirmpoi().equals(0) &&
+											capacityModel.getVisualerrorcount().equals(0))
+										continue;
 									capacityModelDao.insert(capacityModel);
 								}
 							}
