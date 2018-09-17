@@ -64,37 +64,37 @@
 				data-query-params="queryParams" data-url="./capacity.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="capacity" data-height="714"
-				data-page-list="[10, 20, 50, 100]" data-page-size="10"
+				data-page-list="[15, 30, 50, 100]" data-page-size="15"
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr>
 						<th data-field="id" data-width="60"
 							data-filter-control="input" data-filter-control-placeholder="">编号</th>
 							
-						<th data-field="tasktype" data-width="120" data-formatter="poiTaskTypesFormat"
+						<th data-field="tasktype" data-width="160" data-formatter="poiTaskTypesFormat"
 							data-filter-control="select" data-filter-data="var:poiTaskTypes">任务类型</th>
 							
 						<th data-field="processname"
 							data-filter-control="input" data-filter-control-placeholder="">项目名称</th>
 							
-						<th data-field="username" data-width="80"
+						<th data-field="username" data-width="70"
 							data-filter-control="input" data-filter-control-placeholder="">人员</th>
 							
-						<th data-field="roleid" data-width="70" data-formatter="roleTypesFormat"
+						<th data-field="roleid" data-width="65" data-formatter="roleTypesFormat"
 							data-filter-control="select" data-filter-data="var:roleTypes">角色</th>
 							
-						<th data-field="time" data-width="100"
+						<th data-field="time" data-width="95"
 							data-filter-control="input" data-filter-control-placeholder="">统计日期</th>
 							
 						<th data-field="taskcount" data-sortable="true">制作任务</th>
 						
-						<th data-field="createpoi" data-sortable="true">新增POI</th>
+						<!-- <th data-field="createpoi" data-sortable="true">新增POI</th> -->
 						
 						<th data-field="modifypoi" data-sortable="true">修改POI</th>
 						
-						<th data-field="deletepoi" data-sortable="true">删除POI</th>
+						<!-- <th data-field="deletepoi" data-sortable="true">删除POI</th>
 						
-						<th data-field="confirmpoi" data-sortable="true">确认POI</th>
+						<th data-field="confirmpoi" data-sortable="true">确认POI</th> -->
 						
 						<th data-field="errorcount" data-sortable="true">修改错误</th>
 						

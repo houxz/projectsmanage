@@ -14,7 +14,7 @@
 				<ref bean="worktasks" />
 				<ref bean="projectsprocess" />
 				<ref bean="tasksmanage" />
-				<!-- <ref bean="capacity" /> -->
+				<ref bean="capacity" />
 				<!-- <ref bean="downloadexcel" /> -->
 				<ref bean="errorsmanage" />
 				<ref bean="itemsetmanage" />
@@ -132,9 +132,7 @@
 		<property name="label" value="产能统计" />
 		<property name="roleSet">
 			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_WORKER</value>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_CHECKER</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_YANFAADMIN</value>
 			</set>
 		</property>
 		<property name="enabled" value="true" />

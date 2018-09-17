@@ -206,7 +206,7 @@ public class SchedulerTask {
 								if (project != null) {
 									Long processid = project.getProcessid();
 									ProcessModel process = processModelDao.selectByPrimaryKey(processid);
-									if(process != null) {
+									if (process != null) {
 										capacityModel.setProcessid(processid);
 										capacityModel.setProcessname(process.getName());
 									}
@@ -239,24 +239,25 @@ public class SchedulerTask {
 										.setVisualerrorcount(capacityModel.getVisualerrorcount() + visualerrorcount);
 
 								// 修改POI个数
-								Integer modifypoi = taskBlockDetailModelDao.countModifyPOIByBlockid(configDBModel,
-										blockid, time);
+								Integer modifypoi = taskBlockDetailModelDao.countPOIByBlockid(configDBModel,
+										blockid, time, RoleType.valueOf(roleid));
 								capacityModel.setModifypoi(capacityModel.getModifypoi() + modifypoi);
 
-								// 新增POI个数
-								Integer createpoi = taskBlockDetailModelDao.countCreatePOIByBlockid(configDBModel,
-										blockid, time);
-								capacityModel.setCreatepoi(capacityModel.getCreatepoi() + createpoi);
-
-								// 删除POI个数
-								Integer deletepoi = taskBlockDetailModelDao.countDeletePOIByBlockid(configDBModel,
-										blockid, time);
-								capacityModel.setDeletepoi(capacityModel.getDeletepoi() + deletepoi);
-
-								// 确认POI个数
-								Integer confirmpoi = taskBlockDetailModelDao.countConfirmPOIByBlockid(configDBModel,
-										blockid, time);
-								capacityModel.setConfirmpoi(capacityModel.getConfirmpoi() + confirmpoi);
+								// 不再细节区分修改POI的类型，后续侯西召改好之后再细分
+//								// 新增POI个数
+//								Integer createpoi = taskBlockDetailModelDao.countCreatePOIByBlockid(configDBModel,
+//										blockid, time, RoleType.valueOf(roleid));
+//								capacityModel.setCreatepoi(capacityModel.getCreatepoi() + createpoi);
+//
+//								// 删除POI个数
+//								Integer deletepoi = taskBlockDetailModelDao.countDeletePOIByBlockid(configDBModel,
+//										blockid, time, RoleType.valueOf(roleid));
+//								capacityModel.setDeletepoi(capacityModel.getDeletepoi() + deletepoi);
+//
+//								// 确认POI个数
+//								Integer confirmpoi = taskBlockDetailModelDao.countConfirmPOIByBlockid(configDBModel,
+//										blockid, time, RoleType.valueOf(roleid));
+//								capacityModel.setConfirmpoi(capacityModel.getConfirmpoi() + confirmpoi);
 
 								uniqRecords.put(uniqRecord, capacityModel);
 								logger.debug(String.format("task: ( %s ) out", task.getId()));
@@ -264,13 +265,13 @@ public class SchedulerTask {
 
 							if (uniqRecords != null && !uniqRecords.isEmpty()) {
 								for (CapacityModel capacityModel : uniqRecords.values()) {
-									if(capacityModel.getErrorcount().equals(0) &&
-											capacityModel.getTaskcount().equals(0) &&
-											capacityModel.getModifypoi().equals(0) &&
-											capacityModel.getCreatepoi().equals(0) &&
-											capacityModel.getDeletepoi().equals(0) &&
-											capacityModel.getConfirmpoi().equals(0) &&
-											capacityModel.getVisualerrorcount().equals(0))
+									if (capacityModel.getErrorcount().equals(0)
+											&& capacityModel.getTaskcount().equals(0)
+											&& capacityModel.getModifypoi().equals(0)
+											&& capacityModel.getCreatepoi().equals(0)
+											&& capacityModel.getDeletepoi().equals(0)
+											&& capacityModel.getConfirmpoi().equals(0)
+											&& capacityModel.getVisualerrorcount().equals(0))
 										continue;
 									capacityModelDao.insert(capacityModel);
 								}
