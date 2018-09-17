@@ -81,7 +81,7 @@ public class SchedulerTask {
 	/**
 	 * 半夜三更  创建每天的任务
 	 */
-	@Scheduled(cron = "${scheduler.dotime}")
+	@Scheduled(cron = "${scheduler.createtime}")
 	public void task() {
 		if (!enable.equalsIgnoreCase("true"))
 			return;
@@ -114,9 +114,9 @@ public class SchedulerTask {
 	}
 
 	/**
-	 * 执行任务每30秒检测是否有新任务
+	 * 凌晨执行任务
 	 */
-	@Scheduled(cron = "0/30 * * * * ?")
+	@Scheduled(cron = "${scheduler.dotime}")
 	public void doTask() {
 		if (!enable.equalsIgnoreCase("true"))
 			return;
