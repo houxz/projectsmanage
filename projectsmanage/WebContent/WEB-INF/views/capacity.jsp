@@ -64,7 +64,7 @@
 				data-query-params="queryParams" data-url="./capacity.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="capacity" data-height="714"
-				data-page-list="[15, 30, 50, 100]" data-page-size="15"
+				data-page-list="[15, 30, 50, 100, all]" data-page-size="15"
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr>
