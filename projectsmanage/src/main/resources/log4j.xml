@@ -62,7 +62,6 @@
 		<priority value="warn" />
 		<appender-ref ref="console" />
 		<appender-ref ref="dailyFileLoger" />
-		<appender-ref ref="schedulerFileLoger" />
 	</root>
 
 </log4j:configuration>
