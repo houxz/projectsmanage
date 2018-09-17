@@ -79,7 +79,7 @@ public class SchedulerTask {
 	private EmployeeModelDao employeeModelDao;
 
 	/**
-	 * 创建每天的任务 凌晨1点创建
+	 * 创建每天的任务 凌晨1点45分创建
 	 */
 	@Scheduled(cron = "${scheduler.enable}")
 	public void task() {
@@ -114,7 +114,7 @@ public class SchedulerTask {
 	}
 
 	/**
-	 * 执行任务 运行时间通过配置文件配置
+	 * 执行任务每20秒检测是否有新任务
 	 */
 	@Scheduled(cron = "0/20 * * * * ?")
 	public void doTask() {
@@ -126,8 +126,8 @@ public class SchedulerTask {
 			Criteria criteria = example.or();
 			criteria.andStateEqualTo(CapacityTaskStateEnum.NEW.getValue());
 			List<CapacityTaskModel> newCapacityTasks = capacityTaskModelDao.selectByExample(example);
-			
-			if(newCapacityTasks == null || newCapacityTasks.size() <= 0)
+
+			if (newCapacityTasks == null || newCapacityTasks.size() <= 0)
 				return;
 
 			List<Long> newCapacityTaskIDs = new ArrayList<Long>();
@@ -170,10 +170,10 @@ public class SchedulerTask {
 							Map<UniqRecord, CapacityModel> uniqRecords = new HashMap<UniqRecord, CapacityModel>();
 							for (TaskModel task : tasks) {
 								logger.debug(String.format("task: ( %s ) in", task.getId()));
-								
+
 								Integer userid = 0;
 								Integer roleid = RoleType.UNKNOWN.getValue();
-								
+
 								Integer taskType = task.getTasktype();
 								if (taskType.equals(POITaskTypeEnum.FEISHICE.getValue()) || // 非实测
 										taskType.equals(POITaskTypeEnum.QUANGUOQC.getValue()) || // 全国质检改错
@@ -182,14 +182,14 @@ public class SchedulerTask {
 										taskType.equals(POITaskTypeEnum.GEN.getValue())) {// 易淘金制作
 									userid = task.getEditid();
 									roleid = RoleType.ROLE_WORKER.getValue();
-								} else if(taskType.equals(POITaskTypeEnum.MC_KETOU.getValue()) || // 客投校正
+								} else if (taskType.equals(POITaskTypeEnum.MC_KETOU.getValue()) || // 客投校正
 										taskType.equals(POITaskTypeEnum.MC_GEN.getValue())) {// 易淘金校正
 									userid = task.getCheckid();
 									roleid = RoleType.ROLE_CHECKER.getValue();
 								} else {
 									continue;
 								}
-									
+
 								Long projectid = task.getProjectid();
 								UniqRecord uniqRecord = new UniqRecord(taskType, projectid, userid);
 								Long taskid = task.getId();
@@ -203,11 +203,13 @@ public class SchedulerTask {
 
 								ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
 								capacityModel.setProjectid(projectid);
-								if(project != null) {
+								if (project != null) {
 									Long processid = project.getProcessid();
 									ProcessModel process = processModelDao.selectByPrimaryKey(processid);
-									capacityModel.setProcessid(processid);
-									capacityModel.setProcessname(process.getName());
+									if(process != null) {
+										capacityModel.setProcessid(processid);
+										capacityModel.setProcessname(process.getName());
+									}
 								}
 
 								capacityModel.setTasktype(taskType);
@@ -233,8 +235,8 @@ public class SchedulerTask {
 								// 目视错误
 								Integer visualerrorcount = taskLinkErrorModelDao
 										.countTaskLinkVisualErrorByTaskid(configDBModel, taskid, time);
-								capacityModel.setVisualerrorcount(
-										capacityModel.getVisualerrorcount() + visualerrorcount);
+								capacityModel
+										.setVisualerrorcount(capacityModel.getVisualerrorcount() + visualerrorcount);
 
 								// 修改POI个数
 								Integer modifypoi = taskBlockDetailModelDao.countModifyPOIByBlockid(configDBModel,
@@ -299,9 +301,7 @@ public class SchedulerTask {
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-
 	}
-
 }
 
 class UniqRecord {
@@ -331,6 +331,6 @@ class UniqRecord {
 
 	@Override
 	public int hashCode() {
-		return (tasktype*((int)(projectid ^ (projectid >>> 32)))*userid);
+		return (tasktype * ((int) (projectid ^ (projectid >>> 32))) * userid);
 	}
 }
