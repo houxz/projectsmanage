@@ -126,6 +126,9 @@ public class SchedulerTask {
 			Criteria criteria = example.or();
 			criteria.andStateEqualTo(CapacityTaskStateEnum.NEW.getValue());
 			List<CapacityTaskModel> newCapacityTasks = capacityTaskModelDao.selectByExample(example);
+			
+			if(newCapacityTasks == null || newCapacityTasks.size() <= 0)
+				return;
 
 			List<Long> newCapacityTaskIDs = new ArrayList<Long>();
 			for (CapacityTaskModel newCapacityTask : newCapacityTasks) {
