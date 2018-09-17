@@ -170,149 +170,93 @@ public class SchedulerTask {
 							Map<UniqRecord, CapacityModel> uniqRecords = new HashMap<UniqRecord, CapacityModel>();
 							for (TaskModel task : tasks) {
 								logger.debug(String.format("task: ( %s ) in", task.getId()));
+								
+								Integer userid = 0;
+								Integer roleid = RoleType.UNKNOWN.getValue();
+								
 								Integer taskType = task.getTasktype();
 								if (taskType.equals(POITaskTypeEnum.FEISHICE.getValue()) || // 非实测
 										taskType.equals(POITaskTypeEnum.QUANGUOQC.getValue()) || // 全国质检改错
-										taskType.equals(POITaskTypeEnum.FEISHICEADDRESSTEL.getValue())
+										taskType.equals(POITaskTypeEnum.FEISHICEADDRESSTEL.getValue())// 地址电话改错
 										|| taskType.equals(POITaskTypeEnum.KETOU.getValue()) || // 客投制作
 										taskType.equals(POITaskTypeEnum.GEN.getValue())) {// 易淘金制作
-									Integer userid = task.getEditid();
-									Long projectid = task.getProjectid();
-									UniqRecord uniqRecord = new UniqRecord(taskType, projectid, userid);
-									Long taskid = task.getId();
-									Long blockid = task.getBlockid();
-
-									CapacityModel capacityModel = new CapacityModel();
-									if (uniqRecords.containsKey(uniqRecord)) {
-										capacityModel = uniqRecords.get(uniqRecord);
-										uniqRecords.remove(uniqRecord);
-									}
-
-									ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
-									capacityModel.setProjectid(projectid);
-
-									Long processid = project.getProcessid();
-									ProcessModel process = processModelDao.selectByPrimaryKey(processid);
-									capacityModel.setProcessid(processid);
-									capacityModel.setProcessname(process.getName());
-
-									capacityModel.setTasktype(taskType);
-
-									EmployeeModel erecord = new EmployeeModel();
-									erecord.setId(userid);
-									EmployeeModel emp = employeeModelDao.getOneEmployee(erecord);
-									capacityModel.setUserid(userid);
-									capacityModel.setUsername(emp.getRealname());
-
-									capacityModel.setRoleid(RoleType.ROLE_WORKER.getValue());
-									capacityModel.setTime(time);
-
-									// 制作任务个数
-									if (task.getState().equals(2) && task.getTime().startsWith(time))
-										capacityModel.setTaskcount(capacityModel.getTaskcount() + 1);
-
-									// 修改质检错误量
-									Integer errorcount = taskLinkErrorModelDao.countTaskLinkErrorByTaskid(configDBModel,
-											taskid, time);
-									capacityModel.setErrorcount(capacityModel.getErrorcount() + errorcount);
-
-									// 目视错误
-									Integer visualerrorcount = taskLinkErrorModelDao
-											.countTaskLinkVisualErrorByTaskid(configDBModel, taskid, time);
-									capacityModel.setVisualerrorcount(
-											capacityModel.getVisualerrorcount() + visualerrorcount);
-
-									// 修改POI个数
-									Integer modifypoi = taskBlockDetailModelDao.countModifyPOIByBlockid(configDBModel,
-											blockid, time);
-									capacityModel.setModifypoi(capacityModel.getModifypoi() + modifypoi);
-
-									// 新增POI个数
-									Integer createpoi = taskBlockDetailModelDao.countCreatePOIByBlockid(configDBModel,
-											blockid, time);
-									capacityModel.setCreatepoi(capacityModel.getCreatepoi() + createpoi);
-
-									// 删除POI个数
-									Integer deletepoi = taskBlockDetailModelDao.countDeletePOIByBlockid(configDBModel,
-											blockid, time);
-									capacityModel.setDeletepoi(capacityModel.getDeletepoi() + deletepoi);
-
-									// 确认POI个数
-									Integer confirmpoi = taskBlockDetailModelDao.countConfirmPOIByBlockid(configDBModel,
-											blockid, time);
-									capacityModel.setConfirmpoi(capacityModel.getConfirmpoi() + confirmpoi);
-
-									uniqRecords.put(uniqRecord, capacityModel);
-								} else if (taskType.equals(POITaskTypeEnum.MC_KETOU.getValue()) || // 客投校正
+									userid = task.getEditid();
+									roleid = RoleType.ROLE_WORKER.getValue();
+								} else if(taskType.equals(POITaskTypeEnum.MC_KETOU.getValue()) || // 客投校正
 										taskType.equals(POITaskTypeEnum.MC_GEN.getValue())) {// 易淘金校正
-									Integer userid = task.getCheckid();
-									Long projectid = task.getProjectid();
-									UniqRecord uniqRecord = new UniqRecord(taskType, projectid, userid);
-									Long taskid = task.getId();
-									Long blockid = task.getBlockid();
+									userid = task.getCheckid();
+									roleid = RoleType.ROLE_CHECKER.getValue();
+								} else {
+									continue;
+								}
+									
+								Long projectid = task.getProjectid();
+								UniqRecord uniqRecord = new UniqRecord(taskType, projectid, userid);
+								Long taskid = task.getId();
+								Long blockid = task.getBlockid();
 
-									CapacityModel capacityModel = new CapacityModel();
-									if (uniqRecords.containsKey(uniqRecord)) {
-										capacityModel = uniqRecords.get(uniqRecord);
-										uniqRecords.remove(uniqRecord);
-									}
+								CapacityModel capacityModel = new CapacityModel();
+								if (uniqRecords.containsKey(uniqRecord)) {
+									capacityModel = uniqRecords.get(uniqRecord);
+									uniqRecords.remove(uniqRecord);
+								}
 
-									ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
-									capacityModel.setProjectid(projectid);
-
+								ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+								capacityModel.setProjectid(projectid);
+								if(project != null) {
 									Long processid = project.getProcessid();
 									ProcessModel process = processModelDao.selectByPrimaryKey(processid);
 									capacityModel.setProcessid(processid);
 									capacityModel.setProcessname(process.getName());
+								}
 
-									capacityModel.setTasktype(taskType);
+								capacityModel.setTasktype(taskType);
 
-									EmployeeModel erecord = new EmployeeModel();
-									erecord.setId(userid);
-									EmployeeModel emp = employeeModelDao.getOneEmployee(erecord);
-									capacityModel.setUserid(userid);
-									capacityModel.setUsername(emp.getRealname());
+								EmployeeModel erecord = new EmployeeModel();
+								erecord.setId(userid);
+								EmployeeModel emp = employeeModelDao.getOneEmployee(erecord);
+								capacityModel.setUserid(userid);
+								capacityModel.setUsername(emp.getRealname());
 
-									capacityModel.setRoleid(RoleType.ROLE_WORKER.getValue());
-									capacityModel.setTime(newCapacityTask.getTime());
+								capacityModel.setRoleid(roleid);
+								capacityModel.setTime(time);
 
-									// 修改质检错误量
-									Integer errorcount = taskLinkErrorModelDao.countTaskLinkErrorByTaskid(configDBModel,
-											taskid, time);
-									capacityModel.setErrorcount(capacityModel.getErrorcount() + errorcount);
-
-									// 制作任务个数
+								// 制作任务个数
+								if (task.getState().equals(2) && task.getTime().startsWith(time))
 									capacityModel.setTaskcount(capacityModel.getTaskcount() + 1);
 
-									// 修改POI个数
-									Integer modifypoi = taskBlockDetailModelDao.countModifyPOIByBlockid(configDBModel,
-											blockid, time);
-									capacityModel.setModifypoi(capacityModel.getModifypoi() + modifypoi);
+								// 修改质检错误量
+								Integer errorcount = taskLinkErrorModelDao.countTaskLinkErrorByTaskid(configDBModel,
+										taskid, time);
+								capacityModel.setErrorcount(capacityModel.getErrorcount() + errorcount);
 
-									// 新增POI个数
-									Integer createpoi = taskBlockDetailModelDao.countCreatePOIByBlockid(configDBModel,
-											blockid, time);
-									capacityModel.setCreatepoi(capacityModel.getCreatepoi() + createpoi);
+								// 目视错误
+								Integer visualerrorcount = taskLinkErrorModelDao
+										.countTaskLinkVisualErrorByTaskid(configDBModel, taskid, time);
+								capacityModel.setVisualerrorcount(
+										capacityModel.getVisualerrorcount() + visualerrorcount);
 
-									// 删除POI个数
-									Integer deletepoi = taskBlockDetailModelDao.countDeletePOIByBlockid(configDBModel,
-											blockid, time);
-									capacityModel.setDeletepoi(capacityModel.getDeletepoi() + deletepoi);
+								// 修改POI个数
+								Integer modifypoi = taskBlockDetailModelDao.countModifyPOIByBlockid(configDBModel,
+										blockid, time);
+								capacityModel.setModifypoi(capacityModel.getModifypoi() + modifypoi);
 
-									// 确认POI个数
-									Integer confirmpoi = taskBlockDetailModelDao.countConfirmPOIByBlockid(configDBModel,
-											blockid, time);
-									capacityModel.setConfirmpoi(capacityModel.getConfirmpoi() + confirmpoi);
+								// 新增POI个数
+								Integer createpoi = taskBlockDetailModelDao.countCreatePOIByBlockid(configDBModel,
+										blockid, time);
+								capacityModel.setCreatepoi(capacityModel.getCreatepoi() + createpoi);
 
-									// 目视错误
-									Integer visualerrorcount = taskLinkErrorModelDao
-											.countTaskLinkVisualErrorByTaskid(configDBModel, taskid, time);
-									capacityModel.setVisualerrorcount(
-											capacityModel.getVisualerrorcount() + visualerrorcount);
+								// 删除POI个数
+								Integer deletepoi = taskBlockDetailModelDao.countDeletePOIByBlockid(configDBModel,
+										blockid, time);
+								capacityModel.setDeletepoi(capacityModel.getDeletepoi() + deletepoi);
 
-									uniqRecords.put(uniqRecord, capacityModel);
+								// 确认POI个数
+								Integer confirmpoi = taskBlockDetailModelDao.countConfirmPOIByBlockid(configDBModel,
+										blockid, time);
+								capacityModel.setConfirmpoi(capacityModel.getConfirmpoi() + confirmpoi);
 
-								}
+								uniqRecords.put(uniqRecord, capacityModel);
 								logger.debug(String.format("task: ( %s ) out", task.getId()));
 							}
 
