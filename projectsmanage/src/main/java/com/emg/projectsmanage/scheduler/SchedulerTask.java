@@ -81,7 +81,7 @@ public class SchedulerTask {
 	/**
 	 * 创建每天的任务 凌晨1点45分创建
 	 */
-	@Scheduled(cron = "${scheduler.enable}")
+	@Scheduled(cron = "${scheduler.dotime}")
 	public void task() {
 		if (!enable.equalsIgnoreCase("true"))
 			return;
