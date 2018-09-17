@@ -33,7 +33,6 @@
 	
 	<logger name="com.emg.projectsmanage.scheduler" additivity="false">
 		<level value="debug" />
-		<appender-ref ref="console" />
 		<appender-ref ref="schedulerFileLoger"/>
 	</logger>
 
