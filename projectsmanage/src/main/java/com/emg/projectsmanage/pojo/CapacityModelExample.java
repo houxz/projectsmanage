@@ -8,6 +8,26 @@ public class CapacityModelExample {
     protected String orderByClause;
 
     protected boolean distinct;
+    
+    protected Integer limit;
+    
+    public Integer getLimit() {
+		return limit;
+	}
+
+	public void setLimit(Integer limit) {
+		this.limit = limit;
+	}
+
+	public Integer getOffset() {
+		return offset;
+	}
+
+	public void setOffset(Integer offset) {
+		this.offset = offset;
+	}
+
+	protected Integer offset;
 
     protected List<Criteria> oredCriteria;
 
@@ -225,6 +245,196 @@ public class CapacityModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andProcessidIsNull() {
+            addCriterion("processid is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidIsNotNull() {
+            addCriterion("processid is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidEqualTo(Long value) {
+            addCriterion("processid =", value, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidNotEqualTo(Long value) {
+            addCriterion("processid <>", value, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidGreaterThan(Long value) {
+            addCriterion("processid >", value, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidGreaterThanOrEqualTo(Long value) {
+            addCriterion("processid >=", value, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidLessThan(Long value) {
+            addCriterion("processid <", value, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidLessThanOrEqualTo(Long value) {
+            addCriterion("processid <=", value, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidIn(List<Long> values) {
+            addCriterion("processid in", values, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidNotIn(List<Long> values) {
+            addCriterion("processid not in", values, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidBetween(Long value1, Long value2) {
+            addCriterion("processid between", value1, value2, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessidNotBetween(Long value1, Long value2) {
+            addCriterion("processid not between", value1, value2, "processid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameIsNull() {
+            addCriterion("processname is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameIsNotNull() {
+            addCriterion("processname is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameEqualTo(String value) {
+            addCriterion("processname =", value, "processname");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameNotEqualTo(String value) {
+            addCriterion("processname <>", value, "processname");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameGreaterThan(String value) {
+            addCriterion("processname >", value, "processname");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameGreaterThanOrEqualTo(String value) {
+            addCriterion("processname >=", value, "processname");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameLessThan(String value) {
+            addCriterion("processname <", value, "processname");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameLessThanOrEqualTo(String value) {
+            addCriterion("processname <=", value, "processname");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameLike(String value) {
+            addCriterion("processname like", value, "processname");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameNotLike(String value) {
+            addCriterion("processname not like", value, "processname");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameIn(List<String> values) {
+            addCriterion("processname in", values, "processname");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameNotIn(List<String> values) {
+            addCriterion("processname not in", values, "processname");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameBetween(String value1, String value2) {
+            addCriterion("processname between", value1, value2, "processname");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessnameNotBetween(String value1, String value2) {
+            addCriterion("processname not between", value1, value2, "processname");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectidIsNull() {
+            addCriterion("projectid is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectidIsNotNull() {
+            addCriterion("projectid is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectidEqualTo(Long value) {
+            addCriterion("projectid =", value, "projectid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectidNotEqualTo(Long value) {
+            addCriterion("projectid <>", value, "projectid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectidGreaterThan(Long value) {
+            addCriterion("projectid >", value, "projectid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectidGreaterThanOrEqualTo(Long value) {
+            addCriterion("projectid >=", value, "projectid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectidLessThan(Long value) {
+            addCriterion("projectid <", value, "projectid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectidLessThanOrEqualTo(Long value) {
+            addCriterion("projectid <=", value, "projectid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectidIn(List<Long> values) {
+            addCriterion("projectid in", values, "projectid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectidNotIn(List<Long> values) {
+            addCriterion("projectid not in", values, "projectid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectidBetween(Long value1, Long value2) {
+            addCriterion("projectid between", value1, value2, "projectid");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectidNotBetween(Long value1, Long value2) {
+            addCriterion("projectid not between", value1, value2, "projectid");
+            return (Criteria) this;
+        }
+
         public Criteria andUseridIsNull() {
             addCriterion("userid is null");
             return (Criteria) this;
@@ -282,6 +492,76 @@ public class CapacityModelExample {
 
         public Criteria andUseridNotBetween(Integer value1, Integer value2) {
             addCriterion("userid not between", value1, value2, "userid");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameIsNull() {
+            addCriterion("username is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameIsNotNull() {
+            addCriterion("username is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameEqualTo(String value) {
+            addCriterion("username =", value, "username");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameNotEqualTo(String value) {
+            addCriterion("username <>", value, "username");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameGreaterThan(String value) {
+            addCriterion("username >", value, "username");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameGreaterThanOrEqualTo(String value) {
+            addCriterion("username >=", value, "username");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameLessThan(String value) {
+            addCriterion("username <", value, "username");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameLessThanOrEqualTo(String value) {
+            addCriterion("username <=", value, "username");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameLike(String value) {
+            addCriterion("username like", value, "username");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameNotLike(String value) {
+            addCriterion("username not like", value, "username");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameIn(List<String> values) {
+            addCriterion("username in", values, "username");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameNotIn(List<String> values) {
+            addCriterion("username not in", values, "username");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameBetween(String value1, String value2) {
+            addCriterion("username between", value1, value2, "username");
+            return (Criteria) this;
+        }
+
+        public Criteria andUsernameNotBetween(String value1, String value2) {
+            addCriterion("username not between", value1, value2, "username");
             return (Criteria) this;
         }
 

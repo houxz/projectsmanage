@@ -14,7 +14,7 @@
 				<ref bean="worktasks" />
 				<ref bean="projectsprocess" />
 				<ref bean="tasksmanage" />
-				<!-- <ref bean="capacitycount" /> -->
+				<!-- <ref bean="capacity" /> -->
 				<!-- <ref bean="downloadexcel" /> -->
 				<ref bean="errorsmanage" />
 				<ref bean="itemsetmanage" />
@@ -126,9 +126,9 @@
 		<property name="isshow" value="true" />
 	</bean>
 	
-	<bean id="capacitycount" class="com.emg.projectsmanage.auth.MenuAuthModel">
+	<bean id="capacity" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1005" />
-		<property name="url" value="/projectsmanage/capacitycount.web" />
+		<property name="url" value="/projectsmanage/capacity.web" />
 		<property name="label" value="产能统计" />
 		<property name="roleSet">
 			<set>
@@ -137,8 +137,8 @@
 				<value type="com.emg.projectsmanage.common.RoleType">ROLE_CHECKER</value>
 			</set>
 		</property>
-		<property name="enabled" value="false" />
-		<property name="isshow" value="false" />
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
 	</bean>
 	
 	<bean id="downloadexcel" class="com.emg.projectsmanage.auth.MenuAuthModel">

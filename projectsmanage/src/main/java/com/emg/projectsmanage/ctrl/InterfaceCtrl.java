@@ -25,7 +25,6 @@ import com.emg.projectsmanage.pojo.ProcessConfigValueModel;
 import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.OwnerStatus;
-import com.emg.projectsmanage.common.POITaskTypeEnum;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessState;
@@ -2114,7 +2113,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, ProcessType.POIEDIT);
 			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
 				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-				List<TaskModel> tasks = taskModelDao.getTaskByTime(configDBModel, POITaskTypeEnum.FEISHICE, value);
+				List<TaskModel> tasks = taskModelDao.getTaskByTime(configDBModel, value);
 				json.addObject("status", true);
 				json.addObject("option", tasks);
 			}

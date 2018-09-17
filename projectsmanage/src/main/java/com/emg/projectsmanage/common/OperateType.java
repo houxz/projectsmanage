@@ -8,9 +8,13 @@ package com.emg.projectsmanage.common;
  */
 public enum OperateType {
 	/**
+	 * -1, "无"
+	 */
+	NO(-1, "无"),
+	/**
 	 * 0-未知
 	 */
-	UNKNOW(0, "未知"),
+	UNKNOW(0, "未确认"),
 	/**
 	 * 1-确认
 	 */
@@ -18,11 +22,11 @@ public enum OperateType {
 	/**
 	 * 2-新增
 	 */
-	ADD(2, "新增"),
+	NEW(2, "新增"),
 	/**
 	 * 3-疑问
 	 */
-	DOUBT(3, "疑问"),
+	QUESTION(3, "疑问"),
 	/**
 	 * 4-存量删除
 	 */
@@ -32,9 +36,21 @@ public enum OperateType {
 	 */
 	NEWDELETE(5, "新增删除"),
 	/**
-	 * 6-修改
+	 * 6-确认修改
 	 */
-	MODIFY(6, "修改");
+	CONFIRMMODIFY(6, "确认修改"),
+	/**
+	 * 7, "外业确认"
+	 */
+	COLLECTCONFIRM(7, "外业确认"),
+	/**
+	 * 8, "外业修改"
+	 */
+	COLLECTMODIFY(8, "外业修改"),
+	/**
+	 * 9, "外业移位"
+	 */
+	COLLECTMOVEPT(9, "外业移位");
 
 	private Integer value;
 	private String des;

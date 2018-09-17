@@ -77,5 +77,14 @@ public enum POITaskTypeEnum {
 	public void setDes(String des) {
 		this.des = des;
 	}
+	
+	public static String toJsonStr() {
+		String str = new String("{");
+		for (POITaskTypeEnum val : POITaskTypeEnum.values()) {
+			str += "\"" + val.getValue() + "\":\"" + val.getDes() + "\",";
+		}
+		str += "}";
+		return str;
+	}
 
 }

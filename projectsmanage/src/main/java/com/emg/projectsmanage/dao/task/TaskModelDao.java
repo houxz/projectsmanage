@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import com.emg.projectsmanage.common.Common;
 import com.emg.projectsmanage.common.DatabaseType;
-import com.emg.projectsmanage.common.POITaskTypeEnum;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.StateMap;
 import com.emg.projectsmanage.common.TaskTypeEnum;
@@ -326,7 +325,7 @@ public class TaskModelDao {
 		return users;
 	}
 	
-	public List<TaskModel> getTaskByTime(ConfigDBModel configDBModel, POITaskTypeEnum tasktype, String time) {
+	public List<TaskModel> getTaskByTime(ConfigDBModel configDBModel, String time) {
 		List<TaskModel> tasks = new ArrayList<TaskModel>();
 		BasicDataSource dataSource = null;
 		try {
@@ -334,17 +333,15 @@ public class TaskModelDao {
 				return tasks;
 			Integer dbtype = configDBModel.getDbtype();
 			
-			String startTime = time;
-			String endTime = String.format("%s 23:59:59", time);
-
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
-			sql.append("tb_task WHERE tasktype = " + tasktype.getValue());
-			sql.append(" AND status = 2 ");
-			sql.append(String.format(" AND time IS NOT NULL AND (time BETWEEN '%s' AND '%s')", startTime, endTime));
+			sql.append("tb_task ");
+			sql.append(" WHERE state = 1 ");
+			sql.append(" OR ( state = 2 ");
+			sql.append(String.format(" AND time IS NOT NULL AND time > '%s')", time));
 			sql.append(" ORDER BY id ");
 
 			dataSource = Common.getDataSource(configDBModel);
@@ -365,4 +362,5 @@ public class TaskModelDao {
 		}
 		return tasks;
 	}
+	
 }

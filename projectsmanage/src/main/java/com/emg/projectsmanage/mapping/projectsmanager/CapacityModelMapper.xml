@@ -4,7 +4,11 @@
   <resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.CapacityModel" >
     <id column="id" property="id" jdbcType="BIGINT" />
     <result column="tasktype" property="tasktype" jdbcType="INTEGER" />
+    <result column="processid" property="processid" jdbcType="BIGINT" />
+    <result column="processname" property="processname" jdbcType="VARCHAR" />
+    <result column="projectid" property="projectid" jdbcType="BIGINT" />
     <result column="userid" property="userid" jdbcType="INTEGER" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
     <result column="roleid" property="roleid" jdbcType="INTEGER" />
     <result column="time" property="time" jdbcType="VARCHAR" />
     <result column="errorcount" property="errorcount" jdbcType="INTEGER" />
@@ -75,8 +79,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, tasktype, userid, roleid, time, errorcount, taskcount, modifypoi, createpoi, 
-    deletepoi, confirmpoi, visualerrorcount, createtime
+    id, tasktype, processid, processname, projectid, userid, username, roleid, time, 
+    errorcount, taskcount, modifypoi, createpoi, deletepoi, confirmpoi, visualerrorcount, 
+    createtime
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.emg.projectsmanage.pojo.CapacityModelExample" >
     select
@@ -91,6 +96,12 @@
     <if test="orderByClause != null" >
       order by ${orderByClause}
     </if>
+    <if test="limit != null">
+		limit ${limit}
+	</if>
+	<if test="offset != null">
+		offset ${offset}
+	</if>
   </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
@@ -109,16 +120,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.emg.projectsmanage.pojo.CapacityModel" >
-    insert into tb_projects_capacity (id, tasktype, userid, 
-      roleid, time, errorcount, 
-      taskcount, modifypoi, createpoi, 
-      deletepoi, confirmpoi, visualerrorcount, 
-      createtime)
-    values (#{id,jdbcType=BIGINT}, #{tasktype,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER}, 
-      #{roleid,jdbcType=INTEGER}, #{time,jdbcType=VARCHAR}, #{errorcount,jdbcType=INTEGER}, 
-      #{taskcount,jdbcType=INTEGER}, #{modifypoi,jdbcType=INTEGER}, #{createpoi,jdbcType=INTEGER}, 
-      #{deletepoi,jdbcType=INTEGER}, #{confirmpoi,jdbcType=INTEGER}, #{visualerrorcount,jdbcType=INTEGER}, 
-      #{createtime,jdbcType=TIMESTAMP})
+    insert into tb_projects_capacity (id, tasktype, processid, 
+      processname, projectid, userid, 
+      username, roleid, time, 
+      errorcount, taskcount, modifypoi, 
+      createpoi, deletepoi, confirmpoi, 
+      visualerrorcount, createtime)
+    values (#{id,jdbcType=BIGINT}, #{tasktype,jdbcType=INTEGER}, #{processid,jdbcType=BIGINT}, 
+      #{processname,jdbcType=VARCHAR}, #{projectid,jdbcType=BIGINT}, #{userid,jdbcType=INTEGER}, 
+      #{username,jdbcType=VARCHAR}, #{roleid,jdbcType=INTEGER}, #{time,jdbcType=VARCHAR}, 
+      #{errorcount,jdbcType=INTEGER}, #{taskcount,jdbcType=INTEGER}, #{modifypoi,jdbcType=INTEGER}, 
+      #{createpoi,jdbcType=INTEGER}, #{deletepoi,jdbcType=INTEGER}, #{confirmpoi,jdbcType=INTEGER}, 
+      #{visualerrorcount,jdbcType=INTEGER}, #{createtime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.emg.projectsmanage.pojo.CapacityModel" >
     insert into tb_projects_capacity
@@ -129,8 +142,20 @@
       <if test="tasktype != null" >
         tasktype,
       </if>
+      <if test="processid != null" >
+        processid,
+      </if>
+      <if test="processname != null" >
+        processname,
+      </if>
+      <if test="projectid != null" >
+        projectid,
+      </if>
       <if test="userid != null" >
         userid,
+      </if>
+      <if test="username != null" >
+        username,
       </if>
       <if test="roleid != null" >
         roleid,
@@ -170,8 +195,20 @@
       <if test="tasktype != null" >
         #{tasktype,jdbcType=INTEGER},
       </if>
+      <if test="processid != null" >
+        #{processid,jdbcType=BIGINT},
+      </if>
+      <if test="processname != null" >
+        #{processname,jdbcType=VARCHAR},
+      </if>
+      <if test="projectid != null" >
+        #{projectid,jdbcType=BIGINT},
+      </if>
       <if test="userid != null" >
         #{userid,jdbcType=INTEGER},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
       </if>
       <if test="roleid != null" >
         #{roleid,jdbcType=INTEGER},
@@ -220,8 +257,20 @@
       <if test="record.tasktype != null" >
         tasktype = #{record.tasktype,jdbcType=INTEGER},
       </if>
+      <if test="record.processid != null" >
+        processid = #{record.processid,jdbcType=BIGINT},
+      </if>
+      <if test="record.processname != null" >
+        processname = #{record.processname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectid != null" >
+        projectid = #{record.projectid,jdbcType=BIGINT},
+      </if>
       <if test="record.userid != null" >
         userid = #{record.userid,jdbcType=INTEGER},
+      </if>
+      <if test="record.username != null" >
+        username = #{record.username,jdbcType=VARCHAR},
       </if>
       <if test="record.roleid != null" >
         roleid = #{record.roleid,jdbcType=INTEGER},
@@ -262,7 +311,11 @@
     update tb_projects_capacity
     set id = #{record.id,jdbcType=BIGINT},
       tasktype = #{record.tasktype,jdbcType=INTEGER},
+      processid = #{record.processid,jdbcType=BIGINT},
+      processname = #{record.processname,jdbcType=VARCHAR},
+      projectid = #{record.projectid,jdbcType=BIGINT},
       userid = #{record.userid,jdbcType=INTEGER},
+      username = #{record.username,jdbcType=VARCHAR},
       roleid = #{record.roleid,jdbcType=INTEGER},
       time = #{record.time,jdbcType=VARCHAR},
       errorcount = #{record.errorcount,jdbcType=INTEGER},
@@ -283,8 +336,20 @@
       <if test="tasktype != null" >
         tasktype = #{tasktype,jdbcType=INTEGER},
       </if>
+      <if test="processid != null" >
+        processid = #{processid,jdbcType=BIGINT},
+      </if>
+      <if test="processname != null" >
+        processname = #{processname,jdbcType=VARCHAR},
+      </if>
+      <if test="projectid != null" >
+        projectid = #{projectid,jdbcType=BIGINT},
+      </if>
       <if test="userid != null" >
         userid = #{userid,jdbcType=INTEGER},
+      </if>
+      <if test="username != null" >
+        username = #{username,jdbcType=VARCHAR},
       </if>
       <if test="roleid != null" >
         roleid = #{roleid,jdbcType=INTEGER},
@@ -322,7 +387,11 @@
   <update id="updateByPrimaryKey" parameterType="com.emg.projectsmanage.pojo.CapacityModel" >
     update tb_projects_capacity
     set tasktype = #{tasktype,jdbcType=INTEGER},
+      processid = #{processid,jdbcType=BIGINT},
+      processname = #{processname,jdbcType=VARCHAR},
+      projectid = #{projectid,jdbcType=BIGINT},
       userid = #{userid,jdbcType=INTEGER},
+      username = #{username,jdbcType=VARCHAR},
       roleid = #{roleid,jdbcType=INTEGER},
       time = #{time,jdbcType=VARCHAR},
       errorcount = #{errorcount,jdbcType=INTEGER},

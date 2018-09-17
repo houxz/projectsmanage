@@ -165,6 +165,66 @@ public class CapacityTaskModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andProcesstypeIsNull() {
+            addCriterion("processtype is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcesstypeIsNotNull() {
+            addCriterion("processtype is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcesstypeEqualTo(Integer value) {
+            addCriterion("processtype =", value, "processtype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcesstypeNotEqualTo(Integer value) {
+            addCriterion("processtype <>", value, "processtype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcesstypeGreaterThan(Integer value) {
+            addCriterion("processtype >", value, "processtype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcesstypeGreaterThanOrEqualTo(Integer value) {
+            addCriterion("processtype >=", value, "processtype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcesstypeLessThan(Integer value) {
+            addCriterion("processtype <", value, "processtype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcesstypeLessThanOrEqualTo(Integer value) {
+            addCriterion("processtype <=", value, "processtype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcesstypeIn(List<Integer> values) {
+            addCriterion("processtype in", values, "processtype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcesstypeNotIn(List<Integer> values) {
+            addCriterion("processtype not in", values, "processtype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcesstypeBetween(Integer value1, Integer value2) {
+            addCriterion("processtype between", value1, value2, "processtype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcesstypeNotBetween(Integer value1, Integer value2) {
+            addCriterion("processtype not between", value1, value2, "processtype");
+            return (Criteria) this;
+        }
+
         public Criteria andTimeIsNull() {
             addCriterion("time is null");
             return (Criteria) this;

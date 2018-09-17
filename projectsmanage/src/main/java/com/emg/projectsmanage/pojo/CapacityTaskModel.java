@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class CapacityTaskModel {
     private Long id;
-    
+
     private Integer processtype;
 
     private String time;
@@ -21,6 +21,14 @@ public class CapacityTaskModel {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Integer getProcesstype() {
+        return processtype;
+    }
+
+    public void setProcesstype(Integer processtype) {
+        this.processtype = processtype;
     }
 
     public String getTime() {
@@ -54,12 +62,4 @@ public class CapacityTaskModel {
     public void setUpdatetime(Date updatetime) {
         this.updatetime = updatetime;
     }
-
-	public Integer getProcesstype() {
-		return processtype;
-	}
-
-	public void setProcesstype(Integer processtype) {
-		this.processtype = processtype;
-	}
 }

@@ -7,25 +7,33 @@ public class CapacityModel {
 
     private Integer tasktype;
 
+    private Long processid;
+
+    private String processname;
+
+    private Long projectid;
+
     private Integer userid;
+
+    private String username;
 
     private Integer roleid;
 
     private String time;
 
-    private Integer errorcount;
+    private Integer errorcount = 0;
 
-    private Integer taskcount;
+    private Integer taskcount = 0;
 
-    private Integer modifypoi;
+    private Integer modifypoi = 0;
 
-    private Integer createpoi;
+    private Integer createpoi = 0;
 
-    private Integer deletepoi;
+    private Integer deletepoi = 0;
 
-    private Integer confirmpoi;
+    private Integer confirmpoi = 0;
 
-    private Integer visualerrorcount;
+    private Integer visualerrorcount = 0;
 
     private Date createtime;
 
@@ -45,12 +53,44 @@ public class CapacityModel {
         this.tasktype = tasktype;
     }
 
+    public Long getProcessid() {
+        return processid;
+    }
+
+    public void setProcessid(Long processid) {
+        this.processid = processid;
+    }
+
+    public String getProcessname() {
+        return processname;
+    }
+
+    public void setProcessname(String processname) {
+        this.processname = processname == null ? null : processname.trim();
+    }
+
+    public Long getProjectid() {
+        return projectid;
+    }
+
+    public void setProjectid(Long projectid) {
+        this.projectid = projectid;
+    }
+
     public Integer getUserid() {
         return userid;
     }
 
     public void setUserid(Integer userid) {
         this.userid = userid;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username == null ? null : username.trim();
     }
 
     public Integer getRoleid() {

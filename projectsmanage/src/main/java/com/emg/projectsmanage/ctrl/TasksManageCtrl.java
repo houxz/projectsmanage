@@ -72,8 +72,10 @@ public class TasksManageCtrl extends BaseCtrl {
 				continue;
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, pType);
 			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+//				ConfigDBModel configDBModel = configDBModelDao
+//						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 				ConfigDBModel configDBModel = configDBModelDao
-						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+						.selectByPrimaryKey(1001);
 				editers.addAll(taskModelDao.groupEditers(configDBModel, pType.getValue()));
 				checkers.addAll(taskModelDao.groupCheckers(configDBModel, pType.getValue()));
 			}
@@ -171,8 +173,10 @@ public class TasksManageCtrl extends BaseCtrl {
 
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
 			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+//				ConfigDBModel configDBModel = configDBModelDao
+//						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 				ConfigDBModel configDBModel = configDBModelDao
-						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+						.selectByPrimaryKey(1001);
 				record.setProcesstype(processType.getValue());
 				List<TaskModel> rows = taskModelDao.selectTaskModels(configDBModel, record, projectids, stateMaps, limit, offset);
 				for (TaskModel row : rows) {

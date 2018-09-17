@@ -3,6 +3,7 @@
 <mapper namespace="com.emg.projectsmanage.dao.projectsmanager.CapacityTaskModelDao" >
   <resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.CapacityTaskModel" >
     <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="processtype" property="processtype" jdbcType="INTEGER" />
     <result column="time" property="time" jdbcType="VARCHAR" />
     <result column="state" property="state" jdbcType="INTEGER" />
     <result column="starttime" property="starttime" jdbcType="TIMESTAMP" />
@@ -67,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, time, state, starttime, updatetime
+    id, processtype, time, state, starttime, updatetime
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.emg.projectsmanage.pojo.CapacityTaskModelExample" >
     select
@@ -100,17 +101,21 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.emg.projectsmanage.pojo.CapacityTaskModel" >
-    insert into tb_projects_capacity_task (id, time, state, 
-      starttime, updatetime)
-    values (#{id,jdbcType=BIGINT}, #{time,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER}, 
-      #{starttime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP})
+    insert into tb_projects_capacity_task (id, processtype, time, 
+      state, starttime, updatetime
+      )
+    values (#{id,jdbcType=BIGINT}, #{processtype,jdbcType=INTEGER}, #{time,jdbcType=VARCHAR}, 
+      #{state,jdbcType=INTEGER}, #{starttime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP}
+      )
   </insert>
-  <insert id="insertSelective" parameterType="com.emg.projectsmanage.pojo.CapacityTaskModel" 
-  	useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+  <insert id="insertSelective" parameterType="com.emg.projectsmanage.pojo.CapacityTaskModel" >
     insert into tb_projects_capacity_task
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
         id,
+      </if>
+      <if test="processtype != null" >
+        processtype,
       </if>
       <if test="time != null" >
         time,
@@ -128,6 +133,9 @@
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
         #{id,jdbcType=BIGINT},
+      </if>
+      <if test="processtype != null" >
+        #{processtype,jdbcType=INTEGER},
       </if>
       <if test="time != null" >
         #{time,jdbcType=VARCHAR},
@@ -155,6 +163,9 @@
       <if test="record.id != null" >
         id = #{record.id,jdbcType=BIGINT},
       </if>
+      <if test="record.processtype != null" >
+        processtype = #{record.processtype,jdbcType=INTEGER},
+      </if>
       <if test="record.time != null" >
         time = #{record.time,jdbcType=VARCHAR},
       </if>
@@ -175,6 +186,7 @@
   <update id="updateByExample" parameterType="map" >
     update tb_projects_capacity_task
     set id = #{record.id,jdbcType=BIGINT},
+      processtype = #{record.processtype,jdbcType=INTEGER},
       time = #{record.time,jdbcType=VARCHAR},
       state = #{record.state,jdbcType=INTEGER},
       starttime = #{record.starttime,jdbcType=TIMESTAMP},
@@ -186,6 +198,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.emg.projectsmanage.pojo.CapacityTaskModel" >
     update tb_projects_capacity_task
     <set >
+      <if test="processtype != null" >
+        processtype = #{processtype,jdbcType=INTEGER},
+      </if>
       <if test="time != null" >
         time = #{time,jdbcType=VARCHAR},
       </if>
@@ -203,7 +218,8 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.emg.projectsmanage.pojo.CapacityTaskModel" >
     update tb_projects_capacity_task
-    set time = #{time,jdbcType=VARCHAR},
+    set processtype = #{processtype,jdbcType=INTEGER},
+      time = #{time,jdbcType=VARCHAR},
       state = #{state,jdbcType=INTEGER},
       starttime = #{starttime,jdbcType=TIMESTAMP},
       updatetime = #{updatetime,jdbcType=TIMESTAMP}
