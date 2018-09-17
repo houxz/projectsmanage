@@ -68,7 +68,7 @@
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr>
-						<th data-field="id" data-width="60"
+						<th data-field="id" data-width="80"
 							data-filter-control="input" data-filter-control-placeholder="">编号</th>
 							
 						<th data-field="tasktype" data-width="160" data-formatter="poiTaskTypesFormat"
@@ -77,13 +77,13 @@
 						<th data-field="processname"
 							data-filter-control="input" data-filter-control-placeholder="">项目名称</th>
 							
-						<th data-field="username" data-width="70"
+						<th data-field="username" data-width="80"
 							data-filter-control="input" data-filter-control-placeholder="">人员</th>
 							
-						<th data-field="roleid" data-width="65" data-formatter="roleTypesFormat"
+						<th data-field="roleid" data-width="80" data-formatter="roleTypesFormat"
 							data-filter-control="select" data-filter-data="var:roleTypes">角色</th>
 							
-						<th data-field="time" data-width="95"
+						<th data-field="time" data-width="100"
 							data-filter-control="input" data-filter-control-placeholder="">统计日期</th>
 							
 						<th data-field="taskcount" data-sortable="true">制作任务</th>

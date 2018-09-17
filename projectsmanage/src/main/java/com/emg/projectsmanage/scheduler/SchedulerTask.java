@@ -79,7 +79,7 @@ public class SchedulerTask {
 	private EmployeeModelDao employeeModelDao;
 
 	/**
-	 * 创建每天的任务 凌晨1点45分创建
+	 * 半夜三更  创建每天的任务
 	 */
 	@Scheduled(cron = "${scheduler.dotime}")
 	public void task() {
@@ -114,9 +114,9 @@ public class SchedulerTask {
 	}
 
 	/**
-	 * 执行任务每20秒检测是否有新任务
+	 * 执行任务每30秒检测是否有新任务
 	 */
-	@Scheduled(cron = "0/20 * * * * ?")
+	@Scheduled(cron = "0/30 * * * * ?")
 	public void doTask() {
 		if (!enable.equalsIgnoreCase("true"))
 			return;
