@@ -35,33 +35,9 @@
 <script type="text/javascript">
 	
 	var processTypes = eval('(${processTypes})');
-	var editers = eval('(${editers})');
-	var checkers = eval('(${checkers})');
 	
 	var stateDeses = {"未制作":"未制作", "编辑中":"编辑中", "校正错误修改中":"校正错误修改中", "质检中":"质检中", "质检完成":"质检完成", "校正中":"校正中", "完成":"完成", "预发布完成":"预发布完成", "悬挂点创建中":"悬挂点创建中"};
 	
-	var editersSelected = {};
-	if (editers.length > 0) {
-		for ( var w in editers) {
-			editersSelected[editers[w].id] = editers[w].realname;
-		}
-	}
-	var checkersSelected = {};
-	if (checkers.length > 0) {
-		for ( var w in checkers) {
-			checkersSelected[checkers[w].id] = checkers[w].realname;
-		}
-	}
-
-	function editersFormat(value, row, index) {
-		var editer = Number(row.editid) - 500000;
-		return editersSelected[editer];
-	}
-	function checkersFormat(value, row, index) {
-		var checker = Number(row.checkid) - 600000;
-		return checkersSelected[checker];
-	}
-
 	function processTypeFormat(value, row, index) {
 		return processTypes[row.processtype];
 	}
@@ -133,12 +109,12 @@
 							data-filter-control="select" data-filter-data="var:stateDeses">
 							任务状态</th>
 						
-						<th data-field="editid" data-width="105" data-formatter="editersFormat"
-							data-filter-control="select" data-filter-data="var:editersSelected" >
+						<th data-field="editname" data-width="105"
+							data-filter-control="input" data-filter-control-placeholder="">
 							编辑人</th>
 						
-						<th data-field="checkid" data-width="105" data-formatter="checkersFormat"
-							data-filter-control="select" data-filter-data="var:checkersSelected">
+						<th data-field="checkname" data-width="105"
+							data-filter-control="input" data-filter-control-placeholder="">
 							校正人</th>
 						
 						<th data-field="opttime" data-width="100">
