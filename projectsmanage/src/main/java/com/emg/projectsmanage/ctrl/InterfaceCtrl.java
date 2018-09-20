@@ -39,7 +39,6 @@ import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskLogModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
-import com.emg.projectsmanage.dao.task.TaskModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ConfigValueModel;
 import com.emg.projectsmanage.pojo.DepartmentModel;
@@ -82,9 +81,6 @@ public class InterfaceCtrl extends BaseCtrl {
 	private ConfigValueModelDao configValueModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
-	
-	@Autowired
-	private TaskModelDao taskModelDao;
 	
 	@RequestMapping(params = "action=insertNewProject", method = RequestMethod.POST)
 	private ModelAndView insertNewProject(Model model,
