@@ -2107,7 +2107,9 @@ public class InterfaceCtrl extends BaseCtrl {
 			@RequestParam(value = "value", required = false, defaultValue = "") String value) {
 		logger.debug("test start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		try {} catch (Exception e) {
+		try {
+			
+		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
 			json.addObject("option", e.getMessage());

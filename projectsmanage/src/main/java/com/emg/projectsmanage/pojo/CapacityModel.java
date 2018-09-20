@@ -21,19 +21,19 @@ public class CapacityModel {
 
     private String time;
 
-    private Integer errorcount = 0;
+    private Long errorcount = 0L;
 
-    private Integer taskcount = 0;
+    private Long taskcount = 0L;
 
-    private Integer modifypoi = 0;
+    private Long modifypoi = 0L;
 
-    private Integer createpoi = 0;
+    private Long createpoi = 0L;
 
-    private Integer deletepoi = 0;
+    private Long deletepoi = 0L;
 
-    private Integer confirmpoi = 0;
+    private Long confirmpoi = 0L;
 
-    private Integer visualerrorcount = 0;
+    private Long visualerrorcount = 0L;
 
     private Date createtime;
 
@@ -109,59 +109,59 @@ public class CapacityModel {
         this.time = time == null ? null : time.trim();
     }
 
-    public Integer getErrorcount() {
+    public Long getErrorcount() {
         return errorcount;
     }
 
-    public void setErrorcount(Integer errorcount) {
+    public void setErrorcount(Long errorcount) {
         this.errorcount = errorcount;
     }
 
-    public Integer getTaskcount() {
+    public Long getTaskcount() {
         return taskcount;
     }
 
-    public void setTaskcount(Integer taskcount) {
+    public void setTaskcount(Long taskcount) {
         this.taskcount = taskcount;
     }
 
-    public Integer getModifypoi() {
+    public Long getModifypoi() {
         return modifypoi;
     }
 
-    public void setModifypoi(Integer modifypoi) {
+    public void setModifypoi(Long modifypoi) {
         this.modifypoi = modifypoi;
     }
 
-    public Integer getCreatepoi() {
+    public Long getCreatepoi() {
         return createpoi;
     }
 
-    public void setCreatepoi(Integer createpoi) {
+    public void setCreatepoi(Long createpoi) {
         this.createpoi = createpoi;
     }
 
-    public Integer getDeletepoi() {
+    public Long getDeletepoi() {
         return deletepoi;
     }
 
-    public void setDeletepoi(Integer deletepoi) {
+    public void setDeletepoi(Long deletepoi) {
         this.deletepoi = deletepoi;
     }
 
-    public Integer getConfirmpoi() {
+    public Long getConfirmpoi() {
         return confirmpoi;
     }
 
-    public void setConfirmpoi(Integer confirmpoi) {
+    public void setConfirmpoi(Long confirmpoi) {
         this.confirmpoi = confirmpoi;
     }
 
-    public Integer getVisualerrorcount() {
+    public Long getVisualerrorcount() {
         return visualerrorcount;
     }
 
-    public void setVisualerrorcount(Integer visualerrorcount) {
+    public void setVisualerrorcount(Long visualerrorcount) {
         this.visualerrorcount = visualerrorcount;
     }
 

@@ -253,6 +253,75 @@ public class TaskModelDao {
 		}
 		return count;
 	}
+	
+	public TaskModel getTaskByID(ConfigDBModel configDBModel, Long taskid) {
+		TaskModel task = new TaskModel();
+		BasicDataSource dataSource = null;
+		try {
+			if (taskid == null || taskid.compareTo(0L) < 0)
+				return task;
+			Integer dbtype = configDBModel.getDbtype();
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT * FROM ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_task ");
+			sql.append(" WHERE id = ?");
+
+			dataSource = Common.getDataSource(configDBModel);
+			task = new JdbcTemplate(dataSource).queryForObject(sql.toString(), new Object[]{taskid}, new BeanPropertyRowMapper<TaskModel>(TaskModel.class));
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			task = new TaskModel();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return task;
+	}
+	
+	public TaskModel getTaskByBlockid(ConfigDBModel configDBModel, Long blockid) {
+		TaskModel task = new TaskModel();
+		BasicDataSource dataSource = null;
+		try {
+			if (blockid == null || blockid.compareTo(0L) < 0)
+				return task;
+			Integer dbtype = configDBModel.getDbtype();
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT * FROM ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_task ");
+			sql.append(" WHERE blockid = ?");
+			sql.append(" LIMIT 1 ");
+
+			dataSource = Common.getDataSource(configDBModel);
+			task = new JdbcTemplate(dataSource).queryForObject(sql.toString(), new Object[]{blockid}, new BeanPropertyRowMapper<TaskModel>(TaskModel.class));
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			task = new TaskModel();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return task;
+	}
 
 	public List<TaskModel> getTaskByTime(ConfigDBModel configDBModel, String time) {
 		List<TaskModel> tasks = new ArrayList<TaskModel>();
