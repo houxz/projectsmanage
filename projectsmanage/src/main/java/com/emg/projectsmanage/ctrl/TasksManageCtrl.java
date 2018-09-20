@@ -166,10 +166,8 @@ public class TasksManageCtrl extends BaseCtrl {
 
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
 			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
-//				ConfigDBModel configDBModel = configDBModelDao
-//						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 				ConfigDBModel configDBModel = configDBModelDao
-						.selectByPrimaryKey(1001);
+						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 				record.setProcesstype(processType.getValue());
 				List<TaskModel> rows = taskModelDao.selectTaskModels(configDBModel, record, projectids, editUserids, checkUserids, stateMaps, limit, offset);
 				for (TaskModel row : rows) {
