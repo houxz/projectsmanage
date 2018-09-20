@@ -99,34 +99,6 @@ public class UsersManageCtrl extends BaseCtrl {
 	}
 
 	/**
-	 * 添加权限，用户类别。
-	 * 
-	 * @param model
-	 * @param rolename
-	 * @param roleremark
-	 * @return
-	 */
-	@RequestMapping(params = "atn=addrole")
-	public ModelAndView addRole(Model model, @RequestParam("name") String name, @RequestParam("remark") String remark) {
-		logger.debug("UsersManageCtrl-addRole start!");
-		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		RoleModel record = new RoleModel();
-		record.setName(name);
-		record.setType("U");
-		record.setRemark(remark);
-		record.setEnabled(1);
-		int ret = projectManagerRoleService.addRole(record);
-		if (ret > 0) {
-			json.addObject("result", 1);
-			json.addObject("role", record);
-		} else {
-			json.addObject("result", 0);
-		}
-		logger.debug("UsersManageCtrl-addRole end!");
-		return json;
-	}
-
-	/**
 	 * 取所有权限列表
 	 * 
 	 * @param model

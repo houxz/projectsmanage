@@ -145,30 +145,6 @@
                      }, "json");
         }
         
-        function addRole() {
-            if ($("#rolename").val() == "" || $("#roleremark").val() == "") {
-            	$.webeditor.showMsgLabel("alert", "必须填写权限名称和权限说明");
-            	return ;
-            }
-            $.post("<%=path%>/usersmanage.web", {
-				"atn" : "addrole",
-				"name" : $("#rolename").val(),
-				"remark" : $("#roleremark").val()
-			}, function(json) {
-				if (json.result == 1 && json.role) {
-					$("#rolename").val("");
-					$("#roleremark").val("");
-					var newRole = json.role;
-					var html = new Array();
-					html.push("<option value='"+newRole.id+"'>" + newRole.remark
-							+ "</option>");
-					$("#rolelistselect").append(html.join(''));
-					$.webeditor.showMsgLabel("success", "权限添加成功");
-				} else {
-					$.webeditor.showMsgLabel("alert", "权限添加失败");
-				}
-			}, "json");
-		}
 </script>
 </head>
 <body>
