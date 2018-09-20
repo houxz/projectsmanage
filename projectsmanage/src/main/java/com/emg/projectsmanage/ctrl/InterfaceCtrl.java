@@ -459,7 +459,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			} else {
 				EmployeeModel record = new EmployeeModel();
 				record.setId(userid);
-				EmployeeModel employee = emapgoAccountService.getOneEmployee(record);
+				EmployeeModel employee = emapgoAccountService.getOneEmployeeWithCache(record);
 				username = employee.getRealname();
 			}
 			

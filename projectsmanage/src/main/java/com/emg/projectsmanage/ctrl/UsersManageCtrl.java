@@ -135,7 +135,7 @@ public class UsersManageCtrl extends BaseCtrl {
 				
 				EmployeeModel user = new EmployeeModel();
 				user.setId(Integer.valueOf(userids[i]));
-				EmployeeModel employee = emapgoAccountService.getOneEmployee(user );
+				EmployeeModel employee = emapgoAccountService.getOneEmployeeWithCache(user );
 				sessionService.KickOutUser(employee.getUsername());
 			}
 			json.addObject("result", 1);
@@ -158,7 +158,7 @@ public class UsersManageCtrl extends BaseCtrl {
 			if (ret > 0) {
 				EmployeeModel user = new EmployeeModel();
 				user.setId(urid);
-				EmployeeModel employee = emapgoAccountService.getOneEmployee(user );
+				EmployeeModel employee = emapgoAccountService.getOneEmployeeWithCache(user );
 				sessionService.KickOutUser(employee.getUsername());
 				
 				json.addObject("result", 1);

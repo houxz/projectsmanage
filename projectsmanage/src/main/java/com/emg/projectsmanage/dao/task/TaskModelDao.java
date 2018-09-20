@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -17,18 +16,13 @@ import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.StateMap;
 import com.emg.projectsmanage.common.TaskTypeEnum;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
-import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.TaskModel;
-import com.emg.projectsmanage.service.EmapgoAccountService;
 
 @Component
 public class TaskModelDao {
 
 	private static final Logger logger = LoggerFactory.getLogger(TaskModelDao.class);
 
-	@Autowired
-	private EmapgoAccountService emapgoAccountService;
-	
 	private TaskTypeEnum getTaskType(ProcessType processType) {
 		TaskTypeEnum tasktype = TaskTypeEnum.UNKNOWN;
 		switch (processType) {
@@ -49,7 +43,8 @@ public class TaskModelDao {
 	}
 
 	public List<TaskModel> selectTaskModels(ConfigDBModel configDBModel, TaskModel record, List<Long> projectids,
-			List<StateMap> stateMaps, Integer limit, Integer offset) {
+			List<Integer> editUserids, List<Integer> checkUserids, List<StateMap> stateMaps, Integer limit,
+			Integer offset) {
 		List<TaskModel> tasks = new ArrayList<TaskModel>();
 		BasicDataSource dataSource = null;
 		try {
@@ -76,7 +71,7 @@ public class TaskModelDao {
 				sql.append(" AND " + separator + "name" + separator + " like '%" + record.getName() + "%'");
 			}
 			if (projectids != null) {
-				if(projectids.size() > 0) {
+				if (projectids.size() > 0) {
 					sql.append(" AND " + separator + "projectid" + separator + " in( ");
 					for (Long projectid : projectids) {
 						sql.append(projectid);
@@ -113,15 +108,23 @@ public class TaskModelDao {
 				sql = sql.delete(sql.length() - 2, sql.length());
 				sql.append(" )");
 			}
-			if (record.getEditid() != null && record.getEditid().compareTo(0) > 0) {
-				sql.append(" AND " + separator + "editid" + separator + " = " + (record.getEditid() + 500000));
-			} else if (record.getEditid() != null && record.getEditid().compareTo(0) == 0) {
-				sql.append(" AND " + separator + "editid" + separator + " = 0");
+			if (editUserids != null && editUserids.size() > 0) {
+				sql.append(" AND editid IN ( ");
+				for (Integer editUserid : editUserids) {
+					sql.append(editUserid + 500000);
+					sql.append(",");
+				}
+				sql = sql.deleteCharAt(sql.length() - 1);
+				sql.append(" )");
 			}
-			if (record.getCheckid() != null && record.getCheckid().compareTo(0) > 0) {
-				sql.append(" AND " + separator + "checkid" + separator + " = " + (record.getCheckid() + 600000));
-			} else if (record.getCheckid() != null && record.getCheckid().compareTo(0) == 0) {
-				sql.append(" AND " + separator + "checkid" + separator + " = 0");
+			if (checkUserids != null && checkUserids.size() > 0) {
+				sql.append(" AND checkid IN ( ");
+				for (Integer checkUserid : checkUserids) {
+					sql.append(checkUserid + 600000);
+					sql.append(",");
+				}
+				sql = sql.deleteCharAt(sql.length() - 1);
+				sql.append(" )");
 			}
 			sql.append(" ORDER BY id ");
 			if (limit.compareTo(0) > 0) {
@@ -151,7 +154,7 @@ public class TaskModelDao {
 	}
 
 	public Integer countTaskModels(ConfigDBModel configDBModel, TaskModel record, List<Long> projectids,
-			List<StateMap> stateMaps) {
+			List<Integer> editUserids, List<Integer> checkUserids, List<StateMap> stateMaps) {
 		Integer count = -1;
 		BasicDataSource dataSource = null;
 		try {
@@ -178,7 +181,7 @@ public class TaskModelDao {
 				sql.append(" AND " + separator + "name" + separator + " like '%" + record.getName() + "%'");
 			}
 			if (projectids != null) {
-				if(projectids.size() > 0) {
+				if (projectids.size() > 0) {
 					sql.append(" AND " + separator + "projectid" + separator + " in( ");
 					for (Long projectid : projectids) {
 						sql.append(projectid);
@@ -215,15 +218,23 @@ public class TaskModelDao {
 				sql = sql.delete(sql.length() - 2, sql.length());
 				sql.append(" )");
 			}
-			if (record.getEditid() != null && record.getEditid().compareTo(0) > 0) {
-				sql.append(" AND " + separator + "editid" + separator + " = " + (record.getEditid() + 500000));
-			} else if (record.getEditid() != null && record.getEditid().compareTo(0) == 0) {
-				sql.append(" AND " + separator + "editid" + separator + " = 0");
+			if (editUserids != null && editUserids.size() > 0) {
+				sql.append(" AND editid IN ( ");
+				for (Integer editUserid : editUserids) {
+					sql.append(editUserid + 500000);
+					sql.append(",");
+				}
+				sql = sql.deleteCharAt(sql.length() - 1);
+				sql.append(" )");
 			}
-			if (record.getCheckid() != null && record.getCheckid().compareTo(0) > 0) {
-				sql.append(" AND " + separator + "checkid" + separator + " = " + (record.getCheckid() + 600000));
-			} else if (record.getCheckid() != null && record.getCheckid().compareTo(0) == 0) {
-				sql.append(" AND " + separator + "checkid" + separator + " = 0");
+			if (checkUserids != null && checkUserids.size() > 0) {
+				sql.append(" AND checkid IN ( ");
+				for (Integer checkUserid : checkUserids) {
+					sql.append(checkUserid + 600000);
+					sql.append(",");
+				}
+				sql = sql.deleteCharAt(sql.length() - 1);
+				sql.append(" )");
 			}
 
 			dataSource = Common.getDataSource(configDBModel);
@@ -243,88 +254,6 @@ public class TaskModelDao {
 		return count;
 	}
 
-	public List<EmployeeModel> groupEditers(ConfigDBModel configDBModel, Integer processType) {
-		List<EmployeeModel> users = new ArrayList<EmployeeModel>();
-		BasicDataSource dataSource = null;
-		try {
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT " + separator + "editid" + separator + " FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_task ");
-			sql.append(" GROUP BY " + separator + "editid" + separator);
-
-			dataSource = Common.getDataSource(configDBModel);
-			List<Integer> userids = new JdbcTemplate(dataSource).queryForList(sql.toString(), Integer.class);
-			List<Integer> _userids = new ArrayList<Integer>();
-			for (Integer userid : userids) {
-				if (userid == null)
-					continue;
-				_userids.add(userid.compareTo(500000) >= 0 ? (userid - 500000) : userid);
-			}
-			if (_userids.size() > 0)
-				users = emapgoAccountService.getEmployeeByIDS(_userids);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			users = new ArrayList<EmployeeModel>();
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		}
-		return users;
-	}
-
-	public List<EmployeeModel> groupCheckers(ConfigDBModel configDBModel, Integer processType) {
-		List<EmployeeModel> users = new ArrayList<EmployeeModel>();
-		BasicDataSource dataSource = null;
-		try {
-			Integer dbtype = configDBModel.getDbtype();
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT " + separator + "checkid" + separator + " FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_task ");
-			sql.append(" GROUP BY " + separator + "checkid" + separator);
-
-			dataSource = Common.getDataSource(configDBModel);
-			List<Integer> userids = new JdbcTemplate(dataSource).queryForList(sql.toString(), Integer.class);
-			List<Integer> _userids = new ArrayList<Integer>();
-			for (Integer userid : userids) {
-				if (userid == null)
-					continue;
-				_userids.add(userid.compareTo(600000) >= 0 ? (userid - 600000) : userid);
-			}
-			if (_userids.size() > 0)
-				users = emapgoAccountService.getEmployeeByIDS(_userids);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			users = new ArrayList<EmployeeModel>();
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		}
-		return users;
-	}
-	
 	public List<TaskModel> getTaskByTime(ConfigDBModel configDBModel, String time) {
 		List<TaskModel> tasks = new ArrayList<TaskModel>();
 		BasicDataSource dataSource = null;
@@ -332,15 +261,15 @@ public class TaskModelDao {
 			if (time == null || time.isEmpty())
 				return tasks;
 			Integer dbtype = configDBModel.getDbtype();
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_task ");
-			sql.append(" WHERE state = 1 ");
-			sql.append(" OR ( state = 2 ");
+			sql.append(" WHERE state = 1");
+			sql.append(" OR ( state = 2");
 			sql.append(String.format(" AND time IS NOT NULL AND time > '%s')", time));
 			sql.append(" ORDER BY id ");
 
@@ -362,5 +291,5 @@ public class TaskModelDao {
 		}
 		return tasks;
 	}
-	
+
 }

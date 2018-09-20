@@ -50,7 +50,7 @@ public class LoginCtrl extends BaseCtrl {
 			} else {
 				EmployeeModel record = new EmployeeModel();
 				record.setUsername(account);
-				EmployeeModel user = emapgoAccountService.getOneEmployee(record);
+				EmployeeModel user = emapgoAccountService.getOneEmployeeWithCache(record);
 				if (user == null) {
 					if (session != null) {
 						session.invalidate();

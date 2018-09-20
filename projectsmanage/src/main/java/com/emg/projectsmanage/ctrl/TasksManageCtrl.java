@@ -31,9 +31,9 @@ import com.emg.projectsmanage.pojo.ProcessModelExample;
 import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.pojo.ProjectModelExample;
 import com.emg.projectsmanage.pojo.TaskModel;
+import com.emg.projectsmanage.service.EmapgoAccountService;
 import com.emg.projectsmanage.service.ProcessConfigModelService;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Controller
@@ -57,40 +57,13 @@ public class TasksManageCtrl extends BaseCtrl {
 	@Autowired
 	private ProcessModelDao processModelDao;
 	
+	@Autowired
+	private EmapgoAccountService emapgoAccountService;
+	
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START");
-//		if (!hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
-//			Integer userid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
-//		}
 		model.addAttribute("processTypes", ProcessType.toJsonStr());
-
-		List<EmployeeModel> editers = new ArrayList<EmployeeModel>();
-		List<EmployeeModel> checkers = new ArrayList<EmployeeModel>();
-		for (ProcessType pType : ProcessType.values()) {
-			if (pType.equals(ProcessType.UNKNOWN))
-				continue;
-			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, pType);
-			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
-				ConfigDBModel configDBModel = configDBModelDao
-						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-				editers.addAll(taskModelDao.groupEditers(configDBModel, pType.getValue()));
-				checkers.addAll(taskModelDao.groupCheckers(configDBModel, pType.getValue()));
-			}
-		}
-		if (editers.size() > 0) {
-			JSONArray jsonArrayworker = JSONArray.fromObject(editers);
-			model.addAttribute("editers", jsonArrayworker.toString());
-		} else {
-			model.addAttribute("editers", "({})");
-		}
-		if (checkers.size() > 0) {
-			JSONArray jsonArraychecker = JSONArray.fromObject(checkers);
-			model.addAttribute("checkers", jsonArraychecker.toString());
-		} else {
-			model.addAttribute("checkers", "({})");
-		}
-
 		return "tasksmanage";
 	}
 
@@ -110,6 +83,8 @@ public class TasksManageCtrl extends BaseCtrl {
 			Map<String, Object> filterPara = null;
 			List<Long> projectids = null;
 			List<ProjectModel> projects = null;
+			List<Integer> editUserids = new ArrayList<Integer>();
+			List<Integer> checkUserids = new ArrayList<Integer>();
 			ProjectModelExample example = new ProjectModelExample();
 			List<StateMap> stateMaps = new ArrayList<StateMap>();
 			if (filter.length() > 0) {
@@ -149,11 +124,31 @@ public class TasksManageCtrl extends BaseCtrl {
 					case "statedes":
 						stateMaps = getStateMap(filterPara.get(key).toString());
 						break;
-					case "editid":
-						record.setEditid(Integer.valueOf(filterPara.get(key).toString()));
+					case "editname":
+						List<EmployeeModel> editusers = emapgoAccountService.getEmployeesByIDSAndRealname(null, filterPara.get(key).toString());
+						if (editusers != null && editusers.size() > 0) {
+							for (EmployeeModel edituser : editusers) {
+								editUserids.add(edituser.getId());
+							}
+						} else {
+							json.addObject("rows", new ArrayList<TaskModel>());
+							json.addObject("total", 0);
+							json.addObject("result", 1);
+							return json;
+						}
 						break;
-					case "checkid":
-						record.setCheckid(Integer.valueOf(filterPara.get(key).toString()));
+					case "checkname":
+						List<EmployeeModel> checkusers = emapgoAccountService.getEmployeesByIDSAndRealname(null, filterPara.get(key).toString());
+						if (checkusers != null && checkusers.size() > 0) {
+							for (EmployeeModel checkuser : checkusers) {
+								checkUserids.add(checkuser.getId());
+							}
+						} else {
+							json.addObject("rows", new ArrayList<TaskModel>());
+							json.addObject("total", 0);
+							json.addObject("result", 1);
+							return json;
+						}
 						break;
 					default:
 						logger.error("未处理的筛选项：" + key);
@@ -171,10 +166,12 @@ public class TasksManageCtrl extends BaseCtrl {
 
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
 			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+//				ConfigDBModel configDBModel = configDBModelDao
+//						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 				ConfigDBModel configDBModel = configDBModelDao
-						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+						.selectByPrimaryKey(1001);
 				record.setProcesstype(processType.getValue());
-				List<TaskModel> rows = taskModelDao.selectTaskModels(configDBModel, record, projectids, stateMaps, limit, offset);
+				List<TaskModel> rows = taskModelDao.selectTaskModels(configDBModel, record, projectids, editUserids, checkUserids, stateMaps, limit, offset);
 				for (TaskModel row : rows) {
 					if (row == null)
 						continue;
@@ -188,8 +185,26 @@ public class TasksManageCtrl extends BaseCtrl {
 							row.setStatedes(getStateDes(row));
 						}
 					}
+					
+					if (row.getEditid() != null && row.getEditid().compareTo(0) > 0) {
+						EmployeeModel erecord = new EmployeeModel();
+						erecord.setId(row.getEditid().compareTo(500000) >= 0 ? (row.getEditid() - 500000) : row.getEditid());
+						EmployeeModel edit = emapgoAccountService.getOneEmployeeWithCache(erecord);
+						if (edit != null) {
+							row.setEditname(edit.getRealname());
+						}
+					}
+					
+					if (row.getCheckid() != null && row.getCheckid().compareTo(0) > 0) {
+						EmployeeModel erecord = new EmployeeModel();
+						erecord.setId(row.getCheckid().compareTo(600000) >= 0 ? (row.getCheckid() - 600000) : row.getCheckid());
+						EmployeeModel check = emapgoAccountService.getOneEmployeeWithCache(erecord);
+						if (check != null) {
+							row.setCheckname(check.getRealname());
+						}
+					}
 				}
-				Integer count = taskModelDao.countTaskModels(configDBModel, record, projectids, stateMaps);
+				Integer count = taskModelDao.countTaskModels(configDBModel, record, projectids, editUserids, checkUserids, stateMaps);
 				json.addObject("rows", rows);
 				json.addObject("total", count);
 				json.addObject("result", 1);

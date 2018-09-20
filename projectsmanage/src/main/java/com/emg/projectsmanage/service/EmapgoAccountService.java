@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.emg.projectsmanage.dao.emapgoaccount.AuthorityModelDao;
@@ -15,6 +16,8 @@ import com.emg.projectsmanage.pojo.EmployeeModel;
 
 @Service
 public class EmapgoAccountService {
+	final static private String CACHEVALUE = "EmapAccountCache";
+	final static private String CACHEKEYGENERATOR = "baseCacheKeyGenerator";
 
 	@Autowired
 	private DepartmentModelDao departmentModelDao;
@@ -36,6 +39,11 @@ public class EmapgoAccountService {
 	public EmployeeModel getOneEmployee(EmployeeModel record) {
 		return employeeModelDao.getOneEmployee(record);
 	}
+	
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
+	public EmployeeModel getOneEmployeeWithCache(EmployeeModel record) {
+		return employeeModelDao.getOneEmployee(record);
+	}
 
 	public List<EmployeeModel> getEmployeeByIDS(List<Integer> ids) {
 		Map<String, List<Integer>> map = new HashMap<String, List<Integer>>();
@@ -43,6 +51,7 @@ public class EmapgoAccountService {
 		return employeeModelDao.getEmployeeByIDS(map);
 	}
 	
+	@Cacheable(value = CACHEVALUE, keyGenerator = CACHEKEYGENERATOR)
 	public List<EmployeeModel> getEmployeesByIDSAndRealname(List<Integer> ids, String realname) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("ids", ids);
