@@ -18,7 +18,7 @@ public class TaskBlockDetailModelDao {
 
 	private static final Logger logger = LoggerFactory.getLogger(TaskBlockDetailModelDao.class);
 	
-	public Integer countPOIByBlockid(ConfigDBModel configDBModel, Long blockid, String time, RoleType roleType) {
+	public Integer countPOIByBlockid(ConfigDBModel configDBModel, Long blockid, Integer userid, String time, RoleType roleType) {
 		Integer count = -1;
 		BasicDataSource dataSource = null;
 		try {
@@ -37,10 +37,13 @@ public class TaskBlockDetailModelDao {
 				sql.append(" AND " + separator + "blockid" + separator + " = " + blockid);
 			}
 			if(time != null && !time.isEmpty()) {
-				if(roleType.equals(RoleType.ROLE_WORKER))
+				if(roleType.equals(RoleType.ROLE_WORKER)) {
+					sql.append(String.format(" AND %seditid%s = %d", separator, separator, userid));
 					sql.append(String.format(" AND %sedittime%s BETWEEN '%s' AND '%s 23:59:59'", separator, separator, time, time));
-				else if(roleType.equals(RoleType.ROLE_CHECKER))
+				} else if(roleType.equals(RoleType.ROLE_CHECKER)) {
+					sql.append(String.format(" AND %scheckid%s = %d", separator, separator, userid));
 					sql.append(String.format(" AND %schecktime%s BETWEEN '%s' AND '%s 23:59:59'", separator, separator, time, time));
+				}
 			}
 
 			dataSource = Common.getDataSource(configDBModel);
@@ -60,7 +63,7 @@ public class TaskBlockDetailModelDao {
 		return count;
 	}
 
-	public Integer countModifyPOIByBlockid(ConfigDBModel configDBModel, Long blockid, String time, RoleType roleType) {
+	public Integer countModifyPOIByBlockid(ConfigDBModel configDBModel, Long blockid, Integer userid, String time, RoleType roleType) {
 		Integer count = -1;
 		BasicDataSource dataSource = null;
 		try {
@@ -80,10 +83,13 @@ public class TaskBlockDetailModelDao {
 				sql.append(" AND " + separator + "blockid" + separator + " = " + blockid);
 			}
 			if(time != null && !time.isEmpty()) {
-				if(roleType.equals(RoleType.ROLE_WORKER))
+				if(roleType.equals(RoleType.ROLE_WORKER)) {
+					sql.append(String.format(" AND %seditid%s = %d", separator, separator, userid));
 					sql.append(String.format(" AND %sedittime%s BETWEEN '%s' AND '%s 23:59:59'", separator, separator, time, time));
-				else if(roleType.equals(RoleType.ROLE_CHECKER))
+				} else if(roleType.equals(RoleType.ROLE_CHECKER)) {
+					sql.append(String.format(" AND %scheckid%s = %d", separator, separator, userid));
 					sql.append(String.format(" AND %schecktime%s BETWEEN '%s' AND '%s 23:59:59'", separator, separator, time, time));
+				}
 			}
 
 			dataSource = Common.getDataSource(configDBModel);
@@ -103,7 +109,7 @@ public class TaskBlockDetailModelDao {
 		return count;
 	}
 	
-	public Integer countCreatePOIByBlockid(ConfigDBModel configDBModel, Long blockid, String time, RoleType roleType) {
+	public Integer countCreatePOIByBlockid(ConfigDBModel configDBModel, Long blockid, Integer userid, String time, RoleType roleType) {
 		Integer count = -1;
 		BasicDataSource dataSource = null;
 		try {
@@ -123,10 +129,13 @@ public class TaskBlockDetailModelDao {
 				sql.append(" AND " + separator + "blockid" + separator + " = " + blockid);
 			}
 			if(time != null && !time.isEmpty()) {
-				if(roleType.equals(RoleType.ROLE_WORKER))
+				if(roleType.equals(RoleType.ROLE_WORKER)) {
+					sql.append(String.format(" AND %seditid%s = %d", separator, separator, userid));
 					sql.append(String.format(" AND %sedittime%s BETWEEN '%s' AND '%s 23:59:59'", separator, separator, time, time));
-				else if(roleType.equals(RoleType.ROLE_CHECKER))
+				} else if(roleType.equals(RoleType.ROLE_CHECKER)) {
+					sql.append(String.format(" AND %scheckid%s = %d", separator, separator, userid));
 					sql.append(String.format(" AND %schecktime%s BETWEEN '%s' AND '%s 23:59:59'", separator, separator, time, time));
+				}
 			}
 
 			dataSource = Common.getDataSource(configDBModel);
@@ -146,7 +155,7 @@ public class TaskBlockDetailModelDao {
 		return count;
 	}
 	
-	public Integer countDeletePOIByBlockid(ConfigDBModel configDBModel, Long blockid, String time, RoleType roleType) {
+	public Integer countDeletePOIByBlockid(ConfigDBModel configDBModel, Long blockid, Integer userid, String time, RoleType roleType) {
 		Integer count = -1;
 		BasicDataSource dataSource = null;
 		try {
@@ -166,10 +175,13 @@ public class TaskBlockDetailModelDao {
 				sql.append(" AND " + separator + "blockid" + separator + " = " + blockid);
 			}
 			if(time != null && !time.isEmpty()) {
-				if(roleType.equals(RoleType.ROLE_WORKER))
+				if(roleType.equals(RoleType.ROLE_WORKER)) {
+					sql.append(String.format(" AND %seditid%s = %d", separator, separator, userid));
 					sql.append(String.format(" AND %sedittime%s BETWEEN '%s' AND '%s 23:59:59'", separator, separator, time, time));
-				else if(roleType.equals(RoleType.ROLE_CHECKER))
+				} else if(roleType.equals(RoleType.ROLE_CHECKER)) {
+					sql.append(String.format(" AND %scheckid%s = %d", separator, separator, userid));
 					sql.append(String.format(" AND %schecktime%s BETWEEN '%s' AND '%s 23:59:59'", separator, separator, time, time));
+				}
 			}
 
 			dataSource = Common.getDataSource(configDBModel);
@@ -189,7 +201,7 @@ public class TaskBlockDetailModelDao {
 		return count;
 	}
 	
-	public Integer countConfirmPOIByBlockid(ConfigDBModel configDBModel, Long blockid, String time, RoleType roleType) {
+	public Integer countConfirmPOIByBlockid(ConfigDBModel configDBModel, Long blockid, Integer userid, String time, RoleType roleType) {
 		Integer count = -1;
 		BasicDataSource dataSource = null;
 		try {
@@ -209,10 +221,13 @@ public class TaskBlockDetailModelDao {
 				sql.append(" AND " + separator + "blockid" + separator + " = " + blockid);
 			}
 			if(time != null && !time.isEmpty()) {
-				if(roleType.equals(RoleType.ROLE_WORKER))
+				if(roleType.equals(RoleType.ROLE_WORKER)) {
+					sql.append(String.format(" AND %seditid%s = %d", separator, separator, userid));
 					sql.append(String.format(" AND %sedittime%s BETWEEN '%s' AND '%s 23:59:59'", separator, separator, time, time));
-				else if(roleType.equals(RoleType.ROLE_CHECKER))
+				} else if(roleType.equals(RoleType.ROLE_CHECKER)) {
+					sql.append(String.format(" AND %scheckid%s = %d", separator, separator, userid));
 					sql.append(String.format(" AND %schecktime%s BETWEEN '%s' AND '%s 23:59:59'", separator, separator, time, time));
+				}
 			}
 
 			dataSource = Common.getDataSource(configDBModel);

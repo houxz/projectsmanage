@@ -79,7 +79,7 @@ public class SchedulerTask {
 	private EmployeeModelDao employeeModelDao;
 
 	/**
-	 * 半夜三更  创建每天的任务
+	 * 半夜三更 创建每天的任务
 	 */
 	@Scheduled(cron = "${scheduler.createtime}")
 	public void task() {
@@ -240,28 +240,29 @@ public class SchedulerTask {
 										.setVisualerrorcount(capacityModel.getVisualerrorcount() + visualerrorcount);
 
 								// 修改POI个数
-								Integer modifypoi = taskBlockDetailModelDao.countPOIByBlockid(configDBModel,
-										blockid, time, RoleType.valueOf(roleid));
+								Integer modifypoi = taskBlockDetailModelDao.countPOIByBlockid(configDBModel, blockid,
+										userid, time, RoleType.valueOf(roleid));
 								capacityModel.setModifypoi(capacityModel.getModifypoi() + modifypoi);
 
 								// 不再细节区分修改POI的类型，后续侯西召改好之后再细分
 //								// 新增POI个数
 //								Integer createpoi = taskBlockDetailModelDao.countCreatePOIByBlockid(configDBModel,
-//										blockid, time, RoleType.valueOf(roleid));
+//										blockid, userid, time, RoleType.valueOf(roleid));
 //								capacityModel.setCreatepoi(capacityModel.getCreatepoi() + createpoi);
 //
 //								// 删除POI个数
 //								Integer deletepoi = taskBlockDetailModelDao.countDeletePOIByBlockid(configDBModel,
-//										blockid, time, RoleType.valueOf(roleid));
+//										blockid, userid, time, RoleType.valueOf(roleid));
 //								capacityModel.setDeletepoi(capacityModel.getDeletepoi() + deletepoi);
 //
 //								// 确认POI个数
 //								Integer confirmpoi = taskBlockDetailModelDao.countConfirmPOIByBlockid(configDBModel,
-//										blockid, time, RoleType.valueOf(roleid));
+//										blockid, userid, time, RoleType.valueOf(roleid));
 //								capacityModel.setConfirmpoi(capacityModel.getConfirmpoi() + confirmpoi);
 
 								uniqRecords.put(uniqRecord, capacityModel);
-								logger.debug(String.format("task: ( %s ) out", task.getId()));
+								logger.debug(String.format("task: ( %s ) out, modifypoi: %s, errorcount: %s",
+										task.getId(), modifypoi, errorcount));
 							}
 
 							if (uniqRecords != null && !uniqRecords.isEmpty()) {
