@@ -26,6 +26,8 @@ import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.OwnerStatus;
 import com.emg.projectsmanage.common.ParamUtils;
+import com.emg.projectsmanage.common.ProcessConfigEnum;
+import com.emg.projectsmanage.common.ProcessConfigModuleEnum;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.RoleType;
@@ -1587,8 +1589,8 @@ public class InterfaceCtrl extends BaseCtrl {
 			
 			List<ProcessConfigValueModel> configValues = new ArrayList<ProcessConfigValueModel>();
 
-			configValues.add(new ProcessConfigValueModel(newProcessID, 2, 11, projectid.toString()));
-			configValues.add(new ProcessConfigValueModel(newProcessID, 2, 12, projectName));
+			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUID.getValue(), projectid.toString()));
+			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), projectName));
 			
 			List<ProcessConfigModel> processConfigs = processConfigModelService.selectAllProcessConfigModels(newProcessType);
 			for (ProcessConfigModel processConfig : processConfigs) {
@@ -1596,8 +1598,10 @@ public class InterfaceCtrl extends BaseCtrl {
 				Integer configid = processConfig.getId();
 				String defaultValue = processConfig.getDefaultValue() == null ? new String() : processConfig.getDefaultValue().toString();
 
-				if ((moduleid.equals(1) && configid.equals(3)) || (moduleid.equals(1) && configid.equals(4)) || (moduleid.equals(2) && configid.equals(11))
-						|| (moduleid.equals(2) && configid.equals(12)))
+				if ((moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUID.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUID.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue())))
 					continue;
 
 				Enumeration<String> paramNames = request.getParameterNames();
