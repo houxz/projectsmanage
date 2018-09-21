@@ -591,6 +591,7 @@ public class InterfaceCtrl extends BaseCtrl {
 										// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
 										// 先找到该项目关联的所有流程任务
 										ProcessModel process;
+										// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
 										ConfigValueModel valuemodel = new ConfigValueModel();
 										valuemodel.setName("%项目id");
 										valuemodel.setValue(projectid.toString());
@@ -673,6 +674,7 @@ public class InterfaceCtrl extends BaseCtrl {
 										// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
 										// 先找到该项目关联的所有流程任务
 										ProcessModel process;
+										// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
 										ConfigValueModel valuemodel = new ConfigValueModel();
 										valuemodel.setName("%项目id");
 										valuemodel.setValue(projectid.toString());
@@ -749,6 +751,7 @@ public class InterfaceCtrl extends BaseCtrl {
 										// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
 										// 先找到该项目关联的所有流程任务
 										ProcessModel process;
+										// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
 										ConfigValueModel valuemodel = new ConfigValueModel();
 										valuemodel.setName("%项目id");
 										valuemodel.setValue(projectid.toString());
@@ -876,6 +879,7 @@ public class InterfaceCtrl extends BaseCtrl {
 										// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
 										// 先找到该项目关联的所有流程任务
 										ProcessModel process;
+										// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
 										ConfigValueModel valuemodel = new ConfigValueModel();
 										valuemodel.setName("%项目id");
 										valuemodel.setValue(projectid.toString());
@@ -955,6 +959,7 @@ public class InterfaceCtrl extends BaseCtrl {
 										// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
 										// 先找到该项目关联的所有流程任务
 										ProcessModel process;
+										// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
 										ConfigValueModel valuemodel = new ConfigValueModel();
 										valuemodel.setName("%项目id");
 										valuemodel.setValue(projectid.toString());
@@ -1753,6 +1758,7 @@ public class InterfaceCtrl extends BaseCtrl {
 								module = 2;
 							}
 
+							// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
 							modelConfig.setModuleid(module);
 							modelConfig.setName("%启动类型");
 							modelConfig.setProcessId(processID);
@@ -1821,6 +1827,7 @@ public class InterfaceCtrl extends BaseCtrl {
 						if (stage < CommonConstants.PROCESSCOUNT_NRFC) {
 							ConfigValueModel modelConfig = new ConfigValueModel();
 							// NR/FC项目默认只有编辑阶段，启动类型只考虑编辑阶段
+							// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
 							Integer module = 2;
 							modelConfig.setModuleid(module);
 							modelConfig.setName("%启动类型");
@@ -1892,6 +1899,7 @@ public class InterfaceCtrl extends BaseCtrl {
 								module = 2;
 							}
 
+							// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
 							modelConfig.setModuleid(module);
 							modelConfig.setName("%启动类型");
 							modelConfig.setProcessId(processID);
@@ -2063,6 +2071,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			}
 			List<ConfigValueModel> configList = configValueModelDao.selectConfigsById(value);
 
+			// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
 			// 数据库配置信息
 			List<ConfigDBModel> dbList = configDBModelDao.selectDbInfos();
 			// 将数据库id换成详细信息

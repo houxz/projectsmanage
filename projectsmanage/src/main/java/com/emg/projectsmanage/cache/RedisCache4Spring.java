@@ -138,19 +138,16 @@ public class RedisCache4Spring implements Cache {
 
 	@Override
 	public <T> T get(Object key, Class<T> type) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ValueWrapper putIfAbsent(Object key, Object value) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public <T> T get(Object key, Callable<T> valueLoader) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
