@@ -29,6 +29,7 @@ import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.PriorityLevel;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
+import com.emg.projectsmanage.common.ProcessConfigModuleEnum;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ItemAreaType;
 import com.emg.projectsmanage.common.ProjectState;
@@ -267,14 +268,14 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						projectid332 = newpro.getId();
 					}
 					if (projectid332 > 0) {
-						configValues.add(new ProcessConfigValueModel(newProcessID, 1, 3, projectid332.toString()));
-						configValues.add(new ProcessConfigValueModel(newProcessID, 1, 4, config_1_4));
+						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUID.getValue(), projectid332.toString()));
+						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue(), config_1_4));
 					}
 				}
 			} else {
 				if(!type.equals(ProcessType.NRFC.getValue()) && !type.equals(ProcessType.ATTACH.getValue())) {
 					String config_1_4 = newProcessName + "_质检";
-					configValues.add(new ProcessConfigValueModel(newProcessID, 1, 4, config_1_4));
+					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue(), config_1_4));
 
 					ProjectModel pro = new ProjectModel();
 					pro.setId(projectid332);
@@ -302,11 +303,11 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					projectid349 = newpro.getId();
 				}
 				if (projectid349 > 0) {
-					configValues.add(new ProcessConfigValueModel(newProcessID, 2, 11, projectid349.toString()));
-					configValues.add(new ProcessConfigValueModel(newProcessID, 2, 12, newProcessName + suffix));
+					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUID.getValue(), projectid349.toString()));
+					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newProcessName + suffix));
 				}
 			} else if(!isNewProcess) {
-				configValues.add(new ProcessConfigValueModel(newProcessID, 2, 12, newProcessName + suffix));
+				configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newProcessName + suffix));
 
 				ProjectModel pro = new ProjectModel();
 				pro.setId(projectid349);
@@ -349,8 +350,21 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				Integer configid = processConfig.getId();
 				String defaultValue = processConfig.getDefaultValue() == null ? new String() : processConfig.getDefaultValue().toString();
 
-				if ((moduleid.equals(1) && configid.equals(3)) || (moduleid.equals(1) && configid.equals(4)) || (moduleid.equals(2) && configid.equals(11))
-						|| (moduleid.equals(2) && configid.equals(12)))
+				// 这是前边代码特殊处理的部分配置
+				if ((moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUID.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUID.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue())))
+					continue;
+				
+				// 这是不能修改的默认配置，这些配置项保留创建任务之初的时候的配置，不再根据系统配置的修改而变动了
+				if ((moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANRENWUKU.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANQIDONGLEIXING.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIRENWUKU.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.CUOWUGESHU.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.CUOWUJULI.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.CUOWUKU.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIQIDONGLEIXING.getValue())))
 					continue;
 
 				Enumeration<String> paramNames = request.getParameterNames();
