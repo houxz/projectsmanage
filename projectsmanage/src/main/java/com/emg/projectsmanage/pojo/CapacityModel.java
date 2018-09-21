@@ -35,6 +35,8 @@ public class CapacityModel {
 
     private Long visualerrorcount = 0L;
 
+    private Long fielddatacount = 0L;
+
     private Date createtime;
 
     public Long getId() {
@@ -163,6 +165,14 @@ public class CapacityModel {
 
     public void setVisualerrorcount(Long visualerrorcount) {
         this.visualerrorcount = visualerrorcount;
+    }
+
+    public Long getFielddatacount() {
+        return fielddatacount;
+    }
+
+    public void setFielddatacount(Long fielddatacount) {
+        this.fielddatacount = fielddatacount;
     }
 
     public Date getCreatetime() {

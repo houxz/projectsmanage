@@ -705,52 +705,52 @@ public class CapacityModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andErrorcountEqualTo(Integer value) {
+        public Criteria andErrorcountEqualTo(Long value) {
             addCriterion("errorcount =", value, "errorcount");
             return (Criteria) this;
         }
 
-        public Criteria andErrorcountNotEqualTo(Integer value) {
+        public Criteria andErrorcountNotEqualTo(Long value) {
             addCriterion("errorcount <>", value, "errorcount");
             return (Criteria) this;
         }
 
-        public Criteria andErrorcountGreaterThan(Integer value) {
+        public Criteria andErrorcountGreaterThan(Long value) {
             addCriterion("errorcount >", value, "errorcount");
             return (Criteria) this;
         }
 
-        public Criteria andErrorcountGreaterThanOrEqualTo(Integer value) {
+        public Criteria andErrorcountGreaterThanOrEqualTo(Long value) {
             addCriterion("errorcount >=", value, "errorcount");
             return (Criteria) this;
         }
 
-        public Criteria andErrorcountLessThan(Integer value) {
+        public Criteria andErrorcountLessThan(Long value) {
             addCriterion("errorcount <", value, "errorcount");
             return (Criteria) this;
         }
 
-        public Criteria andErrorcountLessThanOrEqualTo(Integer value) {
+        public Criteria andErrorcountLessThanOrEqualTo(Long value) {
             addCriterion("errorcount <=", value, "errorcount");
             return (Criteria) this;
         }
 
-        public Criteria andErrorcountIn(List<Integer> values) {
+        public Criteria andErrorcountIn(List<Long> values) {
             addCriterion("errorcount in", values, "errorcount");
             return (Criteria) this;
         }
 
-        public Criteria andErrorcountNotIn(List<Integer> values) {
+        public Criteria andErrorcountNotIn(List<Long> values) {
             addCriterion("errorcount not in", values, "errorcount");
             return (Criteria) this;
         }
 
-        public Criteria andErrorcountBetween(Integer value1, Integer value2) {
+        public Criteria andErrorcountBetween(Long value1, Long value2) {
             addCriterion("errorcount between", value1, value2, "errorcount");
             return (Criteria) this;
         }
 
-        public Criteria andErrorcountNotBetween(Integer value1, Integer value2) {
+        public Criteria andErrorcountNotBetween(Long value1, Long value2) {
             addCriterion("errorcount not between", value1, value2, "errorcount");
             return (Criteria) this;
         }
@@ -765,52 +765,52 @@ public class CapacityModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andTaskcountEqualTo(Integer value) {
+        public Criteria andTaskcountEqualTo(Long value) {
             addCriterion("taskcount =", value, "taskcount");
             return (Criteria) this;
         }
 
-        public Criteria andTaskcountNotEqualTo(Integer value) {
+        public Criteria andTaskcountNotEqualTo(Long value) {
             addCriterion("taskcount <>", value, "taskcount");
             return (Criteria) this;
         }
 
-        public Criteria andTaskcountGreaterThan(Integer value) {
+        public Criteria andTaskcountGreaterThan(Long value) {
             addCriterion("taskcount >", value, "taskcount");
             return (Criteria) this;
         }
 
-        public Criteria andTaskcountGreaterThanOrEqualTo(Integer value) {
+        public Criteria andTaskcountGreaterThanOrEqualTo(Long value) {
             addCriterion("taskcount >=", value, "taskcount");
             return (Criteria) this;
         }
 
-        public Criteria andTaskcountLessThan(Integer value) {
+        public Criteria andTaskcountLessThan(Long value) {
             addCriterion("taskcount <", value, "taskcount");
             return (Criteria) this;
         }
 
-        public Criteria andTaskcountLessThanOrEqualTo(Integer value) {
+        public Criteria andTaskcountLessThanOrEqualTo(Long value) {
             addCriterion("taskcount <=", value, "taskcount");
             return (Criteria) this;
         }
 
-        public Criteria andTaskcountIn(List<Integer> values) {
+        public Criteria andTaskcountIn(List<Long> values) {
             addCriterion("taskcount in", values, "taskcount");
             return (Criteria) this;
         }
 
-        public Criteria andTaskcountNotIn(List<Integer> values) {
+        public Criteria andTaskcountNotIn(List<Long> values) {
             addCriterion("taskcount not in", values, "taskcount");
             return (Criteria) this;
         }
 
-        public Criteria andTaskcountBetween(Integer value1, Integer value2) {
+        public Criteria andTaskcountBetween(Long value1, Long value2) {
             addCriterion("taskcount between", value1, value2, "taskcount");
             return (Criteria) this;
         }
 
-        public Criteria andTaskcountNotBetween(Integer value1, Integer value2) {
+        public Criteria andTaskcountNotBetween(Long value1, Long value2) {
             addCriterion("taskcount not between", value1, value2, "taskcount");
             return (Criteria) this;
         }
@@ -825,52 +825,52 @@ public class CapacityModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andModifypoiEqualTo(Integer value) {
+        public Criteria andModifypoiEqualTo(Long value) {
             addCriterion("modifypoi =", value, "modifypoi");
             return (Criteria) this;
         }
 
-        public Criteria andModifypoiNotEqualTo(Integer value) {
+        public Criteria andModifypoiNotEqualTo(Long value) {
             addCriterion("modifypoi <>", value, "modifypoi");
             return (Criteria) this;
         }
 
-        public Criteria andModifypoiGreaterThan(Integer value) {
+        public Criteria andModifypoiGreaterThan(Long value) {
             addCriterion("modifypoi >", value, "modifypoi");
             return (Criteria) this;
         }
 
-        public Criteria andModifypoiGreaterThanOrEqualTo(Integer value) {
+        public Criteria andModifypoiGreaterThanOrEqualTo(Long value) {
             addCriterion("modifypoi >=", value, "modifypoi");
             return (Criteria) this;
         }
 
-        public Criteria andModifypoiLessThan(Integer value) {
+        public Criteria andModifypoiLessThan(Long value) {
             addCriterion("modifypoi <", value, "modifypoi");
             return (Criteria) this;
         }
 
-        public Criteria andModifypoiLessThanOrEqualTo(Integer value) {
+        public Criteria andModifypoiLessThanOrEqualTo(Long value) {
             addCriterion("modifypoi <=", value, "modifypoi");
             return (Criteria) this;
         }
 
-        public Criteria andModifypoiIn(List<Integer> values) {
+        public Criteria andModifypoiIn(List<Long> values) {
             addCriterion("modifypoi in", values, "modifypoi");
             return (Criteria) this;
         }
 
-        public Criteria andModifypoiNotIn(List<Integer> values) {
+        public Criteria andModifypoiNotIn(List<Long> values) {
             addCriterion("modifypoi not in", values, "modifypoi");
             return (Criteria) this;
         }
 
-        public Criteria andModifypoiBetween(Integer value1, Integer value2) {
+        public Criteria andModifypoiBetween(Long value1, Long value2) {
             addCriterion("modifypoi between", value1, value2, "modifypoi");
             return (Criteria) this;
         }
 
-        public Criteria andModifypoiNotBetween(Integer value1, Integer value2) {
+        public Criteria andModifypoiNotBetween(Long value1, Long value2) {
             addCriterion("modifypoi not between", value1, value2, "modifypoi");
             return (Criteria) this;
         }
@@ -885,52 +885,52 @@ public class CapacityModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreatepoiEqualTo(Integer value) {
+        public Criteria andCreatepoiEqualTo(Long value) {
             addCriterion("createpoi =", value, "createpoi");
             return (Criteria) this;
         }
 
-        public Criteria andCreatepoiNotEqualTo(Integer value) {
+        public Criteria andCreatepoiNotEqualTo(Long value) {
             addCriterion("createpoi <>", value, "createpoi");
             return (Criteria) this;
         }
 
-        public Criteria andCreatepoiGreaterThan(Integer value) {
+        public Criteria andCreatepoiGreaterThan(Long value) {
             addCriterion("createpoi >", value, "createpoi");
             return (Criteria) this;
         }
 
-        public Criteria andCreatepoiGreaterThanOrEqualTo(Integer value) {
+        public Criteria andCreatepoiGreaterThanOrEqualTo(Long value) {
             addCriterion("createpoi >=", value, "createpoi");
             return (Criteria) this;
         }
 
-        public Criteria andCreatepoiLessThan(Integer value) {
+        public Criteria andCreatepoiLessThan(Long value) {
             addCriterion("createpoi <", value, "createpoi");
             return (Criteria) this;
         }
 
-        public Criteria andCreatepoiLessThanOrEqualTo(Integer value) {
+        public Criteria andCreatepoiLessThanOrEqualTo(Long value) {
             addCriterion("createpoi <=", value, "createpoi");
             return (Criteria) this;
         }
 
-        public Criteria andCreatepoiIn(List<Integer> values) {
+        public Criteria andCreatepoiIn(List<Long> values) {
             addCriterion("createpoi in", values, "createpoi");
             return (Criteria) this;
         }
 
-        public Criteria andCreatepoiNotIn(List<Integer> values) {
+        public Criteria andCreatepoiNotIn(List<Long> values) {
             addCriterion("createpoi not in", values, "createpoi");
             return (Criteria) this;
         }
 
-        public Criteria andCreatepoiBetween(Integer value1, Integer value2) {
+        public Criteria andCreatepoiBetween(Long value1, Long value2) {
             addCriterion("createpoi between", value1, value2, "createpoi");
             return (Criteria) this;
         }
 
-        public Criteria andCreatepoiNotBetween(Integer value1, Integer value2) {
+        public Criteria andCreatepoiNotBetween(Long value1, Long value2) {
             addCriterion("createpoi not between", value1, value2, "createpoi");
             return (Criteria) this;
         }
@@ -945,52 +945,52 @@ public class CapacityModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andDeletepoiEqualTo(Integer value) {
+        public Criteria andDeletepoiEqualTo(Long value) {
             addCriterion("deletepoi =", value, "deletepoi");
             return (Criteria) this;
         }
 
-        public Criteria andDeletepoiNotEqualTo(Integer value) {
+        public Criteria andDeletepoiNotEqualTo(Long value) {
             addCriterion("deletepoi <>", value, "deletepoi");
             return (Criteria) this;
         }
 
-        public Criteria andDeletepoiGreaterThan(Integer value) {
+        public Criteria andDeletepoiGreaterThan(Long value) {
             addCriterion("deletepoi >", value, "deletepoi");
             return (Criteria) this;
         }
 
-        public Criteria andDeletepoiGreaterThanOrEqualTo(Integer value) {
+        public Criteria andDeletepoiGreaterThanOrEqualTo(Long value) {
             addCriterion("deletepoi >=", value, "deletepoi");
             return (Criteria) this;
         }
 
-        public Criteria andDeletepoiLessThan(Integer value) {
+        public Criteria andDeletepoiLessThan(Long value) {
             addCriterion("deletepoi <", value, "deletepoi");
             return (Criteria) this;
         }
 
-        public Criteria andDeletepoiLessThanOrEqualTo(Integer value) {
+        public Criteria andDeletepoiLessThanOrEqualTo(Long value) {
             addCriterion("deletepoi <=", value, "deletepoi");
             return (Criteria) this;
         }
 
-        public Criteria andDeletepoiIn(List<Integer> values) {
+        public Criteria andDeletepoiIn(List<Long> values) {
             addCriterion("deletepoi in", values, "deletepoi");
             return (Criteria) this;
         }
 
-        public Criteria andDeletepoiNotIn(List<Integer> values) {
+        public Criteria andDeletepoiNotIn(List<Long> values) {
             addCriterion("deletepoi not in", values, "deletepoi");
             return (Criteria) this;
         }
 
-        public Criteria andDeletepoiBetween(Integer value1, Integer value2) {
+        public Criteria andDeletepoiBetween(Long value1, Long value2) {
             addCriterion("deletepoi between", value1, value2, "deletepoi");
             return (Criteria) this;
         }
 
-        public Criteria andDeletepoiNotBetween(Integer value1, Integer value2) {
+        public Criteria andDeletepoiNotBetween(Long value1, Long value2) {
             addCriterion("deletepoi not between", value1, value2, "deletepoi");
             return (Criteria) this;
         }
@@ -1005,52 +1005,52 @@ public class CapacityModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andConfirmpoiEqualTo(Integer value) {
+        public Criteria andConfirmpoiEqualTo(Long value) {
             addCriterion("confirmpoi =", value, "confirmpoi");
             return (Criteria) this;
         }
 
-        public Criteria andConfirmpoiNotEqualTo(Integer value) {
+        public Criteria andConfirmpoiNotEqualTo(Long value) {
             addCriterion("confirmpoi <>", value, "confirmpoi");
             return (Criteria) this;
         }
 
-        public Criteria andConfirmpoiGreaterThan(Integer value) {
+        public Criteria andConfirmpoiGreaterThan(Long value) {
             addCriterion("confirmpoi >", value, "confirmpoi");
             return (Criteria) this;
         }
 
-        public Criteria andConfirmpoiGreaterThanOrEqualTo(Integer value) {
+        public Criteria andConfirmpoiGreaterThanOrEqualTo(Long value) {
             addCriterion("confirmpoi >=", value, "confirmpoi");
             return (Criteria) this;
         }
 
-        public Criteria andConfirmpoiLessThan(Integer value) {
+        public Criteria andConfirmpoiLessThan(Long value) {
             addCriterion("confirmpoi <", value, "confirmpoi");
             return (Criteria) this;
         }
 
-        public Criteria andConfirmpoiLessThanOrEqualTo(Integer value) {
+        public Criteria andConfirmpoiLessThanOrEqualTo(Long value) {
             addCriterion("confirmpoi <=", value, "confirmpoi");
             return (Criteria) this;
         }
 
-        public Criteria andConfirmpoiIn(List<Integer> values) {
+        public Criteria andConfirmpoiIn(List<Long> values) {
             addCriterion("confirmpoi in", values, "confirmpoi");
             return (Criteria) this;
         }
 
-        public Criteria andConfirmpoiNotIn(List<Integer> values) {
+        public Criteria andConfirmpoiNotIn(List<Long> values) {
             addCriterion("confirmpoi not in", values, "confirmpoi");
             return (Criteria) this;
         }
 
-        public Criteria andConfirmpoiBetween(Integer value1, Integer value2) {
+        public Criteria andConfirmpoiBetween(Long value1, Long value2) {
             addCriterion("confirmpoi between", value1, value2, "confirmpoi");
             return (Criteria) this;
         }
 
-        public Criteria andConfirmpoiNotBetween(Integer value1, Integer value2) {
+        public Criteria andConfirmpoiNotBetween(Long value1, Long value2) {
             addCriterion("confirmpoi not between", value1, value2, "confirmpoi");
             return (Criteria) this;
         }
@@ -1065,53 +1065,113 @@ public class CapacityModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andVisualerrorcountEqualTo(Integer value) {
+        public Criteria andVisualerrorcountEqualTo(Long value) {
             addCriterion("visualerrorcount =", value, "visualerrorcount");
             return (Criteria) this;
         }
 
-        public Criteria andVisualerrorcountNotEqualTo(Integer value) {
+        public Criteria andVisualerrorcountNotEqualTo(Long value) {
             addCriterion("visualerrorcount <>", value, "visualerrorcount");
             return (Criteria) this;
         }
 
-        public Criteria andVisualerrorcountGreaterThan(Integer value) {
+        public Criteria andVisualerrorcountGreaterThan(Long value) {
             addCriterion("visualerrorcount >", value, "visualerrorcount");
             return (Criteria) this;
         }
 
-        public Criteria andVisualerrorcountGreaterThanOrEqualTo(Integer value) {
+        public Criteria andVisualerrorcountGreaterThanOrEqualTo(Long value) {
             addCriterion("visualerrorcount >=", value, "visualerrorcount");
             return (Criteria) this;
         }
 
-        public Criteria andVisualerrorcountLessThan(Integer value) {
+        public Criteria andVisualerrorcountLessThan(Long value) {
             addCriterion("visualerrorcount <", value, "visualerrorcount");
             return (Criteria) this;
         }
 
-        public Criteria andVisualerrorcountLessThanOrEqualTo(Integer value) {
+        public Criteria andVisualerrorcountLessThanOrEqualTo(Long value) {
             addCriterion("visualerrorcount <=", value, "visualerrorcount");
             return (Criteria) this;
         }
 
-        public Criteria andVisualerrorcountIn(List<Integer> values) {
+        public Criteria andVisualerrorcountIn(List<Long> values) {
             addCriterion("visualerrorcount in", values, "visualerrorcount");
             return (Criteria) this;
         }
 
-        public Criteria andVisualerrorcountNotIn(List<Integer> values) {
+        public Criteria andVisualerrorcountNotIn(List<Long> values) {
             addCriterion("visualerrorcount not in", values, "visualerrorcount");
             return (Criteria) this;
         }
 
-        public Criteria andVisualerrorcountBetween(Integer value1, Integer value2) {
+        public Criteria andVisualerrorcountBetween(Long value1, Long value2) {
             addCriterion("visualerrorcount between", value1, value2, "visualerrorcount");
             return (Criteria) this;
         }
 
-        public Criteria andVisualerrorcountNotBetween(Integer value1, Integer value2) {
+        public Criteria andVisualerrorcountNotBetween(Long value1, Long value2) {
             addCriterion("visualerrorcount not between", value1, value2, "visualerrorcount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFielddatacountIsNull() {
+            addCriterion("fielddatacount is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFielddatacountIsNotNull() {
+            addCriterion("fielddatacount is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFielddatacountEqualTo(Long value) {
+            addCriterion("fielddatacount =", value, "fielddatacount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFielddatacountNotEqualTo(Long value) {
+            addCriterion("fielddatacount <>", value, "fielddatacount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFielddatacountGreaterThan(Long value) {
+            addCriterion("fielddatacount >", value, "fielddatacount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFielddatacountGreaterThanOrEqualTo(Long value) {
+            addCriterion("fielddatacount >=", value, "fielddatacount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFielddatacountLessThan(Long value) {
+            addCriterion("fielddatacount <", value, "fielddatacount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFielddatacountLessThanOrEqualTo(Long value) {
+            addCriterion("fielddatacount <=", value, "fielddatacount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFielddatacountIn(List<Long> values) {
+            addCriterion("fielddatacount in", values, "fielddatacount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFielddatacountNotIn(List<Long> values) {
+            addCriterion("fielddatacount not in", values, "fielddatacount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFielddatacountBetween(Long value1, Long value2) {
+            addCriterion("fielddatacount between", value1, value2, "fielddatacount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFielddatacountNotBetween(Long value1, Long value2) {
+            addCriterion("fielddatacount not between", value1, value2, "fielddatacount");
             return (Criteria) this;
         }
 
