@@ -27,6 +27,7 @@ import com.emg.projectsmanage.dao.projectsmanager.CapacityTaskModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
 import com.emg.projectsmanage.dao.task.TaskBlockDetailModelDao;
 import com.emg.projectsmanage.dao.task.TaskLinkErrorModelDao;
+import com.emg.projectsmanage.dao.task.TaskLinkFielddataModelDao;
 import com.emg.projectsmanage.dao.task.TaskModelDao;
 import com.emg.projectsmanage.pojo.CapacityModel;
 import com.emg.projectsmanage.pojo.CapacityTaskModel;
@@ -65,6 +66,9 @@ public class SchedulerTask {
 
 	@Autowired
 	private TaskLinkErrorModelDao taskLinkErrorModelDao;
+	
+	@Autowired
+	private TaskLinkFielddataModelDao taskLinkFielddataModelDao;
 
 	@Autowired
 	private TaskBlockDetailModelDao taskBlockDetailModelDao;
@@ -362,6 +366,69 @@ public class SchedulerTask {
 								
 								uniqRecords.put(editUniqRecord, editCapacityModel);
 							}
+							
+							List<Map<String, Object>> taskLinkFielddataGroups = taskLinkFielddataModelDao.groupTaskLinkFielddataByTime(configDBModel, time);
+							for (Map<String, Object> taskLinkFielddataGroup : taskLinkFielddataGroups) {
+								Long taskid = (Long) taskLinkFielddataGroup.get("taskid");
+								Long count = (Long) taskLinkFielddataGroup.get("count");
+								
+								TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
+								
+								Integer userid = 0;
+								Integer roleid = RoleType.UNKNOWN.getValue();
+
+								Integer taskType = task.getTasktype();
+								if (taskType.equals(POITaskTypeEnum.FEISHICE.getValue()) || // 非实测
+										taskType.equals(POITaskTypeEnum.QUANGUOQC.getValue()) || // 全国质检改错
+										taskType.equals(POITaskTypeEnum.FEISHICEADDRESSTEL.getValue())// 地址电话改错
+										|| taskType.equals(POITaskTypeEnum.KETOU.getValue()) || // 客投制作
+										taskType.equals(POITaskTypeEnum.GEN.getValue())) {// 易淘金制作
+									userid = task.getEditid();
+									roleid = RoleType.ROLE_WORKER.getValue();
+								} else if (taskType.equals(POITaskTypeEnum.MC_KETOU.getValue()) || // 客投校正
+										taskType.equals(POITaskTypeEnum.MC_GEN.getValue())) {// 易淘金校正
+									userid = task.getCheckid();
+									roleid = RoleType.ROLE_CHECKER.getValue();
+								} else {
+									continue;
+								}
+								
+								Long projectid = task.getProjectid();
+								
+								UniqRecord editUniqRecord = new UniqRecord(taskType, projectid, userid);
+								CapacityModel editCapacityModel = new CapacityModel();
+								if(uniqRecords.containsKey(editUniqRecord)) {
+									editCapacityModel = uniqRecords.get(editUniqRecord);
+									uniqRecords.remove(editUniqRecord);
+								}
+								
+								ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+								editCapacityModel.setProjectid(projectid);
+								if (project != null) {
+									Long processid = project.getProcessid();
+									ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+									if (process != null) {
+										editCapacityModel.setProcessid(processid);
+										editCapacityModel.setProcessname(process.getName());
+									}
+								}
+								
+								editCapacityModel.setTasktype(taskType);
+
+								editCapacityModel.setUserid(userid);
+								EmployeeModel erecord = new EmployeeModel();
+								erecord.setId(userid);
+								EmployeeModel emp = employeeModelDao.getOneEmployee(erecord);
+								if(emp != null)
+									editCapacityModel.setUsername(emp.getRealname());
+
+								editCapacityModel.setRoleid(roleid);
+								editCapacityModel.setTime(time);
+								
+								editCapacityModel.setFielddatacount(editCapacityModel.getFielddatacount() + count);
+								
+								uniqRecords.put(editUniqRecord, editCapacityModel);
+							}
 
 							if (uniqRecords != null && !uniqRecords.isEmpty()) {
 								for (CapacityModel capacityModel : uniqRecords.values()) {
@@ -371,7 +438,8 @@ public class SchedulerTask {
 											&& capacityModel.getCreatepoi().equals(0L)
 											&& capacityModel.getDeletepoi().equals(0L)
 											&& capacityModel.getConfirmpoi().equals(0L)
-											&& capacityModel.getVisualerrorcount().equals(0L))
+											&& capacityModel.getVisualerrorcount().equals(0L)
+											&& capacityModel.getFielddatacount().equals(0L))
 										continue;
 									capacityModelDao.insert(capacityModel);
 								}

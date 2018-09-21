@@ -64,7 +64,7 @@
 				data-query-params="queryParams" data-url="./capacity.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="capacity" data-height="714"
-				data-page-list="[15, 30, 50, 100, all]" data-page-size="15"
+				data-page-list="[10, 30, 50, 100, all]" data-page-size="10"
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr>
@@ -74,7 +74,7 @@
 						<th data-field="tasktype" data-width="160" data-formatter="poiTaskTypesFormat"
 							data-filter-control="select" data-filter-data="var:poiTaskTypes">任务类型</th>
 							
-						<th data-field="processname"
+						<th data-field="processname" data-width="160"
 							data-filter-control="input" data-filter-control-placeholder="">项目名称</th>
 							
 						<th data-field="username" data-width="80"
@@ -87,6 +87,8 @@
 							data-filter-control="input" data-filter-control-placeholder="">统计日期</th>
 							
 						<th data-field="taskcount" data-sortable="true">制作任务</th>
+						
+						<th data-field="fielddatacount" data-sortable="true">修改资料</th>
 						
 						<!-- <th data-field="createpoi" data-sortable="true">新增POI</th> -->
 						
