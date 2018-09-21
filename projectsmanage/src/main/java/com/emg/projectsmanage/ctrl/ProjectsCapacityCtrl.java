@@ -36,8 +36,17 @@ public class ProjectsCapacityCtrl extends BaseCtrl {
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProjectsCapacityCtrl-openLader start.");
-		POITaskTypeEnum.toJsonStr();
-		model.addAttribute("poiTaskTypes", POITaskTypeEnum.toJsonStr());
+		StringBuilder sb = new StringBuilder();
+		sb.append("{");
+		sb.append("\"" + POITaskTypeEnum.FEISHICE.getValue() + "\":\"" + POITaskTypeEnum.FEISHICE.getDes() + "\",");
+		sb.append("\"" + POITaskTypeEnum.QUANGUOQC.getValue() + "\":\"" + POITaskTypeEnum.QUANGUOQC.getDes() + "\",");
+		sb.append("\"" + POITaskTypeEnum.FEISHICEADDRESSTEL.getValue() + "\":\"" + POITaskTypeEnum.FEISHICEADDRESSTEL.getDes() + "\",");
+		sb.append("\"" + POITaskTypeEnum.KETOU.getValue() + "\":\"" + POITaskTypeEnum.KETOU.getDes() + "\",");
+		sb.append("\"" + POITaskTypeEnum.MC_KETOU.getValue() + "\":\"" + POITaskTypeEnum.MC_KETOU.getDes() + "\",");
+		sb.append("\"" + POITaskTypeEnum.GEN.getValue() + "\":\"" + POITaskTypeEnum.GEN.getDes() + "\",");
+		sb.append("\"" + POITaskTypeEnum.MC_GEN.getValue() + "\":\"" + POITaskTypeEnum.MC_GEN.getDes() + "\",");
+		sb.append("}");
+		model.addAttribute("poiTaskTypes", sb.toString());
 		return "capacity";
 	}
 
