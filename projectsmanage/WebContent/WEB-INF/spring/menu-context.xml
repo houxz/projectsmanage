@@ -132,6 +132,7 @@
 		<property name="label" value="产能统计" />
 		<property name="roleSet">
 			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_ADMIN</value>
 				<value type="com.emg.projectsmanage.common.RoleType">ROLE_YANFAADMIN</value>
 			</set>
 		</property>
