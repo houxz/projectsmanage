@@ -42,7 +42,7 @@ public class TaskBlockDetailModelDao {
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task_blockdetail ");
-			sql.append(" WHERE pstate = 2 AND editid = 312 ");
+			sql.append(" WHERE pstate = 2");
 			sql.append("	AND (");
 			sql.append("	( editid > 0 AND ( edittime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ) ");
 			sql.append("	OR ( checkid > 0 AND ( checktime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ) ");

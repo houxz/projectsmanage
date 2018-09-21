@@ -3,6 +3,8 @@ package com.emg.projectsmanage.dao.task;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -252,6 +254,49 @@ public class TaskModelDao {
 			}
 		}
 		return count;
+	}
+	
+	public List<Map<String, Object>> groupTasksByTime(ConfigDBModel configDBModel, String time) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		BasicDataSource dataSource = null;
+		try {
+			if (time == null || time.isEmpty())
+				return list;
+			
+			String startTime = time;
+			String endTime = String.format("%s 23:59:59", time);
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT");
+			sql.append("	tasktype,");
+			sql.append("	projectid,");
+			sql.append("	editid,");
+			sql.append("	sum( CASE WHEN editid > 0 THEN 1 ELSE 0 END ) AS editnum,");
+			sql.append("	checkid,");
+			sql.append("	sum( CASE WHEN checkid > 0 THEN 1 ELSE 0 END ) AS checknum ");
+			sql.append(" FROM ");
+			sql.append(configDBModel.getDbschema()).append(".");
+			sql.append(" tb_task ");
+			sql.append(" WHERE state = 2");
+			sql.append("	AND operatetime BETWEEN '" + startTime + "' AND '" + endTime + "' ");
+			sql.append("	AND ( editid > 0 OR checkid > 0 ) ");
+			sql.append(" GROUP BY tasktype, projectid, editid, checkid");
+
+			dataSource = Common.getDataSource(configDBModel);
+			list = new JdbcTemplate(dataSource).queryForList(sql.toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			list = new ArrayList<Map<String, Object>>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return list;
 	}
 	
 	public TaskModel getTaskByID(ConfigDBModel configDBModel, Long taskid) {

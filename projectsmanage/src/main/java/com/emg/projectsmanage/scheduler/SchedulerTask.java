@@ -168,6 +168,69 @@ public class SchedulerTask {
 							
 							Map<UniqRecord, CapacityModel> uniqRecords = new HashMap<UniqRecord, CapacityModel>();
 							
+							List<Map<String, Object>> taskGroups = taskModelDao.groupTasksByTime(configDBModel, time);
+							for (Map<String, Object> taskGroup : taskGroups) {
+								Integer taskType = (Integer) taskGroup.get("tasktype");
+								Long projectid = (Long) taskGroup.get("projectid");
+								Integer editid = (Integer) taskGroup.get("editid");
+								Long editnum = (Long) taskGroup.get("editnum");
+								Integer checkid = (Integer) taskGroup.get("checkid");
+								Long checknum = (Long) taskGroup.get("checknum");
+								
+								UniqRecord editUniqRecord = new UniqRecord(taskType, projectid, editid);
+								UniqRecord checkUniqRecord = new UniqRecord(taskType, projectid, checkid);
+								CapacityModel editCapacityModel = new CapacityModel();
+								if(uniqRecords.containsKey(editUniqRecord)) {
+									editCapacityModel = uniqRecords.get(editUniqRecord);
+									uniqRecords.remove(editUniqRecord);
+								}
+								CapacityModel checkCapacityModel = new CapacityModel();
+								if(uniqRecords.containsKey(checkUniqRecord)) {
+									checkCapacityModel = uniqRecords.get(checkUniqRecord);
+									uniqRecords.remove(checkUniqRecord);
+								}
+								
+								ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+								editCapacityModel.setProjectid(projectid);
+								checkCapacityModel.setProjectid(projectid);
+								if (project != null) {
+									Long processid = project.getProcessid();
+									ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+									if (process != null) {
+										editCapacityModel.setProcessid(processid);
+										editCapacityModel.setProcessname(process.getName());
+										checkCapacityModel.setProcessid(processid);
+										checkCapacityModel.setProcessname(process.getName());
+									}
+								}
+								
+								editCapacityModel.setTasktype(taskType);
+								checkCapacityModel.setTasktype(taskType);
+
+								editCapacityModel.setUserid(editid);
+								checkCapacityModel.setUserid(checkid);
+								EmployeeModel erecord = new EmployeeModel();
+								erecord.setId(editid);
+								EmployeeModel emp = employeeModelDao.getOneEmployee(erecord);
+								if(emp != null)
+									editCapacityModel.setUsername(emp.getRealname());
+								erecord.setId(checkid);
+								emp = employeeModelDao.getOneEmployee(erecord);
+								if(emp != null)
+									checkCapacityModel.setUsername(emp.getRealname());
+
+								editCapacityModel.setRoleid(RoleType.ROLE_WORKER.getValue());
+								editCapacityModel.setTime(time);
+								checkCapacityModel.setRoleid(RoleType.ROLE_CHECKER.getValue());
+								checkCapacityModel.setTime(time);
+								
+								editCapacityModel.setTaskcount(editCapacityModel.getTaskcount() + editnum);
+								checkCapacityModel.setTaskcount(checkCapacityModel.getTaskcount() + checknum);
+								
+								uniqRecords.put(editUniqRecord, editCapacityModel);
+								uniqRecords.put(checkUniqRecord, checkCapacityModel);
+							}
+							
 							List<Map<String, Object>> taskBlockDetailGroups = taskBlockDetailModelDao.groupTaskBlockDetailsByTime(configDBModel, time);
 							for (Map<String, Object> taskBlockDetailGroup : taskBlockDetailGroups) {
 								Long blockid = (Long) taskBlockDetailGroup.get("blockid");
@@ -193,7 +256,6 @@ public class SchedulerTask {
 									checkCapacityModel = uniqRecords.get(checkUniqRecord);
 									uniqRecords.remove(checkUniqRecord);
 								}
-								
 								
 								ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
 								editCapacityModel.setProjectid(projectid);
