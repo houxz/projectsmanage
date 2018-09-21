@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.emg.projectsmanage.common.Common;
-import com.emg.projectsmanage.common.DatabaseType;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 
 @Component
@@ -33,7 +32,9 @@ public class TaskLinkErrorModelDao {
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	taskid,");
-			sql.append("	COUNT ( 1 )");
+			sql.append("	COUNT ( 1 ) AS count");
+			sql.append("	SUM( CASE WHEN errortype BETWEEN 10000000000 AND 19999999999 THEN 1 ELSE 0 END ) AS errorcount,");
+			sql.append("	SUM( CASE WHEN errortype BETWEEN 20000000000 AND 29999999999 THEN 1 ELSE 0 END ) AS visualerrorcount");
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task_link_error ");
@@ -58,91 +59,4 @@ public class TaskLinkErrorModelDao {
 		return list;
 	}
 
-	public Integer countTaskLinkErrorByTaskid(ConfigDBModel configDBModel, Long taskid, String time) {
-		Integer count = -1;
-		BasicDataSource dataSource = null;
-		try {
-			Integer dbtype = configDBModel.getDbtype();
-			String separator = Common.getDatabaseSeparator(dbtype);
-			
-			String startTime = time;
-			String endTime = String.format("%s 23:59:59", time);
-			
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT COUNT(1) ");
-			sql.append(" FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append(" tb_task_link_error ");
-			sql.append(" WHERE pstate = 2");
-			if (taskid != null && taskid.compareTo(0L) > 0) {
-				sql.append(" AND " + separator + "taskid" + separator + " = " + taskid);
-			}
-			if (time != null && !time.isEmpty()) {
-				sql.append(" AND " + separator + "updatetime" + separator + " IS NOT NULL ");
-				sql.append(String.format(" AND (" + separator + "updatetime" + separator + " BETWEEN '%s' AND '%s')", startTime, endTime));
-			}
-
-			dataSource = Common.getDataSource(configDBModel);
-			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			count = -1;
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		}
-		return count;
-	}
-	
-	public Integer countTaskLinkVisualErrorByTaskid(ConfigDBModel configDBModel, Long taskid, String time) {
-		Integer count = -1;
-		BasicDataSource dataSource = null;
-		try {
-			Integer dbtype = configDBModel.getDbtype();
-			String separator = Common.getDatabaseSeparator(dbtype);
-			
-			String startTime = time;
-			String endTime = String.format("%s 23:59:59", time);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT COUNT(1) ");
-			sql.append(" FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append(" tb_task_link_error ");
-			sql.append(" WHERE pstate = 2");
-			sql.append(" AND (errortype BETWEEN 19999999999 AND 30000000000)");
-			if (taskid != null && taskid.compareTo(0L) > 0) {
-				sql.append(" AND " + separator + "taskid" + separator + " = " + taskid);
-			}
-			if (time != null && !time.isEmpty()) {
-				sql.append(" AND " + separator + "updatetime" + separator + " IS NOT NULL ");
-				sql.append(String.format(" AND (" + separator + "updatetime" + separator + " BETWEEN '%s' AND '%s')", startTime, endTime));
-			}
-
-			dataSource = Common.getDataSource(configDBModel);
-			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			count = -1;
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		}
-		return count;
-	}
-	
 }

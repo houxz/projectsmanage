@@ -301,7 +301,8 @@ public class SchedulerTask {
 							List<Map<String, Object>> taskLinkErrorGroups = taskLinkErrorModelDao.groupTaskLinkErrorByTime(configDBModel, time);
 							for (Map<String, Object> taskLinkErrorGroup : taskLinkErrorGroups) {
 								Long taskid = (Long) taskLinkErrorGroup.get("taskid");
-								Long count = (Long) taskLinkErrorGroup.get("count");
+								Long errorcount = (Long) taskLinkErrorGroup.get("errorcount");
+								Long visualerrorcount = (Long) taskLinkErrorGroup.get("visualerrorcount");
 								
 								TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
 								
@@ -356,7 +357,8 @@ public class SchedulerTask {
 								editCapacityModel.setRoleid(roleid);
 								editCapacityModel.setTime(time);
 								
-								editCapacityModel.setErrorcount(editCapacityModel.getErrorcount() + count);
+								editCapacityModel.setErrorcount(editCapacityModel.getErrorcount() + errorcount);
+								editCapacityModel.setErrorcount(editCapacityModel.getVisualerrorcount() + visualerrorcount);
 								
 								uniqRecords.put(editUniqRecord, editCapacityModel);
 							}

@@ -368,42 +368,4 @@ public class TaskModelDao {
 		return task;
 	}
 
-	public List<TaskModel> getTaskByTime(ConfigDBModel configDBModel, String time) {
-		List<TaskModel> tasks = new ArrayList<TaskModel>();
-		BasicDataSource dataSource = null;
-		try {
-			if (time == null || time.isEmpty())
-				return tasks;
-			Integer dbtype = configDBModel.getDbtype();
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT * FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_task ");
-			sql.append(" WHERE state = 1");
-			sql.append(" OR ( state = 2");
-			sql.append(String.format(" AND time IS NOT NULL AND time > '%s')", time));
-			sql.append(" ORDER BY id ");
-
-			dataSource = Common.getDataSource(configDBModel);
-			tasks = new JdbcTemplate(dataSource).query(sql.toString(),
-					new BeanPropertyRowMapper<TaskModel>(TaskModel.class));
-
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			tasks = new ArrayList<TaskModel>();
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		}
-		return tasks;
-	}
-
 }
