@@ -1611,9 +1611,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				configValues.add(new ProcessConfigValueModel(newProcessID, moduleid, configid, defaultValue));
 			}
 
-			if (processConfigValueModelDao.deleteByProcessID(newProcessID) >= 0) {
-				processConfigValueModelDao.insert(configValues);
-			}
+			processConfigValueModelDao.insert(configValues);
 			
 			json.addObject("status", true);
 			json.addObject("option", newProcessID);
