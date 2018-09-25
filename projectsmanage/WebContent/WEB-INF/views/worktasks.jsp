@@ -24,29 +24,12 @@
 <script src="resources/bootstrap-table-1.11.1/locale/bootstrap-table-zh-CN.js"></script>
 
 <script type="text/javascript">
-	var users = eval('(${users})');
-	var roles = eval('(${roles})');
-	var userForSelect = {};
-	var roleForSelect = {};
-	if (users.length > 0) {
-		for ( var user in users) {
-			userForSelect[users[user].userid] = users[user].username;
-		}
-	}
-	if (roles.length > 0) {
-		for ( var role in roles) {
-			roleForSelect[roles[role].roleid] = roles[role].rolename;
-		}
-	}
-	function userFormat(value, row, index) {
-		return userForSelect[row.userid];
-	}
+	var roleTypes = {5:"制作",6:"校正"};
 	function roleFormat(value, row, index) {
-		return roleForSelect[row.roleid];
+		return roleTypes[row.roleid];
 	}
 	$(document).ready(function() {
 		$.webeditor.getHead();
-		//$.webeditor.getFoot();
 		$('[data-toggle="worktasks"]').bootstrapTable({
 			locale : 'zh-CN',
 			sortable: true
@@ -78,11 +61,10 @@
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr>
-						<th data-field="userid" data-formatter="userFormat"
-							data-filter-control="select" data-filter-data="var:userForSelect"
+						<th data-field="username" data-filter-control="input" data-filter-control-placeholder=""
 							data-width="80">人员名称</th>
 						<th data-field="roleid" data-formatter="roleFormat"
-							data-filter-control="select" data-filter-data="var:roleForSelect"
+							data-filter-control="select" data-filter-data="var:roleTypes"
 							data-width="80">角色名称</th>
 						<th data-field="processid" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="60">项目编号</th>

@@ -1,16 +1,11 @@
 package com.emg.projectsmanage.ctrl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.slf4j.Logger;
@@ -25,7 +20,6 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
 import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
-import com.emg.projectsmanage.pojo.ProjectsUserModel;
 
 @Controller
 @RequestMapping("/worktasks.web")
@@ -39,40 +33,6 @@ public class WorkTasksCtrl extends BaseCtrl {
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("WorkTasksCtrl-openLader start.");
-		Map<String, Object> map = new HashMap<String, Object>();
-//		if (!hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
-//			Integer userid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
-//			map.put("userid", userid);
-//		}
-		List<ProjectsTaskCountModel> projectsTaskCountModels = projectsTaskCountDao.groupProjectsProgressByUseridAndRoleid(map);
-		List<ProjectsUserModel> users = new ArrayList<ProjectsUserModel>();
-		Set<Integer> userIDs = new HashSet<Integer>();
-		List<ProjectsUserModel> roles = new ArrayList<ProjectsUserModel>();
-		Set<Integer> roleIDs = new HashSet<Integer>();
-
-		for (ProjectsTaskCountModel projectsTaskCountModel : projectsTaskCountModels) {
-			Integer userid = projectsTaskCountModel.getUserid();
-			String username = projectsTaskCountModel.getUsername();
-			Integer roleid = projectsTaskCountModel.getRoleid();
-			String rolename = projectsTaskCountModel.getRolename();
-			
-			if (!userIDs.contains(userid)) {
-				ProjectsUserModel user = new ProjectsUserModel();
-				user.setUserid(userid);
-				user.setUsername(username);
-				users.add(user);
-				userIDs.add(userid);
-			}
-			if (!roleIDs.contains(roleid)) {
-				ProjectsUserModel role = new ProjectsUserModel();
-				role.setRoleid(roleid);
-				role.setRolename(rolename);
-				roles.add(role);
-				roleIDs.add(roleid);
-			}
-		}
-		model.addAttribute("users", users.size() > 0 ? JSONArray.fromObject(users).toString() : "({})");
-		model.addAttribute("roles", roles.size() > 0 ? JSONArray.fromObject(roles).toString() : "({})");
 		return "worktasks";
 	}
 
@@ -89,10 +49,6 @@ public class WorkTasksCtrl extends BaseCtrl {
 			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> map = new HashMap<String, Object>();
-//			if (!hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
-//				Integer userid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
-//				map.put("userid", userid);
-//			}
 			if (filter.length() > 0) {
 				Map<String, Object> filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {
@@ -100,8 +56,8 @@ public class WorkTasksCtrl extends BaseCtrl {
 					case "projectid":
 						map.put("projectid", filterPara.get(key).toString());
 						break;
-					case "userid":
-						map.put("userid", filterPara.get(key).toString());
+					case "username":
+						map.put("username", filterPara.get(key).toString());
 						break;
 					case "roleid":
 						map.put("roleid", filterPara.get(key).toString());

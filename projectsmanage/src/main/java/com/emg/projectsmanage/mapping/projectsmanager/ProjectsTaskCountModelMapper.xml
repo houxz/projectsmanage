@@ -61,6 +61,9 @@
 			<if test="userid != null">
 				t.`userid` = #{userid}
 			</if>
+			<if test="username != null">
+				t.`username` like '%${username}%'
+			</if>
 			<if test="roleid != null">
 				AND t.`roleid` = #{roleid}
 			</if>
@@ -99,6 +102,9 @@
 		<where>
 			<if test="userid != null">
 				t.`userid` = #{userid}
+			</if>
+			<if test="username != null">
+				t.`username` like '%${username}%'
 			</if>
 			<if test="roleid != null">
 				AND t.`roleid` = #{roleid}
