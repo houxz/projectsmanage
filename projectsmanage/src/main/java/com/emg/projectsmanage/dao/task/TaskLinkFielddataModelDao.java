@@ -36,7 +36,7 @@ public class TaskLinkFielddataModelDao {
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task_link_fielddata ");
-			sql.append(" WHERE pstate = 2 ");
+			sql.append(" WHERE pstate = 2 AND groupid > 0 ");
 			sql.append("	AND updatetime BETWEEN '" + startTime + "' AND '" + endTime + "' ");
 			sql.append(" GROUP BY taskid");
 

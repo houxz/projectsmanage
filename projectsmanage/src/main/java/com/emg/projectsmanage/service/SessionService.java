@@ -20,7 +20,7 @@ public class SessionService {
 
 	@Autowired
 	private SessionRegistry sessionRegistry;
-	
+
 	@Autowired
 	private LogModelDao logModelDao;
 
@@ -31,7 +31,10 @@ public class SessionService {
 			for (Object principal : o) {
 				if (principal instanceof CustomUserDetails
 						&& (username.equals(((CustomUserDetails) principal).getUsername()))) {
-					ret = true;
+					List<SessionInformation> sessionsInfo = sessionRegistry.getAllSessions(principal, false);
+					if (null != sessionsInfo && sessionsInfo.size() > 0) {
+						ret = true;
+					}
 					break;
 				}
 			}
@@ -73,5 +76,5 @@ public class SessionService {
 		}
 		return ret;
 	}
-	
+
 }

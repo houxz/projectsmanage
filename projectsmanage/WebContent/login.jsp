@@ -49,10 +49,24 @@
 							<div class="label label-warning">您的登录没有成功。</div>
 							<br />
 							<div class="label label-warning">
-								<c:out value="用户名或密码不正确，请重新输入。" />
+								<c:out value="用户不存在，请重新输入。" />
 							</div>
 						</c:when>
 						<c:when test="${param.login_error == 2}">
+							<div class="label label-warning">您的登录没有成功。</div>
+							<br />
+							<div class="label label-warning">
+								<c:out value="密码错误，请重新输入。" />
+							</div>
+						</c:when>
+						<c:when test="${param.login_error == 3}">
+							<div class="label label-warning">您的登录没有成功。</div>
+							<br />
+							<div class="label label-warning">
+								<c:out value="重复登录，请等待。" />
+							</div>
+						</c:when>
+						<c:when test="${param.login_error == 4}">
 							<div class="label label-warning">您的登录没有成功。</div>
 							<br />
 							<div class="label label-warning">

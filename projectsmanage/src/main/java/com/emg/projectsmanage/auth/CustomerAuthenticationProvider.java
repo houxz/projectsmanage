@@ -3,8 +3,11 @@ package com.emg.projectsmanage.auth;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.stereotype.Component;
@@ -24,8 +27,7 @@ public class CustomerAuthenticationProvider implements AuthenticationProvider {
 	private LogModelDao logModelDao;
 
 	@Override
-	public Authentication authenticate(Authentication authentication) {
-		Boolean loginRet = false;
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		String msg = new String();
 		String username = new String();
 		String password = new String();
@@ -36,37 +38,61 @@ public class CustomerAuthenticationProvider implements AuthenticationProvider {
 			logger.debug(String.format("User %s try login with password : %s", username, password));
 
 			CustomUserDetails userDetails = this.customUserDetailsService.loadUserByUsername(authentication.getName());
-
-			if (DigestUtils.md5DigestAsHex(password.getBytes()).equals(userDetails.getPassword())) {
-				loginRet = true;
-				return new UsernamePasswordAuthenticationToken(userDetails, authentication.getCredentials(),
-						userDetails.getAuthorities());
-			} else {
-				loginRet = false;
-				msg = String.format("Wrong Password: %s", password);
-				logger.error(msg);
+			
+			if (userDetails.getAuthorities().size() <= 0) {
+				throw new DisabledException(new String());
 			}
+
+			if (!DigestUtils.md5DigestAsHex(password.getBytes()).equals(userDetails.getPassword())) {
+				throw new BadCredentialsException(new String());
+			}
+			
+			return new UsernamePasswordAuthenticationToken(userDetails, authentication.getCredentials(),
+					userDetails.getAuthorities());
 		} catch (UsernameNotFoundException e) {
-			loginRet = false;
 			msg = String.format("User not exist: %s", username);
 			logger.error(msg);
+			LogModel log = new LogModel();
+			log.setType("TRYLOGIN");
+			log.setKey(username);
+			log.setValue(password);
+			log.setSessionid(msg);
+			logModelDao.log(log);
+			throw e;
+		} catch (BadCredentialsException e) {
+			msg = String.format("User %s Wrong Password: %s", username, password);
+			logger.error(msg);
+			LogModel log = new LogModel();
+			log.setType("TRYLOGIN");
+			log.setKey(username);
+			log.setValue(password);
+			log.setSessionid(msg);
+			logModelDao.log(log);
+			throw e;
 		} catch (SessionAuthenticationException e) {
-			loginRet = false;
 			msg = String.format("User duplicate login: %s", username);
 			logger.error(msg);
+			LogModel log = new LogModel();
+			log.setType("TRYLOGIN");
+			log.setKey(username);
+			log.setValue(password);
+			log.setSessionid(msg);
+			logModelDao.log(log);
+			throw e;
+		} catch (DisabledException e) {
+			msg = String.format("User has no power getting in: %s", username);
+			logger.error(msg);
+			LogModel log = new LogModel();
+			log.setType("TRYLOGIN");
+			log.setKey(username);
+			log.setValue(password);
+			log.setSessionid(msg);
+			logModelDao.log(log);
+			throw e;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-		} finally {
-			if (!loginRet) {
-				LogModel log = new LogModel();
-				log.setType("TRYLOGIN");
-				log.setKey(username);
-				log.setValue(password);
-				log.setSessionid(msg);
-				logModelDao.log(log);
-			}
 		}
-
+		
 		return null;
 	}
 

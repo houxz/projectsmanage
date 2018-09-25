@@ -22,7 +22,7 @@
 		<form-login login-page="/login.jsp" default-target-url="/login.web"
 			login-processing-url="/login" username-parameter="username"
 			password-parameter="password" always-use-default-target="true"
-			authentication-failure-url="/login.jsp?login_error=1" />
+			authentication-failure-handler-ref="authenticationFailHander" />
 		<http-basic />
 		<logout invalidate-session="true" logout-success-url="/login.jsp?logout=1" />
 		<session-management>
