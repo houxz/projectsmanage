@@ -1,6 +1,7 @@
 package com.emg.projectsmanage.auth;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections.MapUtils;
@@ -26,17 +27,17 @@ public class CustomUserDetailsService implements UserDetailsService {
 	private final static String SUPERADMIN_USERNAME = "superadmin";
 	@Value("${superadmin.password}")
 	private String SUPERADMIN_PASSWORD = "emapgo1qaz@WSX";
-	private final static RoleType SUPERADMIN_ROLETYPE = RoleType.ROLE_SUPERADMIN;
+	private final static List<RoleType> SUPERADMIN_ROLETYPE = new ArrayList<RoleType>(Arrays.asList(RoleType.ROLE_SUPERADMIN));
 
 	private final static String YANFAADMIN_USERNAME = "yanfaadmin";
 	@Value("${yanfaadmin.password}")
 	private String YANFAADMIN_PASSWORD = "5921034";
-	private final static RoleType YANFAADMIN_ROLETYPE = RoleType.ROLE_YANFAADMIN;
+	private final static List<RoleType> YANFAADMIN_ROLETYPE = new ArrayList<RoleType>(Arrays.asList(RoleType.ROLE_YANFAADMIN));
 
 	private final static String ADMIN_USERNAME = "admin";
 	@Value("${admin.password}")
 	private String ADMIN_PASSWORD = "emapgo123!@#";
-	private final static RoleType ADMIN_ROLETYPE = RoleType.ROLE_ADMIN;
+	private final static List<RoleType> ADMIN_ROLETYPE = new ArrayList<RoleType>(Arrays.asList(RoleType.ROLE_ADMIN));
 
 	@Autowired
 	private EmapgoAccountService emapgoAccountService;
@@ -60,7 +61,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 			userDetails.setPassword(DigestUtils.md5DigestAsHex(SUPERADMIN_PASSWORD.getBytes()));
 			userDetails.setEnabled(Boolean.valueOf(true));
 			List<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
-			auths.add(new SimpleGrantedAuthority(SUPERADMIN_ROLETYPE.toString()));
+			for (RoleType role : SUPERADMIN_ROLETYPE) {
+				auths.add(new SimpleGrantedAuthority(role.toString()));
+			}
 			userDetails.setAuthorities(auths);
 			return userDetails;
 		}
@@ -70,7 +73,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 			userDetails.setPassword(DigestUtils.md5DigestAsHex(YANFAADMIN_PASSWORD.getBytes()));
 			userDetails.setEnabled(Boolean.valueOf(true));
 			List<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
-			auths.add(new SimpleGrantedAuthority(YANFAADMIN_ROLETYPE.toString()));
+			for (RoleType role : YANFAADMIN_ROLETYPE) {
+				auths.add(new SimpleGrantedAuthority(role.toString()));
+			}
 			userDetails.setAuthorities(auths);
 			return userDetails;
 		}
@@ -80,7 +85,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 			userDetails.setPassword(DigestUtils.md5DigestAsHex(ADMIN_PASSWORD.getBytes()));
 			userDetails.setEnabled(Boolean.valueOf(true));
 			List<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
-			auths.add(new SimpleGrantedAuthority(ADMIN_ROLETYPE.toString()));
+			for (RoleType role : ADMIN_ROLETYPE) {
+				auths.add(new SimpleGrantedAuthority(role.toString()));
+			}
 			userDetails.setAuthorities(auths);
 			return userDetails;
 		}
