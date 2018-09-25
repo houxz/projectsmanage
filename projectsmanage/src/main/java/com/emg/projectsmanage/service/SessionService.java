@@ -55,6 +55,7 @@ public class SessionService {
 						if (null != sessionsInfo && sessionsInfo.size() > 0) {
 							for (SessionInformation sessionInformation : sessionsInfo) {
 								sessionInformation.expireNow();
+								sessionRegistry.removeSessionInformation(sessionInformation.getSessionId());
 							}
 							logger.debug("Kick out user :" + username);
 							LogModel log = new LogModel();
