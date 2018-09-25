@@ -1,10 +1,16 @@
 <beans:beans xmlns="http://www.springframework.org/schema/security"
-	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
                     http://www.springframework.org/schema/beans/spring-beans.xsd
                     http://www.springframework.org/schema/security 
-                    http://www.springframework.org/schema/security/spring-security.xsd">
-
+                    http://www.springframework.org/schema/security/spring-security.xsd
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context.xsd">
+                    
+	<context:property-placeholder location="WEB-INF/spring/defaultAuths.properties" ignore-unresolvable="true"/>
+	
 	<http pattern="/resources/**" security="none" />
 	<http use-expressions="true">
 		<csrf disabled="true" />
@@ -30,13 +36,6 @@
 	</beans:bean>
 
 	<authentication-manager id="am">
-		<authentication-provider>
-			<user-service id="userDetailsService">
-				<user name="superadmin" password="emapgo1qaz@WSX" authorities="ROLE_SUPERADMIN" />
-				<user name="yanfaadmin" password="5921034" authorities="ROLE_YANFAADMIN" />
-				<user name="admin" password="emapgo123!@#" authorities="ROLE_ADMIN" />
-			</user-service>
-		</authentication-provider>
 		<authentication-provider ref="customerAuthenticationProvider" />
 	</authentication-manager>
 
