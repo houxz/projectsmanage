@@ -362,7 +362,7 @@ public class SchedulerTask {
 								editCapacityModel.setTime(time);
 								
 								editCapacityModel.setErrorcount(editCapacityModel.getErrorcount() + errorcount);
-								editCapacityModel.setErrorcount(editCapacityModel.getVisualerrorcount() + visualerrorcount);
+								editCapacityModel.setVisualerrorcount(editCapacityModel.getVisualerrorcount() + visualerrorcount);
 								
 								uniqRecords.put(editUniqRecord, editCapacityModel);
 							}
