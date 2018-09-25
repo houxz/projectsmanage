@@ -133,6 +133,8 @@
 		<property name="roleSet">
 			<set>
 				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_WORKER</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_CHECKER</value>
 			</set>
 		</property>
 		<property name="enabled" value="true" />

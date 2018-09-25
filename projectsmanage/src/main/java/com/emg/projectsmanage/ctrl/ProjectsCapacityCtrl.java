@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.POITaskTypeEnum;
 import com.emg.projectsmanage.common.ParamUtils;
+import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.dao.projectsmanager.CapacityModelDao;
 import com.emg.projectsmanage.pojo.CapacityModel;
 import com.emg.projectsmanage.pojo.CapacityModelExample;
@@ -64,6 +66,11 @@ public class ProjectsCapacityCtrl extends BaseCtrl {
 
 			CapacityModelExample example = new CapacityModelExample();
 			Criteria criteria = example.or();
+			
+			if(!hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
+				Integer userid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
+				criteria.andUseridEqualTo(userid);
+			}
 
 			if (filter.length() > 0) {
 				Map<String, Object> filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
