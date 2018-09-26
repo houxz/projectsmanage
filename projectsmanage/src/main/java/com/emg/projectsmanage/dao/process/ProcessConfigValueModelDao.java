@@ -2,6 +2,8 @@ package com.emg.projectsmanage.dao.process;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.emg.projectsmanage.pojo.ProcessConfigValueModel;
 
 public interface ProcessConfigValueModelDao {
@@ -18,6 +20,8 @@ public interface ProcessConfigValueModelDao {
     int deleteByProcessID(Long processID);
     
     List<ProcessConfigValueModel> selectByProcessID(Long processID);
+    
+    ProcessConfigValueModel selectByProcessIDAndConfigID(@Param("processid") Long processid, @Param("configid") Integer configid);
 
     int updateByPrimaryKeySelective(ProcessConfigValueModel record);
 

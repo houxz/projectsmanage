@@ -582,60 +582,41 @@ public class InterfaceCtrl extends BaseCtrl {
 									if (list != null && list.size() > 0) {
 										ProjectsTaskCountModel projectsCount = list.get(0);
 	
-										// by xiao 计算任务完成进度
 										Integer totalTask = projectsCount.getTotaltask();
 										Integer completeTask = projectsCount.getCompletetask();
 										Double progress = ((double) completeTask / (double) totalTask) * 100;
-	
-										// by xiao 更新流程进度
-										// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
-										// 先找到该项目关联的所有流程任务
-										ProcessModel process;
-										// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
-										ConfigValueModel valuemodel = new ConfigValueModel();
-										valuemodel.setName("%项目id");
-										valuemodel.setValue(projectid.toString());
-										valuemodel.setModuleid(2);
-										List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
-										if (valueList.size() > 0) {
-											for (ConfigValueModel value : valueList) {
-												Long idProcess = value.getProcessId();
-												process = processModelDao.selectByPrimaryKey(idProcess);
-												String sProgress = process.getProgress();
-												if (sProgress.length() > 0) {
-													String[] arProgress = sProgress.split(",");
-													ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
-													Integer length = alProgress.size();
-													while (length < CommonConstants.PROCESSCOUNT_ERROR) {
-														alProgress.add("0");
-														length++;
-													}
-													// X,X,X,X
-													// 质检进度在第四个X
-													alProgress.set(3, String.format("%.3f", progress));
-	
-													StringBuilder sbProgress = new StringBuilder();
-													for (String p : alProgress) {
-														sbProgress.append(p);
-														sbProgress.append(",");
-													}
-													sbProgress.deleteCharAt(sbProgress.length() - 1);
-	
-													process.setProgress(sbProgress.toString());
-													if (totalTask.compareTo(completeTask) == 0) {
-														// 更新流程状态和阶段状态
-														process.setState(3); // 流程完成
-														process.setStagestate(3); // 阶段完成
-													}
-													processModelDao.updateByPrimaryKey(process);
-												}
+										
+										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
+										Long processid = project.getProcessid();
+										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+										String sProgress = process.getProgress();
+										if (sProgress != null && !sProgress.isEmpty()) {
+											String[] arProgress = sProgress.split(",");
+											ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
+											Integer length = alProgress.size();
+											while (length < CommonConstants.PROCESSCOUNT_ERROR) {
+												alProgress.add("0");
+												length++;
 											}
+											alProgress.set(3, String.format("%.3f", progress));
+
+											StringBuilder sbProgress = new StringBuilder();
+											for (String p : alProgress) {
+												sbProgress.append(p);
+												sbProgress.append(",");
+											}
+											sbProgress.deleteCharAt(sbProgress.length() - 1);
+
+											process.setProgress(sbProgress.toString());
+											if (totalTask.compareTo(completeTask) == 0) {
+												process.setState(3);
+												process.setStagestate(3);
+											}
+											processModelDao.updateByPrimaryKey(process);
 										}
-										// by xiao 计算任务完成进度 end
 	
 										if (totalTask.compareTo(completeTask) == 0) {
-											ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
-											project.setOverstate(4); // 项目完成
+											project.setOverstate(4);
 											projectModelDao.updateByPrimaryKey(project);
 										}
 										status = Boolean.valueOf(true);
@@ -660,7 +641,6 @@ public class InterfaceCtrl extends BaseCtrl {
 									if (list != null && list.size() > 0) {
 										ProjectsTaskCountModel projectsCount = list.get(0);
 	
-										// by xiao 计算任务完成进度
 										Integer totalTask = projectsCount.getTotaltask();
 										if (totalTask <= 0) {
 											json.addObject("status", false);
@@ -670,54 +650,36 @@ public class InterfaceCtrl extends BaseCtrl {
 										Integer completeTask = projectsCount.getCompletetask();
 										Double progress = ((double) completeTask / (double) totalTask) * 100;
 	
-										// by xiao 更新流程进度
-										// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
-										// 先找到该项目关联的所有流程任务
-										ProcessModel process;
-										// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
-										ConfigValueModel valuemodel = new ConfigValueModel();
-										valuemodel.setName("%项目id");
-										valuemodel.setValue(projectid.toString());
-										valuemodel.setModuleid(2);
-										List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
-										if (valueList.size() > 0) {
-											for (ConfigValueModel value : valueList) {
-												Long idProcess = value.getProcessId();
-												process = processModelDao.selectByPrimaryKey(idProcess);
-												String sProgress = process.getProgress();
-												if (sProgress.length() > 0) {
-													String[] arProgress = sProgress.split(",");
-													ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
-													Integer length = alProgress.size();
-													while (length < CommonConstants.PROCESSCOUNT_NRFC) {
-														alProgress.add("0");
-														length++;
-													}
-													// X,X,X,X
-													// 质检进度在第二个X
-													alProgress.set(1, String.format("%.3f", progress));
-	
-													StringBuilder sbProgress = new StringBuilder();
-													for (String p : alProgress) {
-														sbProgress.append(p);
-														sbProgress.append(",");
-													}
-													sbProgress.deleteCharAt(sbProgress.length() - 1);
-	
-													process.setProgress(sbProgress.toString());
-													if (totalTask.compareTo(completeTask) == 0) {
-														// 更新流程状态和阶段状态
-														process.setStage(3);
-														process.setStagestate(1); // 阶段完成
-													}
-													processModelDao.updateByPrimaryKey(process);
-												}
+										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
+										Long processid = project.getProcessid();
+										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+										String sProgress = process.getProgress();
+										if (sProgress.length() > 0) {
+											String[] arProgress = sProgress.split(",");
+											ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
+											Integer length = alProgress.size();
+											while (length < CommonConstants.PROCESSCOUNT_NRFC) {
+												alProgress.add("0");
+												length++;
 											}
+											alProgress.set(1, String.format("%.3f", progress));
+
+											StringBuilder sbProgress = new StringBuilder();
+											for (String p : alProgress) {
+												sbProgress.append(p);
+												sbProgress.append(",");
+											}
+											sbProgress.deleteCharAt(sbProgress.length() - 1);
+
+											process.setProgress(sbProgress.toString());
+											if (totalTask.compareTo(completeTask) == 0) {
+												process.setStage(3);
+												process.setStagestate(1);
+											}
+											processModelDao.updateByPrimaryKey(process);
 										}
-										// by xiao 计算任务完成进度 end
 	
 										if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
-											ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
 											project.setOverstate(4);
 											projectModelDao.updateByPrimaryKey(project);
 										}
@@ -741,63 +703,39 @@ public class InterfaceCtrl extends BaseCtrl {
 									if (list != null && list.size() > 0) {
 										ProjectsTaskCountModel projectsCount = list.get(0);
 	
-										// by xiao 计算任务完成进度
 										Integer totalTask = projectsCount.getTotaltask();
 										Integer completeTask = projectsCount.getCompletetask();
-										// Double progress = ((double) completeTask
-										// / (double) totalTask) * 100;
 	
-										// by xiao 更新流程进度
-										// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
-										// 先找到该项目关联的所有流程任务
-										ProcessModel process;
-										// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
-										ConfigValueModel valuemodel = new ConfigValueModel();
-										valuemodel.setName("%项目id");
-										valuemodel.setValue(projectid.toString());
-										valuemodel.setModuleid(2);
-										List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
-										if (valueList.size() > 0) {
-											for (ConfigValueModel value : valueList) {
-												Long idProcess = value.getProcessId();
-												process = processModelDao.selectByPrimaryKey(idProcess);
-												String sProgress = process.getProgress();
-												if (sProgress.length() > 0) {
-													String[] arProgress = sProgress.split(",");
-													ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
-													Integer length = alProgress.size();
-													while (length < CommonConstants.PROCESSCOUNT_COUNTRY) {
-														alProgress.add("0");
-														length++;
-													}
-													// X,X,X,X
-													// 质检进度在第四个X
-													// alProgress.set(3,
-													// String.format("%.3f",
-													// progress));
-	
-													StringBuilder sbProgress = new StringBuilder();
-													for (String p : alProgress) {
-														sbProgress.append(p);
-														sbProgress.append(",");
-													}
-													sbProgress.deleteCharAt(sbProgress.length() - 1);
-	
-													process.setProgress(sbProgress.toString());
-													if (totalTask.compareTo(completeTask) == 0) {
-														// 更新流程状态和阶段状态
-														process.setState(2); // 流程完成
-														process.setStagestate(3); // 阶段完成
-													}
-													processModelDao.updateByPrimaryKey(process);
-												}
+										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
+										Long processid = project.getProcessid();
+										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+										String sProgress = process.getProgress();
+										if (sProgress != null && !sProgress.isEmpty()) {
+											String[] arProgress = sProgress.split(",");
+											ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
+											Integer length = alProgress.size();
+											while (length < CommonConstants.PROCESSCOUNT_COUNTRY) {
+												alProgress.add("0");
+												length++;
 											}
+
+											StringBuilder sbProgress = new StringBuilder();
+											for (String p : alProgress) {
+												sbProgress.append(p);
+												sbProgress.append(",");
+											}
+											sbProgress.deleteCharAt(sbProgress.length() - 1);
+
+											process.setProgress(sbProgress.toString());
+											if (totalTask.compareTo(completeTask) == 0) {
+												process.setState(2);
+												process.setStagestate(3);
+											}
+											processModelDao.updateByPrimaryKey(process);
 										}
-										// by xiao 计算任务完成进度 end
 	
 										if (totalTask.compareTo(completeTask) == 0) {
-											ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
-											project.setOverstate(4); // 项目完成
+											project.setOverstate(4);
 											projectModelDao.updateByPrimaryKey(project);
 										}
 										status = Boolean.valueOf(true);
@@ -875,53 +813,36 @@ public class InterfaceCtrl extends BaseCtrl {
 										Integer completeTask = projectsCount.getCompletetask();
 										Double progress = ((double) completeTask / (double) totalTask) * 100;
 	
-										// by xiao 更新流程进度
-										// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
-										// 先找到该项目关联的所有流程任务
-										ProcessModel process;
-										// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
-										ConfigValueModel valuemodel = new ConfigValueModel();
-										valuemodel.setName("%项目id");
-										valuemodel.setValue(projectid.toString());
-										valuemodel.setModuleid(2);
-										List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
-										if (valueList.size() > 0) {
-											for (ConfigValueModel value : valueList) {
-												Long idProcess = value.getProcessId();
-												process = processModelDao.selectByPrimaryKey(idProcess);
-												String sProgress = process.getProgress();
-												if (sProgress.length() > 0) {
-													String[] arProgress = sProgress.split(",");
-													ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
-													Integer length = alProgress.size();
-													while (length < CommonConstants.PROCESSCOUNT_NRFC) {
-														alProgress.add("0");
-														length++;
-													}
-													// X,X,X,X
-													// 质检进度在第二个X
-													alProgress.set(1, String.format("%.3f", progress));
-	
-													StringBuilder sbProgress = new StringBuilder();
-													for (String p : alProgress) {
-														sbProgress.append(p);
-														sbProgress.append(",");
-													}
-													sbProgress.deleteCharAt(sbProgress.length() - 1);
-	
-													process.setProgress(sbProgress.toString());
-													if (totalTask.compareTo(completeTask) == 0) {
-														// 更新流程状态和阶段状态
-														process.setStage(3);
-														process.setStagestate(1); // 阶段完成
-													}
-													processModelDao.updateByPrimaryKey(process);
-												}
+										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
+										Long processid = project.getProcessid();
+										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+										String sProgress = process.getProgress();
+										if (sProgress != null && !sProgress.isEmpty()) {
+											String[] arProgress = sProgress.split(",");
+											ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
+											Integer length = alProgress.size();
+											while (length < CommonConstants.PROCESSCOUNT_NRFC) {
+												alProgress.add("0");
+												length++;
 											}
+											alProgress.set(1, String.format("%.3f", progress));
+
+											StringBuilder sbProgress = new StringBuilder();
+											for (String p : alProgress) {
+												sbProgress.append(p);
+												sbProgress.append(",");
+											}
+											sbProgress.deleteCharAt(sbProgress.length() - 1);
+
+											process.setProgress(sbProgress.toString());
+											if (totalTask.compareTo(completeTask) == 0) {
+												process.setStage(3);
+												process.setStagestate(1);
+											}
+											processModelDao.updateByPrimaryKey(process);
 										}
-										// by xiao 计算任务完成进度 end
+										
 										if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
-											ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
 											project.setOverstate(4);
 											projectModelDao.updateByPrimaryKey(project);
 										}
@@ -955,53 +876,35 @@ public class InterfaceCtrl extends BaseCtrl {
 										Integer completeTask = projectsCount.getCompletetask();
 										Double progress = ((double) completeTask / (double) totalTask) * 100;
 	
-										// by xiao 更新流程进度
-										// 项目完成时，修改其关联的流程任务的阶段、阶段状态、流程状态
-										// 先找到该项目关联的所有流程任务
-										ProcessModel process;
-										// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
-										ConfigValueModel valuemodel = new ConfigValueModel();
-										valuemodel.setName("%项目id");
-										valuemodel.setValue(projectid.toString());
-										valuemodel.setModuleid(1);
-										List<ConfigValueModel> valueList = configValueModelDao.selectProcessIdByConfig(valuemodel);
-										if (valueList.size() > 0) {
-											for (ConfigValueModel value : valueList) {
-												Long idProcess = value.getProcessId();
-												process = processModelDao.selectByPrimaryKey(idProcess);
-												String sProgress = process.getProgress();
-												if (sProgress.length() > 0) {
-													String[] arProgress = sProgress.split(",");
-													ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
-													Integer length = alProgress.size();
-													while (length < CommonConstants.PROCESSCOUNT_ERROR) {
-														alProgress.add("0");
-														length++;
-													}
-													// X,X,X,X
-													// 质检进度在第二个X
-													alProgress.set(1, String.format("%.3f", progress));
-	
-													StringBuilder sbProgress = new StringBuilder();
-													for (String p : alProgress) {
-														sbProgress.append(p);
-														sbProgress.append(",");
-													}
-													sbProgress.deleteCharAt(sbProgress.length() - 1);
-	
-													process.setProgress(sbProgress.toString());
-													if (totalTask.compareTo(completeTask) == 0) {
-														// 更新流程状态和阶段状态
-														process.setStagestate(3); // 阶段完成
-													}
-													processModelDao.updateByPrimaryKey(process);
-												}
+										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
+										Long processid = project.getProcessid();
+										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+										String sProgress = process.getProgress();
+										if (sProgress != null && !sProgress.isEmpty()) {
+											String[] arProgress = sProgress.split(",");
+											ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
+											Integer length = alProgress.size();
+											while (length < CommonConstants.PROCESSCOUNT_ERROR) {
+												alProgress.add("0");
+												length++;
 											}
+											alProgress.set(1, String.format("%.3f", progress));
+
+											StringBuilder sbProgress = new StringBuilder();
+											for (String p : alProgress) {
+												sbProgress.append(p);
+												sbProgress.append(",");
+											}
+											sbProgress.deleteCharAt(sbProgress.length() - 1);
+
+											process.setProgress(sbProgress.toString());
+											if (totalTask.compareTo(completeTask) == 0) {
+												process.setStagestate(3);
+											}
+											processModelDao.updateByPrimaryKey(process);
 										}
-										// by xiao 计算任务完成进度 end
 	
 										if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
-											ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
 											project.setOverstate(4);
 											projectModelDao.updateByPrimaryKey(project);
 										}
@@ -1661,17 +1564,17 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("selectProcessIDByProjectID start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			ConfigValueModel config = new ConfigValueModel();
-			config.setModuleid(moduleid);
-			config.setValue(projectid.toString());
-			List<ConfigValueModel> configs = configValueModelDao.selectConfigs(config);
-			if (configs != null && configs.size() > 0) {
+			ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+			if (project != null) {
 				model.addAttribute("status", true);
-				model.addAttribute("option", configs.get(0).getProcessId());
+				model.addAttribute("option", project.getProcessid());
 				return json;
+			} else {
+				model.addAttribute("status", false);
+				model.addAttribute("option", "未找到项目");
+				logger.error("未找到流程:  " + projectid);
 			}
-			model.addAttribute("status", false);
-			model.addAttribute("option", new String());
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			json.addObject("status", false);
@@ -1731,7 +1634,6 @@ public class InterfaceCtrl extends BaseCtrl {
 						alProgress.add("0");
 						length++;
 					}
-					// X,X,X,X
 					alProgress.set(stage - 1, progress.toString());
 
 					StringBuilder sbProgress = new StringBuilder();
@@ -1746,31 +1648,17 @@ public class InterfaceCtrl extends BaseCtrl {
 					Integer projectid = 0;
 
 					if (progress.compareTo(Float.valueOf(100)) == 0 && stage == process.getStage()) {
-						process.setStagestate(3); // 阶段进度为100时，自动将该阶段的状态设置为完成
+						process.setStagestate(3);
 
-						// 若下一阶段为自动开启状态，则直接设置为下一阶段开启
 						if (stage < CommonConstants.PROCESSCOUNT_ERROR) {
-							ConfigValueModel modelConfig = new ConfigValueModel();
-							Integer module = 0;
-							if (stage == 1) { // 当前为第一阶段时，若完成，自动开始的第二阶段也属于模块1
-								module = 1;
-							} else if (stage == 2 || stage == 3) { // 当前为第二阶段时，若完成，自动开始的第三杰顿属于模块2
-								module = 2;
-							}
-
-							// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
-							modelConfig.setModuleid(module);
-							modelConfig.setName("%启动类型");
-							modelConfig.setProcessId(processID);
-							ConfigValueModel valueModel = configValueModelDao.selectValueByConfig(modelConfig);
-							if (Integer.valueOf(valueModel.getValue()) == 2) { // 自动
-								process.setStage(stage + 1); // 自动设置为下一阶段开始
+							ProcessConfigValueModel configValueModel = processConfigValueModelDao.selectByProcessIDAndConfigID(processID, stage == 1 ? ProcessConfigEnum.ZHIJIANQIDONGLEIXING.getValue() : ProcessConfigEnum.BIANJIQIDONGLEIXING.getValue());
+							if (Integer.valueOf(configValueModel.getValue()) == 2) {
+								process.setStage(stage + 1);
 								process.setStagestate(1);
 								stageStart = process.getStage();
 							}
-							modelConfig.setName("%项目id");
-							valueModel = configValueModelDao.selectValueByConfig(modelConfig);
-							projectid = Integer.valueOf(valueModel.getValue());
+							configValueModel = processConfigValueModelDao.selectByProcessIDAndConfigID(processID, stage == 1 ? ProcessConfigEnum.ZHIJIANXIANGMUID.getValue() : ProcessConfigEnum.BIANJIXIANGMUID.getValue());
+							projectid = Integer.valueOf(configValueModel.getValue());
 						} else if (stage == CommonConstants.PROCESSCOUNT_ERROR) {
 							process.setState(ProcessState.COMPLETE.getValue());
 						}
@@ -1778,8 +1666,6 @@ public class InterfaceCtrl extends BaseCtrl {
 					if (processModelDao.updateByPrimaryKey(process) > 0) {
 						status = true;
 
-						// 质检准备完成时，自动开启质检项目；
-						// 改错准备完成时，自动开启改错项目；
 						if (stageStart == 2 || stageStart == 4) {
 							try {
 								ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
@@ -1821,26 +1707,17 @@ public class InterfaceCtrl extends BaseCtrl {
 					Integer projectid = 0;
 
 					if (progress.compareTo(Float.valueOf(100)) == 0 && stage == process.getStage()) {
-						process.setStagestate(3); // 阶段进度为100时，自动将该阶段的状态设置为完成
+						process.setStagestate(3);
 
-						// 若下一阶段为自动开启状态，则直接设置为下一阶段开启
 						if (stage < CommonConstants.PROCESSCOUNT_NRFC) {
-							ConfigValueModel modelConfig = new ConfigValueModel();
-							// NR/FC项目默认只有编辑阶段，启动类型只考虑编辑阶段
-							// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
-							Integer module = 2;
-							modelConfig.setModuleid(module);
-							modelConfig.setName("%启动类型");
-							modelConfig.setProcessId(processID);
-							ConfigValueModel valueModel = configValueModelDao.selectValueByConfig(modelConfig);
-							if (Integer.valueOf(valueModel.getValue()) == 2) { // 自动
-								process.setStage(stage + 1); // 自动设置为下一阶段开始
+							ProcessConfigValueModel configValueModel = processConfigValueModelDao.selectByProcessIDAndConfigID(processID, ProcessConfigEnum.BIANJIQIDONGLEIXING.getValue());
+							if (Integer.valueOf(configValueModel.getValue()) == 2) {
+								process.setStage(stage + 1);
 								process.setStagestate(1);
 								stageStart = process.getStage();
 							}
-							modelConfig.setName("%项目id");
-							valueModel = configValueModelDao.selectValueByConfig(modelConfig);
-							projectid = Integer.valueOf(valueModel.getValue());
+							configValueModel = processConfigValueModelDao.selectByProcessIDAndConfigID(processID, ProcessConfigEnum.BIANJIXIANGMUID.getValue());
+							projectid = Integer.valueOf(configValueModel.getValue());
 						} else if (stage == CommonConstants.PROCESSCOUNT_NRFC) {
 							process.setState(ProcessState.COMPLETE.getValue());
 						}
@@ -1848,7 +1725,6 @@ public class InterfaceCtrl extends BaseCtrl {
 					if (processModelDao.updateByPrimaryKey(process) > 0) {
 						status = true;
 
-						// 改错准备完成时，自动开启改错项目；
 						if (stageStart == 2) {
 							try {
 								ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
@@ -1887,31 +1763,17 @@ public class InterfaceCtrl extends BaseCtrl {
 					Integer projectid = 0;
 
 					if (progress.compareTo(Float.valueOf(100)) == 0 && stage == process.getStage()) {
-						process.setStagestate(3); // 阶段进度为100时，自动将该阶段的状态设置为完成
+						process.setStagestate(3);
 
-						// 若下一阶段为自动开启状态，则直接设置为下一阶段开启
 						if (stage < CommonConstants.PROCESSCOUNT_COUNTRY) {
-							ConfigValueModel modelConfig = new ConfigValueModel();
-							Integer module = 0;
-							if (stage == 1) { // 当前为第一阶段时，若完成，自动开始的第二阶段也属于模块1
-								module = 1;
-							} else if (stage == 2) { // 当前为第二阶段时，若完成，自动开始的第三杰顿属于模块2
-								module = 2;
-							}
-
-							// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51
-							modelConfig.setModuleid(module);
-							modelConfig.setName("%启动类型");
-							modelConfig.setProcessId(processID);
-							ConfigValueModel valueModel = configValueModelDao.selectValueByConfig(modelConfig);
-							if (Integer.valueOf(valueModel.getValue()) == 2) { // 自动
-								process.setStage(stage + 1); // 自动设置为下一阶段开始
+							ProcessConfigValueModel configValueModel = processConfigValueModelDao.selectByProcessIDAndConfigID(processID, stage == 1 ? ProcessConfigEnum.ZHIJIANQIDONGLEIXING.getValue() : ProcessConfigEnum.BIANJIQIDONGLEIXING.getValue());
+							if (Integer.valueOf(configValueModel.getValue()) == 2) {
+								process.setStage(stage + 1);
 								process.setStagestate(1);
 								stageStart = process.getStage();
 							}
-							modelConfig.setName("%项目id");
-							valueModel = configValueModelDao.selectValueByConfig(modelConfig);
-							projectid = Integer.valueOf(valueModel.getValue());
+							configValueModel = processConfigValueModelDao.selectByProcessIDAndConfigID(processID, stage == 1 ? ProcessConfigEnum.ZHIJIANXIANGMUID.getValue() : ProcessConfigEnum.BIANJIXIANGMUID.getValue());
+							projectid = Integer.valueOf(configValueModel.getValue());
 						} else if (stage == CommonConstants.PROCESSCOUNT_COUNTRY) {
 							process.setState(ProcessState.COMPLETE.getValue());
 						}
@@ -1919,8 +1781,6 @@ public class InterfaceCtrl extends BaseCtrl {
 					if (processModelDao.updateByPrimaryKey(process) > 0) {
 						status = true;
 
-						// 质检准备完成时，自动开启质检项目；
-						// 改错准备完成时，自动开启改错项目；
 						if (stageStart == 2) {
 							try {
 								ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
