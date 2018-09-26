@@ -245,6 +245,11 @@ public class SchedulerTask {
 								
 								TaskModel task = taskModelDao.getTaskByBlockid(configDBModel, blockid);
 								
+								if (task == null) {
+									logger.error("Can not find task by blockid: " + blockid);
+									continue;
+								}
+								
 								Integer taskType = task.getTasktype();
 								Long projectid = task.getProjectid();
 								
@@ -310,6 +315,11 @@ public class SchedulerTask {
 								
 								TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
 								
+								if (task == null) {
+									logger.error("Can not find task by taskid: " + taskid);
+									continue;
+								}
+								
 								Integer userid = 0;
 								Integer roleid = RoleType.UNKNOWN.getValue();
 
@@ -373,6 +383,11 @@ public class SchedulerTask {
 								Long count = (Long) taskLinkFielddataGroup.get("count");
 								
 								TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
+								
+								if (task == null) {
+									logger.error("Can not find task by taskid: " + taskid);
+									continue;
+								}
 								
 								Integer userid = 0;
 								Integer roleid = RoleType.UNKNOWN.getValue();
