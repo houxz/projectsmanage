@@ -172,7 +172,7 @@ public class ErrorModelDao {
 		return itemConfigs;
 	}
 
-	public List<ErrorModel> selectErrors(ConfigDBModel configDBModel, ErrorModel record, Integer limit, Integer offset, List<Long> errortypes) {
+	public List<ErrorModel> selectErrors(ConfigDBModel configDBModel, ErrorModel record, Integer limit, Integer offset, List<Long> errortypes, Integer erroridxiao, Integer erroridda) {
 		List<ErrorModel> errors = new ArrayList<ErrorModel>();
 		BasicDataSource dataSource = null;
 		try {
@@ -189,6 +189,12 @@ public class ErrorModelDao {
 			sql.append("tb_error ");
 			sql.append(" WHERE 1=1 ");
 			sql.append(" AND " + separator + "batchid" + separator + " =  " + record.getBatchid());
+			if(erroridxiao != null && erroridxiao >= 0) {
+				sql.append(" AND " + separator + "id" + separator + " >= " + erroridxiao);
+			}
+			if(erroridda != null && erroridda >= 0) {
+				sql.append(" AND " + separator + "id" + separator + " <= " + erroridda);
+			}
 			if (errortypes != null && !errortypes.isEmpty()) {
 				sql.append(" AND " + separator + "errortype" + separator + " IN ( ");
 				for (Long errortype : errortypes) {
@@ -222,7 +228,7 @@ public class ErrorModelDao {
 		return errors;
 	}
 	
-	public Integer countErrorAndErrorRelateds(ConfigDBModel configDBModel, ErrorModel record, List<Long> errortypes) {
+	public Integer countErrorAndErrorRelateds(ConfigDBModel configDBModel, ErrorModel record, List<Long> errortypes, Integer erroridxiao, Integer erroridda) {
 		Integer ret = -1;
 		BasicDataSource dataSource = null;
 		try {
@@ -245,6 +251,12 @@ public class ErrorModelDao {
 			sql.append(" ON ter." + separator + "errorid" + separator + " = te." + separator + "id" + separator + " ");
 			sql.append(" WHERE 1=1 ");
 			sql.append(" AND te." + separator + "batchid" + separator + " =  " + record.getBatchid());
+			if (erroridxiao != null && erroridxiao >= 0) {
+				sql.append(" AND te." + separator + "id" + separator + " >= " + erroridxiao);
+			}
+			if (erroridda != null && erroridda >= 0) {
+				sql.append(" AND te." + separator + "id" + separator + " >= " + erroridda);
+			}
 			if (errortypes != null && !errortypes.isEmpty()) {
 				sql.append(" AND te." + separator + "errortype" + separator + " IN ( ");
 				for (Long errortype : errortypes) {
@@ -271,7 +283,7 @@ public class ErrorModelDao {
 		return ret;
 	}
 
-	public List<ErrorAndErrorRelatedModel> selectErrorAndErrorRelateds(ConfigDBModel configDBModel, ErrorModel record, List<Long> errortypes, Integer limit, Integer offset) {
+	public List<ErrorAndErrorRelatedModel> selectErrorAndErrorRelateds(ConfigDBModel configDBModel, ErrorModel record, List<Long> errortypes, Integer limit, Integer offset, Integer erroridxiao, Integer erroridda) {
 		List<ErrorAndErrorRelatedModel> errors = new ArrayList<ErrorAndErrorRelatedModel>();
 		BasicDataSource dataSource = null;
 		try {
@@ -294,6 +306,12 @@ public class ErrorModelDao {
 			sql.append(" ON ter." + separator + "errorid" + separator + " = te." + separator + "id" + separator + " ");
 			sql.append(" WHERE 1=1 ");
 			sql.append(" AND te." + separator + "batchid" + separator + " =  " + record.getBatchid());
+			if (erroridxiao != null && erroridxiao >= 0) {
+				sql.append(" AND te." + separator + "id" + separator + " >= " + erroridxiao);
+			}
+			if (erroridda != null && erroridda >= 0) {
+				sql.append(" AND te." + separator + "id" + separator + " >= " + erroridda);
+			}
 			if (errortypes != null && !errortypes.isEmpty()) {
 				sql.append(" AND te." + separator + "errortype" + separator + " IN ( ");
 				for (Long errortype : errortypes) {
@@ -646,7 +664,7 @@ public class ErrorModelDao {
 		return ret;
 	}
 
-	public Integer countErrors(ConfigDBModel configDBModel, ErrorModel record, List<Long> errortypes) {
+	public Integer countErrors(ConfigDBModel configDBModel, ErrorModel record, List<Long> errortypes, Integer erroridxiao, Integer erroridda) {
 		Integer ret = -1;
 		BasicDataSource dataSource = null;
 		try {
@@ -663,6 +681,12 @@ public class ErrorModelDao {
 			sql.append("tb_error ");
 			sql.append(" WHERE 1=1 ");
 			sql.append(" AND " + separator + "batchid" + separator + " =  " + record.getBatchid());
+			if(erroridxiao != null && erroridxiao >= 0) {
+				sql.append(" AND " + separator + "id" + separator + " >= " + erroridxiao);
+			}
+			if(erroridda != null && erroridda >= 0) {
+				sql.append(" AND " + separator + "id" + separator + " <= " + erroridda);
+			}
 			if (errortypes != null && !errortypes.isEmpty()) {
 				sql.append(" AND " + separator + "errortype" + separator + " IN ( ");
 				for (Long errortype : errortypes) {

@@ -62,6 +62,8 @@
 		params["errorsetid"] = $("#errorset").val();
 		params["taskdb"] = $("#taskdb").val();
 		params["errordb"] = $("#errordb").val();
+		params["erroridxiao"] = $("#erroridxiao").val();
+		params["erroridda"] = $("#erroridda").val();
 		return params;
 	}
 	
@@ -161,6 +163,13 @@
 					</c:forEach>
 				</select>
 			</div>
+		</div>
+		<div style="margin: 20px auto;">
+			<div class="input-group" style="width: 40%;">
+	            <span class="input-group-addon">错误范围:</span>
+	            <input id="erroridxiao" type="text" class="form-control" placeholder="大于等于这个值">
+	            <input id="erroridda" type="text" class="form-control" placeholder="小于等于这个值">
+	        </div>
 		</div>
 		<div style="margin: 20px auto;">
 			<div class="input-group" style="width: 100%; margin: auto;">

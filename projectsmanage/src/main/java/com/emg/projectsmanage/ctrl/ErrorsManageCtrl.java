@@ -102,6 +102,8 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			Long errorSetID = ParamUtils.getLongParameter(request, "errorsetid", 0);
 			Integer taskdb = ParamUtils.getIntParameter(request, "taskdb", -1);
 			Integer errordb = ParamUtils.getIntParameter(request, "errordb", -1);
+			Integer erroridxiao = ParamUtils.getIntParameter(request, "erroridxiao", -1);
+			Integer erroridda = ParamUtils.getIntParameter(request, "erroridda", -1);
 			
 			if (taskdb == null || taskdb.equals(-1) ||
 					errordb == null || errordb.equals(-1)) {
@@ -141,8 +143,8 @@ public class ErrorsManageCtrl extends BaseCtrl {
 
 			ConfigDBModel _configDBModel = configDBModelDao.selectByPrimaryKey(errordb);
 
-			List<ErrorModel> rows = errorModelDao.selectErrors(_configDBModel, record, limit, offset, errortypes);
-			Integer count = errorModelDao.countErrors(_configDBModel, record, errortypes);
+			List<ErrorModel> rows = errorModelDao.selectErrors(_configDBModel, record, limit, offset, errortypes, erroridxiao, erroridda);
+			Integer count = errorModelDao.countErrors(_configDBModel, record, errortypes, erroridxiao, erroridda);
 
 			json.addObject("rows", rows);
 			json.addObject("total", count);
@@ -190,6 +192,8 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			Integer taskdb = ParamUtils.getIntParameter(request, "taskdb", -1);
 			Integer errordb = ParamUtils.getIntParameter(request, "errordb", -1);
 			Integer error2db = ParamUtils.getIntParameter(request, "error2db", -1);
+			Integer erroridxiao = ParamUtils.getIntParameter(request, "erroridxiao", -1);
+			Integer erroridda = ParamUtils.getIntParameter(request, "erroridda", -1);
 			
 			if (taskdb == null || taskdb.equals(-1) ||
 					errordb == null || errordb.equals(-1) ||
@@ -218,10 +222,10 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			 * 每次处理条数
 			 */
 			Integer batchNum = 20000, curNum = 0;
-			Integer totalNum = errorModelDao.countErrorAndErrorRelateds(_configDBModel, record, errortypes);
+			Integer totalNum = errorModelDao.countErrorAndErrorRelateds(_configDBModel, record, errortypes, erroridxiao, erroridda);
 			ConfigDBModel __configDBModel = configDBModelDao.selectByPrimaryKey(error2db);
 			while (curNum < totalNum) {
-				List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(_configDBModel, record, errortypes, batchNum, curNum);
+				List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(_configDBModel, record, errortypes, batchNum, curNum, erroridxiao, erroridda);
 				if (errorAndRelateds != null && !errorAndRelateds.isEmpty()) {
 					ret += errorModelDao.exportErrors(__configDBModel, errorAndRelateds);
 					curNum += batchNum;
