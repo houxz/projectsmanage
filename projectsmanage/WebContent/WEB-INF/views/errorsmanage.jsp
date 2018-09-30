@@ -116,6 +116,8 @@
 		var taskdb = $("#taskdb").val();
 		var errordb = $("#errordb").val();
 		var error2db = $("#error2db").val();
+		var erroridxiao = $("#erroridxiao").val();
+		var erroridda = $("#erroridda").val();
 		
 		jQuery.post("./errorsmanage.web", {
 			"atn" : "exporterrors",
@@ -123,7 +125,9 @@
 			"errorsetid" : errorsetid,
 			"taskdb" : taskdb,
 			"errordb" : errordb,
-			"error2db" : error2db
+			"error2db" : error2db,
+			"erroridxiao" : erroridxiao,
+			"erroridda" : erroridda
 		}, function(json) {
 			if (json.ret && json.ret > 0) {
 				$.webeditor.showCheckBox("success", "导入成功", function(){

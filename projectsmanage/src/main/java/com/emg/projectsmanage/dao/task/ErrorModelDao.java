@@ -255,7 +255,7 @@ public class ErrorModelDao {
 				sql.append(" AND te." + separator + "id" + separator + " >= " + erroridxiao);
 			}
 			if (erroridda != null && erroridda >= 0) {
-				sql.append(" AND te." + separator + "id" + separator + " >= " + erroridda);
+				sql.append(" AND te." + separator + "id" + separator + " <= " + erroridda);
 			}
 			if (errortypes != null && !errortypes.isEmpty()) {
 				sql.append(" AND te." + separator + "errortype" + separator + " IN ( ");
@@ -310,7 +310,7 @@ public class ErrorModelDao {
 				sql.append(" AND te." + separator + "id" + separator + " >= " + erroridxiao);
 			}
 			if (erroridda != null && erroridda >= 0) {
-				sql.append(" AND te." + separator + "id" + separator + " >= " + erroridda);
+				sql.append(" AND te." + separator + "id" + separator + " <= " + erroridda);
 			}
 			if (errortypes != null && !errortypes.isEmpty()) {
 				sql.append(" AND te." + separator + "errortype" + separator + " IN ( ");

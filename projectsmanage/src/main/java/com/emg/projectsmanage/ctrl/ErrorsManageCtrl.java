@@ -185,7 +185,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			HttpServletResponse response) {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		logger.debug("ErrorsManageCtrl-exportErrors start.");
-		Integer ret = -1;
+		Integer ret = 0;
 		try {
 			Long batchID = ParamUtils.getLongParameter(request, "batchid", 0);
 			Long errorSetID = ParamUtils.getLongParameter(request, "errorsetid", 0);
