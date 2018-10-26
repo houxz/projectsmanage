@@ -50,8 +50,19 @@ public enum ProcessState {
 	
 	public static String toJsonStr() {
 		String str = new String("{");
-		for (ProcessState values : ProcessState.values()) {
-			str += "\"" + values.getValue() + "\":\"" + values.getDes() + "\",";
+		for (ProcessState value : ProcessState.values()) {
+			str += "\"" + value.getValue() + "\":\"" + value.getDes() + "\",";
+		}
+		str += "}";
+		return str;
+	}
+
+	public static String undoneToJsonStr() {
+		String str = new String("{");
+		for (ProcessState value : ProcessState.values()) {
+			if (value.equals(ProcessState.COMPLETE))
+				continue;
+			str += "\"" + value.getValue() + "\":\"" + value.getDes() + "\",";
 		}
 		str += "}";
 		return str;

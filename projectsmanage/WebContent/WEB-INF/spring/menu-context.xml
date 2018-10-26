@@ -15,6 +15,7 @@
 				<ref bean="projectsprocess" />
 				<ref bean="tasksmanage" />
 				<ref bean="capacity" />
+				<ref bean="doneprocesses" />
 				<!-- <ref bean="downloadexcel" /> -->
 				<ref bean="errorsmanage" />
 				<ref bean="itemsetmanage" />
@@ -236,6 +237,19 @@
 		<property name="code" value="1012" />
 		<property name="url" value="/projectsmanage/socket.web" />
 		<property name="label" value="SOCKET通信" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="false" />
+	</bean>
+	
+	<bean id="doneprocesses" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="1013" />
+		<property name="url" value="/projectsmanage/doneprocesses.web" />
+		<property name="label" value="已完成项目" />
 		<property name="roleSet">
 			<set>
 				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>

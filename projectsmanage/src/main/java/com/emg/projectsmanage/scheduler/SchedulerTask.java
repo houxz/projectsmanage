@@ -245,13 +245,17 @@ public class SchedulerTask {
 								
 								TaskModel task = taskModelDao.getTaskByBlockid(configDBModel, blockid);
 								
-								if (task == null) {
+								if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
 									logger.error("Can not find task by blockid: " + blockid);
 									continue;
 								}
 								
 								Integer taskType = task.getTasktype();
+								if (taskType.compareTo(0) <= 0)
+									continue;
 								Long projectid = task.getProjectid();
+								if (projectid.compareTo(0L) <= 0)
+									continue;
 								
 								UniqRecord editUniqRecord = new UniqRecord(taskType, projectid, editid);
 								UniqRecord checkUniqRecord = new UniqRecord(taskType, projectid, checkid);
@@ -315,7 +319,7 @@ public class SchedulerTask {
 								
 								TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
 								
-								if (task == null) {
+								if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
 									logger.error("Can not find task by taskid: " + taskid);
 									continue;
 								}
@@ -340,6 +344,8 @@ public class SchedulerTask {
 								}
 								
 								Long projectid = task.getProjectid();
+								if (projectid.compareTo(0L) <= 0)
+									continue;
 								
 								UniqRecord editUniqRecord = new UniqRecord(taskType, projectid, userid);
 								CapacityModel editCapacityModel = new CapacityModel();
@@ -384,7 +390,7 @@ public class SchedulerTask {
 								
 								TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
 								
-								if (task == null) {
+								if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
 									logger.error("Can not find task by taskid: " + taskid);
 									continue;
 								}
@@ -409,6 +415,8 @@ public class SchedulerTask {
 								}
 								
 								Long projectid = task.getProjectid();
+								if (projectid.compareTo(0L) <= 0)
+									continue;
 								
 								UniqRecord editUniqRecord = new UniqRecord(taskType, projectid, userid);
 								CapacityModel editCapacityModel = new CapacityModel();
