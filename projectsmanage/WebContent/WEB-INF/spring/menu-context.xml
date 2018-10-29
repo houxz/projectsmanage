@@ -14,8 +14,8 @@
 				<ref bean="worktasks" />
 				<ref bean="projectsprocess" />
 				<ref bean="tasksmanage" />
-				<ref bean="capacity" />
 				<ref bean="doneprocesses" />
+				<ref bean="capacity" />
 				<!-- <ref bean="downloadexcel" /> -->
 				<ref bean="errorsmanage" />
 				<ref bean="itemsetmanage" />
@@ -256,7 +256,7 @@
 			</set>
 		</property>
 		<property name="enabled" value="true" />
-		<property name="isshow" value="false" />
+		<property name="isshow" value="true" />
 	</bean>
 
 </beans>
