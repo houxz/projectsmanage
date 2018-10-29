@@ -244,8 +244,10 @@ public class TasksManageCtrl extends BaseCtrl {
 				stateMaps.add(new StateMap(0, 5, null, 1));
 				stateMaps.add(new StateMap(1, 5, null, 1));
 				break;
-			case "校正中":
+			case "待校正":
 				stateMaps.add(new StateMap(3, 5, 13, null));
+				break;
+			case "校正中":
 				stateMaps.add(new StateMap(0, 6, null, null));
 				stateMaps.add(new StateMap(1, 6, null, null));
 				break;
@@ -342,6 +344,8 @@ public class TasksManageCtrl extends BaseCtrl {
 			case 5:
 				if (tasktype == 12)
 					return "完成";
+				else if(tasktype == 13)
+					return "待校正";
 				else
 					return "校正中";
 			case 6:
