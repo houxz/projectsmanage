@@ -21,6 +21,8 @@
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
 <script src="resources/js/webeditor.js"></script>
+<script src="resources/js/common.js"></script>
+<script src="resources/js/consMap.js"></script>
 <script src="resources/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
@@ -56,6 +58,23 @@
 </style>
 
 <script type="text/javascript">
+	$(document).ready(function() {
+		$.webeditor.getHead();
+		//$.webeditor.getFoot();
+		
+		$('[data-toggle="processes"]').bootstrapTable({
+			locale : 'zh-CN',
+			onLoadSuccess : function(data) {
+				$("[data-toggle='tooltip']").tooltip();
+			}
+		});
+		
+	});
+	
+	var source = null;
+	var matchByIDAndIndex = new Map();
+	var autoRefreshProcess = false;
+	
 	var colors = [ "LimeGreen", "MediumSeaGreen", "MediumVioletRed", "Crimson", "Crimson" ];
 	var processStates = eval('(${processStates})');
 	var processTypes = eval('(${processTypes})');
@@ -66,30 +85,45 @@
 	var itemsetTypes = eval('(${itemsetTypes})');
 	var itemsetUnits = eval('(${itemsetUnits})');
 	
+	var itemAreaFirstIn = true;
+	var itemAreaFirstClick = true;
+	var itemAreaSelected = new Array();
+	var itemAreaIDSelected = new Array();
+	var itemAreaOn = -1;
+	
+	var itemSetFirstIn = true;
+	var itemSetFirstClick = true;
+	var itemSetSelected = new Array();
+	var itemSetIDSelected = new Array();
+	var itemSetOn = -1;
+	
+	var workerFirstIn = true;
+	var workerFirstClick = true;
+	var workerSelected = new Array();
+	var workerIDSelected = new Array();
+	var workerOn = -1;
+
+	function indexFormat(value, row, index) {
+		return index;
+	}
+	function statesFormat(value, row, index) {
+		return processStates[row.state];
+	}
 	function processTypesFormat(value, row, index) {
 		return processTypes[row.type];
 	}
-	
-	function priFormat(value, row, index) {
-		var html = [];
-		html.push("<select name='priority_" + row.id + "' id='priority_"
-				+ row.id + "' onchange='changePriority(" + row.id
-				+ ")'  class='form-control'>");
-		for ( var priorityLevel in priorityLevels) {
-			if (priorityLevel == value) {
-				html.push("<option value='"+ value +"' selected='selected' >"
-						+ priorityLevels[value] + "</option>");
-			} else {
-				html.push("<option value='"+ priorityLevel +"'>"
-						+ priorityLevels[priorityLevel] + "</option>");
-			}
-		}
-		html.push("</select>");
-		return html.join("");
+	function areaTypesFormat(value, row, index) {
+		return itemAreaTypes[row.type];
 	}
-	
-	function statesFormat(value, row, index) {
-		return processStates[row.state];
+
+	function sysFormat(value, row, index) {
+		return itemsetSysTypes[row.systype];
+	}
+	function itemsetTypesFormat(value, row, index) {
+		return itemsetTypes[row.type];
+	}
+	function unitFormat(value, row, index) {
+		return itemsetUnits[row.unit];
 	}
 	
 	function progressFormat(value, row, index) {
@@ -325,7 +359,39 @@
 		}
 		return html.join('');
 	}
-	
+
+	function priFormat(value, row, index) {
+		return priorityLevels[value];
+	}
+	function nameFormat(value, row, index) {
+		var html = new Array();
+		html.push("<div class='bootstrapColumn' >");
+		html.push(value);
+		html.push("</div>");
+		return html.join("");
+	}
+	function layernameFormat(value, row, index) {
+		var html = new Array();
+		html.push("<pre class='bootstrapColumn' >");
+		html.push(value);
+		html.push("</pre>");
+		return html.join("");
+	}
+	function referdataFormat(value, row, index) {
+		var html = new Array();
+		html.push("<pre class='bootstrapColumn' >");
+		html.push(value);
+		html.push("</pre>");
+		return html.join("");
+	}
+	function descFormat(value, row, index) {
+		var html = new Array();
+		html.push("<div class='bootstrapColumn' >");
+		html.push(value);
+		html.push("</div>");
+		return html.join("");
+	}
+
 	function operationFormat(value, row, index) {
 		var html = new Array();
 		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="getConfig('
@@ -339,33 +405,742 @@
 						+ ','
 						+ row.state
 						+ ');">配置</div>');
-		if (row.state == 1) {
-			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,' + row.id + ')">暂停</div>');
-		} else if (row.state == 2 || row.state == 0) {
-			html.push('<div class="btn btn-default" style="margin-bottom:3px;" onclick="changeState(1,' + row.id + ')" >开始</div>');
-		}
 
 		return html.join('');
 	}
-	
+
+	function projcetsIDFormat(value, row, index) {
+		var html = new Array();
+		html.push('<input type="checkbox" value="' + row.id + '">' + row.id
+				+ '');
+		return html.join('');
+	}
+
 	function queryParams(params) {
 		return params;
 	}
 
-	$(document).ready(function() {
-		$.webeditor.getHead();
-		//$.webeditor.getFoot();
-		$('#processeslist').bootstrapTable({
-			locale : 'zh-CN',
-			onLoadSuccess : function(data) {
-				currentPageProjects = data.rows;
-			}
-		});
-		$("#workerse").flexselect();
-		$("#checkers").flexselect();
-		sortable();
-	});
+	function loadDefaultConfig() {
+		$("#config_processid").val(new String());
+		$("#config_processname").val(new String());
+		$("#config_processpriority").val(0);
+		$("#config_processprotype").val(1);
+		$("#config_processstatus").val(0);
+		processTypeChange(1);
+		
+		$("#config_0_7").val(new String());
+		$("#config_0_7").siblings("p").text("已选择0个区域");
+		$("#config_0_18").val(new String());
+		$("#config_0_18").siblings("p").text("已添加人员0位");
+		$("#config_0_19").prop('selectedIndex', 0);
 
+		$("#config_1_5").prop('selectedIndex', 0);
+		$("#config_1_6").prop('selectedIndex', 0);
+		$("#config_1_6").siblings("p").text("已选择0个质检图层");
+		$("#config_1_7").val(new String());
+		$("#config_1_7").siblings("p").text("已选择0个质检区域");
+		$("#config_1_8").prop('selectedIndex', 0);
+
+		$("#config_2_17").prop('selectedIndex', 0);
+		$("#config_2_18").val(new String());
+		$("#config_2_18").siblings("p").text("已添加人员0位");
+		$("#config_2_19").prop('selectedIndex', 0);
+	}
+
+	function getConfig(processid, processname, priority, processtype, state) {
+		loadDefaultConfig();
+		if (processid > 0) {
+			disableByProcessType(processtype);
+			
+			jQuery.post("./processesmanage.web", {
+				"atn" : "getconfigvalues",
+				"processid" : processid
+			}, function(json) {
+				if (json.configValues && json.configValues.length > 0) {
+					var configValues = json.configValues;
+					for ( var index in configValues) {
+						var obj = $("#" + "config_" + configValues[index].moduleid + "_" + configValues[index].configid);
+						if (obj) {
+							$(obj).val(configValues[index].value);
+						}
+						if(configValues[index].configid == 19) {
+							$("#config_0_19").val(configValues[index].value);
+						}
+					}
+					
+					var config_processprotype = $("#config_processprotype").val();
+					processTypeChange(config_processprotype);
+					
+					var config_0_7 = $("#config_1_7").val();
+					$("#config_0_7").siblings("p").text("已选择" + (config_0_7 ? config_0_7 .split(",").length : 0) + "个区域");
+					var config_0_18 = $("#config_2_18").val();
+					$("#config_0_18").siblings("p").text("已添加人员" + (config_0_18 ? config_0_18.split(",").length : 0) + "位");
+
+					var config_1_3 = $("#config_1_3").val();
+					var config_1_4 = $("#config_1_4").val();
+					$("#config_1_4").siblings("p").text("已关联项目:" + config_1_4 + "(" + config_1_3 + ")");
+
+					var config_1_6 = $("#config_1_6").val();
+					$("#config_1_6").siblings("p").text("已选择" + (config_1_6 ? config_1_6 .split(",").length : 0) + "个质检图层");
+
+					var config_1_7 = $("#config_1_7").val();
+					$("#config_1_7").siblings("p").text("已选择" + (config_1_7 ? config_1_7 .split(",").length : 0) + "个质检区域");
+
+					var config_2_11 = $("#config_2_11").val();
+					var config_2_12 = $("#config_2_12").val();
+					$("#config_2_12").siblings("p").text("已关联项目:" + config_2_12 + "(" + config_2_11 + ")");
+
+					var config_2_18 = $("#config_2_18").val();
+					$("#config_2_18").siblings("p").text("已添加人员" + (config_2_18 ? config_2_18.split(",").length : 0) + "位");
+				}
+			}, "json");
+		} else {
+			// $("#config_processprotype").removeAttr("disabled");
+			$("#config_processprotype").removeAttr("disabled");
+			enableByProcessType();
+		}
+		showConfigDlg(processid, processname, priority, processtype, state);
+	}
+
+	function showConfigDlg(processid, processname, priority, processtype, state) {
+		$("#configDlg").dialog({
+							modal : true,
+							height : 630,
+							width : document.documentElement.clientWidth * 0.4,
+							title : "项目配置",
+							open : function(event, ui) {
+								$("#config_processid").val(processid);
+								$("#config_processname").val(processname);
+								$("#config_processstatus").val(state);
+								
+								$("#config_processpriority").val(priority);
+								$("#config_processprotype").val(processtype);
+								$(".ui-dialog-titlebar-close").hide();
+								$('.navbar-example').scrollspy({
+									target : '.navbar-example'
+								});
+							},
+							buttons : [{
+										text : "关闭",
+										class : "btn btn-default",
+										click : function() {
+											$(this).dialog("close");
+										}
+									} ]
+						});
+	}
+	
+	function getWorkers() {
+		$('[data-toggle="workers"]').bootstrapTable(
+				{
+					locale : 'zh-CN',
+					queryParams : function(params) {
+						if (params.filter != undefined) {
+							var filterObj = eval('(' + params.filter + ')');
+							if (filterObj.state != undefined) {
+								filterObj["state"] = filterObj.state;
+								delete filterObj.state;
+								params.filter = JSON.stringify(filterObj);
+							}
+						}
+						return params;
+					},
+					onLoadSuccess : function(data) {
+						workerOn = -1;
+						workerSelected = new Array();
+						workerFirstClick = true;
+						
+						var values = new Array();
+						if(workerFirstIn) {
+							var str_values = $("#config_2_18").val();
+							$.each(str_values.split(","), function(index, domEle) {
+								values[index] = parseInt(domEle);
+							});
+						} else {
+							$.each(workerIDSelected, function(index, domEle) {
+								values.push(parseInt(domEle));
+							});
+						}
+						
+						$('[data-toggle="workers"]').bootstrapTable("checkBy",
+								{
+									field : "id",
+									values : values
+								});
+						workerFirstIn = false;
+					},
+					onCheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						if(workerSelected.indexOf(index) < 0) {
+							workerOn = index;
+							workerSelected.push(index);
+							workerSelected.sort(compare);
+						}
+						var id = row.id;
+						if(workerIDSelected.indexOf(id) < 0) {
+							workerIDSelected.push(id);
+						}
+					},
+					onUncheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						var indexIn = workerSelected.indexOf(index);
+						if(indexIn >= 0) {
+							workerOn = workerSelected[indexIn == 0 ? 0 : indexIn -1];
+							workerSelected.splice(indexIn,1).sort(compare);
+						}
+						var id = row.id;
+						var idIn = workerIDSelected.indexOf(id);
+						if(idIn >= 0) {
+							workerIDSelected.splice(idIn, 1);
+						}
+					},
+					onCheckAll : function(rows) {
+						var elements = $('[data-toggle="workers"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							if(workerSelected.indexOf(index) < 0) {
+								workerSelected.push(index);
+							}
+						});
+						workerOn = parseInt($('[data-toggle="workers"] td.indexHidden:last').text());
+						workerSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var id = row.id;
+							if(workerIDSelected.indexOf(id) < 0) {
+								workerIDSelected.push(id);
+							}
+						});
+					},
+					onUncheckAll : function(rows) {
+						var elements = $('[data-toggle="workers"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							var indexIn = workerSelected.indexOf(index);
+							if(indexIn >= 0) {
+								workerOn = workerSelected[indexIn == 0 ? 0 : indexIn -1];
+								workerSelected.splice(indexIn,1).sort(compare);
+							}
+						});
+						workerOn = parseInt($('[data-toggle="workers"] td.indexHidden:last').text());
+						workerSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var id = row.id;
+							var idIn = workerIDSelected.indexOf(id);
+							if(idIn >= 0) {
+								workerIDSelected.splice(idIn, 1);
+							}
+						});
+					}
+				});
+
+		showWorkersDlg();
+	}
+
+	function showWorkersDlg() {
+		$("#workers").dialog(
+				{
+					modal : true,
+					height : 500,
+					width : document.documentElement.clientWidth * 0.3,
+					title : "添加人员",
+					open : function(event, ui) {
+						workerFirstClick = true;
+						workerFirstIn= true;
+						$(".ui-dialog-titlebar-close").hide();
+					},
+					close : function() {
+						workerOn = -1;
+						workerSelected = new Array();
+						workerIDSelected = new Array();
+						workerFirstClick = true;
+						workerFirstIn= true;
+						$('[data-toggle="workers"]').bootstrapTable("destroy");
+					},
+					buttons : [
+							{
+								text : "<",
+								title : "上一条",
+								class : "btn btn-default",
+								click : function() {
+									if(!workerSelected || workerSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(workerFirstClick) {
+										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
+										workerOn = workerSelected[0];
+										workerFirstClick = false;
+									} else {
+										if (workerOn < 0) {
+											$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
+											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+										} else {
+											var index = workerSelected.indexOf(workerOn);
+											if (index < 0) {
+												$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
+											} else if (index > workerSelected.length - 1) {
+												$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
+											} else {
+												if (index == 0) {
+													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
+													workerOn = workerSelected[0];
+													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+												} else {
+													var preIndex = index - 1;
+													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[preIndex] * 31);
+													workerOn = workerSelected[preIndex];
+												}
+											}
+										}
+									}
+								}
+							},
+							{
+								text : ">",
+								title : "下一条",
+								class : "btn btn-default",
+								click : function() {
+									if(!workerSelected || workerSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(workerFirstClick) {
+										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
+										workerOn = workerSelected[0];
+										workerFirstClick = false;
+									} else {
+										if (workerOn < 0) {
+											$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
+										} else {
+											var index = workerSelected.indexOf(workerOn);
+											if (index < 0) {
+												$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
+											} else if (index > workerSelected.length - 1) {
+												$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
+											} else {
+												if (index == workerSelected.length - 1) {
+													var nextIndex = workerSelected.length - 1;
+													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
+													workerOn = workerSelected[nextIndex];
+													$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+												} else {
+													var nextIndex = index + 1;
+													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
+													workerOn = workerSelected[nextIndex];
+												}
+											}
+										}
+									}
+								}
+							},
+							{
+								text : "关闭",
+								class : "btn btn-default",
+								click : function() {
+									$(this).dialog("close");
+								}
+							} ]
+				});
+	}
+
+	function getItemAreas() {
+		$('[data-toggle="itemAreas"]').bootstrapTable(
+				{
+					locale : 'zh-CN',
+					queryParams : function(params) {
+						if (params.filter != undefined) {
+							var filterObj = eval('(' + params.filter + ')');
+							if (filterObj.state != undefined) {
+								filterObj["state"] = filterObj.state;
+								delete filterObj.state;
+								params.filter = JSON.stringify(filterObj);
+							}
+						}
+						params["type"] = $("#config_1_5").val();
+						params["processType"] = $("#config_processprotype").val();
+						return params;
+					},
+					onLoadSuccess : function(data) {
+						itemAreaOn = -1;
+						itemAreaSelected = new Array();
+						itemAreaFirstClick = true;
+						
+						var values = new Array();
+						if(itemAreaFirstIn) {
+							var str_values = $("#config_1_7").val();
+							$.each(str_values.split(","), function(index, domEle) {
+								values.push(parseInt(domEle));
+							});
+						} else {
+							$.each(itemAreaIDSelected, function(index, domEle) {
+								values.push(parseInt(domEle));
+							});
+						}
+						
+						$('[data-toggle="itemAreas"]').bootstrapTable(
+								"checkBy", {
+									field : "id",
+									values : values
+								});
+						itemAreaFirstIn = false;
+						var state = $("#config_processstatus").val();
+						if(state !== "0") {
+							$("#itemAreaslist input:checkbox").attr("disabled", true);
+						} else {
+							$("#itemAreaslist input:checkbox").removeAttr("disabled");
+						} 
+					},
+					onCheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						if(itemAreaSelected.indexOf(index) < 0) {
+							itemAreaOn = index;
+							itemAreaSelected.push(index);
+							itemAreaSelected.sort(compare);
+						}
+						var id = row.id;
+						if(itemAreaIDSelected.indexOf(id) < 0) {
+							itemAreaIDSelected.push(id);
+						}
+					},
+					onUncheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						var indexIn = itemAreaSelected.indexOf(index);
+						if(indexIn >= 0) {
+							itemAreaOn = itemAreaSelected[indexIn == 0 ? 0 : indexIn -1];
+							itemAreaSelected.splice(indexIn,1).sort(compare);
+						}
+						var id = row.id;
+						var idIn = itemAreaIDSelected.indexOf(id);
+						if(idIn >= 0) {
+							itemAreaIDSelected.splice(idIn, 1);
+						}
+					},
+					onCheckAll : function(rows) {
+						var elements = $('[data-toggle="itemAreas"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							if(itemAreaSelected.indexOf(index) < 0) {
+								itemAreaSelected.push(index);
+							}
+						});
+						itemAreaOn = parseInt($('[data-toggle="itemAreas"] td.indexHidden:last').text());
+						itemAreaSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var id = row.id;
+							if(itemAreaIDSelected.indexOf(id) < 0) {
+								itemAreaIDSelected.push(id);
+							}
+						});
+					},
+					onUncheckAll : function(rows) {
+						var elements = $('[data-toggle="itemAreas"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							var indexIn = itemAreaSelected.indexOf(index);
+							if(indexIn >= 0) {
+								itemAreaOn = itemAreaSelected[indexIn == 0 ? 0 : indexIn -1];
+								itemAreaSelected.splice(indexIn,1).sort(compare);
+							}
+						});
+						itemAreaOn = parseInt($('[data-toggle="itemAreas"] td.indexHidden:last').text());
+						itemAreaSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var id = row.id;
+							var idIn = itemAreaIDSelected.indexOf(id);
+							if(idIn >= 0) {
+								itemAreaIDSelected.splice(idIn, 1);
+							}
+						});
+					}
+				});
+
+		showItemAreasDlg();
+	}
+
+	function showItemAreasDlg() {
+		$("#itemAreasDlg").dialog(
+				{
+					modal : true,
+					height : 500,
+					width : 660,
+					title : "质检区域配置",
+					open : function(event, ui) {
+						itemAreaFirstClick = true;
+						itemAreaFirstIn = true;
+						$(".ui-dialog-titlebar-close").hide();
+					},
+					close : function() {
+						itemAreaOn = -1;
+						itemAreaSelected = new Array();
+						itemAreaIDSelected = new Array();
+						itemAreaFirstClick = true;
+						itemAreaFirstIn = true;
+						$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
+					},
+					buttons : [
+							{
+								text : "<",
+								title : "上一条",
+								class : "btn btn-default",
+								click : function() {
+									if(!itemAreaSelected || itemAreaSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(itemAreaFirstClick) {
+										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
+										itemAreaOn = itemAreaSelected[0];
+										itemAreaFirstClick = false;
+									} else {
+										if(itemAreaOn < 0) {
+											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
+											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+										} else {
+											var index = itemAreaSelected.indexOf(itemAreaOn);
+											if(index < 0) {
+												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
+											} else if(index > itemAreaSelected.length-1) {
+												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 'bottom');
+											} else {
+												if(index == 0) {
+													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
+													itemAreaOn = itemAreaSelected[0];
+													$.webeditor.showMsgLabel("warning", "已经跳转到第一条");
+												} else {
+													var preIndex = index-1;
+													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[preIndex]*31);
+													itemAreaOn = itemAreaSelected[preIndex];
+												}
+											}
+										}
+									}
+								}
+							},
+							{
+								text : ">",
+								title : "下一条",
+								class : "btn btn-default",
+								click : function() {
+									if(!itemAreaSelected || itemAreaSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(itemAreaFirstClick) {
+										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
+										itemAreaOn = itemAreaSelected[0];
+										itemAreaFirstClick = false;
+									} else {
+										if(itemAreaOn < 0) {
+											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
+										} else {
+											var index = itemAreaSelected.indexOf(itemAreaOn);
+											if(index < 0) {
+												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
+											} else if(index > itemAreaSelected.length-1) {
+												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 'bottom');
+											} else {
+												if(index == itemAreaSelected.length-1) {
+													var nextIndex = itemAreaSelected.length-1;
+													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[nextIndex]*31);
+													itemAreaOn = itemAreaSelected[nextIndex];
+													$.webeditor.showMsgLabel("warning", "已经跳转到最后一条");
+												} else {
+													var nextIndex = index+1;
+													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[nextIndex]*31);
+													itemAreaOn = itemAreaSelected[nextIndex];
+												}
+											}
+										}
+									}
+								}
+							},
+							{
+								text : "关闭",
+								class : "btn btn-default",
+								click : function() {
+									$(this).dialog("close");
+								}
+							} ]
+				});
+	}
+
+	function getItemsets() {
+		$('[data-toggle="itemsets"]').bootstrapTable(
+				{
+					locale : 'zh-CN',
+					queryParams : function(params) {
+						params["processType"] = $("#config_processprotype").val();
+						return params;
+					},
+					onLoadSuccess : function(data) {
+						itemSetOn = -1;
+						itemSetSelected = new Array();
+						itemSetFirstClick = true;
+						
+						var values = new Array();
+						if(itemSetFirstIn) {
+							$.each($("#config_1_6").val().split(","), function(index, domEle) {
+								values.push(parseInt(domEle));
+							});
+						} else {
+							$.each(itemSetIDSelected, function(index, domEle) {
+								values.push(parseInt(domEle));
+							});
+						}
+						
+						$('[data-toggle="itemsets"]').bootstrapTable("checkBy",
+								{
+									field : "id",
+									values : values
+								});
+						itemSetFirstIn = false;
+						var state = $("#config_processstatus").val();
+						if(state !== "0") {
+							$("#itemsetslist input:checkbox").attr("disabled", true);
+						} else {
+							$("#itemsetslist input:checkbox").removeAttr("disabled");
+						} 
+					},
+					onCheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						if(itemSetSelected.indexOf(index) < 0) {
+							itemSetOn = index;
+							itemSetSelected.push(index);
+							itemSetSelected.sort(compare);
+						}
+						var id = row.id;
+						if(itemSetIDSelected.indexOf(id) < 0) {
+							itemSetIDSelected.push(id);
+						}
+					},
+					onUncheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						var indexIn = itemSetSelected.indexOf(index);
+						if(indexIn >= 0) {
+							itemSetOn = itemSetSelected[indexIn == 0 ? 0 : indexIn -1];
+							itemSetSelected.splice(indexIn,1).sort(compare);
+						}
+						var id = row.id;
+						var idIn = itemSetIDSelected.indexOf(id);
+						if(idIn >= 0) {
+							itemSetIDSelected.splice(idIn, 1);
+						}
+					},
+					onCheckAll : function(rows) {
+						var elements = $('[data-toggle="itemsets"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							if(itemSetSelected.indexOf(index) < 0) {
+								itemSetSelected.push(index);
+							}
+						});
+						itemSetOn = parseInt($('[data-toggle="itemsets"] td.indexHidden:last').text());
+						itemSetSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var id = row.id;
+							if(itemSetIDSelected.indexOf(id) < 0) {
+								itemSetIDSelected.push(id);
+							}
+						});
+					},
+					onUncheckAll : function(rows) {
+						var elements = $('[data-toggle="itemsets"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							var indexIn = itemSetSelected.indexOf(index);
+							if(indexIn >= 0) {
+								itemSetOn = itemSetSelected[indexIn == 0 ? 0 : indexIn -1];
+								itemSetSelected.splice(indexIn,1).sort(compare);
+							}
+						});
+						itemSetOn = parseInt($('[data-toggle="itemsets"] td.indexHidden:last').text());
+						itemSetSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var id = row.id;
+							var idIn = itemSetIDSelected.indexOf(id);
+							if(idIn >= 0) {
+								itemSetIDSelected.splice(idIn, 1);
+							}
+						});
+					}
+				});
+
+		showItemsetsDlg();
+	}
+
+	function showItemsetsDlg() {
+		$("#itemsetsDlg").dialog(
+				{
+					modal : true,
+					height : 630,
+					width : document.documentElement.clientWidth * 0.6,
+					title : "质检图层配置",
+					open : function(event, ui) {
+						itemSetFirstClick = true;
+						itemSetFirstIn = true;
+						$(".ui-dialog-titlebar-close").hide();
+					},
+					close : function() {
+						itemSetOn = -1;
+						itemSetSelected = new Array();
+						itemSetIDSelected = new Array();
+						itemSetFirstClick = true;
+						itemSetFirstIn = true;
+						$('[data-toggle="itemsets"]').bootstrapTable("destroy");
+					},
+					buttons : [
+									{
+										text : "关闭",
+										class : "btn btn-default",
+										click : function() {
+											$(this).dialog("close");
+										}
+									} ]
+						});
+	}
+
+	function processTypeChange(selectValue) {
+		if(selectValue == 1 || selectValue == 4) {
+			$("#modules li:not(:first-child)").show();
+			$("#config_0_7").parents("tr").hide();
+			$("#config_0_18").parents("tr").hide();
+			$("#config_0_19").parents("tr").hide();
+			$("#sc2").show();
+			$("#sc3").show();
+		} else if(selectValue == 2 || selectValue == 3 || selectValue == 5) {
+			$("#modules li:not(:first-child)").hide();
+			$("#config_0_7").parents("tr").show();
+			$("#config_0_18").parents("tr").show();
+			$("#config_0_19").parents("tr").show();
+			$("#sc2").hide();
+			$("#sc3").hide();
+		} else {
+			//console.log("processTypeChange--错误的项目类型：" + selectValue);
+		}
+	}
+	
+	function enableByProcessType() {
+		
+		$("#config_processname").removeAttr("disabled");
+		$("#config_1_5").removeAttr("disabled");
+		$("#config_1_6").siblings("button").removeAttr("disabled");
+		$("#config_1_7").siblings("button").removeAttr("disabled");
+		$("#config_processprotype").removeAttr("disabled");
+	
+		$("#config_processname").removeAttr("disabled");
+		// $("#config_processprotype").removeAttr("disabled");
+		$("#config_0_7").siblings("button").removeAttr("disabled");
+	
+	}
+	
+	function disableByProcessType(selectValue) {
+		$("#config_processname").attr("disabled", true);
+		$("#config_processprotype").attr("disabled", true);
+		$("#config_processpriority").attr("disabled", true);
+		$("#config_1_5").attr("disabled", true);
+		$("#config_0_19").attr("disabled", true);
+		$("#config_2_19").attr("disabled", true);
+	}
 </script>
 
 </head>
@@ -396,7 +1171,7 @@
 							data-filter-control-placeholder="" data-width="120">创建者</th>
 							
 						<th data-field="priority" data-formatter="priFormat"
-							data-filter-control="select" data-width="120"
+							data-filter-control="select" data-width="80"
 							data-filter-data="var:priorityLevels">优先级</th>
 							
 						<th data-field="state" data-formatter="statesFormat"
