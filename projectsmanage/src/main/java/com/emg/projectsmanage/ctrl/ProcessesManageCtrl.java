@@ -94,7 +94,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProcessesConfigCtrl-openLader start.");
 
-		model.addAttribute("processStates", ProcessState.toJsonStr());
+		model.addAttribute("processStates", ProcessState.undoneToJsonStr());
 		model.addAttribute("processTypes", ProcessType.toJsonStr());
 		model.addAttribute("itemAreaTypes", ItemAreaType.toJsonStr());
 		model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
@@ -119,6 +119,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Map<String, Object> filterPara = null;
 			ProcessModelExample example = new ProcessModelExample();
 			Criteria criteria = example.or();
+			criteria.andStateNotEqualTo(ProcessState.COMPLETE.getValue());
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {
