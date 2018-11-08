@@ -1057,6 +1057,54 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("selectUserRoleCount end!");
 		return json;
 	}
+	
+	@RequestMapping(params = "action=selectMyProjects", method = RequestMethod.POST)
+	private ModelAndView selectMyProjects(Model model,
+			HttpSession session,
+			HttpServletRequest request,
+			@RequestParam("systemid") Integer systemid,
+			@RequestParam("userid") Integer userid) {
+		logger.debug("selectMyProjects start!");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			List<ProjectModel> myProjects = new ArrayList<ProjectModel>();
+			
+			ProjectsUserModel record = new ProjectsUserModel();
+			record.setUserid(userid);
+			List<ProjectsUserModel> projectsUserModels = projectsUserModelDao.queryProjectUsers(record);
+			List<Long> myProjectIDs = new ArrayList<Long>();
+			myProjectIDs.add(-1L);
+			for (ProjectsUserModel projectsUserModel : projectsUserModels) {
+				myProjectIDs.add(Long.valueOf(projectsUserModel.getPid()));
+			}
+
+			ProjectModelExample example = new ProjectModelExample();
+			example.or()
+				.andSystemidEqualTo(systemid)
+				.andOverstateEqualTo(1)
+				.andOwnerEqualTo(1)
+				.andIdIn(myProjectIDs);
+			example.setOrderByClause("priority DESC, id");
+			myProjects.addAll(projectModelDao.selectByExample(example));
+			
+			example.clear();
+			example.or()
+				.andSystemidEqualTo(systemid)
+				.andOverstateEqualTo(1)
+				.andOwnerEqualTo(0);
+			example.setOrderByClause("priority DESC, id");
+			myProjects.addAll(projectModelDao.selectByExample(example));
+
+			model.addAttribute("status", true);
+			model.addAttribute("option", myProjects);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+		logger.debug("selectMyProjects end!");
+		return json;
+	}
 
 	@RequestMapping(params = "action=selectNextProject", method = RequestMethod.POST)
 	private ModelAndView selectNextProject(Model model,
