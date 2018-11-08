@@ -103,14 +103,16 @@ public class TasksManageCtrl extends BaseCtrl {
 						ProcessModelExample _example = new ProcessModelExample();
 						_example.or().andNameLike("%" + processname + "%");
 						List<ProcessModel> processes = processModelDao.selectByExample(_example);
-						List<Long> processids = new ArrayList<Long>();
-						for (ProcessModel processModel : processes) {
-							processids.add(processModel.getId());
+						if (processes != null && processes.size() > 0) {
+							List<Long> processids = new ArrayList<Long>();
+							for (ProcessModel processModel : processes) {
+								processids.add(processModel.getId());
+							}
+							example.clear();
+							example.or().andProcessidIn(processids);
+							projects = new ArrayList<ProjectModel>();
+							projects.addAll(projectModelDao.selectByExample(example));
 						}
-						example.clear();
-						example.or().andProcessidIn(processids);
-						projects = new ArrayList<ProjectModel>();
-						projects.addAll(projectModelDao.selectByExample(example));
 						break;
 					case "processtype":
 						processType = ProcessType.valueOf(Integer.valueOf(filterPara.get(key).toString()));
