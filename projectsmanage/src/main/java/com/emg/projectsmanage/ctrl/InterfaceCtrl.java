@@ -1631,6 +1631,47 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("selectProcessIDByProjectID end!");
 		return json;
 	}
+	
+	@RequestMapping(params = "action=updateProcessByID", method = RequestMethod.POST)
+	private ModelAndView updateProcessByID(Model model,
+			HttpSession session,
+			HttpServletRequest request,
+			@RequestParam("processid") Long processID,
+			@RequestParam(value = "state", required = false, defaultValue = "-1") Integer state,
+			@RequestParam(value = "stage", required = false, defaultValue = "-1") Integer stage,
+			@RequestParam(value = "stagestate", required = false, defaultValue = "-1") Integer stagestate,
+			@RequestParam(value = "progress", required = false, defaultValue = "") String progress) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		Boolean status = false;
+		try {
+			ProcessModel process = new ProcessModel();
+			process.setId(processID);
+			if (state >= 0)
+				process.setState(state);
+			if (stage >= 0)
+				process.setStage(stage);
+			if (stagestate >= 0)
+				process.setStagestate(stagestate);
+			if (progress != null && !progress.isEmpty())
+				process.setProgress(progress);
+			if (processModelDao.updateByPrimaryKeySelective(process) > 0) {
+				status = true;
+			}
+		}catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			logger.error("processID: " + processID);
+			logger.error("state: " + state);
+			logger.error("stage: " + stage);
+			logger.error("stagestate: " + stagestate);
+			logger.error("progress: " + progress);
+			status = false;
+			json.addObject("option", e.getMessage());
+		}
+		json.addObject("status", status);
+		logger.debug("END");
+		return json;
+	}
 
 	// by xiao
 	@RequestMapping(params = "action=updateProcessProgressByID", method = RequestMethod.POST)
