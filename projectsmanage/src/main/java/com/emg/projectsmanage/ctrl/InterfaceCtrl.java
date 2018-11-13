@@ -1058,6 +1058,34 @@ public class InterfaceCtrl extends BaseCtrl {
 		return json;
 	}
 	
+	@RequestMapping(params = "action=selectDoingProjects", method = RequestMethod.POST)
+	private ModelAndView selectDoingProjects(Model model,
+			HttpSession session,
+			HttpServletRequest request,
+			@RequestParam("systemid") Integer systemid) {
+		logger.debug("selectDoingProjects start!");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			List<ProjectModel> projects = new ArrayList<ProjectModel>();
+			
+			ProjectModelExample example = new ProjectModelExample();
+			example.or()
+				.andSystemidEqualTo(systemid)
+				.andOverstateEqualTo(1);
+			example.setOrderByClause("owner DESC, priority DESC, id");
+			projects = projectModelDao.selectByExample(example);
+			
+			model.addAttribute("status", true);
+			model.addAttribute("option", projects);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+		logger.debug("selectDoingProjects end!");
+		return json;
+	}
+	
 	@RequestMapping(params = "action=selectMyProjects", method = RequestMethod.POST)
 	private ModelAndView selectMyProjects(Model model,
 			HttpSession session,
