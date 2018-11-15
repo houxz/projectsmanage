@@ -10,11 +10,10 @@
 %>
 </script>
 <div class="headline">
-	<nav class="navbar navbar-default">
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 		<div class="container-fluid">
-			<div class="navbar-header" style="width: 16%; min-width: 160px;">
-				<a class="navbar-brand headicon" href="#"></a> <span
-					class="headword"><strong>项目管理系统</strong></span>
+			<div class="navbar-header" style="width: 12%; min-width: 144px;">
+				<a class="navbar-brand" href="#" title="这是什么都没有--"><strong>项目管理系统</strong></a>
 			</div>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
@@ -30,7 +29,7 @@
 					</c:forEach>
 				</ul>
 
-				<ul class="nav navbar-nav navbar-right" style="width: 24%;">
+				<ul class="nav navbar-nav navbar-right">
 					<li><a href="#"><c:out value="<%=account%>" /></a></li>
 					<li><a href="<c:url value='./logout.web'/>">退出</a></li>
 				</ul>

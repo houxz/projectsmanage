@@ -161,7 +161,7 @@
 		<property name="label" value="错误导出" />
 		<property name="roleSet">
 			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_YANFAADMIN</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
 			</set>
 		</property>
 		<property name="enabled" value="true" />
@@ -174,7 +174,7 @@
 		<property name="label" value="质检集合配置" />
 		<property name="roleSet">
 			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_YANFAADMIN</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
 			</set>
 		</property>
 		<property name="enabled" value="true" />
@@ -187,7 +187,7 @@
 		<property name="label" value="错误筛选配置" />
 		<property name="roleSet">
 			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_YANFAADMIN</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
 			</set>
 		</property>
 		<property name="enabled" value="true" />
