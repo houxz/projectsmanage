@@ -423,14 +423,12 @@
 							
 							$("#errorTypes").val(curErrorTypesArray.join(";"));
 							$("#errorTypesCount").text(curErrorTypesArray.length);
-							$.webeditor.showMsgLabel("success", "新识别错误类型" + pushin + "个，去重" + pushout + "个", function(){
-								$.webeditor.showMsgBox("close");
-							});
+							$.webeditor.showMsgBox("close");
+							$.webeditor.showMsgLabel("success", "新识别错误类型" + pushin + "个，去重" + pushout + "个");
 							$("#dlgImportErrorTypes").dialog("close");
 						} else {
-							$.webeditor.showMsgLabel("alert", json.resultMsg, function(){
-								$.webeditor.showMsgBox("close");
-							});
+							$.webeditor.showMsgBox("close");
+							$.webeditor.showMsgLabel("alert", json.resultMsg);
 						}
 					}, "json");
 				}
@@ -453,14 +451,12 @@
 							});
 							$("#errorTypes").val(ids.join(";"));
 							$("#errorTypesCount").text(json.total);
-							$.webeditor.showMsgLabel("success", "共识别错误类型" + json.total + "个", function(){
-								$.webeditor.showMsgBox("close");
-							});
+							$.webeditor.showMsgBox("close");
+							$.webeditor.showMsgLabel("success", "共识别错误类型" + json.total + "个");
 							$("#dlgImportErrorTypes").dialog("close");
 						} else {
-							$.webeditor.showMsgLabel("alert", json.resultMsg, function(){
-								$.webeditor.showMsgBox("close");
-							});
+							$.webeditor.showMsgBox("close");
+							$.webeditor.showMsgLabel("alert", json.resultMsg);
 						}
 					}, "json");
 				}
@@ -502,15 +498,13 @@
 			"processType" : processType
 		}, function(json) {
 			if (json.result) {
-				$.webeditor.showMsgLabel("success", "错误筛选集合配置成功", function(){
-					$.webeditor.showMsgBox("close");
-				});
+				$.webeditor.showMsgBox("close");
+				$.webeditor.showMsgLabel("success", "错误筛选集合配置成功");
 				$("#dlgErrorSet").dialog("close");
 				$('[data-toggle="errorsets"]').bootstrapTable('refresh');
 			} else {
-				$.webeditor.showMsgLabel("alert", json.resultMsg, function(){
-					$.webeditor.showMsgBox("close");
-				});
+				$.webeditor.showMsgBox("close");
+				$.webeditor.showMsgLabel("alert", json.resultMsg);
 			}
 		}, "json");
 	}
@@ -529,14 +523,12 @@
 				"processType" : processType
 			}, function(json) {
 				if (json.result > 0) {
-					$.webeditor.showMsgLabel("success", "错误筛选集合删除成功", function(){
-						$.webeditor.showMsgBox("close");
-					});
+					$.webeditor.showMsgBox("close");
+					$.webeditor.showMsgLabel("success", "错误筛选集合删除成功");
 					$('[data-toggle="errorsets"]').bootstrapTable('refresh');
 				} else {
-					$.webeditor.showMsgLabel("alert", json.resultMsg, function(){
-						$.webeditor.showMsgBox("close");
-					});
+					$.webeditor.showMsgBox("close");
+					$.webeditor.showMsgLabel("alert", json.resultMsg);
 				}
 			}, "json");
 		});
