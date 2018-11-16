@@ -15,7 +15,7 @@ public class ItemConfigModel {
     
     private String desc;
     
-    private Integer enable;
+    private Integer usable;
     
     private Integer unit;
     
@@ -81,14 +81,6 @@ public class ItemConfigModel {
 		this.desc = desc;
 	}
 
-	public Integer getEnable() {
-		return enable;
-	}
-
-	public void setEnable(Integer enable) {
-		this.enable = enable;
-	}
-
 	public Integer getUnit() {
 		return unit;
 	}
@@ -151,6 +143,14 @@ public class ItemConfigModel {
 
 	public void setUpdatetime(Date updatetime) {
 		this.updatetime = updatetime;
+	}
+
+	public Integer getUsable() {
+		return usable;
+	}
+
+	public void setUsable(Integer usable) {
+		this.usable = usable;
 	}
     
 }
