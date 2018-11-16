@@ -400,6 +400,7 @@
 				class : "btn btn-default",
 				click : function() {
 					var importErrorTypes = $("#ImportErrorTypes").val();
+					$.webeditor.showMsgBox("info", "保存中...");
 					jQuery.post("./errorsetmanage.web", {
 						"atn" : "recogniseErrortypes",
 						"processType" : $("#dlgErrorSet table #processType").val(),
@@ -422,10 +423,14 @@
 							
 							$("#errorTypes").val(curErrorTypesArray.join(";"));
 							$("#errorTypesCount").text(curErrorTypesArray.length);
-							$.webeditor.showMsgLabel("success", "新识别错误类型" + pushin + "个，去重" + pushout + "个");
+							$.webeditor.showMsgLabel("success", "新识别错误类型" + pushin + "个，去重" + pushout + "个", function(){
+								$.webeditor.showMsgBox("close");
+							});
 							$("#dlgImportErrorTypes").dialog("close");
 						} else {
-							$.webeditor.showMsgLabel("alert", json.resultMsg);
+							$.webeditor.showMsgLabel("alert", json.resultMsg, function(){
+								$.webeditor.showMsgBox("close");
+							});
 						}
 					}, "json");
 				}
@@ -434,6 +439,7 @@
 				class : "btn btn-default",
 				click : function() {
 					var importErrorTypes = $("#ImportErrorTypes").val();
+					$.webeditor.showMsgBox("info", "保存中...");
 					jQuery.post("./errorsetmanage.web", {
 						"atn" : "recogniseErrortypes",
 						"processType" : $("#dlgErrorSet table #processType").val(),
@@ -447,10 +453,14 @@
 							});
 							$("#errorTypes").val(ids.join(";"));
 							$("#errorTypesCount").text(json.total);
-							$.webeditor.showMsgLabel("success", "共识别错误类型" + json.total + "个");
+							$.webeditor.showMsgLabel("success", "共识别错误类型" + json.total + "个", function(){
+								$.webeditor.showMsgBox("close");
+							});
 							$("#dlgImportErrorTypes").dialog("close");
 						} else {
-							$.webeditor.showMsgLabel("alert", json.resultMsg);
+							$.webeditor.showMsgLabel("alert", json.resultMsg, function(){
+								$.webeditor.showMsgBox("close");
+							});
 						}
 					}, "json");
 				}
@@ -479,6 +489,7 @@
 			return;
 		}
 
+		$.webeditor.showMsgBox("info", "保存中...");
 		jQuery.post("./errorsetmanage.web", {
 			"atn" : "submiterrorset",
 			"errorSetID" : id,
@@ -491,11 +502,15 @@
 			"processType" : processType
 		}, function(json) {
 			if (json.result) {
-				$.webeditor.showMsgLabel("success", "错误筛选集合配置成功");
+				$.webeditor.showMsgLabel("success", "错误筛选集合配置成功", function(){
+					$.webeditor.showMsgBox("close");
+				});
 				$("#dlgErrorSet").dialog("close");
 				$('[data-toggle="errorsets"]').bootstrapTable('refresh');
 			} else {
-				$.webeditor.showMsgLabel("alert", json.resultMsg);
+				$.webeditor.showMsgLabel("alert", json.resultMsg, function(){
+					$.webeditor.showMsgBox("close");
+				});
 			}
 		}, "json");
 	}
@@ -506,16 +521,22 @@
 				$.webeditor.showMsgLabel("alert", "错误筛选集合删除失败");
 				return;
 			}
+			
+			$.webeditor.showMsgBox("info", "保存中...");
 			jQuery.post("./errorsetmanage.web", {
 				"atn" : "deleteerrorset",
 				"errorSetID" : errorSetID,
 				"processType" : processType
 			}, function(json) {
 				if (json.result > 0) {
-					$.webeditor.showMsgLabel("success", "错误筛选集合删除成功");
+					$.webeditor.showMsgLabel("success", "错误筛选集合删除成功", function(){
+						$.webeditor.showMsgBox("close");
+					});
 					$('[data-toggle="errorsets"]').bootstrapTable('refresh');
 				} else {
-					$.webeditor.showMsgLabel("alert", json.resultMsg);
+					$.webeditor.showMsgLabel("alert", json.resultMsg, function(){
+						$.webeditor.showMsgBox("close");
+					});
 				}
 			}, "json");
 		});

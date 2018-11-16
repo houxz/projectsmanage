@@ -131,11 +131,11 @@
 		}, function(json) {
 			if (json.ret && json.ret > 0) {
 				$.webeditor.showCheckBox("success", "导入成功", function(){
-					$("#comm_msgbox").remove();
+					$.webeditor.showMsgBox("close");
 				});
 			} else {
 				$.webeditor.showCheckBox("alert", "导入失败", function(){
-					$("#comm_msgbox").remove();
+					$.webeditor.showMsgBox("close");
 				});
 			}
 		}, "json");

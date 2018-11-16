@@ -19,10 +19,13 @@ jQuery.webeditor = {
 		} else if("info" == type) {
 			title = "消息";
 			html.push("<div id=\"comm_msgbox\">");
-			html.push("    <div class=\"alert alert-success alert-dismissable\" style=\"margin-bottom: 0;\">");
+			html.push("    <div class=\"alert alert-dismissable\" style=\"margin-bottom: 0;\">");
 			html.push(msg);
 			html.push("    </div>");
 			html.push("</div>");
+		} else if("close" == type){
+			$("#comm_msgbox").remove();
+			return;
 		} else {
 			title = "消息";
 			html.push("<div id=\"comm_msgbox\">");
