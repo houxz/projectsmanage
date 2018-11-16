@@ -57,6 +57,16 @@
 		});
 	});
 	
+	var errortypeFirstIn = true;
+	var errortypeFirstClick = true;
+	var errortypeSelected = new Array();
+	var errortypeIDSelected = new Array();
+	var errortypeOn = -1;
+	
+	function indexFormat(value, row, index) {
+		return index;
+	}
+	
 	var errorsetSysTypes = eval('(${errorsetSysTypes})');
 	var errorsetTypes = eval('(${errorsetTypes})');
 	var errorsetUnits = eval('(${errorsetUnits})');
@@ -132,7 +142,6 @@
 		$("#dlgErrorSet").dialog(
 				{
 					modal : true,
-					height: 590,
 					width : 720,
 					title : "错误筛选集合配置",
 					open : function(event, ui) {
@@ -154,94 +163,296 @@
 				});
 	}
 	
-	function findExpandibleNodess() {
-   		$('#errorTypesTree').treeview('collapseAll', { silent: true });
-   		return $('#errorTypesTree').treeview('search', [ $('#input-expand-node').val(), { ignoreCase: false, exactMatch: false } ]);
-    }
-    function checkExpandibleNodess() {
-       	var expandibleNodes = findExpandibleNodess();
-       	$('#errorTypesTree').treeview('checkNode', [ expandibleNodes, { silent: false }]);
-    }
-	
-	function getErrorTypes() {
-		var selectNodeids = $("#dlgErrorSet table #errorTypes").val();
-		var processType = $("#dlgErrorSet table #processType").val();
-		
-		jQuery.post("./errorsetmanage.web", {
-			"atn" : "geterrortypes",
-			"processType" : processType
-		}, function(json) {
-			var errorTypes = json.rows;
-			if(errorTypes && errorTypes.length > 0) {
-				var data = $.webeditor.transJsonData2Tree2(errorTypes, "id", "qid", "name", "nodes", "desc", selectNodeids);
-				$('#errorTypesTree').treeview(
-					{
-						data : data,
-						showIcon : false,
-						showCheckbox : true,
-						highlightSelected : false,
-						expandIcon : 'glyphicon glyphicon-menu-right',
-						collapseIcon : 'glyphicon glyphicon-menu-down',
-						onNodeChecked : function(event, node) {
-							if(node.pid == 0) {
-                           		var children = node.nodes;
-                           		$.each(children, function(index, child){
-                           			$('#errorTypesTree').treeview('checkNode', [ child.nodeId, { silent: false }]);
-                           		});
-                           	}
-						},
-						onNodeUnchecked : function(event, node) {
-							if(node.pid == 0) {
-                           		var children = node.nodes;
-                           		$.each(children, function(index, child){
-                           			$('#errorTypesTree').treeview('uncheckNode', [ child.nodeId, { silent: false }]);
-                           		});
-                           	}
+    function getErrorTypes() {
+		$('[data-toggle="errortypes"]').bootstrapTable(
+				{
+					locale : 'zh-CN',
+					queryParams : function(params) {
+						params["processType"] = $("#dlgErrorSet table #processType").val();
+						return params;
+					},
+					onLoadSuccess : function(data) {
+						errortypeOn = -1;
+						errortypeSelected = new Array();
+						errortypeFirstClick = true;
+						
+						var values = new Array();
+						if(errortypeFirstIn) {
+							$.each($("#dlgErrorSet table #errorTypes").val().split(";"), function(index, domEle) {
+								if(domEle)
+									values.push(parseInt(domEle));
+							});
+						} else {
+							$.each(errortypeIDSelected, function(index, domEle) {
+								values.push(parseInt(domEle));
+							});
 						}
-					});
-			}
-		}, "json");
+						
+						if(values.length > 0) {
+							$('[data-toggle="errortypes"]').bootstrapTable("checkBy", {
+									field : "id",
+									values : values
+								});
+						}
+						errortypeFirstIn = false;
+					},
+					onCheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						if(errortypeSelected.indexOf(index) < 0) {
+							errortypeOn = index;
+							errortypeSelected.push(index);
+							errortypeSelected.sort(compare);
+						}
+						var errortypeID = row.id;
+						if(errortypeIDSelected.indexOf(errortypeID) < 0) {
+							errortypeIDSelected.push(errortypeID);
+						}
+					},
+					onUncheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						var indexIn = errortypeSelected.indexOf(index);
+						if(indexIn >= 0) {
+							errortypeOn = errortypeSelected[indexIn == 0 ? 0 : indexIn -1];
+							errortypeSelected.splice(indexIn,1).sort(compare);
+						}
+						var errortypeID = row.id;
+						var errortypeIDIn = errortypeIDSelected.indexOf(errortypeID);
+						if(errortypeIDIn >= 0) {
+							errortypeIDSelected.splice(errortypeIDIn, 1);
+						}
+					},
+					onCheckAll : function(rows) {
+						var elements = $('[data-toggle="errortypes"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							if(errortypeSelected.indexOf(index) < 0) {
+								errortypeSelected.push(index);
+							}
+						});
+						errortypeOn = parseInt($('[data-toggle="errortypes"] td.indexHidden:last').text());
+						errortypeSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var name = row.id;
+							if(errortypeIDSelected.indexOf(name) < 0) {
+								errortypeIDSelected.push(name);
+							}
+						});
+					},
+					onUncheckAll : function(rows) {
+						var elements = $('[data-toggle="errortypes"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							var indexIn = errortypeSelected.indexOf(index);
+							if(indexIn >= 0) {
+								errortypeOn = errortypeSelected[indexIn == 0 ? 0 : indexIn -1];
+								errortypeSelected.splice(indexIn,1).sort(compare);
+							}
+						});
+						errortypeOn = parseInt($('[data-toggle="errortypes"] td.indexHidden:last').text());
+						errortypeSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var name = row.id;
+							var nameIn = errortypeIDSelected.indexOf(name);
+							if(nameIn >= 0) {
+								errortypeIDSelected.splice(nameIn, 1);
+							}
+						});
+					}
+				});
 		
 		showErrorTypesDlg();
 	}
-
+	
 	function showErrorTypesDlg() {
-		$("#dlgErrorTypes").dialog({
+		$("#dlgErrorTypes").dialog(
+				{
+					modal : true,
+					width : 1400,
+					title : "选择质检项",
+					open : function(event, ui) {
+						errortypeFirstClick = true;
+						errortypeFirstIn = true;
+						$(".ui-dialog-titlebar-close").hide();
+					},
+					close : function(event, ui) {
+						errortypeOn = -1;
+						errortypeSelected = new Array();
+						errortypeIDSelected = new Array();
+						errortypeFirstClick = true;
+						errortypeFirstIn = true;
+						$('[data-toggle="errortypes"]').bootstrapTable("destroy");
+					},
+					buttons : [
+							{
+								text : "<",
+								title : "上一条",
+								class : "btn btn-default",
+								click : function() {
+									if(!errortypeSelected || errortypeSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(errortypeFirstClick) {
+										$('[data-toggle="errortypes"]').bootstrapTable('scrollTo',errortypeSelected[0] * 31);
+										errortypeOn = errortypeSelected[0];
+										errortypeFirstClick = false;
+									} else {
+										if (errortypeOn < 0) {
+											$('[data-toggle="errortypes"]').bootstrapTable('scrollTo', 0);
+											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+										} else {
+											var index = errortypeSelected.indexOf(errortypeOn);
+											if (index < 0) {
+												$('[data-toggle="errortypes"]').bootstrapTable('scrollTo',0);
+											} else if (index > errortypeSelected.length - 1) {
+												$('[data-toggle="errortypes"]').bootstrapTable('scrollTo','bottom');
+											} else {
+												if (index == 0) {
+													$('[data-toggle="errortypes"]').bootstrapTable('scrollTo',errortypeSelected[0] * 31);
+													errortypeOn = errortypeSelected[0];
+													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+												} else {
+													var preIndex = index - 1;
+													$('[data-toggle="errortypes"]').bootstrapTable('scrollTo',errortypeSelected[preIndex] * 31);
+													errortypeOn = errortypeSelected[preIndex];
+												}
+											}
+										}
+									}
+								}
+							},
+							{
+								text : ">",
+								title : "下一条",
+								class : "btn btn-default",
+								click : function() {
+									if(!errortypeSelected || errortypeSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(errortypeFirstClick) {
+										$('[data-toggle="errortypes"]').bootstrapTable('scrollTo',errortypeSelected[0] * 31);
+										errortypeOn = errortypeSelected[0];
+										errortypeFirstClick = false;
+									} else {
+										if (errortypeOn < 0) {
+											$('[data-toggle="errortypes"]').bootstrapTable('scrollTo', 0);
+										} else {
+											var index = errortypeSelected.indexOf(errortypeOn);
+											if (index < 0) {
+												$('[data-toggle="errortypes"]').bootstrapTable('scrollTo',0);
+											} else if (index > errortypeSelected.length - 1) {
+												$('[data-toggle="errortypes"]').bootstrapTable('scrollTo','bottom');
+											} else {
+												if (index == errortypeSelected.length - 1) {
+													var nextIndex = errortypeSelected.length - 1;
+													$('[data-toggle="errortypes"]').bootstrapTable('scrollTo',errortypeSelected[nextIndex] * 31);
+													errortypeOn = errortypeSelected[nextIndex];
+													$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+												} else {
+													var nextIndex = index + 1;
+													$('[data-toggle="errortypes"]').bootstrapTable('scrollTo',errortypeSelected[nextIndex] * 31);
+													errortypeOn = errortypeSelected[nextIndex];
+												}
+											}
+										}
+									}
+								}
+							},
+							{
+								text : "保存",
+								class : "btn btn-default",
+								click : function() {
+									var length = errortypeIDSelected.length;
+									if (length > 0) {
+										$("#errorTypes").val(errortypeIDSelected.join(";"));
+										$("#errorTypesCount").text(length);
+										
+										$(this).dialog("close");
+									} else {
+										$.webeditor.showMsgLabel("alert","请选择质检项");
+									}
+								}
+							},
+							{
+								text : "关闭",
+								class : "btn btn-default",
+								click : function() {
+									$(this).dialog("close");
+								}
+							} ]
+				});
+	}
+	
+	function importErrorTypes() {
+		$("#dlgImportErrorTypes").dialog({
 			modal : true,
 			width : 600,
-			height: 500,
-			title : "选择质检项",
+			title : "导入错误类型",
 			open : function(event, ui) {
 				$(".ui-dialog-titlebar-close").hide();
 			},
 			close : function(event, ui) {
-				$('#input-expand-node').val(new String());
-				$('#errorTypesTree').treeview('uncheckAll', { silent: true });
-				$('#errorTypesTree').treeview('collapseAll', { silent: true });
+				$("#ImportErrorTypes").val(new String());
 			},
 			buttons : [ {
-				text : "提交",
+				text : "新增",
 				class : "btn btn-default",
 				click : function() {
-					var expandibleNodes = $('#errorTypesTree').treeview('getChecked');
-		        	if(expandibleNodes && expandibleNodes.length > 0) {
-			        	var length = 0;
-			        	var value = new String();
-			        	$.each(expandibleNodes, function(index, node){
-			        		if(node.id) {
-			        			value += node.id + ";";
-			        			length ++;
-			        		}
-	            		});
-			        	value = value.substring(0, value.length - 1);
-			        	$("#dlgErrorSet table #errorTypes").val(value);
-			        	$("#errorTypesCount").text(length);
-			        	
-			        	$(this).dialog("close");
-		        	} else {
-		        		$.webeditor.showMsgLabel("alert", "请选择错误类型");
-		        		return;
-		        	}
+					var importErrorTypes = $("#ImportErrorTypes").val();
+					jQuery.post("./errorsetmanage.web", {
+						"atn" : "recogniseErrortypes",
+						"processType" : $("#dlgErrorSet table #processType").val(),
+						"errortypes" : importErrorTypes
+					}, function(json) {
+						if (json.result > 0) {
+							var curErrorTypesArray = $("#errorTypes").val().split(";");
+							var curErrorTypesCount = curErrorTypesArray.length;
+							
+							var pushin = 0, pushout = 0;
+							$.each(json.rows, function(index, domEle) {
+								var id = domEle.id;
+								if (curErrorTypesArray.indexOf(String(id)) < 0) {
+									curErrorTypesArray.push(id);
+									pushin++;
+								} else {
+									pushout++;
+								}
+							});
+							
+							$("#errorTypes").val(curErrorTypesArray.join(";"));
+							$("#errorTypesCount").text(curErrorTypesArray.length);
+							$.webeditor.showMsgLabel("success", "新识别错误类型" + pushin + "个，去重" + pushout + "个");
+							$("#dlgImportErrorTypes").dialog("close");
+						} else {
+							$.webeditor.showMsgLabel("alert", json.resultMsg);
+						}
+					}, "json");
+				}
+			}, {
+				text : "替换",
+				class : "btn btn-default",
+				click : function() {
+					var importErrorTypes = $("#ImportErrorTypes").val();
+					jQuery.post("./errorsetmanage.web", {
+						"atn" : "recogniseErrortypes",
+						"processType" : $("#dlgErrorSet table #processType").val(),
+						"errortypes" : importErrorTypes
+					}, function(json) {
+						if (json.result > 0) {
+							var ids = new Array();
+							$.each(json.rows, function(index, domEle) {
+								var id = domEle.id;
+								ids.push(id);
+							});
+							$("#errorTypes").val(ids.join(";"));
+							$("#errorTypesCount").text(json.total);
+							$.webeditor.showMsgLabel("success", "共识别错误类型" + json.total + "个");
+							$("#dlgImportErrorTypes").dialog("close");
+						} else {
+							$.webeditor.showMsgLabel("alert", json.resultMsg);
+						}
+					}, "json");
 				}
 			}, {
 				text : "关闭",
@@ -391,6 +602,8 @@
 						<input type="hidden" id="errorTypes" value="">
 						<button type="button" class="btn btn-default"
 							onclick="getErrorTypes();">选择错误类型</button>
+						<button type="button" class="btn btn-default"
+							onclick="importErrorTypes();">导入错误类型</button>
 						<p class="help-block">已选择<span id="errorTypesCount"></span>个错误类型</p></td>
 				</tr>
 				<tr>
@@ -438,28 +651,34 @@
 		</table>
 	</div>
 	<div id="dlgErrorTypes" style="display: none;">
-		<div class="">
-			<div class="panel panel-default" style="margin-bottom: 0;">
-				<div class="panel-body">
-					<div class="input-group">
-						<input class="form-control" id="input-expand-node"
-							placeholder="输入关键字，按回车开始查找"
-							onkeypress="if (event.keyCode==13) { findExpandibleNodess(); }">
-						<div class="input-group-btn">
-							<button type="button" class="btn btn-default" tabindex="-1"
-								onclick="findExpandibleNodess();">
-								<span class="glyphicon glyphicon-search" aria-hidden="true">&nbsp;</span>查找
-							</button>
-							<button type="button" class="btn btn-default" tabindex="-1"
-								onclick="checkExpandibleNodess();">
-								<span class="glyphicon glyphicon-check" aria-hidden="true">&nbsp;</span>勾选
-							</button>
-						</div>
-					</div>
-				</div>
-				<div id="errorTypesTree" style="height: 306px; overflow: auto;"></div>
-			</div>
+		<table id="errortypeslist" class="table-condensed" data-unique-id="id"
+			data-url="./errorsetmanage.web?atn=geterrortypes" data-cache="false"
+			data-side-pagination="server" data-filter-control="true"
+			data-click-to-select="true" data-single-select="false"
+			data-select-item-name="checkboxName" data-pagination="false"
+			data-toggle="errortypes" data-height="625"
+			data-search-on-enter-key='true' data-align='center'>
+			<thead>
+				<tr>
+					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
+					<th data-field="id" data-filter-control-placeholder=""
+						data-filter-control="input" data-width="60">编号</th>
+					<th data-field="name" data-filter-control-placeholder=""
+						data-filter-control="input">质检项名称</th>
+					<th data-field="qid" data-filter-control-placeholder=""
+						data-filter-control="input" data-width="80">质检项</th>
+					<th data-field="errortype" data-filter-control-placeholder=""
+						data-filter-control="input" data-width="80">错误类型编码</th>
+					<th data-field="desc" data-filter-control-placeholder=""
+						data-filter-control="input">错误类型名称</th>
+				</tr>
+			</thead>
+		</table>
 		</div>
+	</div>
+	<div id="dlgImportErrorTypes" style="display: none;">
+		<textarea class="form-control" rows="12" id="ImportErrorTypes"></textarea>
 	</div>
 </body>
 </html>

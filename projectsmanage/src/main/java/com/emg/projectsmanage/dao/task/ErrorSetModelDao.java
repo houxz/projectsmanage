@@ -294,13 +294,14 @@ public class ErrorSetModelDao {
 		return count;
 	}
 
-	public List<ItemConfigModel> selectErrorTypes(ConfigDBModel configDBModel) {
+	public List<ItemConfigModel> selectErrorTypes(ConfigDBModel configDBModel, ItemConfigModel record, List<Long> errortypes) {
 		List<ItemConfigModel> itemConfigs = new ArrayList<ItemConfigModel>();
 		BasicDataSource dataSource = null;
 		try {
 			if (configDBModel == null)	return itemConfigs;
 			
 			Integer dbtype = configDBModel.getDbtype();
+			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT * ");
@@ -309,7 +310,32 @@ public class ErrorSetModelDao {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_itemconfig ");
-			sql.append(" WHERE 1=1 ");
+			sql.append(" WHERE usable = 1 ");
+			if (record != null && record.getId() != null && record.getId().compareTo(0) > 0) {
+				sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
+			}
+			if (record != null && record.getName() != null && !record.getName().isEmpty()) {
+				sql.append(" AND " + separator + "name" + separator + " like '%" + record.getName() + "%'");
+			}
+			if (record != null && record.getQid() != null && !record.getQid().isEmpty()) {
+				sql.append(" AND " + separator + "qid" + separator + " = '" + record.getQid() + "'");
+			}
+			if (record != null && record.getErrortype() != null && record.getErrortype().compareTo(0L) > 0) {
+				sql.append(" AND " + separator + "errortype" + separator + " = " + record.getErrortype());
+			}
+			if (record != null && record.getDesc() != null && !record.getDesc().isEmpty()) {
+				sql.append(" AND " + separator + "desc" + separator + " like '%" + record.getDesc() + "%'");
+			}
+			if (errortypes != null && errortypes.size() > 0) {
+				sql.append(" AND " + separator + "errortype" + separator + " IN (");
+				for (Long errortype : errortypes) {
+					sql.append(errortype);
+					sql.append(",");
+				}
+				sql.deleteCharAt(sql.length() - 1);
+				sql.append(")");
+			}
+			sql.append(" ORDER BY id asc ");
 
 			dataSource = Common.getDataSource(configDBModel);
 			itemConfigs = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemConfigModel>(ItemConfigModel.class));

@@ -168,6 +168,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		return json;
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=geterrortypes")
 	public ModelAndView getErrorTypes(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ErrorSetManageCtrl-getErrorTypes start.");
@@ -175,10 +176,39 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		List<ItemConfigModel> errorTypes = new ArrayList<ItemConfigModel>();
 		try {
 			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
+			String filter = ParamUtils.getParameter(request, "filter", "");
+
+			Map<String, Object> filterPara = null;
+			ItemConfigModel record = new ItemConfigModel();
+			if (filter.length() > 0) {
+				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
+				for (String key : filterPara.keySet()) {
+					switch (key) {
+					case "id":
+						record.setId(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					case "name":
+						record.setName(filterPara.get(key).toString());
+						break;
+					case "qid":
+						record.setQid(filterPara.get(key).toString());
+						break;
+					case "errortype":
+						record.setErrortype(Long.valueOf(filterPara.get(key).toString()));
+						break;
+					case "desc":
+						record.setDesc(filterPara.get(key).toString());
+						break;
+					default:
+						logger.error("未处理的筛选项：" + key);
+						break;
+					}
+				}
+			}
 
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			errorTypes = errorSetModelDao.selectErrorTypes(configDBModel);
+			errorTypes = errorSetModelDao.selectErrorTypes(configDBModel, record, null);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -189,6 +219,38 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 		return json;
 	}
 
+	@RequestMapping(params = "atn=recogniseErrortypes")
+	public ModelAndView recogniseErrortypes(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ErrorSetManageCtrl-getErrorTypes start.");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<ItemConfigModel> errorTypes = new ArrayList<ItemConfigModel>();
+		try {
+			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
+			String errortypes = ParamUtils.getParameter(request, "errortypes", new String());
+			List<Long> errortypeList = new ArrayList<Long>();
+			if (errortypes != null && !errortypes.isEmpty()) {
+				for(String errortype :errortypes.split(";")) {
+					try {
+						errortypeList.add(Long.parseLong(errortype));
+					} catch (NumberFormatException e) {
+						logger.error(e.getMessage(), e);
+					}
+				}
+			}
+			
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			errorTypes = errorSetModelDao.selectErrorTypes(configDBModel, null, errortypeList);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		json.addObject("rows", errorTypes);
+		json.addObject("total", errorTypes.size());
+		json.addObject("result", 1);
+		logger.debug("ErrorSetManageCtrl-getErrorTypes end.");
+		return json;
+	}
+	
 	@RequestMapping(params = "atn=submiterrorset")
 	public ModelAndView submitErrorSet(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ErrorSetManageCtrl-submitErrorSet start.");
