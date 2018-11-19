@@ -407,8 +407,13 @@
 						"errortypes" : importErrorTypes
 					}, function(json) {
 						if (json.result > 0) {
-							var curErrorTypesArray = $("#errorTypes").val().split(";");
-							var curErrorTypesCount = curErrorTypesArray.length;
+							var curErrorTypesArray = new Array();
+							var curErrorTypesCount = 0;
+							var curErrorTypes = $("#errorTypes").val().trim();
+							if (curErrorTypes.length > 0) {
+								curErrorTypesArray = curErrorTypes.split(";");
+								curErrorTypesCount = curErrorTypesArray.length;
+							}
 							
 							var pushin = 0, pushout = 0;
 							$.each(json.rows, function(index, domEle) {
