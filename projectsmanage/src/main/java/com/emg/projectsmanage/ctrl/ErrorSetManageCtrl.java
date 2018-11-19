@@ -228,10 +228,13 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
 			String errortypes = ParamUtils.getParameter(request, "errortypes", new String());
 			List<Long> errortypeList = new ArrayList<Long>();
-			if (errortypes != null && !errortypes.isEmpty()) {
+			if (errortypes != null && !errortypes.isEmpty() && !errortypes.trim().isEmpty()) {
 				for(String errortype :errortypes.split(";")) {
 					try {
-						errortypeList.add(Long.parseLong(errortype));
+						if (errortype == null || errortype.isEmpty() || errortype.trim().isEmpty())
+							continue;
+						
+						errortypeList.add(Long.parseLong(errortype.trim()));
 					} catch (NumberFormatException e) {
 						logger.error(e.getMessage(), e);
 					}
