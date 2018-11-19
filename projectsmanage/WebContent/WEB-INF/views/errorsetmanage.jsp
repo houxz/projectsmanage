@@ -605,7 +605,9 @@
 						class="form-control configValue" id="processType">
 							<c:set var="processTypes" value="<%= ProcessType.values() %>"/>
 							<c:forEach items="${processTypes }" var="processType">
-								<option value="${processType.getValue() }">${processType.getDes() }</option>
+								<c:if test="${processType.getValue() > 0 }">
+									<option value="${processType.getValue() }">${processType.getDes() }</option>
+								</c:if>
 							</c:forEach>
 					</select></td>
 				</tr>
