@@ -27,6 +27,7 @@ import com.emg.projectsmanage.common.ItemSetType;
 import com.emg.projectsmanage.common.ItemSetUnit;
 import com.emg.projectsmanage.common.LayerElement;
 import com.emg.projectsmanage.common.ProcessType;
+import com.emg.projectsmanage.common.ResultModel;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.SystemCPUType;
@@ -82,6 +83,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	public ModelAndView pages(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ItemSetManageCtrl-pages start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		ResultModel result = new ResultModel();
 		try {
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
@@ -134,13 +136,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, limit, offset);
 			Integer count = itemSetModelDao.countItemSets(configDBModel, record, limit, offset);
 
-			json.addObject("rows", rows);
-			json.addObject("total", count);
-			json.addObject("result", 1);
+			result.setRows(rows);
+			result.setTotal(count);
+			result.setResult(1);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			result.setResultMsg(e.getMessage());
 		}
 
+		json.addAllObjects(result);
 		logger.debug("ItemSetManageCtrl-pages end.");
 		return json;
 	}
@@ -149,9 +153,11 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	public ModelAndView getItemSet(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ItemSetManageCtrl-getItemSet start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		ItemSetModel itemset = new ItemSetModel();
-		StringBuilder sb_items = new StringBuilder();
+		ResultModel result = new ResultModel();
 		try {
+			ItemSetModel itemset = new ItemSetModel();
+			StringBuilder sb_items = new StringBuilder();
+			
 			Long itemsetid = ParamUtils.getLongParameter(request, "itemsetid", -1L);
 			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
 			
@@ -175,11 +181,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					}
 				}
 			}
+			result.setResult(1);
+			result.put("itemset", itemset);
+			result.put("items", sb_items.toString());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			result.setResult(0);
+			result.setResultMsg(e.getMessage());
 		}
-		json.addObject("itemset", itemset);
-		json.addObject("items", sb_items.toString());
+		json.addAllObjects(result);
 		logger.debug("ItemSetManageCtrl-getItemSet end.");
 		return json;
 	}
@@ -189,8 +199,9 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	public ModelAndView getLayers(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ItemSetManageCtrl-getLayerSet start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
+		ResultModel result = new ResultModel();
 		try {
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 			String filter = ParamUtils.getParameter(request, "filter", "");
 			Map<String, Object> filterPara = new HashMap<String, Object>();
 			if (filter != null && !filter.isEmpty()) {
@@ -214,12 +225,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				row.put("desc", val.getDes());
 				rows.add(row);
 			}
+			result.setRows(rows);
+			result.setTotal(rows.size());
+			result.setResult(1);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			result.setResult(0);
+			result.setResultMsg(e.getMessage());
 		}
-		json.addObject("rows", rows);
-		json.addObject("total", rows.size());
-		json.addObject("result", 1);
+		json.addAllObjects(result);
 		logger.debug("ItemSetManageCtrl-getLayerSet end.");
 		return json;
 	}
@@ -229,8 +243,10 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	public ModelAndView getQIDs(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ItemSetManageCtrl-getQIDs start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		List<ItemInfoModel> items = new ArrayList<ItemInfoModel>();
+		ResultModel result = new ResultModel();
+		
 		try {
+			List<ItemInfoModel> items = new ArrayList<ItemInfoModel>();
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
 			String filter = ParamUtils.getParameter(request, "filter", "");
@@ -257,12 +273,16 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			items = itemSetModelDao.selectQIDs(configDBModel, oid, name, limit, offset);
+			result.setRows(items);
+			result.setTotal(items.size());
+			result.setResult(1);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			result.setResult(0);
+			result.setResultMsg(e.getMessage());
 		}
-		json.addObject("rows", items);
-		json.addObject("total", items.size());
-		json.addObject("result", 1);
+		
+		json.addAllObjects(result);
 		logger.debug("ItemSetManageCtrl-getQIDs end.");
 		return json;
 	}
@@ -271,7 +291,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	public ModelAndView submitItemSet(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ItemSetManageCtrl-submitItemSet start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		Boolean ret = false;
+		ResultModel result = new ResultModel();
 		try {
 			Long itemSetID = ParamUtils.getLongParameter(request, "itemSetID", -1L);
 			String name = ParamUtils.getParameter(request, "name");
@@ -364,7 +384,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
 						if (itemSetID.compareTo(0L) > 0) {
 							if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
-								ret = true;
+								result.setResult(1);
 						}
 					}
 					// POI + 其他
@@ -426,7 +446,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
 						if (itemSetID.compareTo(0L) > 0) {
 							if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
-								ret = true;
+								result.setResult(1);
 						}
 					}
 					// Road + 其他
@@ -488,7 +508,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
 						if (itemSetID.compareTo(0L) > 0) {
 							if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
-								ret = true;
+								result.setResult(1);
 						}
 					}
 					// Road + POI
@@ -552,7 +572,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 						itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
 						if (itemSetID.compareTo(0L) > 0) {
 							if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
-								ret = true;
+								result.setResult(1);
 						}
 					}
 					// 其它
@@ -580,7 +600,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 							itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
 							if (itemSetID.compareTo(0L) > 0) {
 								if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
-									ret = true;
+									result.setResult(1);
 							}
 						}
 
@@ -670,7 +690,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 							newItemSet.setDesc(desc);
 
 							if (itemSetModelDao.updateItemset(configDBModel, newItemSet) && (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)) {
-								ret = true;
+								result.setResult(1);
 							}
 						}
 					}
@@ -680,14 +700,16 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			}
 
 			if (itemInfoCount.equals(0)) {
-				json.addObject("result", false);
-				json.addObject("option", "图层、质检项、类型、操作系统、质检单位不匹配");
-				return json;
+				result.setResult(0);
+				result.setResultMsg("图层、质检项、类型、操作系统、质检单位不匹配");
 			}
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			result.setResult(0);
+			result.setResultMsg(e.getMessage());
 		}
-		json.addObject("result", ret);
+		json.addAllObjects(result);
 		logger.debug("ItemSetManageCtrl-submitItemSet end.");
 		return json;
 	}
@@ -696,23 +718,27 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	public ModelAndView deleteItemSet(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ItemSetManageCtrl-deleteItemSet start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		Boolean ret = false;
+		ResultModel result = new ResultModel();
 		try {
 			Long itemSetID = ParamUtils.getLongParameter(request, "itemSetID", -1L);
-			if (itemSetID.compareTo(0L) <= 0) {
-				json.addObject("result", 0);
-				return json;
+			if (itemSetID.compareTo(0L) > 0) {
+				ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
+				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
+				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+	
+				if (itemSetModelDao.deleteItemSet(configDBModel, itemSetID)) {
+					result.setResult(1);
+				} else {
+					result.setResult(0);
+					result.setResultMsg("删除失败");
+				}
 			}
-
-			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
-			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
-			ret = itemSetModelDao.deleteItemSet(configDBModel, itemSetID);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			result.setResult(0);
+			result.setResultMsg(e.getMessage());
 		}
-		json.addObject("result", ret);
+		json.addAllObjects(result);
 		logger.debug("ItemSetManageCtrl-deleteItemSet end.");
 		return json;
 	}

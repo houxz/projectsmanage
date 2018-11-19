@@ -718,6 +718,15 @@
 				}, "json");
 		});
 	}
+	
+	function itemResponse(json) {
+		if (json && json.result > 0)
+			return json;
+		else {
+			$.webeditor.showMsgLabel("alert",json.resultMsg);
+			return json;
+		}
+	}
 </script>
 </head>
 <body>
@@ -728,7 +737,7 @@
 				data-query-params="queryParams"
 				data-url="./itemsetmanage.web?atn=pages" data-side-pagination="server"
 				data-filter-control="true" data-pagination="true"
-				data-toggle="itemsets" data-height="714"
+				data-toggle="itemsets" data-height="714" data-response-handler="itemResponse"
 				data-page-list="[5, 10, 20, All]" data-page-size="5"
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
@@ -873,7 +882,7 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="layers" data-height="325"
+			data-toggle="layers" data-height="325" data-response-handler="itemResponse"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
@@ -895,7 +904,7 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="items" data-height="325"
+			data-toggle="items" data-height="325" data-response-handler="itemResponse"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
