@@ -397,11 +397,13 @@
 	}
 
 	function changeState(state, processid) {
+		$.webeditor.showMsgBox("info", "保存中...");
 		jQuery.post("./processesmanage.web", {
 			"atn" : "changeState",
 			"processid" : processid,
 			"state" : state
 		}, function(json) {
+			$.webeditor.showMsgBox("close");
 			$('[data-toggle="processes"]').bootstrapTable('refresh');
 			$.webeditor.showMsgLabel("success", "项目状态修改成功");
 		}, "json");
@@ -409,11 +411,13 @@
 
 	function changePriority(processid) {
 		var priority = $("#priority_" + processid).val();
+		$.webeditor.showMsgBox("info", "保存中...");
 		jQuery.post("./processesmanage.web", {
 			"atn" : "changePriority",
 			"processid" : processid,
 			"priority" : priority
 		}, function(json) {
+			$.webeditor.showMsgBox("close");
 			$('[data-toggle="processes"]').bootstrapTable('refresh');
 			$.webeditor.showMsgLabel("success",'项目优先级修改成功，<div class="btn btn-default btn-xs" onclick="gotoPage(' + processid + ');">跳转</div>到所在页');
 		}, "json");
@@ -604,6 +608,7 @@
 												return;
 											}
 
+											$.webeditor.showMsgBox("info", "保存中...");
 											jQuery.post("./processesmanage.web",
 															{
 																"atn" : "newprocess",
@@ -625,11 +630,13 @@
 															},
 															function(json) {
 																if (json.result > 0) {
+																	$.webeditor.showMsgBox("close");
 																	$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
 																	$("#configDlg").dialog("close");
 																	$('[data-toggle="processes"]').bootstrapTable('refresh');
 																	$.webeditor.showMsgLabel("success",'项目配置成功，<div class="btn btn-default btn-xs" onclick="gotoPage(' + json.pid + ');">跳转</div>到所在页');
 																} else {
+																	$.webeditor.showMsgBox("close");
 																	$.webeditor.showMsgLabel("alert",json.resultMsg);
 																}
 															}, "json");
