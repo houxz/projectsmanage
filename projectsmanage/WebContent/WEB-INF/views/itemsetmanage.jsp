@@ -924,6 +924,7 @@
 		}
 		
 		if (curFangAn == "custom") {
+			$.webeditor.showMsgBox("info", "保存中...");
 			jQuery.post("./itemsetmanage.web", {
 				"atn" : "submititemsetcustom",
 				"itemSetID" : id,
@@ -937,14 +938,17 @@
 			},
 			function(json) {
 				if (json.result) {
+					$.webeditor.showMsgBox("close");
 					$.webeditor.showMsgLabel("success","质检集合配置成功");
 					$("#dlgItemSet").dialog("close");
 					$('[data-toggle="itemsets"]').bootstrapTable('refresh');
 				} else {
-					$.webeditor.showMsgLabel("alert",json.option);
+					$.webeditor.showMsgBox("close");
+					$.webeditor.showMsgLabel("alert", json.resultMsg);
 				}
 			}, "json");
 		} else if (curFangAn == "preliminary1") {
+			$.webeditor.showMsgBox("info", "保存中...");
 			jQuery.post("./itemsetmanage.web", {
 				"atn" : "submititemsetpreliminary",
 				"itemSetID" : id,
@@ -960,11 +964,13 @@
 			},
 			function(json) {
 				if (json.result) {
+					$.webeditor.showMsgBox("close");
 					$.webeditor.showMsgLabel("success","质检集合配置成功");
 					$("#dlgItemSet").dialog("close");
 					$('[data-toggle="itemsets"]').bootstrapTable('refresh');
 				} else {
-					$.webeditor.showMsgLabel("alert",json.option);
+					$.webeditor.showMsgBox("close");
+					$.webeditor.showMsgLabel("alert", json.resultMsg);
 				}
 			}, "json");
 		} else {
@@ -979,6 +985,7 @@
 				$.webeditor.showMsgLabel("alert", "质检集合删除失败");
 				return;
 			}
+			$.webeditor.showMsgBox("info", "保存中...");
 			jQuery.post("./itemsetmanage.web",
 				{
 					"atn" : "deleteitemset",
@@ -987,9 +994,11 @@
 				},
 				function(json) {
 					if (json.result > 0) {
+						$.webeditor.showMsgBox("close");
 						$.webeditor.showMsgLabel("success","质检集合删除成功");
 						$('[data-toggle="itemsets"]').bootstrapTable('refresh');
 					} else {
+						$.webeditor.showMsgBox("close");
 						$.webeditor.showMsgLabel("alert",json.resultMsg);
 					}
 				}, "json");
