@@ -13,7 +13,7 @@
 	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 		<div class="container-fluid">
 			<div class="navbar-header" style="width: 12%; min-width: 144px;">
-				<a class="navbar-brand" href="#" title="这是什么都没有--"><strong>项目管理系统</strong></a>
+				<a class="navbar-brand" href="#" title="这里什么都没有--"><strong>项目管理系统</strong></a>
 			</div>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
