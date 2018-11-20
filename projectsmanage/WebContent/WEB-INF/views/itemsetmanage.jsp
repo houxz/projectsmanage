@@ -788,7 +788,7 @@
 		$("#dlgItemInfos").dialog(
 				{
 					modal : true,
-					width : 1200,
+					width : 1300,
 					title : "选择图层与质检项",
 					open : function(event, ui) {
 						itemInfoFirstClick = true;
@@ -1251,10 +1251,10 @@
 					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
 					
 					<th data-field="id" data-filter-control-placeholder=""
-						data-filter-control="input" data-width="60">编号</th>
+						data-filter-control="input" data-width="50">编号</th>
 						
 					<th data-field="oid" data-filter-control-placeholder=""
-						data-filter-control="input" data-width="120">OID</th>
+						data-filter-control="input" data-width="100">OID</th>
 						
 					<th data-field="name" data-filter-control-placeholder=""
 						data-filter-control="input">名称</th>
@@ -1262,7 +1262,13 @@
 					<th data-field="layername" data-filter-control-placeholder=""
 						data-filter-control="input" data-width="90">图层</th>
 						
-					<th data-field="referdata">referdata</th>
+					<th data-field="referdata">参考图层</th>
+					
+					<th data-field="type" data-formatter="typeFormat" data-width="60">类型</th>
+					
+					<th data-field="systype" data-formatter="sysFormat">操作系统</th>
+					
+					<th data-field="unit" data-formatter="unitFormat">质检单位</th>
 				</tr>
 			</thead>
 		</table>
