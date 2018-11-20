@@ -309,7 +309,7 @@ public class ItemSetModelDao {
 		return count;
 	}
 
-	public List<ItemInfoModel> selectItemInfosByItemids(ConfigDBModel configDBModel, List<Long> itemids) {
+	public List<ItemInfoModel> selectItemInfosByIDs(ConfigDBModel configDBModel, List<Long> itemInfoIDs, Integer type, Integer systype, Integer unit) {
 		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
 		BasicDataSource dataSource = null;
 		try {
@@ -318,17 +318,29 @@ public class ItemSetModelDao {
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT DISTINCT ON (" + separator + "oid" + separator + ") * FROM ");
+			sql.append(" SELECT * FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_iteminfo ");
-			sql.append(" WHERE " + separator + "enable" + separator + " = 1 AND " + separator + "id" + separator + " in ( ");
-			for (Long itemid : itemids) {
-				sql.append("'" + itemid + "',");
+			sql.append(" WHERE " + separator + "enable" + separator + " = 1");
+			if (itemInfoIDs != null && itemInfoIDs.size() > 0) {
+				sql.append(" AND " + separator + "id" + separator + " in ( ");
+				for (Long itemid : itemInfoIDs) {
+					sql.append("'" + itemid + "',");
+				}
+				sql.deleteCharAt(sql.length() - 1);
+				sql.append(") ");
 			}
-			sql.deleteCharAt(sql.length() - 1);
-			sql.append(") ");
+			if (type != null && type.compareTo(0) >= 0) {
+				sql.append(" AND " + separator + "type" + separator + " = " + type);
+			}
+			if (systype != null && systype.compareTo(0) >= 0) {
+				sql.append(" AND " + separator + "systype" + separator + " = " + systype);
+			}
+			if (unit != null && unit.compareTo(0) >= 0) {
+				sql.append(" AND " + separator + "unit" + separator + " = " + unit);
+			}
 
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
@@ -672,6 +684,52 @@ public class ItemSetModelDao {
 				sql.append(" AND " + separator + "name" + separator + " like '%" + name + "%'");
 			}
 			sql.append("GROUP BY " + separator + "oid" + separator + ", " + separator + "name" + separator + "");
+
+			dataSource = Common.getDataSource(configDBModel);
+			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			itemInfos = new ArrayList<ItemInfoModel>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return itemInfos;
+	}
+	
+	public List<ItemInfoModel> selectItemInfoModels(ConfigDBModel configDBModel, ItemInfoModel record, Integer limit, Integer offset) {
+		List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+		BasicDataSource dataSource = null;
+		try {
+			Integer dbtype = configDBModel.getDbtype();
+			String separator = Common.getDatabaseSeparator(dbtype);
+			
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT * FROM ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_iteminfo ");
+			sql.append(" WHERE " + separator + "enable" + separator + " = 1 ");
+			if (record != null) {
+				if (record.getId() != null && record.getId().compareTo(0L) > 0) {
+					sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
+				}
+				if (record.getOid() != null && !record.getOid().isEmpty()) {
+					sql.append(" AND " + separator + "oid" + separator + " like '%" + record.getOid() + "%'");
+				}
+				if (record.getName() != null && !record.getName().isEmpty()) {
+					sql.append(" AND " + separator + "name" + separator + " like '%" + record.getName() + "%'");
+				}
+				if (record.getLayername() != null && !record.getLayername().isEmpty()) {
+					sql.append(" AND " + separator + "layername" + separator + " = '" + record.getLayername() + "'");
+				}
+			}
 
 			dataSource = Common.getDataSource(configDBModel);
 			itemInfos = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ItemInfoModel>(ItemInfoModel.class));

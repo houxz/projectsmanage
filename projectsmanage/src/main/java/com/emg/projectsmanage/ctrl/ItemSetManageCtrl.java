@@ -157,6 +157,8 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		try {
 			ItemSetModel itemset = new ItemSetModel();
 			StringBuilder sb_items = new StringBuilder();
+			Set<String> itemsSet = new HashSet<String>();
+			List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
 			
 			Long itemsetid = ParamUtils.getLongParameter(request, "itemsetid", -1L);
 			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
@@ -171,11 +173,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				itemset = rows.get(0);
 				List<Long> itemids = itemSetModelDao.getItemSetDetailsByItemSetID(configDBModel, itemsetid);
 				if (itemids.size() > 0) {
-					List<ItemInfoModel> itemInfos = itemSetModelDao.selectItemInfosByItemids(configDBModel, itemids);
+					itemInfos = itemSetModelDao.selectItemInfosByIDs(configDBModel, itemids, null, null , null);
 					if (itemInfos != null && itemInfos.size() > 0) {
 						for (ItemInfoModel itemInfo : itemInfos) {
-							sb_items.append(itemInfo.getOid());
-							sb_items.append(";");
+							String oid = itemInfo.getOid();
+							if (!itemsSet.contains(oid)) {
+								itemsSet.add(oid);
+								sb_items.append(oid);
+								sb_items.append(";");
+							}
 						}
 						sb_items.deleteCharAt(sb_items.length() - 1);
 					}
@@ -184,6 +190,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			result.setResult(1);
 			result.put("itemset", itemset);
 			result.put("items", sb_items.toString());
+			result.put("itemInfos", itemInfos);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			result.setResult(0);
@@ -239,6 +246,61 @@ public class ItemSetManageCtrl extends BaseCtrl {
 	}
 
 	@SuppressWarnings("unchecked")
+	@RequestMapping(params = "atn=getiteminfos")
+	public ModelAndView getItemInfos(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ItemSetManageCtrl-getItemInfos start.");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		ResultModel result = new ResultModel();
+		
+		try {
+			List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
+			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
+			String filter = ParamUtils.getParameter(request, "filter", "");
+			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
+
+			Map<String, Object> filterPara = null;
+			ItemInfoModel record = new ItemInfoModel();
+			if (filter.length() > 0) {
+				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
+				for (String key : filterPara.keySet()) {
+					String value = filterPara.get(key).toString();
+					switch (key) {
+					case "id":
+						record.setId(Long.valueOf(value));
+						break;
+					case "oid":
+						record.setOid(value);
+						break;
+					case "name":
+						record.setName(value);
+						break;
+					case "layername":
+						record.setLayername(value);
+						break;
+					default:
+						logger.error("未处理的筛选项：" + key);
+						break;
+					}
+				}
+			}
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			itemInfos = itemSetModelDao.selectItemInfoModels(configDBModel, record, limit, offset);
+			result.setRows(itemInfos);
+			result.setTotal(itemInfos.size());
+			result.setResult(1);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			result.setResult(0);
+			result.setResultMsg(e.getMessage());
+		}
+		
+		json.addAllObjects(result);
+		logger.debug("ItemSetManageCtrl-getItemInfos end.");
+		return json;
+	}
+	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=getqids")
 	public ModelAndView getQIDs(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ItemSetManageCtrl-getQIDs start.");
@@ -286,10 +348,178 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		logger.debug("ItemSetManageCtrl-getQIDs end.");
 		return json;
 	}
+	
+	@RequestMapping(params = "atn=submititemsetcustom")
+	public ModelAndView submitItemSetCustom(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ItemSetManageCtrl-submitItemSetCustom start.");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		ResultModel result = new ResultModel();
+		try {
+			Long itemSetID = ParamUtils.getLongParameter(request, "itemSetID", -1L);
+			String name = ParamUtils.getParameter(request, "name");
+			String itemInfoIDs = ParamUtils.getParameter(request, "itemInfos");
+			Integer type = ParamUtils.getIntParameter(request, "type", -1);
+			Integer systype = ParamUtils.getIntParameter(request, "systype", -1);
+			Integer unit = ParamUtils.getIntParameter(request, "unit", -1);
+			String desc = ParamUtils.getParameter(request, "desc");
+			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
+			
+			List<Long> itemInfoIDSet = new ArrayList<Long>();
+			if (itemInfoIDs != null && !itemInfoIDs.isEmpty()) {
+				for (String strItem : itemInfoIDs.split(";")) {
+					try {
+						itemInfoIDSet.add(Long.valueOf(strItem));
+					} catch (Exception e) {}
+				}
+			}
+			
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
-	@RequestMapping(params = "atn=submititemset")
-	public ModelAndView submitItemSet(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("ItemSetManageCtrl-submitItemSet start.");
+			Boolean isNewItemSet = itemSetID.compareTo(0L) == 0;
+			Integer itemInfoCount = 0;
+			
+			if (isNewItemSet) {
+				List<ItemInfoModel> itemInfos = itemSetModelDao.selectItemInfosByIDs(configDBModel, itemInfoIDSet, type, systype, unit);
+				if (!itemInfos.isEmpty()) {
+					itemInfoCount += itemInfos.size();
+					List<Long> itemDetails = new ArrayList<Long>();
+					Set<String> referLayers = new HashSet<String>();
+					Set<String> layers = new HashSet<String>();
+					Integer layercount = 0;
+					for (ItemInfoModel itemInfo : itemInfos) {
+						itemDetails.add(itemInfo.getId());
+
+						String layer = itemInfo.getLayername();
+						layers.add(layer);
+
+						String refer = itemInfo.getReferdata();
+						if (refer != null && !refer.isEmpty()) {
+							String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+							for (String r : rs) {
+								referLayers.add(r);
+							}
+
+							Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+							layercount = layercount > rc ? layercount : rc;
+						}
+					}
+
+					StringBuilder sb_layername = new StringBuilder();
+					for (String layer : layers) {
+						sb_layername.append(layer);
+						sb_layername.append(";");
+					}
+					sb_layername.deleteCharAt(sb_layername.length() - 1);
+
+					StringBuilder sb_referdata = new StringBuilder();
+					if (referLayers != null && referLayers.size() > 0) {
+						for (String layer : referLayers) {
+							sb_referdata.append(layer);
+							sb_referdata.append("|");
+						}
+						sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+						sb_referdata.append(":");
+						sb_referdata.append(layercount);
+					}
+
+					ItemSetModel record = new ItemSetModel();
+					record.setName(name);
+					record.setLayername(sb_layername.toString());
+					record.setType(type);
+					record.setSystype(systype);
+					record.setReferdata(sb_referdata.toString());
+					record.setUnit(unit.byteValue());
+					record.setDesc(desc);
+
+					itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
+					if (itemSetID.compareTo(0L) > 0) {
+						if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
+							result.setResult(1);
+					}
+				} else {
+					result.setResult(0);
+					result.setResultMsg("图层、质检项、类型、操作系统、质检单位不匹配");
+					json.addAllObjects(result);
+					return json;
+				}
+			} else {
+				List<ItemInfoModel> itemInfos = itemSetModelDao.selectItemInfosByIDs(configDBModel, itemInfoIDSet, type, systype, unit);
+				if (!itemInfos.isEmpty()) {
+					itemInfoCount += itemInfos.size();
+					List<Long> itemDetails = new ArrayList<Long>();
+					Set<String> referLayers = new HashSet<String>();
+					Set<String> layers = new HashSet<String>();
+					Integer layercount = 0;
+					for (ItemInfoModel itemInfo : itemInfos) {
+						itemDetails.add(itemInfo.getId());
+
+						String layer = itemInfo.getLayername();
+						layers.add(layer);
+
+						String refer = itemInfo.getReferdata();
+						if (refer != null && !refer.isEmpty()) {
+							String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+							for (String r : rs) {
+								referLayers.add(r);
+							}
+
+							Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+							layercount = layercount > rc ? layercount : rc;
+						}
+					}
+
+					StringBuilder sb_layername = new StringBuilder();
+					for (String layer : layers) {
+						sb_layername.append(layer);
+						sb_layername.append(";");
+					}
+					sb_layername.deleteCharAt(sb_layername.length() - 1);
+
+					StringBuilder sb_referdata = new StringBuilder();
+					if (referLayers != null && referLayers.size() > 0) {
+						for (String layer : referLayers) {
+							sb_referdata.append(layer);
+							sb_referdata.append("|");
+						}
+						sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+						sb_referdata.append(":");
+						sb_referdata.append(layercount);
+					}
+
+					ItemSetModel newItemSet = new ItemSetModel();
+					newItemSet.setId(itemSetID);
+					newItemSet.setName(name);
+					newItemSet.setLayername(sb_layername.toString());
+					newItemSet.setType(type);
+					newItemSet.setSystype(systype);
+					newItemSet.setReferdata(sb_referdata.toString());
+					newItemSet.setUnit(unit.byteValue());
+					newItemSet.setDesc(desc);
+
+					if (itemSetModelDao.updateItemset(configDBModel, newItemSet) && (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)) {
+						result.setResult(1);
+					}
+				} else {
+					result.setResult(0);
+					result.setResultMsg("图层、质检项、类型、操作系统、质检单位不匹配");
+					json.addAllObjects(result);
+					return json;
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			result.setResult(0);
+			result.setResultMsg(e.getMessage());
+		}
+		json.addAllObjects(result);
+		logger.debug("ItemSetManageCtrl-submitItemSetCustom end.");
+		return json;
+	}
+
+	@RequestMapping(params = "atn=submititemsetpreliminary")
+	public ModelAndView submitItemSetPreliminary(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ItemSetManageCtrl-submitItemSetPreliminary start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		ResultModel result = new ResultModel();
 		try {
@@ -302,6 +532,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			String desc = ParamUtils.getParameter(request, "desc");
 			String items = ParamUtils.getParameter(request, "items");
 			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
+			Integer preliminary = ParamUtils.getIntParameter(request, "preliminary", -1);
 
 			Set<String> qids = new HashSet<String>();
 			if (items != null && !items.isEmpty()) {
@@ -316,8 +547,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 				}
 			}
 			if (qids.isEmpty() || layernames.isEmpty()) {
-				json.addObject("result", false);
-				json.addObject("option", "质检项、图层未选择");
+				result.setResult(0);
+				result.setResultMsg("质检项、图层未选择");
+				json.addAllObjects(result);
+				return json;
+			}
+			if (preliminary <= 0) {
+				result.setResult(0);
+				result.setResultMsg("方案未知");
+				json.addAllObjects(result);
 				return json;
 			}
 
@@ -326,317 +564,12 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			Boolean isNewItemSet = itemSetID.compareTo(0L) == 0;
 			Integer itemInfoCount = 0;
-			if (isNewItemSet) {
-				if (systype.equals(SystemCPUType.X86.getValue())) {
-					// POI + 其他
-					List<ItemInfoModel> itemInfos = itemSetModelDao.selectPOIAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
-					if (!itemInfos.isEmpty()) {
-						itemInfoCount += itemInfos.size();
-						List<Long> itemDetails = new ArrayList<Long>();
-						Set<String> referLayers = new HashSet<String>();
-						Set<String> layers = new HashSet<String>();
-						Integer layercount = 0;
-						for (ItemInfoModel itemInfo : itemInfos) {
-							itemDetails.add(itemInfo.getId());
-
-							String layer = itemInfo.getLayername();
-							layers.add(layer);
-
-							String refer = itemInfo.getReferdata();
-							if (refer != null && !refer.isEmpty()) {
-								String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
-								for (String r : rs) {
-									referLayers.add(r);
-								}
-
-								Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
-								layercount = layercount > rc ? layercount : rc;
-							}
-						}
-
-						StringBuilder sb_layername = new StringBuilder();
-						for (String layer : layers) {
-							sb_layername.append(layer);
-							sb_layername.append(";");
-						}
-						sb_layername.deleteCharAt(sb_layername.length() - 1);
-
-						StringBuilder sb_referdata = new StringBuilder();
-						if (referLayers != null && referLayers.size() > 0) {
-							for (String layer : referLayers) {
-								sb_referdata.append(layer);
-								sb_referdata.append("|");
-							}
-							sb_referdata.deleteCharAt(sb_referdata.length() - 1);
-							sb_referdata.append(":");
-							sb_referdata.append(layercount);
-						}
-
-						ItemSetModel record = new ItemSetModel();
-						record.setName(name + "_POI+其他");
-						record.setLayername(sb_layername.toString());
-						record.setType(type);
-						record.setSystype(systype);
-						record.setReferdata(sb_referdata.toString());
-						record.setUnit(unit.byteValue());
-						record.setDesc(desc);
-
-						itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
-						if (itemSetID.compareTo(0L) > 0) {
-							if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
-								result.setResult(1);
-						}
-					}
-					// POI + 其他
-
-					// Road + 其他
-					itemInfos.clear();
-					itemInfos = itemSetModelDao.selectRoadAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
-					if (!itemInfos.isEmpty()) {
-						itemInfoCount += itemInfos.size();
-						List<Long> itemDetails = new ArrayList<Long>();
-						Set<String> referLayers = new HashSet<String>();
-						Set<String> layers = new HashSet<String>();
-						Integer layercount = 0;
-						for (ItemInfoModel itemInfo : itemInfos) {
-							itemDetails.add(itemInfo.getId());
-
-							String layer = itemInfo.getLayername();
-							layers.add(layer);
-
-							String refer = itemInfo.getReferdata();
-							if (refer != null && !refer.isEmpty()) {
-								String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
-								for (String r : rs) {
-									referLayers.add(r);
-								}
-
-								Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
-								layercount = layercount > rc ? layercount : rc;
-							}
-						}
-
-						StringBuilder sb_layername = new StringBuilder();
-						for (String layer : layers) {
-							sb_layername.append(layer);
-							sb_layername.append(";");
-						}
-						sb_layername.deleteCharAt(sb_layername.length() - 1);
-
-						StringBuilder sb_referdata = new StringBuilder();
-						if (referLayers != null && referLayers.size() > 0) {
-							for (String layer : referLayers) {
-								sb_referdata.append(layer);
-								sb_referdata.append("|");
-							}
-							sb_referdata.deleteCharAt(sb_referdata.length() - 1);
-							sb_referdata.append(":");
-							sb_referdata.append(layercount);
-						}
-
-						ItemSetModel record = new ItemSetModel();
-						record.setName(name + "_Road+其他");
-						record.setLayername(sb_layername.toString());
-						record.setType(type);
-						record.setSystype(systype);
-						record.setReferdata(sb_referdata.toString());
-						record.setUnit(unit.byteValue());
-						record.setDesc(desc);
-
-						itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
-						if (itemSetID.compareTo(0L) > 0) {
-							if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
-								result.setResult(1);
-						}
-					}
-					// Road + 其他
-
-					// Road + POI
-					itemInfos.clear();
-					itemInfos = itemSetModelDao.selectPOIRoadAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
-					if (!itemInfos.isEmpty()) {
-						itemInfoCount += itemInfos.size();
-						List<Long> itemDetails = new ArrayList<Long>();
-						Set<String> referLayers = new HashSet<String>();
-						Set<String> layers = new HashSet<String>();
-						Integer layercount = 0;
-						for (ItemInfoModel itemInfo : itemInfos) {
-							itemDetails.add(itemInfo.getId());
-
-							String layer = itemInfo.getLayername();
-							layers.add(layer);
-
-							String refer = itemInfo.getReferdata();
-							if (refer != null && !refer.isEmpty()) {
-								String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
-								for (String r : rs) {
-									referLayers.add(r);
-								}
-
-								Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
-								layercount = layercount > rc ? layercount : rc;
-							}
-						}
-
-						StringBuilder sb_layername = new StringBuilder();
-						for (String layer : layers) {
-							sb_layername.append(layer);
-							sb_layername.append(";");
-						}
-						sb_layername.deleteCharAt(sb_layername.length() - 1);
-
-						StringBuilder sb_referdata = new StringBuilder();
-						if (referLayers != null && referLayers.size() > 0) {
-							for (String layer : referLayers) {
-								sb_referdata.append(layer);
-								sb_referdata.append("|");
-							}
-							sb_referdata.deleteCharAt(sb_referdata.length() - 1);
-							sb_referdata.append(":");
-							sb_referdata.append(layercount);
-						}
-
-						ItemSetModel record = new ItemSetModel();
-						record.setName(name + "_POI+Road");
-						record.setLayername(sb_layername.toString());
-						record.setType(type);
-						record.setSystype(systype);
-						record.setReferdata(sb_referdata.toString());
-						record.setUnit(unit.byteValue());
-						record.setDesc(desc);
-
-						itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
-						if (itemSetID.compareTo(0L) > 0) {
-							if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
-								result.setResult(1);
-						}
-					}
-					// Road + POI
-
-					// 其它
-					itemInfos.clear();
-					itemInfos = itemSetModelDao.selectOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
-					if (!itemInfos.isEmpty()) {
-						itemInfoCount += itemInfos.size();
-						List<Long> itemDetails = new ArrayList<Long>();
-						Set<String> referLayers = new HashSet<String>();
-						Set<String> layers = new HashSet<String>();
-						Integer layercount = 0;
-						for (ItemInfoModel itemInfo : itemInfos) {
-							itemDetails.add(itemInfo.getId());
-
-							String layer = itemInfo.getLayername();
-							layers.add(layer);
-
-							String refer = itemInfo.getReferdata();
-							if (refer != null && !refer.isEmpty()) {
-								if (refer.contains(":")) {
-									String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
-									for (String r : rs) {
-										referLayers.add(r);
-									}
-
-									Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
-									layercount = layercount > rc ? layercount : rc;
-								}
-							}
-						}
-
-						StringBuilder sb_layername = new StringBuilder();
-						for (String layer : layers) {
-							sb_layername.append(layer);
-							sb_layername.append(";");
-						}
-						sb_layername.deleteCharAt(sb_layername.length() - 1);
-
-						StringBuilder sb_referdata = new StringBuilder();
-						if (referLayers != null && referLayers.size() > 0) {
-							for (String layer : referLayers) {
-								sb_referdata.append(layer);
-								sb_referdata.append("|");
-							}
-							sb_referdata.deleteCharAt(sb_referdata.length() - 1);
-							sb_referdata.append(":");
-							sb_referdata.append(layercount);
-						}
-
-						ItemSetModel record = new ItemSetModel();
-						record.setName(name + "_其他");
-						record.setLayername(sb_layername.toString());
-						record.setType(type);
-						record.setSystype(systype);
-						record.setReferdata(sb_referdata.toString());
-						record.setUnit(unit.byteValue());
-						record.setDesc(desc);
-
-						itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
-						if (itemSetID.compareTo(0L) > 0) {
-							if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
-								result.setResult(1);
-						}
-					}
-					// 其它
-				} else if (systype.equals(SystemCPUType.X64.getValue())) {
-					List<ItemInfoModel> itemInfos = itemSetModelDao.selectX64ItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
-					if (!itemInfos.isEmpty()) {
-						itemInfoCount += itemInfos.size();
-
-						for (ItemInfoModel itemInfo : itemInfos) {
-							List<Long> itemDetails = new ArrayList<Long>();
-							itemDetails.add(itemInfo.getId());
-
-							String layer = itemInfo.getLayername();
-							String refer = itemInfo.getReferdata();
-
-							ItemSetModel record = new ItemSetModel();
-							record.setName(name + "_" + itemInfo.getOid());
-							record.setLayername(layer);
-							record.setType(type);
-							record.setSystype(systype);
-							record.setReferdata(refer);
-							record.setUnit(unit.byteValue());
-							record.setDesc(desc);
-
-							itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
-							if (itemSetID.compareTo(0L) > 0) {
-								if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
-									result.setResult(1);
-							}
-						}
-
-					}
-				}
-
-			} else {
-				if (systype.equals(SystemCPUType.X86.getValue())) {
-					ItemSetModel record = new ItemSetModel();
-					record.setId(itemSetID);
-					List<ItemSetModel> curItemSetList = itemSetModelDao.selectItemSets(configDBModel, record, 1, 0);
-					if (curItemSetList != null && curItemSetList.size() == 1) {
-						ItemSetModel curItemSet = curItemSetList.get(0);
-						String curName = curItemSet.getName();
-						List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
-						String newName = new String();
-						String suffix = curName.substring(curName.lastIndexOf("_"));
-						switch (suffix) {
-						case "_POI+其他":
-							newName = name.endsWith("_POI+其他") ? name : name + "_POI+其他";
-							itemInfos = itemSetModelDao.selectPOIAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
-							break;
-						case "_Road+其他":
-							newName = name.endsWith("_Road+其他") ? name : name + "_Road+其他";
-							itemInfos = itemSetModelDao.selectRoadAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
-							break;
-						case "_POI+Road":
-							newName = name.endsWith("_POI+Road") ? name : name + "_POI+Road";
-							itemInfos = itemSetModelDao.selectPOIRoadAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
-							break;
-						case "_其他":
-							newName = name.endsWith("_其他") ? name : name + "_其他";
-							itemInfos = itemSetModelDao.selectOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
-							break;
-						}
-
+			
+			if (preliminary.equals(1)) {
+				if (isNewItemSet) {
+					if (systype.equals(SystemCPUType.X86.getValue())) {
+						// POI + 其他
+						List<ItemInfoModel> itemInfos = itemSetModelDao.selectPOIAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
 						if (!itemInfos.isEmpty()) {
 							itemInfoCount += itemInfos.size();
 							List<Long> itemDetails = new ArrayList<Long>();
@@ -645,29 +578,29 @@ public class ItemSetManageCtrl extends BaseCtrl {
 							Integer layercount = 0;
 							for (ItemInfoModel itemInfo : itemInfos) {
 								itemDetails.add(itemInfo.getId());
-
+	
 								String layer = itemInfo.getLayername();
 								layers.add(layer);
-
+	
 								String refer = itemInfo.getReferdata();
 								if (refer != null && !refer.isEmpty()) {
 									String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
 									for (String r : rs) {
 										referLayers.add(r);
 									}
-
+	
 									Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
 									layercount = layercount > rc ? layercount : rc;
 								}
 							}
-
+	
 							StringBuilder sb_layername = new StringBuilder();
 							for (String layer : layers) {
 								sb_layername.append(layer);
 								sb_layername.append(";");
 							}
 							sb_layername.deleteCharAt(sb_layername.length() - 1);
-
+	
 							StringBuilder sb_referdata = new StringBuilder();
 							if (referLayers != null && referLayers.size() > 0) {
 								for (String layer : referLayers) {
@@ -678,25 +611,338 @@ public class ItemSetManageCtrl extends BaseCtrl {
 								sb_referdata.append(":");
 								sb_referdata.append(layercount);
 							}
-
-							ItemSetModel newItemSet = new ItemSetModel();
-							newItemSet.setId(itemSetID);
-							newItemSet.setName(newName);
-							newItemSet.setLayername(sb_layername.toString());
-							newItemSet.setType(type);
-							newItemSet.setSystype(systype);
-							newItemSet.setReferdata(sb_referdata.toString());
-							newItemSet.setUnit(unit.byteValue());
-							newItemSet.setDesc(desc);
-
-							if (itemSetModelDao.updateItemset(configDBModel, newItemSet) && (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)) {
-								result.setResult(1);
+	
+							ItemSetModel record = new ItemSetModel();
+							record.setName(name + "_POI+其他");
+							record.setLayername(sb_layername.toString());
+							record.setType(type);
+							record.setSystype(systype);
+							record.setReferdata(sb_referdata.toString());
+							record.setUnit(unit.byteValue());
+							record.setDesc(desc);
+	
+							itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
+							if (itemSetID.compareTo(0L) > 0) {
+								if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
+									result.setResult(1);
 							}
 						}
+						// POI + 其他
+	
+						// Road + 其他
+						itemInfos.clear();
+						itemInfos = itemSetModelDao.selectRoadAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
+						if (!itemInfos.isEmpty()) {
+							itemInfoCount += itemInfos.size();
+							List<Long> itemDetails = new ArrayList<Long>();
+							Set<String> referLayers = new HashSet<String>();
+							Set<String> layers = new HashSet<String>();
+							Integer layercount = 0;
+							for (ItemInfoModel itemInfo : itemInfos) {
+								itemDetails.add(itemInfo.getId());
+	
+								String layer = itemInfo.getLayername();
+								layers.add(layer);
+	
+								String refer = itemInfo.getReferdata();
+								if (refer != null && !refer.isEmpty()) {
+									String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+									for (String r : rs) {
+										referLayers.add(r);
+									}
+	
+									Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+									layercount = layercount > rc ? layercount : rc;
+								}
+							}
+	
+							StringBuilder sb_layername = new StringBuilder();
+							for (String layer : layers) {
+								sb_layername.append(layer);
+								sb_layername.append(";");
+							}
+							sb_layername.deleteCharAt(sb_layername.length() - 1);
+	
+							StringBuilder sb_referdata = new StringBuilder();
+							if (referLayers != null && referLayers.size() > 0) {
+								for (String layer : referLayers) {
+									sb_referdata.append(layer);
+									sb_referdata.append("|");
+								}
+								sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+								sb_referdata.append(":");
+								sb_referdata.append(layercount);
+							}
+	
+							ItemSetModel record = new ItemSetModel();
+							record.setName(name + "_Road+其他");
+							record.setLayername(sb_layername.toString());
+							record.setType(type);
+							record.setSystype(systype);
+							record.setReferdata(sb_referdata.toString());
+							record.setUnit(unit.byteValue());
+							record.setDesc(desc);
+	
+							itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
+							if (itemSetID.compareTo(0L) > 0) {
+								if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
+									result.setResult(1);
+							}
+						}
+						// Road + 其他
+	
+						// Road + POI
+						itemInfos.clear();
+						itemInfos = itemSetModelDao.selectPOIRoadAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
+						if (!itemInfos.isEmpty()) {
+							itemInfoCount += itemInfos.size();
+							List<Long> itemDetails = new ArrayList<Long>();
+							Set<String> referLayers = new HashSet<String>();
+							Set<String> layers = new HashSet<String>();
+							Integer layercount = 0;
+							for (ItemInfoModel itemInfo : itemInfos) {
+								itemDetails.add(itemInfo.getId());
+	
+								String layer = itemInfo.getLayername();
+								layers.add(layer);
+	
+								String refer = itemInfo.getReferdata();
+								if (refer != null && !refer.isEmpty()) {
+									String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+									for (String r : rs) {
+										referLayers.add(r);
+									}
+	
+									Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+									layercount = layercount > rc ? layercount : rc;
+								}
+							}
+	
+							StringBuilder sb_layername = new StringBuilder();
+							for (String layer : layers) {
+								sb_layername.append(layer);
+								sb_layername.append(";");
+							}
+							sb_layername.deleteCharAt(sb_layername.length() - 1);
+	
+							StringBuilder sb_referdata = new StringBuilder();
+							if (referLayers != null && referLayers.size() > 0) {
+								for (String layer : referLayers) {
+									sb_referdata.append(layer);
+									sb_referdata.append("|");
+								}
+								sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+								sb_referdata.append(":");
+								sb_referdata.append(layercount);
+							}
+	
+							ItemSetModel record = new ItemSetModel();
+							record.setName(name + "_POI+Road");
+							record.setLayername(sb_layername.toString());
+							record.setType(type);
+							record.setSystype(systype);
+							record.setReferdata(sb_referdata.toString());
+							record.setUnit(unit.byteValue());
+							record.setDesc(desc);
+	
+							itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
+							if (itemSetID.compareTo(0L) > 0) {
+								if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
+									result.setResult(1);
+							}
+						}
+						// Road + POI
+	
+						// 其它
+						itemInfos.clear();
+						itemInfos = itemSetModelDao.selectOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
+						if (!itemInfos.isEmpty()) {
+							itemInfoCount += itemInfos.size();
+							List<Long> itemDetails = new ArrayList<Long>();
+							Set<String> referLayers = new HashSet<String>();
+							Set<String> layers = new HashSet<String>();
+							Integer layercount = 0;
+							for (ItemInfoModel itemInfo : itemInfos) {
+								itemDetails.add(itemInfo.getId());
+	
+								String layer = itemInfo.getLayername();
+								layers.add(layer);
+	
+								String refer = itemInfo.getReferdata();
+								if (refer != null && !refer.isEmpty()) {
+									if (refer.contains(":")) {
+										String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+										for (String r : rs) {
+											referLayers.add(r);
+										}
+	
+										Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+										layercount = layercount > rc ? layercount : rc;
+									}
+								}
+							}
+	
+							StringBuilder sb_layername = new StringBuilder();
+							for (String layer : layers) {
+								sb_layername.append(layer);
+								sb_layername.append(";");
+							}
+							sb_layername.deleteCharAt(sb_layername.length() - 1);
+	
+							StringBuilder sb_referdata = new StringBuilder();
+							if (referLayers != null && referLayers.size() > 0) {
+								for (String layer : referLayers) {
+									sb_referdata.append(layer);
+									sb_referdata.append("|");
+								}
+								sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+								sb_referdata.append(":");
+								sb_referdata.append(layercount);
+							}
+	
+							ItemSetModel record = new ItemSetModel();
+							record.setName(name + "_其他");
+							record.setLayername(sb_layername.toString());
+							record.setType(type);
+							record.setSystype(systype);
+							record.setReferdata(sb_referdata.toString());
+							record.setUnit(unit.byteValue());
+							record.setDesc(desc);
+	
+							itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
+							if (itemSetID.compareTo(0L) > 0) {
+								if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
+									result.setResult(1);
+							}
+						}
+						// 其它
+					} else if (systype.equals(SystemCPUType.X64.getValue())) {
+						List<ItemInfoModel> itemInfos = itemSetModelDao.selectX64ItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
+						if (!itemInfos.isEmpty()) {
+							itemInfoCount += itemInfos.size();
+	
+							for (ItemInfoModel itemInfo : itemInfos) {
+								List<Long> itemDetails = new ArrayList<Long>();
+								itemDetails.add(itemInfo.getId());
+	
+								String layer = itemInfo.getLayername();
+								String refer = itemInfo.getReferdata();
+	
+								ItemSetModel record = new ItemSetModel();
+								record.setName(name + "_" + itemInfo.getOid());
+								record.setLayername(layer);
+								record.setType(type);
+								record.setSystype(systype);
+								record.setReferdata(refer);
+								record.setUnit(unit.byteValue());
+								record.setDesc(desc);
+	
+								itemSetID = itemSetModelDao.insertItemset(configDBModel, record);
+								if (itemSetID.compareTo(0L) > 0) {
+									if (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)
+										result.setResult(1);
+								}
+							}
+	
+						}
 					}
-				} else if (systype.equals(SystemCPUType.X64.getValue())) {
-
+	
+				} else {
+					if (systype.equals(SystemCPUType.X86.getValue())) {
+						ItemSetModel record = new ItemSetModel();
+						record.setId(itemSetID);
+						List<ItemSetModel> curItemSetList = itemSetModelDao.selectItemSets(configDBModel, record, 1, 0);
+						if (curItemSetList != null && curItemSetList.size() == 1) {
+							ItemSetModel curItemSet = curItemSetList.get(0);
+							String curName = curItemSet.getName();
+							List<ItemInfoModel> itemInfos = new ArrayList<ItemInfoModel>();
+							String newName = new String();
+							String suffix = curName.substring(curName.lastIndexOf("_"));
+							switch (suffix) {
+							case "_POI+其他":
+								newName = name.endsWith("_POI+其他") ? name : name + "_POI+其他";
+								itemInfos = itemSetModelDao.selectPOIAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
+								break;
+							case "_Road+其他":
+								newName = name.endsWith("_Road+其他") ? name : name + "_Road+其他";
+								itemInfos = itemSetModelDao.selectRoadAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
+								break;
+							case "_POI+Road":
+								newName = name.endsWith("_POI+Road") ? name : name + "_POI+Road";
+								itemInfos = itemSetModelDao.selectPOIRoadAndOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
+								break;
+							case "_其他":
+								newName = name.endsWith("_其他") ? name : name + "_其他";
+								itemInfos = itemSetModelDao.selectOtherItemInfosByOids(configDBModel, layernames, qids, type, systype, unit);
+								break;
+							}
+	
+							if (!itemInfos.isEmpty()) {
+								itemInfoCount += itemInfos.size();
+								List<Long> itemDetails = new ArrayList<Long>();
+								Set<String> referLayers = new HashSet<String>();
+								Set<String> layers = new HashSet<String>();
+								Integer layercount = 0;
+								for (ItemInfoModel itemInfo : itemInfos) {
+									itemDetails.add(itemInfo.getId());
+	
+									String layer = itemInfo.getLayername();
+									layers.add(layer);
+	
+									String refer = itemInfo.getReferdata();
+									if (refer != null && !refer.isEmpty()) {
+										String[] rs = refer.substring(0, refer.lastIndexOf(":")).split("\\|");
+										for (String r : rs) {
+											referLayers.add(r);
+										}
+	
+										Integer rc = Integer.valueOf(refer.substring(refer.lastIndexOf(":") + 1));
+										layercount = layercount > rc ? layercount : rc;
+									}
+								}
+	
+								StringBuilder sb_layername = new StringBuilder();
+								for (String layer : layers) {
+									sb_layername.append(layer);
+									sb_layername.append(";");
+								}
+								sb_layername.deleteCharAt(sb_layername.length() - 1);
+	
+								StringBuilder sb_referdata = new StringBuilder();
+								if (referLayers != null && referLayers.size() > 0) {
+									for (String layer : referLayers) {
+										sb_referdata.append(layer);
+										sb_referdata.append("|");
+									}
+									sb_referdata.deleteCharAt(sb_referdata.length() - 1);
+									sb_referdata.append(":");
+									sb_referdata.append(layercount);
+								}
+	
+								ItemSetModel newItemSet = new ItemSetModel();
+								newItemSet.setId(itemSetID);
+								newItemSet.setName(newName);
+								newItemSet.setLayername(sb_layername.toString());
+								newItemSet.setType(type);
+								newItemSet.setSystype(systype);
+								newItemSet.setReferdata(sb_referdata.toString());
+								newItemSet.setUnit(unit.byteValue());
+								newItemSet.setDesc(desc);
+	
+								if (itemSetModelDao.updateItemset(configDBModel, newItemSet) && (itemSetModelDao.setItemSetDetails(configDBModel, itemSetID, itemDetails) > 0)) {
+									result.setResult(1);
+								}
+							}
+						}
+					} else if (systype.equals(SystemCPUType.X64.getValue())) {
+	
+					}
 				}
+			} else {
+				result.setResult(0);
+				result.setResultMsg("未处理的预选方案：" + preliminary);
+				json.addAllObjects(result);
+				return json;
 			}
 
 			if (itemInfoCount.equals(0)) {
@@ -710,7 +956,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			result.setResultMsg(e.getMessage());
 		}
 		json.addAllObjects(result);
-		logger.debug("ItemSetManageCtrl-submitItemSet end.");
+		logger.debug("ItemSetManageCtrl-submitItemSetPreliminary end.");
 		return json;
 	}
 

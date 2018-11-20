@@ -46,7 +46,7 @@
 <script type="text/javascript">
 	$(document).ready(function() {
 		$.webeditor.getHead();
-
+		$(function () { $("[data-toggle='tooltip']").tooltip(); });
 		$('[data-toggle="itemsets"]').bootstrapTable({
 			locale : 'zh-CN',
 			onLoadSuccess : function(data) {
@@ -60,18 +60,28 @@
 	var itemIDSelected = new Array();
 	var itemOn = -1;
 	
+	var itemInfoFirstIn = true;
+	var itemInfoFirstClick = true;
+	var itemInfoSelected = new Array();
+	var itemInfoIDSelected = new Array();
+	var itemInfoOn = -1;
+	
 	var layerFirstIn = true;
 	var layerFirstClick = true;
 	var layerSelected = new Array();
 	var layerNameSelected = new Array();
 	var layerOn = -1;
 	
-	var itemsetEnables = eval('(${itemsetEnables})');
 	var itemsetSysTypes = eval('(${itemsetSysTypes})');
 	var itemsetTypes = eval('(${itemsetTypes})');
 	var itemsetUnits = eval('(${itemsetUnits})');
+	var itemInfoSysTypes = eval('(${itemsetSysTypes})');
+	var itemInfoTypes = eval('(${itemsetTypes})');
+	var itemInfoUnits = eval('(${itemsetUnits})');
 	var layerEles = eval('(${layerElements})');
 	var processTypes = eval('(${processTypes})');
+	
+	var curFangAn = 'custom';
 	
 	function indexFormat(value, row, index) {
 		return index;
@@ -112,8 +122,12 @@
 	function typeFormat(value, row, index) {
 		return itemsetTypes[row.type];
 	}
+	
 	function unitFormat(value, row, index) {
 		return itemsetUnits[row.unit];
+	}
+	function itemInfoUnitFormat(value, row, index) {
+		return itemInfoUnits[row.unit];
 	}
 	function referdataFormat(value, row, index) {
 		var html = new Array();
@@ -137,12 +151,20 @@
 		$("#layerscount").text(0);
 		$("#dlgItemSet table #items").val(new String());
 		$("#itemscount").text(0);
+		$("#dlgItemSet table #itemInfos").val(new String());
+		$("#itemInfoscount").text(0);
 		$("#dlgItemSet table #type").prop('selectedIndex', 0);
 		$("#dlgItemSet table #systype").prop('selectedIndex', 0);
 		$("#dlgItemSet table #referdata").val(new String());
 		$("#dlgItemSet table #unit").prop('selectedIndex', 0);
 		$("#dlgItemSet table #desc").val(new String());
 		$("#dlgItemSet table #updatetime").val(new String());
+		
+		$("#fangans ul li.active").removeClass('active');
+		$("#fangans ul li:eq(0)").addClass('active');
+		
+		$("#fangans table").hide();
+		$("#fangans table:eq(0)").show();
 	}
 
 	function getItemSet(itemsetid, processType) {
@@ -169,6 +191,14 @@
 					$("#dlgItemSet table #updatetime").val(itemset.updatetime);
 					$("#dlgItemSet table #items").val(json.items);
 					$("#itemscount").text(json.items ? json.items.split(";").length : 0);
+					
+					var itemInfos = json.itemInfos;
+					var values = new Array();
+					$.each(itemInfos, function(index, itemInfo) {
+						values.push(itemInfo.id);
+					});
+					$("#dlgItemSet table #itemInfos").val(values.join(';'));
+					$("#itemInfoscount").text(values.length);
 				}
 			}, "json");
 		}
@@ -654,6 +684,227 @@
 				});
 	}
 	
+	function getItemInfos() {
+		$('[data-toggle="itemInfos"]').bootstrapTable(
+				{
+					locale : 'zh-CN',
+					queryParams : function(params) {
+						params["processType"] = $("#dlgItemSet table #processType").val();
+						return params;
+					},
+					onLoadSuccess : function(data) {
+						itemInfoOn = -1;
+						itemInfoSelected = new Array();
+						itemInfoFirstClick = true;
+						
+						var values = new Array();
+						if(itemInfoFirstIn) {
+							$.each($("#dlgItemSet table #itemInfos").val().split(";"), function(index, domEle) {
+								if(domEle)
+									values.push(parseInt(domEle));
+							});
+						} else {
+							$.each(itemInfoIDSelected, function(index, domEle) {
+								values.push(parseInt(domEle));
+							});
+						}
+						
+						if(values.length > 0) {
+							$('[data-toggle="itemInfos"]').bootstrapTable("checkBy", {
+									field : "id",
+									values : values
+								});
+						}
+						itemInfoFirstIn = false;
+					},
+					onCheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						if(itemInfoSelected.indexOf(index) < 0) {
+							itemInfoOn = index;
+							itemInfoSelected.push(index);
+							itemInfoSelected.sort(compare);
+						}
+						var itemInfoID = row.id;
+						if(itemInfoIDSelected.indexOf(itemInfoID) < 0) {
+							itemInfoIDSelected.push(itemInfoID);
+						}
+					},
+					onUncheck : function(row, element) {
+						var index = parseInt($(element).parent().next().text());
+						var indexIn = itemInfoSelected.indexOf(index);
+						if(indexIn >= 0) {
+							itemInfoOn = itemInfoSelected[indexIn == 0 ? 0 : indexIn -1];
+							itemInfoSelected.splice(indexIn,1).sort(compare);
+						}
+						var itemInfoID = row.id;
+						var itemInfoIDIn = itemInfoIDSelected.indexOf(itemInfoID);
+						if(itemInfoIDIn >= 0) {
+							itemInfoIDSelected.splice(itemInfoIDIn, 1);
+						}
+					},
+					onCheckAll : function(rows) {
+						var elements = $('[data-toggle="itemInfos"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							if(itemInfoSelected.indexOf(index) < 0) {
+								itemInfoSelected.push(index);
+							}
+						});
+						itemInfoOn = parseInt($('[data-toggle="itemInfos"] td.indexHidden:last').text());
+						itemInfoSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var name = row.id;
+							if(itemInfoIDSelected.indexOf(name) < 0) {
+								itemInfoIDSelected.push(name);
+							}
+						});
+					},
+					onUncheckAll : function(rows) {
+						var elements = $('[data-toggle="itemInfos"] td.indexHidden');
+						$.each(elements, function(i, element){
+							var index = parseInt($(element).text());
+							var indexIn = itemInfoSelected.indexOf(index);
+							if(indexIn >= 0) {
+								itemInfoOn = itemInfoSelected[indexIn == 0 ? 0 : indexIn -1];
+								itemInfoSelected.splice(indexIn,1).sort(compare);
+							}
+						});
+						itemInfoOn = parseInt($('[data-toggle="itemInfos"] td.indexHidden:last').text());
+						itemInfoSelected.sort(compare);
+						$.each(rows, function(i, row){
+							var name = row.id;
+							var nameIn = itemInfoIDSelected.indexOf(name);
+							if(nameIn >= 0) {
+								itemInfoIDSelected.splice(nameIn, 1);
+							}
+						});
+					}
+				});
+		
+		showItemInfosDlg();
+	}
+	
+	function showItemInfosDlg() {
+		$("#dlgItemInfos").dialog(
+				{
+					modal : true,
+					width : 1200,
+					title : "选择图层与质检项",
+					open : function(event, ui) {
+						itemInfoFirstClick = true;
+						itemInfoFirstIn = true;
+						$(".ui-dialog-titlebar-close").hide();
+					},
+					close : function(event, ui) {
+						itemInfoOn = -1;
+						itemInfoSelected = new Array();
+						itemInfoIDSelected = new Array();
+						itemInfoFirstClick = true;
+						itemInfoFirstIn = true;
+						$('[data-toggle="itemInfos"]').bootstrapTable("destroy");
+					},
+					buttons : [
+							{
+								text : "<",
+								title : "上一条",
+								class : "btn btn-default",
+								click : function() {
+									if(!itemInfoSelected || itemInfoSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(itemInfoFirstClick) {
+										$('[data-toggle="itemInfos"]').bootstrapTable('scrollTo',itemInfoSelected[0] * 31);
+										itemInfoOn = itemInfoSelected[0];
+										itemInfoFirstClick = false;
+									} else {
+										if (itemInfoOn < 0) {
+											$('[data-toggle="itemInfos"]').bootstrapTable('scrollTo', 0);
+											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+										} else {
+											var index = itemInfoSelected.indexOf(itemInfoOn);
+											if (index < 0) {
+												$('[data-toggle="itemInfos"]').bootstrapTable('scrollTo',0);
+											} else if (index > itemInfoSelected.length - 1) {
+												$('[data-toggle="itemInfos"]').bootstrapTable('scrollTo','bottom');
+											} else {
+												if (index == 0) {
+													$('[data-toggle="itemInfos"]').bootstrapTable('scrollTo',itemInfoSelected[0] * 31);
+													itemInfoOn = itemInfoSelected[0];
+													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+												} else {
+													var preIndex = index - 1;
+													$('[data-toggle="itemInfos"]').bootstrapTable('scrollTo',itemInfoSelected[preIndex] * 31);
+													itemInfoOn = itemInfoSelected[preIndex];
+												}
+											}
+										}
+									}
+								}
+							},
+							{
+								text : ">",
+								title : "下一条",
+								class : "btn btn-default",
+								click : function() {
+									if(!itemInfoSelected || itemInfoSelected.length <= 0) {
+										$.webeditor.showMsgLabel("warning", "没有勾选项");
+										return;
+									}
+									if(itemInfoFirstClick) {
+										$('[data-toggle="itemInfos"]').bootstrapTable('scrollTo',itemInfoSelected[0] * 31);
+										itemInfoOn = itemInfoSelected[0];
+										itemInfoFirstClick = false;
+									} else {
+										if (itemInfoOn < 0) {
+											$('[data-toggle="itemInfos"]').bootstrapTable('scrollTo', 0);
+										} else {
+											var index = itemInfoSelected.indexOf(itemInfoOn);
+											if (index < 0) {
+												$('[data-toggle="itemInfos"]').bootstrapTable('scrollTo',0);
+											} else if (index > itemInfoSelected.length - 1) {
+												$('[data-toggle="itemInfos"]').bootstrapTable('scrollTo','bottom');
+											} else {
+												if (index == itemInfoSelected.length - 1) {
+													var nextIndex = itemInfoSelected.length - 1;
+													$('[data-toggle="itemInfos"]').bootstrapTable('scrollTo',itemInfoSelected[nextIndex] * 31);
+													itemInfoOn = itemInfoSelected[nextIndex];
+													$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+												} else {
+													var nextIndex = index + 1;
+													$('[data-toggle="itemInfos"]').bootstrapTable('scrollTo',itemInfoSelected[nextIndex] * 31);
+													itemInfoOn = itemInfoSelected[nextIndex];
+												}
+											}
+										}
+									}
+								}
+							},
+							{
+								text : "保存",
+								class : "btn btn-default",
+								click : function() {
+									var length = itemInfoIDSelected.length;
+									if (length > 0) {
+										$("#itemInfos").val(itemInfoIDSelected.join(";"));
+										$("#itemInfoscount").text(length);
+										
+										$(this).dialog("close");
+									} else {
+										$.webeditor.showMsgLabel("alert","请选择质检项");
+									}
+								}
+							},
+							{
+								text : "关闭",
+								class : "btn btn-default",
+								click : function() {
+									$(this).dialog("close");
+								}
+							} ]
+				});
+	}
+	
 	function submitItemSet() {
 		var id = $("#dlgItemSet table #id").val();
 		var name = $("#dlgItemSet table #name").val();
@@ -665,24 +916,23 @@
 		var desc = $("#dlgItemSet table #desc").val();
 		var items = $("#dlgItemSet table #items").val();
 		var processType = $("#dlgItemSet table #processType").val();
+		var itemInfos = $("#dlgItemSet table #itemInfos").val();
 		
 		if(name.length <= 0) {
 			$.webeditor.showMsgLabel("alert", "图层集合名称不能为空");
 			return;
 		}
 		
-		jQuery.post("./itemsetmanage.web",
-			{
-				"atn" : "submititemset",
+		if (curFangAn == "custom") {
+			jQuery.post("./itemsetmanage.web", {
+				"atn" : "submititemsetcustom",
 				"itemSetID" : id,
 				"name" : name,
-				"layername" : layername,
+				"itemInfos" : itemInfos,
 				"type" : type,
 				"systype" : systype,
-				"referdata" : referdata,
 				"unit" : unit,
 				"desc" : desc,
-				"items" : items,
 				"processType" : processType
 			},
 			function(json) {
@@ -694,6 +944,33 @@
 					$.webeditor.showMsgLabel("alert",json.option);
 				}
 			}, "json");
+		} else if (curFangAn == "preliminary1") {
+			jQuery.post("./itemsetmanage.web", {
+				"atn" : "submititemsetpreliminary",
+				"itemSetID" : id,
+				"name" : name,
+				"layername" : layername,
+				"type" : type,
+				"systype" : systype,
+				"unit" : unit,
+				"desc" : desc,
+				"items" : items,
+				"processType" : processType,
+				"preliminary" : 1
+			},
+			function(json) {
+				if (json.result) {
+					$.webeditor.showMsgLabel("success","质检集合配置成功");
+					$("#dlgItemSet").dialog("close");
+					$('[data-toggle="itemsets"]').bootstrapTable('refresh');
+				} else {
+					$.webeditor.showMsgLabel("alert",json.option);
+				}
+			}, "json");
+		} else {
+			$.webeditor.showMsgLabel("alert", "方案未知，质检集合保存失败！");
+		}
+		
 	}
 	
 	function deleteItemSet(itemSetID, processType) {
@@ -726,6 +1003,16 @@
 			$.webeditor.showMsgLabel("alert",json.resultMsg);
 			return json;
 		}
+	}
+	
+	function fanganChange(id, obj) {
+		$(obj).parent().siblings().removeClass('active');
+		$(obj).parent().addClass('active');
+		
+		$("#fangans table").hide();
+		$("#fangans table#" + id).show();
+		
+		curFangAn = id;
 	}
 </script>
 </head>
@@ -786,7 +1073,7 @@
 		</div>
 	</div>
 	<div id="dlgItemSet" style="display: none;">
-		<table class="table">
+		<table class="table table-condensed">
 			<tbody>
 				<tr>
 					<td class="configKey">编号</td>
@@ -813,20 +1100,50 @@
 					</select></td>
 				</tr>
 				<tr>
-					<td class="configKey">图层</td>
-					<td class="configValue">
-						<input type="hidden" id="layername" value="">
-						<button type="button" class="btn btn-default"
-							onclick="getLayers();">选择图层</button>
-						<p class="help-block">已选择<span id="layerscount"></span>个图层</p></td>
-				</tr>
-				<tr>
-					<td class="configKey">质检项</td>
-					<td class="configValue">
-						<input type="hidden" id="items" value="">
-						<button type="button" class="btn btn-default"
-							onclick="getItems();">选择质检项</button>
-						<p class="help-block">已选择<span id="itemscount"></span>个质检项</p></td>
+					<td colspan="2" id="fangans">
+						<ul class="nav nav-tabs" style="margin: 0px auto; width: 70%;">
+							<li class="active"><a href="#" onclick="fanganChange('custom', this);">自定义</a></li>
+							<li><a href="#" onclick="fanganChange('preliminary1', this);">预选方案1 
+								<span class="glyphicon glyphicon-exclamation-sign" data-toggle="tooltip" data-html="true" title="POI+其他<br>Road+其他<br>Road+POI<br>其他"></span>
+								</a>
+							</li>
+						</ul>
+						<table class="table table-condensed" style="margin-bottom: 0;" id="custom">
+							<tbody>
+							<tr>
+								<td class="configKey" style="border-top-color: #fff;">图层与质检项</td>
+								<td class="configValue" style="border-top-color: #fff;">
+									<input type="hidden" id="itemInfos" value="">
+									<button type="button" class="btn btn-default"
+										onclick="getItemInfos();">选择图层与质检项</button>
+									<p class="help-block">已选择<span id="itemInfoscount"></span>个图层与质检项</p>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+						<table class="table table-condensed" style="margin-bottom: 0; display: none;" id="preliminary1">
+							<tbody>
+							<tr>
+								<td class="configKey" style="border-top-color: #fff;">图层</td>
+								<td class="configValue" style="border-top-color: #fff;">
+									<input type="hidden" id="layername" value="">
+									<button type="button" class="btn btn-default"
+										onclick="getLayers();">选择图层</button>
+									<p class="help-block">已选择<span id="layerscount"></span>个图层</p>
+								</td>
+							</tr>
+							<tr>
+								<td class="configKey" style="border-top-color: #fff;">质检项</td>
+								<td class="configValue" style="border-top-color: #fff;">
+									<input type="hidden" id="items" value="">
+									<button type="button" class="btn btn-default"
+										onclick="getItems();">选择质检项</button>
+									<p class="help-block">已选择<span id="itemscount"></span>个质检项</p>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</td>
 				</tr>
 				<tr>
 					<td class="configKey">类型</td>
@@ -916,6 +1233,36 @@
 						data-filter-control="input" data-width="80">QID</th>
 					<th data-field="name" data-filter-control-placeholder=""
 						data-filter-control="input" data-width="260">名称</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div id="dlgItemInfos" style="display: none;">
+		<table id="itemInfoslist" class="table-condensed" data-unique-id="id"
+			data-url="./itemsetmanage.web?atn=getiteminfos" data-cache="false"
+			data-side-pagination="server" data-filter-control="true"
+			data-click-to-select="true" data-single-select="false"
+			data-select-item-name="checkboxName" data-pagination="false"
+			data-toggle="itemInfos" data-height="625" data-response-handler="itemResponse"
+			data-search-on-enter-key='true' data-align='center'>
+			<thead>
+				<tr>
+					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
+					
+					<th data-field="id" data-filter-control-placeholder=""
+						data-filter-control="input" data-width="60">编号</th>
+						
+					<th data-field="oid" data-filter-control-placeholder=""
+						data-filter-control="input" data-width="120">OID</th>
+						
+					<th data-field="name" data-filter-control-placeholder=""
+						data-filter-control="input">名称</th>
+						
+					<th data-field="layername" data-filter-control-placeholder=""
+						data-filter-control="input" data-width="90">图层</th>
+						
+					<th data-field="referdata">referdata</th>
 				</tr>
 			</thead>
 		</table>
