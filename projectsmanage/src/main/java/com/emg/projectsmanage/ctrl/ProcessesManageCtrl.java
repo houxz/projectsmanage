@@ -608,9 +608,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 	}
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(params = "atn=getworkers")
-	public ModelAndView getWorkers(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("ProcessesManageCtrl-getWorkers start.");
+	@RequestMapping(params = "atn=getworkersandcheckers")
+	public ModelAndView getWorkersAndCheckers(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ProcessesManageCtrl-getWorkersAndCheckers start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
 		try {
@@ -675,7 +675,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		json.addObject("count", workers.size());
 		json.addObject("result", 1);
 
-		logger.debug("ProcessesManageCtrl-getWorkers end.");
+		logger.debug("ProcessesManageCtrl-getWorkersAndCheckers end.");
 		return json;
 	}
 

@@ -664,7 +664,7 @@
 		
 	}
 	
-	function getWorkers() {
+	function getWorkersAndCheckers() {
 		$('[data-toggle="workers"]').bootstrapTable(
 				{
 					locale : 'zh-CN',
@@ -1486,7 +1486,7 @@
 							<td class="configValue"><input type="hidden"
 								id="config_0_18" value="">
 								<button type="button" class="btn btn-default"
-									onclick="getWorkers();">添加人员</button>
+									onclick="getWorkersAndCheckers();">添加人员</button>
 								<p class="help-block">已添加人员0位</p></td>
 						</tr>
 						<tr style="display:none;">
@@ -1568,7 +1568,7 @@
 						<td class="configValue"><input type="hidden" id="config_2_18"
 							value="">
 							<button type="button" class="btn btn-default"
-								onclick="getWorkers();">添加人员</button>
+								onclick="getWorkersAndCheckers();">添加人员</button>
 							<p class="help-block">已添加人员0位</p></td>
 					</tr>
 					<tr>
@@ -1585,7 +1585,7 @@
 	</div>
 	<div id="workers" style="display: none;">
 		<table id="workerlist" class="table-condensed" data-unique-id="id"
-			data-url="./processesmanage.web?atn=getworkers" data-cache="false"
+			data-url="./processesmanage.web?atn=getworkersandcheckers" data-cache="false"
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
