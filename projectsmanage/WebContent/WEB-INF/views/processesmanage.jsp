@@ -665,7 +665,7 @@
 	}
 	
 	function getWorkersAndCheckers() {
-		$('[data-toggle="workers"]').bootstrapTable(
+		$('[data-toggle="workersandcheckers"]').bootstrapTable(
 				{
 					locale : 'zh-CN',
 					queryParams : function(params) {
@@ -696,7 +696,7 @@
 							});
 						}
 						
-						$('[data-toggle="workers"]').bootstrapTable("checkBy",
+						$('[data-toggle="workersandcheckers"]').bootstrapTable("checkBy",
 								{
 									field : "id",
 									values : values
@@ -729,14 +729,14 @@
 						}
 					},
 					onCheckAll : function(rows) {
-						var elements = $('[data-toggle="workers"] td.indexHidden');
+						var elements = $('[data-toggle="workersandcheckers"] td.indexHidden');
 						$.each(elements, function(i, element){
 							var index = parseInt($(element).text());
 							if(workerSelected.indexOf(index) < 0) {
 								workerSelected.push(index);
 							}
 						});
-						workerOn = parseInt($('[data-toggle="workers"] td.indexHidden:last').text());
+						workerOn = parseInt($('[data-toggle="workersandcheckers"] td.indexHidden:last').text());
 						workerSelected.sort(compare);
 						$.each(rows, function(i, row){
 							var id = row.id;
@@ -746,7 +746,7 @@
 						});
 					},
 					onUncheckAll : function(rows) {
-						var elements = $('[data-toggle="workers"] td.indexHidden');
+						var elements = $('[data-toggle="workersandcheckers"] td.indexHidden');
 						$.each(elements, function(i, element){
 							var index = parseInt($(element).text());
 							var indexIn = workerSelected.indexOf(index);
@@ -755,7 +755,7 @@
 								workerSelected.splice(indexIn,1).sort(compare);
 							}
 						});
-						workerOn = parseInt($('[data-toggle="workers"] td.indexHidden:last').text());
+						workerOn = parseInt($('[data-toggle="workersandcheckers"] td.indexHidden:last').text());
 						workerSelected.sort(compare);
 						$.each(rows, function(i, row){
 							var id = row.id;
@@ -771,7 +771,7 @@
 	}
 
 	function showWorkersDlg() {
-		$("#workers").dialog(
+		$("#workersAndCheckersDlg").dialog(
 				{
 					modal : true,
 					height : 500,
@@ -788,7 +788,7 @@
 						workerIDSelected = new Array();
 						workerFirstClick = true;
 						workerFirstIn= true;
-						$('[data-toggle="workers"]').bootstrapTable("destroy");
+						$('[data-toggle="workersandcheckers"]').bootstrapTable("destroy");
 					},
 					buttons : [
 							{
@@ -801,27 +801,27 @@
 										return;
 									}
 									if(workerFirstClick) {
-										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
+										$('[data-toggle="workersandcheckers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
 										workerOn = workerSelected[0];
 										workerFirstClick = false;
 									} else {
 										if (workerOn < 0) {
-											$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
+											$('[data-toggle="workersandcheckers"]').bootstrapTable('scrollTo', 0);
 											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
 										} else {
 											var index = workerSelected.indexOf(workerOn);
 											if (index < 0) {
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
+												$('[data-toggle="workersandcheckers"]').bootstrapTable('scrollTo',0);
 											} else if (index > workerSelected.length - 1) {
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
+												$('[data-toggle="workersandcheckers"]').bootstrapTable('scrollTo','bottom');
 											} else {
 												if (index == 0) {
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
+													$('[data-toggle="workersandcheckers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
 													workerOn = workerSelected[0];
 													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
 												} else {
 													var preIndex = index - 1;
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[preIndex] * 31);
+													$('[data-toggle="workersandcheckers"]').bootstrapTable('scrollTo',workerSelected[preIndex] * 31);
 													workerOn = workerSelected[preIndex];
 												}
 											}
@@ -839,27 +839,27 @@
 										return;
 									}
 									if(workerFirstClick) {
-										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
+										$('[data-toggle="workersandcheckers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
 										workerOn = workerSelected[0];
 										workerFirstClick = false;
 									} else {
 										if (workerOn < 0) {
-											$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
+											$('[data-toggle="workersandcheckers"]').bootstrapTable('scrollTo', 0);
 										} else {
 											var index = workerSelected.indexOf(workerOn);
 											if (index < 0) {
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
+												$('[data-toggle="workersandcheckers"]').bootstrapTable('scrollTo',0);
 											} else if (index > workerSelected.length - 1) {
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
+												$('[data-toggle="workersandcheckers"]').bootstrapTable('scrollTo','bottom');
 											} else {
 												if (index == workerSelected.length - 1) {
 													var nextIndex = workerSelected.length - 1;
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
+													$('[data-toggle="workersandcheckers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
 													workerOn = workerSelected[nextIndex];
 													$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
 												} else {
 													var nextIndex = index + 1;
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
+													$('[data-toggle="workersandcheckers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
 													workerOn = workerSelected[nextIndex];
 												}
 											}
@@ -1583,13 +1583,13 @@
 			</div>
 		</div>
 	</div>
-	<div id="workers" style="display: none;">
-		<table id="workerlist" class="table-condensed" data-unique-id="id"
+	<div id="workersAndCheckersDlg" style="display: none;">
+		<table id="workerAndCheckerslist" class="table-condensed" data-unique-id="id"
 			data-url="./processesmanage.web?atn=getworkersandcheckers" data-cache="false"
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="workers" data-height="374"
+			data-toggle="workersandcheckers" data-height="374"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
