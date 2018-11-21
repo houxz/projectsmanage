@@ -612,7 +612,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 	public ModelAndView getWorkersAndCheckers(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProcessesManageCtrl-getWorkersAndCheckers start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
+		List<EmployeeModel> workersandcheckers = new ArrayList<EmployeeModel>();
 		try {
 			String filter = ParamUtils.getParameter(request, "filter", "");
 
@@ -658,21 +658,21 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					ids.clear();
 					ids.add(employeeModel.getId());
 				} else {
-					json.addObject("rows", workers);
-					json.addObject("count", workers.size());
+					json.addObject("rows", workersandcheckers);
+					json.addObject("count", workersandcheckers.size());
 					json.addObject("result", 1);
 					return json;
 				}
 			}
 
 			if (ids.size() > 0)
-				workers = emapgoAccountService.getEmployeesByIDSAndRealname(ids, employeeModel.getRealname());
+				workersandcheckers = emapgoAccountService.getEmployeesByIDSAndRealname(ids, employeeModel.getRealname());
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-		json.addObject("rows", workers);
-		json.addObject("count", workers.size());
+		json.addObject("rows", workersandcheckers);
+		json.addObject("count", workersandcheckers.size());
 		json.addObject("result", 1);
 
 		logger.debug("ProcessesManageCtrl-getWorkersAndCheckers end.");
