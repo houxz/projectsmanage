@@ -14,7 +14,7 @@ public enum ProcessType {
 	/**
 	 * 1, "改错项目"
 	 */
-	ERROR(1, "改错项目"),
+	ERROR(1, "综检改错项目"),
 	/**
 	 * 2, "NR/FC项目"
 	 */
