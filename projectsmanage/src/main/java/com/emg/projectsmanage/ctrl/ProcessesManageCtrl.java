@@ -173,6 +173,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return json;
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=newprocess")
 	public ModelAndView createNewProcess(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProcessesManageCtrl-createNewProcess start.");
@@ -342,9 +343,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			//更新编辑人员
 			if (strWorkers != null && !strWorkers.isEmpty()) {
 				List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
-				for (String strWorker : strWorkers.split(",")) {
+				Map<String, Object> jsonWorkers = (Map<String, Object>)JSONObject.fromObject(strWorkers);
+				for (String jsonWorker : jsonWorkers.keySet()) {
 					EmployeeModel worker = new EmployeeModel();
-					worker.setId(Integer.valueOf(strWorker));
+					worker.setId(Integer.valueOf(jsonWorker));
 					workers.add(worker);
 				}
 				

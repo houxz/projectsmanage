@@ -407,6 +407,26 @@
 		html.push("</div>");
 		return html.join("");
 	}
+	function samplingFormat(value, row, index) {
+		var samplingValue = '';
+		try{
+			var str_values = $("#config_2_18").val();
+			var map = JSON.parse(str_values);
+			if (map && typeof map == 'object') {
+				var id = row.id;
+				if( id && map[id]) {
+					samplingValue = map[id];
+				}
+			}
+		}catch(e){
+		}
+		var html = new Array();
+		html.push("<div class='input-group input-group-sm'>");
+		html.push("<input type='text' class='form-control' id='sampling-" + row.id + "' maxlength='3' value='" + samplingValue + "'>");
+		html.push("<span class='input-group-addon'>%</span>");
+		html.push("</div>");
+		return html.join("");
+	}
 
 	function changeState(state, processid) {
 		$.webeditor.showMsgBox("info", "保存中...");
@@ -689,9 +709,20 @@
 						var values = new Array();
 						if(workerFirstIn) {
 							var str_values = $("#config_2_18").val();
-							$.each(str_values.split(","), function(index, domEle) {
-								values[index] = parseInt(domEle);
-							});
+							try{
+								var map = JSON.parse(str_values);
+								if (map && typeof map == 'object') {
+									for (var key in map){
+										values.push(parseInt(key));
+									}
+								} else if (map && typeof map == 'number') {
+									values.push(map);
+								}
+							}catch(e){
+								$.each(str_values.split(","), function(index, domEle) {
+									values[index] = parseInt(domEle);
+								});
+							}
 						} else {
 							$.each(workerIDSelected, function(index, domEle) {
 								values.push(parseInt(domEle));
@@ -776,8 +807,7 @@
 		$("#workersDlg").dialog(
 				{
 					modal : true,
-					height : 500,
-					width : document.documentElement.clientWidth * 0.3,
+					width : 500,
 					title : "添加制作人员",
 					open : function(event, ui) {
 						workerFirstClick = true;
@@ -803,7 +833,7 @@
 										return;
 									}
 									if(workerFirstClick) {
-										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
+										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 41);
 										workerOn = workerSelected[0];
 										workerFirstClick = false;
 									} else {
@@ -818,12 +848,12 @@
 												$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
 											} else {
 												if (index == 0) {
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
+													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 41);
 													workerOn = workerSelected[0];
 													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
 												} else {
 													var preIndex = index - 1;
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[preIndex] * 31);
+													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[preIndex] * 41);
 													workerOn = workerSelected[preIndex];
 												}
 											}
@@ -841,7 +871,7 @@
 										return;
 									}
 									if(workerFirstClick) {
-										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
+										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 41);
 										workerOn = workerSelected[0];
 										workerFirstClick = false;
 									} else {
@@ -856,12 +886,12 @@
 											} else {
 												if (index == workerSelected.length - 1) {
 													var nextIndex = workerSelected.length - 1;
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
+													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 41);
 													workerOn = workerSelected[nextIndex];
 													$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
 												} else {
 													var nextIndex = index + 1;
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
+													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 41);
 													workerOn = workerSelected[nextIndex];
 												}
 											}
@@ -875,7 +905,12 @@
 								click : function() {
 									var length = workerIDSelected.length;
 									if (length > 0) {
-										$("#config_2_18").val(workerIDSelected.join(","));
+										var m = {};
+										$.each(workerIDSelected, function(i, workerID){
+											var sampling = $("#sampling-" + workerID).val();
+											m[workerID] = sampling;
+										});
+										$("#config_2_18").val(JSON.stringify(m));
 										$("#config_2_18Count").text(length);
 
 										$(this).dialog("close");
@@ -1004,8 +1039,7 @@
 		$("#checkersDlg").dialog(
 				{
 					modal : true,
-					height : 500,
-					width : document.documentElement.clientWidth * 0.3,
+					width : 500,
 					title : "添加校正人员",
 					open : function(event, ui) {
 						checkerFirstClick = true;
@@ -2028,16 +2062,17 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="workers" data-height="374"
+			data-toggle="workers" data-height="400"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
 					<th data-field="state" data-checkbox="true"></th>
 					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
 					<th data-field="id" data-filter-control="input"
-						data-filter-control-placeholder="" data-width="20">编号</th>
+						data-filter-control-placeholder="" data-width="80">编号</th>
 					<th data-field="realname" data-filter-control="input"
-						data-filter-control-placeholder="" data-width="120">人员姓名</th>
+						data-filter-control-placeholder="">人员姓名</th>
+					<th data-field="sampling" data-width="100" data-formatter="samplingFormat">抽检比例</th>
 				</tr>
 			</thead>
 		</table>
@@ -2048,7 +2083,7 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="checkers" data-height="374"
+			data-toggle="checkers" data-height="400"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
