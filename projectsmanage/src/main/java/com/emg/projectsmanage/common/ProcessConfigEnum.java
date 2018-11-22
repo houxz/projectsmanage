@@ -80,7 +80,27 @@ public enum ProcessConfigEnum {
 	/**
 	 * 20, "错误导入库"
 	 */
-	CUOWUDAORUKU(20, "错误导入库");
+	CUOWUDAORUKU(20, "错误导入库"),
+	/**
+	 * 21, "校正人员"
+	 */
+	JIAOZHENGRENYUAN(21, "校正人员"),
+	/**
+	 * 22, "创建任务方式"
+	 */
+	CHUANJIANRENWUFANGSHI(22, "创建任务方式"),
+	/**
+	 * 23, "免校正"
+	 */
+	MIANJIAOZHENG(23, "免校正"),
+	/**
+	 * 24, "资料库"
+	 */
+	ZILIAOKU(24, "资料库"),
+	/**
+	 * 25, "绑定资料"
+	 */
+	BANGDINGZILIAO(25, "绑定资料");
 
 	private Integer value;
 	private String des;

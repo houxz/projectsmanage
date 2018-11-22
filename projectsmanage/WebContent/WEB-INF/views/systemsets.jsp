@@ -194,6 +194,16 @@
 								</select></td>
 							</tr> -->
 							<tr>
+								<td class="configKey">POI编辑资料库</td>
+								<td><select class="form-control systemSet" id="config_22">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('fielddata') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
 								<td class="configKey"></td>
 								<td><div class="btn-group">
 										<button type="button" class="btn btn-default"

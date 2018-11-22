@@ -41,8 +41,10 @@ import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
+import com.emg.projectsmanage.dao.task.DatasetModelDao;
 import com.emg.projectsmanage.dao.task.ItemSetModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
+import com.emg.projectsmanage.pojo.DatasetModel;
 import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.ItemAreaModel;
 import com.emg.projectsmanage.pojo.ItemSetModel;
@@ -89,6 +91,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 	private ProjectsUserModelDao projectsUserModelDao;
 	
 	private ItemSetModelDao itemSetModelDao = new ItemSetModelDao();
+	
+	private DatasetModelDao datasetModelDao = new DatasetModelDao();
 
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
@@ -183,23 +187,33 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Integer uid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
 			String username = (String) session.getAttribute(CommonConstants.SESSION_USER_NAME);
 			Integer owner = ParamUtils.getIntParameter(request, "config_2_19", 0) == 1 ? 1 : 0;
-			Long projectid332 = ParamUtils.getLongParameter(request, "config_1_3", -1L);
-			Long projectid349 = ParamUtils.getLongParameter(request, "config_2_11", -1L);
 			String strWorkers = ParamUtils.getParameter(request, "config_2_18");
+			String strCheckers = ParamUtils.getParameter(request, "config_2_21");
 
 			Boolean isNewProcess = newProcessID.equals(0L);
 
 			if (newProcessID.compareTo(0L) < 0) {
-				ret = -1;
-				json.addObject("result", ret);
+				json.addObject("result", -1);
 				json.addObject("resultMsg", "保存失败，错误的参数值：processid");
 				return json;
 			}
 			if (newProcessName == null || newProcessName.isEmpty()) {
-				ret = -1;
-				json.addObject("result", ret);
+				json.addObject("result", -1);
 				json.addObject("resultMsg", "保存失败，项目名称不能为空");
 				return json;
+			}
+			
+			Long projectid332 = -1L, projectid349 = -1L;
+			if (!isNewProcess) {
+				ProcessConfigValueModel processConfig332 = processConfigValueModelDao.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.ZHIJIANXIANGMUID.getValue());
+				if (processConfig332 != null && processConfig332.getValue() != null && !processConfig332.getValue().isEmpty()) {
+					projectid332 = Long.valueOf(processConfig332.getValue());
+				}
+				
+				ProcessConfigValueModel processConfig349 = processConfigValueModelDao.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.BIANJIXIANGMUID.getValue());
+				if (processConfig349 != null && processConfig349.getValue() != null && !processConfig349.getValue().isEmpty()) {
+					projectid349 = Long.valueOf(processConfig349.getValue());
+				}
 			}
 			
 			String suffix = new String();
@@ -217,6 +231,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			} else if(type.equals(ProcessType.COUNTRY.getValue())) {
 				suffix = "_全国质检";
 				systemid = SystemType.MapDbEdit_Country.getValue();
+			} else if(type.equals(ProcessType.POIEDIT.getValue())) {
+				suffix = "_POI";
+				systemid = SystemType.poivideoedit.getValue();
 			}
 			//新建/更新流程
 			if (isNewProcess) {
@@ -250,7 +267,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 			//创建/更新质检项目
 			if (isNewProcess) {
-				if(!type.equals(ProcessType.NRFC.getValue()) && !type.equals(ProcessType.ATTACH.getValue())) {
+				if(!type.equals(ProcessType.NRFC.getValue()) && 
+					!type.equals(ProcessType.ATTACH.getValue()) &&
+					!type.equals(ProcessType.POIEDIT.getValue())) {
 					String config_1_4 = newProcessName + "_质检";
 
 					ProjectModel newpro = new ProjectModel();
@@ -274,7 +293,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					}
 				}
 			} else {
-				if(!type.equals(ProcessType.NRFC.getValue()) && !type.equals(ProcessType.ATTACH.getValue())) {
+				if(!type.equals(ProcessType.NRFC.getValue()) && 
+					!type.equals(ProcessType.ATTACH.getValue()) &&
+					!type.equals(ProcessType.POIEDIT.getValue()) && projectid332.compareTo(0L) > 0) {
 					String config_1_4 = newProcessName + "_质检";
 					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue(), config_1_4));
 
@@ -318,7 +339,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				projectModelDao.updateByPrimaryKeySelective(pro);
 			}
 
-			//更新作业人员
+			//更新编辑人员
 			if (strWorkers != null && !strWorkers.isEmpty()) {
 				List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
 				for (String strWorker : strWorkers.split(",")) {
@@ -327,20 +348,88 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					workers.add(worker);
 				}
 				
-				//setWorkers(configDBModel349, projectid349, workers, uid, SystemType.MapDbEdit.getValue());
-				ProjectsUserModel record = new ProjectsUserModel();
-				record.setPid(projectid349.toString());
-				if (projectsUserModelDao.delete(record ) >= 0) {
-					for (EmployeeModel worker : workers) {
-						ProjectsUserModel ur = new ProjectsUserModel();
-						ur.setPid(projectid349.toString());
-						ur.setUsername(worker.getRealname());
-						ur.setUserid(worker.getId());
-						ur.setRoleid(RoleType.ROLE_WORKER.getValue());
-						ur.setRolename(RoleType.ROLE_WORKER.getDes());
-						ur.setOpuid(uid);
-						ur.setSystemid(SystemType.MapDbEdit.getValue());
-						projectsUserModelDao.insert(ur);
+				if (projectid332.compareTo(0L) > 0) {
+					ProjectsUserModel record = new ProjectsUserModel();
+					record.setPid(projectid332.toString());
+					record.setRoleid(RoleType.ROLE_WORKER.getValue());
+					if (projectsUserModelDao.delete(record ) >= 0) {
+						for (EmployeeModel worker : workers) {
+							ProjectsUserModel ur = new ProjectsUserModel();
+							ur.setPid(projectid332.toString());
+							ur.setUsername(worker.getRealname());
+							ur.setUserid(worker.getId());
+							ur.setRoleid(RoleType.ROLE_WORKER.getValue());
+							ur.setRolename(RoleType.ROLE_WORKER.getDes());
+							ur.setOpuid(uid);
+							ur.setSystemid(systemid);
+							projectsUserModelDao.insert(ur);
+						}
+					}
+				}
+				
+				if (projectid349.compareTo(0L) > 0) {
+					ProjectsUserModel record = new ProjectsUserModel();
+					record.setPid(projectid349.toString());
+					record.setRoleid(RoleType.ROLE_WORKER.getValue());
+					if (projectsUserModelDao.delete(record ) >= 0) {
+						for (EmployeeModel worker : workers) {
+							ProjectsUserModel ur = new ProjectsUserModel();
+							ur.setPid(projectid349.toString());
+							ur.setUsername(worker.getRealname());
+							ur.setUserid(worker.getId());
+							ur.setRoleid(RoleType.ROLE_WORKER.getValue());
+							ur.setRolename(RoleType.ROLE_WORKER.getDes());
+							ur.setOpuid(uid);
+							ur.setSystemid(systemid);
+							projectsUserModelDao.insert(ur);
+						}
+					}
+				}
+			}
+			//更新校正人员
+			if (strCheckers != null && !strCheckers.isEmpty()) {
+				List<EmployeeModel> checkers = new ArrayList<EmployeeModel>();
+				for (String strChecker : strCheckers.split(",")) {
+					EmployeeModel checker = new EmployeeModel();
+					checker.setId(Integer.valueOf(strChecker));
+					checkers.add(checker);
+				}
+				
+				if (projectid332.compareTo(0L) > 0) {
+					ProjectsUserModel record = new ProjectsUserModel();
+					record.setPid(projectid332.toString());
+					record.setRoleid(RoleType.ROLE_CHECKER.getValue());
+					if (projectsUserModelDao.delete(record ) >= 0) {
+						for (EmployeeModel checker : checkers) {
+							ProjectsUserModel ur = new ProjectsUserModel();
+							ur.setPid(projectid332.toString());
+							ur.setUsername(checker.getRealname());
+							ur.setUserid(checker.getId());
+							ur.setRoleid(RoleType.ROLE_CHECKER.getValue());
+							ur.setRolename(RoleType.ROLE_CHECKER.getDes());
+							ur.setOpuid(uid);
+							ur.setSystemid(systemid);
+							projectsUserModelDao.insert(ur);
+						}
+					}
+				}
+				
+				if (projectid349.compareTo(0L) > 0) {
+					ProjectsUserModel record = new ProjectsUserModel();
+					record.setPid(projectid349.toString());
+					record.setRoleid(RoleType.ROLE_CHECKER.getValue());
+					if (projectsUserModelDao.delete(record ) >= 0) {
+						for (EmployeeModel checker : checkers) {
+							ProjectsUserModel ur = new ProjectsUserModel();
+							ur.setPid(projectid349.toString());
+							ur.setUsername(checker.getRealname());
+							ur.setUserid(checker.getId());
+							ur.setRoleid(RoleType.ROLE_CHECKER.getValue());
+							ur.setRolename(RoleType.ROLE_CHECKER.getDes());
+							ur.setOpuid(uid);
+							ur.setSystemid(systemid);
+							projectsUserModelDao.insert(ur);
+						}
 					}
 				}
 			}
@@ -366,7 +455,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.CUOWUGESHU.getValue())) ||
 						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.CUOWUJULI.getValue())) ||
 						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.CUOWUKU.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIQIDONGLEIXING.getValue()))))
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIQIDONGLEIXING.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZILIAOKU.getValue()))))
 					continue;
 
 				Enumeration<String> paramNames = request.getParameterNames();
@@ -676,6 +766,191 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		json.addObject("result", 1);
 
 		logger.debug("ProcessesManageCtrl-getWorkersAndCheckers end.");
+		return json;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(params = "atn=getworkers")
+	public ModelAndView getWorkers(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
+		try {
+			String filter = ParamUtils.getParameter(request, "filter", new String());
+
+			Map<String, Object> filterPara = null;
+			EmployeeModel employeeModel = new EmployeeModel();
+			if (filter.length() > 0) {
+				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
+				for (String key : filterPara.keySet()) {
+					switch (key) {
+					case "id":
+						employeeModel.setId(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					case "realname":
+						employeeModel.setRealname(filterPara.get(key).toString());
+						break;
+					default:
+						logger.error("未处理的筛选项：" + key);
+						break;
+					}
+				}
+			}
+			
+			UserRoleModel record = new UserRoleModel();
+			record.setRoleid(RoleType.ROLE_WORKER.getValue());
+			List<UserRoleModel> userRoleModels = userRoleModelDao.query(record );
+			
+			List<Integer> ids = new ArrayList<Integer>();
+			for (UserRoleModel userRoleModel : userRoleModels) {
+				Integer id = userRoleModel.getUserid();
+				ids.add(id);
+			}
+			
+			if (employeeModel.getId() != null) {
+				if (ids.contains(employeeModel.getId())) {
+					ids.clear();
+					ids.add(employeeModel.getId());
+				} else {
+					json.addObject("rows", workers);
+					json.addObject("count", workers.size());
+					json.addObject("result", 1);
+					return json;
+				}
+			}
+
+			if (ids.size() > 0)
+				workers = emapgoAccountService.getEmployeesByIDSAndRealname(ids, employeeModel.getRealname());
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		json.addObject("rows", workers);
+		json.addObject("count", workers.size());
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(params = "atn=getcheckers")
+	public ModelAndView getCheckers(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<EmployeeModel> checkers = new ArrayList<EmployeeModel>();
+		try {
+			String filter = ParamUtils.getParameter(request, "filter", new String());
+
+			Map<String, Object> filterPara = null;
+			EmployeeModel employeeModel = new EmployeeModel();
+			if (filter.length() > 0) {
+				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
+				for (String key : filterPara.keySet()) {
+					switch (key) {
+					case "id":
+						employeeModel.setId(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					case "realname":
+						employeeModel.setRealname(filterPara.get(key).toString());
+						break;
+					default:
+						logger.error("未处理的筛选项：" + key);
+						break;
+					}
+				}
+			}
+			
+			UserRoleModel record = new UserRoleModel();
+			record.setRoleid(RoleType.ROLE_CHECKER.getValue());
+			List<UserRoleModel> userRoleModels = userRoleModelDao.query(record );
+			
+			List<Integer> ids = new ArrayList<Integer>();
+			for (UserRoleModel userRoleModel : userRoleModels) {
+				Integer id = userRoleModel.getUserid();
+				ids.add(id);
+			}
+			
+			if (employeeModel.getId() != null) {
+				if (ids.contains(employeeModel.getId())) {
+					ids.clear();
+					ids.add(employeeModel.getId());
+				} else {
+					json.addObject("rows", checkers);
+					json.addObject("count", checkers.size());
+					json.addObject("result", 1);
+					return json;
+				}
+			}
+
+			if (ids.size() > 0)
+				checkers = emapgoAccountService.getEmployeesByIDSAndRealname(ids, employeeModel.getRealname());
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		json.addObject("rows", checkers);
+		json.addObject("count", checkers.size());
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(params = "atn=getdatasets")
+	public ModelAndView getDatasets(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<DatasetModel> datasetModels = new ArrayList<DatasetModel>();
+		Integer count = 0;
+		try {
+			Integer limit = ParamUtils.getIntParameter(request, "limit", -1);
+			Integer offset = ParamUtils.getIntParameter(request, "offset", -1);
+			String filter = ParamUtils.getParameter(request, "filter", "");
+			
+			ProcessType processType = ProcessType.POIEDIT;
+
+			Map<String, Object> filterPara = null;
+			DatasetModel record = new DatasetModel();
+			
+			if (filter.length() > 0) {
+				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
+				for (String key : filterPara.keySet()) {
+					String value = filterPara.get(key).toString();
+					switch (key) {
+					case "id":
+						record.setId(Long.valueOf(value));
+						break;
+					case "name":
+						record.setName(value);
+						break;
+					case "datatype":
+						record.setDatatype(Integer.valueOf(value));
+						break;
+					case "batchid":
+						record.setBatchid(Long.valueOf(value));
+						break;
+					default:
+						logger.error("未处理的筛选项：" + key);
+						break;
+					}
+				}
+			}
+
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZILIAOKU, processType);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+
+			datasetModels = datasetModelDao.selectDatasets(configDBModel, record, limit, offset);
+			count = datasetModelDao.countErrorSets(configDBModel, record, limit, offset);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		json.addObject("rows", datasetModels);
+		json.addObject("total", count);
+		json.addObject("result", 1);
+
+		logger.debug("END");
 		return json;
 	}
 

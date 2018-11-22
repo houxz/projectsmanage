@@ -19,14 +19,13 @@
 	</sql>
 	<insert id="insert" parameterType="com.emg.projectsmanage.pojo.ProjectsUserModel">
 		insert into tb_projects_user
-		(pid, userid, username, roleid, rolename, optime, opuid, systemid)
+		(pid, userid, username, roleid, rolename, opuid, systemid)
 		values
 		( #{pid,jdbcType=VARCHAR},
 		#{userid,jdbcType=INTEGER},
 		#{username,jdbcType=VARCHAR},
 		#{roleid,jdbcType=INTEGER},
 		#{rolename,jdbcType=VARCHAR},
-		#{optime,jdbcType=VARCHAR},
 		#{opuid,jdbcType=INTEGER},
 		#{systemid,jdbcType=INTEGER})
 	</insert>
