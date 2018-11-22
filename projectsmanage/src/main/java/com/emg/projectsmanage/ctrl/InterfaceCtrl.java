@@ -1630,6 +1630,53 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("selectProcessByID end!");
 		return json;
 	}
+	
+	@RequestMapping(params = "action=selectProcessByName", method = RequestMethod.POST)
+	private ModelAndView selectProcessByName(Model model, HttpSession session, HttpServletRequest request,
+			@RequestParam("name") String name,
+			@RequestParam("type") Integer type) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			ProcessModelExample example = new ProcessModelExample();
+			example.or()
+				.andNameEqualTo(name)
+				.andTypeEqualTo(type);
+			List<ProcessModel> processes = processModelDao.selectByExample(example);
+			model.addAttribute("status", true);
+			model.addAttribute("option", processes);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+		logger.debug("END");
+		return json;
+	}
+	
+	@RequestMapping(params = "action=selectProcessByState", method = RequestMethod.POST)
+	private ModelAndView selectProcessByState(Model model, HttpSession session, HttpServletRequest request,
+			@RequestParam("type") Integer type,
+			@RequestParam("state") Integer state) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			ProcessModelExample example = new ProcessModelExample();
+			example.or()
+				.andStateEqualTo(state)
+				.andTypeEqualTo(type);
+			example.setOrderByClause("priority DESC, id");
+			List<ProcessModel> processes = processModelDao.selectByExample(example);
+			model.addAttribute("status", true);
+			model.addAttribute("option", processes);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+		logger.debug("END");
+		return json;
+	}
 
 	@RequestMapping(params = "action=selectProcessIDByProjectID", method = RequestMethod.POST)
 	private ModelAndView selectProcessIDByProjectID(Model model,
