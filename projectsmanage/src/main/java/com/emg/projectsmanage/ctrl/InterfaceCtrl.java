@@ -1140,6 +1140,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			HttpServletRequest request,
 			@RequestParam("systemid") Integer systemid,
 			@RequestParam("userid") Integer userid,
+			@RequestParam(value = "roleid", required = false, defaultValue = "-1") Integer roleid,
 			@RequestParam("pid") String pid) {
 		logger.debug("selectNextProject start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
@@ -1151,6 +1152,9 @@ public class InterfaceCtrl extends BaseCtrl {
 
 			ProjectsUserModel record = new ProjectsUserModel();
 			record.setUserid(userid);
+			if (roleid.compareTo(0) >= 0) {
+				record.setRoleid(roleid);
+			}
 			List<ProjectsUserModel> projectsUserModels = projectsUserModelDao.queryProjectUsers(record);
 			List<Long> myProjectIDs = new ArrayList<Long>();
 			myProjectIDs.add(-1L);
