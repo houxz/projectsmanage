@@ -591,6 +591,7 @@
 											var config_2_22 = $("#config_2_22").val();
 											var config_2_23 = $("#config_2_23").val();
 											var config_2_25 = $("#config_2_25").val();
+											var config_2_26 = $("#config_2_26").val();
 
 											if (!newProcessName || newProcessName.length <= 0) {
 												$.webeditor.showMsgLabel("alert", "项目名不能为空");
@@ -648,7 +649,8 @@
 												"config_2_21" : config_2_21,
 												"config_2_22" : config_2_22,
 												"config_2_23" : config_2_23,
-												"config_2_25" : config_2_25
+												"config_2_25" : config_2_25,
+												"config_2_26" : config_2_26
 											},
 											function(json) {
 												if (json.result > 0) {
@@ -2052,6 +2054,12 @@
 						<button type="button" class="btn btn-default"
 							onclick="getDataset();">绑定资料</button>
 						<p class="help-block">已绑定<span id="config_2_25Count">0</span>份资料</p></td>
+				</tr>
+				<tr>
+					<td class="configKey">制作任务数</td>
+					<td class="configValue"><input type="text"
+						class="form-control configValue" id="config_2_26" value="10">
+					</td>
 				</tr>
 			</tbody>
 		</table>
