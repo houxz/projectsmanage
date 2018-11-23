@@ -468,16 +468,16 @@
 						+ ','
 						+ row.state
 						+ ');">配置</div>');
-		if (row.state == 1) {
-			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,' + row.id + ')">暂停</div>');
-		} else if (row.state == 2) {
-			html.push('<div class="btn btn-default" style="margin-bottom:3px;" onclick="changeState(1,' + row.id + ')" >开始</div>');
-		} else if (row.state == 0) {
+		if (row.state == 0) {
 			if (row.type == 5) {
 				html.push('<div class="btn btn-default disabled" style="margin-bottom:3px;" >开始</div>');
 			} else {
 				html.push('<div class="btn btn-default" style="margin-bottom:3px;" onclick="changeState(1,' + row.id + ')" >开始</div>');
 			}
+		} else if (row.state == 1) {
+			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,' + row.id + ')">暂停</div>');
+		} else if (row.state == 2) {
+			html.push('<div class="btn btn-default" style="margin-bottom:3px;" onclick="changeState(1,' + row.id + ')" >开始</div>');
 		}
 
 		return html.join('');
