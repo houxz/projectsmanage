@@ -38,7 +38,7 @@ public class DatasetModelDao {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_dataset ");
-			sql.append(" WHERE " + separator + "datatype" + separator + " IN (16, 31, 32) ");
+			sql.append(" WHERE " + separator + "datatype" + separator + " IN (14, 31, 32) ");
 			if (record != null) {
 				if (record.getId() != null && record.getId().compareTo(0L) > 0) {
 					sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
