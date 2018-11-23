@@ -13,7 +13,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>已完成项目</title>
 
-<link href="resources/jquery-flexselect-0.9.0/flexselect.css" rel="stylesheet">
 <link href="resources/jquery-ui-1.12.1.custom/jquery-ui.min.css" rel="stylesheet">
 <link href="resources/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
 <link href="resources/bootstrap-table-1.11.1/bootstrap-table.min.css" rel="stylesheet">
@@ -31,8 +30,6 @@
 <script src="resources/js/project/giveworker.js"></script>
 <script src="resources/js/project/attributemanage.js"></script>
 <script src="resources/js/project/priorityadjust.js"></script>
-<script src="resources/jquery-flexselect-0.9.0/jquery.flexselect.js"></script>
-<script src="resources/jquery-flexselect-0.9.0/liquidmetal.js"></script>
 
 
 <style type="text/css">
