@@ -45,7 +45,6 @@
 				$("[data-toggle='tooltip']").tooltip();
 			},
 			onPostHeader : function() {
-				console.log("onPostBody：" + autoRefreshProcess);
 				if (!!window.EventSource) {
 					if (autoRefreshProcess) {
 						$("#imgRefresh").attr("src", "resources/images/refresh.gif");
@@ -76,36 +75,6 @@
 	var itemsetTypes = eval('(${itemsetTypes})');
 	var itemsetUnits = eval('(${itemsetUnits})');
 	
-	var itemAreaFirstIn = true;
-	var itemAreaFirstClick = true;
-	var itemAreaSelected = new Array();
-	var itemAreaIDSelected = new Array();
-	var itemAreaOn = -1;
-	
-	var itemSetFirstIn = true;
-	var itemSetFirstClick = true;
-	var itemSetSelected = new Array();
-	var itemSetIDSelected = new Array();
-	var itemSetOn = -1;
-	
-	var workerFirstIn = true;
-	var workerFirstClick = true;
-	var workerSelected = new Array();
-	var workerIDSelected = new Array();
-	var workerOn = -1;
-	
-	var checkerFirstIn = true;
-	var checkerFirstClick = true;
-	var checkerSelected = new Array();
-	var checkerIDSelected = new Array();
-	var checkerOn = -1;
-	
-	var datasetFirstIn = true;
-	var datasetFirstClick = true;
-	var datasetSelected = new Array();
-	var datasetIDSelected = new Array();
-	var datasetOn = -1;
-
 	function indexFormat(value, row, index) {
 		return index;
 	}
