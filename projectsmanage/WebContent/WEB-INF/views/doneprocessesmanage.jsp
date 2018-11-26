@@ -1,58 +1,38 @@
 <%@page import="com.emg.projectsmanage.common.ProcessType"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c"%>
+<%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt'%>
 <!DOCTYPE html>
 <html>
 <head>
+<title>已完成项目</title>
 <meta charset="UTF-8" />
-<meta name="robots" content="all">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="robots" content="none">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Cache-Control" CONTENT="no-cache">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>已完成项目</title>
 
-<link href="resources/jquery-ui-1.12.1.custom/jquery-ui.min.css" rel="stylesheet">
-<link href="resources/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
-<link href="resources/bootstrap-table-1.11.1/bootstrap-table.min.css" rel="stylesheet">
+<link href="resources/jquery-ui-1.12.1.custom/jquery-ui.min.css"
+	rel="stylesheet">
+<link href="resources/bootstrap-3.3.7/css/bootstrap.min.css"
+	rel="stylesheet" />
 <link href="resources/css/css.css" rel="stylesheet" />
+<link href="resources/bootstrap-table-1.11.1/bootstrap-table.min.css"
+	rel="stylesheet">
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
+<script src="resources/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 <script src="resources/js/webeditor.js"></script>
 <script src="resources/js/common.js"></script>
 <script src="resources/js/consMap.js"></script>
-<script src="resources/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
-<script src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
-<script src="resources/bootstrap-table-1.11.1/locale/bootstrap-table-zh-CN.js"></script>
-<script src="resources/js/project/giveworker.js"></script>
-<script src="resources/js/project/attributemanage.js"></script>
-<script src="resources/js/project/priorityadjust.js"></script>
-
-
-<style type="text/css">
-#selectWorker ul {
-	list-style-type: none;
-	border: 1
-}
-
-#selectWorker ul li {
-	float: left;
-	margin: 2px 8px;
-}
-
-#selectChecker ul {
-	list-style-type: none;
-	border: 1
-}
-
-#selectChecker ul li {
-	float: left;
-	margin: 2px 8px;
-}
-</style>
+<script src="resources/js/bootstrapDialog.js"></script>
+<script
+	src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+<script
+	src="resources/bootstrap-table-1.11.1/locale/bootstrap-table-zh-CN.js"></script>
 
 <script type="text/javascript">
 	$(document).ready(function() {
@@ -73,7 +53,6 @@
 	var autoRefreshProcess = false;
 	
 	var colors = [ "LimeGreen", "MediumSeaGreen", "MediumVioletRed", "Crimson", "Crimson" ];
-	var processStates = eval('(${processStates})');
 	var processTypes = eval('(${processTypes})');
 	var itemAreaTypes = eval('(${itemAreaTypes})');
 	var priorityLevels = eval('(${priorityLevels})');
@@ -82,29 +61,8 @@
 	var itemsetTypes = eval('(${itemsetTypes})');
 	var itemsetUnits = eval('(${itemsetUnits})');
 	
-	var itemAreaFirstIn = true;
-	var itemAreaFirstClick = true;
-	var itemAreaSelected = new Array();
-	var itemAreaIDSelected = new Array();
-	var itemAreaOn = -1;
-	
-	var itemSetFirstIn = true;
-	var itemSetFirstClick = true;
-	var itemSetSelected = new Array();
-	var itemSetIDSelected = new Array();
-	var itemSetOn = -1;
-	
-	var workerFirstIn = true;
-	var workerFirstClick = true;
-	var workerSelected = new Array();
-	var workerIDSelected = new Array();
-	var workerOn = -1;
-
 	function indexFormat(value, row, index) {
 		return index;
-	}
-	function statesFormat(value, row, index) {
-		return processStates[row.state];
 	}
 	function processTypesFormat(value, row, index) {
 		return processTypes[row.type];
@@ -388,6 +346,26 @@
 		html.push("</div>");
 		return html.join("");
 	}
+	function samplingFormat(value, row, index) {
+		var samplingValue = '';
+		try{
+			var str_values = $("#config_2_18").val();
+			var map = JSON.parse(str_values);
+			if (map && typeof map == 'object') {
+				var id = row.id;
+				if( id && map[id]) {
+					samplingValue = map[id];
+				}
+			}
+		}catch(e){
+		}
+		var html = new Array();
+		html.push("<div class='input-group input-group-sm'>");
+		html.push("<input type='text' class='form-control' id='sampling-" + row.id + "' maxlength='3' value='" + samplingValue + "'>");
+		html.push("<span class='input-group-addon'>%</span>");
+		html.push("</div>");
+		return html.join("");
+	}
 
 	function operationFormat(value, row, index) {
 		var html = new Array();
@@ -418,37 +396,40 @@
 	}
 
 	function loadDefaultConfig() {
-		$("#config_processid").val(new String());
-		$("#config_processname").val(new String());
+		$("#config_processid").val("");
+		$("#config_processname").val("");
 		$("#config_processpriority").val(0);
 		$("#config_processprotype").val(1);
 		$("#config_processstatus").val(0);
-		processTypeChange(1);
 		
-		$("#config_0_7").val(new String());
-		$("#config_0_7").siblings("p").text("已选择0个区域");
-		$("#config_0_18").val(new String());
-		$("#config_0_18").siblings("p").text("已添加人员0位");
-		$("#config_0_19").prop('selectedIndex', 0);
-
 		$("#config_1_5").prop('selectedIndex', 0);
-		$("#config_1_6").prop('selectedIndex', 0);
-		$("#config_1_6").siblings("p").text("已选择0个质检图层");
-		$("#config_1_7").val(new String());
-		$("#config_1_7").siblings("p").text("已选择0个质检区域");
-		$("#config_1_8").prop('selectedIndex', 0);
-
-		$("#config_2_17").prop('selectedIndex', 0);
-		$("#config_2_18").val(new String());
-		$("#config_2_18").siblings("p").text("已添加人员0位");
+		$("#config_1_6").val("");
+		$("#config_1_6 span").text(0);
+		$("#config_1_7").val("");
+		$("#config_1_7 span").text(0);
+		
+		$("#config_2_18").val("");
+		$("#config_2_18 span").text(0);
 		$("#config_2_19").prop('selectedIndex', 0);
+		$("#config_2_21").val("");
+		$("#config_2_21 span").text(0);
+		$("#config_2_22").prop('selectedIndex', 0);
+		$("#config_2_23").prop('selectedIndex', 0);
+		$("#config_2_25").val("");
+		$("#config_2_25 span").text(0);
+		
+		processTypeChange(1);
 	}
 
 	function getConfig(processid, processname, priority, processtype, state) {
 		loadDefaultConfig();
+		processTypeChange(processtype);
 		if (processid > 0) {
-			disableByProcessType(processtype);
-			
+			if (state != 0) {
+				disableByProcessType(processtype);
+			}else {
+				enableByProcessType();
+			}
 			jQuery.post("./processesmanage.web", {
 				"atn" : "getconfigvalues",
 				"processid" : processid
@@ -460,40 +441,25 @@
 						if (obj) {
 							$(obj).val(configValues[index].value);
 						}
-						if(configValues[index].configid == 19) {
-							$("#config_0_19").val(configValues[index].value);
-						}
 					}
 					
-					var config_processprotype = $("#config_processprotype").val();
-					processTypeChange(config_processprotype);
-					
-					var config_0_7 = $("#config_1_7").val();
-					$("#config_0_7").siblings("p").text("已选择" + (config_0_7 ? config_0_7 .split(",").length : 0) + "个区域");
-					var config_0_18 = $("#config_2_18").val();
-					$("#config_0_18").siblings("p").text("已添加人员" + (config_0_18 ? config_0_18.split(",").length : 0) + "位");
-
-					var config_1_3 = $("#config_1_3").val();
-					var config_1_4 = $("#config_1_4").val();
-					$("#config_1_4").siblings("p").text("已关联项目:" + config_1_4 + "(" + config_1_3 + ")");
-
 					var config_1_6 = $("#config_1_6").val();
-					$("#config_1_6").siblings("p").text("已选择" + (config_1_6 ? config_1_6 .split(",").length : 0) + "个质检图层");
+					$("#config_1_6 span").text(config_1_6 ? config_1_6.split(",").length : 0);
 
 					var config_1_7 = $("#config_1_7").val();
-					$("#config_1_7").siblings("p").text("已选择" + (config_1_7 ? config_1_7 .split(",").length : 0) + "个质检区域");
-
-					var config_2_11 = $("#config_2_11").val();
-					var config_2_12 = $("#config_2_12").val();
-					$("#config_2_12").siblings("p").text("已关联项目:" + config_2_12 + "(" + config_2_11 + ")");
+					$("#config_1_7 span").text(config_1_7 ? config_1_7.split(",").length : 0);
 
 					var config_2_18 = $("#config_2_18").val();
-					$("#config_2_18").siblings("p").text("已添加人员" + (config_2_18 ? config_2_18.split(",").length : 0) + "位");
+					$("#config_2_18 span").text(config_2_18 ? config_2_18.split(",").length : 0);
+					
+					var config_2_21 = $("#config_2_21").val();
+					$("#config_2_21 span").text(config_2_21 ? config_2_21.split(",").length : 0);
+					
+					var config_2_25 = $("#config_2_25").val();
+					$("#config_2_25 span").text(config_2_25 ? config_2_25.split(",").length : 0);
 				}
 			}, "json");
 		} else {
-			// $("#config_processprotype").removeAttr("disabled");
-			$("#config_processprotype").removeAttr("disabled");
 			enableByProcessType();
 		}
 		showConfigDlg(processid, processname, priority, processtype, state);
@@ -501,642 +467,298 @@
 
 	function showConfigDlg(processid, processname, priority, processtype, state) {
 		$("#configDlg").dialog({
-							modal : true,
-							height : 630,
-							width : document.documentElement.clientWidth * 0.4,
-							title : "项目配置",
-							open : function(event, ui) {
-								$("#config_processid").val(processid);
-								$("#config_processname").val(processname);
-								$("#config_processstatus").val(state);
-								
-								$("#config_processpriority").val(priority);
-								$("#config_processprotype").val(processtype);
-								$(".ui-dialog-titlebar-close").hide();
-								$('.navbar-example').scrollspy({
-									target : '.navbar-example'
-								});
-							},
-							buttons : [{
-										text : "关闭",
-										class : "btn btn-default",
-										click : function() {
-											$(this).dialog("close");
-										}
-									} ]
-						});
+			modal : true,
+			width : document.documentElement.clientWidth * 0.35,
+			title : "项目配置",
+			open : function(event, ui) {
+				$("#config_processid").val(processid);
+				$("#config_processname").val(processname);
+				$("#config_processstatus").val(state);
+				
+				$("#config_processpriority").val(priority);
+				$("#config_processprotype").val(processtype);
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			buttons : [
+					{
+						text : "关闭",
+						class : "btn btn-default",
+						click : function() {
+							$(this).dialog("close");
+						}
+					} ]
+		});
 	}
 	
-	function getWorkersAndCheckers() {
-		$('[data-toggle="workers"]').bootstrapTable(
-				{
-					locale : 'zh-CN',
-					queryParams : function(params) {
-						if (params.filter != undefined) {
-							var filterObj = eval('(' + params.filter + ')');
-							if (filterObj.state != undefined) {
-								filterObj["state"] = filterObj.state;
-								delete filterObj.state;
-								params.filter = JSON.stringify(filterObj);
-							}
-						}
-						return params;
-					},
-					onLoadSuccess : function(data) {
-						workerOn = -1;
-						workerSelected = new Array();
-						workerFirstClick = true;
-						
-						var values = new Array();
-						if(workerFirstIn) {
-							var str_values = $("#config_2_18").val();
-							$.each(str_values.split(","), function(index, domEle) {
-								values[index] = parseInt(domEle);
-							});
-						} else {
-							$.each(workerIDSelected, function(index, domEle) {
-								values.push(parseInt(domEle));
-							});
-						}
-						
-						$('[data-toggle="workers"]').bootstrapTable("checkBy",
-								{
-									field : "id",
-									values : values
-								});
-						workerFirstIn = false;
-					},
-					onCheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						if(workerSelected.indexOf(index) < 0) {
-							workerOn = index;
-							workerSelected.push(index);
-							workerSelected.sort(compare);
-						}
-						var id = row.id;
-						if(workerIDSelected.indexOf(id) < 0) {
-							workerIDSelected.push(id);
-						}
-					},
-					onUncheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						var indexIn = workerSelected.indexOf(index);
-						if(indexIn >= 0) {
-							workerOn = workerSelected[indexIn == 0 ? 0 : indexIn -1];
-							workerSelected.splice(indexIn,1).sort(compare);
-						}
-						var id = row.id;
-						var idIn = workerIDSelected.indexOf(id);
-						if(idIn >= 0) {
-							workerIDSelected.splice(idIn, 1);
-						}
-					},
-					onCheckAll : function(rows) {
-						var elements = $('[data-toggle="workers"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							if(workerSelected.indexOf(index) < 0) {
-								workerSelected.push(index);
-							}
-						});
-						workerOn = parseInt($('[data-toggle="workers"] td.indexHidden:last').text());
-						workerSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							if(workerIDSelected.indexOf(id) < 0) {
-								workerIDSelected.push(id);
-							}
-						});
-					},
-					onUncheckAll : function(rows) {
-						var elements = $('[data-toggle="workers"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							var indexIn = workerSelected.indexOf(index);
-							if(indexIn >= 0) {
-								workerOn = workerSelected[indexIn == 0 ? 0 : indexIn -1];
-								workerSelected.splice(indexIn,1).sort(compare);
-							}
-						});
-						workerOn = parseInt($('[data-toggle="workers"] td.indexHidden:last').text());
-						workerSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							var idIn = workerIDSelected.indexOf(id);
-							if(idIn >= 0) {
-								workerIDSelected.splice(idIn, 1);
-							}
-						});
-					}
-				});
-
-		showWorkersDlg();
-	}
-
-	function showWorkersDlg() {
-		$("#workers").dialog(
-				{
-					modal : true,
-					height : 500,
-					width : document.documentElement.clientWidth * 0.3,
-					title : "添加人员",
-					open : function(event, ui) {
-						workerFirstClick = true;
-						workerFirstIn= true;
-						$(".ui-dialog-titlebar-close").hide();
-					},
-					close : function() {
-						workerOn = -1;
-						workerSelected = new Array();
-						workerIDSelected = new Array();
-						workerFirstClick = true;
-						workerFirstIn= true;
-						$('[data-toggle="workers"]').bootstrapTable("destroy");
-					},
-					buttons : [
-							{
-								text : "<",
-								title : "上一条",
-								class : "btn btn-default",
-								click : function() {
-									if(!workerSelected || workerSelected.length <= 0) {
-										$.webeditor.showMsgLabel("warning", "没有勾选项");
-										return;
-									}
-									if(workerFirstClick) {
-										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
-										workerOn = workerSelected[0];
-										workerFirstClick = false;
-									} else {
-										if (workerOn < 0) {
-											$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
-											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
-										} else {
-											var index = workerSelected.indexOf(workerOn);
-											if (index < 0) {
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
-											} else if (index > workerSelected.length - 1) {
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
-											} else {
-												if (index == 0) {
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
-													workerOn = workerSelected[0];
-													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
-												} else {
-													var preIndex = index - 1;
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[preIndex] * 31);
-													workerOn = workerSelected[preIndex];
-												}
-											}
-										}
-									}
-								}
-							},
-							{
-								text : ">",
-								title : "下一条",
-								class : "btn btn-default",
-								click : function() {
-									if(!workerSelected || workerSelected.length <= 0) {
-										$.webeditor.showMsgLabel("warning", "没有勾选项");
-										return;
-									}
-									if(workerFirstClick) {
-										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 31);
-										workerOn = workerSelected[0];
-										workerFirstClick = false;
-									} else {
-										if (workerOn < 0) {
-											$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
-										} else {
-											var index = workerSelected.indexOf(workerOn);
-											if (index < 0) {
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
-											} else if (index > workerSelected.length - 1) {
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
-											} else {
-												if (index == workerSelected.length - 1) {
-													var nextIndex = workerSelected.length - 1;
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
-													workerOn = workerSelected[nextIndex];
-													$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
-												} else {
-													var nextIndex = index + 1;
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 31);
-													workerOn = workerSelected[nextIndex];
-												}
-											}
-										}
-									}
-								}
-							},
-							{
-								text : "关闭",
-								class : "btn btn-default",
-								click : function() {
-									$(this).dialog("close");
-								}
-							} ]
-				});
-	}
-
 	function getItemAreas() {
-		$('[data-toggle="itemAreas"]').bootstrapTable(
-				{
-					locale : 'zh-CN',
-					queryParams : function(params) {
-						if (params.filter != undefined) {
-							var filterObj = eval('(' + params.filter + ')');
-							if (filterObj.state != undefined) {
-								filterObj["state"] = filterObj.state;
-								delete filterObj.state;
-								params.filter = JSON.stringify(filterObj);
-							}
-						}
-						params["type"] = $("#config_1_5").val();
-						params["processType"] = $("#config_processprotype").val();
-						return params;
-					},
-					onLoadSuccess : function(data) {
-						itemAreaOn = -1;
-						itemAreaSelected = new Array();
-						itemAreaFirstClick = true;
-						
-						var values = new Array();
-						if(itemAreaFirstIn) {
-							var str_values = $("#config_1_7").val();
-							$.each(str_values.split(","), function(index, domEle) {
-								values.push(parseInt(domEle));
-							});
-						} else {
-							$.each(itemAreaIDSelected, function(index, domEle) {
-								values.push(parseInt(domEle));
-							});
-						}
-						
-						$('[data-toggle="itemAreas"]').bootstrapTable(
-								"checkBy", {
-									field : "id",
-									values : values
-								});
-						itemAreaFirstIn = false;
-						var state = $("#config_processstatus").val();
-						if(state !== "0") {
-							$("#itemAreaslist input:checkbox").attr("disabled", true);
-						} else {
-							$("#itemAreaslist input:checkbox").removeAttr("disabled");
-						} 
-					},
-					onCheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						if(itemAreaSelected.indexOf(index) < 0) {
-							itemAreaOn = index;
-							itemAreaSelected.push(index);
-							itemAreaSelected.sort(compare);
-						}
-						var id = row.id;
-						if(itemAreaIDSelected.indexOf(id) < 0) {
-							itemAreaIDSelected.push(id);
-						}
-					},
-					onUncheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						var indexIn = itemAreaSelected.indexOf(index);
-						if(indexIn >= 0) {
-							itemAreaOn = itemAreaSelected[indexIn == 0 ? 0 : indexIn -1];
-							itemAreaSelected.splice(indexIn,1).sort(compare);
-						}
-						var id = row.id;
-						var idIn = itemAreaIDSelected.indexOf(id);
-						if(idIn >= 0) {
-							itemAreaIDSelected.splice(idIn, 1);
-						}
-					},
-					onCheckAll : function(rows) {
-						var elements = $('[data-toggle="itemAreas"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							if(itemAreaSelected.indexOf(index) < 0) {
-								itemAreaSelected.push(index);
-							}
-						});
-						itemAreaOn = parseInt($('[data-toggle="itemAreas"] td.indexHidden:last').text());
-						itemAreaSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							if(itemAreaIDSelected.indexOf(id) < 0) {
-								itemAreaIDSelected.push(id);
-							}
-						});
-					},
-					onUncheckAll : function(rows) {
-						var elements = $('[data-toggle="itemAreas"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							var indexIn = itemAreaSelected.indexOf(index);
-							if(indexIn >= 0) {
-								itemAreaOn = itemAreaSelected[indexIn == 0 ? 0 : indexIn -1];
-								itemAreaSelected.splice(indexIn,1).sort(compare);
-							}
-						});
-						itemAreaOn = parseInt($('[data-toggle="itemAreas"] td.indexHidden:last').text());
-						itemAreaSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							var idIn = itemAreaIDSelected.indexOf(id);
-							if(idIn >= 0) {
-								itemAreaIDSelected.splice(idIn, 1);
-							}
-						});
+		$("#itemAreasDlg").bootstrapDialog({
+			valueBand: "config_1_7",
+			queryParams : function(params) {
+				if (params.filter != undefined) {
+					var filterObj = eval('(' + params.filter + ')');
+					if (filterObj.state != undefined) {
+						filterObj["state"] = filterObj.state;
+						delete filterObj.state;
+						params.filter = JSON.stringify(filterObj);
 					}
-				});
-
-		showItemAreasDlg();
-	}
-
-	function showItemAreasDlg() {
-		$("#itemAreasDlg").dialog(
+				}
+				params["type"] = $("#config_1_5").val();
+				params["processType"] = $("#config_processprotype").val();
+				return params;
+			}
+		}, {
+			width : 760,
+			title : "质检区域配置",
+			buttons : [
 				{
-					modal : true,
-					height : 500,
-					width : 660,
-					title : "质检区域配置",
-					open : function(event, ui) {
-						itemAreaFirstClick = true;
-						itemAreaFirstIn = true;
-						$(".ui-dialog-titlebar-close").hide();
-					},
-					close : function() {
-						itemAreaOn = -1;
-						itemAreaSelected = new Array();
-						itemAreaIDSelected = new Array();
-						itemAreaFirstClick = true;
-						itemAreaFirstIn = true;
-						$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
-					},
-					buttons : [
-							{
-								text : "<",
-								title : "上一条",
-								class : "btn btn-default",
-								click : function() {
-									if(!itemAreaSelected || itemAreaSelected.length <= 0) {
-										$.webeditor.showMsgLabel("warning", "没有勾选项");
-										return;
-									}
-									if(itemAreaFirstClick) {
-										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
-										itemAreaOn = itemAreaSelected[0];
-										itemAreaFirstClick = false;
-									} else {
-										if(itemAreaOn < 0) {
-											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
-											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
-										} else {
-											var index = itemAreaSelected.indexOf(itemAreaOn);
-											if(index < 0) {
-												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
-											} else if(index > itemAreaSelected.length-1) {
-												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 'bottom');
-											} else {
-												if(index == 0) {
-													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
-													itemAreaOn = itemAreaSelected[0];
-													$.webeditor.showMsgLabel("warning", "已经跳转到第一条");
-												} else {
-													var preIndex = index-1;
-													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[preIndex]*31);
-													itemAreaOn = itemAreaSelected[preIndex];
-												}
-											}
-										}
-									}
-								}
-							},
-							{
-								text : ">",
-								title : "下一条",
-								class : "btn btn-default",
-								click : function() {
-									if(!itemAreaSelected || itemAreaSelected.length <= 0) {
-										$.webeditor.showMsgLabel("warning", "没有勾选项");
-										return;
-									}
-									if(itemAreaFirstClick) {
-										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
-										itemAreaOn = itemAreaSelected[0];
-										itemAreaFirstClick = false;
-									} else {
-										if(itemAreaOn < 0) {
-											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
-										} else {
-											var index = itemAreaSelected.indexOf(itemAreaOn);
-											if(index < 0) {
-												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
-											} else if(index > itemAreaSelected.length-1) {
-												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 'bottom');
-											} else {
-												if(index == itemAreaSelected.length-1) {
-													var nextIndex = itemAreaSelected.length-1;
-													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[nextIndex]*31);
-													itemAreaOn = itemAreaSelected[nextIndex];
-													$.webeditor.showMsgLabel("warning", "已经跳转到最后一条");
-												} else {
-													var nextIndex = index+1;
-													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[nextIndex]*31);
-													itemAreaOn = itemAreaSelected[nextIndex];
-												}
-											}
-										}
-									}
-								}
-							},
-							{
-								text : "关闭",
-								class : "btn btn-default",
-								click : function() {
-									$(this).dialog("close");
-								}
-							} ]
-				});
+					text : "<",
+					title : "上一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoLast");
+					}
+				},
+				{
+					text : ">",
+					title : "下一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoNext");
+					}
+				},
+				{
+					text : "关闭",
+					class : "btn btn-default",
+					click : function() {
+						$(this).dialog("close");
+					}
+				}
+			]
+		});
 	}
-
+	
 	function getItemsets() {
-		$('[data-toggle="itemsets"]').bootstrapTable(
-				{
-					locale : 'zh-CN',
-					queryParams : function(params) {
-						params["processType"] = $("#config_processprotype").val();
-						return params;
-					},
-					onLoadSuccess : function(data) {
-						itemSetOn = -1;
-						itemSetSelected = new Array();
-						itemSetFirstClick = true;
-						
-						var values = new Array();
-						if(itemSetFirstIn) {
-							$.each($("#config_1_6").val().split(","), function(index, domEle) {
-								values.push(parseInt(domEle));
-							});
-						} else {
-							$.each(itemSetIDSelected, function(index, domEle) {
-								values.push(parseInt(domEle));
-							});
-						}
-						
-						$('[data-toggle="itemsets"]').bootstrapTable("checkBy",
-								{
-									field : "id",
-									values : values
-								});
-						itemSetFirstIn = false;
-						var state = $("#config_processstatus").val();
-						if(state !== "0") {
-							$("#itemsetslist input:checkbox").attr("disabled", true);
-						} else {
-							$("#itemsetslist input:checkbox").removeAttr("disabled");
-						} 
-					},
-					onCheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						if(itemSetSelected.indexOf(index) < 0) {
-							itemSetOn = index;
-							itemSetSelected.push(index);
-							itemSetSelected.sort(compare);
-						}
-						var id = row.id;
-						if(itemSetIDSelected.indexOf(id) < 0) {
-							itemSetIDSelected.push(id);
-						}
-					},
-					onUncheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						var indexIn = itemSetSelected.indexOf(index);
-						if(indexIn >= 0) {
-							itemSetOn = itemSetSelected[indexIn == 0 ? 0 : indexIn -1];
-							itemSetSelected.splice(indexIn,1).sort(compare);
-						}
-						var id = row.id;
-						var idIn = itemSetIDSelected.indexOf(id);
-						if(idIn >= 0) {
-							itemSetIDSelected.splice(idIn, 1);
-						}
-					},
-					onCheckAll : function(rows) {
-						var elements = $('[data-toggle="itemsets"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							if(itemSetSelected.indexOf(index) < 0) {
-								itemSetSelected.push(index);
-							}
-						});
-						itemSetOn = parseInt($('[data-toggle="itemsets"] td.indexHidden:last').text());
-						itemSetSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							if(itemSetIDSelected.indexOf(id) < 0) {
-								itemSetIDSelected.push(id);
-							}
-						});
-					},
-					onUncheckAll : function(rows) {
-						var elements = $('[data-toggle="itemsets"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							var indexIn = itemSetSelected.indexOf(index);
-							if(indexIn >= 0) {
-								itemSetOn = itemSetSelected[indexIn == 0 ? 0 : indexIn -1];
-								itemSetSelected.splice(indexIn,1).sort(compare);
-							}
-						});
-						itemSetOn = parseInt($('[data-toggle="itemsets"] td.indexHidden:last').text());
-						itemSetSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							var idIn = itemSetIDSelected.indexOf(id);
-							if(idIn >= 0) {
-								itemSetIDSelected.splice(idIn, 1);
-							}
-						});
+		$("#itemsetsDlg").bootstrapDialog({
+			valueBand: "config_1_6",
+			queryParams : function(params) {
+				if (params.filter != undefined) {
+					var filterObj = eval('(' + params.filter + ')');
+					if (filterObj.state != undefined) {
+						filterObj["state"] = filterObj.state;
+						delete filterObj.state;
+						params.filter = JSON.stringify(filterObj);
 					}
-				});
-
-		showItemsetsDlg();
-	}
-
-	function showItemsetsDlg() {
-		$("#itemsetsDlg").dialog(
+				}
+				params["type"] = $("#config_1_5").val();
+				params["processType"] = $("#config_processprotype").val();
+				return params;
+			}
+		}, {
+			width : 920,
+			title : "质检图层配置",
+			buttons : [
 				{
-					modal : true,
-					height : 630,
-					width : document.documentElement.clientWidth * 0.6,
-					title : "质检图层配置",
-					open : function(event, ui) {
-						itemSetFirstClick = true;
-						itemSetFirstIn = true;
-						$(".ui-dialog-titlebar-close").hide();
-					},
-					close : function() {
-						itemSetOn = -1;
-						itemSetSelected = new Array();
-						itemSetIDSelected = new Array();
-						itemSetFirstClick = true;
-						itemSetFirstIn = true;
-						$('[data-toggle="itemsets"]').bootstrapTable("destroy");
-					},
-					buttons : [
-									{
-										text : "关闭",
-										class : "btn btn-default",
-										click : function() {
-											$(this).dialog("close");
-										}
-									} ]
-						});
+					text : "关闭",
+					class : "btn btn-default",
+					click : function() {
+						$(this).dialog("close");
+					}
+				}
+			]
+		});
+	}
+	
+	function getWorkers() {
+		$("#workersDlg").bootstrapDialog({
+			perHeight: 41,
+			valueBand: "config_2_18"
+		}, {
+			width : 500,
+			title : "添加制作人员",
+			buttons : [
+				{
+					text : "<",
+					title : "上一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoLast");
+					}
+				},
+				{
+					text : ">",
+					title : "下一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoNext");
+					}
+				},
+				{
+					text : "关闭",
+					class : "btn btn-default",
+					click : function() {
+						$(this).dialog("close");
+					}
+				}
+			]
+		});
+	}
+	
+	function getCheckers() {
+		$("#checkersDlg").bootstrapDialog({
+			valueBand: "config_2_21"
+		}, {
+			width : 500,
+			title : "添加校正人员",
+			buttons : [
+				{
+					text : "<",
+					title : "上一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoLast");
+					}
+				},
+				{
+					text : ">",
+					title : "下一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoNext");
+					}
+				},
+				{
+					text : "关闭",
+					class : "btn btn-default",
+					click : function() {
+						$(this).dialog("close");
+					}
+				}
+			]
+		});
+	}
+	
+	function getDataset() {
+		$("#datasetsDlg").bootstrapDialog({
+			valueBand: "config_2_25"
+		}, {
+			width : 1000,
+			title : "绑定资料",
+			buttons : [
+				{
+					text : "<",
+					title : "上一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoLast");
+					}
+				},
+				{
+					text : ">",
+					title : "下一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoNext");
+					}
+				},
+				{
+					text : "关闭",
+					class : "btn btn-default",
+					click : function() {
+						$(this).dialog("close");
+					}
+				}
+			]
+		});
 	}
 
 	function processTypeChange(selectValue) {
-		if(selectValue == 1 || selectValue == 4) {
-			$("#modules li:not(:first-child)").show();
-			$("#config_0_7").parents("tr").hide();
-			$("#config_0_18").parents("tr").hide();
-			$("#config_0_19").parents("tr").hide();
-			$("#sc2").show();
-			$("#sc3").show();
-		} else if(selectValue == 2 || selectValue == 3 || selectValue == 5) {
-			$("#modules li:not(:first-child)").hide();
-			$("#config_0_7").parents("tr").show();
-			$("#config_0_18").parents("tr").show();
-			$("#config_0_19").parents("tr").show();
-			$("#sc2").hide();
-			$("#sc3").hide();
-		} else {
-			//console.log("processTypeChange--错误的项目类型：" + selectValue);
+		switch(selectValue) {
+		case 1:
+		case "1":
+			$("#config_1_5").parents("tr").show();
+			$("#config_1_6").parents("tr").show();
+			$("#config_1_7").parents("tr").show();
+			$("#config_2_18").parents("tr").show();
+			$("#config_2_19").parents("tr").show();
+			$("#config_2_21").parents("tr").show();
+			$("#config_2_22").parents("tr").hide();
+			$("#config_2_23").parents("tr").hide();
+			$("#config_2_25").parents("tr").hide();
+			break;
+		case 2:
+		case "2":
+			$("#config_1_5").parents("tr").hide();
+			$("#config_1_6").parents("tr").hide();
+			$("#config_1_7").parents("tr").show();
+			$("#config_2_18").parents("tr").show();
+			$("#config_2_19").parents("tr").show();
+			$("#config_2_21").parents("tr").show();
+			$("#config_2_22").parents("tr").hide();
+			$("#config_2_23").parents("tr").hide();
+			$("#config_2_25").parents("tr").hide();
+			break;
+		case 3:
+		case "3":
+			$("#config_1_5").parents("tr").hide();
+			$("#config_1_6").parents("tr").hide();
+			$("#config_1_7").parents("tr").show();
+			$("#config_2_18").parents("tr").show();
+			$("#config_2_19").parents("tr").show();
+			$("#config_2_21").parents("tr").show();
+			$("#config_2_22").parents("tr").hide();
+			$("#config_2_23").parents("tr").hide();
+			$("#config_2_25").parents("tr").hide();
+			break;
+		case 4:
+		case "4":
+			$("#config_1_5").parents("tr").show();
+			$("#config_1_6").parents("tr").show();
+			$("#config_1_7").parents("tr").show();
+			$("#config_2_18").parents("tr").show();
+			$("#config_2_19").parents("tr").show();
+			$("#config_2_21").parents("tr").show();
+			$("#config_2_22").parents("tr").hide();
+			$("#config_2_23").parents("tr").hide();
+			$("#config_2_25").parents("tr").hide();
+			break;
+		case 5:
+		case "5":
+			$("#config_1_5").parents("tr").hide();
+			$("#config_1_6").parents("tr").hide();
+			$("#config_1_7").parents("tr").hide();
+			$("#config_2_18").parents("tr").show();
+			$("#config_2_19").parents("tr").show();
+			$("#config_2_21").parents("tr").show();
+			$("#config_2_22").parents("tr").show();
+			$("#config_2_23").parents("tr").show();
+			$("#config_2_25").parents("tr").show();
+			break;
+		default:
+			console.log("processTypeChange--错误的项目类型：" + selectValue);
+			break;
 		}
 	}
 	
 	function enableByProcessType() {
-		
 		$("#config_processname").removeAttr("disabled");
-		$("#config_1_5").removeAttr("disabled");
-		$("#config_1_6").siblings("button").removeAttr("disabled");
-		$("#config_1_7").siblings("button").removeAttr("disabled");
 		$("#config_processprotype").removeAttr("disabled");
-	
-		$("#config_processname").removeAttr("disabled");
-		// $("#config_processprotype").removeAttr("disabled");
-		$("#config_0_7").siblings("button").removeAttr("disabled");
-	
+		$("#config_processpriority").removeAttr("disabled");
+		
+		$("#config_1_5").removeAttr("disabled");
+		$("#config_2_19").removeAttr("disabled");
 	}
 	
 	function disableByProcessType(selectValue) {
-		$("#config_processname").attr("disabled", true);
+		if(selectValue == 1 || selectValue == 2) {
+			$("#config_processname").attr("disabled", true);
+			$("#config_1_5").attr("disabled", true);
+		} else {
+			$("#config_processname").removeAttr("disabled");
+			$("#config_1_5").removeAttr("disabled");
+		}
 		$("#config_processprotype").attr("disabled", true);
-		$("#config_processpriority").attr("disabled", true);
-		$("#config_1_5").attr("disabled", true);
-		$("#config_0_19").attr("disabled", true);
-		$("#config_2_19").attr("disabled", true);
+		$("#config_processpriority").removeAttr("disabled");
+		$("#config_2_19").removeAttr("disabled");
 	}
 </script>
 
@@ -1155,28 +777,21 @@
 				<thead>
 					<tr>
 						<th data-field="id" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="120">项目编号</th>
-							
+							data-filter-control-placeholder="" data-width="120">项目编号
+						</th>
 						<th data-field="name" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="160">项目名称</th>
-							
 						<th data-field="type" data-formatter="processTypesFormat"
 							data-filter-control="select" data-width="140"
 							data-filter-data="var:processTypes">项目类型</th>
-							
 						<th data-field="username" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="120">创建者</th>
-							
 						<th data-field="priority" data-formatter="priFormat"
-							data-filter-control="select" data-width="80"
+							data-filter-control="select" data-width="120"
 							data-filter-data="var:priorityLevels">优先级</th>
-							
-						<th data-field="state" data-formatter="statesFormat"
-							data-width="80">项目状态</th>
-							
 						<th data-field="progress" data-formatter="progressFormat"
-							data-width="500">项目进度</th>
-							
+							data-width="500">项目进度
+						</th>
 						<th data-formatter="operationFormat" data-width="70">操作</th>
 					</tr>
 				</thead>
@@ -1185,175 +800,155 @@
 		<div id="footdiv"></div>
 	</div>
 	<div id="configDlg" style="display: none;">
-		<div id="navbar-example" style="width: 20%; float: left;">
-			<ul class="nav nav-pills nav-stacked" id="modules">
-				<li class="active"><a href="#sc1">基础配置</a></li>
-				<li><a href="#sc2">质检配置</a></li>
-				<li><a href="#sc3">改错配置</a></li>
-			</ul>
-		</div>
-		<div class="navbar-example"
-			style="width: 79%; height: 500px; float: left; overflow-y: auto;"
-			data-spy="scroll" data-target="#navbar-example">
-			<div class="panel panel-default" id="sc1">
-				<div class="panel-heading">基础配置</div>
-				<table class="table">
-					<tbody>
-						<tr>
-							<td class="configKey">项目编号</td>
-							<td class="configValue"><input type="text"
-								class="form-control configValue" id="config_processid" disabled>
-							</td>
-						</tr>
-						<tr>
-							<td class="configKey">项目名称</td>
-							<td class="configValue"><input type="text"
-								class="form-control configValue" id="config_processname"
-								placeholder="请输入新项目名">
-								<input type="text"
-								style="display:none" id="config_processstatus"
-								></td>
-						</tr>
-						<tr>
-							<td class="configKey">项目类型</td>
-							<td class="configValue"><select
-								class="form-control configValue" id="config_processprotype" onchange="processTypeChange(this.options[this.options.selectedIndex].value);">
-									<c:set var="processTypes" value="<%= ProcessType.values() %>"/>
-									<c:forEach items="${processTypes }" var="processType">
-										<c:if test="${processType.getValue() > 0 }">
-											<option value="${processType.getValue() }">${processType.getDes() }</option>
-										</c:if>
-									</c:forEach>
-							</select></td>
-						</tr>
-						<tr>
-							<td class="configKey">项目优先级</td>
-							<td class="configValue"><select
-								class="form-control configValue" id="config_processpriority">
-									<option value="-2">极低</option>
-									<option value="-1">低</option>
-									<option value="0" selected="selected">一般</option>
-									<option value="1">高</option>
-									<option value="2">极高</option>
-							</select></td>
-						</tr>
-						<tr style="display:none;">
-							<td class="configKey">区域</td>
-							<td class="configValue"><input type="hidden" id="config_0_7"
-								value="">
-								<button type="button" class="btn btn-default"
-									onclick="getItemAreas();">配置区域</button>
-								<p class="help-block">已选择0个区域</p></td>
-						</tr>
-						<tr style="display:none;">
-							<td class="configKey">人员</td>
-							<td class="configValue"><input type="hidden"
-								id="config_0_18" value="">
-								<button type="button" class="btn btn-default"
-									onclick="getWorkersAndCheckers();">添加人员</button>
-								<p class="help-block">已添加人员0位</p></td>
-						</tr>
-						<tr style="display:none;">
-							<td class="configKey">公有私有</td>
-							<td class="configValue"><select class="form-control"
-								id="config_0_19">
-									<option value="0">公有</option>
-									<option value="1">私有</option>
-							</select></td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-			<div class="panel panel-default" id="sc2">
-				<div class="panel-heading">质检配置</div>
-				<table class="table">
-					<tr style="display: none;">
-						<td class="configKey">项目关联</td>
-						<td class="configValue"><input type="hidden" id="config_1_3"
-							value=""> <input type="hidden" id="config_1_4" value="">
-							<p class="help-block">已关联项目&lceil;&rfloor;</p></td>
-					</tr>
-					<tr>
-						<td class="configKey">质检集合</td>
-						<td class="configValue"><select class="form-control"
-							id="config_1_5">
-								<option value="1" selected="selected">九宫格</option>
-								<option value="2">全国</option>
-								<option value="3">市</option>
-						</select></td>
-					</tr>
-					<tr>
-						<td class="configKey">质检区域</td>
-						<td class="configValue"><input type="hidden" id="config_1_7"
-							value="">
-							<button type="button" class="btn btn-default"
-								onclick="getItemAreas();">配置质检区域</button>
-							<p class="help-block">已选择0个质检区域</p></td>
-					</tr>
-					<tr>
-						<td class="configKey">质检图层</td>
-						<td class="configValue"><input type="hidden" id="config_1_6"
-							value="">
-							<button type="button" class="btn btn-default"
-								onclick="getItemsets();">配置质检图层</button>
-							<p class="help-block">已选择0个质检图层</p></td>
-					</tr>
-					<tr style="display: none;">
-						<td class="configKey">启动类型</td>
-						<td class="configValue"><select class="form-control"
-							id="config_1_8">
-								<option value="1">手动</option>
-								<option value="2" selected="selected">自动</option>
-								<option value="3">自动延迟</option>
-						</select></td>
-					</tr>
-				</table>
-			</div>
-			<div class="panel panel-default" id="sc3">
-				<div class="panel-heading">改错配置</div>
-				<table class="table">
-					<tr style="display: none;">
-						<td class="configKey">项目关联</td>
-						<td class="configValue"><input type="hidden" id="config_2_11"
-							value=""> <input type="hidden" id="config_2_12" value="">
-							<p class="help-block">已关联项目&lceil;&rfloor;</p></td>
-					</tr>
-					<tr style="display: none;">
-						<td class="configKey">启动类型</td>
-						<td class="configValue"><select class="form-control"
-							id="config_2_17">
-								<option value="1">手动</option>
-								<option value="2" selected="selected">自动</option>
-								<option value="3">自动延迟</option>
-						</select></td>
-					</tr>
-					<tr>
-						<td class="configKey">改错人员</td>
-						<td class="configValue"><input type="hidden" id="config_2_18"
-							value="">
-							<button type="button" class="btn btn-default"
-								onclick="getWorkersAndCheckers();">添加人员</button>
-							<p class="help-block">已添加人员0位</p></td>
-					</tr>
-					<tr>
-						<td class="configKey">公有私有</td>
-						<td class="configValue"><select class="form-control"
-							id="config_2_19">
-								<option value="0">公有</option>
-								<option value="1">私有</option>
-						</select></td>
-					</tr>
-				</table>
-			</div>
-		</div>
+		<table class="table table-condensed" style="margin-bottom: 0;">
+			<tbody>
+				<tr>
+					<td class="configKey">项目编号</td>
+					<td class="configValue"><input type="text"
+						class="form-control configValue" id="config_processid" disabled>
+					</td>
+				</tr>
+				<tr>
+					<td class="configKey">项目名称</td>
+					<td class="configValue"><input type="text"
+						class="form-control configValue" id="config_processname"
+						placeholder="请输入新项目名">
+						<input type="text"
+						style="display:none" id="config_processstatus"
+						></td>
+				</tr>
+				<tr>
+					<td class="configKey">项目类型</td>
+					<td class="configValue"><select
+						class="form-control configValue" id="config_processprotype" onchange="processTypeChange(this.options[this.options.selectedIndex].value);">
+							<c:set var="processTypes" value="<%= ProcessType.values() %>"/>
+							<c:forEach items="${processTypes }" var="processType">
+								<c:if test="${processType.getValue() > 0 }">
+									<option value="${processType.getValue() }">${processType.getDes() }</option>
+								</c:if>
+							</c:forEach>
+					</select></td>
+				</tr>
+				<tr>
+					<td class="configKey">项目优先级</td>
+					<td class="configValue"><select
+						class="form-control configValue" id="config_processpriority">
+							<option value="-2">极低</option>
+							<option value="-1">低</option>
+							<option value="0" selected="selected">一般</option>
+							<option value="1">高</option>
+							<option value="2">极高</option>
+					</select></td>
+				</tr>
+				<tr>
+					<td class="configKey">质检集合</td>
+					<td class="configValue"><select class="form-control"
+						id="config_1_5">
+							<option value="1" selected="selected">九宫格</option>
+							<option value="2">全国</option>
+							<option value="3">市</option>
+					</select></td>
+				</tr>
+				<tr>
+					<td class="configKey">区域</td>
+					<td class="configValue">
+						<button type="button" class="btn btn-default"
+							onclick="getItemAreas();">配置区域</button>
+						<p class="help-block" id="config_1_7">
+							已选择<span>0</span>个区域
+						</p>
+				</tr>
+				<tr>
+					<td class="configKey">图层</td>
+					<td class="configValue">
+						<button type="button" class="btn btn-default"
+							onclick="getItemsets();">配置图层</button>
+						<p class="help-block" id="config_1_6">
+							已选择<span>0</span>个图层
+						</p>
+				</tr>
+				<tr>
+					<td class="configKey">人员</td>
+					<td class="configValue">
+						<button type="button" class="btn btn-default"
+							onclick="getWorkers();">添加改错人员</button>
+						<button type="button" class="btn btn-default"
+							onclick="getCheckers();">添加校正人员</button>
+						<p class="help-block" id="config_2_18">
+							已添加<span>0</span>位改错人员
+						</p>
+						<p class="help-block" id="config_2_21">
+							已添加<span>0</span>位校正人员
+						</p>
+				</tr>
+				<tr>
+					<td class="configKey">公有私有</td>
+					<td class="configValue"><select class="form-control" id="config_2_19">
+							<option value="0">公有</option>
+							<option value="1">私有</option>
+					</select></td>
+				</tr>
+				<tr>
+					<td class="configKey">创建任务方式</td>
+					<td class="configValue"><select class="form-control" id="config_2_22">
+							<option value="0">条</option>
+							<option value="1">块</option>
+					</select></td>
+				</tr>
+				<tr>
+					<td class="configKey">免校正</td>
+					<td class="configValue"><select class="form-control" id="config_2_23">
+							<option value="0">否</option>
+							<option value="1">是</option>
+					</select></td>
+				</tr>
+				<tr>
+					<td class="configKey">资料</td>
+					<td class="configValue">
+						<button type="button" class="btn btn-default"
+							onclick="getDataset();">绑定资料</button>
+						<p class="help-block" id="config_2_25">
+							已绑定<span>0</span>份资料
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td class="configKey">制作任务数</td>
+					<td class="configValue"><input type="text"
+						class="form-control configValue" id="config_2_26" value="10">
+					</td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
-	<div id="workers" style="display: none;">
+	<div id="workersDlg" style="display: none;">
 		<table id="workerlist" class="table-condensed" data-unique-id="id"
-			data-url="./processesmanage.web?atn=getworkersandcheckers" data-cache="false"
+			data-url="./processesmanage.web?atn=getworkers" data-cache="false"
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="workers" data-height="374"
+			data-toggle="workers" data-height="400"
+			data-search-on-enter-key='true' data-align='center'>
+			<thead>
+				<tr>
+					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
+					<th data-field="id" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="80">编号</th>
+					<th data-field="realname" data-filter-control="input"
+						data-filter-control-placeholder="">人员姓名</th>
+					<th data-field="sampling" data-width="100" data-formatter="samplingFormat">抽检比例</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div id="checkersDlg" style="display: none;">
+		<table id="checkerlist" class="table-condensed" data-unique-id="id"
+			data-url="./processesmanage.web?atn=getcheckers" data-cache="false"
+			data-side-pagination="server" data-filter-control="true"
+			data-click-to-select="true" data-single-select="false"
+			data-select-item-name="checkboxName" data-pagination="false"
+			data-toggle="checkers" data-height="400"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
@@ -1373,7 +968,7 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="itemAreas" data-height="374"
+			data-toggle="itemAreas" data-height="520"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
@@ -1386,7 +981,7 @@
 						data-filter-data="var:itemAreaTypes"
 						data-filter-control-placeholder="" data-width="20">区域级别</th>
 					<th data-field="province" data-filter-control="input"
-						data-filter-control-placeholder="">省</th>
+						data-filter-control-placeholder="" data-width="140">省</th>
 					<th data-field="city" data-filter-control="input"
 						data-filter-control-placeholder="">市</th>
 				</tr>
@@ -1399,7 +994,7 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkbox" data-pagination="false"
-			data-toggle="itemsets" data-height="474"
+			data-toggle="itemsets" data-height="520"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
@@ -1425,6 +1020,32 @@
 						data-filter-control="select" data-filter-data="var:itemsetUnits">质检单位</th> -->
 					<th data-field="desc" data-filter-control="input" data-width="140"
 						data-formatter="descFormat" data-filter-control-placeholder="">描述</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div id="datasetsDlg" style="display: none;">
+		<table id="datasetslist" class="table-condensed" data-unique-id="id"
+			data-url="./processesmanage.web?atn=getdatasets" data-cache="false"
+			data-side-pagination="server" data-filter-control="true"
+			data-click-to-select="true" data-single-select="false"
+			data-select-item-name="checkbox" data-pagination="false"
+			data-page-list="[15, 30, 50, All]"
+			data-toggle="datasets" data-height="520"
+			data-search-on-enter-key='true' data-align='center'>
+			<thead>
+				<tr>
+					<th data-field="state" data-checkbox="true"></th>
+					<th data-field="index" data-class="indexHidden"
+						data-formatter="indexFormat"></th>
+					<th data-field="id" data-filter-control="input"
+						data-filter-control-placeholder="" data-width="50">编号</th>
+					<th data-field="name" data-filter-control="input"
+						data-formatter="nameFormat" data-filter-control-placeholder="">名称</th>
+					<th data-field="datatype" data-width="40"
+						data-filter-control="input" data-filter-control-placeholder="">类型</th>
+					<th data-field="batchid" data-width="180"
+						data-filter-control="input" data-filter-control-placeholder="">批次号</th>
 				</tr>
 			</thead>
 		</table>
