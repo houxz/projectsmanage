@@ -1029,11 +1029,11 @@
 					<td class="configKey">人员</td>
 					<td class="configValue">
 						<button type="button" class="btn btn-default"
-							onclick="getWorkers();">添加改错人员</button>
+							onclick="getWorkers();">添加制作人员</button>
 						<button type="button" class="btn btn-default"
 							onclick="getCheckers();">添加校正人员</button>
 						<p class="help-block" id="config_2_18">
-							已添加<span>0</span>位改错人员
+							已添加<span>0</span>位制作人员
 						</p>
 						<p class="help-block" id="config_2_21">
 							已添加<span>0</span>位校正人员
