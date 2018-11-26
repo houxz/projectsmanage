@@ -45,7 +45,6 @@ public class DoneProcessesManageCtrl extends BaseCtrl {
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("OPENLADER");
 
-		model.addAttribute("processStates", ProcessState.toJsonStr());
 		model.addAttribute("processTypes", ProcessType.toJsonStr());
 		model.addAttribute("itemAreaTypes", ItemAreaType.toJsonStr());
 		model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
