@@ -802,7 +802,7 @@
 		$("#datasetsDlg").bootstrapDialog({
 			valueBand: "config_2_25"
 		}, {
-			width : 1000,
+			width : document.documentElement.clientWidth * 0.8,
 			title : "绑定资料"
 		});
 	}
@@ -1224,10 +1224,16 @@
 						data-formatter="indexFormat"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="50">编号</th>
+						
 					<th data-field="name" data-filter-control="input"
 						data-formatter="nameFormat" data-filter-control-placeholder="">名称</th>
+						
+					<th data-field="path" data-filter-control-placeholder=""
+						data-filter-control="input">路径</th>
+						
 					<th data-field="datatype" data-width="40"
 						data-filter-control="input" data-filter-control-placeholder="">类型</th>
+						
 					<th data-field="batchid" data-width="180"
 						data-filter-control="input" data-filter-control-placeholder="">批次号</th>
 				</tr>
