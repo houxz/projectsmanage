@@ -704,38 +704,12 @@
 			}
 		}, {
 			width : 1020,
-			title : "质检图层配置",
-			buttons : [
-				{
-					text : "提交",
-					class : "btn btn-default",
-					click : function() {
-						var bootstrapDialogIDSelected = $(this).find("table").bootstrapTable("getOptions").bootstrapDialogIDSelected;
-						var length = bootstrapDialogIDSelected.length;
-						if (length > 0) {
-							$("#" + $(this).find("table").bootstrapTable("getOptions").valueBand).val(bootstrapDialogIDSelected.join(","));
-							$("#" + $(this).find("table").bootstrapTable("getOptions").valueBand + " span").text(length);
-
-							$(this).dialog("close");
-						} else {
-							$.webeditor.showMsgLabel("alert", "请确认已勾选");
-						}
-					}
-				},
-				{
-					text : "关闭",
-					class : "btn btn-default",
-					click : function() {
-						$(this).dialog("close");
-					}
-				}
-			]
+			title : "质检图层配置"
 		});
 	}
 	
 	function getWorkers() {
 		$("#workersDlg").bootstrapDialog({
-			perHeight: 41,
 			valueBand: "config_2_18"
 		}, {
 			width : 500,

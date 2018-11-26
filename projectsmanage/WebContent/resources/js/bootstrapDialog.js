@@ -1,8 +1,16 @@
 (function($) {
 	'use strict';
 	
+	var reckonHeight = function(heights, index) {
+		var offset = 0;
+		for (var i = 0; i < index; i++) {
+			offset += heights[i];
+		}
+		return offset;
+	};
+	
 	$.extend($.fn.bootstrapTable.defaults, {
-		perHeight: 31,
+		bootstrapDialogHeights : new Array(),
 		bootstrapDialogFirstClick : true,
 		bootstrapDialogSelected : new Array(),
 		bootstrapDialogIDSelected : new Array(),
@@ -20,7 +28,7 @@
 			return;
 		}
 		if(this.options.bootstrapDialogFirstClick) {
-			this.scrollTo(this.options.bootstrapDialogSelected[0] * this.options.perHeight);
+			this.scrollTo(reckonHeight(this.options.bootstrapDialogHeights, this.options.bootstrapDialogSelected[0]));
 			this.options.bootstrapDialogOn = this.options.bootstrapDialogSelected[0];
 			this.options.bootstrapDialogFirstClick = false;
 		} else {
@@ -35,12 +43,12 @@
 					this.scrollTo('bottom');
 				} else {
 					if (index == 0) {
-						this.scrollTo(this.options.bootstrapDialogSelected[0] * this.options.perHeight);
+						this.scrollTo(reckonHeight(this.options.bootstrapDialogHeights, this.options.bootstrapDialogSelected[0]));
 						this.options.bootstrapDialogOn = this.options.bootstrapDialogSelected[0];
 						$.webeditor.showMsgLabel("warning","已经跳转到第一条");
 					} else {
 						var preIndex = index - 1;
-						this.scrollTo(this.options.bootstrapDialogSelected[preIndex] * this.options.perHeight);
+						this.scrollTo(reckonHeight(this.options.bootstrapDialogHeights, this.options.bootstrapDialogSelected[preIndex]));
 						this.options.bootstrapDialogOn = this.options.bootstrapDialogSelected[preIndex];
 					}
 				}
@@ -54,7 +62,7 @@
 			return;
 		}
 		if(this.options.bootstrapDialogFirstClick) {
-			this.scrollTo(this.options.bootstrapDialogSelected[0] * this.options.perHeight);
+			this.scrollTo(reckonHeight(this.options.bootstrapDialogHeights, this.options.bootstrapDialogSelected[0]));
 			this.options.bootstrapDialogOn = this.options.bootstrapDialogSelected[0];
 			this.options.bootstrapDialogFirstClick = false;
 		} else {
@@ -69,12 +77,12 @@
 				} else {
 					if (index == this.options.bootstrapDialogSelected.length - 1) {
 						var nextIndex = this.options.bootstrapDialogSelected.length - 1;
-						this.scrollTo(this.options.bootstrapDialogSelected[nextIndex] * this.options.perHeight);
+						this.scrollTo(reckonHeight(this.options.bootstrapDialogHeights, this.options.bootstrapDialogSelected[nextIndex]));
 						this.options.bootstrapDialogOn = this.options.bootstrapDialogSelected[nextIndex];
 						$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
 					} else {
 						var nextIndex = index + 1;
-						this.scrollTo(this.options.bootstrapDialogSelected[nextIndex] * this.options.perHeight);
+						this.scrollTo(reckonHeight(this.options.bootstrapDialogHeights, this.options.bootstrapDialogSelected[nextIndex]));
 						this.options.bootstrapDialogOn = this.options.bootstrapDialogSelected[nextIndex];
 					}
 				}
@@ -130,6 +138,12 @@
 				$(this.self).bootstrapTable("getOptions").bootstrapDialogOn = -1;
 				$(this.self).bootstrapTable("getOptions").bootstrapDialogSelected = new Array();
 				$(this.self).bootstrapTable("getOptions").bootstrapDialogFirstClick = true;
+				
+				var heights = new Array();
+				for (var i = 1, len = data.rows.length; i <= len; i++) {
+					heights.push($(this.self).find("tr:eq(" + i + ")").height());
+				}
+				$(this.self).bootstrapTable("getOptions").bootstrapDialogHeights = heights;
 				
 				var values = new Array();
 				$.each($(this.self).bootstrapTable("getOptions").bootstrapDialogIDSelected, function(index, domEle) {
