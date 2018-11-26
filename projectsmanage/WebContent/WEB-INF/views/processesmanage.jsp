@@ -28,6 +28,7 @@
 <script src="resources/js/consMap.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
+<script src="resources/js/bootstrapDialog.js"></script>
 <script
 	src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 <script
@@ -495,27 +496,27 @@
 	}
 
 	function loadDefaultConfig() {
-		$("#config_processid").val(new String());
-		$("#config_processname").val(new String());
+		$("#config_processid").val("");
+		$("#config_processname").val("");
 		$("#config_processpriority").val(0);
 		$("#config_processprotype").val(1);
 		$("#config_processstatus").val(0);
 		
 		$("#config_1_5").prop('selectedIndex', 0);
-		$("#config_1_6").val(new String());
-		$("#config_1_6Count").text(0);
-		$("#config_1_7").val(new String());
-		$("#config_1_7Count").text(0);
+		$("#config_1_6").val("");
+		$("#config_1_6 span").text(0);
+		$("#config_1_7").val("");
+		$("#config_1_7 span").text(0);
 		
-		$("#config_2_18").val(new String());
-		$("#config_2_18Count").text(0);
+		$("#config_2_18").val("");
+		$("#config_2_18 span").text(0);
 		$("#config_2_19").prop('selectedIndex', 0);
-		$("#config_2_21").val(new String());
-		$("#config_2_21Count").text(0);
+		$("#config_2_21").val("");
+		$("#config_2_21 span").text(0);
 		$("#config_2_22").prop('selectedIndex', 0);
 		$("#config_2_23").prop('selectedIndex', 0);
-		$("#config_2_25").val(new String());
-		$("#config_2_25Count").text(0);
+		$("#config_2_25").val("");
+		$("#config_2_25 span").text(0);
 		
 		processTypeChange(1);
 	}
@@ -543,19 +544,19 @@
 					}
 					
 					var config_1_6 = $("#config_1_6").val();
-					$("#config_1_6Count").text(config_1_6 ? config_1_6.split(",").length : 0);
+					$("#config_1_6 span").text(config_1_6 ? config_1_6.split(",").length : 0);
 
 					var config_1_7 = $("#config_1_7").val();
-					$("#config_1_7Count").text(config_1_7 ? config_1_7.split(",").length : 0);
+					$("#config_1_7 span").text(config_1_7 ? config_1_7.split(",").length : 0);
 
 					var config_2_18 = $("#config_2_18").val();
-					$("#config_2_18Count").text(config_2_18 ? config_2_18.split(",").length : 0);
+					$("#config_2_18 span").text(config_2_18 ? config_2_18.split(",").length : 0);
 					
 					var config_2_21 = $("#config_2_21").val();
-					$("#config_2_21Count").text(config_2_21 ? config_2_21.split(",").length : 0);
+					$("#config_2_21 span").text(config_2_21 ? config_2_21.split(",").length : 0);
 					
 					var config_2_25 = $("#config_2_25").val();
-					$("#config_2_25Count").text(config_2_25 ? config_2_25.split(",").length : 0);
+					$("#config_2_25 span").text(config_2_25 ? config_2_25.split(",").length : 0);
 				}
 			}, "json");
 		} else {
@@ -694,1089 +695,122 @@
 		
 	}
 	
-	function getWorkers() {
-		$('[data-toggle="workers"]').bootstrapTable(
-				{
-					locale : 'zh-CN',
-					queryParams : function(params) {
-						if (params.filter != undefined) {
-							var filterObj = eval('(' + params.filter + ')');
-							if (filterObj.state != undefined) {
-								filterObj["state"] = filterObj.state;
-								delete filterObj.state;
-								params.filter = JSON.stringify(filterObj);
-							}
-						}
-						return params;
-					},
-					onLoadSuccess : function(data) {
-						workerOn = -1;
-						workerSelected = new Array();
-						workerFirstClick = true;
-						
-						var values = new Array();
-						if(workerFirstIn) {
-							var str_values = $("#config_2_18").val();
-							try{
-								var map = JSON.parse(str_values);
-								if (map && typeof map == 'object') {
-									for (var key in map){
-										values.push(parseInt(key));
-									}
-								} else if (map && typeof map == 'number') {
-									values.push(map);
-								}
-							}catch(e){
-								$.each(str_values.split(","), function(index, domEle) {
-									values[index] = parseInt(domEle);
-								});
-							}
-						} else {
-							$.each(workerIDSelected, function(index, domEle) {
-								values.push(parseInt(domEle));
-							});
-						}
-						
-						$('[data-toggle="workers"]').bootstrapTable("checkBy",
-								{
-									field : "id",
-									values : values
-								});
-						workerFirstIn = false;
-					},
-					onCheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						if(workerSelected.indexOf(index) < 0) {
-							workerOn = index;
-							workerSelected.push(index);
-							workerSelected.sort(compare);
-						}
-						var id = row.id;
-						if(workerIDSelected.indexOf(id) < 0) {
-							workerIDSelected.push(id);
-						}
-					},
-					onUncheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						var indexIn = workerSelected.indexOf(index);
-						if(indexIn >= 0) {
-							workerOn = workerSelected[indexIn == 0 ? 0 : indexIn -1];
-							workerSelected.splice(indexIn,1).sort(compare);
-						}
-						var id = row.id;
-						var idIn = workerIDSelected.indexOf(id);
-						if(idIn >= 0) {
-							workerIDSelected.splice(idIn, 1);
-						}
-					},
-					onCheckAll : function(rows) {
-						var elements = $('[data-toggle="workers"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							if(workerSelected.indexOf(index) < 0) {
-								workerSelected.push(index);
-							}
-						});
-						workerOn = parseInt($('[data-toggle="workers"] td.indexHidden:last').text());
-						workerSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							if(workerIDSelected.indexOf(id) < 0) {
-								workerIDSelected.push(id);
-							}
-						});
-					},
-					onUncheckAll : function(rows) {
-						var elements = $('[data-toggle="workers"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							var indexIn = workerSelected.indexOf(index);
-							if(indexIn >= 0) {
-								workerOn = workerSelected[indexIn == 0 ? 0 : indexIn -1];
-								workerSelected.splice(indexIn,1).sort(compare);
-							}
-						});
-						workerOn = parseInt($('[data-toggle="workers"] td.indexHidden:last').text());
-						workerSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							var idIn = workerIDSelected.indexOf(id);
-							if(idIn >= 0) {
-								workerIDSelected.splice(idIn, 1);
-							}
-						});
+	function getItemAreas() {
+		$("#itemAreasDlg").bootstrapDialog({
+			valueBand: "config_1_7",
+			queryParams : function(params) {
+				if (params.filter != undefined) {
+					var filterObj = eval('(' + params.filter + ')');
+					if (filterObj.state != undefined) {
+						filterObj["state"] = filterObj.state;
+						delete filterObj.state;
+						params.filter = JSON.stringify(filterObj);
 					}
-				});
-
-		showWorkersDlg();
+				}
+				params["type"] = $("#config_1_5").val();
+				params["processType"] = $("#config_processprotype").val();
+				return params;
+			}
+		}, {
+			width : 760,
+			title : "质检区域配置"
+		});
 	}
-
-	function showWorkersDlg() {
-		$("#workersDlg").dialog(
+	
+	function getItemsets() {
+		$("#itemsetsDlg").bootstrapDialog({
+			valueBand: "config_1_6",
+			queryParams : function(params) {
+				if (params.filter != undefined) {
+					var filterObj = eval('(' + params.filter + ')');
+					if (filterObj.state != undefined) {
+						filterObj["state"] = filterObj.state;
+						delete filterObj.state;
+						params.filter = JSON.stringify(filterObj);
+					}
+				}
+				params["type"] = $("#config_1_5").val();
+				params["processType"] = $("#config_processprotype").val();
+				return params;
+			}
+		}, {
+			width : 920,
+			title : "质检图层配置"
+		});
+	}
+	
+	function getWorkers() {
+		$("#workersDlg").bootstrapDialog({
+			perHeight: 41,
+			valueBand: "config_2_18"
+		}, {
+			width : 500,
+			title : "添加制作人员",
+			buttons : [
 				{
-					modal : true,
-					width : 500,
-					title : "添加制作人员",
-					open : function(event, ui) {
-						workerFirstClick = true;
-						workerFirstIn= true;
-						$(".ui-dialog-titlebar-close").hide();
-					},
-					close : function() {
-						workerOn = -1;
-						workerSelected = new Array();
-						workerIDSelected = new Array();
-						workerFirstClick = true;
-						workerFirstIn= true;
-						$('[data-toggle="workers"]').bootstrapTable("destroy");
-					},
-					buttons : [
-							{
-								text : "<",
-								title : "上一条",
-								class : "btn btn-default",
-								click : function() {
-									if(!workerSelected || workerSelected.length <= 0) {
-										$.webeditor.showMsgLabel("warning", "没有勾选项");
-										return;
-									}
-									if(workerFirstClick) {
-										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 41);
-										workerOn = workerSelected[0];
-										workerFirstClick = false;
-									} else {
-										if (workerOn < 0) {
-											$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
-											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
-										} else {
-											var index = workerSelected.indexOf(workerOn);
-											if (index < 0) {
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
-											} else if (index > workerSelected.length - 1) {
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
-											} else {
-												if (index == 0) {
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 41);
-													workerOn = workerSelected[0];
-													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
-												} else {
-													var preIndex = index - 1;
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[preIndex] * 41);
-													workerOn = workerSelected[preIndex];
-												}
-											}
-										}
-									}
-								}
-							},
-							{
-								text : ">",
-								title : "下一条",
-								class : "btn btn-default",
-								click : function() {
-									if(!workerSelected || workerSelected.length <= 0) {
-										$.webeditor.showMsgLabel("warning", "没有勾选项");
-										return;
-									}
-									if(workerFirstClick) {
-										$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[0] * 41);
-										workerOn = workerSelected[0];
-										workerFirstClick = false;
-									} else {
-										if (workerOn < 0) {
-											$('[data-toggle="workers"]').bootstrapTable('scrollTo', 0);
-										} else {
-											var index = workerSelected.indexOf(workerOn);
-											if (index < 0) {
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo',0);
-											} else if (index > workerSelected.length - 1) {
-												$('[data-toggle="workers"]').bootstrapTable('scrollTo','bottom');
-											} else {
-												if (index == workerSelected.length - 1) {
-													var nextIndex = workerSelected.length - 1;
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 41);
-													workerOn = workerSelected[nextIndex];
-													$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
-												} else {
-													var nextIndex = index + 1;
-													$('[data-toggle="workers"]').bootstrapTable('scrollTo',workerSelected[nextIndex] * 41);
-													workerOn = workerSelected[nextIndex];
-												}
-											}
-										}
-									}
-								}
-							},
-							{
-								text : "提交",
-								class : "btn btn-default",
-								click : function() {
-									var length = workerIDSelected.length;
-									if (length > 0) {
-										var m = {};
-										$.each(workerIDSelected, function(i, workerID){
-											var sampling = $("#sampling-" + workerID).val();
-											m[workerID] = sampling;
-										});
-										$("#config_2_18").val(JSON.stringify(m));
-										$("#config_2_18Count").text(length);
+					text : "<",
+					title : "上一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoLast");
+					}
+				},
+				{
+					text : ">",
+					title : "下一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoNext");
+					}
+				},
+				{
+					text : "提交",
+					class : "btn btn-default",
+					click : function() {
+						var bootstrapDialogIDSelected = $(this).find("table").bootstrapTable("getOptions").bootstrapDialogIDSelected;
+						var length = bootstrapDialogIDSelected.length;
+						if (length > 0) {
+							var m = {};
+							$.each(bootstrapDialogIDSelected, function(i, workerID){
+								var sampling = $("#sampling-" + workerID).val();
+								m[workerID] = sampling;
+							});
+							$("#config_2_18").val(JSON.stringify(m));
+							$("#config_2_18 span").text(length);
 
-										$(this).dialog("close");
-									} else {
-										$.webeditor.showMsgLabel("alert", "请选择人员");
-									}
-								}
-							},
-							{
-								text : "关闭",
-								class : "btn btn-default",
-								click : function() {
-									$(this).dialog("close");
-								}
-							} ]
-				});
+							$(this).dialog("close");
+						} else {
+							$.webeditor.showMsgLabel("alert", "请选择人员");
+						}
+					}
+				},
+				{
+					text : "关闭",
+					class : "btn btn-default",
+					click : function() {
+						$(this).dialog("close");
+					}
+				}
+			]
+		});
 	}
 	
 	function getCheckers() {
-		$('[data-toggle="checkers"]').bootstrapTable(
-				{
-					locale : 'zh-CN',
-					queryParams : function(params) {
-						if (params.filter != undefined) {
-							var filterObj = eval('(' + params.filter + ')');
-							if (filterObj.state != undefined) {
-								filterObj["state"] = filterObj.state;
-								delete filterObj.state;
-								params.filter = JSON.stringify(filterObj);
-							}
-						}
-						return params;
-					},
-					onLoadSuccess : function(data) {
-						checkerOn = -1;
-						checkerSelected = new Array();
-						checkerFirstClick = true;
-						
-						var values = new Array();
-						if(checkerFirstIn) {
-							var str_values = $("#config_2_21").val();
-							$.each(str_values.split(","), function(index, domEle) {
-								values[index] = parseInt(domEle);
-							});
-						} else {
-							$.each(checkerIDSelected, function(index, domEle) {
-								values.push(parseInt(domEle));
-							});
-						}
-						
-						$('[data-toggle="checkers"]').bootstrapTable("checkBy",
-								{
-									field : "id",
-									values : values
-								});
-						checkerFirstIn = false;
-					},
-					onCheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						if(checkerSelected.indexOf(index) < 0) {
-							checkerOn = index;
-							checkerSelected.push(index);
-							checkerSelected.sort(compare);
-						}
-						var id = row.id;
-						if(checkerIDSelected.indexOf(id) < 0) {
-							checkerIDSelected.push(id);
-						}
-					},
-					onUncheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						var indexIn = checkerSelected.indexOf(index);
-						if(indexIn >= 0) {
-							checkerOn = checkerSelected[indexIn == 0 ? 0 : indexIn -1];
-							checkerSelected.splice(indexIn,1).sort(compare);
-						}
-						var id = row.id;
-						var idIn = checkerIDSelected.indexOf(id);
-						if(idIn >= 0) {
-							checkerIDSelected.splice(idIn, 1);
-						}
-					},
-					onCheckAll : function(rows) {
-						var elements = $('[data-toggle="checkers"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							if(checkerSelected.indexOf(index) < 0) {
-								checkerSelected.push(index);
-							}
-						});
-						checkerOn = parseInt($('[data-toggle="checkers"] td.indexHidden:last').text());
-						checkerSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							if(checkerIDSelected.indexOf(id) < 0) {
-								checkerIDSelected.push(id);
-							}
-						});
-					},
-					onUncheckAll : function(rows) {
-						var elements = $('[data-toggle="checkers"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							var indexIn = checkerSelected.indexOf(index);
-							if(indexIn >= 0) {
-								checkerOn = checkerSelected[indexIn == 0 ? 0 : indexIn -1];
-								checkerSelected.splice(indexIn,1).sort(compare);
-							}
-						});
-						checkerOn = parseInt($('[data-toggle="checkers"] td.indexHidden:last').text());
-						checkerSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							var idIn = checkerIDSelected.indexOf(id);
-							if(idIn >= 0) {
-								checkerIDSelected.splice(idIn, 1);
-							}
-						});
-					}
-				});
-
-		showCheckersDlg();
-	}
-
-	function showCheckersDlg() {
-		$("#checkersDlg").dialog(
-				{
-					modal : true,
-					width : 500,
-					title : "添加校正人员",
-					open : function(event, ui) {
-						checkerFirstClick = true;
-						checkerFirstIn= true;
-						$(".ui-dialog-titlebar-close").hide();
-					},
-					close : function() {
-						checkerOn = -1;
-						checkerSelected = new Array();
-						checkerIDSelected = new Array();
-						checkerFirstClick = true;
-						checkerFirstIn= true;
-						$('[data-toggle="checkers"]').bootstrapTable("destroy");
-					},
-					buttons : [
-							{
-								text : "<",
-								title : "上一条",
-								class : "btn btn-default",
-								click : function() {
-									if(!checkerSelected || checkerSelected.length <= 0) {
-										$.webeditor.showMsgLabel("warning", "没有勾选项");
-										return;
-									}
-									if(checkerFirstClick) {
-										$('[data-toggle="checkers"]').bootstrapTable('scrollTo',checkerSelected[0] * 31);
-										checkerOn = checkerSelected[0];
-										checkerFirstClick = false;
-									} else {
-										if (checkerOn < 0) {
-											$('[data-toggle="checkers"]').bootstrapTable('scrollTo', 0);
-											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
-										} else {
-											var index = checkerSelected.indexOf(checkerOn);
-											if (index < 0) {
-												$('[data-toggle="checkers"]').bootstrapTable('scrollTo',0);
-											} else if (index > checkerSelected.length - 1) {
-												$('[data-toggle="checkers"]').bootstrapTable('scrollTo','bottom');
-											} else {
-												if (index == 0) {
-													$('[data-toggle="checkers"]').bootstrapTable('scrollTo',checkerSelected[0] * 31);
-													checkerOn = checkerSelected[0];
-													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
-												} else {
-													var preIndex = index - 1;
-													$('[data-toggle="checkers"]').bootstrapTable('scrollTo',checkerSelected[preIndex] * 31);
-													checkerOn = checkerSelected[preIndex];
-												}
-											}
-										}
-									}
-								}
-							},
-							{
-								text : ">",
-								title : "下一条",
-								class : "btn btn-default",
-								click : function() {
-									if(!checkerSelected || checkerSelected.length <= 0) {
-										$.webeditor.showMsgLabel("warning", "没有勾选项");
-										return;
-									}
-									if(checkerFirstClick) {
-										$('[data-toggle="checkers"]').bootstrapTable('scrollTo',checkerSelected[0] * 31);
-										checkerOn = checkerSelected[0];
-										checkerFirstClick = false;
-									} else {
-										if (checkerOn < 0) {
-											$('[data-toggle="checkers"]').bootstrapTable('scrollTo', 0);
-										} else {
-											var index = checkerSelected.indexOf(checkerOn);
-											if (index < 0) {
-												$('[data-toggle="checkers"]').bootstrapTable('scrollTo',0);
-											} else if (index > checkerSelected.length - 1) {
-												$('[data-toggle="checkers"]').bootstrapTable('scrollTo','bottom');
-											} else {
-												if (index == checkerSelected.length - 1) {
-													var nextIndex = checkerSelected.length - 1;
-													$('[data-toggle="checkers"]').bootstrapTable('scrollTo',checkerSelected[nextIndex] * 31);
-													checkerOn = checkerSelected[nextIndex];
-													$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
-												} else {
-													var nextIndex = index + 1;
-													$('[data-toggle="checkers"]').bootstrapTable('scrollTo',checkerSelected[nextIndex] * 31);
-													checkerOn = checkerSelected[nextIndex];
-												}
-											}
-										}
-									}
-								}
-							},
-							{
-								text : "提交",
-								class : "btn btn-default",
-								click : function() {
-									var length = checkerIDSelected.length;
-									if (length > 0) {
-										$("#config_2_21").val(checkerIDSelected.join(","));
-										$("#config_2_21Count").text(length);
-
-										$(this).dialog("close");
-									} else {
-										$.webeditor.showMsgLabel("alert", "请选择人员");
-									}
-
-								}
-							},
-							{
-								text : "关闭",
-								class : "btn btn-default",
-								click : function() {
-									$(this).dialog("close");
-								}
-							} ]
-				});
-	}
-
-	function getItemAreas() {
-		$('[data-toggle="itemAreas"]').bootstrapTable(
-				{
-					locale : 'zh-CN',
-					queryParams : function(params) {
-						if (params.filter != undefined) {
-							var filterObj = eval('(' + params.filter + ')');
-							if (filterObj.state != undefined) {
-								filterObj["state"] = filterObj.state;
-								delete filterObj.state;
-								params.filter = JSON.stringify(filterObj);
-							}
-						}
-						params["type"] = $("#config_1_5").val();
-						params["processType"] = $("#config_processprotype").val();
-						return params;
-					},
-					onLoadSuccess : function(data) {
-						itemAreaOn = -1;
-						itemAreaSelected = new Array();
-						itemAreaFirstClick = true;
-						
-						var values = new Array();
-						if(itemAreaFirstIn) {
-							var str_values = $("#config_1_7").val();
-							$.each(str_values.split(","), function(index, domEle) {
-								values.push(parseInt(domEle));
-							});
-						} else {
-							$.each(itemAreaIDSelected, function(index, domEle) {
-								values.push(parseInt(domEle));
-							});
-						}
-						
-						$('[data-toggle="itemAreas"]').bootstrapTable(
-								"checkBy", {
-									field : "id",
-									values : values
-								});
-						itemAreaFirstIn = false;
-						var state = $("#config_processstatus").val();
-						if(state !== "0") {
-							$("#itemAreaslist input:checkbox").attr("disabled", true);
-						} else {
-							$("#itemAreaslist input:checkbox").removeAttr("disabled");
-						} 
-					},
-					onCheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						if(itemAreaSelected.indexOf(index) < 0) {
-							itemAreaOn = index;
-							itemAreaSelected.push(index);
-							itemAreaSelected.sort(compare);
-						}
-						var id = row.id;
-						if(itemAreaIDSelected.indexOf(id) < 0) {
-							itemAreaIDSelected.push(id);
-						}
-					},
-					onUncheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						var indexIn = itemAreaSelected.indexOf(index);
-						if(indexIn >= 0) {
-							itemAreaOn = itemAreaSelected[indexIn == 0 ? 0 : indexIn -1];
-							itemAreaSelected.splice(indexIn,1).sort(compare);
-						}
-						var id = row.id;
-						var idIn = itemAreaIDSelected.indexOf(id);
-						if(idIn >= 0) {
-							itemAreaIDSelected.splice(idIn, 1);
-						}
-					},
-					onCheckAll : function(rows) {
-						var elements = $('[data-toggle="itemAreas"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							if(itemAreaSelected.indexOf(index) < 0) {
-								itemAreaSelected.push(index);
-							}
-						});
-						itemAreaOn = parseInt($('[data-toggle="itemAreas"] td.indexHidden:last').text());
-						itemAreaSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							if(itemAreaIDSelected.indexOf(id) < 0) {
-								itemAreaIDSelected.push(id);
-							}
-						});
-					},
-					onUncheckAll : function(rows) {
-						var elements = $('[data-toggle="itemAreas"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							var indexIn = itemAreaSelected.indexOf(index);
-							if(indexIn >= 0) {
-								itemAreaOn = itemAreaSelected[indexIn == 0 ? 0 : indexIn -1];
-								itemAreaSelected.splice(indexIn,1).sort(compare);
-							}
-						});
-						itemAreaOn = parseInt($('[data-toggle="itemAreas"] td.indexHidden:last').text());
-						itemAreaSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							var idIn = itemAreaIDSelected.indexOf(id);
-							if(idIn >= 0) {
-								itemAreaIDSelected.splice(idIn, 1);
-							}
-						});
-					}
-				});
-
-		showItemAreasDlg();
-	}
-
-	function showItemAreasDlg() {
-		$("#itemAreasDlg").dialog(
-				{
-					modal : true,
-					width : 660,
-					title : "质检区域配置",
-					open : function(event, ui) {
-						itemAreaFirstClick = true;
-						itemAreaFirstIn = true;
-						$(".ui-dialog-titlebar-close").hide();
-					},
-					close : function() {
-						itemAreaOn = -1;
-						itemAreaSelected = new Array();
-						itemAreaIDSelected = new Array();
-						itemAreaFirstClick = true;
-						itemAreaFirstIn = true;
-						$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
-					},
-					buttons : [
-							{
-								text : "<",
-								title : "上一条",
-								class : "btn btn-default",
-								click : function() {
-									if(!itemAreaSelected || itemAreaSelected.length <= 0) {
-										$.webeditor.showMsgLabel("warning", "没有勾选项");
-										return;
-									}
-									if(itemAreaFirstClick) {
-										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
-										itemAreaOn = itemAreaSelected[0];
-										itemAreaFirstClick = false;
-									} else {
-										if(itemAreaOn < 0) {
-											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
-											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
-										} else {
-											var index = itemAreaSelected.indexOf(itemAreaOn);
-											if(index < 0) {
-												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
-											} else if(index > itemAreaSelected.length-1) {
-												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 'bottom');
-											} else {
-												if(index == 0) {
-													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
-													itemAreaOn = itemAreaSelected[0];
-													$.webeditor.showMsgLabel("warning", "已经跳转到第一条");
-												} else {
-													var preIndex = index-1;
-													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[preIndex]*31);
-													itemAreaOn = itemAreaSelected[preIndex];
-												}
-											}
-										}
-									}
-								}
-							},
-							{
-								text : ">",
-								title : "下一条",
-								class : "btn btn-default",
-								click : function() {
-									if(!itemAreaSelected || itemAreaSelected.length <= 0) {
-										$.webeditor.showMsgLabel("warning", "没有勾选项");
-										return;
-									}
-									if(itemAreaFirstClick) {
-										$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[0]*31);
-										itemAreaOn = itemAreaSelected[0];
-										itemAreaFirstClick = false;
-									} else {
-										if(itemAreaOn < 0) {
-											$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
-										} else {
-											var index = itemAreaSelected.indexOf(itemAreaOn);
-											if(index < 0) {
-												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 0);
-											} else if(index > itemAreaSelected.length-1) {
-												$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', 'bottom');
-											} else {
-												if(index == itemAreaSelected.length-1) {
-													var nextIndex = itemAreaSelected.length-1;
-													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[nextIndex]*31);
-													itemAreaOn = itemAreaSelected[nextIndex];
-													$.webeditor.showMsgLabel("warning", "已经跳转到最后一条");
-												} else {
-													var nextIndex = index+1;
-													$('[data-toggle="itemAreas"]').bootstrapTable('scrollTo', itemAreaSelected[nextIndex]*31);
-													itemAreaOn = itemAreaSelected[nextIndex];
-												}
-											}
-										}
-									}
-								}
-							},
-							{
-								text : "提交",
-								class : "btn btn-default",
-								click : function() {
-									var length = itemAreaIDSelected.length;
-									if (length > 0) {
-										$("#config_1_7").val(itemAreaIDSelected.join(","));
-										$("#config_1_7Count").text(length);
-
-										$(this).dialog("close");
-									} else {
-										$.webeditor.showMsgLabel("alert", "请选择质检区域");
-									}
-								}
-							},
-							{
-								text : "关闭",
-								class : "btn btn-default",
-								click : function() {
-									$(this).dialog("close");
-								}
-							} ]
-				});
-	}
-
-	function getItemsets() {
-		$('[data-toggle="itemsets"]').bootstrapTable(
-				{
-					locale : 'zh-CN',
-					queryParams : function(params) {
-						params["processType"] = $("#config_processprotype").val();
-						return params;
-					},
-					onLoadSuccess : function(data) {
-						itemSetOn = -1;
-						itemSetSelected = new Array();
-						itemSetFirstClick = true;
-						
-						var values = new Array();
-						if(itemSetFirstIn) {
-							$.each($("#config_1_6").val().split(","), function(index, domEle) {
-								values.push(parseInt(domEle));
-							});
-						} else {
-							$.each(itemSetIDSelected, function(index, domEle) {
-								values.push(parseInt(domEle));
-							});
-						}
-						
-						$('[data-toggle="itemsets"]').bootstrapTable("checkBy",
-								{
-									field : "id",
-									values : values
-								});
-						itemSetFirstIn = false;
-						var state = $("#config_processstatus").val();
-						if(state !== "0") {
-							$("#itemsetslist input:checkbox").attr("disabled", true);
-						} else {
-							$("#itemsetslist input:checkbox").removeAttr("disabled");
-						} 
-					},
-					onCheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						if(itemSetSelected.indexOf(index) < 0) {
-							itemSetOn = index;
-							itemSetSelected.push(index);
-							itemSetSelected.sort(compare);
-						}
-						var id = row.id;
-						if(itemSetIDSelected.indexOf(id) < 0) {
-							itemSetIDSelected.push(id);
-						}
-					},
-					onUncheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						var indexIn = itemSetSelected.indexOf(index);
-						if(indexIn >= 0) {
-							itemSetOn = itemSetSelected[indexIn == 0 ? 0 : indexIn -1];
-							itemSetSelected.splice(indexIn,1).sort(compare);
-						}
-						var id = row.id;
-						var idIn = itemSetIDSelected.indexOf(id);
-						if(idIn >= 0) {
-							itemSetIDSelected.splice(idIn, 1);
-						}
-					},
-					onCheckAll : function(rows) {
-						var elements = $('[data-toggle="itemsets"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							if(itemSetSelected.indexOf(index) < 0) {
-								itemSetSelected.push(index);
-							}
-						});
-						itemSetOn = parseInt($('[data-toggle="itemsets"] td.indexHidden:last').text());
-						itemSetSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							if(itemSetIDSelected.indexOf(id) < 0) {
-								itemSetIDSelected.push(id);
-							}
-						});
-					},
-					onUncheckAll : function(rows) {
-						var elements = $('[data-toggle="itemsets"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							var indexIn = itemSetSelected.indexOf(index);
-							if(indexIn >= 0) {
-								itemSetOn = itemSetSelected[indexIn == 0 ? 0 : indexIn -1];
-								itemSetSelected.splice(indexIn,1).sort(compare);
-							}
-						});
-						itemSetOn = parseInt($('[data-toggle="itemsets"] td.indexHidden:last').text());
-						itemSetSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							var idIn = itemSetIDSelected.indexOf(id);
-							if(idIn >= 0) {
-								itemSetIDSelected.splice(idIn, 1);
-							}
-						});
-					}
-				});
-
-		showItemsetsDlg();
-	}
-
-	function showItemsetsDlg() {
-		$("#itemsetsDlg").dialog(
-				{
-					modal : true,
-					width : 920,
-					title : "质检图层配置",
-					open : function(event, ui) {
-						itemSetFirstClick = true;
-						itemSetFirstIn = true;
-						$(".ui-dialog-titlebar-close").hide();
-					},
-					close : function() {
-						itemSetOn = -1;
-						itemSetSelected = new Array();
-						itemSetIDSelected = new Array();
-						itemSetFirstClick = true;
-						itemSetFirstIn = true;
-						$('[data-toggle="itemsets"]').bootstrapTable("destroy");
-					},
-					buttons : [
-									{
-										text : "提交",
-										class : "btn btn-default",
-										click : function() {
-											var length = itemSetIDSelected.length;
-											var value = new String();
-											if (length > 0) {
-												value = itemSetIDSelected.join(",");
-												$("#config_1_6").val(value);
-												$("#config_1_6Count").text(length);
-
-												$(this).dialog("close");
-											} else {
-												$.webeditor.showMsgLabel("alert", "请选择质检区域");
-											}
-										}
-									},
-									{
-										text : "关闭",
-										class : "btn btn-default",
-										click : function() {
-											$(this).dialog("close");
-										}
-									} ]
-						});
+		$("#checkersDlg").bootstrapDialog({
+			valueBand: "config_2_21"
+		}, {
+			width : 500,
+			title : "添加校正人员"
+		});
 	}
 	
 	function getDataset() {
-		$('[data-toggle="datasets"]').bootstrapTable(
-				{
-					locale : 'zh-CN',
-					queryParams : function(params) {
-						if (params.filter != undefined) {
-							var filterObj = eval('(' + params.filter + ')');
-							if (filterObj.state != undefined) {
-								filterObj["state"] = filterObj.state;
-								delete filterObj.state;
-								params.filter = JSON.stringify(filterObj);
-							}
-						}
-						return params;
-					},
-					onLoadSuccess : function(data) {
-						datasetOn = -1;
-						datasetSelected = new Array();
-						datasetFirstClick = true;
-						
-						var values = new Array();
-						if(datasetFirstIn) {
-							var str_values = $("#config_2_25").val();
-							$.each(str_values.split(","), function(index, domEle) {
-								values[index] = parseInt(domEle);
-							});
-						} else {
-							$.each(datasetIDSelected, function(index, domEle) {
-								values.push(parseInt(domEle));
-							});
-						}
-						
-						$('[data-toggle="datasets"]').bootstrapTable("checkBy",
-								{
-									field : "id",
-									values : values
-								});
-						datasetFirstIn = false;
-					},
-					onCheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						if(datasetSelected.indexOf(index) < 0) {
-							datasetOn = index;
-							datasetSelected.push(index);
-							datasetSelected.sort(compare);
-						}
-						var id = row.id;
-						if(datasetIDSelected.indexOf(id) < 0) {
-							datasetIDSelected.push(id);
-						}
-					},
-					onUncheck : function(row, element) {
-						var index = parseInt($(element).parent().next().text());
-						var indexIn = datasetSelected.indexOf(index);
-						if(indexIn >= 0) {
-							datasetOn = datasetSelected[indexIn == 0 ? 0 : indexIn -1];
-							datasetSelected.splice(indexIn,1).sort(compare);
-						}
-						var id = row.id;
-						var idIn = datasetIDSelected.indexOf(id);
-						if(idIn >= 0) {
-							datasetIDSelected.splice(idIn, 1);
-						}
-					},
-					onCheckAll : function(rows) {
-						var elements = $('[data-toggle="datasets"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							if(datasetSelected.indexOf(index) < 0) {
-								datasetSelected.push(index);
-							}
-						});
-						datasetOn = parseInt($('[data-toggle="datasets"] td.indexHidden:last').text());
-						datasetSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							if(datasetIDSelected.indexOf(id) < 0) {
-								datasetIDSelected.push(id);
-							}
-						});
-					},
-					onUncheckAll : function(rows) {
-						var elements = $('[data-toggle="datasets"] td.indexHidden');
-						$.each(elements, function(i, element){
-							var index = parseInt($(element).text());
-							var indexIn = datasetSelected.indexOf(index);
-							if(indexIn >= 0) {
-								datasetOn = datasetSelected[indexIn == 0 ? 0 : indexIn -1];
-								datasetSelected.splice(indexIn,1).sort(compare);
-							}
-						});
-						datasetOn = parseInt($('[data-toggle="datasets"] td.indexHidden:last').text());
-						datasetSelected.sort(compare);
-						$.each(rows, function(i, row){
-							var id = row.id;
-							var idIn = datasetIDSelected.indexOf(id);
-							if(idIn >= 0) {
-								datasetIDSelected.splice(idIn, 1);
-							}
-						});
-					}
-				});
-
-		showBatchesDlg();
-	}
-
-	function showBatchesDlg() {
-		$("#datasetsDlg").dialog(
-				{
-					modal : true,
-					width : 1000,
-					title : "绑定资料",
-					open : function(event, ui) {
-						datasetFirstClick = true;
-						datasetFirstIn= true;
-						$(".ui-dialog-titlebar-close").hide();
-					},
-					close : function() {
-						datasetOn = -1;
-						datasetSelected = new Array();
-						datasetIDSelected = new Array();
-						datasetFirstClick = true;
-						datasetFirstIn= true;
-						$('[data-toggle="datasets"]').bootstrapTable("destroy");
-					},
-					buttons : [
-							{
-								text : "<",
-								title : "上一条",
-								class : "btn btn-default",
-								click : function() {
-									if(!datasetSelected || datasetSelected.length <= 0) {
-										$.webeditor.showMsgLabel("warning", "没有勾选项");
-										return;
-									}
-									if(datasetFirstClick) {
-										$('[data-toggle="datasets"]').bootstrapTable('scrollTo',datasetSelected[0] * 31);
-										datasetOn = datasetSelected[0];
-										datasetFirstClick = false;
-									} else {
-										if (datasetOn < 0) {
-											$('[data-toggle="datasets"]').bootstrapTable('scrollTo', 0);
-											$.webeditor.showMsgLabel("warning","已经跳转到第一条");
-										} else {
-											var index = datasetSelected.indexOf(datasetOn);
-											if (index < 0) {
-												$('[data-toggle="datasets"]').bootstrapTable('scrollTo',0);
-											} else if (index > datasetSelected.length - 1) {
-												$('[data-toggle="datasets"]').bootstrapTable('scrollTo','bottom');
-											} else {
-												if (index == 0) {
-													$('[data-toggle="datasets"]').bootstrapTable('scrollTo',datasetSelected[0] * 31);
-													datasetOn = datasetSelected[0];
-													$.webeditor.showMsgLabel("warning","已经跳转到第一条");
-												} else {
-													var preIndex = index - 1;
-													$('[data-toggle="datasets"]').bootstrapTable('scrollTo',datasetSelected[preIndex] * 31);
-													datasetOn = datasetSelected[preIndex];
-												}
-											}
-										}
-									}
-								}
-							},
-							{
-								text : ">",
-								title : "下一条",
-								class : "btn btn-default",
-								click : function() {
-									if(!datasetSelected || datasetSelected.length <= 0) {
-										$.webeditor.showMsgLabel("warning", "没有勾选项");
-										return;
-									}
-									if(datasetFirstClick) {
-										$('[data-toggle="datasets"]').bootstrapTable('scrollTo',datasetSelected[0] * 31);
-										datasetOn = datasetSelected[0];
-										datasetFirstClick = false;
-									} else {
-										if (datasetOn < 0) {
-											$('[data-toggle="datasets"]').bootstrapTable('scrollTo', 0);
-										} else {
-											var index = datasetSelected.indexOf(datasetOn);
-											if (index < 0) {
-												$('[data-toggle="datasets"]').bootstrapTable('scrollTo',0);
-											} else if (index > datasetSelected.length - 1) {
-												$('[data-toggle="datasets"]').bootstrapTable('scrollTo','bottom');
-											} else {
-												if (index == datasetSelected.length - 1) {
-													var nextIndex = datasetSelected.length - 1;
-													$('[data-toggle="datasets"]').bootstrapTable('scrollTo',datasetSelected[nextIndex] * 31);
-													datasetOn = datasetSelected[nextIndex];
-													$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
-												} else {
-													var nextIndex = index + 1;
-													$('[data-toggle="datasets"]').bootstrapTable('scrollTo',datasetSelected[nextIndex] * 31);
-													datasetOn = datasetSelected[nextIndex];
-												}
-											}
-										}
-									}
-								}
-							},
-							{
-								text : "提交",
-								class : "btn btn-default",
-								click : function() {
-									var length = datasetIDSelected.length;
-									if (length > 0) {
-										$("#config_2_25").val(datasetIDSelected.join(","));
-										$("#config_2_25Count").text(length);
-
-										$(this).dialog("close");
-									} else {
-										$.webeditor.showMsgLabel("alert", "请选择人员");
-									}
-
-								}
-							},
-							{
-								text : "关闭",
-								class : "btn btn-default",
-								click : function() {
-									$(this).dialog("close");
-								}
-							} ]
-				});
+		$("#datasetsDlg").bootstrapDialog({
+			valueBand: "config_2_25"
+		}, {
+			width : 1000,
+			title : "绑定资料"
+		});
 	}
 
 	function refreshProgress(obj) {
@@ -2007,30 +1041,35 @@
 				</tr>
 				<tr>
 					<td class="configKey">区域</td>
-					<td class="configValue"><input type="hidden" id="config_1_7"
-						value="">
+					<td class="configValue">
 						<button type="button" class="btn btn-default"
 							onclick="getItemAreas();">配置区域</button>
-						<p class="help-block">已选择<span id="config_1_7Count">0</span>个区域</p></td>
+						<p class="help-block" id="config_1_7">
+							已选择<span>0</span>个区域
+						</p>
 				</tr>
 				<tr>
 					<td class="configKey">图层</td>
-					<td class="configValue"><input type="hidden" id="config_1_6"
-						value="">
+					<td class="configValue">
 						<button type="button" class="btn btn-default"
 							onclick="getItemsets();">配置图层</button>
-						<p class="help-block">已选择<span id="config_1_6Count">0</span>个图层</p></td>
+						<p class="help-block" id="config_1_6">
+							已选择<span>0</span>个图层
+						</p>
 				</tr>
 				<tr>
 					<td class="configKey">人员</td>
 					<td class="configValue">
-						<input type="hidden" id="config_2_18" value="">
 						<button type="button" class="btn btn-default"
 							onclick="getWorkers();">添加改错人员</button>
-						<input type="hidden" id="config_2_21" value="">
 						<button type="button" class="btn btn-default"
 							onclick="getCheckers();">添加校正人员</button>
-						<p class="help-block">已添加<span id="config_2_18Count">0</span>位改错人员，<span id="config_2_21Count">0</span>位校正人员</p></td>
+						<p class="help-block" id="config_2_18">
+							已添加<span>0</span>位改错人员
+						</p>
+						<p class="help-block" id="config_2_21">
+							已添加<span>0</span>位校正人员
+						</p>
 				</tr>
 				<tr>
 					<td class="configKey">公有私有</td>
@@ -2055,11 +1094,13 @@
 				</tr>
 				<tr>
 					<td class="configKey">资料</td>
-					<td class="configValue"><input type="hidden" id="config_2_25"
-						value="">
+					<td class="configValue">
 						<button type="button" class="btn btn-default"
 							onclick="getDataset();">绑定资料</button>
-						<p class="help-block">已绑定<span id="config_2_25Count">0</span>份资料</p></td>
+						<p class="help-block" id="config_2_25">
+							已绑定<span>0</span>份资料
+						</p>
+					</td>
 				</tr>
 				<tr>
 					<td class="configKey">制作任务数</td>
@@ -2130,7 +1171,7 @@
 						data-filter-data="var:itemAreaTypes"
 						data-filter-control-placeholder="" data-width="20">区域级别</th>
 					<th data-field="province" data-filter-control="input"
-						data-filter-control-placeholder="">省</th>
+						data-filter-control-placeholder="" data-width="140">省</th>
 					<th data-field="city" data-filter-control="input"
 						data-filter-control-placeholder="">市</th>
 				</tr>
