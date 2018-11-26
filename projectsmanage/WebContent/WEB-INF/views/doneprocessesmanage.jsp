@@ -428,7 +428,7 @@
 			if (state != 0) {
 				disableByProcessType(processtype);
 			}else {
-				enableByProcessType();
+				enableAllConfigs();
 			}
 			jQuery.post("./processesmanage.web", {
 				"atn" : "getconfigvalues",
@@ -460,7 +460,7 @@
 				}
 			}, "json");
 		} else {
-			enableByProcessType();
+			enableAllConfigs();
 		}
 		showConfigDlg(processid, processname, priority, processtype, state);
 	}
@@ -468,7 +468,7 @@
 	function showConfigDlg(processid, processname, priority, processtype, state) {
 		$("#configDlg").dialog({
 			modal : true,
-			width : document.documentElement.clientWidth * 0.35,
+			width : 520,
 			title : "项目配置",
 			open : function(event, ui) {
 				$("#config_processid").val(processid);
@@ -507,7 +507,7 @@
 				return params;
 			}
 		}, {
-			width : 760,
+			width : 480,
 			title : "质检区域配置",
 			buttons : [
 				{
@@ -554,7 +554,7 @@
 				return params;
 			}
 		}, {
-			width : 920,
+			width : document.documentElement.clientWidth * 0.6,
 			title : "质检图层配置",
 			buttons : [
 				{
@@ -586,10 +586,9 @@
 	
 	function getWorkers() {
 		$("#workersDlg").bootstrapDialog({
-			perHeight: 41,
 			valueBand: "config_2_18"
 		}, {
-			width : 500,
+			width : 480,
 			title : "添加制作人员",
 			buttons : [
 				{
@@ -623,7 +622,7 @@
 		$("#checkersDlg").bootstrapDialog({
 			valueBand: "config_2_21"
 		}, {
-			width : 500,
+			width : 480,
 			title : "添加校正人员",
 			buttons : [
 				{
@@ -657,7 +656,7 @@
 		$("#datasetsDlg").bootstrapDialog({
 			valueBand: "config_2_25"
 		}, {
-			width : 1000,
+			width : document.documentElement.clientWidth * 0.8,
 			title : "绑定资料",
 			buttons : [
 				{
@@ -755,26 +754,34 @@
 		}
 	}
 	
-	function enableByProcessType() {
+	function enableAllConfigs() {
 		$("#config_processname").removeAttr("disabled");
 		$("#config_processprotype").removeAttr("disabled");
 		$("#config_processpriority").removeAttr("disabled");
 		
 		$("#config_1_5").removeAttr("disabled");
 		$("#config_2_19").removeAttr("disabled");
+		$("#config_2_22").removeAttr("disabled");
+		$("#config_2_23").removeAttr("disabled");
+		$("#config_2_26").removeAttr("disabled");
 	}
 	
 	function disableByProcessType(selectValue) {
 		if(selectValue == 1 || selectValue == 2) {
 			$("#config_processname").attr("disabled", true);
 			$("#config_1_5").attr("disabled", true);
+		} else if(selectValue == 5) {
+			$("#config_2_22").attr("disabled", true);
+			$("#config_2_23").attr("disabled", true);
+			$("#config_2_26").attr("disabled", true);
 		} else {
 			$("#config_processname").removeAttr("disabled");
 			$("#config_1_5").removeAttr("disabled");
+			$("#config_2_22").removeAttr("disabled");
+			$("#config_2_23").removeAttr("disabled");
+			$("#config_2_26").removeAttr("disabled");
 		}
 		$("#config_processprotype").attr("disabled", true);
-		$("#config_processpriority").removeAttr("disabled");
-		$("#config_2_19").removeAttr("disabled");
 	}
 </script>
 
@@ -887,11 +894,11 @@
 					<td class="configKey">人员</td>
 					<td class="configValue">
 						<button type="button" class="btn btn-default"
-							onclick="getWorkers();">添加改错人员</button>
+							onclick="getWorkers();">添加制作人员</button>
 						<button type="button" class="btn btn-default"
 							onclick="getCheckers();">添加校正人员</button>
 						<p class="help-block" id="config_2_18">
-							已添加<span>0</span>位改错人员
+							已添加<span>0</span>位制作人员
 						</p>
 						<p class="help-block" id="config_2_21">
 							已添加<span>0</span>位校正人员
@@ -943,7 +950,7 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="workers" data-height="400"
+			data-toggle="workers" data-height="420"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
@@ -964,7 +971,7 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="checkers" data-height="400"
+			data-toggle="checkers" data-height="420"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
@@ -984,7 +991,7 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="itemAreas" data-height="520"
+			data-toggle="itemAreas" data-height="420"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
@@ -1056,10 +1063,16 @@
 						data-formatter="indexFormat"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="50">编号</th>
+						
 					<th data-field="name" data-filter-control="input"
 						data-formatter="nameFormat" data-filter-control-placeholder="">名称</th>
+						
+					<th data-field="path" data-filter-control-placeholder=""
+						data-filter-control="input">路径</th>
+						
 					<th data-field="datatype" data-width="40"
 						data-filter-control="input" data-filter-control-placeholder="">类型</th>
+						
 					<th data-field="batchid" data-width="180"
 						data-filter-control="input" data-filter-control-placeholder="">批次号</th>
 				</tr>
