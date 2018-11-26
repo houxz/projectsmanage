@@ -497,7 +497,7 @@
 			if (state != 0) {
 				disableByProcessType(processtype);
 			}else {
-				enableByProcessType();
+				enableAllConfigs();
 			}
 			jQuery.post("./processesmanage.web", {
 				"atn" : "getconfigvalues",
@@ -529,126 +529,126 @@
 				}
 			}, "json");
 		} else {
-			enableByProcessType();
+			enableAllConfigs();
 		}
 		showConfigDlg(processid, processname, priority, processtype, state);
 	}
 
 	function showConfigDlg(processid, processname, priority, processtype, state) {
 		$("#configDlg").dialog({
-							modal : true,
-							width : 520,
-							title : "项目配置",
-							open : function(event, ui) {
-								$("#config_processid").val(processid);
-								$("#config_processname").val(processname);
-								$("#config_processstatus").val(state);
-								
-								$("#config_processpriority").val(priority);
-								$("#config_processprotype").val(processtype);
-								$(".ui-dialog-titlebar-close").hide();
+			modal : true,
+			width : 520,
+			title : "项目配置",
+			open : function(event, ui) {
+				$("#config_processid").val(processid);
+				$("#config_processname").val(processname);
+				$("#config_processstatus").val(state);
+				
+				$("#config_processpriority").val(priority);
+				$("#config_processprotype").val(processtype);
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			buttons : [
+					{
+						text : "提交",
+						class : "btn btn-default",
+						click : function() {
+							var processid = $("#config_processid").val();
+							var newProcessName = $("#config_processname").val();
+							var priority = $("#config_processpriority").val();
+							var protype = $("#config_processprotype").val();
+							var config_1_5 = $("#config_1_5").val();
+							var config_1_6 = $("#config_1_6").val();
+							var config_1_7 = $("#config_1_7").val();
+
+							var config_2_18 = $("#config_2_18").val();
+							var config_2_19 = $("#config_2_19").val();
+							var config_2_21 = $("#config_2_21").val();
+							var config_2_22 = $("#config_2_22").val();
+							var config_2_23 = $("#config_2_23").val();
+							var config_2_25 = $("#config_2_25").val();
+							var config_2_26 = $("#config_2_26").val();
+
+							if (!newProcessName || newProcessName.length <= 0) {
+								$.webeditor.showMsgLabel("alert", "项目名不能为空");
+								return;
+							}
+							
+							switch(protype) {
+							case 1:
+							case "1":
+							case 4:
+							case "4":
+								if(!config_1_6 || config_1_6.lenth <= 0) {
+									$.webeditor.showMsgLabel("alert", "没有配置图层");
+									return;
+								}
+								if(!config_1_7 || config_1_7.lenth <= 0) {
+									$.webeditor.showMsgLabel("alert", "没有配置区域");
+									return;
+								}
+								break;
+							case 2:
+							case "2":
+							case 3:
+							case "3":
+								if(!config_1_7 || config_1_7.lenth <= 0) {
+									$.webeditor.showMsgLabel("alert", "没有配置区域");
+									return;
+								}
+								break;
+							case 5:
+							case "5":
+								break;
+							default:
+								console.log("processTypeChange--错误的项目类型：" + selectValue);
+								break;
+							}
+							
+							if(config_2_19 == 1 && (!config_2_18 || config_2_18.length <= 0)) {
+								$.webeditor.showMsgLabel("alert", "私有项目需要添加人员");
+								return;
+							}
+
+							$.webeditor.showMsgBox("info", "保存中...");
+							jQuery.post("./processesmanage.web", {
+								"atn" : "newprocess",
+								"processid" : processid,
+								"newProcessName" : newProcessName,
+								"priority" : priority,
+								"type" : protype,
+								"config_1_5" : config_1_5,
+								"config_1_6" : config_1_6,
+								"config_1_7" : config_1_7,
+								"config_2_18" : config_2_18,
+								"config_2_19" : config_2_19,
+								"config_2_21" : config_2_21,
+								"config_2_22" : config_2_22,
+								"config_2_23" : config_2_23,
+								"config_2_25" : config_2_25,
+								"config_2_26" : config_2_26
 							},
-							buttons : [
-									{
-										text : "提交",
-										class : "btn btn-default",
-										click : function() {
-											var processid = $("#config_processid").val();
-											var newProcessName = $("#config_processname").val();
-											var priority = $("#config_processpriority").val();
-											var protype = $("#config_processprotype").val();
-											var config_1_5 = $("#config_1_5").val();
-											var config_1_6 = $("#config_1_6").val();
-											var config_1_7 = $("#config_1_7").val();
-
-											var config_2_18 = $("#config_2_18").val();
-											var config_2_19 = $("#config_2_19").val();
-											var config_2_21 = $("#config_2_21").val();
-											var config_2_22 = $("#config_2_22").val();
-											var config_2_23 = $("#config_2_23").val();
-											var config_2_25 = $("#config_2_25").val();
-											var config_2_26 = $("#config_2_26").val();
-
-											if (!newProcessName || newProcessName.length <= 0) {
-												$.webeditor.showMsgLabel("alert", "项目名不能为空");
-												return;
-											}
-											
-											switch(protype) {
-											case 1:
-											case "1":
-											case 4:
-											case "4":
-												if(!config_1_6 || config_1_6.lenth <= 0) {
-													$.webeditor.showMsgLabel("alert", "没有配置图层");
-													return;
-												}
-												if(!config_1_7 || config_1_7.lenth <= 0) {
-													$.webeditor.showMsgLabel("alert", "没有配置区域");
-													return;
-												}
-												break;
-											case 2:
-											case "2":
-											case 3:
-											case "3":
-												if(!config_1_7 || config_1_7.lenth <= 0) {
-													$.webeditor.showMsgLabel("alert", "没有配置区域");
-													return;
-												}
-												break;
-											case 5:
-											case "5":
-												break;
-											default:
-												console.log("processTypeChange--错误的项目类型：" + selectValue);
-												break;
-											}
-											
-											if(config_2_19 == 1 && (!config_2_18 || config_2_18.length <= 0)) {
-												$.webeditor.showMsgLabel("alert", "私有项目需要添加人员");
-												return;
-											}
-
-											$.webeditor.showMsgBox("info", "保存中...");
-											jQuery.post("./processesmanage.web", {
-												"atn" : "newprocess",
-												"processid" : processid,
-												"newProcessName" : newProcessName,
-												"priority" : priority,
-												"type" : protype,
-												"config_1_5" : config_1_5,
-												"config_1_6" : config_1_6,
-												"config_1_7" : config_1_7,
-												"config_2_18" : config_2_18,
-												"config_2_19" : config_2_19,
-												"config_2_21" : config_2_21,
-												"config_2_22" : config_2_22,
-												"config_2_23" : config_2_23,
-												"config_2_25" : config_2_25,
-												"config_2_26" : config_2_26
-											},
-											function(json) {
-												if (json.result > 0) {
-													$.webeditor.showMsgBox("close");
-													$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
-													$("#configDlg").dialog("close");
-													$('[data-toggle="processes"]').bootstrapTable('refresh');
-													$.webeditor.showMsgLabel("success",'项目配置成功，<div class="btn btn-default btn-xs" onclick="gotoPage(' + json.pid + ');">跳转</div>到所在页');
-												} else {
-													$.webeditor.showMsgBox("close");
-													$.webeditor.showMsgLabel("alert",json.resultMsg);
-												}
-											}, "json");
-										}
-									}, {
-										text : "关闭",
-										class : "btn btn-default",
-										click : function() {
-											$(this).dialog("close");
-										}
-									} ]
-						});
+							function(json) {
+								if (json.result > 0) {
+									$.webeditor.showMsgBox("close");
+									$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
+									$("#configDlg").dialog("close");
+									$('[data-toggle="processes"]').bootstrapTable('refresh');
+									$.webeditor.showMsgLabel("success",'项目配置成功，<div class="btn btn-default btn-xs" onclick="gotoPage(' + json.pid + ');">跳转</div>到所在页');
+								} else {
+									$.webeditor.showMsgBox("close");
+									$.webeditor.showMsgLabel("alert",json.resultMsg);
+								}
+							}, "json");
+						}
+					}, {
+						text : "关闭",
+						class : "btn btn-default",
+						click : function() {
+							$(this).dialog("close");
+						}
+					} ]
+		});
 	}
 	
 	function gotoPage(processID) {
@@ -889,26 +889,34 @@
 		}
 	}
 	
-	function enableByProcessType() {
+	function enableAllConfigs() {
 		$("#config_processname").removeAttr("disabled");
 		$("#config_processprotype").removeAttr("disabled");
 		$("#config_processpriority").removeAttr("disabled");
 		
 		$("#config_1_5").removeAttr("disabled");
 		$("#config_2_19").removeAttr("disabled");
+		$("#config_2_22").removeAttr("disabled");
+		$("#config_2_23").removeAttr("disabled");
+		$("#config_2_26").removeAttr("disabled");
 	}
 	
 	function disableByProcessType(selectValue) {
 		if(selectValue == 1 || selectValue == 2) {
 			$("#config_processname").attr("disabled", true);
 			$("#config_1_5").attr("disabled", true);
+		} else if(selectValue == 5) {
+			$("#config_2_22").attr("disabled", true);
+			$("#config_2_23").attr("disabled", true);
+			$("#config_2_26").attr("disabled", true);
 		} else {
 			$("#config_processname").removeAttr("disabled");
 			$("#config_1_5").removeAttr("disabled");
+			$("#config_2_22").removeAttr("disabled");
+			$("#config_2_23").removeAttr("disabled");
+			$("#config_2_26").removeAttr("disabled");
 		}
 		$("#config_processprotype").attr("disabled", true);
-		$("#config_processpriority").removeAttr("disabled");
-		$("#config_2_19").removeAttr("disabled");
 	}
 </script>
 
