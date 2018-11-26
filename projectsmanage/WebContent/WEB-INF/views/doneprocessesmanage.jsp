@@ -558,6 +558,22 @@
 			title : "质检图层配置",
 			buttons : [
 				{
+					text : "<",
+					title : "上一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoLast");
+					}
+				},
+				{
+					text : ">",
+					title : "下一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoNext");
+					}
+				},
+				{
 					text : "关闭",
 					class : "btn btn-default",
 					click : function() {
