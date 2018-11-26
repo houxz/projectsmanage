@@ -34,7 +34,6 @@
 		} else {
 			if (this.options.bootstrapDialogOn < 0) {
 				this.scrollTo( 0);
-				$.webeditor.showMsgLabel("warning","已经跳转到第一条");
 			} else {
 				var index = this.options.bootstrapDialogSelected.indexOf(this.options.bootstrapDialogOn);
 				if (index < 0) {
@@ -45,7 +44,7 @@
 					if (index == 0) {
 						this.scrollTo(reckonHeight(this.options.bootstrapDialogHeights, this.options.bootstrapDialogSelected[0]));
 						this.options.bootstrapDialogOn = this.options.bootstrapDialogSelected[0];
-						$.webeditor.showMsgLabel("warning","已经跳转到第一条");
+						$.webeditor.showMsgLabel("warning","已跳转到第一条");
 					} else {
 						var preIndex = index - 1;
 						this.scrollTo(reckonHeight(this.options.bootstrapDialogHeights, this.options.bootstrapDialogSelected[preIndex]));
@@ -79,7 +78,7 @@
 						var nextIndex = this.options.bootstrapDialogSelected.length - 1;
 						this.scrollTo(reckonHeight(this.options.bootstrapDialogHeights, this.options.bootstrapDialogSelected[nextIndex]));
 						this.options.bootstrapDialogOn = this.options.bootstrapDialogSelected[nextIndex];
-						$.webeditor.showMsgLabel("warning","已经跳转到最后一条");
+						$.webeditor.showMsgLabel("warning","已跳转到最后一条");
 					} else {
 						var nextIndex = index + 1;
 						this.scrollTo(reckonHeight(this.options.bootstrapDialogHeights, this.options.bootstrapDialogSelected[nextIndex]));

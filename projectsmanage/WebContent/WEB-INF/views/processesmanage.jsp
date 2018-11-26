@@ -537,7 +537,7 @@
 	function showConfigDlg(processid, processname, priority, processtype, state) {
 		$("#configDlg").dialog({
 							modal : true,
-							width : document.documentElement.clientWidth * 0.35,
+							width : 520,
 							title : "项目配置",
 							open : function(event, ui) {
 								$("#config_processid").val(processid);
@@ -681,7 +681,7 @@
 				return params;
 			}
 		}, {
-			width : 760,
+			width : 480,
 			title : "质检区域配置"
 		});
 	}
@@ -703,7 +703,7 @@
 				return params;
 			}
 		}, {
-			width : 1020,
+			width : document.documentElement.clientWidth * 0.6,
 			title : "质检图层配置"
 		});
 	}
@@ -712,7 +712,7 @@
 		$("#workersDlg").bootstrapDialog({
 			valueBand: "config_2_18"
 		}, {
-			width : 500,
+			width : 480,
 			title : "添加制作人员",
 			buttons : [
 				{
@@ -767,7 +767,7 @@
 		$("#checkersDlg").bootstrapDialog({
 			valueBand: "config_2_21"
 		}, {
-			width : 500,
+			width : 480,
 			title : "添加校正人员"
 		});
 	}
@@ -1085,7 +1085,7 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="workers" data-height="400"
+			data-toggle="workers" data-height="420"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
@@ -1106,7 +1106,7 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="checkers" data-height="400"
+			data-toggle="checkers" data-height="420"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
@@ -1126,7 +1126,7 @@
 			data-side-pagination="server" data-filter-control="true"
 			data-click-to-select="true" data-single-select="false"
 			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="itemAreas" data-height="520"
+			data-toggle="itemAreas" data-height="420"
 			data-search-on-enter-key='true' data-align='center'>
 			<thead>
 				<tr>
