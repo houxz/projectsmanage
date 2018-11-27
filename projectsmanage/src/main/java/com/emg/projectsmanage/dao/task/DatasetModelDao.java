@@ -53,7 +53,7 @@ public class DatasetModelDao {
 					sql.append(" AND " + separator + "batchid" + separator + " = " + record.getBatchid());
 				}
 			}
-			sql.append(" ORDER BY id ");
+			sql.append(" ORDER BY id desc ");
 			if (limit.compareTo(0) > 0) {
 				sql.append(" LIMIT " + limit);
 			}
