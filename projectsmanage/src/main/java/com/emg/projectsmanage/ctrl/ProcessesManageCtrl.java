@@ -933,6 +933,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					case "batchid":
 						record.setBatchid(Long.valueOf(value));
 						break;
+					case "path":
+						record.setPath(value);
+						break;
 					default:
 						logger.error("未处理的筛选项：" + key);
 						break;

@@ -52,6 +52,9 @@ public class DatasetModelDao {
 				if (record.getBatchid() != null && record.getBatchid().compareTo(0L) > 0) {
 					sql.append(" AND " + separator + "batchid" + separator + " = " + record.getBatchid());
 				}
+				if (record.getPath() != null && !record.getPath().isEmpty()) {
+					sql.append(" AND " + separator + "path" + separator + " like '%" + record.getPath() + "%'");
+				}
 			}
 			sql.append(" ORDER BY id desc ");
 			if (limit.compareTo(0) > 0) {
@@ -108,6 +111,9 @@ public class DatasetModelDao {
 				}
 				if (record.getBatchid() != null && record.getBatchid().compareTo(0L) > 0) {
 					sql.append(" AND " + separator + "batchid" + separator + " = " + record.getBatchid());
+				}
+				if (record.getPath() != null && !record.getPath().isEmpty()) {
+					sql.append(" AND " + separator + "path" + separator + " like '%" + record.getPath() + "%'");
 				}
 			}
 
