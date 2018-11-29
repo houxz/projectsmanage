@@ -13,6 +13,7 @@ public class EmployeeModel implements Serializable {
 	private Integer department;
 	private Integer enabled;
 	private Integer isshow;
+	private Integer sampling;
 
 	public Integer getId() {
 		return id;
@@ -68,6 +69,14 @@ public class EmployeeModel implements Serializable {
 
 	public void setIsshow(Integer isshow) {
 		this.isshow = isshow;
+	}
+
+	public Integer getSampling() {
+		return sampling;
+	}
+
+	public void setSampling(Integer sampling) {
+		this.sampling = sampling;
 	}
 
 }

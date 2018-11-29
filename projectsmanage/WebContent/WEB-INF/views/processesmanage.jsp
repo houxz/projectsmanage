@@ -75,8 +75,29 @@
 	var itemsetTypes = eval('(${itemsetTypes})');
 	var itemsetUnits = eval('(${itemsetUnits})');
 	
-	function indexFormat(value, row, index) {
-		return index;
+	function checkboxFormat(value, row, index) {
+		var workers = $("#" + this.valueBand).val();
+		var values = new Array();
+		if (workers) {
+			try{
+				var map = JSON.parse(workers);
+				if (map && typeof map == 'object') {
+					for (var key in map){
+						values.push(parseInt(key));
+					}
+				} else if (map && typeof map == 'number') {
+					values.push(map);
+				}
+			}catch(e){
+				$.each(workers.split(","), function(index, domEle) {
+					values[index] = parseInt(domEle);
+				});
+			}
+    	}
+		if (values.indexOf(row.id) >= 0)
+			return true;
+		else
+			return false;
 	}
 	function statesFormat(value, row, index) {
 		return processStates[row.state];
@@ -377,6 +398,9 @@
 		html.push("</div>");
 		return html.join("");
 	}
+	function samplingSet(value, id) {
+		$("#workerlist").bootstrapTable("getRowByUniqueId", id).sampling = value;
+	}
 	function samplingFormat(value, row, index) {
 		var samplingValue = '';
 		try{
@@ -390,9 +414,10 @@
 			}
 		}catch(e){
 		}
+		row.sampling = samplingValue;
 		var html = new Array();
 		html.push("<div class='input-group input-group-sm'>");
-		html.push("<input type='text' class='form-control' id='sampling-" + row.id + "' maxlength='3' value='" + samplingValue + "'>");
+		html.push("<input type='text' class='form-control' maxlength='3' value='" + samplingValue + "' onchange='samplingSet(this.value, " + row.id + ");'>");
 		html.push("<span class='input-group-addon'>%</span>");
 		html.push("</div>");
 		return html.join("");
@@ -537,7 +562,7 @@
 	function showConfigDlg(processid, processname, priority, processtype, state) {
 		$("#configDlg").dialog({
 			modal : true,
-			width : 520,
+			width : 580,
 			title : "项目配置",
 			open : function(event, ui) {
 				$("#config_processid").val(processid);
@@ -666,7 +691,6 @@
 	
 	function getItemAreas() {
 		$("#itemAreasDlg").bootstrapDialog({
-			valueBand: "config_1_7",
 			queryParams : function(params) {
 				if (params.filter != undefined) {
 					var filterObj = eval('(' + params.filter + ')');
@@ -688,7 +712,6 @@
 	
 	function getItemsets() {
 		$("#itemsetsDlg").bootstrapDialog({
-			valueBand: "config_1_6",
 			queryParams : function(params) {
 				if (params.filter != undefined) {
 					var filterObj = eval('(' + params.filter + ')');
@@ -709,9 +732,7 @@
 	}
 	
 	function getWorkers() {
-		$("#workersDlg").bootstrapDialog({
-			valueBand: "config_2_18"
-		}, {
+		$("#workersDlg").bootstrapDialog({}, {
 			width : 480,
 			title : "添加制作人员",
 			buttons : [
@@ -735,20 +756,22 @@
 					text : "提交",
 					class : "btn btn-default",
 					click : function() {
-						var bootstrapDialogIDSelected = $(this).find("table").bootstrapTable("getOptions").bootstrapDialogIDSelected;
-						var length = bootstrapDialogIDSelected.length;
+						var selections = $(this).find("table").bootstrapTable("getAllSelections");
+						var length = selections.length;
 						if (length > 0) {
-							var m = {};
-							$.each(bootstrapDialogIDSelected, function(i, workerID){
-								var sampling = $("#sampling-" + workerID).val();
-								m[workerID] = sampling;
-							});
-							$("#config_2_18").val(JSON.stringify(m));
-							$("#config_2_18 span").text(length);
+							var str = (function () {
+								var d = {};
+								selections.forEach(function (value, key, mapObj) {
+								    	d[value.id] = value.sampling;
+								});
+				                return JSON.stringify(d);
+				            })();
+							$("#" + $(this).find("table").bootstrapTable("getOptions").valueBand).val(str);
+							$("#" + $(this).find("table").bootstrapTable("getOptions").valueBand + " span").text(length);
 
 							$(this).dialog("close");
 						} else {
-							$.webeditor.showMsgLabel("alert", "请选择人员");
+							$.webeditor.showMsgLabel("alert", "请确认已勾选");
 						}
 					}
 				},
@@ -764,18 +787,14 @@
 	}
 	
 	function getCheckers() {
-		$("#checkersDlg").bootstrapDialog({
-			valueBand: "config_2_21"
-		}, {
+		$("#checkersDlg").bootstrapDialog({}, {
 			width : 480,
 			title : "添加校正人员"
 		});
 	}
 	
 	function getDataset() {
-		$("#datasetsDlg").bootstrapDialog({
-			valueBand: "config_2_25"
-		}, {
+		$("#datasetsDlg").bootstrapDialog({}, {
 			width : document.documentElement.clientWidth * 0.8,
 			title : "绑定资料"
 		});
@@ -1088,17 +1107,14 @@
 		</table>
 	</div>
 	<div id="workersDlg" style="display: none;">
-		<table id="workerlist" class="table-condensed" data-unique-id="id"
-			data-url="./processesmanage.web?atn=getworkers" data-cache="false"
-			data-side-pagination="server" data-filter-control="true"
-			data-click-to-select="true" data-single-select="false"
-			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="workers" data-height="420"
-			data-search-on-enter-key='true' data-align='center'>
+		<table id="workerlist" class="table-condensed"
+			data-unique-id="id" data-value-band="config_2_18"
+			data-url="./processesmanage.web?atn=getworkers"
+			data-toggle="workers"
+			data-height="420">
 			<thead>
 				<tr>
-					<th data-field="state" data-checkbox="true"></th>
-					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
+					<th data-field="state" data-checkbox="true" data-value-band="config_2_18" data-formatter="checkboxFormat"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="80">编号</th>
 					<th data-field="realname" data-filter-control="input"
@@ -1109,17 +1125,14 @@
 		</table>
 	</div>
 	<div id="checkersDlg" style="display: none;">
-		<table id="checkerlist" class="table-condensed" data-unique-id="id"
-			data-url="./processesmanage.web?atn=getcheckers" data-cache="false"
-			data-side-pagination="server" data-filter-control="true"
-			data-click-to-select="true" data-single-select="false"
-			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="checkers" data-height="420"
-			data-search-on-enter-key='true' data-align='center'>
+		<table id="checkerlist" class="table-condensed"
+			data-unique-id="id" data-value-band="config_2_21"
+			data-url="./processesmanage.web?atn=getcheckers"
+			data-toggle="checkers"
+			data-height="420">
 			<thead>
 				<tr>
-					<th data-field="state" data-checkbox="true"></th>
-					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
+					<th data-field="state" data-checkbox="true" data-value-band="config_2_21" data-formatter="checkboxFormat"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">编号</th>
 					<th data-field="realname" data-filter-control="input"
@@ -1129,17 +1142,14 @@
 		</table>
 	</div>
 	<div id="itemAreasDlg" style="display: none;">
-		<table id="itemAreaslist" class="table-condensed" data-unique-id="id"
-			data-url="./processesmanage.web?atn=getitemareas" data-cache="false"
-			data-side-pagination="server" data-filter-control="true"
-			data-click-to-select="true" data-single-select="false"
-			data-select-item-name="checkboxName" data-pagination="false"
-			data-toggle="itemAreas" data-height="420"
-			data-search-on-enter-key='true' data-align='center'>
+		<table id="itemAreaslist" class="table-condensed"
+			data-unique-id="id" data-value-band="config_1_7"
+			data-url="./processesmanage.web?atn=getitemareas"
+			data-toggle="itemAreas"
+			data-height="420">
 			<thead>
 				<tr>
-					<th data-field="state" data-checkbox="true"></th>
-					<th data-field="index" data-class="indexHidden" data-formatter="indexFormat"></th>
+					<th data-field="state" data-checkbox="true" data-value-band="config_1_7" data-formatter="checkboxFormat"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="20">区域编号</th>
 					<th data-field="areatype" data-filter-control="select"
@@ -1155,18 +1165,14 @@
 		</table>
 	</div>
 	<div id="itemsetsDlg" style="display: none;">
-		<table id="itemsetslist" class="table-condensed" data-unique-id="id"
-			data-url="./processesmanage.web?atn=getitemsets" data-cache="false"
-			data-side-pagination="server" data-filter-control="true"
-			data-click-to-select="true" data-single-select="false"
-			data-select-item-name="checkbox" data-pagination="false"
-			data-toggle="itemsets" data-height="520"
-			data-search-on-enter-key='true' data-align='center'>
+		<table id="itemsetslist" class="table-condensed"
+			data-unique-id="id" data-value-band="config_1_6"
+			data-url="./processesmanage.web?atn=getitemsets"
+			data-toggle="itemsets"
+			data-height="520">
 			<thead>
 				<tr>
-					<th data-field="state" data-checkbox="true"></th>
-					<th data-field="index" data-class="indexHidden"
-						data-formatter="indexFormat"></th>
+					<th data-field="state" data-checkbox="true" data-value-band="config_1_6" data-formatter="checkboxFormat"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="40">编号</th>
 					<th data-field="name" data-filter-control="input" data-width="100"
@@ -1191,24 +1197,21 @@
 		</table>
 	</div>
 	<div id="datasetsDlg" style="display: none;">
-		<table id="datasetslist" class="table-condensed" data-unique-id="id"
-			data-url="./processesmanage.web?atn=getdatasets" data-cache="false"
-			data-side-pagination="server" data-filter-control="true"
-			data-click-to-select="true" data-single-select="false"
-			data-select-item-name="checkbox" data-pagination="false"
-			data-page-list="[15, 30, 50, All]"
-			data-toggle="datasets" data-height="520"
-			data-search-on-enter-key='true' data-align='center'>
+		<table id="datasetslist" class="table-condensed"
+			data-unique-id="id" data-value-band="config_2_25"
+			data-url="./processesmanage.web?atn=getdatasets"
+			data-toggle="datasets"
+			data-height="520">
 			<thead>
 				<tr>
-					<th data-field="state" data-checkbox="true"></th>
-					<th data-field="index" data-class="indexHidden"
-						data-formatter="indexFormat"></th>
+					<th data-field="state" data-checkbox="true" data-value-band="config_2_25" data-formatter="checkboxFormat"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="50">编号</th>
 						
 					<th data-field="name" data-filter-control="input"
 						data-formatter="nameFormat" data-filter-control-placeholder="">名称</th>
+						
+					<th data-field="recordcount" data-width="60">资料数</th>
 						
 					<th data-field="path" data-filter-control-placeholder=""
 						data-filter-control="input">路径</th>
