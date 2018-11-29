@@ -446,7 +446,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				if (newDatasets != null && !newDatasets.isEmpty()) {
 					ProcessModel process = new ProcessModel();
 					process.setId(newProcessID);
-					process.setStage(ProcessState.NEW.getValue());
+					process.setState(ProcessState.NEW.getValue());
 					processModelDao.updateByPrimaryKeySelective(process);
 				}
 
