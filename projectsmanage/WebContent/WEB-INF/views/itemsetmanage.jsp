@@ -207,6 +207,8 @@
 					$("#dlgItemSet table #itemInfos span").text(values.length);
 				}
 			}, "json");
+		} else {
+			$("#importItems").removeAttr("disabled");
 		}
 		showItemSetDlg();
 	}
