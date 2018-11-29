@@ -1,10 +1,10 @@
 package com.emg.projectsmanage.ctrl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -190,6 +190,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Integer owner = ParamUtils.getIntParameter(request, "config_2_19", 0) == 1 ? 1 : 0;
 			String strWorkers = ParamUtils.getParameter(request, "config_2_18");
 			String strCheckers = ParamUtils.getParameter(request, "config_2_21");
+			String strDatasets = ParamUtils.getParameter(request, "config_2_25");
 
 			Boolean isNewProcess = newProcessID.equals(0L);
 
@@ -434,6 +435,21 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						}
 					}
 				}
+			}
+			
+			// 处理资料绑定
+			if (strDatasets != null && !strDatasets.isEmpty() && !isNewProcess) {
+				ProcessConfigValueModel processConfigValueModels = processConfigValueModelDao.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.BANGDINGZILIAO.getValue());
+				ArrayList<String> newDatasets = new ArrayList<String>(Arrays.asList(strDatasets.split(",")));
+				ArrayList<String> oldDatasets = new ArrayList<String>(Arrays.asList(processConfigValueModels.getValue().split(",")));
+				newDatasets.removeAll(oldDatasets);
+				if (newDatasets != null && !newDatasets.isEmpty()) {
+					ProcessModel process = new ProcessModel();
+					process.setId(newProcessID);
+					process.setStage(ProcessState.NEW.getValue());
+					processModelDao.updateByPrimaryKeySelective(process);
+				}
+
 			}
 
 			List<ProcessConfigModel> processConfigs = processConfigModelService.selectAllProcessConfigModels(type);

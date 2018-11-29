@@ -100,7 +100,11 @@ public enum ProcessConfigEnum {
 	/**
 	 * 25, "绑定资料"
 	 */
-	BANGDINGZILIAO(25, "绑定资料");
+	BANGDINGZILIAO(25, "绑定资料"),
+	/**
+	 * 26, "制作任务数"
+	 */
+	ZHIZUORENWUSHU(26, "制作任务数");
 
 	private Integer value;
 	private String des;
