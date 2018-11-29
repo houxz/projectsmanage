@@ -51,24 +51,6 @@
 		});
 	});
 	
-	var itemFirstIn = true;
-	var itemFirstClick = true;
-	var itemSelected = new Array();
-	var itemIDSelected = new Array();
-	var itemOn = -1;
-	
-	var itemInfoFirstIn = true;
-	var itemInfoFirstClick = true;
-	var itemInfoSelected = new Array();
-	var itemInfoIDSelected = new Array();
-	var itemInfoOn = -1;
-	
-	var layerFirstIn = true;
-	var layerFirstClick = true;
-	var layerSelected = new Array();
-	var layerNameSelected = new Array();
-	var layerOn = -1;
-	
 	var itemsetSysTypes = eval('(${itemsetSysTypes})');
 	var itemsetTypes = eval('(${itemsetTypes})');
 	var itemsetUnits = eval('(${itemsetUnits})');
