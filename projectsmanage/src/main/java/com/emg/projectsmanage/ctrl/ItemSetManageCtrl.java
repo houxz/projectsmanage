@@ -180,7 +180,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 							if (!itemsSet.contains(oid)) {
 								itemsSet.add(oid);
 								sb_items.append(oid);
-								sb_items.append(";");
+								sb_items.append(",");
 							}
 						}
 						sb_items.deleteCharAt(sb_items.length() - 1);
@@ -366,7 +366,7 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			
 			List<Long> itemInfoIDSet = new ArrayList<Long>();
 			if (itemInfoIDs != null && !itemInfoIDs.isEmpty()) {
-				for (String strItem : itemInfoIDs.split(";")) {
+				for (String strItem : itemInfoIDs.split(",")) {
 					try {
 						itemInfoIDSet.add(Long.valueOf(strItem));
 					} catch (Exception e) {}
@@ -536,13 +536,13 @@ public class ItemSetManageCtrl extends BaseCtrl {
 
 			Set<String> qids = new HashSet<String>();
 			if (items != null && !items.isEmpty()) {
-				for (String strItem : items.split(";")) {
+				for (String strItem : items.split(",")) {
 					qids.add(strItem);
 				}
 			}
 			Set<String> layernames = new HashSet<String>();
 			if (layername != null && !layername.isEmpty()) {
-				for (String strItem : layername.split(";")) {
+				for (String strItem : layername.split(",")) {
 					layernames.add(strItem);
 				}
 			}
