@@ -703,6 +703,16 @@
 				params["type"] = $("#config_1_5").val();
 				params["processType"] = $("#config_processprotype").val();
 				return params;
+			},
+			onLoadSuccess : function(data) {
+				$(this.self).bootstrapTable("load", data.rows);
+				
+				var state = $("#config_processstatus").val();
+				if(state !== "0") {
+					$(this.self).find("input:checkbox").attr("disabled", true);
+				} else {
+					$(this.self).find("input:checkbox").removeAttr("disabled");
+				} 
 			}
 		}, {
 			width : 480,
@@ -724,6 +734,16 @@
 				params["type"] = $("#config_1_5").val();
 				params["processType"] = $("#config_processprotype").val();
 				return params;
+			},
+			onLoadSuccess : function(data) {
+				$(this.self).bootstrapTable("load", data.rows);
+				
+				var state = $("#config_processstatus").val();
+				if(state !== "0") {
+					$(this.self).find("input:checkbox").attr("disabled", true);
+				} else {
+					$(this.self).find("input:checkbox").removeAttr("disabled");
+				} 
 			}
 		}, {
 			width : document.documentElement.clientWidth * 0.6,
@@ -794,7 +814,18 @@
 	}
 	
 	function getDataset() {
-		$("#datasetsDlg").bootstrapDialog({}, {
+		$("#datasetsDlg").bootstrapDialog({
+			onLoadSuccess : function(data) {
+				$(this.self).bootstrapTable("load", data.rows);
+				
+				var state = $("#config_processstatus").val();
+				if(state !== "0") {
+					$(this.self).find("input:checkbox:checked").attr("disabled", true);
+				} else {
+					$(this.self).find("input:checkbox").removeAttr("disabled");
+				} 
+			}
+		}, {
 			width : document.documentElement.clientWidth * 0.8,
 			title : "绑定资料"
 		});
