@@ -827,7 +827,63 @@
 			}
 		}, {
 			width : document.documentElement.clientWidth * 0.8,
-			title : "绑定资料"
+			title : "绑定资料",
+			buttons : [
+				{
+					text : "<",
+					title : "上一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoLast");
+					}
+				},
+				{
+					text : ">",
+					title : "下一条",
+					class : "btn btn-default",
+					click : function() {
+						$(this).find("table").bootstrapTable("gotoNext");
+					}
+				},
+				{
+					text : "提交",
+					class : "btn btn-default",
+					click : function() {
+						var selections = $(this).find("table").bootstrapTable("getAllSelections");
+						var length = selections.length;
+						var uniqueId = $(this).find("table").bootstrapTable("getOptions").uniqueId;
+						if (length > 0) {
+							var str = new String();
+							var d = [];
+							var types = new Array();
+							selections.forEach(function (value, key, mapObj) {
+							    d.push(value[uniqueId]);
+							    if (types.indexOf(value["datatype"]) < 0) {
+							    	types.push(value["datatype"]);
+							    }
+							});
+							str = d.join(",");
+							if (types.length > 1) {
+								$.webeditor.showMsgLabel("alert", "请勿勾选多类型资料");
+								return;
+							}
+							$("#" + $(this).find("table").bootstrapTable("getOptions").valueBand).val(str);
+							$("#" + $(this).find("table").bootstrapTable("getOptions").valueBand + " span").text(length);
+
+							$(this).dialog("close");
+						} else {
+							$.webeditor.showMsgLabel("alert", "请确认已勾选");
+						}
+					}
+				},
+				{
+					text : "关闭",
+					class : "btn btn-default",
+					click : function() {
+						$(this).dialog("close");
+					}
+				}
+			]
 		});
 	}
 
