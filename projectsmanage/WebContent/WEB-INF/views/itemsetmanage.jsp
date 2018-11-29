@@ -192,6 +192,8 @@
 	function getItemSet(itemsetid, processType) {
 		loadDefaultItemSet();
 		if (itemsetid > 0) {
+			$("#importItems").attr("disabled", true);
+			
 			jQuery.post("./itemsetmanage.web", {
 				"atn" : "getitemset",
 				"itemsetid" : itemsetid,
@@ -227,7 +229,6 @@
 		showItemSetDlg();
 	}
 
-	
 	function showItemSetDlg() {
 		$("#dlgItemSet").dialog({
 			modal : true,
@@ -289,6 +290,80 @@
 		}, {
 			width : 480,
 			title : "选择质检项"
+		});
+	}
+	
+	function importItems() {
+		$("#dlgImportItems").dialog({
+			modal : true,
+			width : 520,
+			title : "导入质检项",
+			open : function(event, ui) {
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			close : function(event, ui) {
+				$("#importItems").val("");
+			},
+			buttons : [ {
+				text : "新增",
+				class : "btn btn-default",
+				click : function() {
+					var importItems = $("#importItems").val();
+					var curItemsArray = new Array();
+					var curItemsCount = 0;
+					var curItems = $("#dlgItemSet table #items").val().trim();
+					if (curItems.length > 0) {
+						curItemsArray = curItems.split(",");
+						curItemsCount = curItemsArray.length;
+					}
+					
+					var pushin = 0, pushout = 0;
+					$.each(importItems.split(";"), function(index, domEle) {
+						if (domEle.trim() && curItemsArray.indexOf(String(domEle.trim())) < 0) {
+							curItemsArray.push(String(domEle.trim()));
+							pushin++;
+						} else {
+							pushout++;
+						}
+					});
+					
+					$("#dlgItemSet table #items").val(curItemsArray.join(","));
+					$("#dlgItemSet table #items span").text(curItemsArray.length);
+					$.webeditor.showMsgBox("close");
+					$.webeditor.showMsgLabel("success", "新识别质检项" + pushin + "个，去重" + pushout + "个");
+					$("#dlgImportItems").dialog("close");
+				}
+			}, {
+				text : "替换",
+				class : "btn btn-default",
+				click : function() {
+					var importItems = $("#importItems").val();
+					var curItemsArray = new Array();
+					var curItemsCount = 0;
+					
+					var pushin = 0, pushout = 0;
+					$.each(importItems.split(";"), function(index, domEle) {
+						if (domEle.trim() && curItemsArray.indexOf(String(domEle.trim())) < 0) {
+							curItemsArray.push(String(domEle.trim()));
+							pushin++;
+						} else {
+							pushout++;
+						}
+					});
+					
+					$("#dlgItemSet table #items").val(curItemsArray.join(","));
+					$("#dlgItemSet table #items span").text(curItemsArray.length);
+					$.webeditor.showMsgBox("close");
+					$.webeditor.showMsgLabel("success", "新识别质检项" + pushin + "个，去重" + pushout + "个");
+					$("#dlgImportItems").dialog("close");
+				}
+			}, {
+				text : "关闭",
+				class : "btn btn-default",
+				click : function() {
+					$(this).dialog("close");
+				}
+			} ]
 		});
 	}
 	
@@ -548,6 +623,8 @@
 								<td class="configValue" style="border-top-color: #fff;">
 									<button type="button" class="btn btn-default"
 										onclick="getItems();">选择质检项</button>
+									<button type="button" class="btn btn-default"
+										onclick="importItems();">导入质检项</button>
 									<p class="help-block" id="items">
 										已选择<span>0</span>个质检项
 									</p>
@@ -684,6 +761,9 @@
 				</tr>
 			</thead>
 		</table>
+	</div>
+	<div id="dlgImportItems" style="display: none;">
+		<textarea class="form-control" rows="12" id="importItems"></textarea>
 	</div>
 </body>
 </html>
