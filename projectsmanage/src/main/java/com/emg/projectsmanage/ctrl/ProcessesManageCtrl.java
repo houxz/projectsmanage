@@ -440,16 +440,22 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			// 处理资料绑定
 			if (strDatasets != null && !strDatasets.isEmpty() && !isNewProcess) {
 				ProcessConfigValueModel processConfigValueModels = processConfigValueModelDao.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.BANGDINGZILIAO.getValue());
-				ArrayList<String> newDatasets = new ArrayList<String>(Arrays.asList(strDatasets.split(",")));
-				ArrayList<String> oldDatasets = new ArrayList<String>(Arrays.asList(processConfigValueModels.getValue().split(",")));
-				newDatasets.removeAll(oldDatasets);
-				if (newDatasets != null && !newDatasets.isEmpty()) {
+				if (processConfigValueModels != null && processConfigValueModels.getValue() != null && !processConfigValueModels.getValue().isEmpty()) {
+					ArrayList<String> newDatasets = new ArrayList<String>(Arrays.asList(strDatasets.split(",")));
+					ArrayList<String> oldDatasets = new ArrayList<String>(Arrays.asList(processConfigValueModels.getValue().split(",")));
+					newDatasets.removeAll(oldDatasets);
+					if (newDatasets != null && !newDatasets.isEmpty()) {
+						ProcessModel process = new ProcessModel();
+						process.setId(newProcessID);
+						process.setState(ProcessState.NEW.getValue());
+						processModelDao.updateByPrimaryKeySelective(process);
+					}
+				} else {
 					ProcessModel process = new ProcessModel();
 					process.setId(newProcessID);
 					process.setState(ProcessState.NEW.getValue());
 					processModelDao.updateByPrimaryKeySelective(process);
 				}
-
 			}
 
 			List<ProcessConfigModel> processConfigs = processConfigModelService.selectAllProcessConfigModels(type);
