@@ -511,6 +511,7 @@
 		$("#config_2_23").prop('selectedIndex', 0);
 		$("#config_2_25").val("");
 		$("#config_2_25 span").text(0);
+		$("#config_2_26").val(10);
 		
 		processTypeChange(1);
 	}
@@ -626,6 +627,21 @@
 							case "5":
 								if(!config_2_25 || config_2_25.lenth <= 0) {
 									$.webeditor.showMsgLabel("alert", "没有绑定资料");
+									return;
+								}
+								if(!config_2_26 || config_2_26.lenth <= 0) {
+									$.webeditor.showMsgLabel("alert", "请设定制作任务数");
+									return;
+								}
+								var zhizuorenwushu = 0;
+								try{
+									zhizuorenwushu = parseInt(config_2_26);
+								} catch(e) {
+									$.webeditor.showMsgLabel("alert", "制作任务数无效值");
+									return;
+								}
+								if (!zhizuorenwushu || zhizuorenwushu <= 0) {
+									$.webeditor.showMsgLabel("alert", "制作任务数无效值");
 									return;
 								}
 								break;
@@ -944,6 +960,7 @@
 			$("#config_2_22").parents("tr").hide();
 			$("#config_2_23").parents("tr").hide();
 			$("#config_2_25").parents("tr").hide();
+			$("#config_2_26").parents("tr").hide();
 			break;
 		case 2:
 		case "2":
@@ -956,6 +973,7 @@
 			$("#config_2_22").parents("tr").hide();
 			$("#config_2_23").parents("tr").hide();
 			$("#config_2_25").parents("tr").hide();
+			$("#config_2_26").parents("tr").hide();
 			break;
 		case 3:
 		case "3":
@@ -968,6 +986,7 @@
 			$("#config_2_22").parents("tr").hide();
 			$("#config_2_23").parents("tr").hide();
 			$("#config_2_25").parents("tr").hide();
+			$("#config_2_26").parents("tr").hide();
 			break;
 		case 4:
 		case "4":
@@ -980,6 +999,7 @@
 			$("#config_2_22").parents("tr").hide();
 			$("#config_2_23").parents("tr").hide();
 			$("#config_2_25").parents("tr").hide();
+			$("#config_2_26").parents("tr").hide();
 			break;
 		case 5:
 		case "5":
@@ -992,6 +1012,7 @@
 			$("#config_2_22").parents("tr").show();
 			$("#config_2_23").parents("tr").show();
 			$("#config_2_25").parents("tr").show();
+			$("#config_2_26").parents("tr").show();
 			break;
 		default:
 			console.log("processTypeChange--错误的项目类型：" + selectValue);
