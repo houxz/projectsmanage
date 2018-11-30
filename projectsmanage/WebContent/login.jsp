@@ -11,74 +11,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="nofollow" />
 
-<link href="resources/bootstrap-3.3.7/css/bootstrap.min.css"
-	rel="stylesheet" />
-<link href="resources/css/css.css" rel="stylesheet" />
+<link href="resources/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
 
-<script src="resources/jquery/jquery-3.2.1.min.js" ></script>
-<script src="resources/js/jquery.formvalidate.js" ></script>
-<script src="resources/js/validatezh.js" ></script>
-<script src="resources/js/webeditor.js" ></script>
-
-<script type="text/javascript">
-	$(document).ready(function() {
-		$('#f').submit(function(e) {
-			e.preventDefault();
-			$(this).formvalidate({
-				failureMessages : true,
-				successMessages : true,
-				messageFailureClass : 'label label-warning',
-				messageSuccessClass : 'label label-success',
-				language : 'zh'
-			});
-		});
-	});
-</script>
 </head>
 <body onload="document.f.username.focus();">
 	<div class="container">
-		<div id="headdiv"></div>
-		<div class="row">
-			<div class="col-md-offset-1">
-				<h1>项目管理系统</h1>
+		<form name="f" id="f" method="post" class="well" style="width: 30em; margin: auto; margin-top: 150px;"
+			action="<c:url value='./login'/>">
+			<img src="/projectsmanage/resources/images/logo.jpg" class="center-block img-rounded">
+			<h2 class="text-center">项目管理系统</h2>
+			<br />
+			<div class="input-group input-group-md">
+				<span class="input-group-addon">
+					<i class="glyphicon glyphicon-user" ></i>
+				</span>
+				<input type="text"
+					class="form-control required" id="username" name="username"
+					placeholder="请输入用户名" data-trim maxlength="35" />
 			</div>
-			<div class="col-md-offset-1 col-md-3" style="margin-top: 60px;">
+			<br />
+			<div class="input-group input-group-md">
+				 <span class="input-group-addon">
+				 	<i class="glyphicon glyphicon-lock"></i>
+				 </span>
+				<input type="password"
+					class="form-control required" id="password" name="password"
+					placeholder="请输入密码" data-trim maxlength="35"
+					onkeypress="if (event.keyCode==13) { document.f.submit(); }" />
+			</div>
+			<br />
+			<button type="submit" class="btn btn-default" name="login">登陆</button>
+			<div style="float: right;">
 				<c:if test="${not empty param.login_error }">
 					<c:choose>
 						<c:when test="${param.login_error == 1}">
-							<div class="label label-warning">您的登录没有成功。</div>
-							<br />
-							<div class="label label-warning">
-								<c:out value="用户不存在，请重新输入。" />
-							</div>
+							<h5><span class="label label-danger">用户不存在，请重新输入。</span></h5>
 						</c:when>
 						<c:when test="${param.login_error == 2}">
-							<div class="label label-warning">您的登录没有成功。</div>
-							<br />
-							<div class="label label-warning">
-								<c:out value="密码错误，请重新输入。" />
-							</div>
+							<h5><span class="label label-danger">密码错误，请重新输入。</span></h5>
 						</c:when>
 						<c:when test="${param.login_error == 3}">
-							<div class="label label-warning">您的登录没有成功。</div>
-							<br />
-							<div class="label label-warning">
-								<c:out value="重复登录，请等待。" />
-							</div>
+							<h5><span class="label label-danger">重复登录，请等待30分钟后，重新登录。</span></h5>
 						</c:when>
 						<c:when test="${param.login_error == 4}">
-							<div class="label label-warning">您的登录没有成功。</div>
-							<br />
-							<div class="label label-warning">
-								<c:out value="没有权限，请联系管理员分配权限。" />
-							</div>
+							<h5><span class="label label-danger">没有权限，请联系管理员分配权限。</span></h5>
 						</c:when>
 						<c:otherwise>
-							<div class="label label-warning">操作没有成功。</div>
-							<br />
-							<div class="label label-warning">
-								<c:out value="未知原因。" />
-							</div>
+							<h5><span class="label label-danger">操作没有成功。</span></h5>
 						</c:otherwise>
 					</c:choose>
 					<%
@@ -88,51 +67,21 @@
 				<c:if test="${not empty param.logout }">
 					<c:choose>
 						<c:when test="${param.logout == 1}">
-							<div class="label label-warning">您已退出登录。</div>
-							<br />
-							<div class="label label-warning">
-								<c:out value="如需要，请重新登录。" />
-							</div>
+							<h5><span class="label label-warning">您已退出登录，如需要，请重新登录。</span></h5>
 						</c:when>
 						<c:when test="${param.logout == 2}">
-							<div class="label label-warning">登录超时。</div>
-							<br />
-							<div class="label label-warning">
-								<c:out value="请重新登录。" />
-							</div>
+							<h5><span class="label label-warning">登录超时，请重新登录。</span></h5>
 						</c:when>
 						<c:otherwise>
-							<div class="label label-warning">退出失败。</div>
-							<br />
-							<div class="label label-warning">
-								<c:out value="未知原因。" />
-							</div>
+							<h5><span class="label label-warning">退出异常。</span></h5>
 						</c:otherwise>
 					</c:choose>
 					<%
 						session.invalidate();
 					%>
 				</c:if>
-				<form name="f" id="f" method="post"
-					action="<c:url value='./login'/>">
-					<div class="form-group">
-						<label for="username">用户名：</label> <input type="text"
-							class="form-control required" id="username" name="username"
-							placeholder="请输入您的用户名" data-trim maxlength="50" />
-					</div>
-					<div class="form-group">
-						<label for="password">密码：</label> <input type="password"
-							class="form-control required" id="password" name="password"
-							placeholder="请输入密码" data-trim maxlength="50"
-							onkeypress="if (event.keyCode==13) { document.f.submit(); }" />
-					</div>
-					<button type="submit" class="btn btn-default" name="login">登陆</button>
-				</form>
 			</div>
-			<div class="col-md-offset-1 col-md-3" style="margin-top: 60px;">
-
-			</div>
-		</div>
+		</form>
 	</div>
 </body>
 </html>
