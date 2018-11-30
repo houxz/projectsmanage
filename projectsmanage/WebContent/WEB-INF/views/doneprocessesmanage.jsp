@@ -859,10 +859,10 @@
 						<th data-field="name" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="160">项目名称</th>
 						<th data-field="type" data-formatter="processTypesFormat"
-							data-filter-control="select" data-width="140"
+							data-filter-control="select" data-width="170"
 							data-filter-data="var:processTypes">项目类型</th>
 						<th data-field="username" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="120">创建者</th>
+							data-filter-control-placeholder="" data-width="90">创建者</th>
 						<th data-field="priority" data-formatter="priFormat"
 							data-filter-control="select" data-width="120"
 							data-filter-data="var:priorityLevels">优先级</th>
