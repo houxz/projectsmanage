@@ -624,6 +624,10 @@
 								break;
 							case 5:
 							case "5":
+								if(!config_2_25 || config_2_25.lenth <= 0) {
+									$.webeditor.showMsgLabel("alert", "没有绑定资料");
+									return;
+								}
 								break;
 							default:
 								console.log("processTypeChange--错误的项目类型：" + selectValue);
