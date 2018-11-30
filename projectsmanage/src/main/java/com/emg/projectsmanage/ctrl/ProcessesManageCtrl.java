@@ -205,6 +205,27 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				return json;
 			}
 			
+			try {
+				JSONObject.fromObject(strWorkers);
+			} catch (Exception e) {
+				logger.debug("strWorkers is not a json string: " + strWorkers);
+				try {
+					StringBuilder newStrWorkers = new StringBuilder();
+					newStrWorkers.append("{");
+					for (String strWorker : strWorkers.split(",")) {
+						newStrWorkers.append("\"");
+						newStrWorkers.append(strWorker);
+						newStrWorkers.append("\":\"\",");
+					}
+					newStrWorkers = newStrWorkers.deleteCharAt(newStrWorkers.length() - 1);
+					newStrWorkers.append("}");
+					strWorkers = newStrWorkers.toString();
+				} catch (Exception e2) {
+					logger.error(e2.getMessage(), e2);
+				}
+				
+			}
+			
 			Long projectid332 = -1L, projectid349 = -1L;
 			if (!isNewProcess) {
 				ProcessConfigValueModel processConfig332 = processConfigValueModelDao.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.ZHIJIANXIANGMUID.getValue());
