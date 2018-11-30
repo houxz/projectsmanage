@@ -140,6 +140,7 @@ public class UsersManageCtrl extends BaseCtrl {
 			}
 			json.addObject("result", 1);
 		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 			json.addObject("result", 0);
 			json.addObject("msg", e.getMessage());
 		}
@@ -154,17 +155,25 @@ public class UsersManageCtrl extends BaseCtrl {
 		try {
 			UserRoleModel record = new UserRoleModel();
 			record.setId(urid);
-			int ret = userRoleModelDao.delEpleRole(record);
-			if (ret > 0) {
-				EmployeeModel user = new EmployeeModel();
-				user.setId(urid);
-				EmployeeModel employee = emapgoAccountService.getOneEmployeeWithCache(user );
-				sessionService.KickOutUser(employee.getUsername());
-				
+			List<UserRoleModel> userRoleModels = userRoleModelDao.query(record);
+			if (userRoleModels != null && userRoleModels.size() > 0) {
+				UserRoleModel userRoleModel = userRoleModels.get(0);
+				Integer userid = userRoleModel.getUserid();
+				int ret = userRoleModelDao.delEpleRole(record);
+				if (ret > 0) {
+					EmployeeModel user = new EmployeeModel();
+					user.setId(userid);
+					EmployeeModel employee = emapgoAccountService.getOneEmployeeWithCache(user);
+					sessionService.KickOutUser(employee.getUsername());
+					
+					json.addObject("result", 1);
+				} else
+					json.addObject("result", 0);
+			} else {
 				json.addObject("result", 1);
-			} else
-				json.addObject("result", 0);
+			}
 		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 			json.addObject("result", 0);
 			json.addObject("msg", e.getMessage());
 		}
