@@ -34,6 +34,8 @@
 		}
 		if (to >= 0)
 			this.scrollTo(to);
+		else
+			$.webeditor.showMsgLabel("alert", "已经到最前一项");
 	};
 	
 	BootstrapTable.prototype.gotoNext = function () {
@@ -44,10 +46,11 @@
 		for (var i = 1, len = trs.length; i <= len; i++) {
 			if (position > curPosition && $(trs[i]).hasClass("selected")) {
 				this.scrollTo(position);
-				break;
+				return;
 			}
 			position += $(trs[i]).height();
 		}
+		$.webeditor.showMsgLabel("alert", "已经到最后一项");
 	};
 	
 	$.bootstrapDialog = function(select, bootstrapOptions, dialogOptions) { this.init(select, bootstrapOptions, dialogOptions); };
