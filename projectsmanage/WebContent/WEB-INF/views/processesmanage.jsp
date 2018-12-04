@@ -1231,7 +1231,7 @@
 						data-filter-control-placeholder="" data-width="80">编号</th>
 					<th data-field="realname" data-filter-control="input"
 						data-filter-control-placeholder="">人员姓名</th>
-					<th data-field="sampling" data-width="100" data-formatter="samplingFormat">抽检比例</th>
+					<th data-field="sampling" data-width="100" data-click-to-select="false" data-formatter="samplingFormat">抽检比例</th>
 				</tr>
 			</thead>
 		</table>
