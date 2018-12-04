@@ -396,6 +396,14 @@
 				class : "btn btn-default",
 				click : function() {
 					var importErrorTypes = $("#ImportErrorTypes").val();
+					if (!importErrorTypes) {
+						$.webeditor.showMsgLabel("alert", "请输入错误类型");
+						return;
+					}
+					if (importErrorTypes.indexOf("；") >= 0) {
+						$.webeditor.showMsgLabel("alert", "请使用英文半角分号");
+						return;
+					}
 					$.webeditor.showMsgBox("info", "保存中...");
 					jQuery.post("./errorsetmanage.web", {
 						"atn" : "recogniseErrortypes",
@@ -438,6 +446,14 @@
 				class : "btn btn-default",
 				click : function() {
 					var importErrorTypes = $("#ImportErrorTypes").val();
+					if (!importErrorTypes) {
+						$.webeditor.showMsgLabel("alert", "请输入错误类型");
+						return;
+					}
+					if (importErrorTypes.indexOf("；") >= 0) {
+						$.webeditor.showMsgLabel("alert", "请使用英文半角分号");
+						return;
+					}
 					$.webeditor.showMsgBox("info", "保存中...");
 					jQuery.post("./errorsetmanage.web", {
 						"atn" : "recogniseErrortypes",

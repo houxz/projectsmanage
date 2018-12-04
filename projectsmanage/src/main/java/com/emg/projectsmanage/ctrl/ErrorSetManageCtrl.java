@@ -241,9 +241,11 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				}
 			}
 			
-			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			errorTypes = errorSetModelDao.selectErrorTypes(configDBModel, null, errortypeList);
+			if (errortypeList.size() > 0) {
+				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
+				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+				errorTypes = errorSetModelDao.selectErrorTypes(configDBModel, null, errortypeList);
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
