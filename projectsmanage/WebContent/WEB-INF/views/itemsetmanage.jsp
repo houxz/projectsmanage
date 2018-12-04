@@ -293,6 +293,14 @@
 				class : "btn btn-default",
 				click : function() {
 					var importItems = $("#importItems").val();
+					if (!importItems) {
+						$.webeditor.showMsgLabel("alert", "请输入质检项");
+						return;
+					}
+					if (importItems.indexOf("；") >= 0) {
+						$.webeditor.showMsgLabel("alert", "请使用英文半角分号");
+						return;
+					}
 					var curItemsArray = new Array();
 					var curItemsCount = 0;
 					var curItems = $("#dlgItemSet table #items").val().trim();
@@ -322,6 +330,14 @@
 				class : "btn btn-default",
 				click : function() {
 					var importItems = $("#importItems").val();
+					if (!importItems) {
+						$.webeditor.showMsgLabel("alert", "请输入质检项");
+						return;
+					}
+					if (importItems.indexOf("；") >= 0) {
+						$.webeditor.showMsgLabel("alert", "请使用英文半角分号");
+						return;
+					}
 					var curItemsArray = new Array();
 					var curItemsCount = 0;
 					
