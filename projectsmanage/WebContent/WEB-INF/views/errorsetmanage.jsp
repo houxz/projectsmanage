@@ -514,7 +514,7 @@
 			"errorTypes" : errorTypes,
 			"processType" : processType
 		}, function(json) {
-			if (json.result) {
+			if (json.result > 0) {
 				$.webeditor.showMsgBox("close");
 				$.webeditor.showMsgLabel("success", "错误筛选集合配置成功");
 				$("#dlgErrorSet").dialog("close");

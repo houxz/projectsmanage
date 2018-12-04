@@ -22,6 +22,7 @@ import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
 import com.emg.projectsmanage.common.ItemSetUnit;
 import com.emg.projectsmanage.common.ProcessType;
+import com.emg.projectsmanage.common.ResultModel;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
@@ -55,7 +56,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 	 */
 	@RequestMapping()
 	public String openLader(Model model, HttpSession session, HttpServletRequest request) {
-		logger.debug("ErrorSetManageCtrl-openLader start.");
+		logger.debug("OPENLADER");
 		try {
 			model.addAttribute("errorsetSysTypes", ItemSetSysType.toJsonStr());
 			model.addAttribute("errorsetTypes", ItemSetType.toJsonStr());
@@ -72,8 +73,9 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=pages")
 	public ModelAndView pages(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("ErrorSetManageCtrl-pages start.");
+		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		ResultModel result = new ResultModel();
 		try {
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
@@ -121,23 +123,26 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 			List<ErrorSetModel> rows = errorSetModelDao.selectErrorSets(configDBModel, record, limit, offset);
 			Integer count = errorSetModelDao.countErrorSets(configDBModel, record, limit, offset);
 
-			json.addObject("rows", rows);
-			json.addObject("total", count);
-			json.addObject("result", 1);
+			result.setRows(rows);
+			result.setTotal(count);
+			result.setResult(1);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			result.setResultMsg(e.getMessage());
 		}
 
-		logger.debug("ErrorSetManageCtrl-pages end.");
+		json.addAllObjects(result);
+		logger.debug("END");
 		return json;
 	}
 
 	@RequestMapping(params = "atn=geterrorset")
 	public ModelAndView getErrorSet(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("ErrorSetManageCtrl-getErrorSet start.");
+		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		ErrorSetModel errorSet = new ErrorSetModel();
 		String errorsetDetails = new String();
+		ResultModel result = new ResultModel();
 		try {
 			Long errorsetid = ParamUtils.getLongParameter(request, "errorsetid", -1L);
 			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
@@ -159,21 +164,24 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 					errorsetDetails = errorsetDetails.substring(0, errorsetDetails.length() - 1);
 				}
 			}
+			result.setResult(1);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			result.setResultMsg(e.getMessage());
 		}
-		json.addObject("errorset", errorSet);
-		json.addObject("errorsetDetails", errorsetDetails);
-		logger.debug("ErrorSetManageCtrl-getErrorSet end.");
+		result.put("errorset", errorSet);
+		result.put("errorsetDetails", errorsetDetails);
+		json.addAllObjects(result);
+		logger.debug("END");
 		return json;
 	}
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=geterrortypes")
 	public ModelAndView getErrorTypes(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("ErrorSetManageCtrl-getErrorTypes start.");
+		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		List<ItemConfigModel> errorTypes = new ArrayList<ItemConfigModel>();
+		ResultModel result = new ResultModel();
 		try {
 			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
 			String filter = ParamUtils.getParameter(request, "filter", "");
@@ -208,23 +216,27 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			errorTypes = errorSetModelDao.selectErrorTypes(configDBModel, record, null);
+			List<ItemConfigModel> errorTypes = errorSetModelDao.selectErrorTypes(configDBModel, record, null);
+			
+			result.setRows(errorTypes);
+			result.setTotal(errorTypes.size());
+			result.setResult(1);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			result.setResultMsg(e.getMessage());
 		}
-		json.addObject("rows", errorTypes);
-		json.addObject("total", errorTypes.size());
-		json.addObject("result", 1);
-		logger.debug("ErrorSetManageCtrl-getErrorTypes end.");
+		json.addAllObjects(result);
+		logger.debug("END");
 		return json;
 	}
 
 	@RequestMapping(params = "atn=recogniseErrortypes")
 	public ModelAndView recogniseErrortypes(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("ErrorSetManageCtrl-getErrorTypes start.");
+		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		List<ItemConfigModel> errorTypes = new ArrayList<ItemConfigModel>();
+		ResultModel result = new ResultModel();
 		try {
+			List<ItemConfigModel> errorTypes = new ArrayList<ItemConfigModel>();
 			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
 			String errortypes = ParamUtils.getParameter(request, "errortypes", new String());
 			List<Long> errortypeList = new ArrayList<Long>();
@@ -246,21 +258,24 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 				errorTypes = errorSetModelDao.selectErrorTypes(configDBModel, null, errortypeList);
 			}
+			
+			result.setRows(errorTypes);
+			result.setTotal(errorTypes.size());
+			result.setResult(1);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			result.setResultMsg(e.getMessage());
 		}
-		json.addObject("rows", errorTypes);
-		json.addObject("total", errorTypes.size());
-		json.addObject("result", 1);
-		logger.debug("ErrorSetManageCtrl-getErrorTypes end.");
+		json.addAllObjects(result);
+		logger.debug("END");
 		return json;
 	}
 	
 	@RequestMapping(params = "atn=submiterrorset")
 	public ModelAndView submitErrorSet(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("ErrorSetManageCtrl-submitErrorSet start.");
+		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		Boolean ret = false;
+		ResultModel result = new ResultModel();
 		try {
 			Long errorSetID = ParamUtils.getLongParameter(request, "errorSetID", -1L);
 			String name = ParamUtils.getParameter(request, "name");
@@ -292,7 +307,7 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 				errorSetID = errorSetModelDao.insertErrorSet(configDBModel, record);
 				if (errorSetID.compareTo(0L) > 0) {
 					if (errorSetModelDao.setErrorSetDetails(configDBModel, errorSetID, errorSetDetails) > 0)
-						ret = true;
+						result.setResult(1);
 				}
 			} else {
 				ErrorSetModel record = new ErrorSetModel();
@@ -305,39 +320,41 @@ public class ErrorSetManageCtrl extends BaseCtrl {
 
 				if (errorSetModelDao.updateErrorSet(configDBModel, record)) {
 					if (errorSetModelDao.setErrorSetDetails(configDBModel, errorSetID, errorSetDetails) > 0)
-						ret = true;
+						result.setResult(1);
 				}
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			result.setResultMsg(e.getMessage());
 		}
-		json.addObject("result", ret);
-		logger.debug("ErrorSetManageCtrl-submitErrorSet end.");
+		json.addAllObjects(result);
+		logger.debug("END");
 		return json;
 	}
 
 	@RequestMapping(params = "atn=deleteerrorset")
 	public ModelAndView deleteErrorSet(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("ErrorSetManageCtrl-deleteErrorSet start.");
+		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		Boolean ret = false;
+		ResultModel result = new ResultModel();
 		try {
 			Long errorSetID = ParamUtils.getLongParameter(request, "errorSetID", -1L);
-			if (errorSetID.compareTo(0L) <= 0) {
-				json.addObject("result", 0);
-				return json;
+			if (errorSetID.compareTo(0L) > 0) {
+				ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
+	
+				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
+				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+	
+				if (errorSetModelDao.deleteErrorSet(configDBModel, errorSetID)) {
+					result.setResult(1);
+				}
 			}
-			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
-
-			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
-			ret = errorSetModelDao.deleteErrorSet(configDBModel, errorSetID);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			result.setResultMsg(e.getMessage());
 		}
-		json.addObject("result", ret);
-		logger.debug("ErrorSetManageCtrl-deleteErrorSet end.");
+		json.addAllObjects(result);
+		logger.debug("END");
 		return json;
 	}
 
