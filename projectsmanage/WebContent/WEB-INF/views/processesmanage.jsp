@@ -625,10 +625,6 @@
 								break;
 							case 5:
 							case "5":
-								if(!config_2_25 || config_2_25.lenth <= 0) {
-									$.webeditor.showMsgLabel("alert", "没有绑定资料");
-									return;
-								}
 								if(!config_2_26 || config_2_26.lenth <= 0) {
 									$.webeditor.showMsgLabel("alert", "请设定制作任务数");
 									return;
@@ -654,37 +650,72 @@
 								$.webeditor.showMsgLabel("alert", "私有项目需要添加人员");
 								return;
 							}
-
-							$.webeditor.showMsgBox("info", "保存中...");
-							jQuery.post("./processesmanage.web", {
-								"atn" : "newprocess",
-								"processid" : processid,
-								"newProcessName" : newProcessName,
-								"priority" : priority,
-								"type" : protype,
-								"config_1_5" : config_1_5,
-								"config_1_6" : config_1_6,
-								"config_1_7" : config_1_7,
-								"config_2_18" : config_2_18,
-								"config_2_19" : config_2_19,
-								"config_2_21" : config_2_21,
-								"config_2_22" : config_2_22,
-								"config_2_23" : config_2_23,
-								"config_2_25" : config_2_25,
-								"config_2_26" : config_2_26
-							},
-							function(json) {
-								if (json.result > 0) {
-									$.webeditor.showMsgBox("close");
-									$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
-									$("#configDlg").dialog("close");
-									$('[data-toggle="processes"]').bootstrapTable('refresh');
-									$.webeditor.showMsgLabel("success",'项目配置成功，<div class="btn btn-default btn-xs" onclick="gotoPage(' + json.pid + ');">跳转</div>到所在页');
-								} else {
-									$.webeditor.showMsgBox("close");
-									$.webeditor.showMsgLabel("alert",json.resultMsg);
-								}
-							}, "json");
+							
+							if(protype == 5 && (!config_2_25 || config_2_25.lenth <= 0)) {
+								$.webeditor.showConfirmBox("alert", "确定不绑定资料就创建项目吗？", function(){
+									$.webeditor.showMsgBox("info", "保存中...");
+									jQuery.post("./processesmanage.web", {
+										"atn" : "newprocess",
+										"processid" : processid,
+										"newProcessName" : newProcessName,
+										"priority" : priority,
+										"type" : protype,
+										"config_1_5" : config_1_5,
+										"config_1_6" : config_1_6,
+										"config_1_7" : config_1_7,
+										"config_2_18" : config_2_18,
+										"config_2_19" : config_2_19,
+										"config_2_21" : config_2_21,
+										"config_2_22" : config_2_22,
+										"config_2_23" : config_2_23,
+										"config_2_25" : config_2_25,
+										"config_2_26" : config_2_26
+									},
+									function(json) {
+										if (json.result > 0) {
+											$.webeditor.showMsgBox("close");
+											$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
+											$("#configDlg").dialog("close");
+											$('[data-toggle="processes"]').bootstrapTable('refresh');
+											$.webeditor.showMsgLabel("success",'项目配置成功，<div class="btn btn-default btn-xs" onclick="gotoPage(' + json.pid + ');">跳转</div>到所在页');
+										} else {
+											$.webeditor.showMsgBox("close");
+											$.webeditor.showMsgLabel("alert",json.resultMsg);
+										}
+									}, "json");
+								});
+							} else {
+								$.webeditor.showMsgBox("info", "保存中...");
+								jQuery.post("./processesmanage.web", {
+									"atn" : "newprocess",
+									"processid" : processid,
+									"newProcessName" : newProcessName,
+									"priority" : priority,
+									"type" : protype,
+									"config_1_5" : config_1_5,
+									"config_1_6" : config_1_6,
+									"config_1_7" : config_1_7,
+									"config_2_18" : config_2_18,
+									"config_2_19" : config_2_19,
+									"config_2_21" : config_2_21,
+									"config_2_22" : config_2_22,
+									"config_2_23" : config_2_23,
+									"config_2_25" : config_2_25,
+									"config_2_26" : config_2_26
+								},
+								function(json) {
+									if (json.result > 0) {
+										$.webeditor.showMsgBox("close");
+										$('[data-toggle="itemAreas"]').bootstrapTable("destroy");
+										$("#configDlg").dialog("close");
+										$('[data-toggle="processes"]').bootstrapTable('refresh');
+										$.webeditor.showMsgLabel("success",'项目配置成功，<div class="btn btn-default btn-xs" onclick="gotoPage(' + json.pid + ');">跳转</div>到所在页');
+									} else {
+										$.webeditor.showMsgBox("close");
+										$.webeditor.showMsgLabel("alert",json.resultMsg);
+									}
+								}, "json");
+							}
 						}
 					}, {
 						text : "关闭",
