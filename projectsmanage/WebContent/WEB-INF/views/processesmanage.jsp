@@ -1059,7 +1059,6 @@
 		$("#config_1_5").removeAttr("disabled");
 		$("#config_2_19").removeAttr("disabled");
 		$("#config_2_22").removeAttr("disabled");
-		$("#config_2_23").removeAttr("disabled");
 		$("#config_2_26").removeAttr("disabled");
 	}
 	
@@ -1069,13 +1068,11 @@
 			$("#config_1_5").attr("disabled", true);
 		} else if(selectValue == 5) {
 			$("#config_2_22").attr("disabled", true);
-			$("#config_2_23").attr("disabled", true);
 			$("#config_2_26").attr("disabled", true);
 		} else {
 			$("#config_processname").removeAttr("disabled");
 			$("#config_1_5").removeAttr("disabled");
 			$("#config_2_22").removeAttr("disabled");
-			$("#config_2_23").removeAttr("disabled");
 			$("#config_2_26").removeAttr("disabled");
 		}
 		$("#config_processprotype").attr("disabled", true);
