@@ -652,7 +652,7 @@
 							}
 							
 							if(protype == 5 && (!config_2_25 || config_2_25.lenth <= 0)) {
-								$.webeditor.showConfirmBox("alert", "确定不绑定资料就创建项目吗？", function(){
+								$.webeditor.showConfirmBox("alert", "确定不绑定资料就配置项目吗？", function(){
 									$.webeditor.showMsgBox("info", "保存中...");
 									jQuery.post("./processesmanage.web", {
 										"atn" : "newprocess",
