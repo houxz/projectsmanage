@@ -76,6 +76,7 @@
 			<mvc:exclude-mapping path="/login.web"/>
 			<mvc:exclude-mapping path="/logout.web"/>
 			<mvc:exclude-mapping path="/interface.web"/>
+			<mvc:exclude-mapping path="/selfcheck.web"/>
 			<mvc:exclude-mapping path="/head.web"/>
 			<mvc:exclude-mapping path="/foot.web"/>
 			<beans:bean class="com.emg.projectsmanage.auth.AuthMonitorInterceptor"></beans:bean>
