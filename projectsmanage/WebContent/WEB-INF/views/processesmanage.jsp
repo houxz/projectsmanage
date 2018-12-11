@@ -75,6 +75,25 @@
 	var itemsetTypes = eval('(${itemsetTypes})');
 	var itemsetUnits = eval('(${itemsetUnits})');
 	
+	function ajaxRequest(params){
+		$.ajax({
+			url: "./processesmanage.web?atn=pages",
+			type: "POST",
+			dataType: "json",
+			success: function(json){
+				console.log(json);
+				var rows = json.rows;
+                params.success({
+		            total: rows.length,
+		            rows: rows
+		        });
+			},
+			error: function(json){
+				console.log(json);
+			}
+		});
+	}
+	
 	function checkboxFormat(value, row, index) {
 		var workers = $("#" + this.valueBand).val();
 		var values = new Array();
