@@ -67,7 +67,7 @@
 				<c:if test="${not empty param.logout }">
 					<c:choose>
 						<c:when test="${param.logout == 1}">
-							<h5><span class="label label-warning">您已退出登录，如需要，请重新登录。</span></h5>
+							<h5><span class="label label-warning">已退出登录，如需要，请重新登录。</span></h5>
 						</c:when>
 						<c:when test="${param.logout == 2}">
 							<h5><span class="label label-warning">登录超时，请重新登录。</span></h5>
