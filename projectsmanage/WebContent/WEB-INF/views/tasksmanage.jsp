@@ -57,7 +57,16 @@
 		$.webeditor.getHead();
 
 		$('[data-toggle="qctasks"]').bootstrapTable({
-			locale : 'zh-CN'
+			locale : 'zh-CN',
+			onSearch : function (text) {
+				$.webeditor.showMsgBox("info", "加载中...");
+			},
+			onLoadSuccess : function (data) {
+				$.webeditor.showMsgBox("close");
+			},
+			onLoadError : function (status) {
+				$.webeditor.showMsgBox("close");
+			}
 		});
 
 	});
