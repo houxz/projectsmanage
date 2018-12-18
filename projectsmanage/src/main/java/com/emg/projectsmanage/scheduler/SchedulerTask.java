@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.emg.projectsmanage.common.CapacityTaskStateEnum;
-import com.emg.projectsmanage.common.POITaskTypeEnum;
+import com.emg.projectsmanage.common.TaskTypeEnum;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.RoleType;
@@ -333,15 +333,15 @@ public class SchedulerTask {
 									Integer roleid = RoleType.UNKNOWN.getValue();
 	
 									Integer taskType = task.getTasktype();
-									if (taskType.equals(POITaskTypeEnum.FEISHICE.getValue()) || // 非实测
-											taskType.equals(POITaskTypeEnum.QUANGUOQC.getValue()) || // 全国质检改错
-											taskType.equals(POITaskTypeEnum.FEISHICEADDRESSTEL.getValue())// 地址电话改错
-											|| taskType.equals(POITaskTypeEnum.KETOU.getValue()) || // 客投制作
-											taskType.equals(POITaskTypeEnum.GEN.getValue())) {// 易淘金制作
+									if (taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) || // 非实测
+											taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) || // 全国质检改错
+											taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())// 地址电话改错
+											|| taskType.equals(TaskTypeEnum.POI_KETOU.getValue()) || // 客投制作
+											taskType.equals(TaskTypeEnum.POI_GEN.getValue())) {// 易淘金制作
 										userid = task.getEditid();
 										roleid = RoleType.ROLE_WORKER.getValue();
-									} else if (taskType.equals(POITaskTypeEnum.MC_KETOU.getValue()) || // 客投校正
-											taskType.equals(POITaskTypeEnum.MC_GEN.getValue())) {// 易淘金校正
+									} else if (taskType.equals(TaskTypeEnum.POI_MC_KETOU.getValue()) || // 客投校正
+											taskType.equals(TaskTypeEnum.POI_MC_GEN.getValue())) {// 易淘金校正
 										userid = task.getCheckid();
 										roleid = RoleType.ROLE_CHECKER.getValue();
 									} else {
@@ -406,15 +406,15 @@ public class SchedulerTask {
 									Integer roleid = RoleType.UNKNOWN.getValue();
 	
 									Integer taskType = task.getTasktype();
-									if (taskType.equals(POITaskTypeEnum.FEISHICE.getValue()) || // 非实测
-											taskType.equals(POITaskTypeEnum.QUANGUOQC.getValue()) || // 全国质检改错
-											taskType.equals(POITaskTypeEnum.FEISHICEADDRESSTEL.getValue())// 地址电话改错
-											|| taskType.equals(POITaskTypeEnum.KETOU.getValue()) || // 客投制作
-											taskType.equals(POITaskTypeEnum.GEN.getValue())) {// 易淘金制作
+									if (taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) || // 非实测
+											taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) || // 全国质检改错
+											taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())// 地址电话改错
+											|| taskType.equals(TaskTypeEnum.POI_KETOU.getValue()) || // 客投制作
+											taskType.equals(TaskTypeEnum.POI_GEN.getValue())) {// 易淘金制作
 										userid = task.getEditid();
 										roleid = RoleType.ROLE_WORKER.getValue();
-									} else if (taskType.equals(POITaskTypeEnum.MC_KETOU.getValue()) || // 客投校正
-											taskType.equals(POITaskTypeEnum.MC_GEN.getValue())) {// 易淘金校正
+									} else if (taskType.equals(TaskTypeEnum.POI_MC_KETOU.getValue()) || // 客投校正
+											taskType.equals(TaskTypeEnum.POI_MC_GEN.getValue())) {// 易淘金校正
 										userid = task.getCheckid();
 										roleid = RoleType.ROLE_CHECKER.getValue();
 									} else {

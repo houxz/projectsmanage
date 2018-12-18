@@ -18,6 +18,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessType;
+import com.emg.projectsmanage.common.TaskTypeEnum;
 import com.emg.projectsmanage.common.StateMap;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
@@ -64,6 +65,7 @@ public class TasksManageCtrl extends BaseCtrl {
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START");
 		model.addAttribute("processTypes", ProcessType.toJsonStr());
+		model.addAttribute("taskTypes", TaskTypeEnum.toJsonStr());
 		return "tasksmanage";
 	}
 
@@ -89,6 +91,7 @@ public class TasksManageCtrl extends BaseCtrl {
 			List<StateMap> stateMaps = new ArrayList<StateMap>();
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
+				processType = ProcessType.valueOf(Integer.valueOf(filterPara.get("processtype").toString()));
 				for (String key : filterPara.keySet()) {
 					switch (key) {
 					case "processid":
@@ -114,17 +117,23 @@ public class TasksManageCtrl extends BaseCtrl {
 							projects.addAll(projectModelDao.selectByExample(example));
 						}
 						break;
-					case "processtype":
-						processType = ProcessType.valueOf(Integer.valueOf(filterPara.get(key).toString()));
-						break;
 					case "id":
 						record.setId(Long.valueOf(filterPara.get(key).toString()));
 						break;
 					case "name":
 						record.setName(filterPara.get(key).toString());
 						break;
+					case "tasktype":
+						record.setTasktype(Integer.valueOf(filterPara.get(key).toString()));
+						break;
 					case "statedes":
-						stateMaps = getStateMap(filterPara.get(key).toString());
+						stateMaps = getStateMap(processType, filterPara.get(key).toString());
+						if (stateMaps == null || stateMaps.size() <= 0) {
+							json.addObject("rows", new ArrayList<TaskModel>());
+							json.addObject("total", 0);
+							json.addObject("result", 1);
+							return json;
+						}
 						break;
 					case "editname":
 						List<EmployeeModel> editusers = emapgoAccountService.getEmployeesByIDSAndRealname(null, filterPara.get(key).toString());
@@ -176,13 +185,15 @@ public class TasksManageCtrl extends BaseCtrl {
 					if (row == null)
 						continue;
 
-					ProjectModel project = projectModelDao.selectByPrimaryKey(row.getProjectid());
-					if (project != null) {
-						ProcessModel processModel = processModelDao.selectByPrimaryKey(project.getProcessid());
-						if (processModel != null) {
-							row.setProcessid(processModel.getId());
-							row.setProcessname(processModel.getName());
-							row.setStatedes(getStateDes(row));
+					if (row.getProjectid() != null && row.getProjectid().compareTo(0L) > 0) {
+						ProjectModel project = projectModelDao.selectByPrimaryKey(row.getProjectid());
+						if (project != null) {
+							ProcessModel processModel = processModelDao.selectByPrimaryKey(project.getProcessid());
+							if (processModel != null) {
+								row.setProcessid(processModel.getId());
+								row.setProcessname(processModel.getName());
+								row.setStatedes(getStateDes(row));
+							}
 						}
 					}
 					
@@ -221,60 +232,109 @@ public class TasksManageCtrl extends BaseCtrl {
 		return json;
 	}
 
-	private List<StateMap> getStateMap(String stateDes) {
+	private List<StateMap> getStateMap(ProcessType processType, String stateDes) {
 		List<StateMap> stateMaps = new ArrayList<StateMap>();
 		try {
-			switch (stateDes) {
-			case "编辑中":
-				stateMaps.add(new StateMap(0, 5, null, -1));
-				stateMaps.add(new StateMap(1, 5, null, -1));
-				stateMaps.add(new StateMap(2, 6, null, null));
-				stateMaps.add(new StateMap(2, 11, null, null));
-				stateMaps.add(new StateMap(2, 12, null, null));
-				stateMaps.add(new StateMap(2, 13, null, null));
-				stateMaps.add(new StateMap(2, 14, null, null));
-				stateMaps.add(new StateMap(2, 15, null, null));
-				break;
-			case "完成":
-				stateMaps.add(new StateMap(3, 5, 12, null));
-				stateMaps.add(new StateMap(3, 6, null, null));
-				break;
-			case "未制作":
-				stateMaps.add(new StateMap(0, 0, null, null));
-				break;
-			case "校正错误修改中":
-				stateMaps.add(new StateMap(0, 5, null, 1));
-				stateMaps.add(new StateMap(1, 5, null, 1));
-				break;
-			case "待校正":
-				stateMaps.add(new StateMap(3, 5, 13, null));
-				break;
-			case "校正中":
-				stateMaps.add(new StateMap(0, 6, null, null));
-				stateMaps.add(new StateMap(1, 6, null, null));
-				break;
-			case "悬挂点创建中":
-				stateMaps.add(new StateMap(0, 11, null, null));
-				stateMaps.add(new StateMap(0, 12, null, null));
-				stateMaps.add(new StateMap(0, 13, null, null));
-				stateMaps.add(new StateMap(0, 14, null, null));
-				stateMaps.add(new StateMap(0, 15, null, null));
-				stateMaps.add(new StateMap(1, 11, null, null));
-				stateMaps.add(new StateMap(1, 12, null, null));
-				stateMaps.add(new StateMap(1, 13, null, null));
-				stateMaps.add(new StateMap(1, 14, null, null));
-				stateMaps.add(new StateMap(1, 15, null, null));
-				break;
-			case "预发布完成":
-				stateMaps.add(new StateMap(3, 20, null, null));
-				break;
-			case "质检完成":
-				stateMaps.add(new StateMap(2, 52, null, null));
-				break;
-			case "质检中":
-				stateMaps.add(new StateMap(1, 52, null, null));
-				stateMaps.add(new StateMap(2, 5, null, null));
-				break;
+			if (processType.equals(ProcessType.ERROR) ||
+				processType.equals(ProcessType.NRFC) ||
+				processType.equals(ProcessType.ATTACH)) {
+				switch (stateDes) {
+				case "编辑中":
+					stateMaps.add(new StateMap(0, 5, null, -1));
+					stateMaps.add(new StateMap(1, 5, null, -1));
+					stateMaps.add(new StateMap(2, 6, null, null));
+					stateMaps.add(new StateMap(2, 11, null, null));
+					stateMaps.add(new StateMap(2, 12, null, null));
+					stateMaps.add(new StateMap(2, 13, null, null));
+					stateMaps.add(new StateMap(2, 14, null, null));
+					stateMaps.add(new StateMap(2, 15, null, null));
+					break;
+				case "完成":
+					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(3, 6, null, null));
+					break;
+				case "未制作":
+					stateMaps.add(new StateMap(0, 0, null, null));
+					break;
+				case "校正错误修改中":
+					stateMaps.add(new StateMap(0, 5, null, 1));
+					stateMaps.add(new StateMap(1, 5, null, 1));
+					break;
+				case "待校正":
+					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.ATTACH.getValue(), null));
+					break;
+				case "校正中":
+					stateMaps.add(new StateMap(0, 6, null, null));
+					stateMaps.add(new StateMap(1, 6, null, null));
+					break;
+				case "悬挂点创建中":
+					stateMaps.add(new StateMap(0, 11, null, null));
+					stateMaps.add(new StateMap(0, 12, null, null));
+					stateMaps.add(new StateMap(0, 13, null, null));
+					stateMaps.add(new StateMap(0, 14, null, null));
+					stateMaps.add(new StateMap(0, 15, null, null));
+					stateMaps.add(new StateMap(1, 11, null, null));
+					stateMaps.add(new StateMap(1, 12, null, null));
+					stateMaps.add(new StateMap(1, 13, null, null));
+					stateMaps.add(new StateMap(1, 14, null, null));
+					stateMaps.add(new StateMap(1, 15, null, null));
+					break;
+				case "预发布完成":
+					stateMaps.add(new StateMap(3, 20, null, null));
+					break;
+				case "质检完成":
+					stateMaps.add(new StateMap(2, 52, null, null));
+					break;
+				case "质检中":
+					stateMaps.add(new StateMap(1, 52, null, null));
+					stateMaps.add(new StateMap(2, 5, null, null));
+					break;
+				}
+			} else if(processType.equals(ProcessType.POIEDIT)) {
+				switch (stateDes) {
+				case "未制作":
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_KETOU.getValue(), null));
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_GEN.getValue(), null));
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_GEN_IMPORT.getValue(), null));
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_FEISHICE_IMPORT.getValue(), null));
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_FEISHICE.getValue(), null));
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_FEISHICEADDRESSTEL_IMPORT.getValue(), null));
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue(), null));
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_QUANGUOQC.getValue(), null));
+					break;
+				case "制作中":
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_KETOU.getValue(), null));
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_GEN.getValue(), null));
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_GEN_IMPORT.getValue(), null));
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_FEISHICE_IMPORT.getValue(), null));
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_FEISHICE.getValue(), null));
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_FEISHICEADDRESSTEL_IMPORT.getValue(), null));
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue(), null));
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_QUANGUOQC.getValue(), null));
+					break;
+				case "制作完成":
+					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_KETOU.getValue(), null));
+					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_GEN.getValue(), null));
+					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_GEN_IMPORT.getValue(), null));
+					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_FEISHICE_IMPORT.getValue(), null));
+					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_FEISHICE.getValue(), null));
+					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_FEISHICEADDRESSTEL_IMPORT.getValue(), null));
+					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue(), null));
+					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_QUANGUOQC.getValue(), null));
+					break;
+				case "未校正":
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_MC_KETOU.getValue(), null));
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_MC_GEN.getValue(), null));
+					break;
+				case "校正中":
+					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.POI_MC_KETOU.getValue(), null));
+					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.POI_MC_GEN.getValue(), null));
+					break;
+				case "校正完成":
+					stateMaps.add(new StateMap(2, 6, TaskTypeEnum.POI_MC_KETOU.getValue(), null));
+					stateMaps.add(new StateMap(2, 6, TaskTypeEnum.POI_MC_GEN.getValue(), null));
+					break;
+				}
 			}
 		} catch (Exception e) {
 		}
@@ -284,79 +344,102 @@ public class TasksManageCtrl extends BaseCtrl {
 	private String getStateDes(TaskModel task) {
 		Integer state = task.getState();
 		Integer process = task.getProcess();
-		Integer tasktype = task.getTasktype();
+		TaskTypeEnum tasktype = TaskTypeEnum.valueOf(task.getTasktype());
 		Integer checkid = task.getCheckid();
-
-		switch (state) {
-		case 0:
-			switch (process) {
+		
+		if (tasktype.equals(TaskTypeEnum.ERROR) ||
+			tasktype.equals(TaskTypeEnum.NRFC) ||
+			tasktype.equals(TaskTypeEnum.ATTACH)) {
+			switch (state) {
+			case 0:
+				switch (process) {
+				case 0:
+					return "未制作";
+				case 5:
+					if (checkid != null && checkid > 0)
+						return "校正错误修改中";
+					else
+						return "制作中";
+				case 6:
+					return "校正中";
+				case 11:
+				case 12:
+				case 13:
+				case 14:
+				case 15:
+					return "悬挂点创建中";
+				}
+			case 1:
+				switch (process) {
+				case 5:
+					if (checkid != null && checkid > 0)
+						return "校正错误修改中";
+					else
+						return "制作中";
+				case 6:
+					return "校正中";
+				case 11:
+				case 12:
+				case 13:
+				case 14:
+				case 15:
+					return "悬挂点创建中";
+				case 52:
+					return "质检中";
+				}
+				break;
+			case 2:
+				switch (process) {
+				case 5:
+					return "质检中";
+				case 6:
+					return "制作中";
+				case 11:
+				case 12:
+				case 13:
+				case 14:
+				case 15:
+					return "制作中";
+				case 52:
+					return "质检完成";
+				}
+				break;
+			case 3:
+				switch (process) {
+				case 5:
+					if (tasktype.equals(TaskTypeEnum.NRFC))
+						return "完成";
+					else if(tasktype.equals(TaskTypeEnum.ATTACH))
+						return "未校正";
+					else
+						return "校正中";
+				case 6:
+					return "完成";
+				case 20:
+					return "预发布完成";
+				}
+				break;
+			}
+		} else if (TaskTypeEnum.getPoiEditTaskTypes().contains(tasktype)) {
+			switch (state) {
 			case 0:
 				return "未制作";
-			case 5:
-				if (checkid != null && checkid > 0)
-					return "校正错误修改中";
-				else
-					return "编辑中";
-			case 6:
+			case 1:
+				return "制作中";
+			case 2:
+				return "制作完成";
+			}
+		} else if (TaskTypeEnum.getPoiCheckTaskTypes().contains(tasktype)) {
+			switch (state) {
+			case 0:
+				return "未校正";
+			case 1:
 				return "校正中";
-			case 11:
-			case 12:
-			case 13:
-			case 14:
-			case 15:
-				return "悬挂点创建中";
+			case 2:
+				return "校正完成";
 			}
-		case 1:
-			switch (process) {
-			case 5:
-				if (checkid != null && checkid > 0)
-					return "校正错误修改中";
-				else
-					return "编辑中";
-			case 6:
-				return "校正中";
-			case 11:
-			case 12:
-			case 13:
-			case 14:
-			case 15:
-				return "悬挂点创建中";
-			case 52:
-				return "质检中";
-			}
-			break;
-		case 2:
-			switch (process) {
-			case 5:
-				return "质检中";
-			case 6:
-				return "编辑中";
-			case 11:
-			case 12:
-			case 13:
-			case 14:
-			case 15:
-				return "编辑中";
-			case 52:
-				return "质检完成";
-			}
-			break;
-		case 3:
-			switch (process) {
-			case 5:
-				if (tasktype == 12)
-					return "完成";
-				else if(tasktype == 13)
-					return "待校正";
-				else
-					return "校正中";
-			case 6:
-				return "完成";
-			case 20:
-				return "预发布完成";
-			}
-			break;
 		}
-		return state + ":" + process;
+		
+		return tasktype + "-" + state + ":" + process;
 	}
 }

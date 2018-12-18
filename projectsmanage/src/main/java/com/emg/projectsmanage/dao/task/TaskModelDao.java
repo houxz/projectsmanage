@@ -25,23 +25,27 @@ public class TaskModelDao {
 
 	private static final Logger logger = LoggerFactory.getLogger(TaskModelDao.class);
 
-	private TaskTypeEnum getTaskType(ProcessType processType) {
-		TaskTypeEnum tasktype = TaskTypeEnum.UNKNOWN;
+	private List<TaskTypeEnum> getTaskType(ProcessType processType) {
+		List<TaskTypeEnum> tasktypes = new ArrayList<TaskTypeEnum>();
 		switch (processType) {
 		case ERROR:
-			tasktype = TaskTypeEnum.ERROR;
+			tasktypes.add(TaskTypeEnum.ERROR);
 			break;
 		case NRFC:
-			tasktype = TaskTypeEnum.NRFC;
+			tasktypes.add(TaskTypeEnum.NRFC);
 			break;
 		case ATTACH:
-			tasktype = TaskTypeEnum.ATTACH;
+			tasktypes.add(TaskTypeEnum.ATTACH);
+			break;
+		case POIEDIT:
+			tasktypes.addAll(TaskTypeEnum.getPoiEditTaskTypes());
+			tasktypes.addAll(TaskTypeEnum.getPoiCheckTaskTypes());
 			break;
 		default:
-			tasktype = TaskTypeEnum.UNKNOWN;
+			tasktypes.add(TaskTypeEnum.UNKNOWN);
 			break;
 		}
-		return tasktype;
+		return tasktypes;
 	}
 
 	public List<TaskModel> selectTaskModels(ConfigDBModel configDBModel, TaskModel record, List<Long> projectids,
@@ -54,7 +58,16 @@ public class TaskModelDao {
 				return tasks;
 			Integer dbtype = configDBModel.getDbtype();
 			ProcessType processType = ProcessType.valueOf(record.getProcesstype());
-			TaskTypeEnum tasktype = getTaskType(processType);
+			
+			List<TaskTypeEnum> tasktypes = getTaskType(processType);
+			if (record.getTasktype() != null && record.getTasktype() > 0) {
+				if (tasktypes.contains(TaskTypeEnum.valueOf(record.getTasktype()))) {
+					tasktypes.clear();
+					tasktypes.add(TaskTypeEnum.valueOf(record.getTasktype()));
+				} else {
+					return tasks;
+				}
+			}
 
 			String separator = Common.getDatabaseSeparator(dbtype);
 
@@ -65,7 +78,17 @@ public class TaskModelDao {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_task ");
-			sql.append(" WHERE tasktype = " + tasktype.getValue());
+			sql.append(" WHERE 1=1");
+			if (tasktypes != null && tasktypes.size() > 0) {
+				sql.append(" AND tasktype IN (");
+				for (TaskTypeEnum tasktype : tasktypes) {
+					sql.append(tasktype.getValue());
+					sql.append(",");
+				}
+				sql = sql.deleteCharAt(sql.length() - 1);
+				sql.append(" )");
+			}
+			
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
 				sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
 			}
@@ -90,20 +113,20 @@ public class TaskModelDao {
 				for (StateMap stateMap : stateMaps) {
 					sql.append(" ( ");
 					if (stateMap.getState() != null) {
-						sql.append(" ( state = " + stateMap.getState() + ") AND");
+						sql.append(" ( state = " + stateMap.getState() + ") ");
 					}
 					if (stateMap.getCheckid() != null) {
 						if (stateMap.getCheckid().equals(-1)) {
-							sql.append(" ( checkid IS NULL OR checkid <= 0) AND");
+							sql.append(" AND ( checkid IS NULL OR checkid <= 0)");
 						} else if (stateMap.getCheckid().equals(1)) {
-							sql.append(" ( checkid > 0) AND");
+							sql.append(" AND ( checkid > 0) AND");
 						}
 					}
 					if (stateMap.getTasktype() != null) {
-						sql.append(" ( tasktype = " + stateMap.getTasktype() + ") AND");
+						sql.append(" AND ( tasktype = " + stateMap.getTasktype() + ")");
 					}
 					if (stateMap.getProcess() != null) {
-						sql.append(" ( process = " + stateMap.getProcess() + ")");
+						sql.append(" AND ( process = " + stateMap.getProcess() + ")");
 					}
 					sql.append(" ) OR");
 				}
@@ -164,7 +187,15 @@ public class TaskModelDao {
 				return count;
 			Integer dbtype = configDBModel.getDbtype();
 			ProcessType processType = ProcessType.valueOf(record.getProcesstype());
-			TaskTypeEnum tasktype = getTaskType(processType);
+			List<TaskTypeEnum> tasktypes = getTaskType(processType);
+			if (record.getTasktype() != null && record.getTasktype() > 0) {
+				if (tasktypes.contains(TaskTypeEnum.valueOf(record.getTasktype()))) {
+					tasktypes.clear();
+					tasktypes.add(TaskTypeEnum.valueOf(record.getTasktype()));
+				} else {
+					return 0;
+				}
+			}
 
 			String separator = Common.getDatabaseSeparator(dbtype);
 
@@ -175,7 +206,17 @@ public class TaskModelDao {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_task ");
-			sql.append(" WHERE tasktype = " + tasktype.getValue());
+			sql.append(" WHERE 1=1");
+			if (tasktypes != null && tasktypes.size() > 0) {
+				sql.append(" AND tasktype IN (");
+				for (TaskTypeEnum tasktype : tasktypes) {
+					sql.append(tasktype.getValue());
+					sql.append(",");
+				}
+				sql = sql.deleteCharAt(sql.length() - 1);
+				sql.append(" )");
+			}
+			
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
 				sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
 			}
@@ -200,20 +241,20 @@ public class TaskModelDao {
 				for (StateMap stateMap : stateMaps) {
 					sql.append(" ( ");
 					if (stateMap.getState() != null) {
-						sql.append(" ( state = " + stateMap.getState() + ") AND");
+						sql.append(" ( state = " + stateMap.getState() + ") ");
 					}
 					if (stateMap.getCheckid() != null) {
 						if (stateMap.getCheckid().equals(-1)) {
-							sql.append(" ( checkid IS NULL OR checkid <= 0) AND");
+							sql.append(" AND ( checkid IS NULL OR checkid <= 0)");
 						} else if (stateMap.getCheckid().equals(1)) {
-							sql.append(" ( checkid > 0) AND");
+							sql.append(" AND ( checkid > 0) AND");
 						}
 					}
 					if (stateMap.getTasktype() != null) {
-						sql.append(" ( tasktype = " + stateMap.getTasktype() + ") AND");
+						sql.append(" AND ( tasktype = " + stateMap.getTasktype() + ")");
 					}
 					if (stateMap.getProcess() != null) {
-						sql.append(" ( process = " + stateMap.getProcess() + ")");
+						sql.append(" AND ( process = " + stateMap.getProcess() + ")");
 					}
 					sql.append(" ) OR");
 				}

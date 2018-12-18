@@ -35,11 +35,16 @@
 <script type="text/javascript">
 	
 	var processTypes = eval('(${processTypes})');
+	var taskTypes = eval('(${taskTypes})');
 	
-	var stateDeses = {"未制作":"未制作", "编辑中":"编辑中", "校正错误修改中":"校正错误修改中", "质检中":"质检中", "质检完成":"质检完成", "待校正":"待校正", "校正中":"校正中", "完成":"完成", "预发布完成":"预发布完成", "悬挂点创建中":"悬挂点创建中"};
+	var stateDeses = {"未制作":"未制作", "制作中":"制作中", "制作完成":"制作完成", "校正错误修改中":"校正错误修改中", "质检中":"质检中", "质检完成":"质检完成", "未校正":"未校正", "校正中":"校正中", "校正完成":"校正完成", "完成":"完成", "预发布完成":"预发布完成", "悬挂点创建中":"悬挂点创建中"};
 	
 	function processTypeFormat(value, row, index) {
 		return processTypes[row.processtype];
+	}
+	
+	function taskTypeFormat(value, row, index) {
+		return taskTypes[row.tasktype];
 	}
 	
 	function opttimeFormat(value, row, index) {
@@ -92,7 +97,7 @@
 							</c:when>
 							<c:otherwise>
 								<th data-field="processtype" data-width="140" data-formatter="processTypeFormat" 
-									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="<%= ProcessType.ATTACH.getValue() %>">
+									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="<%= ProcessType.POIEDIT.getValue() %>">
 									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 							</c:otherwise>
 						</c:choose>
@@ -104,6 +109,12 @@
 						<th data-field="name"
 							data-filter-control="input" data-filter-control-placeholder="">
 							任务名称</th>
+						<th data-field="tasktype" data-formatter="taskTypeFormat" 
+							data-filter-control="select" data-filter-data="var:taskTypes">
+							任务类型</th>
+							
+						<!-- <th data-field="state">state</th>
+						<th data-field="process">process</th> -->
 						
 						<th data-field="statedes"
 							data-filter-control="select" data-filter-data="var:stateDeses">

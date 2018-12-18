@@ -1,11 +1,8 @@
 package com.emg.projectsmanage.common;
 
-/**
- * 质检项集合类型
- * 
- * @author zsen
- * 
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public enum TaskTypeEnum {
 	/**
 	 * -1, "改错项目"
@@ -22,18 +19,50 @@ public enum TaskTypeEnum {
 	/**
 	 * 13, "关系附属表项目"
 	 */
-	ATTACH(13, "关系附属表任务");
+	ATTACH(13, "关系附属表任务"),
+	/**
+	 * 15101, "POI客投制作"
+	 */
+	POI_KETOU(15101, "POI客投制作"),
+	/**
+	 * 15102, "POI易淘金制作"
+	 */
+	POI_GEN(15102, "POI易淘金制作"),
+	/**
+	 * 15103, "POI易淘金导入自动完成任务"
+	 */
+	POI_GEN_IMPORT(15103, "POI易淘金导入自动完成任务"),
+	/**
+	 * 15105, "POI非实测导入自动完成"
+	 */
+	POI_FEISHICE_IMPORT(15105, "POI非实测导入自动完成"),
+	/**
+	 * 15106, "POI非实测改错任务"
+	 */
+	POI_FEISHICE(15106, "POI非实测改错任务"),
+	/**
+	 * 15107, "POI地址电话导入完成任务"
+	 */
+	POI_FEISHICEADDRESSTEL_IMPORT(15107, "POI地址电话导入完成任务"),
+	/**
+	 * 15108, "POI地址电话改错任务"
+	 */
+	POI_FEISHICEADDRESSTEL(15108, "POI地址电话改错任务"),
+	/**
+	 * 15119, "POI全国改错任务"
+	 */
+	POI_QUANGUOQC(15119, "POI全国改错任务"),
+	/**
+	 * 15201, "POI客投校正"
+	 */
+	POI_MC_KETOU(15201, "POI客投校正"),
+	/**
+	 * 15202, "POI易淘金校正"
+	 */
+	POI_MC_GEN(15202, "POI易淘金校正");
 
 	private Integer value;
 	private String des;
-
-	public String getDes() {
-		return des;
-	}
-
-	public void setDes(String des) {
-		this.des = des;
-	}
 
 	private TaskTypeEnum(Integer value, String des) {
 		this.setValue(value);
@@ -47,25 +76,55 @@ public enum TaskTypeEnum {
 	public void setValue(Integer value) {
 		this.value = value;
 	}
-	
-	public static TaskTypeEnum valueOf(Integer value) {
-		TaskTypeEnum ret = TaskTypeEnum.UNKNOWN;
-		for(TaskTypeEnum v : TaskTypeEnum.values()) {
-			if(v.getValue().equals(value)) {
-				ret = v;
-				break;
+
+	public String getDes() {
+		return des;
+	}
+
+	public void setDes(String des) {
+		this.des = des;
+	}
+
+	public static List<TaskTypeEnum> getPoiEditTaskTypes() {
+		List<TaskTypeEnum> taskTypes = new ArrayList<TaskTypeEnum>();
+		for (TaskTypeEnum val : TaskTypeEnum.values()) {
+			if (val.toString().startsWith("POI_") && !val.toString().startsWith("POI_MC_")) {
+				taskTypes.add(val);
 			}
 		}
-		return ret;
+		return taskTypes;
 	}
 	
+	public static List<TaskTypeEnum> getPoiCheckTaskTypes() {
+		List<TaskTypeEnum> taskTypes = new ArrayList<TaskTypeEnum>();
+		for (TaskTypeEnum val : TaskTypeEnum.values()) {
+			if (val.toString().startsWith("POI_MC_")) {
+				taskTypes.add(val);
+			}
+		}
+		return taskTypes;
+	}
+
 	public static String toJsonStr() {
 		String str = new String("{");
 		for (TaskTypeEnum val : TaskTypeEnum.values()) {
-			if(val.equals(UNKNOWN)) continue;
+			if (val.equals(UNKNOWN))
+				continue;
 			str += "\"" + val.getValue() + "\":\"" + val.getDes() + "\",";
 		}
 		str += "}";
 		return str;
 	}
+
+	public static TaskTypeEnum valueOf(Integer tasktype) {
+		TaskTypeEnum ret = UNKNOWN;
+		for (TaskTypeEnum val : TaskTypeEnum.values()) {
+			if (val.getValue().equals(tasktype)) {
+				ret = val;
+				break;
+			}
+		}
+		return ret;
+	}
+
 }
