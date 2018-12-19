@@ -31,11 +31,14 @@ public enum SystemType {
 	 * 3492, "综合编辑平台_关系附属表"
 	 */
 	MapDbEdit_Attach(3492, "综合编辑平台_关系附属表"),
-	
 	/**
 	 * 3493, "综合编辑平台_全国质检"
 	 */
-	MapDbEdit_Country(3493, "综合编辑平台_全国质检");
+	MapDbEdit_Country(3493, "综合编辑平台_全国质检"),
+	/**
+	 * 350, "整图编辑平台"
+	 */
+	AdjustMap(350, "整图编辑平台");
 
 	private Integer value;
 	private String des;

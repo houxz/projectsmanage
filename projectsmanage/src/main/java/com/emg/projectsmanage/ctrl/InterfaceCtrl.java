@@ -2,7 +2,6 @@ package com.emg.projectsmanage.ctrl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,6 @@ import com.emg.projectsmanage.pojo.ProcessConfigValueModel;
 import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.OwnerStatus;
-import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessConfigModuleEnum;
 import com.emg.projectsmanage.common.ProcessState;
@@ -1516,7 +1514,8 @@ public class InterfaceCtrl extends BaseCtrl {
 			@RequestParam("type") Integer newProcessType,
 			@RequestParam("name") String newProcessName,
 			@RequestParam(value = "priority", required = false, defaultValue = "0") Integer newProcessPriority,
-			@RequestParam(value = "state", required = false, defaultValue = "0") Integer newProcessState) {
+			@RequestParam(value = "state", required = false, defaultValue = "0") Integer newProcessState,
+			@RequestParam(value = "fielddata", required = false, defaultValue = "") String fielddata) {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -1538,6 +1537,13 @@ public class InterfaceCtrl extends BaseCtrl {
 			} else if(newProcessType.equals(ProcessType.POIEDIT.getValue())) {
 				suffix = "";
 				systemid = SystemType.poivideoedit.getValue();
+			} else if (newProcessType.equals(ProcessType.ADJUSTMAP.getValue())) {
+				suffix = "";
+				systemid = SystemType.AdjustMap.getValue();
+			} else {
+				json.addObject("result", false);
+				json.addObject("resultMsg", "未知的项目类型");
+				return json;
 			}
 			
 			ProcessModel newProcess = new ProcessModel();
@@ -1549,6 +1555,8 @@ public class InterfaceCtrl extends BaseCtrl {
 			newProcess.setUsername("系统工具");
 			if(newProcessType.equals(ProcessType.POIEDIT.getValue())) {
 				newProcess.setProgress("0,0");
+			} else if(newProcessType.equals(ProcessType.ADJUSTMAP.getValue())) {
+				newProcess.setProgress("0");
 			} else {
 				newProcess.setProgress("0,0,0,0");
 			}
@@ -1574,7 +1582,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			
 			if (projectModelDao.insert(newpro) <= 0) {
 				json.addObject("result", false);
-				json.addObject("resultMsg", "新建流程失败");
+				json.addObject("resultMsg", "新建项目失败");
 				return json;
 			}
 			Long projectid = newpro.getId();
@@ -1583,6 +1591,7 @@ public class InterfaceCtrl extends BaseCtrl {
 
 			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUID.getValue(), projectid.toString()));
 			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), projectName));
+			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), fielddata));
 			
 			List<ProcessConfigModel> processConfigs = processConfigModelService.selectAllProcessConfigModels(newProcessType);
 			for (ProcessConfigModel processConfig : processConfigs) {
@@ -1593,16 +1602,9 @@ public class InterfaceCtrl extends BaseCtrl {
 				if ((moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUID.getValue())) ||
 						(moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue())) ||
 						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUID.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue())))
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BANGDINGZILIAO.getValue())))
 					continue;
-
-				Enumeration<String> paramNames = request.getParameterNames();
-				while (paramNames.hasMoreElements()) {
-					String paramName = paramNames.nextElement();
-					if (!paramName.equals("config_" + moduleid + "_" + configid))
-						continue;
-					defaultValue = ParamUtils.getParameter(request, paramName);
-				}
 
 				configValues.add(new ProcessConfigValueModel(newProcessID, moduleid, configid, defaultValue));
 			}

@@ -30,7 +30,11 @@ public enum ProcessType {
 	/**
 	 * 5, "POI编辑项目"
 	 */
-	POIEDIT(5, "POI编辑项目");
+	POIEDIT(5, "POI编辑项目"),
+	/**
+	 * 6, "整图编辑项目"
+	 */
+	ADJUSTMAP(6, "整图编辑项目");
 
 	private Integer value;
 	private String des;

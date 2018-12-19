@@ -368,6 +368,23 @@
 							+ ' <span style="margin:0 6px;color: black;">'
 							+ parseFloat(values[1]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div></div>');
+		} else if(processType == 6) {
+			html.push('<div>');
+			html.push('<div style="width: 80%;float: left;" data-toggle="tooltip" data-placement="top" title="编辑与校正进度：' + parseFloat(values[0]).toFixed(3) + '&#8453;">');
+			html.push('<div class="progress');
+			if (values[0] > 0 && values[0] < 100 && row.state == 1)
+				html.push(' progress-striped active');
+			html.push('"style="margin-bottom: 3px;">');
+			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
+							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
+							+ (parseFloat(values[0]).toFixed(3) > 100 ? 100 : parseFloat(values[0]).toFixed(3))
+							+ '%;background-color: '
+							+ colors[0]
+							+ ';">'
+							+ ' <span style="margin:0 6px;color: black;">'
+							+ parseFloat(values[0]).toFixed(3) + '&#8453;</span>' + ' </div>');
+			html.push('</div></div>');
+			html.push('</div>');
 		}
 		return html.join('');
 	}
@@ -660,8 +677,11 @@
 									return;
 								}
 								break;
+							case 6:
+							case "6":
+								break;
 							default:
-								console.log("processTypeChange--错误的项目类型：" + selectValue);
+								console.log("processTypeChange--错误的项目类型：" + protype);
 								break;
 							}
 							
@@ -1063,6 +1083,19 @@
 			$("#config_2_23").parents("tr").show();
 			$("#config_2_25").parents("tr").show();
 			$("#config_2_26").parents("tr").show();
+			break;
+		case 6:
+		case "6":
+			$("#config_1_5").parents("tr").hide();
+			$("#config_1_6").parents("tr").hide();
+			$("#config_1_7").parents("tr").hide();
+			$("#config_2_18").parents("tr").show();
+			$("#config_2_19").parents("tr").show();
+			$("#config_2_21").parents("tr").show();
+			$("#config_2_22").parents("tr").hide();
+			$("#config_2_23").parents("tr").hide();
+			$("#config_2_25").parents("tr").hide();
+			$("#config_2_26").parents("tr").hide();
 			break;
 		default:
 			console.log("processTypeChange--错误的项目类型：" + selectValue);
