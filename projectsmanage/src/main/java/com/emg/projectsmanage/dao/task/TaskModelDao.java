@@ -108,6 +108,9 @@ public class TaskModelDao {
 					return tasks;
 				}
 			}
+			if (record.getPriority() != null && record.getPriority().compareTo(-2) >= 0 && record.getPriority().compareTo(2) <= 0) {
+				sql.append(" AND " + separator + "priority" + separator + " = " + record.getPriority());
+			}
 			if (stateMaps != null && stateMaps.size() > 0) {
 				sql.append(" AND ( ");
 				for (StateMap stateMap : stateMaps) {
@@ -235,6 +238,9 @@ public class TaskModelDao {
 				} else {
 					return 0;
 				}
+			}
+			if (record.getPriority() != null && record.getPriority().compareTo(-2) >= 0 && record.getPriority().compareTo(2) <= 0) {
+				sql.append(" AND " + separator + "priority" + separator + " = " + record.getPriority());
 			}
 			if (stateMaps != null && stateMaps.size() > 0) {
 				sql.append(" AND ( ");
@@ -407,6 +413,46 @@ public class TaskModelDao {
 			}
 		}
 		return task;
+	}
+	
+	public Integer updateTaskByIDSelective(ConfigDBModel configDBModel, TaskModel record) {
+		Integer ret = -1;
+		BasicDataSource dataSource = null;
+		try {
+			if (record == null || record.getId() == null || record.getId().compareTo(0L) <= 0)
+				return ret;
+			
+			Integer dbtype = configDBModel.getDbtype();
+			String separator = Common.getDatabaseSeparator(dbtype);
+			
+			StringBuffer sql = new StringBuffer();
+			sql.append(" UPDATE ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_task ");
+			sql.append(" SET id = id");
+			if (record.getPriority() != null) {
+				sql.append(", " + separator + "priority" + separator + " = '" + record.getPriority() + "'");
+			}
+
+			sql.append(" WHERE " + separator + "id" + separator + " = " + record.getId());
+
+			dataSource = Common.getDataSource(configDBModel);
+			ret = new JdbcTemplate(dataSource).update(sql.toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			ret = -1;
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return ret;
 	}
 
 }

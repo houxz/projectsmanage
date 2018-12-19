@@ -36,13 +36,45 @@
 	
 	var processTypes = eval('(${processTypes})');
 	var taskTypes = eval('(${taskTypes})');
+	var priorityLevels = eval('(${priorityLevels})');
 	
 	var stateDeses = {"未制作":"未制作", "制作中":"制作中", "制作完成":"制作完成", "校正错误修改中":"校正错误修改中", "质检中":"质检中", "质检完成":"质检完成", "未校正":"未校正", "校正中":"校正中", "校正完成":"校正完成", "完成":"完成", "预发布完成":"预发布完成", "悬挂点创建中":"悬挂点创建中"};
+	
+	function changePriority(processtype, taskid) {
+		var priority = $("#priority_" + taskid).val();
+		$.webeditor.showMsgBox("info", "保存中...");
+		jQuery.post("./tasksmanage.web", {
+			"atn" : "changePriority",
+			"processType" : processtype,
+			"taskid" : taskid,
+			"priority" : priority
+		}, function(json) {
+			$.webeditor.showMsgBox("close");
+			$('[data-toggle="qctasks"]').bootstrapTable('refresh');
+			$.webeditor.showMsgLabel("success",'优先级修改成功');
+		}, "json");
+	}
 	
 	function processTypeFormat(value, row, index) {
 		return processTypes[row.processtype];
 	}
-	
+	function priFormat(value, row, index) {
+		var html = [];
+		html.push("<select name='priority_" + row.id + "' id='priority_"
+				+ row.id + "' onchange='changePriority(" + row.processtype + "," + row.id
+				+ ")'  class='form-control'>");
+		for ( var priorityLevel in priorityLevels) {
+			if (priorityLevel == value) {
+				html.push("<option value='"+ value +"' selected='selected' >"
+						+ priorityLevels[value] + "</option>");
+			} else {
+				html.push("<option value='"+ priorityLevel +"'>"
+						+ priorityLevels[priorityLevel] + "</option>");
+			}
+		}
+		html.push("</select>");
+		return html.join("");
+	}
 	function taskTypeFormat(value, row, index) {
 		return taskTypes[row.tasktype];
 	}
@@ -121,6 +153,10 @@
 						<th data-field="tasktype" data-formatter="taskTypeFormat" 
 							data-filter-control="select" data-filter-data="var:taskTypes">
 							任务类型</th>
+						<th data-field="priority" data-formatter="priFormat"
+							data-filter-control="select" data-width="100"
+							data-filter-data="var:priorityLevels">优先级</th>
+							
 							
 						<!-- <th data-field="state">state</th>
 						<th data-field="process">process</th> -->

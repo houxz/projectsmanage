@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.ParamUtils;
+import com.emg.projectsmanage.common.PriorityLevel;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.TaskTypeEnum;
@@ -65,7 +66,8 @@ public class TasksManageCtrl extends BaseCtrl {
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START");
 		model.addAttribute("processTypes", ProcessType.toJsonStr());
-		model.addAttribute("taskTypes", TaskTypeEnum.toJsonStr());
+		model.addAttribute("taskTypes", TaskTypeEnum.toJsonStr());	
+		model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
 		return "tasksmanage";
 	}
 
@@ -126,6 +128,9 @@ public class TasksManageCtrl extends BaseCtrl {
 					case "tasktype":
 						record.setTasktype(Integer.valueOf(filterPara.get(key).toString()));
 						break;
+					case "priority":
+						record.setPriority(Integer.valueOf(filterPara.get(key).toString()));
+						break;
 					case "statedes":
 						stateMaps = getStateMap(processType, filterPara.get(key).toString());
 						if (stateMaps == null || stateMaps.size() <= 0) {
@@ -160,6 +165,8 @@ public class TasksManageCtrl extends BaseCtrl {
 							json.addObject("result", 1);
 							return json;
 						}
+						break;
+					case "processtype":
 						break;
 					default:
 						logger.error("未处理的筛选项：" + key);
@@ -231,6 +238,35 @@ public class TasksManageCtrl extends BaseCtrl {
 		logger.debug("END");
 		return json;
 	}
+	
+	@RequestMapping(params = "atn=changePriority")
+	public ModelAndView changePriority(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		Integer ret = -1;
+		try {
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			Integer priority = ParamUtils.getIntParameter(request, "priority", -1);
+			Integer processType = ParamUtils.getIntParameter(request, "processType", -1);
+			
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, ProcessType.valueOf(processType));
+			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+
+				TaskModel record = new TaskModel();
+				record.setId(taskid);
+				record.setPriority(priority);
+				ret = taskModelDao.updateTaskByIDSelective(configDBModel, record );
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			ret = -1;
+		}
+		json.addObject("ret", ret);
+
+		logger.debug("END");
+		return json;
+	}
 
 	private List<StateMap> getStateMap(ProcessType processType, String stateDes) {
 		List<StateMap> stateMaps = new ArrayList<StateMap>();
@@ -293,46 +329,34 @@ public class TasksManageCtrl extends BaseCtrl {
 			} else if(processType.equals(ProcessType.POIEDIT)) {
 				switch (stateDes) {
 				case "未制作":
-					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_KETOU.getValue(), null));
-					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_GEN.getValue(), null));
-					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_GEN_IMPORT.getValue(), null));
-					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_FEISHICE_IMPORT.getValue(), null));
-					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_FEISHICE.getValue(), null));
-					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_FEISHICEADDRESSTEL_IMPORT.getValue(), null));
-					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue(), null));
-					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_QUANGUOQC.getValue(), null));
+					for (TaskTypeEnum type : TaskTypeEnum.getPoiEditTaskTypes()) {
+						stateMaps.add(new StateMap(0, 0, type.getValue(), null));
+					}
 					break;
 				case "制作中":
-					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_KETOU.getValue(), null));
-					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_GEN.getValue(), null));
-					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_GEN_IMPORT.getValue(), null));
-					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_FEISHICE_IMPORT.getValue(), null));
-					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_FEISHICE.getValue(), null));
-					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_FEISHICEADDRESSTEL_IMPORT.getValue(), null));
-					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue(), null));
-					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POI_QUANGUOQC.getValue(), null));
+					for (TaskTypeEnum type : TaskTypeEnum.getPoiEditTaskTypes()) {
+						stateMaps.add(new StateMap(1, 5, type.getValue(), null));
+					}
 					break;
 				case "制作完成":
-					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_KETOU.getValue(), null));
-					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_GEN.getValue(), null));
-					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_GEN_IMPORT.getValue(), null));
-					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_FEISHICE_IMPORT.getValue(), null));
-					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_FEISHICE.getValue(), null));
-					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_FEISHICEADDRESSTEL_IMPORT.getValue(), null));
-					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue(), null));
-					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POI_QUANGUOQC.getValue(), null));
+					for (TaskTypeEnum type : TaskTypeEnum.getPoiEditTaskTypes()) {
+						stateMaps.add(new StateMap(2, 5, type.getValue(), null));
+					}
 					break;
 				case "未校正":
-					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_MC_KETOU.getValue(), null));
-					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POI_MC_GEN.getValue(), null));
+					for (TaskTypeEnum type : TaskTypeEnum.getPoiCheckTaskTypes()) {
+						stateMaps.add(new StateMap(0, 0, type.getValue(), null));
+					}
 					break;
 				case "校正中":
-					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.POI_MC_KETOU.getValue(), null));
-					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.POI_MC_GEN.getValue(), null));
+					for (TaskTypeEnum type : TaskTypeEnum.getPoiCheckTaskTypes()) {
+						stateMaps.add(new StateMap(1, 6, type.getValue(), null));
+					}
 					break;
 				case "校正完成":
-					stateMaps.add(new StateMap(2, 6, TaskTypeEnum.POI_MC_KETOU.getValue(), null));
-					stateMaps.add(new StateMap(2, 6, TaskTypeEnum.POI_MC_GEN.getValue(), null));
+					for (TaskTypeEnum type : TaskTypeEnum.getPoiCheckTaskTypes()) {
+						stateMaps.add(new StateMap(2, 6, type.getValue(), null));
+					}
 					break;
 				}
 			}

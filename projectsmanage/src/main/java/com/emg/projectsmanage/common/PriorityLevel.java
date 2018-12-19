@@ -1,7 +1,7 @@
 package com.emg.projectsmanage.common;
 
 /**
- * 操作类型
+ *  优先级
  * 
  * @author zsen
  * 
@@ -10,23 +10,23 @@ public enum PriorityLevel {
 	/**
 	 * -2, "极低"
 	 */
-	UNKNOW(-2, "极低"),
+	LOWEST(-2, "极低"),
 	/**
 	 * -1, "低"
 	 */
-	EDIT(-1, "低"),
+	LOW(-1, "低"),
 	/**
 	 * 0, "一般"
 	 */
-	CHECK(0, "一般"),
+	NORMAL(0, "一般"),
 	/**
 	 * 1, "高"
 	 */
-	MODIFY(1, "高"),
+	HIGH(1, "高"),
 	/**
 	 * 2, "极高"
 	 */
-	CONFIRM(2, "极高");
+	HIGHEST(2, "极高");
 
 	private Integer value;
 	private String des;
