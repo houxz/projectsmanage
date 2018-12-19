@@ -10,7 +10,6 @@
 				<ref bean="usersmanage" />
 				<!-- <ref bean="skillsmanage" /> -->
 				<ref bean="processesmanage" />
-				<!-- <ref bean="projectsmanage" /> -->
 				<ref bean="worktasks" />
 				<ref bean="projectsprocess" />
 				<ref bean="tasksmanage" />
@@ -67,19 +66,6 @@
 		</property>
 		<property name="enabled" value="true" />
 		<property name="isshow" value="true" />
-	</bean>
-	
-	<bean id="projectsmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1002" />
-		<property name="url" value="/projectsmanage/projectsmanage.web" />
-		<property name="label" value="附属项目管理" />
-		<property name="roleSet">
-			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
-			</set>
-		</property>
-		<property name="enabled" value="false" />
-		<property name="isshow" value="false" />
 	</bean>
 	
 	<bean id="worktasks" class="com.emg.projectsmanage.auth.MenuAuthModel">
