@@ -49,21 +49,21 @@ public enum TaskTypeEnum {
 	 */
 	POI_FEISHICEADDRESSTEL(15108, "POI地址电话改错任务"),
 	/**
-	 * 15110, "车调制作31有照片"
+	 * 15110, "车调POI创建制作任务"
 	 */
-	POI_DATASET_31(15110, "车调制作31有照片"),
+	POI_DATASET_31(15110, "车调POI创建制作任务"),
 	/**
 	 * 15111, "车调制作32无照片"
 	 */
-	POI_DATASET_32(15111, "车调制作32无照片"),
+	POI_DATASET_32(15111, "车调PPNTPOI制作任务"),
 	/**
 	 * 15210, "车调校正31有照片"
 	 */
-	POI_MC_DATASET_31(15210, "车调校正31有照片"),
+	POI_MC_DATASET_31(15210, "车调POI创建校正任务"),
 	/**
 	 * 15211, "车调校正32无照片"
 	 */
-	POI_MC_DATASET_32(15211, "车调校正32无照片"),
+	POI_MC_DATASET_32(15211, "车调PPNTPOI校正任务"),
 	/**
 	 * 15119, "POI全国改错任务"
 	 */
