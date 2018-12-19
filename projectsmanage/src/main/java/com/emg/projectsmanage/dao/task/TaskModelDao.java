@@ -139,6 +139,8 @@ public class TaskModelDao {
 			if (editUserids != null && editUserids.size() > 0) {
 				sql.append(" AND editid IN ( ");
 				for (Integer editUserid : editUserids) {
+					sql.append(editUserid);
+					sql.append(",");
 					sql.append(editUserid + 500000);
 					sql.append(",");
 				}
@@ -148,6 +150,8 @@ public class TaskModelDao {
 			if (checkUserids != null && checkUserids.size() > 0) {
 				sql.append(" AND checkid IN ( ");
 				for (Integer checkUserid : checkUserids) {
+					sql.append(checkUserid);
+					sql.append(",");
 					sql.append(checkUserid + 600000);
 					sql.append(",");
 				}
