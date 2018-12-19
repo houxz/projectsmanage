@@ -19,7 +19,6 @@ import com.emg.projectsmanage.common.TaskTypeEnum;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.RoleType;
-import com.emg.projectsmanage.dao.emapgoaccount.EmployeeModelDao;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.CapacityModelDao;
@@ -38,6 +37,7 @@ import com.emg.projectsmanage.pojo.ProcessConfigModel;
 import com.emg.projectsmanage.pojo.ProcessModel;
 import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.pojo.TaskModel;
+import com.emg.projectsmanage.service.EmapgoAccountService;
 import com.emg.projectsmanage.service.ProcessConfigModelService;
 import com.emg.projectsmanage.pojo.CapacityTaskModelExample.Criteria;
 
@@ -80,7 +80,7 @@ public class SchedulerTask {
 	private ProcessModelDao processModelDao;
 
 	@Autowired
-	private EmployeeModelDao employeeModelDao;
+	private EmapgoAccountService emapgoAccountService;
 
 	/**
 	 * 半夜三更 创建每天的任务
@@ -216,11 +216,11 @@ public class SchedulerTask {
 									checkCapacityModel.setUserid(checkid);
 									EmployeeModel erecord = new EmployeeModel();
 									erecord.setId(editid);
-									EmployeeModel emp = employeeModelDao.getOneEmployee(erecord);
+									EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
 									if(emp != null)
 										editCapacityModel.setUsername(emp.getRealname());
 									erecord.setId(checkid);
-									emp = employeeModelDao.getOneEmployee(erecord);
+									emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
 									if(emp != null)
 										checkCapacityModel.setUsername(emp.getRealname());
 	
@@ -294,11 +294,11 @@ public class SchedulerTask {
 									checkCapacityModel.setUserid(checkid);
 									EmployeeModel erecord = new EmployeeModel();
 									erecord.setId(editid);
-									EmployeeModel emp = employeeModelDao.getOneEmployee(erecord);
+									EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
 									if(emp != null)
 										editCapacityModel.setUsername(emp.getRealname());
 									erecord.setId(checkid);
-									emp = employeeModelDao.getOneEmployee(erecord);
+									emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
 									if(emp != null)
 										checkCapacityModel.setUsername(emp.getRealname());
 	
@@ -375,7 +375,7 @@ public class SchedulerTask {
 									editCapacityModel.setUserid(userid);
 									EmployeeModel erecord = new EmployeeModel();
 									erecord.setId(userid);
-									EmployeeModel emp = employeeModelDao.getOneEmployee(erecord);
+									EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
 									if(emp != null)
 										editCapacityModel.setUsername(emp.getRealname());
 	
@@ -448,7 +448,7 @@ public class SchedulerTask {
 									editCapacityModel.setUserid(userid);
 									EmployeeModel erecord = new EmployeeModel();
 									erecord.setId(userid);
-									EmployeeModel emp = employeeModelDao.getOneEmployee(erecord);
+									EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
 									if(emp != null)
 										editCapacityModel.setUsername(emp.getRealname());
 	
