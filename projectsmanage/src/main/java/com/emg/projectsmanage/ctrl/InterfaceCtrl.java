@@ -23,6 +23,7 @@ import com.emg.projectsmanage.pojo.ProcessConfigModel;
 import com.emg.projectsmanage.pojo.ProcessConfigValueModel;
 import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.common.CommonConstants;
+import com.emg.projectsmanage.common.InterfaceResultModel;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessConfigModuleEnum;
 import com.emg.projectsmanage.common.ProcessState;
@@ -38,6 +39,7 @@ import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskLogModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
+import com.emg.projectsmanage.dao.task.TaskModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ConfigValueModel;
 import com.emg.projectsmanage.pojo.DepartmentModel;
@@ -1572,7 +1574,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			newpro.setProcessid(newProcessID);
 			newpro.setName(projectName);
 			newpro.setSystemid(systemid);
-			newpro.setProtype(0);
+			newpro.setProtype(newProcessType);
 			newpro.setPdifficulty(0);
 			newpro.setTasknum(-1);
 			newpro.setOverstate(newProcessState);
@@ -2146,16 +2148,14 @@ public class InterfaceCtrl extends BaseCtrl {
 	private ModelAndView test(Model model, HttpSession session, HttpServletRequest request, 
 			@RequestParam(value = "key", required = false, defaultValue = "") String key, 
 			@RequestParam(value = "value", required = false, defaultValue = "") String value) {
-		logger.debug("test start!");
-		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		try {
-			
-		} catch (Exception e) {
+		logger.debug("START");
+		InterfaceResultModel result = new InterfaceResultModel();
+		try {} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			json.addObject("status", false);
-			json.addObject("option", e.getMessage());
+			result.setStatus(false);
+			result.setOption(e.getMessage());
 		}
-		logger.debug("test end!");
-		return json;
+		logger.debug("END");
+		return new ModelAndView(new MappingJackson2JsonView()).addAllObjects(result);
 	}
 }
