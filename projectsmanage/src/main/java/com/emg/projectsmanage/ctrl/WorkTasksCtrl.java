@@ -68,6 +68,9 @@ public class WorkTasksCtrl extends BaseCtrl {
 					case "processid":
 						map.put("processid", filterPara.get(key).toString());
 						break;
+					case "time":
+						map.put("time", filterPara.get(key).toString());
+						break;
 					default:
 						break;
 					}

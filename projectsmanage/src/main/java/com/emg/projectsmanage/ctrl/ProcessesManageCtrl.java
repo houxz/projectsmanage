@@ -299,7 +299,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					newpro.setProcessid(newProcessID);
 					newpro.setName(config_1_4);
 					newpro.setSystemid(SystemType.DBMapChecker.getValue());
-					newpro.setProtype(0);
+					newpro.setProtype(type);
 					newpro.setPdifficulty(0);
 					newpro.setTasknum(-1);
 					newpro.setOverstate(0);
@@ -336,7 +336,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				newpro.setProcessid(newProcessID);
 				newpro.setName(newProcessName + suffix);
 				newpro.setSystemid(systemid);
-				newpro.setProtype(0);
+				newpro.setProtype(type);
 				newpro.setPdifficulty(0);
 				newpro.setTasknum(-1);
 				newpro.setOverstate(0);

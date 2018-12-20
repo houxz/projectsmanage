@@ -21,6 +21,10 @@ public enum TaskTypeEnum {
 	 */
 	ATTACH(13, "关系附属表任务"),
 	/**
+	 * 13, "关系附属表项目"
+	 */
+	ADJUSTMAP(14, "整图编辑任务"),
+	/**
 	 * 15101, "POI客投制作"
 	 */
 	POI_KETOU(15101, "POI客投制作"),

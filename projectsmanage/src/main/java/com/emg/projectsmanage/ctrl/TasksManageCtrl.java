@@ -273,7 +273,8 @@ public class TasksManageCtrl extends BaseCtrl {
 		try {
 			if (processType.equals(ProcessType.ERROR) ||
 				processType.equals(ProcessType.NRFC) ||
-				processType.equals(ProcessType.ATTACH)) {
+				processType.equals(ProcessType.ATTACH) ||
+				processType.equals(ProcessType.ADJUSTMAP)) {
 				switch (stateDes) {
 				case "编辑中":
 					stateMaps.add(new StateMap(0, 5, null, -1));
@@ -298,6 +299,7 @@ public class TasksManageCtrl extends BaseCtrl {
 					break;
 				case "待校正":
 					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.ATTACH.getValue(), null));
+					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.ADJUSTMAP.getValue(), null));
 					break;
 				case "校正中":
 					stateMaps.add(new StateMap(0, 6, null, null));
@@ -373,7 +375,8 @@ public class TasksManageCtrl extends BaseCtrl {
 		
 		if (tasktype.equals(TaskTypeEnum.ERROR) ||
 			tasktype.equals(TaskTypeEnum.NRFC) ||
-			tasktype.equals(TaskTypeEnum.ATTACH)) {
+			tasktype.equals(TaskTypeEnum.ATTACH) ||
+			tasktype.equals(TaskTypeEnum.ADJUSTMAP)) {
 			switch (state) {
 			case 0:
 				switch (process) {
@@ -433,7 +436,7 @@ public class TasksManageCtrl extends BaseCtrl {
 				case 5:
 					if (tasktype.equals(TaskTypeEnum.NRFC))
 						return "完成";
-					else if(tasktype.equals(TaskTypeEnum.ATTACH))
+					else if(tasktype.equals(TaskTypeEnum.ATTACH) || tasktype.equals(TaskTypeEnum.ADJUSTMAP))
 						return "未校正";
 					else
 						return "校正中";

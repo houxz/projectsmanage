@@ -57,7 +57,7 @@
 				data-query-params="queryParams" data-url="./worktasks.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="worktasks" data-height="714"
-				data-page-list="[15, 30, 50, All]" data-page-size="15"
+				data-page-list="[10, 20, 50, All]" data-page-size="10"
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr>
@@ -76,6 +76,8 @@
 						<th data-field="qctask" data-sortable="true">质检中任务</th>
 						<th data-field="checktask" data-sortable="true">校正中任务</th>
 						<th data-field="completetask" data-sortable="true">已完成任务</th>
+						<th data-field="time" data-filter-control="input"
+							data-filter-control-placeholder="" data-width="100">更新时间</th>
 					</tr>
 				</thead>
 			</table>

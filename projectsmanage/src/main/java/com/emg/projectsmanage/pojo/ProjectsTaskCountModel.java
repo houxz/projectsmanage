@@ -10,12 +10,13 @@ public class ProjectsTaskCountModel {
 	private String projectid;
 	private String projectname;
 	private String processid;
-	private Integer totaltask;
-	private Integer idletask;
-	private Integer edittask;
-	private Integer qctask;
-	private Integer checktask;
-	private Integer completetask;
+	private Integer totaltask = 0;
+	private Integer idletask = 0;
+	private Integer edittask = 0;
+	private Integer qctask = 0;
+	private Integer checktask = 0;
+	private Integer completetask = 0;
+	private String time;
 	
 	public String getId() {
 		return id;
@@ -106,5 +107,11 @@ public class ProjectsTaskCountModel {
 	}
 	public void setProcessid(String processid) {
 		this.processid = processid;
+	}
+	public String getTime() {
+		return time;
+	}
+	public void setTime(String time) {
+		this.time = time;
 	}
 }

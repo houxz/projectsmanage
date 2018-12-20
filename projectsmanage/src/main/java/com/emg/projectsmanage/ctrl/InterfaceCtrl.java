@@ -39,7 +39,6 @@ import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskLogModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
-import com.emg.projectsmanage.dao.task.TaskModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ConfigValueModel;
 import com.emg.projectsmanage.pojo.DepartmentModel;

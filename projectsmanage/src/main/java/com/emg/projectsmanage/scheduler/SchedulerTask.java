@@ -2,6 +2,7 @@ package com.emg.projectsmanage.scheduler;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -19,11 +20,13 @@ import com.emg.projectsmanage.common.TaskTypeEnum;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.RoleType;
+import com.emg.projectsmanage.common.SystemType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.CapacityModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.CapacityTaskModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
+import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
 import com.emg.projectsmanage.dao.task.TaskBlockDetailModelDao;
 import com.emg.projectsmanage.dao.task.TaskLinkErrorModelDao;
 import com.emg.projectsmanage.dao.task.TaskLinkFielddataModelDao;
@@ -36,18 +39,21 @@ import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
 import com.emg.projectsmanage.pojo.ProcessModel;
 import com.emg.projectsmanage.pojo.ProjectModel;
+import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
+import com.emg.projectsmanage.pojo.ProjectsTaskCountUniq;
 import com.emg.projectsmanage.pojo.TaskModel;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 import com.emg.projectsmanage.service.ProcessConfigModelService;
 import com.emg.projectsmanage.pojo.CapacityTaskModelExample.Criteria;
+import com.emg.projectsmanage.pojo.CapacityUniq;
 
 @Component
 public class SchedulerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(SchedulerTask.class);
 
-	@Value("${scheduler.enable}")
-	private String enable;
+	@Value("${scheduler.capacity.enable}")
+	private String capacityEnable;
 
 	@Autowired
 	private CapacityTaskModelDao capacityTaskModelDao;
@@ -81,13 +87,16 @@ public class SchedulerTask {
 
 	@Autowired
 	private EmapgoAccountService emapgoAccountService;
+	
+	@Autowired
+	private ProjectsTaskCountModelDao projectsTaskCountDao;
 
 	/**
 	 * 半夜三更 创建每天的任务
 	 */
-	@Scheduled(cron = "${scheduler.createtime}")
-	public void task() {
-		if (!enable.equalsIgnoreCase("true"))
+	@Scheduled(cron = "${scheduler.capacity.createtime}")
+	public void capacityCreateTask() {
+		if (!capacityEnable.equalsIgnoreCase("true"))
 			return;
 
 		Date now = new Date();
@@ -120,9 +129,9 @@ public class SchedulerTask {
 	/**
 	 * 凌晨执行任务
 	 */
-	@Scheduled(cron = "${scheduler.dotime}")
-	public void doTask() {
-		if (!enable.equalsIgnoreCase("true"))
+	@Scheduled(cron = "${scheduler.capacity.dotime}")
+	public void capacityDoTask() {
+		if (!capacityEnable.equalsIgnoreCase("true"))
 			return;
 
 		try {
@@ -170,7 +179,7 @@ public class SchedulerTask {
 							ConfigDBModel configDBModel = configDBModelDao
 									.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 							
-							Map<UniqRecord, CapacityModel> uniqRecords = new HashMap<UniqRecord, CapacityModel>();
+							Map<CapacityUniq, CapacityModel> uniqRecords = new HashMap<CapacityUniq, CapacityModel>();
 							
 							List<Map<String, Object>> taskGroups = taskModelDao.groupTasksByTime(configDBModel, time);
 							if (taskGroups != null && taskGroups.size() > 0) {
@@ -182,8 +191,8 @@ public class SchedulerTask {
 									Integer checkid = (Integer) taskGroup.get("checkid");
 									Long checknum = (Long) taskGroup.get("checknum");
 									
-									UniqRecord editUniqRecord = new UniqRecord(taskType, projectid, editid);
-									UniqRecord checkUniqRecord = new UniqRecord(taskType, projectid, checkid);
+									CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, editid);
+									CapacityUniq checkUniqRecord = new CapacityUniq(taskType, projectid, checkid);
 									CapacityModel editCapacityModel = new CapacityModel();
 									if(uniqRecords.containsKey(editUniqRecord)) {
 										editCapacityModel = uniqRecords.get(editUniqRecord);
@@ -260,8 +269,8 @@ public class SchedulerTask {
 									if (projectid.compareTo(0L) <= 0)
 										continue;
 									
-									UniqRecord editUniqRecord = new UniqRecord(taskType, projectid, editid);
-									UniqRecord checkUniqRecord = new UniqRecord(taskType, projectid, checkid);
+									CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, editid);
+									CapacityUniq checkUniqRecord = new CapacityUniq(taskType, projectid, checkid);
 									CapacityModel editCapacityModel = new CapacityModel();
 									if(uniqRecords.containsKey(editUniqRecord)) {
 										editCapacityModel = uniqRecords.get(editUniqRecord);
@@ -352,7 +361,7 @@ public class SchedulerTask {
 									if (projectid.compareTo(0L) <= 0)
 										continue;
 									
-									UniqRecord editUniqRecord = new UniqRecord(taskType, projectid, userid);
+									CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, userid);
 									CapacityModel editCapacityModel = new CapacityModel();
 									if(uniqRecords.containsKey(editUniqRecord)) {
 										editCapacityModel = uniqRecords.get(editUniqRecord);
@@ -425,7 +434,7 @@ public class SchedulerTask {
 									if (projectid.compareTo(0L) <= 0)
 										continue;
 									
-									UniqRecord editUniqRecord = new UniqRecord(taskType, projectid, userid);
+									CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, userid);
 									CapacityModel editCapacityModel = new CapacityModel();
 									if(uniqRecords.containsKey(editUniqRecord)) {
 										editCapacityModel = uniqRecords.get(editUniqRecord);
@@ -510,35 +519,155 @@ public class SchedulerTask {
 			logger.error(e.getMessage(), e);
 		}
 	}
-}
-
-class UniqRecord {
-	Integer tasktype;
-	Long projectid;
-	Integer userid;
-
-	UniqRecord(Integer tasktype, Long projectid, Integer userid) {
-		this.tasktype = tasktype;
-		this.projectid = projectid;
-		this.userid = userid;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		if (this == obj)
-			return true;
-		if (obj instanceof UniqRecord) {
-			UniqRecord another = (UniqRecord) obj;
-			return another.tasktype.equals(this.tasktype) && another.projectid.equals(this.projectid)
-					&& another.userid.equals(this.userid);
+	
+	@Scheduled(cron = "${scheduler.worktasks.dotime}")
+	public void worktasksDoTask() {
+		try {
+			logger.debug("START");
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Calendar calendar = Calendar.getInstance();
+			Date now = new Date();
+			calendar.setTimeInMillis(now.getTime() - (now.getTime()%(600000)));
+			String nowStr = sdf.format(calendar.getTime());
+			
+			ProcessType processType = ProcessType.UNKNOWN;
+			SystemType systemType = SystemType.Unknow;
+			{
+				processType = ProcessType.ATTACH;
+				systemType =SystemType.MapDbEdit_Attach;
+				
+				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
+				if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+					List<Map<String, Object>> groups = taskModelDao.groupTasks(configDBModel);
+					Map<ProjectsTaskCountUniq, ProjectsTaskCountModel> uniqRecords = new HashMap<ProjectsTaskCountUniq, ProjectsTaskCountModel>();
+					for (Map<String, Object> group : groups) {
+						Integer systemid = systemType.getValue();
+						
+						Long projectid = (Long) group.get("projectid");
+						Integer state = (Integer) group.get("state");
+						Integer process = (Integer) group.get("process");
+						Integer editid = (Integer) group.get("editid");
+						Integer checkid = (Integer) group.get("checkid");
+						Integer count = ((Long) group.get("count")).intValue();
+						
+						if (count.compareTo(0) <= 0)
+							continue;
+						
+						if (editid != null && editid.compareTo(0) > 0) {
+							editid = editid.compareTo(500000) > 0 ? (editid - 500000) : editid;
+							ProjectsTaskCountUniq uniqRecord = new ProjectsTaskCountUniq(editid, RoleType.ROLE_WORKER.getValue(), systemid, projectid);
+							ProjectsTaskCountModel projectsTaskCountModel = new ProjectsTaskCountModel();
+							if(uniqRecords.containsKey(uniqRecord)) {
+								projectsTaskCountModel = uniqRecords.get(uniqRecord);
+								uniqRecords.remove(uniqRecord);
+							}
+							projectsTaskCountModel.setUserid(editid);
+							projectsTaskCountModel.setRoleid(RoleType.ROLE_WORKER.getValue());
+							projectsTaskCountModel.setRolename(RoleType.ROLE_WORKER.getDes());
+							projectsTaskCountModel.setSystemid(systemid);
+							projectsTaskCountModel.setProjectid(projectid.toString());
+							projectsTaskCountModel.setTime(nowStr);
+							
+							if (state.equals(0) && process.equals(0)) {
+								
+							} else if ((state.equals(0) && process.equals(5)) ||
+									(state.equals(1) && process.equals(5)) ||
+									(state.equals(2) && process.equals(6)) ||
+									(state.equals(2) && process.equals(52)) ||
+									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								projectsTaskCountModel.setEdittask(projectsTaskCountModel.getEdittask() + count);
+							} else if ((state.equals(3) && process.equals(5) && !systemid.equals(SystemType.MapDbEdit_NRFC.getValue())) ||
+									(state.equals(0) && process.equals(6)) ||
+									(state.equals(1) && process.equals(6))) {
+								projectsTaskCountModel.setChecktask(projectsTaskCountModel.getChecktask() + count);
+							} else if ((state.equals(3) && process.equals(5) && systemid.equals(SystemType.MapDbEdit_NRFC.getValue())) ||
+									(state.equals(3) && process.equals(6)) ||
+									(state.equals(3) && process.equals(20))) {
+								projectsTaskCountModel.setCompletetask(projectsTaskCountModel.getCompletetask() + count);
+							} else if ((state.equals(1) && process.equals(52)) ||
+									(state.equals(2) && process.equals(5)) ||
+									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
+									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								projectsTaskCountModel.setQctask(projectsTaskCountModel.getQctask() + count);
+							}
+							
+							uniqRecords.put(uniqRecord, projectsTaskCountModel);
+						}
+						
+						if (checkid != null && checkid.compareTo(0) > 0) {
+							checkid = checkid.compareTo(600000) > 0 ? (checkid - 600000) : checkid;
+							ProjectsTaskCountUniq uniqRecord = new ProjectsTaskCountUniq(checkid, RoleType.ROLE_CHECKER.getValue(), systemid, projectid);
+							ProjectsTaskCountModel projectsTaskCountModel = new ProjectsTaskCountModel();
+							if(uniqRecords.containsKey(uniqRecord)) {
+								projectsTaskCountModel = uniqRecords.get(uniqRecord);
+								uniqRecords.remove(uniqRecord);
+							}
+							projectsTaskCountModel.setUserid(checkid);
+							projectsTaskCountModel.setRoleid(RoleType.ROLE_CHECKER.getValue());
+							projectsTaskCountModel.setRolename(RoleType.ROLE_CHECKER.getDes());
+							projectsTaskCountModel.setSystemid(systemid);
+							projectsTaskCountModel.setProjectid(projectid.toString());
+							projectsTaskCountModel.setTime(nowStr);
+							
+							if (state.equals(0) && process.equals(0)) {
+								
+							} else if ((state.equals(0) && process.equals(5)) ||
+									(state.equals(1) && process.equals(5)) ||
+									(state.equals(2) && process.equals(6)) ||
+									(state.equals(2) && process.equals(52)) ||
+									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								projectsTaskCountModel.setEdittask(projectsTaskCountModel.getEdittask() + count);
+							} else if ((state.equals(3) && process.equals(5) && !systemid.equals(SystemType.MapDbEdit_NRFC.getValue())) ||
+									(state.equals(0) && process.equals(6)) ||
+									(state.equals(1) && process.equals(6))) {
+								projectsTaskCountModel.setChecktask(projectsTaskCountModel.getChecktask() + count);
+							} else if ((state.equals(3) && process.equals(5) && systemid.equals(SystemType.MapDbEdit_NRFC.getValue())) ||
+									(state.equals(3) && process.equals(6)) ||
+									(state.equals(3) && process.equals(20))) {
+								projectsTaskCountModel.setCompletetask(projectsTaskCountModel.getCompletetask() + count);
+							} else if ((state.equals(1) && process.equals(52)) ||
+									(state.equals(2) && process.equals(5)) ||
+									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
+									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								projectsTaskCountModel.setQctask(projectsTaskCountModel.getQctask() + count);
+							}
+							
+							uniqRecords.put(uniqRecord, projectsTaskCountModel);
+						}
+						
+					}
+					if (uniqRecords != null && !uniqRecords.isEmpty()) {
+						for (ProjectsTaskCountModel projectsTaskCountModel : uniqRecords.values()) {
+							if (projectsTaskCountModel.getTotaltask().equals(0) &&
+									projectsTaskCountModel.getEdittask().equals(0) &&
+									projectsTaskCountModel.getQctask().equals(0) &&
+									projectsTaskCountModel.getChecktask().equals(0) &&
+									projectsTaskCountModel.getCompletetask().equals(0))
+								continue;
+							try {
+								Integer userid = projectsTaskCountModel.getUserid();
+								EmployeeModel record = new EmployeeModel();
+								record.setId(userid);
+								EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(record );
+								if (emp == null)
+									continue;
+								projectsTaskCountModel.setUsername(emp.getRealname());
+								projectsTaskCountModel.setTotaltask(projectsTaskCountModel.getEdittask() + projectsTaskCountModel.getChecktask() + projectsTaskCountModel.getQctask() + projectsTaskCountModel.getCompletetask());
+								projectsTaskCountDao.newProjectsProgress(projectsTaskCountModel);
+							} catch (DuplicateKeyException e) {
+							} catch (Exception e) {
+								logger.error(e.getMessage(), e);
+							}
+						}
+					}
+				}
+			}
+			
+			logger.debug("END");
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		}
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return (tasktype * ((int) (projectid ^ (projectid >>> 32))) * userid);
 	}
 }

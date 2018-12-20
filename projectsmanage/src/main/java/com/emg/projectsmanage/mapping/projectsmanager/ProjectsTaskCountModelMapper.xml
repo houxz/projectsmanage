@@ -19,6 +19,7 @@
 		<result column="qctask" property="qctask" jdbcType="INTEGER" />
 		<result column="checktask" property="checktask" jdbcType="INTEGER" />
 		<result column="completetask" property="completetask" jdbcType="INTEGER" />
+		<result column="time" property="time" jdbcType="VARCHAR" />
 	</resultMap>
 	<select id="groupProjectsProgressByUseridAndRoleid" resultMap="BaseResultMap"
 		parameterType="java.util.Map">
@@ -53,11 +54,16 @@
 			t.`edittask`,
 			t.`qctask`,
 			t.`checktask`,
-			t.`completetask`
+			t.`completetask`,
+			t.`time`
 		FROM
 			tb_projects_task_count t
 		LEFT JOIN tb_projects p ON t.`projectid` = p.`id`
 		<where>
+			t.`time` = (SELECT MAX(`time`) FROM tb_projects_task_count
+			<if test="time != null">
+				<![CDATA[WHERE `time` < #{time}]]>
+			</if> )
 			<if test="userid != null">
 				t.`userid` = #{userid}
 			</if>
@@ -100,6 +106,10 @@
 			tb_projects_task_count t
 		LEFT JOIN tb_projects p ON t.`projectid` = p.`id`
 		<where>
+			t.`time` = (SELECT MAX(`time`) FROM tb_projects_task_count
+			<if test="time != null">
+				<![CDATA[WHERE `time` < #{time}]]>
+			</if> )
 			<if test="userid != null">
 				t.`userid` = #{userid}
 			</if>
@@ -229,7 +239,8 @@
 	    	`edittask`, 
 	    	`qctask`, 
 	    	`checktask`, 
-	    	`completetask`)
+	    	`completetask`,
+	    	`time`)
 	    values
 	    	(#{userid,jdbcType=INTEGER}, 
 	    	#{username,jdbcType=VARCHAR}, 
@@ -241,7 +252,8 @@
 	      	#{edittask,jdbcType=INTEGER}, 
 	      	#{qctask,jdbcType=INTEGER}, 
 	      	#{checktask,jdbcType=INTEGER}, 
-	      	#{completetask,jdbcType=INTEGER})
+	      	#{completetask,jdbcType=INTEGER},
+	      	#{time,jdbcType=VARCHAR})
 	</insert>
 	<update id="newTask2Edit" parameterType="com.emg.projectsmanage.pojo.ProjectsTaskCountModel">
 		UPDATE tb_projects_task_count
