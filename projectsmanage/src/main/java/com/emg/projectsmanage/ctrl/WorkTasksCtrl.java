@@ -91,8 +91,8 @@ public class WorkTasksCtrl extends BaseCtrl {
 			if (offset.compareTo(0) > 0)
 				map.put("offset", offset);
 
-			List<WorkTasksModel> projectsTaskCountModels = workTasksModelDao.getProjectsProgressByUserid(map);
-			int count = workTasksModelDao.countProjectsProgressByUserid(map);
+			List<WorkTasksModel> projectsTaskCountModels = workTasksModelDao.getWorkTasks(map);
+			int count = workTasksModelDao.countWorkTasks(map);
 
 			json.addObject("rows", projectsTaskCountModels);
 			json.addObject("total", count);

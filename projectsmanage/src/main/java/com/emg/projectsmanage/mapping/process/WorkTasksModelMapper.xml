@@ -20,7 +20,7 @@
 		<result column="completetask" property="completetask" jdbcType="INTEGER" />
 		<result column="time" property="time" jdbcType="VARCHAR" />
 	</resultMap>
-	<select id="getProjectsProgressByUserid" resultMap="BaseResultMap"
+	<select id="getWorkTasks" resultMap="BaseResultMap"
 		parameterType="java.util.Map">
 		SELECT
 			t.`id`,
@@ -77,7 +77,7 @@
 			OFFSET #{offset}
 		</if>
 	</select>
-	<select id="countProjectsProgressByUserid" resultType="java.lang.Integer"
+	<select id="countWorkTasks" resultType="java.lang.Integer"
 		parameterType="java.util.Map">
 		SELECT
 			COUNT(1)
@@ -109,57 +109,7 @@
 			</if>
 		</where>
 	</select>
-	<select id="getProjectsProgress" resultMap="BaseResultMap"
-		parameterType="java.util.Map">
-		SELECT
-			p.`id` AS projectid,
-			p.`name` AS projectname,
-			p.`processid` AS processid,
-			p.`systemid`,
-			p.`tasknum` AS totaltask,
-			SUM(CASE WHEN t.`roleid` = 5 THEN t.`edittask` ELSE 0 END) AS edittask,
-			SUM(CASE WHEN t.`roleid` = 5 THEN t.`qctask` ELSE 0 END) AS qctask,
-			SUM(CASE WHEN t.`roleid` = 5 THEN t.`checktask` ELSE 0 END) AS checktask,
-			SUM(CASE WHEN t.`roleid` = 5 THEN t.`completetask` ELSE 0 END) AS completetask,
-			p.`tasknum` - SUM(CASE WHEN t.`roleid` = 5 THEN t.`edittask` ELSE 0 END) - SUM(CASE WHEN t.`roleid` = 5 THEN t.`qctask` ELSE 0 END) - SUM(CASE WHEN t.`roleid` = 5 THEN t.`checktask` ELSE 0 END) - SUM(CASE WHEN t.`roleid` = 5 THEN t.`completetask` ELSE 0 END) AS idletask
-		FROM projectmanager.tb_projects p
-		LEFT JOIN process.tb_worktasks t 
-			ON t.`projectid` = p.`id`
-		<where>
-			<if test="projectid != null">
-				p.`id` = #{projectid}
-			</if>
-			<if test="projectIDs != null">
-				AND (p.`owner` = 0 or (p.`owner` = 1 and p.`id` in
-				<foreach collection="projectIDs" item="projectID" open="(" close=")"
-					separator=",">
-					#{projectID}
-				</foreach>
-				))
-			</if>
-			<if test="projectname != null">
-				AND p.`name` like #{projectname}
-			</if>
-			<if test="processid != null">
-				AND p.`processid` = #{processid}
-			</if>
-		</where>
-		GROUP BY
-			p.`id`
-		ORDER BY
-			<if test="orderby != null">
-				${orderby},
-			</if>
-			p.`priority` desc,
-			p.`id`
-		<if test="limit != null">
-			LIMIT #{limit}
-		</if>
-		<if test="offset != null">
-			OFFSET #{offset}
-		</if>
-	</select>
-	<insert id="newProjectsProgress" parameterType="com.emg.projectsmanage.pojo.WorkTasksModel" >
+	<insert id="newWorkTask" parameterType="com.emg.projectsmanage.pojo.WorkTasksModel" >
 	    insert into process.tb_worktasks 
 	    	(`userid`, 
 	    	`username`, 

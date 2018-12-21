@@ -663,7 +663,7 @@ public class SchedulerTask {
 									continue;
 								workTasksModel.setUsername(emp.getRealname());
 								workTasksModel.setTotaltask(workTasksModel.getEdittask() + workTasksModel.getChecktask() + workTasksModel.getQctask() + workTasksModel.getCompletetask());
-								workTasksModelDao.newProjectsProgress(workTasksModel);
+								workTasksModelDao.newWorkTask(workTasksModel);
 							} catch (DuplicateKeyException e) {
 							} catch (Exception e) {
 								logger.error(e.getMessage(), e);
