@@ -68,9 +68,9 @@
 							data-width="80">角色名称</th>
 						<th data-field="processid" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="60">项目编号</th>
-						<th data-field="projectname" data-filter-control="input"
+						<th data-field="processname" data-filter-control="input"
 							data-filter-control-placeholder=""
-							data-width="300">项目名称</th>
+							data-width="240">项目名称</th>
 						<th data-field="totaltask" data-sortable="true">任务总数</th>
 						<th data-field="edittask" data-sortable="true">编辑中任务</th>
 						<th data-field="qctask" data-sortable="true">质检中任务</th>

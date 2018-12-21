@@ -28,15 +28,12 @@ import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessConfigModuleEnum;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ProcessType;
-import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.common.SystemType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ConfigValueModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigValueModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
-import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
-import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskLogModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
@@ -46,8 +43,6 @@ import com.emg.projectsmanage.pojo.ProcessModel;
 import com.emg.projectsmanage.pojo.ProcessModelExample;
 import com.emg.projectsmanage.pojo.ProjectModelExample;
 import com.emg.projectsmanage.pojo.ProjectModelExample.Criteria;
-import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
-import com.emg.projectsmanage.pojo.ProjectsTaskLogModel;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
 import com.emg.projectsmanage.service.EmapgoAccountService;
@@ -67,10 +62,6 @@ public class InterfaceCtrl extends BaseCtrl {
 	private UserRoleModelDao userRoleModelDao;
 	@Autowired
 	private EmapgoAccountService emapgoAccountService;
-	@Autowired
-	private ProjectsTaskLogModelDao projectsTaskLogModelDao;
-	@Autowired
-	private ProjectsTaskCountModelDao projectsTaskCountDao;
 	@Autowired
 	private ProcessModelDao processModelDao;
 	@Autowired
@@ -430,6 +421,21 @@ public class InterfaceCtrl extends BaseCtrl {
 		return json;
 	}
 
+	/**
+	 * 废弃不用了
+	 * @param model
+	 * @param session
+	 * @param request
+	 * @param systemid
+	 * @param projectid
+	 * @param taskid
+	 * @param userid
+	 * @param statebefore
+	 * @param processbefore
+	 * @param stateafter
+	 * @param processafter
+	 * @return
+	 */
 	@RequestMapping(params = "action=submitTaskStatus", method = RequestMethod.POST)
 	private ModelAndView submitTaskStatus(Model model,
 			HttpSession session,
@@ -445,482 +451,7 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("submitTaskStatus start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Boolean status = false;
-		try {
-			SystemType systemType = SystemType.valueOf(systemid);
-			
-			String username = new String();
-			RoleType roleType = RoleType.UNKNOWN;
-			if (systemType.equals(SystemType.DBMapChecker)) {// 批处理工具平台
-				username = "系统工具";
-			} else {
-				EmployeeModel record = new EmployeeModel();
-				record.setId(userid);
-				EmployeeModel employee = emapgoAccountService.getOneEmployeeWithCache(record);
-				username = employee.getRealname();
-			}
-			
-			if (processafter.equals(52)) {
-				roleType = RoleType.ROLE_WORKER;
-			} else {
-				roleType = RoleType.valueOf(processafter);
-			}
-			
-			
-
-			String rolename = roleType.getDes();
-			ProjectsTaskLogModel taskLog = new ProjectsTaskLogModel();
-			taskLog.setSystemid(systemType.getValue());
-			taskLog.setProjectid(projectid);
-			taskLog.setTaskid(taskid);
-			taskLog.setUserid(userid);
-			taskLog.setRoleid(roleType.getValue());
-			taskLog.setStatebefore(statebefore == null ? 0 : statebefore);
-			taskLog.setProcessbefore(processbefore == null ? 0 : processbefore);
-			taskLog.setStateafter(stateafter == null ? 0 : stateafter);
-			taskLog.setProcessafter(processafter == null ? 0 : processafter);
-
-			// 判断是否第一次写入
-			int count = projectsTaskLogModelDao.count(taskLog);
-			// 写入tb_projects_task_log
-			if (projectsTaskLogModelDao.insert(taskLog) > 0) {
-
-				ProjectsTaskCountModel taskCount = new ProjectsTaskCountModel();
-				taskCount.setSystemid(systemType.getValue());
-				taskCount.setUserid(userid);
-				taskCount.setUsername(username);
-				taskCount.setRoleid(roleType.getValue());
-				taskCount.setRolename(rolename);
-				taskCount.setProjectid(projectid);
-				// tb_projects_task_count查看是不是已经写入统计项了
-				int _count = projectsTaskCountDao.count(taskCount);
-				if (_count == 0) {
-					taskCount.setTotaltask(0);
-					taskCount.setEdittask(0);
-					taskCount.setQctask(0);
-					taskCount.setChecktask(0);
-					taskCount.setCompletetask(0);
-					try {
-						projectsTaskCountDao.newProjectsProgress(taskCount);
-					} catch (Exception e) {
-						logger.error(e.getMessage(), e);
-					}
-				}
-
-				if (count > 0) {// 非第一次进入下一阶段
-					status = true;
-				} else {// 第一次进入下一阶段
-					switch(systemType) {
-						case poivideoedit:
-							// (0,0)->(1,5)
-							if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {
-								if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
-									status = true;
-							// (3,5)->(1,6)
-							} else if (roleType.equals(RoleType.ROLE_CHECKER) && statebefore == 3 && processbefore == 5 && stateafter == 1 && processafter == 6) {
-								if (projectsTaskCountDao.newTask2Check(taskCount) > 0)
-									status = true;
-							// (1,5)->(2,5)
-							} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 2 && processafter == 5) {
-								if (projectsTaskCountDao.edit2QC(taskCount) > 0)
-									status = true;
-							// (1,5)->(3,5)
-							} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {
-								if (projectsTaskCountDao.QC2Check(taskCount) > 0)
-									status = true;
-							// (1,6)->(3,6)
-							} else if (roleType.equals(RoleType.ROLE_CHECKER) && statebefore == 1 && processbefore == 6 && stateafter == 3 && processafter == 6) {
-								if (projectsTaskCountDao.checkTaskDone(taskCount) > 0) {
-									ProjectsTaskLogModel projectsTaskLog = new ProjectsTaskLogModel();
-									projectsTaskLog.setSystemid(systemType.getValue());
-									projectsTaskLog.setProjectid(projectid);
-									projectsTaskLog.setTaskid(taskid);
-									projectsTaskLog.setRoleid(RoleType.ROLE_WORKER.getValue());
-									projectsTaskLog.setStatebefore(1);
-									projectsTaskLog.setProcessbefore(5);
-									projectsTaskLog.setStateafter(3);
-									projectsTaskLog.setProcessafter(5);
-									List<ProjectsTaskLogModel> projectsTaskLogs = projectsTaskLogModelDao.select(projectsTaskLog);
-									if (projectsTaskLogs != null && projectsTaskLogs.size() > 0) {
-										Integer editid = projectsTaskLogs.get(0).getUserid();
-										taskCount.setUserid(editid);
-										taskCount.setRoleid(RoleType.ROLE_WORKER.getValue());
-										if (projectsTaskCountDao.checkTaskDone(taskCount) > 0) {
-											Map<String, Object> map = new HashMap<String, Object>();
-											map.put("systemid", systemType.getValue());
-											map.put("projectid", projectid);
-											List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
-											if (list != null && list.size() > 0) {
-												ProjectsTaskCountModel projectsCount = list.get(0);
-												if (projectsCount.getTotaltask().equals(projectsCount.getCompletetask())) {
-													ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
-													project.setOverstate(4);
-													projectModelDao.updateByPrimaryKey(project);
-												}
-												status = true;
-											}
-										}
-									}
-								}
-							} else {
-								status = true;
-							}
-							break;
-						case MapDbEdit:
-							// (0,0)->(1,5)
-							if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {
-								if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
-									status = true;
-							// (1,5)->(3,5)
-							} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {
-								if (projectsTaskCountDao.editTaskDone(taskCount) > 0) {
-									Map<String, Object> map = new HashMap<String, Object>();
-									map.put("systemid", systemType.getValue());
-									map.put("projectid", projectid);
-									List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
-									if (list != null && list.size() > 0) {
-										ProjectsTaskCountModel projectsCount = list.get(0);
-	
-										Integer totalTask = projectsCount.getTotaltask();
-										Integer completeTask = projectsCount.getCompletetask();
-										Double progress = ((double) completeTask / (double) totalTask) * 100;
-										
-										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
-										Long processid = project.getProcessid();
-										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
-										String sProgress = process.getProgress();
-										if (sProgress != null && !sProgress.isEmpty()) {
-											String[] arProgress = sProgress.split(",");
-											ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
-											Integer length = alProgress.size();
-											while (length < CommonConstants.PROCESSCOUNT_ERROR) {
-												alProgress.add("0");
-												length++;
-											}
-											alProgress.set(3, String.format("%.3f", progress));
-
-											StringBuilder sbProgress = new StringBuilder();
-											for (String p : alProgress) {
-												sbProgress.append(p);
-												sbProgress.append(",");
-											}
-											sbProgress.deleteCharAt(sbProgress.length() - 1);
-
-											process.setProgress(sbProgress.toString());
-											if (totalTask.compareTo(completeTask) == 0) {
-												process.setState(3);
-												process.setStagestate(3);
-											}
-											processModelDao.updateByPrimaryKey(process);
-										}
-	
-										if (totalTask.compareTo(completeTask) == 0) {
-											project.setOverstate(4);
-											projectModelDao.updateByPrimaryKey(project);
-										}
-										status = Boolean.valueOf(true);
-									}
-								}
-							} else {
-								status = true;
-							}
-							break;
-						case MapDbEdit_NRFC:
-							// (0,0)->(1,5)
-							if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {
-								if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
-									status = true;
-							// (1,5)->(3,5)
-							} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {
-								if (projectsTaskCountDao.editTaskDone(taskCount) > 0) {
-									Map<String, Object> map = new HashMap<String, Object>();
-									map.put("systemid", systemType.getValue());
-									map.put("projectid", projectid);
-									List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
-									if (list != null && list.size() > 0) {
-										ProjectsTaskCountModel projectsCount = list.get(0);
-	
-										Integer totalTask = projectsCount.getTotaltask();
-										if (totalTask <= 0) {
-											json.addObject("status", false);
-											json.addObject("option", "任务总数未更新");
-											return json;
-										}
-										Integer completeTask = projectsCount.getCompletetask();
-										Double progress = ((double) completeTask / (double) totalTask) * 100;
-	
-										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
-										Long processid = project.getProcessid();
-										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
-										String sProgress = process.getProgress();
-										if (sProgress.length() > 0) {
-											String[] arProgress = sProgress.split(",");
-											ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
-											Integer length = alProgress.size();
-											while (length < CommonConstants.PROCESSCOUNT_NRFC) {
-												alProgress.add("0");
-												length++;
-											}
-											alProgress.set(1, String.format("%.3f", progress));
-
-											StringBuilder sbProgress = new StringBuilder();
-											for (String p : alProgress) {
-												sbProgress.append(p);
-												sbProgress.append(",");
-											}
-											sbProgress.deleteCharAt(sbProgress.length() - 1);
-
-											process.setProgress(sbProgress.toString());
-											if (totalTask.compareTo(completeTask) == 0) {
-												process.setStage(3);
-												process.setStagestate(1);
-											}
-											processModelDao.updateByPrimaryKey(process);
-										}
-	
-										if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
-											project.setOverstate(4);
-											projectModelDao.updateByPrimaryKey(project);
-										}
-										status = Boolean.valueOf(true);
-									}
-								}
-							}
-							break;
-						case MapDbEdit_Country:
-							// (0,0)->(1,5)
-							if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {
-								if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
-									status = true;
-							// (1,5)->(3,5)
-							} else if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 1 && processbefore == 5 && stateafter == 3 && processafter == 5) {
-								if (projectsTaskCountDao.editTaskDone(taskCount) > 0) {
-									Map<String, Object> map = new HashMap<String, Object>();
-									map.put("systemid", systemType.getValue());
-									map.put("projectid", projectid);
-									List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
-									if (list != null && list.size() > 0) {
-										ProjectsTaskCountModel projectsCount = list.get(0);
-	
-										Integer totalTask = projectsCount.getTotaltask();
-										Integer completeTask = projectsCount.getCompletetask();
-	
-										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
-										Long processid = project.getProcessid();
-										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
-										String sProgress = process.getProgress();
-										if (sProgress != null && !sProgress.isEmpty()) {
-											String[] arProgress = sProgress.split(",");
-											ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
-											Integer length = alProgress.size();
-											while (length < CommonConstants.PROCESSCOUNT_COUNTRY) {
-												alProgress.add("0");
-												length++;
-											}
-
-											StringBuilder sbProgress = new StringBuilder();
-											for (String p : alProgress) {
-												sbProgress.append(p);
-												sbProgress.append(",");
-											}
-											sbProgress.deleteCharAt(sbProgress.length() - 1);
-
-											process.setProgress(sbProgress.toString());
-											if (totalTask.compareTo(completeTask) == 0) {
-												process.setState(2);
-												process.setStagestate(3);
-											}
-											processModelDao.updateByPrimaryKey(process);
-										}
-	
-										if (totalTask.compareTo(completeTask) == 0) {
-											project.setOverstate(4);
-											projectModelDao.updateByPrimaryKey(project);
-										}
-										status = Boolean.valueOf(true);
-									}
-								}
-							} else {
-								status = true;
-							}
-							break;
-						case MapDbEdit_Attach:
-							// (0,0)->(1,5)
-							if (roleType.equals(RoleType.ROLE_WORKER) && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 5) {
-								if (projectsTaskCountDao.newTask2Edit(taskCount) > 0)
-									status = true;
-							// (0,0)->(1,6)
-							} else if (roleType.equals(RoleType.ROLE_CHECKER) && statebefore == 0 && processbefore == 0 && stateafter == 1 && processafter == 6) {
-								if (projectsTaskCountDao.newTask2Check(taskCount) > 0) {
-									ProjectsTaskLogModel projectsTaskLog = new ProjectsTaskLogModel();
-									projectsTaskLog.setSystemid(systemType.getValue());
-									projectsTaskLog.setProjectid(projectid);
-									projectsTaskLog.setTaskid(taskid);
-									projectsTaskLog.setRoleid(RoleType.ROLE_WORKER.getValue());
-									projectsTaskLog.setStatebefore(0);
-									projectsTaskLog.setProcessbefore(0);
-									projectsTaskLog.setStateafter(1);
-									projectsTaskLog.setProcessafter(5);
-									List<ProjectsTaskLogModel> projectsTaskLogs = projectsTaskLogModelDao.select(projectsTaskLog);
-									if (projectsTaskLogs != null && projectsTaskLogs.size() > 0) {
-										Integer editid = projectsTaskLogs.get(0).getUserid();
-										taskCount.setUserid(editid);
-										taskCount.setRoleid(RoleType.ROLE_WORKER.getValue());
-										if (projectsTaskCountDao.edit2Check(taskCount) > 0) {
-											status = true;
-										}
-									}
-								}
-							// (1,6)->(3,6)
-							} else if (roleType.equals(RoleType.ROLE_CHECKER) && statebefore == 1 && processbefore == 6 && stateafter == 3 && processafter == 6) {
-	
-								if (projectsTaskCountDao.checkTaskDone(taskCount) > 0) {
-									
-									ProjectsTaskLogModel projectsTaskLog = new ProjectsTaskLogModel();
-									projectsTaskLog.setSystemid(systemType.getValue());
-									projectsTaskLog.setProjectid(projectid);
-									projectsTaskLog.setTaskid(taskid);
-									projectsTaskLog.setRoleid(RoleType.ROLE_WORKER.getValue());
-									projectsTaskLog.setStatebefore(0);
-									projectsTaskLog.setProcessbefore(0);
-									projectsTaskLog.setStateafter(1);
-									projectsTaskLog.setProcessafter(5);
-									List<ProjectsTaskLogModel> projectsTaskLogs = projectsTaskLogModelDao.select(projectsTaskLog);
-									if (projectsTaskLogs != null && projectsTaskLogs.size() > 0) {
-										Integer editid = projectsTaskLogs.get(0).getUserid();
-										taskCount.setUserid(editid);
-										taskCount.setRoleid(RoleType.ROLE_WORKER.getValue());
-										if (projectsTaskCountDao.checkTaskDone(taskCount) > 0) {
-											
-										}
-									}
-									
-									Map<String, Object> map = new HashMap<String, Object>();
-									map.put("systemid", systemType.getValue());
-									map.put("projectid", projectid);
-									List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
-									if (list != null && list.size() > 0) {
-										ProjectsTaskCountModel projectsCount = list.get(0);
-	
-										// by xiao 计算任务完成进度
-										Integer totalTask = projectsCount.getTotaltask();
-										if (totalTask <= 0) {
-											json.addObject("status", false);
-											json.addObject("option", "任务总数未更新");
-											return json;
-										}
-										Integer completeTask = projectsCount.getCompletetask();
-										Double progress = ((double) completeTask / (double) totalTask) * 100;
-	
-										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
-										Long processid = project.getProcessid();
-										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
-										String sProgress = process.getProgress();
-										if (sProgress != null && !sProgress.isEmpty()) {
-											String[] arProgress = sProgress.split(",");
-											ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
-											Integer length = alProgress.size();
-											while (length < CommonConstants.PROCESSCOUNT_NRFC) {
-												alProgress.add("0");
-												length++;
-											}
-											alProgress.set(1, String.format("%.3f", progress));
-
-											StringBuilder sbProgress = new StringBuilder();
-											for (String p : alProgress) {
-												sbProgress.append(p);
-												sbProgress.append(",");
-											}
-											sbProgress.deleteCharAt(sbProgress.length() - 1);
-
-											process.setProgress(sbProgress.toString());
-											if (totalTask.compareTo(completeTask) == 0) {
-												process.setStage(3);
-												process.setStagestate(1);
-											}
-											processModelDao.updateByPrimaryKey(process);
-										}
-										
-										if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
-											project.setOverstate(4);
-											projectModelDao.updateByPrimaryKey(project);
-										}
-										status = Boolean.valueOf(true);
-									}
-								}
-							}
-							break;
-						case DBMapChecker:
-							// (12,51)->(11,52)
-							if (statebefore == 12 && processbefore == 51 && stateafter == 11 && processafter == 52) {
-								if (projectsTaskCountDao.newTask2QC(taskCount) > 0)
-									status = true;
-							// (11,52)->(2,52)
-							} else if (statebefore == 11 && processbefore == 52 && stateafter == 2 && processafter == 52) {
-								if (projectsTaskCountDao.QCTaskDone(taskCount) > 0) {
-									Map<String, Object> map = new HashMap<String, Object>();
-									map.put("systemid", systemType.getValue());
-									map.put("projectid", projectid);
-									List<ProjectsTaskCountModel> list = projectsTaskCountDao.getProjectsProgress(map);
-									if (list != null && list.size() > 0) {
-										ProjectsTaskCountModel projectsCount = list.get(0);
-	
-										// by xiao 计算任务完成进度
-										Integer totalTask = projectsCount.getTotaltask();
-										if (totalTask <= 0) {
-											json.addObject("status", false);
-											json.addObject("option", "任务总数未更新");
-											return json;
-										}
-										Integer completeTask = projectsCount.getCompletetask();
-										Double progress = ((double) completeTask / (double) totalTask) * 100;
-	
-										ProjectModel project = projectModelDao.selectByPrimaryKey(Long.valueOf(projectid));
-										Long processid = project.getProcessid();
-										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
-										String sProgress = process.getProgress();
-										if (sProgress != null && !sProgress.isEmpty()) {
-											String[] arProgress = sProgress.split(",");
-											ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
-											Integer length = alProgress.size();
-											while (length < CommonConstants.PROCESSCOUNT_ERROR) {
-												alProgress.add("0");
-												length++;
-											}
-											alProgress.set(1, String.format("%.3f", progress));
-
-											StringBuilder sbProgress = new StringBuilder();
-											for (String p : alProgress) {
-												sbProgress.append(p);
-												sbProgress.append(",");
-											}
-											sbProgress.deleteCharAt(sbProgress.length() - 1);
-
-											process.setProgress(sbProgress.toString());
-											if (totalTask.compareTo(completeTask) == 0) {
-												process.setStagestate(3);
-											}
-											processModelDao.updateByPrimaryKey(process);
-										}
-	
-										if (totalTask.compareTo(projectsCount.getCompletetask()) == 0) {
-											project.setOverstate(4);
-											projectModelDao.updateByPrimaryKey(project);
-										}
-										status = Boolean.valueOf(true);
-									}
-								}
-							} else {
-								status = true;
-							}
-	
-							break;
-						default:
-							logger.error("未知的systemid：" + systemType.getValue());
-							break;
-					}
-				}
-			}
-		} catch (Exception e) {
+		try {} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			status = false;
 			json.addObject("option", e.getMessage());

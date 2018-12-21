@@ -19,11 +19,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.ParamUtils;
+import com.emg.projectsmanage.dao.process.WorkTasksModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
-import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
 import com.emg.projectsmanage.pojo.ProjectModelExample;
 import com.emg.projectsmanage.pojo.ProjectModelExample.Criteria;
-import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
+import com.emg.projectsmanage.pojo.WorkTasksModel;
 
 @Controller
 @RequestMapping("/projectsprocess.web")
@@ -32,7 +32,7 @@ public class ProjectsProcessCtrl extends BaseCtrl {
 	private static final Logger logger = LoggerFactory.getLogger(ProjectsProcessCtrl.class);
 
 	@Autowired
-	private ProjectsTaskCountModelDao projectsTaskCountDao;
+	private WorkTasksModelDao workTasksModelDao;
 
 	@Autowired
 	private ProjectModelDao projectModelDao;
@@ -88,7 +88,7 @@ public class ProjectsProcessCtrl extends BaseCtrl {
 			if (offset.compareTo(0) > 0)
 				map.put("offset", offset);
 
-			List<ProjectsTaskCountModel> jobs = projectsTaskCountDao.getProjectsProgress(map);
+			List<WorkTasksModel> jobs = workTasksModelDao.getProjectsProgress(map);
 			int count = projectModelDao.countByExample(example);
 
 			json.addObject("rows", jobs);

@@ -18,8 +18,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.ParamUtils;
-import com.emg.projectsmanage.dao.projectsmanager.ProjectsTaskCountModelDao;
-import com.emg.projectsmanage.pojo.ProjectsTaskCountModel;
+import com.emg.projectsmanage.dao.process.WorkTasksModelDao;
+import com.emg.projectsmanage.pojo.WorkTasksModel;
 
 @Controller
 @RequestMapping("/worktasks.web")
@@ -28,7 +28,7 @@ public class WorkTasksCtrl extends BaseCtrl {
 	private static final Logger logger = LoggerFactory.getLogger(WorkTasksCtrl.class);
 
 	@Autowired
-	private ProjectsTaskCountModelDao projectsTaskCountDao;
+	private WorkTasksModelDao workTasksModelDao;
 
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
@@ -62,8 +62,8 @@ public class WorkTasksCtrl extends BaseCtrl {
 					case "roleid":
 						map.put("roleid", filterPara.get(key).toString());
 						break;
-					case "projectname":
-						map.put("projectname", "%" + filterPara.get(key).toString() + "%");
+					case "processname":
+						map.put("processname", "%" + filterPara.get(key).toString() + "%");
 						break;
 					case "processid":
 						map.put("processid", filterPara.get(key).toString());
@@ -84,8 +84,8 @@ public class WorkTasksCtrl extends BaseCtrl {
 			if (offset.compareTo(0) > 0)
 				map.put("offset", offset);
 
-			List<ProjectsTaskCountModel> projectsTaskCountModels = projectsTaskCountDao.getProjectsProgressByUserid(map);
-			int count = projectsTaskCountDao.countProjectsProgressByUserid(map);
+			List<WorkTasksModel> projectsTaskCountModels = workTasksModelDao.getProjectsProgressByUserid(map);
+			int count = workTasksModelDao.countProjectsProgressByUserid(map);
 
 			json.addObject("rows", projectsTaskCountModels);
 			json.addObject("total", count);

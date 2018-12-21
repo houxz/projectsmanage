@@ -1,15 +1,15 @@
 package com.emg.projectsmanage.pojo;
 
-public class ProjectsTaskCountModel {
+public class WorkTasksModel {
 	private String id;
 	private Integer userid;
 	private String username;
 	private Integer roleid;
 	private String rolename;
 	private Integer systemid;
-	private String projectid;
-	private String projectname;
-	private String processid;
+	private Long projectid;
+	private Long processid;
+	private String processname;
 	private Integer totaltask = 0;
 	private Integer idletask = 0;
 	private Integer edittask = 0;
@@ -35,12 +35,6 @@ public class ProjectsTaskCountModel {
 	}
 	public void setUsername(String username) {
 		this.username = username;
-	}
-	public String getProjectid() {
-		return projectid;
-	}
-	public void setProjectid(String projectid) {
-		this.projectid = projectid;
 	}
 	public Integer getTotaltask() {
 		return totaltask;
@@ -72,12 +66,6 @@ public class ProjectsTaskCountModel {
 	public void setCompletetask(Integer completetask) {
 		this.completetask = completetask;
 	}
-	public String getProjectname() {
-		return projectname;
-	}
-	public void setProjectname(String projectname) {
-		this.projectname = projectname;
-	}
 	public Integer getSystemid() {
 		return systemid;
 	}
@@ -102,16 +90,28 @@ public class ProjectsTaskCountModel {
 	public void setIdletask(Integer idletask) {
 		this.idletask = idletask;
 	}
-	public String getProcessid() {
-		return processid;
-	}
-	public void setProcessid(String processid) {
-		this.processid = processid;
-	}
 	public String getTime() {
 		return time;
 	}
 	public void setTime(String time) {
 		this.time = time;
+	}
+	public Long getProcessid() {
+		return processid;
+	}
+	public void setProcessid(Long processid) {
+		this.processid = processid;
+	}
+	public String getProcessname() {
+		return processname;
+	}
+	public void setProcessname(String processname) {
+		this.processname = processname;
+	}
+	public Long getProjectid() {
+		return projectid;
+	}
+	public void setProjectid(Long projectid) {
+		this.projectid = projectid;
 	}
 }

@@ -1,12 +1,12 @@
 package com.emg.projectsmanage.pojo;
 
-public class ProjectsTaskCountUniq {
+public class WorkTasksUniq {
 	Integer userid;
 	Integer roleid;
 	Integer systemid;
 	Long projectid;
 
-	public ProjectsTaskCountUniq(Integer userid, Integer roleid, Integer systemid, Long projectid) {
+	public WorkTasksUniq(Integer userid, Integer roleid, Integer systemid, Long projectid) {
 		this.userid = userid;
 		this.roleid = roleid;
 		this.systemid = systemid;
@@ -19,8 +19,8 @@ public class ProjectsTaskCountUniq {
 			return false;
 		if (this == obj)
 			return true;
-		if (obj instanceof ProjectsTaskCountUniq) {
-			ProjectsTaskCountUniq another = (ProjectsTaskCountUniq) obj;
+		if (obj instanceof WorkTasksUniq) {
+			WorkTasksUniq another = (WorkTasksUniq) obj;
 			return another.userid.equals(this.userid) && another.roleid.equals(this.roleid)
 					&& another.systemid.equals(this.systemid) && another.projectid.equals(this.projectid);
 		}
