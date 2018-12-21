@@ -18,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.ParamUtils;
+import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.dao.process.WorkTasksModelDao;
 import com.emg.projectsmanage.pojo.WorkTasksModel;
 
@@ -33,6 +34,9 @@ public class WorkTasksCtrl extends BaseCtrl {
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("WorkTasksCtrl-openLader start.");
+		
+		model.addAttribute("processTypes", ProcessType.toJsonStr());
+		
 		return "worktasks";
 	}
 
@@ -67,6 +71,9 @@ public class WorkTasksCtrl extends BaseCtrl {
 						break;
 					case "processid":
 						map.put("processid", filterPara.get(key).toString());
+						break;
+					case "processtype":
+						map.put("processtype", filterPara.get(key).toString());
 						break;
 					case "time":
 						map.put("time", filterPara.get(key).toString());

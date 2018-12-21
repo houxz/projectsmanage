@@ -6,9 +6,9 @@ public class WorkTasksModel {
 	private String username;
 	private Integer roleid;
 	private String rolename;
-	private Integer systemid;
 	private Long projectid;
 	private Long processid;
+	private Integer processtype;
 	private String processname;
 	private Integer totaltask = 0;
 	private Integer idletask = 0;
@@ -66,12 +66,6 @@ public class WorkTasksModel {
 	public void setCompletetask(Integer completetask) {
 		this.completetask = completetask;
 	}
-	public Integer getSystemid() {
-		return systemid;
-	}
-	public void setSystemid(Integer systemid) {
-		this.systemid = systemid;
-	}
 	public Integer getRoleid() {
 		return roleid;
 	}
@@ -113,5 +107,11 @@ public class WorkTasksModel {
 	}
 	public void setProjectid(Long projectid) {
 		this.projectid = projectid;
+	}
+	public Integer getProcesstype() {
+		return processtype;
+	}
+	public void setProcesstype(Integer processtype) {
+		this.processtype = processtype;
 	}
 }

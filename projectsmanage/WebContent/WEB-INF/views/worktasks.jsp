@@ -25,9 +25,15 @@
 
 <script type="text/javascript">
 	var roleTypes = {5:"制作",6:"校正"};
+	var processTypes = eval('(${processTypes})');
+	
 	function roleFormat(value, row, index) {
 		return roleTypes[row.roleid];
 	}
+	function processTypesFormat(value, row, index) {
+		return processTypes[row.processtype];
+	}
+	
 	$(document).ready(function() {
 		$.webeditor.getHead();
 		$('[data-toggle="worktasks"]').bootstrapTable({
@@ -70,7 +76,10 @@
 							data-filter-control-placeholder="" data-width="60">项目编号</th>
 						<th data-field="processname" data-filter-control="input"
 							data-filter-control-placeholder=""
-							data-width="240">项目名称</th>
+							data-width="200">项目名称</th>
+						<th data-field="processtype" data-formatter="processTypesFormat"
+							data-filter-control="select" data-width="120"
+							data-filter-data="var:processTypes">项目类型</th>
 						<th data-field="totaltask" data-sortable="true">任务总数</th>
 						<th data-field="edittask" data-sortable="true">编辑中任务</th>
 						<th data-field="qctask" data-sortable="true">质检中任务</th>

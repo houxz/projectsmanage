@@ -11,7 +11,7 @@
 		<result column="rolename" property="rolename" jdbcType="VARCHAR" />
 		<result column="processname" property="processname" jdbcType="VARCHAR" />
 		<result column="processid" property="processid" jdbcType="VARCHAR" />
-		<result column="systemid" property="systemid" jdbcType="INTEGER" />
+		<result column="processtype" property="processtype" jdbcType="INTEGER" />
 		<result column="totaltask" property="totaltask" jdbcType="INTEGER" />
 		<result column="idletask" property="idletask" jdbcType="INTEGER" />
 		<result column="edittask" property="edittask" jdbcType="INTEGER" />
@@ -28,8 +28,8 @@
 			t.`username`,
 			t.`roleid`,
 			t.`rolename`,
-			t.`systemid`,
 			t.`processid`,
+			t.`processtype`,
 			p.`name` AS processname,
 			t.`totaltask`,
 			t.`edittask`,
@@ -56,6 +56,9 @@
 			</if>
 			<if test="processid != null">
 				AND t.`processid` = #{processid}
+			</if>
+			<if test="processtype != null">
+				AND t.`processtype` = #{processtype}
 			</if>
 			<if test="processname != null">
 				AND p.`name` like #{processname}
@@ -97,6 +100,9 @@
 			</if>
 			<if test="processid != null">
 				AND t.`processid` = #{processid}
+			</if>
+			<if test="processtype != null">
+				AND t.`processtype` = #{processtype}
 			</if>
 			<if test="processname != null">
 				AND p.`name` like #{processname}
@@ -159,8 +165,8 @@
 	    	`username`, 
 	    	`roleid`, 
 	    	`rolename`, 
-	    	`systemid`, 
 	    	`processid`, 
+	    	`processtype`,
 	    	`totaltask`, 
 	    	`edittask`, 
 	    	`qctask`, 
@@ -172,8 +178,8 @@
 	    	#{username,jdbcType=VARCHAR}, 
 	    	#{roleid,jdbcType=INTEGER}, 
 	    	#{rolename,jdbcType=VARCHAR}, 
-	    	#{systemid,jdbcType=INTEGER}, 
 	      	#{processid,jdbcType=BIGINT},
+	      	#{processtype,jdbcType=INTEGER},
 	      	#{totaltask,jdbcType=INTEGER}, 
 	      	#{edittask,jdbcType=INTEGER}, 
 	      	#{qctask,jdbcType=INTEGER}, 

@@ -568,7 +568,7 @@ public class SchedulerTask {
 							workTasksModel.setUserid(editid);
 							workTasksModel.setRoleid(RoleType.ROLE_WORKER.getValue());
 							workTasksModel.setRolename(RoleType.ROLE_WORKER.getDes());
-							workTasksModel.setSystemid(systemid);
+							workTasksModel.setProcesstype(processType.getValue());
 							workTasksModel.setProjectid(projectid);
 							workTasksModel.setTime(nowStr);
 							
@@ -609,7 +609,7 @@ public class SchedulerTask {
 							workTasksModel.setUserid(checkid);
 							workTasksModel.setRoleid(RoleType.ROLE_CHECKER.getValue());
 							workTasksModel.setRolename(RoleType.ROLE_CHECKER.getDes());
-							workTasksModel.setSystemid(systemid);
+							workTasksModel.setProcesstype(processType.getValue());
 							workTasksModel.setProjectid(projectid);
 							workTasksModel.setTime(nowStr);
 							
