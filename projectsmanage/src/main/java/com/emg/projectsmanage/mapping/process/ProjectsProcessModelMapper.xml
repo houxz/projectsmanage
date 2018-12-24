@@ -40,7 +40,7 @@
 		<where>
 			t.`time` = (SELECT MAX(`time`) FROM tb_projectsprocess
 			<if test="time != null">
-				<![CDATA[WHERE `time` < #{time}]]>
+				<![CDATA[WHERE `time` <= #{time}]]>
 			</if> )
 			<if test="processid != null">
 				AND t.`processid` = #{processid}
@@ -74,7 +74,7 @@
 		<where>
 			t.`time` = (SELECT MAX(`time`) FROM tb_projectsprocess
 			<if test="time != null">
-				<![CDATA[WHERE `time` < #{time}]]>
+				<![CDATA[WHERE `time` <= #{time}]]>
 			</if> )
 			<if test="processid != null">
 				AND t.`processid` = #{processid}

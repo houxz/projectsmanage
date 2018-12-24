@@ -1693,13 +1693,10 @@ public class InterfaceCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "action=doworktasks", method = RequestMethod.POST)
-	private ModelAndView test(Model model, HttpSession session, HttpServletRequest request, 
-			@RequestParam(value = "type", required = false, defaultValue = "poi") String type) {
+	private ModelAndView test(Model model, HttpSession session, HttpServletRequest request) {
 		logger.debug("START");
 		InterfaceResultModel result = new InterfaceResultModel();
 		try {
-			logger.debug("START");
-			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			Calendar calendar = Calendar.getInstance();
 			Date now = new Date();
@@ -1707,14 +1704,423 @@ public class InterfaceCtrl extends BaseCtrl {
 			String nowStr = sdf.format(calendar.getTime());
 			
 			ProcessType processType = ProcessType.UNKNOWN;
-			if (type.equalsIgnoreCase("attach")) {
+			try {
+				logger.debug("ERROR START");
+				processType = ProcessType.ERROR;
+				
+				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
+				if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+					List<Map<String, Object>> groups = taskModelDao.groupTasks(configDBModel, new ArrayList<TaskTypeEnum>() {
+						private static final long serialVersionUID = 7694111996341893515L;
+					{
+						add(TaskTypeEnum.ERROR);
+					}});
+					Map<WorkTasksUniq, WorkTasksModel> uniqRecords = new HashMap<WorkTasksUniq, WorkTasksModel>();
+					Map<Long, ProjectsProcessModel> uniqProcesses = new HashMap<Long, ProjectsProcessModel>();
+					for (Map<String, Object> group : groups) {
+						Long projectid = (Long) group.get("projectid");
+						Integer state = (Integer) group.get("state");
+						Integer process = (Integer) group.get("process");
+						Integer editid = (Integer) group.get("editid");
+						Integer checkid = (Integer) group.get("checkid");
+						Integer count = ((Long) group.get("count")).intValue();
+						
+						ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+						if (project == null || project.getProcessid() == null || project.getProcessid().compareTo(0L) < 0)
+							continue;
+						
+						Long processid = project.getProcessid();
+						{
+							ProjectsProcessModel projectsProcessModel = new ProjectsProcessModel();
+							if (uniqProcesses.containsKey(processid)) {
+								projectsProcessModel = uniqProcesses.get(processid);
+								uniqProcesses.remove(processid);
+							}
+							projectsProcessModel.setProcessid(processid);
+							projectsProcessModel.setProcesstype(processType.getValue());
+							projectsProcessModel.setTime(nowStr);
+							
+							if (state.equals(0) && process.equals(0)) {
+								
+							} else if ((state.equals(0) && process.equals(5)) ||
+									(state.equals(1) && process.equals(5)) ||
+									(state.equals(2) && process.equals(6)) ||
+									(state.equals(2) && process.equals(52)) ||
+									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								projectsProcessModel.setEdittask(projectsProcessModel.getEdittask() + count);
+							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
+									(state.equals(0) && process.equals(6)) ||
+									(state.equals(1) && process.equals(6))) {
+								projectsProcessModel.setChecktask(projectsProcessModel.getChecktask() + count);
+							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
+									(state.equals(3) && process.equals(6)) ||
+									(state.equals(3) && process.equals(20))) {
+								projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
+							} else if ((state.equals(1) && process.equals(52)) ||
+									(state.equals(2) && process.equals(5)) ||
+									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
+									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								projectsProcessModel.setQctask(projectsProcessModel.getQctask() + count);
+							}
+							
+							projectsProcessModel.setTotaltask(projectsProcessModel.getTotaltask() + count);
+							uniqProcesses.put(processid, projectsProcessModel);
+						}
+						
+						if (editid != null && editid.compareTo(0) > 0) {
+							editid = editid.compareTo(500000) > 0 ? (editid - 500000) : editid;
+							WorkTasksUniq uniqRecord = new WorkTasksUniq(editid, RoleType.ROLE_WORKER.getValue(), processid);
+							WorkTasksModel workTasksModel = new WorkTasksModel();
+							if(uniqRecords.containsKey(uniqRecord)) {
+								workTasksModel = uniqRecords.get(uniqRecord);
+								uniqRecords.remove(uniqRecord);
+							}
+							workTasksModel.setUserid(editid);
+							workTasksModel.setRoleid(RoleType.ROLE_WORKER.getValue());
+							workTasksModel.setRolename(RoleType.ROLE_WORKER.getDes());
+							workTasksModel.setProcesstype(processType.getValue());
+							workTasksModel.setProcessid(processid);
+							workTasksModel.setTime(nowStr);
+							
+							if (state.equals(0) && process.equals(0)) {
+								
+							} else if ((state.equals(0) && process.equals(5)) ||
+									(state.equals(1) && process.equals(5)) ||
+									(state.equals(2) && process.equals(6)) ||
+									(state.equals(2) && process.equals(52)) ||
+									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
+							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
+									(state.equals(0) && process.equals(6)) ||
+									(state.equals(1) && process.equals(6))) {
+								workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
+							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
+									(state.equals(3) && process.equals(6)) ||
+									(state.equals(3) && process.equals(20))) {
+								workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
+							} else if ((state.equals(1) && process.equals(52)) ||
+									(state.equals(2) && process.equals(5)) ||
+									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
+									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								workTasksModel.setQctask(workTasksModel.getQctask() + count);
+							}
+							
+							uniqRecords.put(uniqRecord, workTasksModel);
+						}
+						
+						if (checkid != null && checkid.compareTo(0) > 0) {
+							checkid = checkid.compareTo(600000) > 0 ? (checkid - 600000) : checkid;
+							WorkTasksUniq uniqRecord = new WorkTasksUniq(checkid, RoleType.ROLE_CHECKER.getValue(), processid);
+							WorkTasksModel workTasksModel = new WorkTasksModel();
+							if(uniqRecords.containsKey(uniqRecord)) {
+								workTasksModel = uniqRecords.get(uniqRecord);
+								uniqRecords.remove(uniqRecord);
+							}
+							workTasksModel.setUserid(checkid);
+							workTasksModel.setRoleid(RoleType.ROLE_CHECKER.getValue());
+							workTasksModel.setRolename(RoleType.ROLE_CHECKER.getDes());
+							workTasksModel.setProcesstype(processType.getValue());
+							workTasksModel.setProcessid(processid);
+							workTasksModel.setTime(nowStr);
+							
+							if (state.equals(0) && process.equals(0)) {
+								
+							} else if ((state.equals(0) && process.equals(5)) ||
+									(state.equals(1) && process.equals(5)) ||
+									(state.equals(2) && process.equals(6)) ||
+									(state.equals(2) && process.equals(52)) ||
+									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
+							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
+									(state.equals(0) && process.equals(6)) ||
+									(state.equals(1) && process.equals(6))) {
+								workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
+							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
+									(state.equals(3) && process.equals(6)) ||
+									(state.equals(3) && process.equals(20))) {
+								workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
+							} else if ((state.equals(1) && process.equals(52)) ||
+									(state.equals(2) && process.equals(5)) ||
+									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
+									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								workTasksModel.setQctask(workTasksModel.getQctask() + count);
+							}
+							
+							uniqRecords.put(uniqRecord, workTasksModel);
+						}
+						
+					}
+					if (uniqRecords != null && !uniqRecords.isEmpty()) {
+						for (WorkTasksModel workTasksModel : uniqRecords.values()) {
+							if (workTasksModel.getTotaltask().equals(0) &&
+									workTasksModel.getEdittask().equals(0) &&
+									workTasksModel.getQctask().equals(0) &&
+									workTasksModel.getChecktask().equals(0) &&
+									workTasksModel.getCompletetask().equals(0))
+								continue;
+							
+							try {
+								Integer userid = workTasksModel.getUserid();
+								EmployeeModel record = new EmployeeModel();
+								record.setId(userid);
+								EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(record );
+								if (emp == null)
+									continue;
+								workTasksModel.setUsername(emp.getRealname());
+								workTasksModel.setTotaltask(workTasksModel.getEdittask() + workTasksModel.getChecktask() + workTasksModel.getQctask() + workTasksModel.getCompletetask());
+								workTasksModelDao.newWorkTask(workTasksModel);
+							} catch (DuplicateKeyException e) {
+								logger.error(e.getMessage(), e);
+							} catch (Exception e) {
+								logger.error(e.getMessage(), e);
+							}
+						}
+					} else {
+						logger.debug("workTasks has no records.");
+					}
+					if (uniqProcesses != null && !uniqProcesses.isEmpty()) {
+						for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
+							if (projectsProcessModel.getTotaltask().equals(0) &&
+								projectsProcessModel.getEdittask().equals(0) &&
+								projectsProcessModel.getQctask().equals(0) &&
+								projectsProcessModel.getChecktask().equals(0) &&
+								projectsProcessModel.getCompletetask().equals(0) &&
+								projectsProcessModel.getFielddatacount().equals(0) &&
+								projectsProcessModel.getErrorcount().equals(0))
+								continue;
+							
+							try {
+								projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
+							} catch (DuplicateKeyException e) {
+								logger.error(e.getMessage());
+							} catch (Exception e) {
+								logger.error(e.getMessage(), e);
+							}
+						}
+					} else {
+						logger.debug("projectsProcess has no records.");
+					}
+				} else {
+					logger.error("There's no Attach DB Config.");
+				}
+				logger.debug("ERROR END");
+			} catch(Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			try {
+				logger.debug("NRFC START");
+				processType = ProcessType.NRFC;
+				
+				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
+				if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+					List<Map<String, Object>> groups = taskModelDao.groupTasks(configDBModel, new ArrayList<TaskTypeEnum>() {
+						private static final long serialVersionUID = 3858444676391259930L;
+					{
+						add(TaskTypeEnum.NRFC);
+					}});
+					Map<WorkTasksUniq, WorkTasksModel> uniqRecords = new HashMap<WorkTasksUniq, WorkTasksModel>();
+					Map<Long, ProjectsProcessModel> uniqProcesses = new HashMap<Long, ProjectsProcessModel>();
+					for (Map<String, Object> group : groups) {
+						Long projectid = (Long) group.get("projectid");
+						Integer state = (Integer) group.get("state");
+						Integer process = (Integer) group.get("process");
+						Integer editid = (Integer) group.get("editid");
+						Integer checkid = (Integer) group.get("checkid");
+						Integer count = ((Long) group.get("count")).intValue();
+						
+						ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+						if (project == null || project.getProcessid() == null || project.getProcessid().compareTo(0L) < 0)
+							continue;
+						
+						Long processid = project.getProcessid();
+						{
+							ProjectsProcessModel projectsProcessModel = new ProjectsProcessModel();
+							if (uniqProcesses.containsKey(processid)) {
+								projectsProcessModel = uniqProcesses.get(processid);
+								uniqProcesses.remove(processid);
+							}
+							projectsProcessModel.setProcessid(processid);
+							projectsProcessModel.setProcesstype(processType.getValue());
+							projectsProcessModel.setTime(nowStr);
+							
+							if (state.equals(0) && process.equals(0)) {
+								
+							} else if ((state.equals(0) && process.equals(5)) ||
+									(state.equals(1) && process.equals(5)) ||
+									(state.equals(2) && process.equals(6)) ||
+									(state.equals(2) && process.equals(52)) ||
+									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								projectsProcessModel.setEdittask(projectsProcessModel.getEdittask() + count);
+							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
+									(state.equals(0) && process.equals(6)) ||
+									(state.equals(1) && process.equals(6))) {
+								projectsProcessModel.setChecktask(projectsProcessModel.getChecktask() + count);
+							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
+									(state.equals(3) && process.equals(6)) ||
+									(state.equals(3) && process.equals(20))) {
+								projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
+							} else if ((state.equals(1) && process.equals(52)) ||
+									(state.equals(2) && process.equals(5)) ||
+									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
+									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								projectsProcessModel.setQctask(projectsProcessModel.getQctask() + count);
+							}
+							
+							projectsProcessModel.setTotaltask(projectsProcessModel.getTotaltask() + count);
+							uniqProcesses.put(processid, projectsProcessModel);
+						}
+						
+						if (editid != null && editid.compareTo(0) > 0) {
+							editid = editid.compareTo(500000) > 0 ? (editid - 500000) : editid;
+							WorkTasksUniq uniqRecord = new WorkTasksUniq(editid, RoleType.ROLE_WORKER.getValue(), processid);
+							WorkTasksModel workTasksModel = new WorkTasksModel();
+							if(uniqRecords.containsKey(uniqRecord)) {
+								workTasksModel = uniqRecords.get(uniqRecord);
+								uniqRecords.remove(uniqRecord);
+							}
+							workTasksModel.setUserid(editid);
+							workTasksModel.setRoleid(RoleType.ROLE_WORKER.getValue());
+							workTasksModel.setRolename(RoleType.ROLE_WORKER.getDes());
+							workTasksModel.setProcesstype(processType.getValue());
+							workTasksModel.setProcessid(processid);
+							workTasksModel.setTime(nowStr);
+							
+							if (state.equals(0) && process.equals(0)) {
+								
+							} else if ((state.equals(0) && process.equals(5)) ||
+									(state.equals(1) && process.equals(5)) ||
+									(state.equals(2) && process.equals(6)) ||
+									(state.equals(2) && process.equals(52)) ||
+									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
+							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
+									(state.equals(0) && process.equals(6)) ||
+									(state.equals(1) && process.equals(6))) {
+								workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
+							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
+									(state.equals(3) && process.equals(6)) ||
+									(state.equals(3) && process.equals(20))) {
+								workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
+							} else if ((state.equals(1) && process.equals(52)) ||
+									(state.equals(2) && process.equals(5)) ||
+									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
+									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								workTasksModel.setQctask(workTasksModel.getQctask() + count);
+							}
+							
+							uniqRecords.put(uniqRecord, workTasksModel);
+						}
+						
+						if (checkid != null && checkid.compareTo(0) > 0) {
+							checkid = checkid.compareTo(600000) > 0 ? (checkid - 600000) : checkid;
+							WorkTasksUniq uniqRecord = new WorkTasksUniq(checkid, RoleType.ROLE_CHECKER.getValue(), processid);
+							WorkTasksModel workTasksModel = new WorkTasksModel();
+							if(uniqRecords.containsKey(uniqRecord)) {
+								workTasksModel = uniqRecords.get(uniqRecord);
+								uniqRecords.remove(uniqRecord);
+							}
+							workTasksModel.setUserid(checkid);
+							workTasksModel.setRoleid(RoleType.ROLE_CHECKER.getValue());
+							workTasksModel.setRolename(RoleType.ROLE_CHECKER.getDes());
+							workTasksModel.setProcesstype(processType.getValue());
+							workTasksModel.setProcessid(processid);
+							workTasksModel.setTime(nowStr);
+							
+							if (state.equals(0) && process.equals(0)) {
+								
+							} else if ((state.equals(0) && process.equals(5)) ||
+									(state.equals(1) && process.equals(5)) ||
+									(state.equals(2) && process.equals(6)) ||
+									(state.equals(2) && process.equals(52)) ||
+									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
+							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
+									(state.equals(0) && process.equals(6)) ||
+									(state.equals(1) && process.equals(6))) {
+								workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
+							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
+									(state.equals(3) && process.equals(6)) ||
+									(state.equals(3) && process.equals(20))) {
+								workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
+							} else if ((state.equals(1) && process.equals(52)) ||
+									(state.equals(2) && process.equals(5)) ||
+									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
+									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								workTasksModel.setQctask(workTasksModel.getQctask() + count);
+							}
+							
+							uniqRecords.put(uniqRecord, workTasksModel);
+						}
+						
+					}
+					if (uniqRecords != null && !uniqRecords.isEmpty()) {
+						for (WorkTasksModel workTasksModel : uniqRecords.values()) {
+							if (workTasksModel.getTotaltask().equals(0) &&
+									workTasksModel.getEdittask().equals(0) &&
+									workTasksModel.getQctask().equals(0) &&
+									workTasksModel.getChecktask().equals(0) &&
+									workTasksModel.getCompletetask().equals(0))
+								continue;
+							
+							try {
+								Integer userid = workTasksModel.getUserid();
+								EmployeeModel record = new EmployeeModel();
+								record.setId(userid);
+								EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(record );
+								if (emp == null)
+									continue;
+								workTasksModel.setUsername(emp.getRealname());
+								workTasksModel.setTotaltask(workTasksModel.getEdittask() + workTasksModel.getChecktask() + workTasksModel.getQctask() + workTasksModel.getCompletetask());
+								workTasksModelDao.newWorkTask(workTasksModel);
+							} catch (DuplicateKeyException e) {
+								logger.error(e.getMessage(), e);
+							} catch (Exception e) {
+								logger.error(e.getMessage(), e);
+							}
+						}
+					} else {
+						logger.debug("workTasks has no records.");
+					}
+					if (uniqProcesses != null && !uniqProcesses.isEmpty()) {
+						for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
+							if (projectsProcessModel.getTotaltask().equals(0) &&
+								projectsProcessModel.getEdittask().equals(0) &&
+								projectsProcessModel.getQctask().equals(0) &&
+								projectsProcessModel.getChecktask().equals(0) &&
+								projectsProcessModel.getCompletetask().equals(0) &&
+								projectsProcessModel.getFielddatacount().equals(0) &&
+								projectsProcessModel.getErrorcount().equals(0))
+								continue;
+							
+							try {
+								projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
+							} catch (DuplicateKeyException e) {
+								logger.error(e.getMessage());
+							} catch (Exception e) {
+								logger.error(e.getMessage(), e);
+							}
+						}
+					} else {
+						logger.debug("projectsProcess has no records.");
+					}
+				} else {
+					logger.error("There's no Attach DB Config.");
+				}
+				logger.debug("NRFC END");
+			} catch(Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			try {
+				logger.debug("ATTACH START");
 				processType = ProcessType.ATTACH;
 				
 				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
 				if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
 					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 					List<Map<String, Object>> groups = taskModelDao.groupTasks(configDBModel, new ArrayList<TaskTypeEnum>() {
-						private static final long serialVersionUID = 1L;
+						private static final long serialVersionUID = 7739429730636924053L;
 					{
 						add(TaskTypeEnum.ATTACH);
 					}});
@@ -1878,6 +2284,8 @@ public class InterfaceCtrl extends BaseCtrl {
 								logger.error(e.getMessage(), e);
 							}
 						}
+					} else {
+						logger.debug("workTasks has no records.");
 					}
 					if (uniqProcesses != null && !uniqProcesses.isEmpty()) {
 						for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
@@ -1890,26 +2298,115 @@ public class InterfaceCtrl extends BaseCtrl {
 								projectsProcessModel.getErrorcount().equals(0))
 								continue;
 							
-							projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
+							try {
+								projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
+							} catch (DuplicateKeyException e) {
+								logger.error(e.getMessage());
+							} catch (Exception e) {
+								logger.error(e.getMessage(), e);
+							}
 						}
+					} else {
+						logger.debug("projectsProcess has no records.");
 					}
+				} else {
+					logger.error("There's no Attach DB Config.");
 				}
-			} else if (type.equalsIgnoreCase("poi")) {
+				logger.debug("ATTACH END");
+			} catch(Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			try {
+				logger.debug("POI START");
 				processType = ProcessType.POIEDIT;
 				
 				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
 				if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
 					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 					
+					Map<Long, ProjectsProcessModel> uniqProcesses = new HashMap<Long, ProjectsProcessModel>();
+					
+					List<Map<String, Object>> groupEditTasks = taskModelDao.groupPOITasks(configDBModel, new ArrayList<TaskTypeEnum>() {
+						private static final long serialVersionUID = 7389125160132771037L;
+					{
+						addAll(TaskTypeEnum.getPoiEditTaskTypes());
+					}});
+					
+					for (Map<String, Object> group : groupEditTasks) {
+						Long projectid = (Long) group.get("projectid");
+						Integer state = (Integer) group.get("state");
+						Integer count = ((Long) group.get("count")).intValue();
+						
+						ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+						if (project == null || project.getProcessid() == null || project.getProcessid().compareTo(0L) < 0)
+							continue;
+						
+						Long processid = project.getProcessid();
+						ProjectsProcessModel projectsProcessModel = new ProjectsProcessModel();
+						if (uniqProcesses.containsKey(processid)) {
+							projectsProcessModel = uniqProcesses.get(processid);
+							uniqProcesses.remove(processid);
+						}
+						projectsProcessModel.setProcessid(processid);
+						projectsProcessModel.setProcesstype(processType.getValue());
+						projectsProcessModel.setTime(nowStr);
+						
+						if (state.equals(0)) {
+							projectsProcessModel.setIdletask(projectsProcessModel.getIdletask() + count);
+						} else if (state.equals(1)) {
+							projectsProcessModel.setEdittask(projectsProcessModel.getEdittask() + count);
+						} else if (state.equals(2)) {
+							projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
+						}
+						
+						projectsProcessModel.setTotaltask(projectsProcessModel.getTotaltask() + count);
+						uniqProcesses.put(processid, projectsProcessModel);
+					}
+					
+					List<Map<String, Object>> groupCheckTasks = taskModelDao.groupPOITasks(configDBModel, new ArrayList<TaskTypeEnum>() {
+						private static final long serialVersionUID = -8886536407502577355L;
+					{
+						addAll(TaskTypeEnum.getPoiCheckTaskTypes());
+					}});
+					
+					for (Map<String, Object> group : groupCheckTasks) {
+						Long projectid = (Long) group.get("projectid");
+						Integer state = (Integer) group.get("state");
+						Integer count = ((Long) group.get("count")).intValue();
+						
+						ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+						if (project == null || project.getProcessid() == null || project.getProcessid().compareTo(0L) < 0)
+							continue;
+						
+						Long processid = project.getProcessid();
+						ProjectsProcessModel projectsProcessModel = new ProjectsProcessModel();
+						if (uniqProcesses.containsKey(processid)) {
+							projectsProcessModel = uniqProcesses.get(processid);
+							uniqProcesses.remove(processid);
+						}
+						projectsProcessModel.setProcessid(processid);
+						projectsProcessModel.setProcesstype(processType.getValue());
+						projectsProcessModel.setTime(nowStr);
+						
+						if (state.equals(0)) {
+							projectsProcessModel.setIdletask(projectsProcessModel.getIdletask() + count);
+						} else if (state.equals(1)) {
+							projectsProcessModel.setChecktask(projectsProcessModel.getChecktask() + count);
+						} else if (state.equals(2)) {
+							projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
+						}
+						
+						projectsProcessModel.setTotaltask(projectsProcessModel.getTotaltask() + count);
+						uniqProcesses.put(processid, projectsProcessModel);
+					}
+					
 					List<Map<String, Object>> groupErrors = taskModelDao.groupErrors(configDBModel, new ArrayList<TaskTypeEnum>() {
-						private static final long serialVersionUID = 3858444676391259930L;
+						private static final long serialVersionUID = 7389125160132771037L;
 					{
 						addAll(TaskTypeEnum.getPoiEditTaskTypes());
 						addAll(TaskTypeEnum.getPoiCheckTaskTypes());
 					}});
 					groupErrors.addAll(taskModelDao.groupErrorsInCache(configDBModel));
-					
-					Map<Long, ProjectsProcessModel> uniqProcesses = new HashMap<Long, ProjectsProcessModel>();
 					
 					for (Map<String, Object> group : groupErrors) {
 						Long projectid = (Long) group.get("projectid");
@@ -1964,23 +2461,238 @@ public class InterfaceCtrl extends BaseCtrl {
 					}
 					
 					if (uniqProcesses != null && !uniqProcesses.isEmpty()) {
-						for (ProjectsProcessModel process : uniqProcesses.values()) {
-							if (process.getTotaltask().equals(0) &&
-								process.getEdittask().equals(0) &&
-								process.getQctask().equals(0) &&
-								process.getChecktask().equals(0) &&
-								process.getCompletetask().equals(0) &&
-								process.getFielddatacount().equals(0) &&
-								process.getErrorcount().equals(0))
+						for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
+							if (projectsProcessModel.getTotaltask().equals(0) &&
+								projectsProcessModel.getEdittask().equals(0) &&
+								projectsProcessModel.getQctask().equals(0) &&
+								projectsProcessModel.getChecktask().equals(0) &&
+								projectsProcessModel.getCompletetask().equals(0) &&
+								projectsProcessModel.getFielddatacount().equals(0) &&
+								projectsProcessModel.getErrorcount().equals(0))
 								continue;
 							
-							projectsProcessModelDao.newProjectsProcess(process);
+							try {
+								projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
+							} catch (DuplicateKeyException e) {
+								logger.error(e.getMessage());
+							} catch (Exception e) {
+								logger.error(e.getMessage(), e);
+							}
 						}
+					} else {
+						logger.debug("projectsProcess has no records.");
 					}
+				} else {
+					logger.error("There's no POI DB Config.");
 				}
+				logger.debug("POI END");
+			} catch(Exception e) {
+				logger.error(e.getMessage(), e);
 			}
-			
-			logger.debug("END");
+			try {
+				logger.debug("ADJUSTMAP START");
+				processType = ProcessType.ADJUSTMAP;
+				
+				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
+				if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+					List<Map<String, Object>> groups = taskModelDao.groupTasks(configDBModel, new ArrayList<TaskTypeEnum>() {
+						private static final long serialVersionUID = -2869201154554097L;
+					{
+						add(TaskTypeEnum.ADJUSTMAP);
+					}});
+					Map<WorkTasksUniq, WorkTasksModel> uniqRecords = new HashMap<WorkTasksUniq, WorkTasksModel>();
+					Map<Long, ProjectsProcessModel> uniqProcesses = new HashMap<Long, ProjectsProcessModel>();
+					for (Map<String, Object> group : groups) {
+						Long projectid = (Long) group.get("projectid");
+						Integer state = (Integer) group.get("state");
+						Integer process = (Integer) group.get("process");
+						Integer editid = (Integer) group.get("editid");
+						Integer checkid = (Integer) group.get("checkid");
+						Integer count = ((Long) group.get("count")).intValue();
+						
+						ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+						if (project == null || project.getProcessid() == null || project.getProcessid().compareTo(0L) < 0)
+							continue;
+						
+						Long processid = project.getProcessid();
+						{
+							ProjectsProcessModel projectsProcessModel = new ProjectsProcessModel();
+							if (uniqProcesses.containsKey(processid)) {
+								projectsProcessModel = uniqProcesses.get(processid);
+								uniqProcesses.remove(processid);
+							}
+							projectsProcessModel.setProcessid(processid);
+							projectsProcessModel.setProcesstype(processType.getValue());
+							projectsProcessModel.setTime(nowStr);
+							
+							if (state.equals(0) && process.equals(0)) {
+								
+							} else if ((state.equals(0) && process.equals(5)) ||
+									(state.equals(1) && process.equals(5)) ||
+									(state.equals(2) && process.equals(6)) ||
+									(state.equals(2) && process.equals(52)) ||
+									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								projectsProcessModel.setEdittask(projectsProcessModel.getEdittask() + count);
+							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
+									(state.equals(0) && process.equals(6)) ||
+									(state.equals(1) && process.equals(6))) {
+								projectsProcessModel.setChecktask(projectsProcessModel.getChecktask() + count);
+							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
+									(state.equals(3) && process.equals(6)) ||
+									(state.equals(3) && process.equals(20))) {
+								projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
+							} else if ((state.equals(1) && process.equals(52)) ||
+									(state.equals(2) && process.equals(5)) ||
+									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
+									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								projectsProcessModel.setQctask(projectsProcessModel.getQctask() + count);
+							}
+							
+							projectsProcessModel.setTotaltask(projectsProcessModel.getTotaltask() + count);
+							uniqProcesses.put(processid, projectsProcessModel);
+						}
+						
+						if (editid != null && editid.compareTo(0) > 0) {
+							editid = editid.compareTo(500000) > 0 ? (editid - 500000) : editid;
+							WorkTasksUniq uniqRecord = new WorkTasksUniq(editid, RoleType.ROLE_WORKER.getValue(), processid);
+							WorkTasksModel workTasksModel = new WorkTasksModel();
+							if(uniqRecords.containsKey(uniqRecord)) {
+								workTasksModel = uniqRecords.get(uniqRecord);
+								uniqRecords.remove(uniqRecord);
+							}
+							workTasksModel.setUserid(editid);
+							workTasksModel.setRoleid(RoleType.ROLE_WORKER.getValue());
+							workTasksModel.setRolename(RoleType.ROLE_WORKER.getDes());
+							workTasksModel.setProcesstype(processType.getValue());
+							workTasksModel.setProcessid(processid);
+							workTasksModel.setTime(nowStr);
+							
+							if (state.equals(0) && process.equals(0)) {
+								
+							} else if ((state.equals(0) && process.equals(5)) ||
+									(state.equals(1) && process.equals(5)) ||
+									(state.equals(2) && process.equals(6)) ||
+									(state.equals(2) && process.equals(52)) ||
+									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
+							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
+									(state.equals(0) && process.equals(6)) ||
+									(state.equals(1) && process.equals(6))) {
+								workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
+							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
+									(state.equals(3) && process.equals(6)) ||
+									(state.equals(3) && process.equals(20))) {
+								workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
+							} else if ((state.equals(1) && process.equals(52)) ||
+									(state.equals(2) && process.equals(5)) ||
+									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
+									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								workTasksModel.setQctask(workTasksModel.getQctask() + count);
+							}
+							
+							uniqRecords.put(uniqRecord, workTasksModel);
+						}
+						
+						if (checkid != null && checkid.compareTo(0) > 0) {
+							checkid = checkid.compareTo(600000) > 0 ? (checkid - 600000) : checkid;
+							WorkTasksUniq uniqRecord = new WorkTasksUniq(checkid, RoleType.ROLE_CHECKER.getValue(), processid);
+							WorkTasksModel workTasksModel = new WorkTasksModel();
+							if(uniqRecords.containsKey(uniqRecord)) {
+								workTasksModel = uniqRecords.get(uniqRecord);
+								uniqRecords.remove(uniqRecord);
+							}
+							workTasksModel.setUserid(checkid);
+							workTasksModel.setRoleid(RoleType.ROLE_CHECKER.getValue());
+							workTasksModel.setRolename(RoleType.ROLE_CHECKER.getDes());
+							workTasksModel.setProcesstype(processType.getValue());
+							workTasksModel.setProcessid(processid);
+							workTasksModel.setTime(nowStr);
+							
+							if (state.equals(0) && process.equals(0)) {
+								
+							} else if ((state.equals(0) && process.equals(5)) ||
+									(state.equals(1) && process.equals(5)) ||
+									(state.equals(2) && process.equals(6)) ||
+									(state.equals(2) && process.equals(52)) ||
+									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
+							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
+									(state.equals(0) && process.equals(6)) ||
+									(state.equals(1) && process.equals(6))) {
+								workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
+							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
+									(state.equals(3) && process.equals(6)) ||
+									(state.equals(3) && process.equals(20))) {
+								workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
+							} else if ((state.equals(1) && process.equals(52)) ||
+									(state.equals(2) && process.equals(5)) ||
+									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
+									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+								workTasksModel.setQctask(workTasksModel.getQctask() + count);
+							}
+							
+							uniqRecords.put(uniqRecord, workTasksModel);
+						}
+						
+					}
+					if (uniqRecords != null && !uniqRecords.isEmpty()) {
+						for (WorkTasksModel workTasksModel : uniqRecords.values()) {
+							if (workTasksModel.getTotaltask().equals(0) &&
+									workTasksModel.getEdittask().equals(0) &&
+									workTasksModel.getQctask().equals(0) &&
+									workTasksModel.getChecktask().equals(0) &&
+									workTasksModel.getCompletetask().equals(0))
+								continue;
+							
+							try {
+								Integer userid = workTasksModel.getUserid();
+								EmployeeModel record = new EmployeeModel();
+								record.setId(userid);
+								EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(record );
+								if (emp == null)
+									continue;
+								workTasksModel.setUsername(emp.getRealname());
+								workTasksModel.setTotaltask(workTasksModel.getEdittask() + workTasksModel.getChecktask() + workTasksModel.getQctask() + workTasksModel.getCompletetask());
+								workTasksModelDao.newWorkTask(workTasksModel);
+							} catch (DuplicateKeyException e) {
+								logger.error(e.getMessage(), e);
+							} catch (Exception e) {
+								logger.error(e.getMessage(), e);
+							}
+						}
+					} else {
+						logger.debug("workTasks has no records.");
+					}
+					if (uniqProcesses != null && !uniqProcesses.isEmpty()) {
+						for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
+							if (projectsProcessModel.getTotaltask().equals(0) &&
+								projectsProcessModel.getEdittask().equals(0) &&
+								projectsProcessModel.getQctask().equals(0) &&
+								projectsProcessModel.getChecktask().equals(0) &&
+								projectsProcessModel.getCompletetask().equals(0) &&
+								projectsProcessModel.getFielddatacount().equals(0) &&
+								projectsProcessModel.getErrorcount().equals(0))
+								continue;
+							
+							try {
+								projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
+							} catch (DuplicateKeyException e) {
+								logger.error(e.getMessage());
+							} catch (Exception e) {
+								logger.error(e.getMessage(), e);
+							}
+						}
+					} else {
+						logger.debug("projectsProcess has no records.");
+					}
+				} else {
+					logger.error("There's no Attach DB Config.");
+				}
+				logger.debug("ADJUSTMAP END");
+			} catch(Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			result.setStatus(false);

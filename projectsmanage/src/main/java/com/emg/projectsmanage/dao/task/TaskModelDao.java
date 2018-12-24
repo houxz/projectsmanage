@@ -359,6 +359,48 @@ public class TaskModelDao {
 		return list;
 	}
 	
+	public List<Map<String, Object>> groupPOITasks(ConfigDBModel configDBModel, List<TaskTypeEnum> taskTypes) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		BasicDataSource dataSource = null;
+		try {
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT");
+			sql.append("	projectid,");
+			sql.append("	state,");
+			sql.append("	COUNT(1)");
+			sql.append(" FROM ");
+			sql.append(configDBModel.getDbschema()).append(".");
+			sql.append(" tb_task ");
+			if (taskTypes != null && taskTypes.size() > 0) {
+				sql.append(" WHERE tasktype IN ( ");
+				for (TaskTypeEnum taskType : taskTypes) {
+					sql.append(taskType.getValue());
+					sql.append(",");
+				}
+				sql = sql.deleteCharAt(sql.length() - 1);
+				sql.append(" )");
+			}
+			sql.append(" GROUP BY");
+			sql.append("	projectid,");
+			sql.append("	state");
+
+			dataSource = Common.getDataSource(configDBModel);
+			list = new JdbcTemplate(dataSource).queryForList(sql.toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			list = new ArrayList<Map<String, Object>>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return list;
+	}
+	
 	public List<Map<String, Object>> groupErrors(ConfigDBModel configDBModel, List<TaskTypeEnum> taskTypes) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
