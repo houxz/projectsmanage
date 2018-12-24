@@ -311,7 +311,7 @@ public class TaskModelDao {
 		return count;
 	}
 	
-	public List<Map<String, Object>> groupTasks(ConfigDBModel configDBModel) {
+	public List<Map<String, Object>> groupTasks(ConfigDBModel configDBModel, List<TaskTypeEnum> taskTypes) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
 		try {
@@ -326,12 +326,163 @@ public class TaskModelDao {
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task ");
+			if (taskTypes != null && taskTypes.size() > 0) {
+				sql.append(" WHERE tasktype IN ( ");
+				for (TaskTypeEnum taskType : taskTypes) {
+					sql.append(taskType.getValue());
+					sql.append(",");
+				}
+				sql = sql.deleteCharAt(sql.length() - 1);
+				sql.append(" )");
+			}
 			sql.append(" GROUP BY");
 			sql.append("	projectid,");
 			sql.append("	state,");
 			sql.append("	process,");
 			sql.append("	editid,");
 			sql.append("	checkid");
+
+			dataSource = Common.getDataSource(configDBModel);
+			list = new JdbcTemplate(dataSource).queryForList(sql.toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			list = new ArrayList<Map<String, Object>>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return list;
+	}
+	
+	public List<Map<String, Object>> groupErrors(ConfigDBModel configDBModel, List<TaskTypeEnum> taskTypes) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		BasicDataSource dataSource = null;
+		try {
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT");
+			sql.append("	t.projectid,");
+			sql.append("	COUNT(1)");
+			sql.append(" FROM ");
+			sql.append(configDBModel.getDbschema()).append(".");
+			sql.append(" tb_task t ");
+			sql.append(" JOIN poitask.tb_task_link_error te ON te.taskid = t.id ");
+			sql.append(" WHERE te.pstate IN (0,1) ");
+			if (taskTypes != null && taskTypes.size() > 0) {
+				sql.append(" AND t.tasktype IN ( ");
+				for (TaskTypeEnum taskType : taskTypes) {
+					sql.append(taskType.getValue());
+					sql.append(",");
+				}
+				sql = sql.deleteCharAt(sql.length() - 1);
+				sql.append(" )");
+			}
+			sql.append(" GROUP BY t.projectid");
+
+			dataSource = Common.getDataSource(configDBModel);
+			list = new JdbcTemplate(dataSource).queryForList(sql.toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			list = new ArrayList<Map<String, Object>>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return list;
+	}
+	
+	public List<Map<String, Object>> groupFielddatas(ConfigDBModel configDBModel, List<TaskTypeEnum> taskTypes) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		BasicDataSource dataSource = null;
+		try {
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT");
+			sql.append("	t.projectid,");
+			sql.append("	COUNT(DISTINCT tf.shapeid)");
+			sql.append(" FROM ");
+			sql.append(configDBModel.getDbschema()).append(".");
+			sql.append(" tb_task t ");
+			sql.append(" JOIN poitask.tb_task_link_fielddata tf ON tf.taskid = t.id ");
+			sql.append(" WHERE tf.pstate  IN (0,1) AND tf.groupid > 0 ");
+			if (taskTypes != null && taskTypes.size() > 0) {
+				sql.append(" AND t.tasktype IN ( ");
+				for (TaskTypeEnum taskType : taskTypes) {
+					sql.append(taskType.getValue());
+					sql.append(",");
+				}
+				sql = sql.deleteCharAt(sql.length() - 1);
+				sql.append(" )");
+			}
+			sql.append(" GROUP BY t.projectid");
+
+			dataSource = Common.getDataSource(configDBModel);
+			list = new JdbcTemplate(dataSource).queryForList(sql.toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			list = new ArrayList<Map<String, Object>>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return list;
+	}
+	
+	public List<Map<String, Object>> groupErrorsInCache(ConfigDBModel configDBModel) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		BasicDataSource dataSource = null;
+		try {
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT");
+			sql.append("	wte.pid AS projectid,");
+			sql.append("	COUNT(1)");
+			sql.append(" FROM ");
+			sql.append(configDBModel.getDbschema()).append(".");
+			sql.append(" tb_batch_willcreatetask_error wte ");
+			sql.append(" GROUP BY wte.pid");
+
+			dataSource = Common.getDataSource(configDBModel);
+			list = new JdbcTemplate(dataSource).queryForList(sql.toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			list = new ArrayList<Map<String, Object>>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return list;
+	}
+	
+	public List<Map<String, Object>> groupFielddatasInCache(ConfigDBModel configDBModel) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		BasicDataSource dataSource = null;
+		try {
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT");
+			sql.append("	wt.projectid AS projectid,");
+			sql.append("	COUNT(1)");
+			sql.append(" FROM ");
+			sql.append(configDBModel.getDbschema()).append(".");
+			sql.append(" tb_batch_willcreatetask wt ");
+			sql.append(" GROUP BY wt.projectid");
 
 			dataSource = Common.getDataSource(configDBModel);
 			list = new JdbcTemplate(dataSource).queryForList(sql.toString());

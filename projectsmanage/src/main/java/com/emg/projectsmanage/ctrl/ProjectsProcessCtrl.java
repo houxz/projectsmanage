@@ -19,11 +19,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.ParamUtils;
-import com.emg.projectsmanage.dao.process.WorkTasksModelDao;
-import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
-import com.emg.projectsmanage.pojo.ProjectModelExample;
-import com.emg.projectsmanage.pojo.ProjectModelExample.Criteria;
-import com.emg.projectsmanage.pojo.WorkTasksModel;
+import com.emg.projectsmanage.common.ProcessType;
+import com.emg.projectsmanage.dao.process.ProjectsProcessModelDao;
+import com.emg.projectsmanage.pojo.ProjectsProcessModel;
 
 @Controller
 @RequestMapping("/projectsprocess.web")
@@ -32,14 +30,14 @@ public class ProjectsProcessCtrl extends BaseCtrl {
 	private static final Logger logger = LoggerFactory.getLogger(ProjectsProcessCtrl.class);
 
 	@Autowired
-	private WorkTasksModelDao workTasksModelDao;
-
-	@Autowired
-	private ProjectModelDao projectModelDao;
+	private ProjectsProcessModelDao projectsProcessModelDao;
 
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProjectsProcessCtrl-openLader start.");
+		
+		model.addAttribute("processTypes", ProcessType.toJsonStr());
+		
 		return "projectsprocess";
 	}
 
@@ -56,24 +54,22 @@ public class ProjectsProcessCtrl extends BaseCtrl {
 			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> map = new HashMap<String, Object>();
-			ProjectModelExample example = new ProjectModelExample();
-			Criteria criteria = example.or();
 
 			if (filter.length() > 0) {
 				Map<String, Object> filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {
 					switch (key) {
-					case "projectid":
-						map.put("projectid", filterPara.get(key).toString());
-						criteria.andIdEqualTo(Long.valueOf(filterPara.get(key).toString()));
-						break;
-					case "projectname":
-						map.put("projectname", "%" + filterPara.get(key).toString() + "%");
-						criteria.andNameLike("%" + filterPara.get(key).toString() + "%");
-						break;
 					case "processid":
 						map.put("processid", filterPara.get(key).toString());
-						criteria.andProcessidEqualTo(Long.valueOf(filterPara.get(key).toString()));
+						break;
+					case "processname":
+						map.put("processname", "%" + filterPara.get(key).toString() + "%");
+						break;
+					case "processtype":
+						map.put("processtype", filterPara.get(key).toString());
+						break;
+					case "time":
+						map.put("time", filterPara.get(key).toString());
 						break;
 					default:
 						break;
@@ -88,8 +84,8 @@ public class ProjectsProcessCtrl extends BaseCtrl {
 			if (offset.compareTo(0) > 0)
 				map.put("offset", offset);
 
-			List<WorkTasksModel> jobs = workTasksModelDao.getProjectsProgress(map);
-			int count = projectModelDao.countByExample(example);
+			List<ProjectsProcessModel> jobs = projectsProcessModelDao.getProjectsProcess(map);
+			int count = projectsProcessModelDao.countProjectsProcess(map);
 
 			json.addObject("rows", jobs);
 			json.addObject("total", count);

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.emg.projectsmanage.dao.process.ProjectsProcessModelDao">
+	<resultMap id="BaseResultMap"
+		type="com.emg.projectsmanage.pojo.ProjectsProcessModel">
+		<result column="id" property="id" jdbcType="VARCHAR" />
+		<result column="processid" property="processid" jdbcType="VARCHAR" />
+		<result column="processname" property="processname" jdbcType="VARCHAR" />
+		<result column="processtype" property="processtype" jdbcType="INTEGER" />
+		<result column="totaltask" property="totaltask" jdbcType="INTEGER" />
+		<result column="idletask" property="idletask" jdbcType="INTEGER" />
+		<result column="edittask" property="edittask" jdbcType="INTEGER" />
+		<result column="qctask" property="qctask" jdbcType="INTEGER" />
+		<result column="checktask" property="checktask" jdbcType="INTEGER" />
+		<result column="completetask" property="completetask" jdbcType="INTEGER" />
+		<result column="fielddatacount" property="fielddatacount" jdbcType="INTEGER" />
+		<result column="errorcount" property="errorcount" jdbcType="INTEGER" />
+		<result column="time" property="time" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="getProjectsProcess" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		SELECT
+			t.`id`,
+			t.`processid`,
+			t.`processtype`,
+			p.`name` AS processname,
+			t.`totaltask`,
+			t.`totaltask` - t.`edittask` - t.`qctask` - t.`checktask` - t.`completetask` AS idletask ,
+			t.`edittask`,
+			t.`qctask`,
+			t.`checktask`,
+			t.`completetask`,
+			t.`fielddatacount`,
+			t.`errorcount`,
+			t.`time`
+		FROM
+			tb_projectsprocess t
+			LEFT JOIN tb_process p ON p.`id` = t.`processid`
+		<where>
+			t.`time` = (SELECT MAX(`time`) FROM tb_projectsprocess
+			<if test="time != null">
+				<![CDATA[WHERE `time` < #{time}]]>
+			</if> )
+			<if test="processid != null">
+				AND t.`processid` = #{processid}
+			</if>
+			<if test="processtype != null">
+				AND t.`processtype` = #{processtype}
+			</if>
+			<if test="processname != null">
+				AND p.`name` like #{processname}
+			</if>
+		</where>
+		ORDER BY
+			<if test="orderby != null">
+				${orderby},
+			</if>
+			p.`id` desc
+		<if test="limit != null">
+			LIMIT #{limit}
+		</if>
+		<if test="offset != null">
+			OFFSET #{offset}
+		</if>
+	</select>
+	<select id="countProjectsProcess" resultType="java.lang.Integer"
+		parameterType="java.util.Map">
+		SELECT
+			COUNT(1)
+		FROM
+			tb_projectsprocess t
+			LEFT JOIN tb_process p ON p.`id` = t.`processid`
+		<where>
+			t.`time` = (SELECT MAX(`time`) FROM tb_projectsprocess
+			<if test="time != null">
+				<![CDATA[WHERE `time` < #{time}]]>
+			</if> )
+			<if test="processid != null">
+				AND t.`processid` = #{processid}
+			</if>
+			<if test="processtype != null">
+				AND t.`processtype` = #{processtype}
+			</if>
+			<if test="processname != null">
+				AND p.`name` like #{processname}
+			</if>
+		</where>
+	</select>
+	<insert id="newProjectsProcess" parameterType="com.emg.projectsmanage.pojo.ProjectsProcessModel" >
+	    insert into process.tb_projectsprocess 
+	    	(`processid`, 
+	    	`processtype`,
+	    	`totaltask`, 
+	    	`edittask`, 
+	    	`qctask`, 
+	    	`checktask`, 
+	    	`completetask`,
+	    	`fielddatacount`,
+	    	`errorcount`,
+	    	`time`)
+	    values
+	    	(#{processid,jdbcType=BIGINT},
+	      	#{processtype,jdbcType=INTEGER},
+	      	#{totaltask,jdbcType=INTEGER}, 
+	      	#{edittask,jdbcType=INTEGER}, 
+	      	#{qctask,jdbcType=INTEGER}, 
+	      	#{checktask,jdbcType=INTEGER}, 
+	      	#{completetask,jdbcType=INTEGER},
+	      	#{fielddatacount,jdbcType=INTEGER},
+	      	#{errorcount,jdbcType=INTEGER},
+	      	#{time,jdbcType=VARCHAR})
+	</insert>
+</mapper>

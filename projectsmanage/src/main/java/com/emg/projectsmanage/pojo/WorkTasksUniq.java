@@ -3,14 +3,12 @@ package com.emg.projectsmanage.pojo;
 public class WorkTasksUniq {
 	Integer userid;
 	Integer roleid;
-	Integer systemid;
-	Long projectid;
+	Long processid;
 
-	public WorkTasksUniq(Integer userid, Integer roleid, Integer systemid, Long projectid) {
+	public WorkTasksUniq(Integer userid, Integer roleid, Long projectid) {
 		this.userid = userid;
 		this.roleid = roleid;
-		this.systemid = systemid;
-		this.projectid = projectid;
+		this.processid = projectid;
 	}
 
 	@Override
@@ -22,13 +20,13 @@ public class WorkTasksUniq {
 		if (obj instanceof WorkTasksUniq) {
 			WorkTasksUniq another = (WorkTasksUniq) obj;
 			return another.userid.equals(this.userid) && another.roleid.equals(this.roleid)
-					&& another.systemid.equals(this.systemid) && another.projectid.equals(this.projectid);
+					&& another.processid.equals(this.processid);
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return (userid * roleid * systemid * ((int) (projectid ^ (projectid >>> 32))));
+		return (userid * roleid * ((int) (processid ^ (processid >>> 32))));
 	}
 }

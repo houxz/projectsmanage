@@ -63,7 +63,7 @@
 				data-query-params="queryParams" data-url="./worktasks.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="worktasks" data-height="714"
-				data-page-list="[10, 20, 50, All]" data-page-size="10"
+				data-page-list="[10, 20, 50, 100]" data-page-size="10"
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr>

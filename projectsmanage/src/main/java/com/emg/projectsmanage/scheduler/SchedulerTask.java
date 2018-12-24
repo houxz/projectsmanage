@@ -20,9 +20,9 @@ import com.emg.projectsmanage.common.TaskTypeEnum;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.RoleType;
-import com.emg.projectsmanage.common.SystemType;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
+import com.emg.projectsmanage.dao.process.ProjectsProcessModelDao;
 import com.emg.projectsmanage.dao.process.WorkTasksModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.CapacityModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.CapacityTaskModelDao;
@@ -39,6 +39,7 @@ import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
 import com.emg.projectsmanage.pojo.ProcessModel;
 import com.emg.projectsmanage.pojo.ProjectModel;
+import com.emg.projectsmanage.pojo.ProjectsProcessModel;
 import com.emg.projectsmanage.pojo.WorkTasksModel;
 import com.emg.projectsmanage.pojo.WorkTasksUniq;
 import com.emg.projectsmanage.pojo.TaskModel;
@@ -90,6 +91,9 @@ public class SchedulerTask {
 	
 	@Autowired
 	private WorkTasksModelDao workTasksModelDao;
+	
+	@Autowired
+	private ProjectsProcessModelDao projectsProcessModelDao;
 
 	/**
 	 * 半夜三更 创建每天的任务
@@ -522,159 +526,7 @@ public class SchedulerTask {
 	
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTask() {
-		try {
-			logger.debug("START");
-			
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			Calendar calendar = Calendar.getInstance();
-			Date now = new Date();
-			calendar.setTimeInMillis(now.getTime() - (now.getTime()%(600000)));
-			String nowStr = sdf.format(calendar.getTime());
-			
-			ProcessType processType = ProcessType.UNKNOWN;
-			SystemType systemType = SystemType.Unknow;
-			{
-				processType = ProcessType.ATTACH;
-				systemType =SystemType.MapDbEdit_Attach;
-				
-				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
-				if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
-					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-					List<Map<String, Object>> groups = taskModelDao.groupTasks(configDBModel);
-					Map<WorkTasksUniq, WorkTasksModel> uniqRecords = new HashMap<WorkTasksUniq, WorkTasksModel>();
-					for (Map<String, Object> group : groups) {
-						Integer systemid = systemType.getValue();
-						
-						Long projectid = (Long) group.get("projectid");
-						Integer state = (Integer) group.get("state");
-						Integer process = (Integer) group.get("process");
-						Integer editid = (Integer) group.get("editid");
-						Integer checkid = (Integer) group.get("checkid");
-						Integer count = ((Long) group.get("count")).intValue();
-						
-						if (count.compareTo(0) <= 0)
-							continue;
-						
-						
-						
-						if (editid != null && editid.compareTo(0) > 0) {
-							editid = editid.compareTo(500000) > 0 ? (editid - 500000) : editid;
-							WorkTasksUniq uniqRecord = new WorkTasksUniq(editid, RoleType.ROLE_WORKER.getValue(), systemid, projectid);
-							WorkTasksModel workTasksModel = new WorkTasksModel();
-							if(uniqRecords.containsKey(uniqRecord)) {
-								workTasksModel = uniqRecords.get(uniqRecord);
-								uniqRecords.remove(uniqRecord);
-							}
-							workTasksModel.setUserid(editid);
-							workTasksModel.setRoleid(RoleType.ROLE_WORKER.getValue());
-							workTasksModel.setRolename(RoleType.ROLE_WORKER.getDes());
-							workTasksModel.setProcesstype(processType.getValue());
-							workTasksModel.setProjectid(projectid);
-							workTasksModel.setTime(nowStr);
-							
-							if (state.equals(0) && process.equals(0)) {
-								
-							} else if ((state.equals(0) && process.equals(5)) ||
-									(state.equals(1) && process.equals(5)) ||
-									(state.equals(2) && process.equals(6)) ||
-									(state.equals(2) && process.equals(52)) ||
-									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
-								workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
-							} else if ((state.equals(3) && process.equals(5) && !systemid.equals(SystemType.MapDbEdit_NRFC.getValue())) ||
-									(state.equals(0) && process.equals(6)) ||
-									(state.equals(1) && process.equals(6))) {
-								workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
-							} else if ((state.equals(3) && process.equals(5) && systemid.equals(SystemType.MapDbEdit_NRFC.getValue())) ||
-									(state.equals(3) && process.equals(6)) ||
-									(state.equals(3) && process.equals(20))) {
-								workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
-							} else if ((state.equals(1) && process.equals(52)) ||
-									(state.equals(2) && process.equals(5)) ||
-									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
-									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
-								workTasksModel.setQctask(workTasksModel.getQctask() + count);
-							}
-							
-							uniqRecords.put(uniqRecord, workTasksModel);
-						}
-						
-						if (checkid != null && checkid.compareTo(0) > 0) {
-							checkid = checkid.compareTo(600000) > 0 ? (checkid - 600000) : checkid;
-							WorkTasksUniq uniqRecord = new WorkTasksUniq(checkid, RoleType.ROLE_CHECKER.getValue(), systemid, projectid);
-							WorkTasksModel workTasksModel = new WorkTasksModel();
-							if(uniqRecords.containsKey(uniqRecord)) {
-								workTasksModel = uniqRecords.get(uniqRecord);
-								uniqRecords.remove(uniqRecord);
-							}
-							workTasksModel.setUserid(checkid);
-							workTasksModel.setRoleid(RoleType.ROLE_CHECKER.getValue());
-							workTasksModel.setRolename(RoleType.ROLE_CHECKER.getDes());
-							workTasksModel.setProcesstype(processType.getValue());
-							workTasksModel.setProjectid(projectid);
-							workTasksModel.setTime(nowStr);
-							
-							if (state.equals(0) && process.equals(0)) {
-								
-							} else if ((state.equals(0) && process.equals(5)) ||
-									(state.equals(1) && process.equals(5)) ||
-									(state.equals(2) && process.equals(6)) ||
-									(state.equals(2) && process.equals(52)) ||
-									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
-								workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
-							} else if ((state.equals(3) && process.equals(5) && !systemid.equals(SystemType.MapDbEdit_NRFC.getValue())) ||
-									(state.equals(0) && process.equals(6)) ||
-									(state.equals(1) && process.equals(6))) {
-								workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
-							} else if ((state.equals(3) && process.equals(5) && systemid.equals(SystemType.MapDbEdit_NRFC.getValue())) ||
-									(state.equals(3) && process.equals(6)) ||
-									(state.equals(3) && process.equals(20))) {
-								workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
-							} else if ((state.equals(1) && process.equals(52)) ||
-									(state.equals(2) && process.equals(5)) ||
-									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
-									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
-								workTasksModel.setQctask(workTasksModel.getQctask() + count);
-							}
-							
-							uniqRecords.put(uniqRecord, workTasksModel);
-						}
-						
-					}
-					if (uniqRecords != null && !uniqRecords.isEmpty()) {
-						for (WorkTasksModel workTasksModel : uniqRecords.values()) {
-							if (workTasksModel.getTotaltask().equals(0) &&
-									workTasksModel.getEdittask().equals(0) &&
-									workTasksModel.getQctask().equals(0) &&
-									workTasksModel.getChecktask().equals(0) &&
-									workTasksModel.getCompletetask().equals(0))
-								continue;
-							try {
-								Long projectid = workTasksModel.getProjectid();
-								if (projectid != null && projectid.compareTo(0L) > 0) {
-									ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
-									if (project != null && project.getProcessid() != null)
-										workTasksModel.setProcessid(project.getProcessid());
-								}
-								Integer userid = workTasksModel.getUserid();
-								EmployeeModel record = new EmployeeModel();
-								record.setId(userid);
-								EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(record );
-								if (emp == null)
-									continue;
-								workTasksModel.setUsername(emp.getRealname());
-								workTasksModel.setTotaltask(workTasksModel.getEdittask() + workTasksModel.getChecktask() + workTasksModel.getQctask() + workTasksModel.getCompletetask());
-								workTasksModelDao.newWorkTask(workTasksModel);
-							} catch (DuplicateKeyException e) {
-							} catch (Exception e) {
-								logger.error(e.getMessage(), e);
-							}
-						}
-					}
-				}
-			}
-			
-			logger.debug("END");
-		} catch (Exception e) {
+		try {} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 	}

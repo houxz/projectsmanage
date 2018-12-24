@@ -297,7 +297,7 @@ public class TasksManageCtrl extends BaseCtrl {
 					stateMaps.add(new StateMap(0, 5, null, 1));
 					stateMaps.add(new StateMap(1, 5, null, 1));
 					break;
-				case "待校正":
+				case "未校正":
 					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.ATTACH.getValue(), null));
 					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.ADJUSTMAP.getValue(), null));
 					break;

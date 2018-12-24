@@ -1,11 +1,7 @@
 package com.emg.projectsmanage.pojo;
 
-public class WorkTasksModel {
+public class ProjectsProcessModel {
 	private String id;
-	private Integer userid;
-	private String username;
-	private Integer roleid;
-	private String rolename;
 	private Long processid;
 	private Integer processtype;
 	private String processname;
@@ -15,6 +11,8 @@ public class WorkTasksModel {
 	private Integer qctask = 0;
 	private Integer checktask = 0;
 	private Integer completetask = 0;
+	private Integer fielddatacount = 0;
+	private Integer errorcount = 0;
 	private String time;
 	
 	public String getId() {
@@ -22,18 +20,6 @@ public class WorkTasksModel {
 	}
 	public void setId(String id) {
 		this.id = id;
-	}
-	public Integer getUserid() {
-		return userid;
-	}
-	public void setUserid(Integer userid) {
-		this.userid = userid;
-	}
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
 	}
 	public Integer getTotaltask() {
 		return totaltask;
@@ -65,18 +51,6 @@ public class WorkTasksModel {
 	public void setCompletetask(Integer completetask) {
 		this.completetask = completetask;
 	}
-	public Integer getRoleid() {
-		return roleid;
-	}
-	public void setRoleid(Integer roleid) {
-		this.roleid = roleid;
-	}
-	public String getRolename() {
-		return rolename;
-	}
-	public void setRolename(String rolename) {
-		this.rolename = rolename;
-	}
 	public Integer getIdletask() {
 		return idletask;
 	}
@@ -95,16 +69,28 @@ public class WorkTasksModel {
 	public void setProcessid(Long processid) {
 		this.processid = processid;
 	}
-	public String getProcessname() {
-		return processname;
-	}
-	public void setProcessname(String processname) {
-		this.processname = processname;
-	}
 	public Integer getProcesstype() {
 		return processtype;
 	}
 	public void setProcesstype(Integer processtype) {
 		this.processtype = processtype;
+	}
+	public Integer getFielddatacount() {
+		return fielddatacount;
+	}
+	public void setFielddatacount(Integer fielddatacount) {
+		this.fielddatacount = fielddatacount;
+	}
+	public Integer getErrorcount() {
+		return errorcount;
+	}
+	public void setErrorcount(Integer errorcount) {
+		this.errorcount = errorcount;
+	}
+	public String getProcessname() {
+		return processname;
+	}
+	public void setProcessname(String processname) {
+		this.processname = processname;
 	}
 }
