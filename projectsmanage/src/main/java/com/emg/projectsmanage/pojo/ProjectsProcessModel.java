@@ -5,6 +5,7 @@ public class ProjectsProcessModel {
 	private Long processid;
 	private Integer processtype;
 	private String processname;
+	private Long projectid;
 	private Integer totaltask = 0;
 	private Integer idletask = 0;
 	private Integer edittask = 0;
@@ -92,5 +93,11 @@ public class ProjectsProcessModel {
 	}
 	public void setProcessname(String processname) {
 		this.processname = processname;
+	}
+	public Long getProjectid() {
+		return projectid;
+	}
+	public void setProjectid(Long projectid) {
+		this.projectid = projectid;
 	}
 }

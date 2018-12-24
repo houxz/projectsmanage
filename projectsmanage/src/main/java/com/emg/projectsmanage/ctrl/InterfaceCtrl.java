@@ -32,6 +32,7 @@ import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessConfigModuleEnum;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ProcessType;
+import com.emg.projectsmanage.common.ProjectState;
 import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.common.SystemType;
 import com.emg.projectsmanage.common.TaskTypeEnum;
@@ -1704,6 +1705,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			String nowStr = sdf.format(calendar.getTime());
 			
 			ProcessType processType = ProcessType.UNKNOWN;
+			Map<Long, ProjectsProcessModel> uniqProcesses = new HashMap<Long, ProjectsProcessModel>();
 			try {
 				logger.debug("ERROR START");
 				processType = ProcessType.ERROR;
@@ -1717,7 +1719,6 @@ public class InterfaceCtrl extends BaseCtrl {
 						add(TaskTypeEnum.ERROR);
 					}});
 					Map<WorkTasksUniq, WorkTasksModel> uniqRecords = new HashMap<WorkTasksUniq, WorkTasksModel>();
-					Map<Long, ProjectsProcessModel> uniqProcesses = new HashMap<Long, ProjectsProcessModel>();
 					for (Map<String, Object> group : groups) {
 						Long projectid = (Long) group.get("projectid");
 						Integer state = (Integer) group.get("state");
@@ -1739,6 +1740,7 @@ public class InterfaceCtrl extends BaseCtrl {
 							}
 							projectsProcessModel.setProcessid(processid);
 							projectsProcessModel.setProcesstype(processType.getValue());
+							projectsProcessModel.setProjectid(projectid);
 							projectsProcessModel.setTime(nowStr);
 							
 							if (state.equals(0) && process.equals(0)) {
@@ -1878,28 +1880,6 @@ public class InterfaceCtrl extends BaseCtrl {
 						}
 					} else {
 						logger.debug("workTasks has no records.");
-					}
-					if (uniqProcesses != null && !uniqProcesses.isEmpty()) {
-						for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
-							if (projectsProcessModel.getTotaltask().equals(0) &&
-								projectsProcessModel.getEdittask().equals(0) &&
-								projectsProcessModel.getQctask().equals(0) &&
-								projectsProcessModel.getChecktask().equals(0) &&
-								projectsProcessModel.getCompletetask().equals(0) &&
-								projectsProcessModel.getFielddatacount().equals(0) &&
-								projectsProcessModel.getErrorcount().equals(0))
-								continue;
-							
-							try {
-								projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
-							} catch (DuplicateKeyException e) {
-								logger.error(e.getMessage());
-							} catch (Exception e) {
-								logger.error(e.getMessage(), e);
-							}
-						}
-					} else {
-						logger.debug("projectsProcess has no records.");
 					}
 				} else {
 					logger.error("There's no Attach DB Config.");
@@ -1921,7 +1901,6 @@ public class InterfaceCtrl extends BaseCtrl {
 						add(TaskTypeEnum.NRFC);
 					}});
 					Map<WorkTasksUniq, WorkTasksModel> uniqRecords = new HashMap<WorkTasksUniq, WorkTasksModel>();
-					Map<Long, ProjectsProcessModel> uniqProcesses = new HashMap<Long, ProjectsProcessModel>();
 					for (Map<String, Object> group : groups) {
 						Long projectid = (Long) group.get("projectid");
 						Integer state = (Integer) group.get("state");
@@ -1943,6 +1922,7 @@ public class InterfaceCtrl extends BaseCtrl {
 							}
 							projectsProcessModel.setProcessid(processid);
 							projectsProcessModel.setProcesstype(processType.getValue());
+							projectsProcessModel.setProjectid(projectid);
 							projectsProcessModel.setTime(nowStr);
 							
 							if (state.equals(0) && process.equals(0)) {
@@ -2082,28 +2062,6 @@ public class InterfaceCtrl extends BaseCtrl {
 						}
 					} else {
 						logger.debug("workTasks has no records.");
-					}
-					if (uniqProcesses != null && !uniqProcesses.isEmpty()) {
-						for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
-							if (projectsProcessModel.getTotaltask().equals(0) &&
-								projectsProcessModel.getEdittask().equals(0) &&
-								projectsProcessModel.getQctask().equals(0) &&
-								projectsProcessModel.getChecktask().equals(0) &&
-								projectsProcessModel.getCompletetask().equals(0) &&
-								projectsProcessModel.getFielddatacount().equals(0) &&
-								projectsProcessModel.getErrorcount().equals(0))
-								continue;
-							
-							try {
-								projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
-							} catch (DuplicateKeyException e) {
-								logger.error(e.getMessage());
-							} catch (Exception e) {
-								logger.error(e.getMessage(), e);
-							}
-						}
-					} else {
-						logger.debug("projectsProcess has no records.");
 					}
 				} else {
 					logger.error("There's no Attach DB Config.");
@@ -2125,7 +2083,6 @@ public class InterfaceCtrl extends BaseCtrl {
 						add(TaskTypeEnum.ATTACH);
 					}});
 					Map<WorkTasksUniq, WorkTasksModel> uniqRecords = new HashMap<WorkTasksUniq, WorkTasksModel>();
-					Map<Long, ProjectsProcessModel> uniqProcesses = new HashMap<Long, ProjectsProcessModel>();
 					for (Map<String, Object> group : groups) {
 						Long projectid = (Long) group.get("projectid");
 						Integer state = (Integer) group.get("state");
@@ -2147,6 +2104,7 @@ public class InterfaceCtrl extends BaseCtrl {
 							}
 							projectsProcessModel.setProcessid(processid);
 							projectsProcessModel.setProcesstype(processType.getValue());
+							projectsProcessModel.setProjectid(projectid);
 							projectsProcessModel.setTime(nowStr);
 							
 							if (state.equals(0) && process.equals(0)) {
@@ -2287,28 +2245,6 @@ public class InterfaceCtrl extends BaseCtrl {
 					} else {
 						logger.debug("workTasks has no records.");
 					}
-					if (uniqProcesses != null && !uniqProcesses.isEmpty()) {
-						for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
-							if (projectsProcessModel.getTotaltask().equals(0) &&
-								projectsProcessModel.getEdittask().equals(0) &&
-								projectsProcessModel.getQctask().equals(0) &&
-								projectsProcessModel.getChecktask().equals(0) &&
-								projectsProcessModel.getCompletetask().equals(0) &&
-								projectsProcessModel.getFielddatacount().equals(0) &&
-								projectsProcessModel.getErrorcount().equals(0))
-								continue;
-							
-							try {
-								projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
-							} catch (DuplicateKeyException e) {
-								logger.error(e.getMessage());
-							} catch (Exception e) {
-								logger.error(e.getMessage(), e);
-							}
-						}
-					} else {
-						logger.debug("projectsProcess has no records.");
-					}
 				} else {
 					logger.error("There's no Attach DB Config.");
 				}
@@ -2323,8 +2259,6 @@ public class InterfaceCtrl extends BaseCtrl {
 				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
 				if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
 					ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-					
-					Map<Long, ProjectsProcessModel> uniqProcesses = new HashMap<Long, ProjectsProcessModel>();
 					
 					List<Map<String, Object>> groupEditTasks = taskModelDao.groupPOITasks(configDBModel, new ArrayList<TaskTypeEnum>() {
 						private static final long serialVersionUID = 7389125160132771037L;
@@ -2349,6 +2283,7 @@ public class InterfaceCtrl extends BaseCtrl {
 						}
 						projectsProcessModel.setProcessid(processid);
 						projectsProcessModel.setProcesstype(processType.getValue());
+						projectsProcessModel.setProjectid(projectid);
 						projectsProcessModel.setTime(nowStr);
 						
 						if (state.equals(0)) {
@@ -2386,6 +2321,7 @@ public class InterfaceCtrl extends BaseCtrl {
 						}
 						projectsProcessModel.setProcessid(processid);
 						projectsProcessModel.setProcesstype(processType.getValue());
+						projectsProcessModel.setProjectid(projectid);
 						projectsProcessModel.setTime(nowStr);
 						
 						if (state.equals(0)) {
@@ -2424,6 +2360,7 @@ public class InterfaceCtrl extends BaseCtrl {
 						}
 						projectsProcessModel.setProcessid(processid);
 						projectsProcessModel.setProcesstype(processType.getValue());
+						projectsProcessModel.setProjectid(projectid);
 						projectsProcessModel.setTime(nowStr);
 						
 						projectsProcessModel.setErrorcount(projectsProcessModel.getErrorcount() + count);
@@ -2454,33 +2391,11 @@ public class InterfaceCtrl extends BaseCtrl {
 						}
 						projectsProcessModel.setProcessid(processid);
 						projectsProcessModel.setProcesstype(processType.getValue());
+						projectsProcessModel.setProjectid(projectid);
 						projectsProcessModel.setTime(nowStr);
 						
 						projectsProcessModel.setFielddatacount(projectsProcessModel.getFielddatacount() + count);
 						uniqProcesses.put(processid, projectsProcessModel);
-					}
-					
-					if (uniqProcesses != null && !uniqProcesses.isEmpty()) {
-						for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
-							if (projectsProcessModel.getTotaltask().equals(0) &&
-								projectsProcessModel.getEdittask().equals(0) &&
-								projectsProcessModel.getQctask().equals(0) &&
-								projectsProcessModel.getChecktask().equals(0) &&
-								projectsProcessModel.getCompletetask().equals(0) &&
-								projectsProcessModel.getFielddatacount().equals(0) &&
-								projectsProcessModel.getErrorcount().equals(0))
-								continue;
-							
-							try {
-								projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
-							} catch (DuplicateKeyException e) {
-								logger.error(e.getMessage());
-							} catch (Exception e) {
-								logger.error(e.getMessage(), e);
-							}
-						}
-					} else {
-						logger.debug("projectsProcess has no records.");
 					}
 				} else {
 					logger.error("There's no POI DB Config.");
@@ -2502,7 +2417,6 @@ public class InterfaceCtrl extends BaseCtrl {
 						add(TaskTypeEnum.ADJUSTMAP);
 					}});
 					Map<WorkTasksUniq, WorkTasksModel> uniqRecords = new HashMap<WorkTasksUniq, WorkTasksModel>();
-					Map<Long, ProjectsProcessModel> uniqProcesses = new HashMap<Long, ProjectsProcessModel>();
 					for (Map<String, Object> group : groups) {
 						Long projectid = (Long) group.get("projectid");
 						Integer state = (Integer) group.get("state");
@@ -2524,6 +2438,7 @@ public class InterfaceCtrl extends BaseCtrl {
 							}
 							projectsProcessModel.setProcessid(processid);
 							projectsProcessModel.setProcesstype(processType.getValue());
+							projectsProcessModel.setProjectid(projectid);
 							projectsProcessModel.setTime(nowStr);
 							
 							if (state.equals(0) && process.equals(0)) {
@@ -2664,34 +2579,66 @@ public class InterfaceCtrl extends BaseCtrl {
 					} else {
 						logger.debug("workTasks has no records.");
 					}
-					if (uniqProcesses != null && !uniqProcesses.isEmpty()) {
-						for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
-							if (projectsProcessModel.getTotaltask().equals(0) &&
-								projectsProcessModel.getEdittask().equals(0) &&
-								projectsProcessModel.getQctask().equals(0) &&
-								projectsProcessModel.getChecktask().equals(0) &&
-								projectsProcessModel.getCompletetask().equals(0) &&
-								projectsProcessModel.getFielddatacount().equals(0) &&
-								projectsProcessModel.getErrorcount().equals(0))
-								continue;
-							
-							try {
-								projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
-							} catch (DuplicateKeyException e) {
-								logger.error(e.getMessage());
-							} catch (Exception e) {
-								logger.error(e.getMessage(), e);
-							}
-						}
-					} else {
-						logger.debug("projectsProcess has no records.");
-					}
 				} else {
 					logger.error("There's no Attach DB Config.");
 				}
 				logger.debug("ADJUSTMAP END");
 			} catch(Exception e) {
 				logger.error(e.getMessage(), e);
+			}
+			
+			if (uniqProcesses != null && !uniqProcesses.isEmpty()) {
+				for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
+					try {
+						Long processid = projectsProcessModel.getProcessid();
+						String processname = projectsProcessModel.getProcessname();
+						Long projectid = projectsProcessModel.getProjectid();
+						Integer totaltask = projectsProcessModel.getTotaltask();
+						Integer edittask = projectsProcessModel.getEdittask();
+						Integer qctask = projectsProcessModel.getQctask();
+						Integer checktask = projectsProcessModel.getChecktask();
+						Integer completetask = projectsProcessModel.getCompletetask();
+						Integer fielddatacount = projectsProcessModel.getFielddatacount();
+						Integer errorcount = projectsProcessModel.getErrorcount();
+						
+						if (totaltask.equals(0) &&
+							edittask.equals(0) &&
+							qctask.equals(0) &&
+							checktask.equals(0) &&
+							completetask.equals(0) &&
+							fielddatacount.equals(0) &&
+							errorcount.equals(0))
+							continue;
+						
+						projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
+						
+						if (processname.startsWith("POI易淘金编辑_"))
+							continue;
+						
+						if (totaltask.equals(completetask) &&
+								edittask.equals(0) &&
+								qctask.equals(0) &&
+								checktask.equals(0) &&
+								fielddatacount.equals(0) &&
+								errorcount.equals(0)) {
+							ProcessModel process = new ProcessModel();
+							process.setId(processid);
+							process.setState(ProcessState.COMPLETE.getValue());
+							processModelDao.updateByPrimaryKeySelective(process );
+							
+							ProjectModel project = new ProjectModel();
+							project.setId(projectid);
+							project.setOverstate(ProjectState.COMPLETE.getValue());
+							projectModelDao.updateByPrimaryKeySelective(project );
+						}
+					} catch (DuplicateKeyException e) {
+						logger.error(e.getMessage());
+					} catch (Exception e) {
+						logger.error(e.getMessage(), e);
+					}
+				}
+			} else {
+				logger.debug("projectsProcess has no records.");
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
