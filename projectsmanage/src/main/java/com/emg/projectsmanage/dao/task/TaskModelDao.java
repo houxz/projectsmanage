@@ -454,7 +454,7 @@ public class TaskModelDao {
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task t ");
 			sql.append(" JOIN poitask.tb_task_link_fielddata tf ON tf.taskid = t.id ");
-			sql.append(" WHERE tf.pstate  IN (0,1) AND tf.groupid > 0 ");
+			sql.append(" WHERE tf.pstate IN (0,1)");
 			if (taskTypes != null && taskTypes.size() > 0) {
 				sql.append(" AND t.tasktype IN ( ");
 				for (TaskTypeEnum taskType : taskTypes) {
