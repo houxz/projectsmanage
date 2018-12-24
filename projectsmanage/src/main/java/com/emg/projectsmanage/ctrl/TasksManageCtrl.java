@@ -333,6 +333,7 @@ public class TasksManageCtrl extends BaseCtrl {
 				case "未制作":
 					for (TaskTypeEnum type : TaskTypeEnum.getPoiEditTaskTypes()) {
 						stateMaps.add(new StateMap(0, 0, type.getValue(), null));
+						stateMaps.add(new StateMap(0, 5, type.getValue(), null));
 					}
 					break;
 				case "制作中":
@@ -348,6 +349,7 @@ public class TasksManageCtrl extends BaseCtrl {
 				case "未校正":
 					for (TaskTypeEnum type : TaskTypeEnum.getPoiCheckTaskTypes()) {
 						stateMaps.add(new StateMap(0, 0, type.getValue(), null));
+						stateMaps.add(new StateMap(0, 6, type.getValue(), null));
 					}
 					break;
 				case "校正中":
