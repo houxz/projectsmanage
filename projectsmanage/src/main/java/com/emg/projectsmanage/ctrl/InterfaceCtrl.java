@@ -1926,21 +1926,17 @@ public class InterfaceCtrl extends BaseCtrl {
 							projectsProcessModel.setTime(nowStr);
 							
 							if (state.equals(0) && process.equals(0)) {
-								
+								projectsProcessModel.setIdletask(projectsProcessModel.getIdletask() + count);
 							} else if ((state.equals(0) && process.equals(5)) ||
 									(state.equals(1) && process.equals(5)) ||
-									(state.equals(2) && process.equals(6)) ||
 									(state.equals(2) && process.equals(52)) ||
 									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
 								projectsProcessModel.setEdittask(projectsProcessModel.getEdittask() + count);
-							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
-									(state.equals(0) && process.equals(6)) ||
-									(state.equals(1) && process.equals(6))) {
-								projectsProcessModel.setChecktask(projectsProcessModel.getChecktask() + count);
-							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
-									(state.equals(3) && process.equals(6)) ||
+							} else if ((state.equals(3) && process.equals(5)) ||
 									(state.equals(3) && process.equals(20))) {
 								projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
+								projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
+								projectsProcessModel.setStageTaskMapByStage(3, projectsProcessModel.getStageTaskMapByStage(3) + count);
 							} else if ((state.equals(1) && process.equals(52)) ||
 									(state.equals(2) && process.equals(5)) ||
 									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
@@ -1968,19 +1964,13 @@ public class InterfaceCtrl extends BaseCtrl {
 							workTasksModel.setTime(nowStr);
 							
 							if (state.equals(0) && process.equals(0)) {
-								
+								workTasksModel.setIdletask(workTasksModel.getIdletask() + count);
 							} else if ((state.equals(0) && process.equals(5)) ||
 									(state.equals(1) && process.equals(5)) ||
-									(state.equals(2) && process.equals(6)) ||
 									(state.equals(2) && process.equals(52)) ||
 									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
 								workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
-							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
-									(state.equals(0) && process.equals(6)) ||
-									(state.equals(1) && process.equals(6))) {
-								workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
-							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
-									(state.equals(3) && process.equals(6)) ||
+							} else if ((state.equals(3) && process.equals(5)) ||
 									(state.equals(3) && process.equals(20))) {
 								workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
 							} else if ((state.equals(1) && process.equals(52)) ||
@@ -2009,19 +1999,13 @@ public class InterfaceCtrl extends BaseCtrl {
 							workTasksModel.setTime(nowStr);
 							
 							if (state.equals(0) && process.equals(0)) {
-								
+								workTasksModel.setIdletask(workTasksModel.getIdletask() + count);
 							} else if ((state.equals(0) && process.equals(5)) ||
 									(state.equals(1) && process.equals(5)) ||
-									(state.equals(2) && process.equals(6)) ||
 									(state.equals(2) && process.equals(52)) ||
 									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
 								workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
-							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
-									(state.equals(0) && process.equals(6)) ||
-									(state.equals(1) && process.equals(6))) {
-								workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
-							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
-									(state.equals(3) && process.equals(6)) ||
+							} else if ((state.equals(3) && process.equals(5)) ||
 									(state.equals(3) && process.equals(20))) {
 								workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
 							} else if ((state.equals(1) && process.equals(52)) ||
@@ -2108,25 +2092,25 @@ public class InterfaceCtrl extends BaseCtrl {
 							projectsProcessModel.setTime(nowStr);
 							
 							if (state.equals(0) && process.equals(0)) {
-								
+								projectsProcessModel.setIdletask(projectsProcessModel.getIdletask() + count);
 							} else if ((state.equals(0) && process.equals(5)) ||
 									(state.equals(1) && process.equals(5)) ||
 									(state.equals(2) && process.equals(6)) ||
-									(state.equals(2) && process.equals(52)) ||
-									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+									(state.equals(2) && process.equals(52))) {
 								projectsProcessModel.setEdittask(projectsProcessModel.getEdittask() + count);
-							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
+							} else if ((state.equals(3) && process.equals(5)) ||
 									(state.equals(0) && process.equals(6)) ||
 									(state.equals(1) && process.equals(6))) {
 								projectsProcessModel.setChecktask(projectsProcessModel.getChecktask() + count);
-							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
-									(state.equals(3) && process.equals(6)) ||
-									(state.equals(3) && process.equals(20))) {
+							} else if ((state.equals(3) && process.equals(6))) {
+								projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
+								projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
+							} else if ((state.equals(3) && process.equals(20))) {
+								projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
+								projectsProcessModel.setStageTaskMapByStage(3, projectsProcessModel.getStageTaskMapByStage(3) + count);
 								projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
 							} else if ((state.equals(1) && process.equals(52)) ||
-									(state.equals(2) && process.equals(5)) ||
-									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
-									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+									(state.equals(2) && process.equals(5))) {
 								projectsProcessModel.setQctask(projectsProcessModel.getQctask() + count);
 							}
 							
@@ -2150,25 +2134,21 @@ public class InterfaceCtrl extends BaseCtrl {
 							workTasksModel.setTime(nowStr);
 							
 							if (state.equals(0) && process.equals(0)) {
-								
+								workTasksModel.setIdletask(workTasksModel.getIdletask() + count);
 							} else if ((state.equals(0) && process.equals(5)) ||
 									(state.equals(1) && process.equals(5)) ||
 									(state.equals(2) && process.equals(6)) ||
-									(state.equals(2) && process.equals(52)) ||
-									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+									(state.equals(2) && process.equals(52))) {
 								workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
-							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
+							} else if ((state.equals(3) && process.equals(5)) ||
 									(state.equals(0) && process.equals(6)) ||
 									(state.equals(1) && process.equals(6))) {
 								workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
-							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
-									(state.equals(3) && process.equals(6)) ||
+							} else if ((state.equals(3) && process.equals(6)) ||
 									(state.equals(3) && process.equals(20))) {
 								workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
 							} else if ((state.equals(1) && process.equals(52)) ||
-									(state.equals(2) && process.equals(5)) ||
-									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
-									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+									(state.equals(2) && process.equals(5))) {
 								workTasksModel.setQctask(workTasksModel.getQctask() + count);
 							}
 							
@@ -2191,25 +2171,21 @@ public class InterfaceCtrl extends BaseCtrl {
 							workTasksModel.setTime(nowStr);
 							
 							if (state.equals(0) && process.equals(0)) {
-								
+								workTasksModel.setIdletask(workTasksModel.getIdletask() + count);
 							} else if ((state.equals(0) && process.equals(5)) ||
 									(state.equals(1) && process.equals(5)) ||
 									(state.equals(2) && process.equals(6)) ||
-									(state.equals(2) && process.equals(52)) ||
-									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+									(state.equals(2) && process.equals(52))) {
 								workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
-							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
+							} else if ((state.equals(3) && process.equals(5)) ||
 									(state.equals(0) && process.equals(6)) ||
 									(state.equals(1) && process.equals(6))) {
 								workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
-							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
-									(state.equals(3) && process.equals(6)) ||
+							} else if ((state.equals(3) && process.equals(6)) ||
 									(state.equals(3) && process.equals(20))) {
 								workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
 							} else if ((state.equals(1) && process.equals(52)) ||
-									(state.equals(2) && process.equals(5)) ||
-									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
-									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+									(state.equals(2) && process.equals(5))) {
 								workTasksModel.setQctask(workTasksModel.getQctask() + count);
 							}
 							
@@ -2346,7 +2322,8 @@ public class InterfaceCtrl extends BaseCtrl {
 					
 					for (Map<String, Object> group : groupErrors) {
 						Long projectid = (Long) group.get("projectid");
-						Integer count = ((Long) group.get("count")).intValue();
+						Integer total = ((Long) group.get("total")).intValue();
+						Integer rest = ((Long) group.get("rest")).intValue();
 						
 						ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
 						if (project == null || project.getProcessid() == null || project.getProcessid().compareTo(0L) < 0)
@@ -2363,7 +2340,8 @@ public class InterfaceCtrl extends BaseCtrl {
 						projectsProcessModel.setProjectid(projectid);
 						projectsProcessModel.setTime(nowStr);
 						
-						projectsProcessModel.setErrorcount(projectsProcessModel.getErrorcount() + count);
+						projectsProcessModel.setErrorcount(projectsProcessModel.getErrorcount() + total);
+						projectsProcessModel.setErrorrest(projectsProcessModel.getErrorrest() + rest);
 						uniqProcesses.put(processid, projectsProcessModel);
 					}
 					
@@ -2377,7 +2355,8 @@ public class InterfaceCtrl extends BaseCtrl {
 					
 					for (Map<String, Object> group : groupFielddatas) {
 						Long projectid = (Long) group.get("projectid");
-						Integer count = ((Long) group.get("count")).intValue();
+						Integer total = ((Long) group.get("total")).intValue();
+						Integer rest = ((Long) group.get("rest")).intValue();
 						
 						ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
 						if (project == null || project.getProcessid() == null || project.getProcessid().compareTo(0L) < 0)
@@ -2394,7 +2373,8 @@ public class InterfaceCtrl extends BaseCtrl {
 						projectsProcessModel.setProjectid(projectid);
 						projectsProcessModel.setTime(nowStr);
 						
-						projectsProcessModel.setFielddatacount(projectsProcessModel.getFielddatacount() + count);
+						projectsProcessModel.setFielddatacount(projectsProcessModel.getFielddatacount() + total);
+						projectsProcessModel.setFielddatarest(projectsProcessModel.getFielddatarest() + rest);
 						uniqProcesses.put(processid, projectsProcessModel);
 					}
 				} else {
@@ -2442,26 +2422,18 @@ public class InterfaceCtrl extends BaseCtrl {
 							projectsProcessModel.setTime(nowStr);
 							
 							if (state.equals(0) && process.equals(0)) {
-								
+								projectsProcessModel.setIdletask(projectsProcessModel.getIdletask() + count);
 							} else if ((state.equals(0) && process.equals(5)) ||
 									(state.equals(1) && process.equals(5)) ||
-									(state.equals(2) && process.equals(6)) ||
-									(state.equals(2) && process.equals(52)) ||
-									(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+									(state.equals(2) && process.equals(6))) {
 								projectsProcessModel.setEdittask(projectsProcessModel.getEdittask() + count);
-							} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
+							} else if ((state.equals(3) && process.equals(5)) ||
 									(state.equals(0) && process.equals(6)) ||
 									(state.equals(1) && process.equals(6))) {
 								projectsProcessModel.setChecktask(projectsProcessModel.getChecktask() + count);
-							} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
-									(state.equals(3) && process.equals(6)) ||
+							} else if ((state.equals(3) && process.equals(6)) ||
 									(state.equals(3) && process.equals(20))) {
 								projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
-							} else if ((state.equals(1) && process.equals(52)) ||
-									(state.equals(2) && process.equals(5)) ||
-									(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
-									(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
-								projectsProcessModel.setQctask(projectsProcessModel.getQctask() + count);
 							}
 							
 							projectsProcessModel.setTotaltask(projectsProcessModel.getTotaltask() + count);
@@ -2591,7 +2563,11 @@ public class InterfaceCtrl extends BaseCtrl {
 				for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
 					try {
 						Long processid = projectsProcessModel.getProcessid();
-						String processname = projectsProcessModel.getProcessname();
+						ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+						if (process == null)
+							continue;
+						
+						String processname = process.getName();
 						Long projectid = projectsProcessModel.getProjectid();
 						Integer totaltask = projectsProcessModel.getTotaltask();
 						Integer edittask = projectsProcessModel.getEdittask();
@@ -2612,6 +2588,42 @@ public class InterfaceCtrl extends BaseCtrl {
 						
 						projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
 						
+						HashMap<Integer, Integer> stageTaskMap = projectsProcessModel.getStageTaskMap();
+						if (stageTaskMap != null && !stageTaskMap.isEmpty()) {
+							String sProgress = process.getProgress();
+							if (sProgress.length() > 0) {
+								String[] arProgress = sProgress.split(",");
+								ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
+								Integer length = alProgress.size();
+								while (length < CommonConstants.PROCESSCOUNT_ERROR) {
+									alProgress.add("0");
+									length++;
+								}
+								if (stageTaskMap.containsKey(1)) {
+									alProgress.set(0, stageTaskMap.get(1).toString());
+								}
+								if (stageTaskMap.containsKey(2)) {
+									alProgress.set(1, stageTaskMap.get(2).toString());
+								}
+								if (stageTaskMap.containsKey(3)) {
+									alProgress.set(2, stageTaskMap.get(3).toString());
+								}
+								if (stageTaskMap.containsKey(4)) {
+									alProgress.set(3, stageTaskMap.get(4).toString());
+								}
+								
+								StringBuilder sbProgress = new StringBuilder();
+								for (String p : alProgress) {
+									sbProgress.append(p);
+									sbProgress.append(",");
+								}
+								sbProgress.deleteCharAt(sbProgress.length() - 1);
+
+								process.setProgress(sbProgress.toString());
+							}
+							processModelDao.updateByPrimaryKeySelective(process );
+						}
+						
 						if (processname.startsWith("POI易淘金编辑_"))
 							continue;
 						
@@ -2621,8 +2633,6 @@ public class InterfaceCtrl extends BaseCtrl {
 								checktask.equals(0) &&
 								fielddatacount.equals(0) &&
 								errorcount.equals(0)) {
-							ProcessModel process = new ProcessModel();
-							process.setId(processid);
 							process.setState(ProcessState.COMPLETE.getValue());
 							processModelDao.updateByPrimaryKeySelective(process );
 							

@@ -408,12 +408,13 @@ public class TaskModelDao {
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	t.projectid,");
-			sql.append("	COUNT(1)");
+			sql.append("	COUNT( 1 ) AS total,");
+			sql.append("	COUNT( CASE WHEN te.pstate IN ( 0, 1 ) THEN te.id ELSE NULL END ) AS rest ");
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task t ");
 			sql.append(" JOIN poitask.tb_task_link_error te ON te.taskid = t.id ");
-			sql.append(" WHERE te.pstate IN (0,1) ");
+			sql.append(" WHERE te.pstate IN ( 0, 1, 2 ) ");
 			if (taskTypes != null && taskTypes.size() > 0) {
 				sql.append(" AND t.tasktype IN ( ");
 				for (TaskTypeEnum taskType : taskTypes) {
@@ -449,7 +450,8 @@ public class TaskModelDao {
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	t.projectid,");
-			sql.append("	COUNT(DISTINCT tf.shapeid)");
+			sql.append("	COUNT( DISTINCT tf.shapeid ) AS total ,");
+			sql.append(" 	COUNT( DISTINCT CASE WHEN tf.pstate IN (0,1) THEN tf.shapeid ELSE NULL END ) AS rest");
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task t ");
@@ -490,7 +492,8 @@ public class TaskModelDao {
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	wte.pid AS projectid,");
-			sql.append("	COUNT(1)");
+			sql.append("	COUNT(1) AS total,");
+			sql.append("	COUNT(1) AS rest");
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_batch_willcreatetask_error wte ");
@@ -520,7 +523,8 @@ public class TaskModelDao {
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	wt.projectid AS projectid,");
-			sql.append("	COUNT(1)");
+			sql.append("	COUNT(1) AS total,");
+			sql.append("	COUNT(1) AS rest");
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_batch_willcreatetask wt ");

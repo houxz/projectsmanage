@@ -1,5 +1,7 @@
 package com.emg.projectsmanage.pojo;
 
+import java.util.HashMap;
+
 public class ProjectsProcessModel {
 	private String id;
 	private Long processid;
@@ -13,8 +15,11 @@ public class ProjectsProcessModel {
 	private Integer checktask = 0;
 	private Integer completetask = 0;
 	private Integer fielddatacount = 0;
+	private Integer fielddatarest = 0;
 	private Integer errorcount = 0;
+	private Integer errorrest = 0;
 	private String time;
+	private HashMap<Integer, Integer> stageTaskMap = new HashMap<Integer, Integer>();
 	
 	public String getId() {
 		return id;
@@ -99,5 +104,29 @@ public class ProjectsProcessModel {
 	}
 	public void setProjectid(Long projectid) {
 		this.projectid = projectid;
+	}
+	public Integer getFielddatarest() {
+		return fielddatarest;
+	}
+	public void setFielddatarest(Integer fielddatarest) {
+		this.fielddatarest = fielddatarest;
+	}
+	public Integer getErrorrest() {
+		return errorrest;
+	}
+	public void setErrorrest(Integer errorrest) {
+		this.errorrest = errorrest;
+	}
+	public HashMap<Integer, Integer> getStageTaskMap() {
+		return stageTaskMap;
+	}
+	public Integer getStageTaskMapByStage(Integer stage) {
+		if (this.stageTaskMap.containsKey(stage))
+			return this.stageTaskMap.get(stage);
+		else
+			return 0;
+	}
+	public void setStageTaskMapByStage(Integer stage, Integer count) {
+		this.stageTaskMap.put(stage, count);
 	}
 }
