@@ -120,9 +120,9 @@ public class TaskModelDao {
 					}
 					if (stateMap.getCheckid() != null) {
 						if (stateMap.getCheckid().equals(-1)) {
-							sql.append(" AND ( checkid IS NULL OR checkid <= 0)");
+							sql.append(" AND ( checkid IS NULL OR checkid <= 0) ");
 						} else if (stateMap.getCheckid().equals(1)) {
-							sql.append(" AND ( checkid > 0) AND");
+							sql.append(" AND ( checkid > 0) ");
 						}
 					}
 					if (stateMap.getTasktype() != null) {
@@ -255,9 +255,9 @@ public class TaskModelDao {
 					}
 					if (stateMap.getCheckid() != null) {
 						if (stateMap.getCheckid().equals(-1)) {
-							sql.append(" AND ( checkid IS NULL OR checkid <= 0)");
+							sql.append(" AND ( checkid IS NULL OR checkid <= 0) ");
 						} else if (stateMap.getCheckid().equals(1)) {
-							sql.append(" AND ( checkid > 0) AND");
+							sql.append(" AND ( checkid > 0) ");
 						}
 					}
 					if (stateMap.getTasktype() != null) {
