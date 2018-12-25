@@ -177,12 +177,12 @@
 							data-filter-control="input" data-filter-control-placeholder="">
 							校正人</th>
 							
+						<th data-field="fielddatarest">
+							剩余<br>资料数</th>
+							
 						<th data-field="errorrest">
 							剩余<br>错误数</th>
 							
-						<th data-field="fielddatarest">
-							剩余<br>资料数</th>
-						
 						<th data-field="opttime" data-width="100">
 							更新时间</th>
 						
