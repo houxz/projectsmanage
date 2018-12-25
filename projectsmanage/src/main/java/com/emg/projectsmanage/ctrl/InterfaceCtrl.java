@@ -1,5 +1,6 @@
 package com.emg.projectsmanage.ctrl;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2599,17 +2600,18 @@ public class InterfaceCtrl extends BaseCtrl {
 									alProgress.add("0");
 									length++;
 								}
+								DecimalFormat df = new DecimalFormat("0.000");
 								if (stageTaskMap.containsKey(1)) {
-									alProgress.set(0, stageTaskMap.get(1).toString());
+									alProgress.set(0, df.format((float)(stageTaskMap.get(1)*100)/totaltask));
 								}
 								if (stageTaskMap.containsKey(2)) {
-									alProgress.set(1, stageTaskMap.get(2).toString());
+									alProgress.set(1, df.format((float)(stageTaskMap.get(2)*100)/totaltask));
 								}
 								if (stageTaskMap.containsKey(3)) {
-									alProgress.set(2, stageTaskMap.get(3).toString());
+									alProgress.set(2, df.format((float)(stageTaskMap.get(3)*100)/totaltask));
 								}
 								if (stageTaskMap.containsKey(4)) {
-									alProgress.set(3, stageTaskMap.get(4).toString());
+									alProgress.set(3, df.format((float)(stageTaskMap.get(4)*100)/totaltask));
 								}
 								
 								StringBuilder sbProgress = new StringBuilder();
