@@ -61,6 +61,46 @@ public class TaskModel {
 	
 	private String processname;
 	
+	private Integer errorrest;
+	
+	private Integer errortotal;
+	
+	private Integer fielddatarest;
+	
+	private Integer fielddatatotal;
+	
+	public Integer getErrorrest() {
+		return errorrest;
+	}
+
+	public void setErrorrest(Integer errorrest) {
+		this.errorrest = errorrest;
+	}
+
+	public Integer getErrortotal() {
+		return errortotal;
+	}
+
+	public void setErrortotal(Integer errortotal) {
+		this.errortotal = errortotal;
+	}
+
+	public Integer getFielddatarest() {
+		return fielddatarest;
+	}
+
+	public void setFielddatarest(Integer fielddatarest) {
+		this.fielddatarest = fielddatarest;
+	}
+
+	public Integer getFielddatatotal() {
+		return fielddatatotal;
+	}
+
+	public void setFielddatatotal(Integer fielddatatotal) {
+		this.fielddatatotal = fielddatatotal;
+	}
+
 	public Long getId() {
 		return id;
 	}

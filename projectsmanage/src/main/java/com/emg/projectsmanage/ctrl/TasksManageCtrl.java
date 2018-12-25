@@ -187,45 +187,128 @@ public class TasksManageCtrl extends BaseCtrl {
 				ConfigDBModel configDBModel = configDBModelDao
 						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 				record.setProcesstype(processType.getValue());
-				List<TaskModel> rows = taskModelDao.selectTaskModels(configDBModel, record, projectids, editUserids, checkUserids, stateMaps, limit, offset);
-				for (TaskModel row : rows) {
-					if (row == null)
-						continue;
-
-					if (row.getProjectid() != null && row.getProjectid().compareTo(0L) > 0) {
-						ProjectModel project = projectModelDao.selectByPrimaryKey(row.getProjectid());
-						if (project != null) {
-							ProcessModel processModel = processModelDao.selectByPrimaryKey(project.getProcessid());
-							if (processModel != null) {
-								row.setProcessid(processModel.getId());
-								row.setProcessname(processModel.getName());
-								row.setStatedes(getStateDes(row));
+				Integer count = taskModelDao.countTaskModels(configDBModel, record, projectids, editUserids, checkUserids, stateMaps);
+				if (count != null && count.compareTo(0) > 0) {
+					List<TaskModel> rows = taskModelDao.selectTaskModels(configDBModel, record, projectids, editUserids, checkUserids, stateMaps, limit, offset);
+					List<Long> projectIDInRows = new ArrayList<Long>();
+					List<Long> taskIDInRows = new ArrayList<Long>();
+					List<Integer> userIDInRows = new ArrayList<Integer>();
+					for (TaskModel row : rows) {
+						if (row == null)
+							continue;
+						
+						taskIDInRows.add(row.getId());
+						
+						if (row.getProjectid() != null && row.getProjectid().compareTo(0L) > 0) {
+							projectIDInRows.add(row.getProjectid());
+						}
+						
+						if (row.getEditid() != null && row.getEditid().compareTo(0) > 0) {
+							Integer editid = row.getEditid();
+							if (editid.compareTo(500000) >= 0) {
+								editid = editid - 500000;
+								row.setEditid(editid);
+							}
+							userIDInRows.add(editid);
+						}
+						
+						if (row.getCheckid() != null && row.getCheckid().compareTo(0) > 0) {
+							Integer checkid = row.getCheckid();
+							if (checkid.compareTo(600000) >= 0) {
+								checkid = checkid - 600000;
+								row.setCheckid(checkid);
+							}
+							userIDInRows.add(checkid);
+						}
+					}
+					
+					List<Map<String, Object>> errorList = new ArrayList<Map<String, Object>>();
+					List<Map<String, Object>> fielddataList = new ArrayList<Map<String, Object>>();
+					if (processType.equals(ProcessType.POIEDIT)) {
+						errorList = taskModelDao.countErrorsByTaskid(configDBModel, taskIDInRows);
+						fielddataList = taskModelDao.countFielddatasByTaskid(configDBModel, taskIDInRows);
+					}
+					
+					List<ProjectModel> projectsInRows = new ArrayList<ProjectModel>();
+					List<ProcessModel> processesInRows = new ArrayList<ProcessModel>();
+					if (!projectIDInRows.isEmpty()) {
+						ProjectModelExample _example = new ProjectModelExample();
+						_example.or().andIdIn(projectIDInRows);
+						projectsInRows = projectModelDao.selectByExample(_example );
+						if (projectsInRows != null && !projectsInRows.isEmpty()) {
+							List<Long> processesIDInRows = new ArrayList<Long>();
+							for (ProjectModel projectsInRow : projectsInRows) {
+								processesIDInRows.add(projectsInRow.getProcessid());
+							}
+							ProcessModelExample __example = new ProcessModelExample();
+							__example.or().andIdIn(processesIDInRows);
+							processesInRows = processModelDao.selectByExample(__example );
+						}
+					}
+					
+					List<EmployeeModel> userInRows = new ArrayList<EmployeeModel>();
+					if (userIDInRows != null && !userIDInRows.isEmpty()) {
+						userInRows = emapgoAccountService.getEmployeeByIDS(userIDInRows);
+					}
+					
+					for (TaskModel row : rows) {
+						Long taskid = row.getId();
+						Long projectid = row.getProjectid();
+						Integer editid = row.getEditid();
+						Integer checkid = row.getCheckid();
+						
+						row.setStatedes(getStateDes(row));
+						
+						for (ProjectModel projectsInRow : projectsInRows) {
+							if (projectid == null)
+								continue;
+							
+							if (projectid.equals(projectsInRow.getId())) {
+								for (ProcessModel processesInRow : processesInRows) {
+									if (processesInRow.getId().equals(projectsInRow.getProcessid())) {
+										row.setProcessid(processesInRow.getId());
+										row.setProcessname(processesInRow.getName());
+										break;
+									}
+								}
+								break;
+							}
+						}
+						
+						for (Map<String, Object> error : errorList) {
+							if (taskid.equals(Long.valueOf(error.get("taskid").toString()))) {
+								row.setErrortotal(Integer.valueOf(error.get("total").toString()));
+								row.setErrorrest(Integer.valueOf(error.get("rest").toString()));
+								break;
+							}
+						}
+						
+						for (Map<String, Object> fielddata : fielddataList) {
+							if (taskid.equals(Long.valueOf(fielddata.get("taskid").toString()))) {
+								row.setFielddatatotal(Integer.valueOf(fielddata.get("total").toString()));
+								row.setFielddatarest(Integer.valueOf(fielddata.get("rest").toString()));
+								break;
+							}
+						}
+						
+						for (EmployeeModel userInRow : userInRows) {
+							if (editid != null && editid.equals(userInRow.getId())) {
+								row.setEditname(userInRow.getRealname());
+							}
+							if (checkid != null && checkid.equals(userInRow.getId())) {
+								row.setCheckname(userInRow.getRealname());
 							}
 						}
 					}
 					
-					if (row.getEditid() != null && row.getEditid().compareTo(0) > 0) {
-						EmployeeModel erecord = new EmployeeModel();
-						erecord.setId(row.getEditid().compareTo(500000) >= 0 ? (row.getEditid() - 500000) : row.getEditid());
-						EmployeeModel edit = emapgoAccountService.getOneEmployeeWithCache(erecord);
-						if (edit != null) {
-							row.setEditname(edit.getRealname());
-						}
-					}
-					
-					if (row.getCheckid() != null && row.getCheckid().compareTo(0) > 0) {
-						EmployeeModel erecord = new EmployeeModel();
-						erecord.setId(row.getCheckid().compareTo(600000) >= 0 ? (row.getCheckid() - 600000) : row.getCheckid());
-						EmployeeModel check = emapgoAccountService.getOneEmployeeWithCache(erecord);
-						if (check != null) {
-							row.setCheckname(check.getRealname());
-						}
-					}
+					json.addObject("rows", rows);
+					json.addObject("total", count);
+					json.addObject("result", 1);
+				} else {
+					json.addObject("rows", new ArrayList<TaskModel>());
+					json.addObject("total", 0);
+					json.addObject("result", 1);
 				}
-				Integer count = taskModelDao.countTaskModels(configDBModel, record, projectids, editUserids, checkUserids, stateMaps);
-				json.addObject("rows", rows);
-				json.addObject("total", count);
-				json.addObject("result", 1);
 			} else {
 				json.addObject("rows", new ArrayList<TaskModel>());
 				json.addObject("total", 0);

@@ -401,6 +401,46 @@ public class TaskModelDao {
 		return list;
 	}
 	
+	public List<Map<String, Object>> countErrorsByTaskid(ConfigDBModel configDBModel, List<Long> taskIDs) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		BasicDataSource dataSource = null;
+		try {
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT");
+			sql.append("	te.taskid,");
+			sql.append("	COUNT( 1 ) AS total,");
+			sql.append("	COUNT( CASE WHEN te.pstate IN ( 0, 1 ) THEN te.id ELSE NULL END ) AS rest ");
+			sql.append(" FROM ");
+			sql.append(configDBModel.getDbschema()).append(".");
+			sql.append(" tb_task_link_error te ");
+			sql.append(" WHERE te.pstate IN ( 0, 1, 2 ) ");
+			if (taskIDs != null && taskIDs.size() > 0) {
+				sql.append(" AND te.taskid IN ( ");
+				for (Long taskID : taskIDs) {
+					sql.append(taskID);
+					sql.append(",");
+				}
+				sql = sql.deleteCharAt(sql.length() - 1);
+				sql.append(" )");
+			}
+			sql.append(" GROUP BY te.taskid ");
+			dataSource = Common.getDataSource(configDBModel);
+			list = new JdbcTemplate(dataSource).queryForList(sql.toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			list = new ArrayList<Map<String, Object>>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return list;
+	}
+	
 	public List<Map<String, Object>> groupErrors(ConfigDBModel configDBModel, List<TaskTypeEnum> taskTypes) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
@@ -413,7 +453,7 @@ public class TaskModelDao {
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task t ");
-			sql.append(" JOIN poitask.tb_task_link_error te ON te.taskid = t.id ");
+			sql.append(" JOIN tb_task_link_error te ON te.taskid = t.id ");
 			sql.append(" WHERE te.pstate IN ( 0, 1, 2 ) ");
 			if (taskTypes != null && taskTypes.size() > 0) {
 				sql.append(" AND t.tasktype IN ( ");
@@ -443,6 +483,46 @@ public class TaskModelDao {
 		return list;
 	}
 	
+	public List<Map<String, Object>> countFielddatasByTaskid(ConfigDBModel configDBModel, List<Long> taskIDs) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		BasicDataSource dataSource = null;
+		try {
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT");
+			sql.append("	tf.taskid,");
+			sql.append("	COUNT( DISTINCT tf.shapeid ) AS total ,");
+			sql.append(" 	COUNT( DISTINCT CASE WHEN tf.pstate IN (0,1) THEN tf.shapeid ELSE NULL END ) AS rest");
+			sql.append(" FROM ");
+			sql.append(configDBModel.getDbschema()).append(".");
+			sql.append(" tb_task_link_fielddata tf ");
+			sql.append(" WHERE tf.pstate IN ( 0, 1, 2 ) ");
+			if (taskIDs != null && taskIDs.size() > 0) {
+				sql.append(" AND tf.taskid IN ( ");
+				for (Long taskID : taskIDs) {
+					sql.append(taskID);
+					sql.append(",");
+				}
+				sql = sql.deleteCharAt(sql.length() - 1);
+				sql.append(" )");
+			}
+			sql.append(" GROUP BY tf.taskid ");
+			dataSource = Common.getDataSource(configDBModel);
+			list = new JdbcTemplate(dataSource).queryForList(sql.toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			list = new ArrayList<Map<String, Object>>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return list;
+	}
+	
 	public List<Map<String, Object>> groupFielddatas(ConfigDBModel configDBModel, List<TaskTypeEnum> taskTypes) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
@@ -455,8 +535,8 @@ public class TaskModelDao {
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task t ");
-			sql.append(" JOIN poitask.tb_task_link_fielddata tf ON tf.taskid = t.id ");
-			sql.append(" WHERE tf.pstate IN (0,1)");
+			sql.append(" JOIN tb_task_link_fielddata tf ON tf.taskid = t.id ");
+			sql.append(" WHERE tf.pstate IN ( 0, 1, 2 )");
 			if (taskTypes != null && taskTypes.size() > 0) {
 				sql.append(" AND t.tasktype IN ( ");
 				for (TaskTypeEnum taskType : taskTypes) {

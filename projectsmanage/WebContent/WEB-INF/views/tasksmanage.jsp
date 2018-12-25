@@ -158,7 +158,7 @@
 							data-filter-control="select" data-filter-data="var:taskTypes">
 							任务类型</th>
 						<th data-field="priority" data-formatter="priFormat"
-							data-filter-control="select" data-width="100"
+							data-filter-control="select" data-width="95"
 							data-filter-data="var:priorityLevels">优先级</th>
 							
 							
@@ -169,13 +169,19 @@
 							data-filter-control="select" data-filter-data="var:stateDeses">
 							任务状态</th>
 						
-						<th data-field="editname" data-width="105"
+						<th data-field="editname" data-width="90"
 							data-filter-control="input" data-filter-control-placeholder="">
 							编辑人</th>
 						
-						<th data-field="checkname" data-width="105"
+						<th data-field="checkname" data-width="90"
 							data-filter-control="input" data-filter-control-placeholder="">
 							校正人</th>
+							
+						<th data-field="errorrest">
+							剩余<br>错误数</th>
+							
+						<th data-field="fielddatarest">
+							剩余<br>资料数</th>
 						
 						<th data-field="opttime" data-width="100">
 							更新时间</th>
