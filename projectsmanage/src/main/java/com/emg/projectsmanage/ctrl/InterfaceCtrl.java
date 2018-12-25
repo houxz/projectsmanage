@@ -1874,7 +1874,7 @@ public class InterfaceCtrl extends BaseCtrl {
 								workTasksModel.setTotaltask(workTasksModel.getEdittask() + workTasksModel.getChecktask() + workTasksModel.getQctask() + workTasksModel.getCompletetask());
 								workTasksModelDao.newWorkTask(workTasksModel);
 							} catch (DuplicateKeyException e) {
-								logger.error(e.getMessage(), e);
+								logger.error(e.getMessage());
 							} catch (Exception e) {
 								logger.error(e.getMessage(), e);
 							}
@@ -2040,7 +2040,7 @@ public class InterfaceCtrl extends BaseCtrl {
 								workTasksModel.setTotaltask(workTasksModel.getEdittask() + workTasksModel.getChecktask() + workTasksModel.getQctask() + workTasksModel.getCompletetask());
 								workTasksModelDao.newWorkTask(workTasksModel);
 							} catch (DuplicateKeyException e) {
-								logger.error(e.getMessage(), e);
+								logger.error(e.getMessage());
 							} catch (Exception e) {
 								logger.error(e.getMessage(), e);
 							}
@@ -2214,7 +2214,7 @@ public class InterfaceCtrl extends BaseCtrl {
 								workTasksModel.setTotaltask(workTasksModel.getEdittask() + workTasksModel.getChecktask() + workTasksModel.getQctask() + workTasksModel.getCompletetask());
 								workTasksModelDao.newWorkTask(workTasksModel);
 							} catch (DuplicateKeyException e) {
-								logger.error(e.getMessage(), e);
+								logger.error(e.getMessage());
 							} catch (Exception e) {
 								logger.error(e.getMessage(), e);
 							}
@@ -2544,7 +2544,7 @@ public class InterfaceCtrl extends BaseCtrl {
 								workTasksModel.setTotaltask(workTasksModel.getEdittask() + workTasksModel.getChecktask() + workTasksModel.getQctask() + workTasksModel.getCompletetask());
 								workTasksModelDao.newWorkTask(workTasksModel);
 							} catch (DuplicateKeyException e) {
-								logger.error(e.getMessage(), e);
+								logger.error(e.getMessage());
 							} catch (Exception e) {
 								logger.error(e.getMessage(), e);
 							}
@@ -2567,7 +2567,7 @@ public class InterfaceCtrl extends BaseCtrl {
 						ProcessModel process = processModelDao.selectByPrimaryKey(processid);
 						if (process == null)
 							continue;
-						
+						Integer _processType = projectsProcessModel.getProcesstype();
 						String processname = process.getName();
 						Long projectid = projectsProcessModel.getProjectid();
 						Integer totaltask = projectsProcessModel.getTotaltask();
@@ -2576,7 +2576,9 @@ public class InterfaceCtrl extends BaseCtrl {
 						Integer checktask = projectsProcessModel.getChecktask();
 						Integer completetask = projectsProcessModel.getCompletetask();
 						Integer fielddatacount = projectsProcessModel.getFielddatacount();
+						Integer fielddatarest = projectsProcessModel.getFielddatarest();
 						Integer errorcount = projectsProcessModel.getErrorcount();
+						Integer errorrest = projectsProcessModel.getErrorrest();
 						
 						if (totaltask.equals(0) &&
 							edittask.equals(0) &&
@@ -2584,46 +2586,67 @@ public class InterfaceCtrl extends BaseCtrl {
 							checktask.equals(0) &&
 							completetask.equals(0) &&
 							fielddatacount.equals(0) &&
-							errorcount.equals(0))
+							fielddatarest.equals(0) &&
+							errorcount.equals(0) &&
+							errorrest.equals(0))
 							continue;
 						
-						projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
+						try {
+							projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
+						} catch (DuplicateKeyException e) {
+							logger.error(e.getMessage());
+						} catch (Exception e) {
+							logger.error(e.getMessage(), e);
+						}
 						
-						HashMap<Integer, Integer> stageTaskMap = projectsProcessModel.getStageTaskMap();
-						if (stageTaskMap != null && !stageTaskMap.isEmpty()) {
+						try {
 							String sProgress = process.getProgress();
-							if (sProgress.length() > 0) {
-								String[] arProgress = sProgress.split(",");
-								ArrayList<String> alProgress = new ArrayList<String>(Arrays.asList(arProgress));
-								Integer length = alProgress.size();
-								while (length < CommonConstants.PROCESSCOUNT_ERROR) {
-									alProgress.add("0");
-									length++;
-								}
-								DecimalFormat df = new DecimalFormat("0.000");
-								if (stageTaskMap.containsKey(1)) {
-									alProgress.set(0, df.format((float)(stageTaskMap.get(1)*100)/totaltask));
-								}
-								if (stageTaskMap.containsKey(2)) {
-									alProgress.set(1, df.format((float)(stageTaskMap.get(2)*100)/totaltask));
-								}
-								if (stageTaskMap.containsKey(3)) {
-									alProgress.set(2, df.format((float)(stageTaskMap.get(3)*100)/totaltask));
-								}
-								if (stageTaskMap.containsKey(4)) {
-									alProgress.set(3, df.format((float)(stageTaskMap.get(4)*100)/totaltask));
-								}
-								
-								StringBuilder sbProgress = new StringBuilder();
-								for (String p : alProgress) {
-									sbProgress.append(p);
-									sbProgress.append(",");
-								}
-								sbProgress.deleteCharAt(sbProgress.length() - 1);
-
-								process.setProgress(sbProgress.toString());
+							ArrayList<String> alProgress = sProgress.length() > 0 ? new ArrayList<String>(Arrays.asList(sProgress.split(","))) : new ArrayList<String>();
+							Integer length = alProgress.size();
+							while (length < CommonConstants.PROCESSCOUNT_ERROR) {
+								alProgress.add("0");
+								length++;
 							}
+							if (_processType.equals(ProcessType.POIEDIT.getValue())) {
+								DecimalFormat df = new DecimalFormat("0.000");
+								if (fielddatacount.compareTo(0) > 0) {
+									alProgress.set(0, df.format((float)(fielddatacount-fielddatarest)*100/fielddatacount));
+								} else {
+									alProgress.set(0, "0");
+								}
+								if (errorcount.compareTo(0) > 0) {
+									alProgress.set(1, df.format((float)(errorcount-errorrest)*100/errorcount));
+								} else {
+									alProgress.set(1, "0");
+								}
+							} else {
+								HashMap<Integer, Integer> stageTaskMap = projectsProcessModel.getStageTaskMap();
+								if (stageTaskMap != null && !stageTaskMap.isEmpty()) {
+									DecimalFormat df = new DecimalFormat("0.000");
+									if (stageTaskMap.containsKey(1)) {
+										alProgress.set(0, df.format((float)(stageTaskMap.get(1)*100)/totaltask));
+									}
+									if (stageTaskMap.containsKey(2)) {
+										alProgress.set(1, df.format((float)(stageTaskMap.get(2)*100)/totaltask));
+									}
+									if (stageTaskMap.containsKey(3)) {
+										alProgress.set(2, df.format((float)(stageTaskMap.get(3)*100)/totaltask));
+									}
+									if (stageTaskMap.containsKey(4)) {
+										alProgress.set(3, df.format((float)(stageTaskMap.get(4)*100)/totaltask));
+									}
+								}
+							}
+							StringBuilder sbProgress = new StringBuilder();
+							for (String p : alProgress) {
+								sbProgress.append(p);
+								sbProgress.append(",");
+							}
+							sbProgress.deleteCharAt(sbProgress.length() - 1);
+							process.setProgress(sbProgress.toString());
 							processModelDao.updateByPrimaryKeySelective(process );
+						} catch (Exception e) {
+							logger.error(e.getMessage(), e);
 						}
 						
 						if (processname.startsWith("POI易淘金编辑_"))
@@ -2633,8 +2656,8 @@ public class InterfaceCtrl extends BaseCtrl {
 								edittask.equals(0) &&
 								qctask.equals(0) &&
 								checktask.equals(0) &&
-								fielddatacount.equals(0) &&
-								errorcount.equals(0)) {
+								fielddatarest.equals(0) &&
+								errorrest.equals(0)) {
 							process.setState(ProcessState.COMPLETE.getValue());
 							processModelDao.updateByPrimaryKeySelective(process );
 							

@@ -303,7 +303,7 @@
 			html.push('</div></div></div>');
 		} else if(processType == 5) {
 			html.push('<div>');
-			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="POI编辑准备进度：' + parseFloat(values[0]).toFixed(3) + '&#8453;">');
+			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="资料制作进度：' + parseFloat(values[0]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
 			if (values[0] > 0 && values[0] < 100 && row.state == 1)
 				html.push(' progress-striped active');
@@ -317,7 +317,7 @@
 							+ ' <span style="margin:0 6px;color: black;">'
 							+ parseFloat(values[0]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div>');
-			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="POI编辑进度：'
+			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="错误修改进度：'
 							+ parseFloat(values[1]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
 			if (values[1] > 0 && values[1] < 100 && row.state == 1)

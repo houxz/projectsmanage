@@ -14,7 +14,9 @@
 		<result column="qctask" property="qctask" jdbcType="INTEGER" />
 		<result column="checktask" property="checktask" jdbcType="INTEGER" />
 		<result column="completetask" property="completetask" jdbcType="INTEGER" />
+		<result column="fielddatarest" property="fielddatarest" jdbcType="INTEGER" />
 		<result column="fielddatacount" property="fielddatacount" jdbcType="INTEGER" />
+		<result column="errorrest" property="errorrest" jdbcType="INTEGER" />
 		<result column="errorcount" property="errorcount" jdbcType="INTEGER" />
 		<result column="time" property="time" jdbcType="VARCHAR" />
 	</resultMap>
@@ -31,7 +33,9 @@
 			t.`qctask`,
 			t.`checktask`,
 			t.`completetask`,
+			t.`fielddatarest`,
 			t.`fielddatacount`,
+			t.`errorrest`,
 			t.`errorcount`,
 			t.`time`
 		FROM
@@ -96,7 +100,9 @@
 	    	`qctask`, 
 	    	`checktask`, 
 	    	`completetask`,
+	    	`fielddatarest`,
 	    	`fielddatacount`,
+	    	`errorrest`,
 	    	`errorcount`,
 	    	`time`)
 	    values
@@ -107,7 +113,9 @@
 	      	#{qctask,jdbcType=INTEGER}, 
 	      	#{checktask,jdbcType=INTEGER}, 
 	      	#{completetask,jdbcType=INTEGER},
+	      	#{fielddatarest,jdbcType=INTEGER},
 	      	#{fielddatacount,jdbcType=INTEGER},
+	      	#{errorrest,jdbcType=INTEGER},
 	      	#{errorcount,jdbcType=INTEGER},
 	      	#{time,jdbcType=VARCHAR})
 	</insert>

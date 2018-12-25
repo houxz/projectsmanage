@@ -453,7 +453,9 @@ public class TaskModelDao {
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task t ");
-			sql.append(" JOIN tb_task_link_error te ON te.taskid = t.id ");
+			sql.append(" JOIN ");
+			sql.append(configDBModel.getDbschema()).append(".");
+			sql.append(" tb_task_link_error te ON te.taskid = t.id ");
 			sql.append(" WHERE te.pstate IN ( 0, 1, 2 ) ");
 			if (taskTypes != null && taskTypes.size() > 0) {
 				sql.append(" AND t.tasktype IN ( ");
@@ -535,7 +537,9 @@ public class TaskModelDao {
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task t ");
-			sql.append(" JOIN tb_task_link_fielddata tf ON tf.taskid = t.id ");
+			sql.append(" JOIN ");
+			sql.append(configDBModel.getDbschema()).append(".");
+			sql.append(" tb_task_link_fielddata tf ON tf.taskid = t.id ");
 			sql.append(" WHERE tf.pstate IN ( 0, 1, 2 )");
 			if (taskTypes != null && taskTypes.size() > 0) {
 				sql.append(" AND t.tasktype IN ( ");
