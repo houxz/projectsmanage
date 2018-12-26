@@ -125,6 +125,9 @@ public class TasksManageCtrl extends BaseCtrl {
 					case "name":
 						record.setName(filterPara.get(key).toString());
 						break;
+					case "batchid":
+						record.setBatchid(Long.valueOf(filterPara.get(key).toString()));
+						break;
 					case "tasktype":
 						record.setTasktype(Integer.valueOf(filterPara.get(key).toString()));
 						break;

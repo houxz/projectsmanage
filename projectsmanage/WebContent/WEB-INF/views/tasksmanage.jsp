@@ -130,18 +130,18 @@
 							data-filter-control="input" data-filter-control-placeholder="">
 							项目编号</th>
 						
-						<th data-field="processname"
+						<th data-field="processname" data-width="120"
 							data-filter-control="input" data-filter-control-placeholder="">
 							项目名称</th>
 						
 						<c:choose>
 							<c:when test="${not empty param.process}">
-								<th data-field="processtype" data-width="140" data-formatter="processTypeFormat" 
+								<th data-field="processtype" data-width="100" data-formatter="processTypeFormat" 
 									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="${param.process}">
 									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 							</c:when>
 							<c:otherwise>
-								<th data-field="processtype" data-width="140" data-formatter="processTypeFormat" 
+								<th data-field="processtype" data-width="100" data-formatter="processTypeFormat" 
 									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="<%= ProcessType.POIEDIT.getValue() %>">
 									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 							</c:otherwise>
@@ -161,6 +161,9 @@
 							data-filter-control="select" data-width="95"
 							data-filter-data="var:priorityLevels">优先级</th>
 							
+						<th data-field="batchid" data-width="100"
+							data-filter-control="input"  data-filter-control-placeholder="">
+							批次号</th>
 							
 						<!-- <th data-field="state">state</th>
 						<th data-field="process">process</th> -->
@@ -169,11 +172,11 @@
 							data-filter-control="select" data-filter-data="var:stateDeses">
 							任务状态</th>
 						
-						<th data-field="editname" data-width="90"
+						<th data-field="editname" data-width="70"
 							data-filter-control="input" data-filter-control-placeholder="">
 							编辑人</th>
 						
-						<th data-field="checkname" data-width="90"
+						<th data-field="checkname" data-width="70"
 							data-filter-control="input" data-filter-control-placeholder="">
 							校正人</th>
 							
@@ -182,9 +185,6 @@
 							
 						<th data-field="errorrest">
 							剩余<br>错误数</th>
-							
-						<th data-field="opttime" data-width="100">
-							更新时间</th>
 						
 					</tr>
 				</thead>

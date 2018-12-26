@@ -95,6 +95,9 @@ public class TaskModelDao {
 			if (record.getName() != null && !record.getName().isEmpty()) {
 				sql.append(" AND " + separator + "name" + separator + " like '%" + record.getName() + "%'");
 			}
+			if (record.getBatchid() != null && record.getBatchid().compareTo(0L) > 0) {
+				sql.append(" AND " + separator + "batchid" + separator + " = " + record.getBatchid());
+			}
 			if (projectids != null) {
 				if (projectids.size() > 0) {
 					sql.append(" AND " + separator + "projectid" + separator + " in( ");
