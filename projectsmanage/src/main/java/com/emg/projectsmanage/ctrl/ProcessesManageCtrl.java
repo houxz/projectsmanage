@@ -255,7 +255,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				suffix = "_全国质检";
 				systemid = SystemType.MapDbEdit_Country.getValue();
 			} else if(type.equals(ProcessType.POIEDIT.getValue())) {
-				suffix = "_POI";
+				suffix = "";
 				systemid = SystemType.poivideoedit.getValue();
 			}
 			//新建/更新流程
