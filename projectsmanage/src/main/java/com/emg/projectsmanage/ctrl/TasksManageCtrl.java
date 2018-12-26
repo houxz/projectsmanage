@@ -363,6 +363,7 @@ public class TasksManageCtrl extends BaseCtrl {
 				processType.equals(ProcessType.ADJUSTMAP)) {
 				switch (stateDes) {
 				case "编辑中":
+				case "制作中":
 					stateMaps.add(new StateMap(0, 5, null, -1));
 					stateMaps.add(new StateMap(1, 5, null, -1));
 					stateMaps.add(new StateMap(2, 6, null, null));
