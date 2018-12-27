@@ -2,6 +2,8 @@ package com.emg.projectsmanage.dao.projectsmanager;
 
 import com.emg.projectsmanage.pojo.CapacityModel;
 import com.emg.projectsmanage.pojo.CapacityModelExample;
+import com.emg.projectsmanage.pojo.QualityCapcityModel;
+
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,6 +15,11 @@ public interface CapacityModelDao {
     int deleteByPrimaryKey(Long id);
 
     int insert(CapacityModel record);
+    
+	// add by lianhr begin 2018/12/17
+	// 插入根据质检小项统计的结果
+	int insertSpecial(QualityCapcityModel record);
+	// add by lianhr end
 
     int insertSelective(CapacityModel record);
 

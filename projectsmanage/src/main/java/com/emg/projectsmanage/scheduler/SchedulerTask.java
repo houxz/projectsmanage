@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import com.emg.projectsmanage.common.CapacityTaskStateEnum;
 import com.emg.projectsmanage.common.CommonConstants;
+import com.emg.projectsmanage.common.IsWorkTimeEnum;
 import com.emg.projectsmanage.common.TaskTypeEnum;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessState;
@@ -45,6 +46,8 @@ import com.emg.projectsmanage.pojo.ProcessConfigModel;
 import com.emg.projectsmanage.pojo.ProcessModel;
 import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.pojo.ProjectsProcessModel;
+import com.emg.projectsmanage.pojo.QualityCapacityUniq;
+import com.emg.projectsmanage.pojo.QualityCapcityModel;
 import com.emg.projectsmanage.pojo.WorkTasksModel;
 import com.emg.projectsmanage.pojo.WorkTasksUniq;
 import com.emg.projectsmanage.pojo.TaskModel;
@@ -180,345 +183,983 @@ public class SchedulerTask {
 					ProcessType processType = ProcessType.valueOf(newCapacityTask.getProcesstype());
 					if (processType.equals(ProcessType.UNKNOWN))
 						continue;
-
-					String time = newCapacityTask.getTime();
-
-					if (processType.equals(ProcessType.POIEDIT)) {
-						logger.debug(String.format("Scheduler POIEDIT task( %s ) started.", time));
-
-						ProcessConfigModel config = processConfigModelService
-								.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
-						if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
-							ConfigDBModel configDBModel = configDBModelDao
-									.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-							
-							Map<CapacityUniq, CapacityModel> uniqRecords = new HashMap<CapacityUniq, CapacityModel>();
-							
-							List<Map<String, Object>> taskGroups = taskModelDao.groupTasksByTime(configDBModel, time);
-							if (taskGroups != null && taskGroups.size() > 0) {
-								for (Map<String, Object> taskGroup : taskGroups) {
-									Integer taskType = (Integer) taskGroup.get("tasktype");
-									Long projectid = (Long) taskGroup.get("projectid");
-									Integer editid = (Integer) taskGroup.get("editid");
-									Long editnum = (Long) taskGroup.get("editnum");
-									Integer checkid = (Integer) taskGroup.get("checkid");
-									Long checknum = (Long) taskGroup.get("checknum");
+					String[][] times = {{"08:30:00","17:30:00"},{"17:30:00","08:30:00"}};
+					for(int ii = 0; ii < times.length; ii++) {
+						String time = newCapacityTask.getTime();
+						if(times[ii][0].toString().equals("08:30:00") && times[ii][1].toString().equals("17:30:00")) {
+							if (processType.equals(ProcessType.POIEDIT)) {
+								logger.debug(String.format("Scheduler POIEDIT task( %s ) started.", time));
+								ProcessConfigModel config = processConfigModelService
+										.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
+								if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+									ConfigDBModel configDBModel = configDBModelDao
+											.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 									
-									CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, editid);
-									CapacityUniq checkUniqRecord = new CapacityUniq(taskType, projectid, checkid);
-									CapacityModel editCapacityModel = new CapacityModel();
-									if(uniqRecords.containsKey(editUniqRecord)) {
-										editCapacityModel = uniqRecords.get(editUniqRecord);
-										uniqRecords.remove(editUniqRecord);
-									}
-									CapacityModel checkCapacityModel = new CapacityModel();
-									if(uniqRecords.containsKey(checkUniqRecord)) {
-										checkCapacityModel = uniqRecords.get(checkUniqRecord);
-										uniqRecords.remove(checkUniqRecord);
+									Map<CapacityUniq, CapacityModel> uniqRecords = new HashMap<CapacityUniq, CapacityModel>();
+									Map<QualityCapacityUniq, QualityCapcityModel> uniqSpecialRecords = new HashMap<QualityCapacityUniq, QualityCapcityModel>();
+									
+									List<Map<String, Object>> taskGroups = taskModelDao.groupTasksByTime(configDBModel, times[ii], time);
+									for (Map<String, Object> taskGroup : taskGroups) {
+										Integer taskType = (Integer) taskGroup.get("tasktype");
+										Long projectid = (Long) taskGroup.get("projectid");
+										Integer editid = (Integer) taskGroup.get("editid");
+										Long editnum = (Long) taskGroup.get("editnum");
+										Integer checkid = (Integer) taskGroup.get("checkid");
+										Long checknum = (Long) taskGroup.get("checknum");
+										
+										CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, editid);
+										CapacityUniq checkUniqRecord = new CapacityUniq(taskType, projectid, checkid);
+										CapacityModel editCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(editUniqRecord)) {
+											editCapacityModel = uniqRecords.get(editUniqRecord);
+											uniqRecords.remove(editUniqRecord);
+										}
+										CapacityModel checkCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(checkUniqRecord)) {
+											checkCapacityModel = uniqRecords.get(checkUniqRecord);
+											uniqRecords.remove(checkUniqRecord);
+										}
+										ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+										editCapacityModel.setProjectid(projectid);
+										checkCapacityModel.setProjectid(projectid);
+										if (project != null) {
+											Long processid = project.getProcessid();
+											ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+											if (process != null) {
+												editCapacityModel.setProcessid(processid);
+												editCapacityModel.setProcessname(process.getName());
+												checkCapacityModel.setProcessid(processid);
+												checkCapacityModel.setProcessname(process.getName());
+											}
+										}
+										
+										editCapacityModel.setTasktype(taskType);
+										checkCapacityModel.setTasktype(taskType);
+
+										editCapacityModel.setUserid(editid);
+										checkCapacityModel.setUserid(checkid);
+										EmployeeModel erecord = new EmployeeModel();
+										erecord.setId(editid);
+										EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											editCapacityModel.setUsername(emp.getRealname());
+										erecord.setId(checkid);
+										emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											checkCapacityModel.setUsername(emp.getRealname());
+										editCapacityModel.setRoleid(RoleType.ROLE_WORKER.getValue());
+										editCapacityModel.setTime(time);
+										checkCapacityModel.setRoleid(RoleType.ROLE_CHECKER.getValue());
+										checkCapacityModel.setTime(time);
+										editCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
+										checkCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
+										editCapacityModel.setTaskcount(editCapacityModel.getTaskcount() + editnum);
+										checkCapacityModel.setTaskcount(checkCapacityModel.getTaskcount() + checknum);
+										
+										uniqRecords.put(editUniqRecord, editCapacityModel);
+										uniqRecords.put(checkUniqRecord, checkCapacityModel);
 									}
 									
-									ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
-									editCapacityModel.setProjectid(projectid);
-									checkCapacityModel.setProjectid(projectid);
-									if (project != null) {
-										Long processid = project.getProcessid();
-										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
-										if (process != null) {
-											editCapacityModel.setProcessid(processid);
-											editCapacityModel.setProcessname(process.getName());
-											checkCapacityModel.setProcessid(processid);
-											checkCapacityModel.setProcessname(process.getName());
+									List<Map<String, Object>> task15102Groups = taskBlockDetailModelDao.group15102ByTime(configDBModel, times[ii], time);
+									for (Map<String, Object> taskBlockDetailGroup : task15102Groups) {
+										String featureid = (String) taskBlockDetailGroup.get("featureid");
+										Integer taskType = (Integer) taskBlockDetailGroup.get("tasktype");
+										Integer editid = (Integer) taskBlockDetailGroup.get("editid");
+										Long projectid = (Long) taskBlockDetailGroup.get("projectid");;
+
+										if (taskType.compareTo(0) <= 0)
+											continue;
+
+										if (projectid.compareTo(0L) <= 0)
+											continue;
+										
+										CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, editid);
+										CapacityModel editCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(editUniqRecord)) {
+											editCapacityModel = uniqRecords.get(editUniqRecord);
+											uniqRecords.remove(editUniqRecord);
+										}
+										
+										ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+										editCapacityModel.setProjectid(projectid);
+										if (project != null) {
+											Long processid = project.getProcessid();
+											ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+											if (process != null) {
+												editCapacityModel.setProcessid(processid);
+												editCapacityModel.setProcessname(process.getName());
+											}
+										}
+										
+										editCapacityModel.setTasktype(taskType);
+										
+										editCapacityModel.setUserid(editid);
+										EmployeeModel erecord = new EmployeeModel();
+										erecord.setId(editid);
+										EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											editCapacityModel.setUsername(emp.getRealname());
+
+										editCapacityModel.setRoleid(RoleType.ROLE_WORKER.getValue());
+										editCapacityModel.setTime(time);
+										editCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
+										
+										ConfigDBModel config15102DBModel = configDBModelDao
+												.selectByPrimaryKey(Integer.valueOf("32"));
+										List<Map<String, Object>> task15102PoisCreate1 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包新增");
+										editCapacityModel.setCreatepoi(editCapacityModel.getCreatepoi() + Integer.parseInt(task15102PoisCreate1.get(0).get("countnum").toString()));
+										List<Map<String, Object>> task15102PoisCreate2 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "车调新增");
+										editCapacityModel.setCreatepoi(editCapacityModel.getCreatepoi() + Integer.parseInt(task15102PoisCreate2.get(0).get("countnum").toString()));
+										List<Map<String, Object>> task15102PoisModified1 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包修改");
+										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified1.get(0).get("countnum").toString()));
+										List<Map<String, Object>> task15102PoisModified2 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包移位");
+										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified2.get(0).get("countnum").toString()));
+										List<Map<String, Object>> task15102PoisModified3 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "车调修改");
+										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified3.get(0).get("countnum").toString()));
+										
+										List<Map<String, Object>> taskDelete15102Pois1 = taskBlockDetailModelDao.group15102ByPoiDelete(config15102DBModel, featureid, "ver is null");
+										editCapacityModel.setDeletepoi(editCapacityModel.getDeletepoi() + Integer.parseInt(taskDelete15102Pois1.get(0).get("countnum").toString()));
+										List<Map<String, Object>> taskDelete15102Pois2 = taskBlockDetailModelDao.group15102ByPoiDelete(config15102DBModel, featureid, "ver is not null");
+										editCapacityModel.setExistdeletepoi(editCapacityModel.getExistdeletepoi() + Integer.parseInt(taskDelete15102Pois2.get(0).get("countnum").toString()));
+										
+										uniqRecords.put(editUniqRecord, editCapacityModel);
+										
+									}
+									
+									List<Map<String, Object>> taskBlockDetailGroups = taskBlockDetailModelDao.groupTaskBlockDetailsByTime(configDBModel, times[ii], time);
+									for (Map<String, Object> taskBlockDetailGroup : taskBlockDetailGroups) {
+										Long blockid = (Long) taskBlockDetailGroup.get("blockid");
+										Integer editid = (Integer) taskBlockDetailGroup.get("editid");
+										Long editnum = (Long) taskBlockDetailGroup.get("editnum");
+										Integer checkid = (Integer) taskBlockDetailGroup.get("checkid");
+										Long checknum = (Long) taskBlockDetailGroup.get("checknum");
+										
+										TaskModel task = taskModelDao.getTaskByBlockid(configDBModel, blockid);
+										
+										if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
+											logger.error("Can not find task by blockid: " + blockid);
+											continue;
+										}
+										
+										Integer taskType = task.getTasktype();
+										if (taskType.compareTo(0) <= 0)
+											continue;
+										Long projectid = task.getProjectid();
+										if (projectid.compareTo(0L) <= 0)
+											continue;
+										
+										if (taskType.equals(TaskTypeEnum.POI_DATASET_31.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_DATASET_32.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_GEN.getValue())
+												) {
+											continue;
+										}
+										
+										CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, editid);
+										CapacityUniq checkUniqRecord = new CapacityUniq(taskType, projectid, checkid);
+										CapacityModel editCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(editUniqRecord)) {
+											editCapacityModel = uniqRecords.get(editUniqRecord);
+											uniqRecords.remove(editUniqRecord);
+										}
+										CapacityModel checkCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(checkUniqRecord)) {
+											checkCapacityModel = uniqRecords.get(checkUniqRecord);
+											uniqRecords.remove(checkUniqRecord);
+										}
+										
+										ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+										editCapacityModel.setProjectid(projectid);
+										checkCapacityModel.setProjectid(projectid);
+										if (project != null) {
+											Long processid = project.getProcessid();
+											ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+											if (process != null) {
+												editCapacityModel.setProcessid(processid);
+												editCapacityModel.setProcessname(process.getName());
+												checkCapacityModel.setProcessid(processid);
+												checkCapacityModel.setProcessname(process.getName());
+											}
+										}
+										
+										editCapacityModel.setTasktype(taskType);
+										checkCapacityModel.setTasktype(taskType);
+
+										editCapacityModel.setUserid(editid);
+										checkCapacityModel.setUserid(checkid);
+										EmployeeModel erecord = new EmployeeModel();
+										erecord.setId(editid);
+										EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											editCapacityModel.setUsername(emp.getRealname());
+										erecord.setId(checkid);
+										emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											checkCapacityModel.setUsername(emp.getRealname());
+
+										editCapacityModel.setRoleid(RoleType.ROLE_WORKER.getValue());
+										editCapacityModel.setTime(time);
+										checkCapacityModel.setRoleid(RoleType.ROLE_CHECKER.getValue());
+										checkCapacityModel.setTime(time);
+										editCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
+										checkCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
+										
+										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + editnum);
+										checkCapacityModel.setModifypoi(checkCapacityModel.getModifypoi() + checknum);
+										
+										uniqRecords.put(editUniqRecord, editCapacityModel);
+										uniqRecords.put(checkUniqRecord, checkCapacityModel);
+									}
+									List<Map<String, Object>> specialTaskLinkErrorGroups = taskLinkErrorModelDao.specialGroupTaskLinkErrorByTime(configDBModel, times[ii], time);
+									for (Map<String, Object> taskLinkErrorGroup : specialTaskLinkErrorGroups) {
+										Long taskid = (Long) taskLinkErrorGroup.get("taskid");
+										Long errortype = (Long) taskLinkErrorGroup.get("errortype");
+										Long count = (Long) taskLinkErrorGroup.get("count");
+										Long errorcount = (Long) taskLinkErrorGroup.get("errorcount");
+										Long visualerrorcount = (Long) taskLinkErrorGroup.get("visualerrorcount");
+										
+										TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
+										if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
+											logger.error("Can not find task by taskid: " + taskid);
+											continue;
+										}
+										
+										Integer userid = 0;
+										Integer roleid = RoleType.UNKNOWN.getValue();
+										Integer taskType = task.getTasktype();
+										if (taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())){
+											userid = task.getEditid();
+											roleid = RoleType.ROLE_CHECKER.getValue();
+										}
+										else {
+											continue;
+										}
+										Long projectid = task.getProjectid();
+										if (projectid.compareTo(0L) <= 0)
+											continue;
+										QualityCapacityUniq editUniqRecord = new QualityCapacityUniq(taskType, projectid, userid, errortype);
+										QualityCapcityModel editCapacityModel = new QualityCapcityModel();
+										if(uniqSpecialRecords.containsKey(editUniqRecord)) {
+											editCapacityModel = uniqSpecialRecords.get(editUniqRecord);
+											uniqSpecialRecords.remove(editUniqRecord);
+										}
+										ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+										editCapacityModel.setProjectid(projectid);
+										if (project != null) {
+											Long processid = project.getProcessid();
+											ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+											if (process != null) {
+												editCapacityModel.setProcessid(processid);
+												editCapacityModel.setProcessname(process.getName());
+											}
+										}
+										
+										editCapacityModel.setTasktype(taskType);
+												
+										editCapacityModel.setUserid(userid);
+										EmployeeModel erecord = new EmployeeModel();
+										erecord.setId(userid);
+										EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											editCapacityModel.setUsername(emp.getRealname());
+
+										editCapacityModel.setRoleid(roleid);
+										editCapacityModel.setTime(time);
+										editCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
+										
+										
+										editCapacityModel.setErrortype(errortype);
+										
+										editCapacityModel.setCount(editCapacityModel.getCount() + count);
+										editCapacityModel.setErrorcount(editCapacityModel.getErrorcount() + errorcount);
+										editCapacityModel.setVisualerrorcount(editCapacityModel.getVisualerrorcount() + visualerrorcount);
+										
+										uniqSpecialRecords.put(editUniqRecord, editCapacityModel);
+									}
+																		
+									List<Map<String, Object>> taskLinkErrorGroups = taskLinkErrorModelDao.groupTaskLinkErrorByTime(configDBModel, times[ii], time);
+									for (Map<String, Object> taskLinkErrorGroup : taskLinkErrorGroups) {
+										Long taskid = (Long) taskLinkErrorGroup.get("taskid");
+										Long errorcount = (Long) taskLinkErrorGroup.get("errorcount");
+										Long visualerrorcount = (Long) taskLinkErrorGroup.get("visualerrorcount");
+										
+										TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
+										
+										if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
+											logger.error("Can not find task by taskid: " + taskid);
+											continue;
+										}
+										
+										Integer userid = 0;
+										Integer roleid = RoleType.UNKNOWN.getValue();
+
+										Integer taskType = task.getTasktype();
+										if (taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())
+												|| 
+												taskType.equals(TaskTypeEnum.POI_DATASET_31.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_DATASET_32.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_KETOU.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_GEN.getValue())) {
+											userid = task.getEditid();
+											roleid = RoleType.ROLE_WORKER.getValue();
+										} else if (taskType.equals(TaskTypeEnum.POI_MC_DATASET_31.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_MC_DATASET_32.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_MC_KETOU.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_MC_GEN.getValue())) {
+											userid = task.getCheckid();
+											roleid = RoleType.ROLE_CHECKER.getValue();
+										} else {
+											continue;
+										}
+										Long projectid = task.getProjectid();
+										if (projectid.compareTo(0L) <= 0)
+											continue;
+										
+										CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, userid);
+										CapacityModel editCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(editUniqRecord)) {
+											editCapacityModel = uniqRecords.get(editUniqRecord);
+											uniqRecords.remove(editUniqRecord);
+										}
+										
+										ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+										editCapacityModel.setProjectid(projectid);
+										if (project != null) {
+											Long processid = project.getProcessid();
+											ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+											if (process != null) {
+												editCapacityModel.setProcessid(processid);
+												editCapacityModel.setProcessname(process.getName());
+											}
+										}
+										
+										editCapacityModel.setTasktype(taskType);
+
+										editCapacityModel.setUserid(userid);
+										EmployeeModel erecord = new EmployeeModel();
+										erecord.setId(userid);
+										EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											editCapacityModel.setUsername(emp.getRealname());
+
+										editCapacityModel.setRoleid(roleid);
+										editCapacityModel.setTime(time);
+										
+										editCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
+										
+										editCapacityModel.setErrorcount(editCapacityModel.getErrorcount() + errorcount);
+										editCapacityModel.setVisualerrorcount(editCapacityModel.getVisualerrorcount() + visualerrorcount);
+										
+										uniqRecords.put(editUniqRecord, editCapacityModel);
+									}
+									List<Map<String, Object>> taskLinkFielddataGroups = taskLinkFielddataModelDao.groupTaskLinkFielddataByTime(configDBModel, times[ii], time);
+									for (Map<String, Object> taskLinkFielddataGroup : taskLinkFielddataGroups) {
+										Long taskid = (Long) taskLinkFielddataGroup.get("taskid");
+										Long count = (Long) taskLinkFielddataGroup.get("count");
+										TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
+										
+										if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
+											logger.error("Can not find task by taskid: " + taskid);
+											continue;
+										}
+										
+										Integer userid = 0;
+										Integer roleid = RoleType.UNKNOWN.getValue();
+
+										Integer taskType = task.getTasktype();
+										if (taskType.equals(TaskTypeEnum.POI_DATASET_31.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_DATASET_32.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())
+												|| taskType.equals(TaskTypeEnum.POI_KETOU.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_GEN.getValue())) {
+											userid = task.getEditid();
+											roleid = RoleType.ROLE_WORKER.getValue();
+										} else if (taskType.equals(TaskTypeEnum.POI_MC_DATASET_31.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_MC_DATASET_32.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_MC_KETOU.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_MC_GEN.getValue())) {
+											userid = task.getCheckid();
+											roleid = RoleType.ROLE_CHECKER.getValue();
+										} else {
+											continue;
+										}
+										
+										Long projectid = task.getProjectid();
+										if (projectid.compareTo(0L) <= 0)
+											continue;
+										
+										CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, userid);
+										CapacityModel editCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(editUniqRecord)) {
+											editCapacityModel = uniqRecords.get(editUniqRecord);
+											uniqRecords.remove(editUniqRecord);
+										}
+										
+										ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+										editCapacityModel.setProjectid(projectid);
+										if (project != null) {
+											Long processid = project.getProcessid();
+											ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+											if (process != null) {
+												editCapacityModel.setProcessid(processid);
+												editCapacityModel.setProcessname(process.getName());
+											}
+										}
+										
+										editCapacityModel.setTasktype(taskType);
+
+										editCapacityModel.setUserid(userid);
+										EmployeeModel erecord = new EmployeeModel();
+										erecord.setId(userid);
+										EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											editCapacityModel.setUsername(emp.getRealname());
+
+										editCapacityModel.setRoleid(roleid);
+										editCapacityModel.setTime(time);
+										
+										editCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
+										
+										editCapacityModel.setFielddatacount(editCapacityModel.getFielddatacount() + count);
+										
+										uniqRecords.put(editUniqRecord, editCapacityModel);
+									}
+
+									if (uniqRecords != null && !uniqRecords.isEmpty()) {
+										for (CapacityModel capacityModel : uniqRecords.values()) {
+											if (capacityModel.getErrorcount().equals(0L)
+													&& capacityModel.getTaskcount().equals(0L)
+													&& capacityModel.getModifypoi().equals(0L)
+													&& capacityModel.getCreatepoi().equals(0L)
+													&& capacityModel.getDeletepoi().equals(0L)
+													&& capacityModel.getExistdeletepoi().equals(0L)
+													&& capacityModel.getConfirmpoi().equals(0L)
+													&& capacityModel.getVisualerrorcount().equals(0L)
+													&& capacityModel.getFielddatacount().equals(0L))
+												continue;
+											capacityModelDao.insert(capacityModel);
 										}
 									}
-									
-									editCapacityModel.setTasktype(taskType);
-									checkCapacityModel.setTasktype(taskType);
-	
-									editCapacityModel.setUserid(editid);
-									checkCapacityModel.setUserid(checkid);
-									EmployeeModel erecord = new EmployeeModel();
-									erecord.setId(editid);
-									EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
-									if(emp != null)
-										editCapacityModel.setUsername(emp.getRealname());
-									erecord.setId(checkid);
-									emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
-									if(emp != null)
-										checkCapacityModel.setUsername(emp.getRealname());
-	
-									editCapacityModel.setRoleid(RoleType.ROLE_WORKER.getValue());
-									editCapacityModel.setTime(time);
-									checkCapacityModel.setRoleid(RoleType.ROLE_CHECKER.getValue());
-									checkCapacityModel.setTime(time);
-									
-									editCapacityModel.setTaskcount(editCapacityModel.getTaskcount() + editnum);
-									checkCapacityModel.setTaskcount(checkCapacityModel.getTaskcount() + checknum);
-									
-									uniqRecords.put(editUniqRecord, editCapacityModel);
-									uniqRecords.put(checkUniqRecord, checkCapacityModel);
-								}
-							}
-							
-							List<Map<String, Object>> taskBlockDetailGroups = taskBlockDetailModelDao.groupTaskBlockDetailsByTime(configDBModel, time);
-							if (taskBlockDetailGroups != null && taskBlockDetailGroups.size() > 0) {
-								for (Map<String, Object> taskBlockDetailGroup : taskBlockDetailGroups) {
-									Long blockid = (Long) taskBlockDetailGroup.get("blockid");
-									Integer editid = (Integer) taskBlockDetailGroup.get("editid");
-									Long editnum = (Long) taskBlockDetailGroup.get("editnum");
-									Integer checkid = (Integer) taskBlockDetailGroup.get("checkid");
-									Long checknum = (Long) taskBlockDetailGroup.get("checknum");
-									
-									TaskModel task = taskModelDao.getTaskByBlockid(configDBModel, blockid);
-									
-									if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
-										logger.error("Can not find task by blockid: " + blockid);
-										continue;
-									}
-									
-									Integer taskType = task.getTasktype();
-									if (taskType.compareTo(0) <= 0)
-										continue;
-									Long projectid = task.getProjectid();
-									if (projectid.compareTo(0L) <= 0)
-										continue;
-									
-									CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, editid);
-									CapacityUniq checkUniqRecord = new CapacityUniq(taskType, projectid, checkid);
-									CapacityModel editCapacityModel = new CapacityModel();
-									if(uniqRecords.containsKey(editUniqRecord)) {
-										editCapacityModel = uniqRecords.get(editUniqRecord);
-										uniqRecords.remove(editUniqRecord);
-									}
-									CapacityModel checkCapacityModel = new CapacityModel();
-									if(uniqRecords.containsKey(checkUniqRecord)) {
-										checkCapacityModel = uniqRecords.get(checkUniqRecord);
-										uniqRecords.remove(checkUniqRecord);
-									}
-									
-									ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
-									editCapacityModel.setProjectid(projectid);
-									checkCapacityModel.setProjectid(projectid);
-									if (project != null) {
-										Long processid = project.getProcessid();
-										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
-										if (process != null) {
-											editCapacityModel.setProcessid(processid);
-											editCapacityModel.setProcessname(process.getName());
-											checkCapacityModel.setProcessid(processid);
-											checkCapacityModel.setProcessname(process.getName());
+									if (uniqSpecialRecords != null && !uniqSpecialRecords.isEmpty()) {
+										for (QualityCapcityModel capacityModel : uniqSpecialRecords.values()) {
+											if (capacityModel.getErrorcount().equals(0L)
+													&& capacityModel.getCount().equals(0L)
+													&& capacityModel.getVisualerrorcount().equals(0L))
+												continue;
+											capacityModelDao.insertSpecial(capacityModel);
 										}
 									}
-									
-									editCapacityModel.setTasktype(taskType);
-									checkCapacityModel.setTasktype(taskType);
-	
-									editCapacityModel.setUserid(editid);
-									checkCapacityModel.setUserid(checkid);
-									EmployeeModel erecord = new EmployeeModel();
-									erecord.setId(editid);
-									EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
-									if(emp != null)
-										editCapacityModel.setUsername(emp.getRealname());
-									erecord.setId(checkid);
-									emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
-									if(emp != null)
-										checkCapacityModel.setUsername(emp.getRealname());
-	
-									editCapacityModel.setRoleid(RoleType.ROLE_WORKER.getValue());
-									editCapacityModel.setTime(time);
-									checkCapacityModel.setRoleid(RoleType.ROLE_CHECKER.getValue());
-									checkCapacityModel.setTime(time);
-									
-									editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + editnum);
-									checkCapacityModel.setModifypoi(checkCapacityModel.getModifypoi() + checknum);
-									
-									uniqRecords.put(editUniqRecord, editCapacityModel);
-									uniqRecords.put(checkUniqRecord, checkCapacityModel);
-								}
-							}
-							
-							List<Map<String, Object>> taskLinkErrorGroups = taskLinkErrorModelDao.groupTaskLinkErrorByTime(configDBModel, time);
-							if (taskLinkErrorGroups != null && taskLinkErrorGroups.size() > 0) {
-								for (Map<String, Object> taskLinkErrorGroup : taskLinkErrorGroups) {
-									Long taskid = (Long) taskLinkErrorGroup.get("taskid");
-									Long errorcount = (Long) taskLinkErrorGroup.get("errorcount");
-									Long visualerrorcount = (Long) taskLinkErrorGroup.get("visualerrorcount");
-									
-									TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
-									
-									if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
-										logger.error("Can not find task by taskid: " + taskid);
-										continue;
-									}
-									
-									Integer userid = 0;
-									Integer roleid = RoleType.UNKNOWN.getValue();
-	
-									Integer taskType = task.getTasktype();
-									if (taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) || // 非实测
-											taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) || // 全国质检改错
-											taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())// 地址电话改错
-											|| taskType.equals(TaskTypeEnum.POI_KETOU.getValue()) || // 客投制作
-											taskType.equals(TaskTypeEnum.POI_GEN.getValue())) {// 易淘金制作
-										userid = task.getEditid();
-										roleid = RoleType.ROLE_WORKER.getValue();
-									} else if (taskType.equals(TaskTypeEnum.POI_MC_KETOU.getValue()) || // 客投校正
-											taskType.equals(TaskTypeEnum.POI_MC_GEN.getValue())) {// 易淘金校正
-										userid = task.getCheckid();
-										roleid = RoleType.ROLE_CHECKER.getValue();
-									} else {
-										continue;
-									}
-									
-									Long projectid = task.getProjectid();
-									if (projectid.compareTo(0L) <= 0)
-										continue;
-									
-									CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, userid);
-									CapacityModel editCapacityModel = new CapacityModel();
-									if(uniqRecords.containsKey(editUniqRecord)) {
-										editCapacityModel = uniqRecords.get(editUniqRecord);
-										uniqRecords.remove(editUniqRecord);
-									}
-									
-									ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
-									editCapacityModel.setProjectid(projectid);
-									if (project != null) {
-										Long processid = project.getProcessid();
-										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
-										if (process != null) {
-											editCapacityModel.setProcessid(processid);
-											editCapacityModel.setProcessname(process.getName());
-										}
-									}
-									
-									editCapacityModel.setTasktype(taskType);
-	
-									editCapacityModel.setUserid(userid);
-									EmployeeModel erecord = new EmployeeModel();
-									erecord.setId(userid);
-									EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
-									if(emp != null)
-										editCapacityModel.setUsername(emp.getRealname());
-	
-									editCapacityModel.setRoleid(roleid);
-									editCapacityModel.setTime(time);
-									
-									editCapacityModel.setErrorcount(editCapacityModel.getErrorcount() + errorcount);
-									editCapacityModel.setVisualerrorcount(editCapacityModel.getVisualerrorcount() + visualerrorcount);
-									
-									uniqRecords.put(editUniqRecord, editCapacityModel);
-								}
-							}
-							
-							List<Map<String, Object>> taskLinkFielddataGroups = taskLinkFielddataModelDao.groupTaskLinkFielddataByTime(configDBModel, time);
-							if (taskLinkFielddataGroups != null && taskLinkFielddataGroups.size() > 0) {
-								for (Map<String, Object> taskLinkFielddataGroup : taskLinkFielddataGroups) {
-									Long taskid = (Long) taskLinkFielddataGroup.get("taskid");
-									Long count = (Long) taskLinkFielddataGroup.get("count");
-									
-									TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
-									
-									if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
-										logger.error("Can not find task by taskid: " + taskid);
-										continue;
-									}
-									
-									Integer userid = 0;
-									Integer roleid = RoleType.UNKNOWN.getValue();
-	
-									Integer taskType = task.getTasktype();
-									if (taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) || // 非实测
-											taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) || // 全国质检改错
-											taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())// 地址电话改错
-											|| taskType.equals(TaskTypeEnum.POI_KETOU.getValue()) || // 客投制作
-											taskType.equals(TaskTypeEnum.POI_GEN.getValue())) {// 易淘金制作
-										userid = task.getEditid();
-										roleid = RoleType.ROLE_WORKER.getValue();
-									} else if (taskType.equals(TaskTypeEnum.POI_MC_KETOU.getValue()) || // 客投校正
-											taskType.equals(TaskTypeEnum.POI_MC_GEN.getValue())) {// 易淘金校正
-										userid = task.getCheckid();
-										roleid = RoleType.ROLE_CHECKER.getValue();
-									} else {
-										continue;
-									}
-									
-									Long projectid = task.getProjectid();
-									if (projectid.compareTo(0L) <= 0)
-										continue;
-									
-									CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, userid);
-									CapacityModel editCapacityModel = new CapacityModel();
-									if(uniqRecords.containsKey(editUniqRecord)) {
-										editCapacityModel = uniqRecords.get(editUniqRecord);
-										uniqRecords.remove(editUniqRecord);
-									}
-									
-									ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
-									editCapacityModel.setProjectid(projectid);
-									if (project != null) {
-										Long processid = project.getProcessid();
-										ProcessModel process = processModelDao.selectByPrimaryKey(processid);
-										if (process != null) {
-											editCapacityModel.setProcessid(processid);
-											editCapacityModel.setProcessname(process.getName());
-										}
-									}
-									
-									editCapacityModel.setTasktype(taskType);
-	
-									editCapacityModel.setUserid(userid);
-									EmployeeModel erecord = new EmployeeModel();
-									erecord.setId(userid);
-									EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
-									if(emp != null)
-										editCapacityModel.setUsername(emp.getRealname());
-	
-									editCapacityModel.setRoleid(roleid);
-									editCapacityModel.setTime(time);
-									
-									editCapacityModel.setFielddatacount(editCapacityModel.getFielddatacount() + count);
-									
-									uniqRecords.put(editUniqRecord, editCapacityModel);
-								}
-							}
 
-							if (uniqRecords != null && !uniqRecords.isEmpty()) {
-								for (CapacityModel capacityModel : uniqRecords.values()) {
-									if (capacityModel.getErrorcount().equals(0L)
-											&& capacityModel.getTaskcount().equals(0L)
-											&& capacityModel.getModifypoi().equals(0L)
-											&& capacityModel.getCreatepoi().equals(0L)
-											&& capacityModel.getDeletepoi().equals(0L)
-											&& capacityModel.getConfirmpoi().equals(0L)
-											&& capacityModel.getVisualerrorcount().equals(0L)
-											&& capacityModel.getFielddatacount().equals(0L))
-										continue;
-									capacityModelDao.insert(capacityModel);
+									logger.debug(
+											String.format("Scheduler POIEDIT task( %s ) finished.", newCapacityTask.getTime()));
+
+								} else {
+									logger.error("Scheduler POIEDIT task( %s ) has no configs.");
+									record = new CapacityTaskModel();
+									record.setId(curCapacityTaskID);
+									record.setState(CapacityTaskStateEnum.ERROR.getValue());
+									capacityTaskModelDao.updateByPrimaryKeySelective(record);
 								}
+							} else {
+								record = new CapacityTaskModel();
+								record.setId(curCapacityTaskID);
+								record.setState(CapacityTaskStateEnum.ERROR.getValue());
+								capacityTaskModelDao.updateByPrimaryKeySelective(record);
 							}
-
-							logger.debug(
-									String.format("Scheduler POIEDIT task( %s ) finished.", newCapacityTask.getTime()));
-
-							record = new CapacityTaskModel();
-							record.setId(curCapacityTaskID);
-							record.setState(CapacityTaskStateEnum.FINISHED.getValue());
-							capacityTaskModelDao.updateByPrimaryKeySelective(record);
 						} else {
-							logger.error("Scheduler POIEDIT task( %s ) has no configs.");
-							record = new CapacityTaskModel();
-							record.setId(curCapacityTaskID);
-							record.setState(CapacityTaskStateEnum.ERROR.getValue());
-							capacityTaskModelDao.updateByPrimaryKeySelective(record);
-						}
-					} else {
-						record = new CapacityTaskModel();
-						record.setId(curCapacityTaskID);
-						record.setState(CapacityTaskStateEnum.ERROR.getValue());
-						capacityTaskModelDao.updateByPrimaryKeySelective(record);
-					}
+							if (processType.equals(ProcessType.POIEDIT)) {
+								logger.debug(String.format("Scheduler POIEDIT task( %s ) started.", time));
+								ProcessConfigModel config = processConfigModelService
+										.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
+								if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+									ConfigDBModel configDBModel = configDBModelDao
+											.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+									
+									Map<CapacityUniq, CapacityModel> uniqRecords = new HashMap<CapacityUniq, CapacityModel>();
+									
+									Map<QualityCapacityUniq, QualityCapcityModel> uniqSpecialRecords = new HashMap<QualityCapacityUniq, QualityCapcityModel>();
+									
+									List<Map<String, Object>> taskGroups = taskModelDao.groupTasksByTime(configDBModel, times[ii], time);
+									for (Map<String, Object> taskGroup : taskGroups) {
+										Integer taskType = (Integer) taskGroup.get("tasktype");
+										Long projectid = (Long) taskGroup.get("projectid");
+										Integer editid = (Integer) taskGroup.get("editid");
+										Long editnum = (Long) taskGroup.get("editnum");
+										Integer checkid = (Integer) taskGroup.get("checkid");
+										Long checknum = (Long) taskGroup.get("checknum");
+										
+										CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, editid);
+										CapacityUniq checkUniqRecord = new CapacityUniq(taskType, projectid, checkid);
+										CapacityModel editCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(editUniqRecord)) {
+											editCapacityModel = uniqRecords.get(editUniqRecord);
+											uniqRecords.remove(editUniqRecord);
+										}
+										CapacityModel checkCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(checkUniqRecord)) {
+											checkCapacityModel = uniqRecords.get(checkUniqRecord);
+											uniqRecords.remove(checkUniqRecord);
+										}
+										ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+										editCapacityModel.setProjectid(projectid);
+										checkCapacityModel.setProjectid(projectid);
+										if (project != null) {
+											Long processid = project.getProcessid();
+											ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+											if (process != null) {
+												editCapacityModel.setProcessid(processid);
+												editCapacityModel.setProcessname(process.getName());
+												checkCapacityModel.setProcessid(processid);
+												checkCapacityModel.setProcessname(process.getName());
+											}
+										}
+										
+										editCapacityModel.setTasktype(taskType);
+										checkCapacityModel.setTasktype(taskType);
 
+										editCapacityModel.setUserid(editid);
+										checkCapacityModel.setUserid(checkid);
+										EmployeeModel erecord = new EmployeeModel();
+										erecord.setId(editid);
+										EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											editCapacityModel.setUsername(emp.getRealname());
+										erecord.setId(checkid);
+										emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											checkCapacityModel.setUsername(emp.getRealname());
+										editCapacityModel.setRoleid(RoleType.ROLE_WORKER.getValue());
+										editCapacityModel.setTime(time);
+										checkCapacityModel.setRoleid(RoleType.ROLE_CHECKER.getValue());
+										checkCapacityModel.setTime(time);
+										editCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
+										checkCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
+										editCapacityModel.setTaskcount(editCapacityModel.getTaskcount() + editnum);
+										checkCapacityModel.setTaskcount(checkCapacityModel.getTaskcount() + checknum);
+										
+										uniqRecords.put(editUniqRecord, editCapacityModel);
+										uniqRecords.put(checkUniqRecord, checkCapacityModel);
+									}
+									
+									List<Map<String, Object>> task15102Groups = taskBlockDetailModelDao.group15102ByTime(configDBModel, times[ii], time);
+									for (Map<String, Object> taskBlockDetailGroup : task15102Groups) {
+										String featureid = (String) taskBlockDetailGroup.get("featureid");
+										Integer taskType = (Integer) taskBlockDetailGroup.get("tasktype");
+										Integer editid = (Integer) taskBlockDetailGroup.get("editid");
+										Long projectid = (Long) taskBlockDetailGroup.get("projectid");;
+
+										if (taskType.compareTo(0) <= 0)
+											continue;
+
+										if (projectid.compareTo(0L) <= 0)
+											continue;
+										
+										CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, editid);
+										CapacityModel editCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(editUniqRecord)) {
+											editCapacityModel = uniqRecords.get(editUniqRecord);
+											uniqRecords.remove(editUniqRecord);
+										}
+										
+										ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+										editCapacityModel.setProjectid(projectid);
+										if (project != null) {
+											Long processid = project.getProcessid();
+											ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+											if (process != null) {
+												editCapacityModel.setProcessid(processid);
+												editCapacityModel.setProcessname(process.getName());
+											}
+										}
+										
+										editCapacityModel.setTasktype(taskType);
+										
+										editCapacityModel.setUserid(editid);
+										EmployeeModel erecord = new EmployeeModel();
+										erecord.setId(editid);
+										EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											editCapacityModel.setUsername(emp.getRealname());
+
+										editCapacityModel.setRoleid(RoleType.ROLE_WORKER.getValue());
+										editCapacityModel.setTime(time);
+										editCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
+										
+										ConfigDBModel config15102DBModel = configDBModelDao
+												.selectByPrimaryKey(Integer.valueOf("32"));
+										List<Map<String, Object>> task15102PoisCreate1 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包新增");
+										editCapacityModel.setCreatepoi(editCapacityModel.getCreatepoi() + Integer.parseInt(task15102PoisCreate1.get(0).get("countnum").toString()));
+										List<Map<String, Object>> task15102PoisCreate2 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "车调新增");
+										editCapacityModel.setCreatepoi(editCapacityModel.getCreatepoi() + Integer.parseInt(task15102PoisCreate2.get(0).get("countnum").toString()));
+										List<Map<String, Object>> task15102PoisModified1 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包修改");
+										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified1.get(0).get("countnum").toString()));
+										List<Map<String, Object>> task15102PoisModified2 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包移位");
+										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified2.get(0).get("countnum").toString()));
+										List<Map<String, Object>> task15102PoisModified3 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "车调修改");
+										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified3.get(0).get("countnum").toString()));
+										
+										List<Map<String, Object>> taskDelete15102Pois1 = taskBlockDetailModelDao.group15102ByPoiDelete(config15102DBModel, featureid, "ver is null");
+										editCapacityModel.setDeletepoi(editCapacityModel.getDeletepoi() + Integer.parseInt(taskDelete15102Pois1.get(0).get("countnum").toString()));
+										List<Map<String, Object>> taskDelete15102Pois2 = taskBlockDetailModelDao.group15102ByPoiDelete(config15102DBModel, featureid, "ver is not null");
+										editCapacityModel.setExistdeletepoi(editCapacityModel.getExistdeletepoi() + Integer.parseInt(taskDelete15102Pois2.get(0).get("countnum").toString()));
+										
+										uniqRecords.put(editUniqRecord, editCapacityModel);
+										
+									}
+									
+									
+									List<Map<String, Object>> taskBlockDetailGroups = taskBlockDetailModelDao.groupTaskBlockDetailsByTime(configDBModel, times[ii], time);
+									for (Map<String, Object> taskBlockDetailGroup : taskBlockDetailGroups) {
+										Long blockid = (Long) taskBlockDetailGroup.get("blockid");
+										Integer editid = (Integer) taskBlockDetailGroup.get("editid");
+										Long editnum = (Long) taskBlockDetailGroup.get("editnum");
+										Integer checkid = (Integer) taskBlockDetailGroup.get("checkid");
+										Long checknum = (Long) taskBlockDetailGroup.get("checknum");
+										
+										TaskModel task = taskModelDao.getTaskByBlockid(configDBModel, blockid);
+										
+										if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
+											logger.error("Can not find task by blockid: " + blockid);
+											continue;
+										}
+										
+										Integer taskType = task.getTasktype();
+										if (taskType.compareTo(0) <= 0)
+											continue;
+										Long projectid = task.getProjectid();
+										if (projectid.compareTo(0L) <= 0)
+											continue;
+										
+										if (taskType.equals(TaskTypeEnum.POI_DATASET_31.getValue()) || // 车调POI创建制作任务
+												taskType.equals(TaskTypeEnum.POI_DATASET_32.getValue()) || // 车调制作32无照片
+												taskType.equals(TaskTypeEnum.POI_GEN.getValue())// 易淘金制作
+												) {
+											continue;
+										}
+										
+										CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, editid);
+										CapacityUniq checkUniqRecord = new CapacityUniq(taskType, projectid, checkid);
+										CapacityModel editCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(editUniqRecord)) {
+											editCapacityModel = uniqRecords.get(editUniqRecord);
+											uniqRecords.remove(editUniqRecord);
+										}
+										CapacityModel checkCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(checkUniqRecord)) {
+											checkCapacityModel = uniqRecords.get(checkUniqRecord);
+											uniqRecords.remove(checkUniqRecord);
+										}
+										
+										ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+										editCapacityModel.setProjectid(projectid);
+										checkCapacityModel.setProjectid(projectid);
+										if (project != null) {
+											Long processid = project.getProcessid();
+											ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+											if (process != null) {
+												editCapacityModel.setProcessid(processid);
+												editCapacityModel.setProcessname(process.getName());
+												checkCapacityModel.setProcessid(processid);
+												checkCapacityModel.setProcessname(process.getName());
+											}
+										}
+										
+										editCapacityModel.setTasktype(taskType);
+										checkCapacityModel.setTasktype(taskType);
+
+										editCapacityModel.setUserid(editid);
+										checkCapacityModel.setUserid(checkid);
+										EmployeeModel erecord = new EmployeeModel();
+										erecord.setId(editid);
+										EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											editCapacityModel.setUsername(emp.getRealname());
+										erecord.setId(checkid);
+										emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											checkCapacityModel.setUsername(emp.getRealname());
+
+										editCapacityModel.setRoleid(RoleType.ROLE_WORKER.getValue());
+										editCapacityModel.setTime(time);
+										checkCapacityModel.setRoleid(RoleType.ROLE_CHECKER.getValue());
+										checkCapacityModel.setTime(time);
+										editCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
+										checkCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
+										
+										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + editnum);
+										checkCapacityModel.setModifypoi(checkCapacityModel.getModifypoi() + checknum);
+										
+										uniqRecords.put(editUniqRecord, editCapacityModel);
+										uniqRecords.put(checkUniqRecord, checkCapacityModel);
+									}
+									List<Map<String, Object>> specialTaskLinkErrorGroups = taskLinkErrorModelDao.specialGroupTaskLinkErrorByTime(configDBModel, times[ii], time);
+									for (Map<String, Object> taskLinkErrorGroup : specialTaskLinkErrorGroups) {
+										Long taskid = (Long) taskLinkErrorGroup.get("taskid");
+										Long errortype = (Long) taskLinkErrorGroup.get("errortype");
+										Long count = (Long) taskLinkErrorGroup.get("count");
+										Long errorcount = (Long) taskLinkErrorGroup.get("errorcount");
+										Long visualerrorcount = (Long) taskLinkErrorGroup.get("visualerrorcount");
+										
+										TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
+										if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
+											logger.error("Can not find task by taskid: " + taskid);
+											continue;
+										}
+										
+										Integer userid = 0;
+										Integer roleid = RoleType.UNKNOWN.getValue();
+										Integer taskType = task.getTasktype();
+										if (taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())){
+											userid = task.getEditid();
+											roleid = RoleType.ROLE_CHECKER.getValue();
+										}
+										else {
+											continue;
+										}
+										Long projectid = task.getProjectid();
+										if (projectid.compareTo(0L) <= 0)
+											continue;
+										QualityCapacityUniq editUniqRecord = new QualityCapacityUniq(taskType, projectid, userid, errortype);
+										QualityCapcityModel editCapacityModel = new QualityCapcityModel();
+										if(uniqSpecialRecords.containsKey(editUniqRecord)) {
+											editCapacityModel = uniqSpecialRecords.get(editUniqRecord);
+											uniqSpecialRecords.remove(editUniqRecord);
+										}
+										ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+										editCapacityModel.setProjectid(projectid);
+										if (project != null) {
+											Long processid = project.getProcessid();
+											ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+											if (process != null) {
+												editCapacityModel.setProcessid(processid);
+												editCapacityModel.setProcessname(process.getName());
+											}
+										}
+										
+										editCapacityModel.setTasktype(taskType);
+												
+										editCapacityModel.setUserid(userid);
+										EmployeeModel erecord = new EmployeeModel();
+										erecord.setId(userid);
+										EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											editCapacityModel.setUsername(emp.getRealname());
+
+										editCapacityModel.setRoleid(roleid);
+										editCapacityModel.setTime(time);
+										editCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
+										
+										editCapacityModel.setErrortype(errortype);
+										
+										editCapacityModel.setCount(editCapacityModel.getCount() + count);
+										editCapacityModel.setErrorcount(editCapacityModel.getErrorcount() + errorcount);
+										editCapacityModel.setVisualerrorcount(editCapacityModel.getVisualerrorcount() + visualerrorcount);
+										
+										uniqSpecialRecords.put(editUniqRecord, editCapacityModel);
+									}
+																		
+									List<Map<String, Object>> taskLinkErrorGroups = taskLinkErrorModelDao.groupTaskLinkErrorByTime(configDBModel, times[ii], time);
+									for (Map<String, Object> taskLinkErrorGroup : taskLinkErrorGroups) {
+										Long taskid = (Long) taskLinkErrorGroup.get("taskid");
+										Long errorcount = (Long) taskLinkErrorGroup.get("errorcount");
+										Long visualerrorcount = (Long) taskLinkErrorGroup.get("visualerrorcount");
+										
+										TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
+										
+										if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
+											logger.error("Can not find task by taskid: " + taskid);
+											continue;
+										}
+										
+										Integer userid = 0;
+										Integer roleid = RoleType.UNKNOWN.getValue();
+
+										Integer taskType = task.getTasktype();
+										if (taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())
+												|| 
+												taskType.equals(TaskTypeEnum.POI_KETOU.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_GEN.getValue())) {
+											userid = task.getEditid();
+											roleid = RoleType.ROLE_WORKER.getValue();
+										} else if (taskType.equals(TaskTypeEnum.POI_MC_DATASET_31.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_MC_DATASET_32.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_MC_KETOU.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_MC_GEN.getValue())) {
+											userid = task.getCheckid();
+											roleid = RoleType.ROLE_CHECKER.getValue();
+										} else {
+											continue;
+										}
+										Long projectid = task.getProjectid();
+										if (projectid.compareTo(0L) <= 0)
+											continue;
+										
+										CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, userid);
+										CapacityModel editCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(editUniqRecord)) {
+											editCapacityModel = uniqRecords.get(editUniqRecord);
+											uniqRecords.remove(editUniqRecord);
+										}
+										
+										ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+										editCapacityModel.setProjectid(projectid);
+										if (project != null) {
+											Long processid = project.getProcessid();
+											ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+											if (process != null) {
+												editCapacityModel.setProcessid(processid);
+												editCapacityModel.setProcessname(process.getName());
+											}
+										}
+										
+										editCapacityModel.setTasktype(taskType);
+
+										editCapacityModel.setUserid(userid);
+										EmployeeModel erecord = new EmployeeModel();
+										erecord.setId(userid);
+										EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											editCapacityModel.setUsername(emp.getRealname());
+
+										editCapacityModel.setRoleid(roleid);
+										editCapacityModel.setTime(time);
+										editCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
+										
+										editCapacityModel.setErrorcount(editCapacityModel.getErrorcount() + errorcount);
+										editCapacityModel.setVisualerrorcount(editCapacityModel.getVisualerrorcount() + visualerrorcount);
+										
+										uniqRecords.put(editUniqRecord, editCapacityModel);
+									}
+									List<Map<String, Object>> taskLinkFielddataGroups = taskLinkFielddataModelDao.groupTaskLinkFielddataByTime(configDBModel, times[ii], time);
+									for (Map<String, Object> taskLinkFielddataGroup : taskLinkFielddataGroups) {
+										Long taskid = (Long) taskLinkFielddataGroup.get("taskid");
+										Long count = (Long) taskLinkFielddataGroup.get("count");
+										TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
+										
+										if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
+											logger.error("Can not find task by taskid: " + taskid);
+											continue;
+										}
+										
+										Integer userid = 0;
+										Integer roleid = RoleType.UNKNOWN.getValue();
+
+										Integer taskType = task.getTasktype();
+										if (taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())
+												|| taskType.equals(TaskTypeEnum.POI_KETOU.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_GEN.getValue())) {
+											userid = task.getEditid();
+											roleid = RoleType.ROLE_WORKER.getValue();
+										} else if (taskType.equals(TaskTypeEnum.POI_MC_DATASET_31.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_MC_DATASET_32.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_MC_KETOU.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_MC_GEN.getValue())) {
+											userid = task.getCheckid();
+											roleid = RoleType.ROLE_CHECKER.getValue();
+										} else {
+											continue;
+										}
+										
+										Long projectid = task.getProjectid();
+										if (projectid.compareTo(0L) <= 0)
+											continue;
+										
+										CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, userid);
+										CapacityModel editCapacityModel = new CapacityModel();
+										if(uniqRecords.containsKey(editUniqRecord)) {
+											editCapacityModel = uniqRecords.get(editUniqRecord);
+											uniqRecords.remove(editUniqRecord);
+										}
+										
+										ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+										editCapacityModel.setProjectid(projectid);
+										if (project != null) {
+											Long processid = project.getProcessid();
+											ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+											if (process != null) {
+												editCapacityModel.setProcessid(processid);
+												editCapacityModel.setProcessname(process.getName());
+											}
+										}
+										
+										editCapacityModel.setTasktype(taskType);
+
+										editCapacityModel.setUserid(userid);
+										EmployeeModel erecord = new EmployeeModel();
+										erecord.setId(userid);
+										EmployeeModel emp = emapgoAccountService.getOneEmployeeWithCache(erecord);
+										if(emp != null)
+											editCapacityModel.setUsername(emp.getRealname());
+
+										editCapacityModel.setRoleid(roleid);
+										editCapacityModel.setTime(time);
+										editCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
+										
+										editCapacityModel.setFielddatacount(editCapacityModel.getFielddatacount() + count);
+										
+										uniqRecords.put(editUniqRecord, editCapacityModel);
+									}
+
+									if (uniqRecords != null && !uniqRecords.isEmpty()) {
+										for (CapacityModel capacityModel : uniqRecords.values()) {
+											if (capacityModel.getErrorcount().equals(0L)
+													&& capacityModel.getTaskcount().equals(0L)
+													&& capacityModel.getModifypoi().equals(0L)
+													&& capacityModel.getCreatepoi().equals(0L)
+													&& capacityModel.getDeletepoi().equals(0L)
+													&& capacityModel.getExistdeletepoi().equals(0L)
+													&& capacityModel.getConfirmpoi().equals(0L)
+													&& capacityModel.getVisualerrorcount().equals(0L)
+													&& capacityModel.getFielddatacount().equals(0L))
+												continue;
+											capacityModelDao.insert(capacityModel);
+										}
+									}
+									if (uniqSpecialRecords != null && !uniqSpecialRecords.isEmpty()) {
+										for (QualityCapcityModel capacityModel : uniqSpecialRecords.values()) {
+											if (capacityModel.getErrorcount().equals(0L)
+													&& capacityModel.getCount().equals(0L)
+													&& capacityModel.getVisualerrorcount().equals(0L))
+												continue;
+											capacityModelDao.insertSpecial(capacityModel);
+										}
+									}
+
+									logger.debug(
+											String.format("Scheduler POIEDIT task( %s ) finished.", newCapacityTask.getTime()));
+
+									record = new CapacityTaskModel();
+									record.setId(curCapacityTaskID);
+									record.setState(CapacityTaskStateEnum.FINISHED.getValue());
+									capacityTaskModelDao.updateByPrimaryKeySelective(record);
+								} else {
+									logger.error("Scheduler POIEDIT task( %s ) has no configs.");
+									record = new CapacityTaskModel();
+									record.setId(curCapacityTaskID);
+									record.setState(CapacityTaskStateEnum.ERROR.getValue());
+									capacityTaskModelDao.updateByPrimaryKeySelective(record);
+								}
+							} else {
+								record = new CapacityTaskModel();
+								record.setId(curCapacityTaskID);
+								record.setState(CapacityTaskStateEnum.ERROR.getValue());
+								capacityTaskModelDao.updateByPrimaryKeySelective(record);
+							}
+						}
+						
+					}
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
 					Long curCapacityTaskID = newCapacityTask.getId();
@@ -536,6 +1177,9 @@ public class SchedulerTask {
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskERROR() {
 		try {
+			if (!worktasksEnable.equalsIgnoreCase("true"))
+				return;
+			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			Calendar calendar = Calendar.getInstance();
 			Date now = new Date();
@@ -848,6 +1492,9 @@ public class SchedulerTask {
 	}
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskNRFC() {
+		if (!worktasksEnable.equalsIgnoreCase("true"))
+			return;
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar calendar = Calendar.getInstance();
 		Date now = new Date();
@@ -1142,6 +1789,9 @@ public class SchedulerTask {
 	}
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskATTACH() {
+		if (!worktasksEnable.equalsIgnoreCase("true"))
+			return;
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar calendar = Calendar.getInstance();
 		Date now = new Date();
@@ -1443,10 +2093,14 @@ public class SchedulerTask {
 	}
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskCOUNTRY() {
-		
+		if (!worktasksEnable.equalsIgnoreCase("true"))
+			return;
 	}
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskPOIEDIT() {
+		if (!worktasksEnable.equalsIgnoreCase("true"))
+			return;
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar calendar = Calendar.getInstance();
 		Date now = new Date();
@@ -1730,6 +2384,9 @@ public class SchedulerTask {
 	}
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskADJUSTMAP() {
+		if (!worktasksEnable.equalsIgnoreCase("true"))
+			return;
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar calendar = Calendar.getInstance();
 		Date now = new Date();

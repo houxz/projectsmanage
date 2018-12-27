@@ -11,11 +11,13 @@
     <result column="username" property="username" jdbcType="VARCHAR" />
     <result column="roleid" property="roleid" jdbcType="INTEGER" />
     <result column="time" property="time" jdbcType="VARCHAR" />
+    <result column="iswork" property="iswork" jdbcType="INTEGER" />
     <result column="errorcount" property="errorcount" jdbcType="BIGINT" />
     <result column="taskcount" property="taskcount" jdbcType="BIGINT" />
     <result column="modifypoi" property="modifypoi" jdbcType="BIGINT" />
     <result column="createpoi" property="createpoi" jdbcType="BIGINT" />
     <result column="deletepoi" property="deletepoi" jdbcType="BIGINT" />
+    <result column="existdeletepoi" property="existdeletepoi" jdbcType="BIGINT" />
     <result column="confirmpoi" property="confirmpoi" jdbcType="BIGINT" />
     <result column="visualerrorcount" property="visualerrorcount" jdbcType="BIGINT" />
     <result column="fielddatacount" property="fielddatacount" jdbcType="BIGINT" />
@@ -80,8 +82,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, tasktype, processid, processname, projectid, userid, username, roleid, time, 
-    errorcount, taskcount, modifypoi, createpoi, deletepoi, confirmpoi, visualerrorcount, 
+    id, tasktype, processid, processname, projectid, userid, username, roleid, time, iswork, 
+    errorcount, taskcount, modifypoi, createpoi, deletepoi, existdeletepoi, confirmpoi, visualerrorcount, 
     fielddatacount, createtime
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.emg.projectsmanage.pojo.CapacityModelExample" >
@@ -123,19 +125,34 @@
   <insert id="insert" parameterType="com.emg.projectsmanage.pojo.CapacityModel" >
     insert into tb_projects_capacity (id, tasktype, processid, 
       processname, projectid, userid, 
-      username, roleid, time, 
+      username, roleid, time, iswork, 
       errorcount, taskcount, modifypoi, 
-      createpoi, deletepoi, confirmpoi, 
+      createpoi, deletepoi, existdeletepoi, confirmpoi, 
       visualerrorcount, fielddatacount, createtime
       )
     values (#{id,jdbcType=BIGINT}, #{tasktype,jdbcType=INTEGER}, #{processid,jdbcType=BIGINT}, 
       #{processname,jdbcType=VARCHAR}, #{projectid,jdbcType=BIGINT}, #{userid,jdbcType=INTEGER}, 
-      #{username,jdbcType=VARCHAR}, #{roleid,jdbcType=INTEGER}, #{time,jdbcType=VARCHAR}, 
+      #{username,jdbcType=VARCHAR}, #{roleid,jdbcType=INTEGER}, #{time,jdbcType=VARCHAR}, #{iswork,jdbcType=INTEGER},
       #{errorcount,jdbcType=BIGINT}, #{taskcount,jdbcType=BIGINT}, #{modifypoi,jdbcType=BIGINT}, 
-      #{createpoi,jdbcType=BIGINT}, #{deletepoi,jdbcType=BIGINT}, #{confirmpoi,jdbcType=BIGINT}, 
+      #{createpoi,jdbcType=BIGINT}, #{deletepoi,jdbcType=BIGINT}, #{existdeletepoi,jdbcType=BIGINT}, #{confirmpoi,jdbcType=BIGINT}, 
       #{visualerrorcount,jdbcType=BIGINT}, #{fielddatacount,jdbcType=BIGINT}, #{createtime,jdbcType=TIMESTAMP}
       )
   </insert>
+  <!-- add by lianhr begin 2018/12/17 -->
+  <insert id="insertSpecial" parameterType="com.emg.projectsmanage.pojo.QualityCapcityModel" >
+    insert into tb_projects_capacity_quality (id, tasktype, processid, 
+      processname, projectid, errortype, userid, 
+      username, roleid, time, iswork, count, 
+      errorcount, visualerrorcount, createtime
+      )
+    values (#{id,jdbcType=BIGINT}, #{tasktype,jdbcType=INTEGER}, #{processid,jdbcType=BIGINT}, 
+      #{processname,jdbcType=VARCHAR}, #{projectid,jdbcType=BIGINT}, #{errortype,jdbcType=BIGINT}, #{userid,jdbcType=INTEGER}, 
+      #{username,jdbcType=VARCHAR}, #{roleid,jdbcType=INTEGER}, #{time,jdbcType=VARCHAR}, #{iswork,jdbcType=INTEGER},
+      #{count,jdbcType=BIGINT}, #{errorcount,jdbcType=BIGINT},  
+      #{visualerrorcount,jdbcType=BIGINT}, #{createtime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <!-- add by lianhr end -->
   <insert id="insertSelective" parameterType="com.emg.projectsmanage.pojo.CapacityModel" >
     insert into tb_projects_capacity
     <trim prefix="(" suffix=")" suffixOverrides="," >
@@ -166,6 +183,9 @@
       <if test="time != null" >
         time,
       </if>
+      <if test="iswork != null" >
+        iswork,
+      </if>
       <if test="errorcount != null" >
         errorcount,
       </if>
@@ -180,6 +200,9 @@
       </if>
       <if test="deletepoi != null" >
         deletepoi,
+      </if>
+      <if test="existdeletepoi != null" >
+        existdeletepoi,
       </if>
       <if test="confirmpoi != null" >
         confirmpoi,
@@ -222,6 +245,9 @@
       <if test="time != null" >
         #{time,jdbcType=VARCHAR},
       </if>
+      <if test="iswork != null" >
+        #{iswork,jdbcType=INTEGER},
+      </if>
       <if test="errorcount != null" >
         #{errorcount,jdbcType=BIGINT},
       </if>
@@ -234,8 +260,11 @@
       <if test="createpoi != null" >
         #{createpoi,jdbcType=BIGINT},
       </if>
-      <if test="deletepoi != null" >
+       <if test="deletepoi != null" >
         #{deletepoi,jdbcType=BIGINT},
+      </if>
+      <if test="existdeletepoi != null" >
+        #{existdeletepoi,jdbcType=BIGINT},
       </if>
       <if test="confirmpoi != null" >
         #{confirmpoi,jdbcType=BIGINT},
@@ -287,6 +316,9 @@
       <if test="record.time != null" >
         time = #{record.time,jdbcType=VARCHAR},
       </if>
+       <if test="record.iswork != null" >
+        iswork = #{record.iswork,jdbcType=INTEGER},
+      </if>
       <if test="record.errorcount != null" >
         errorcount = #{record.errorcount,jdbcType=BIGINT},
       </if>
@@ -301,6 +333,9 @@
       </if>
       <if test="record.deletepoi != null" >
         deletepoi = #{record.deletepoi,jdbcType=BIGINT},
+      </if>
+      <if test="record.existdeletepoi != null" >
+        existdeletepoi = #{record.existdeletepoi,jdbcType=BIGINT},
       </if>
       <if test="record.confirmpoi != null" >
         confirmpoi = #{record.confirmpoi,jdbcType=BIGINT},
@@ -330,11 +365,13 @@
       username = #{record.username,jdbcType=VARCHAR},
       roleid = #{record.roleid,jdbcType=INTEGER},
       time = #{record.time,jdbcType=VARCHAR},
+      iswork = #{record.iswork,jdbcType=INTEGER},
       errorcount = #{record.errorcount,jdbcType=BIGINT},
       taskcount = #{record.taskcount,jdbcType=BIGINT},
       modifypoi = #{record.modifypoi,jdbcType=BIGINT},
       createpoi = #{record.createpoi,jdbcType=BIGINT},
       deletepoi = #{record.deletepoi,jdbcType=BIGINT},
+      existdeletepoi = #{record.existdeletepoi,jdbcType=BIGINT},
       confirmpoi = #{record.confirmpoi,jdbcType=BIGINT},
       visualerrorcount = #{record.visualerrorcount,jdbcType=BIGINT},
       fielddatacount = #{record.fielddatacount,jdbcType=BIGINT},
@@ -370,6 +407,9 @@
       <if test="time != null" >
         time = #{time,jdbcType=VARCHAR},
       </if>
+      <if test="iswork != null" >
+        iswork = #{iswork,jdbcType=INTEGER},
+      </if>
       <if test="errorcount != null" >
         errorcount = #{errorcount,jdbcType=BIGINT},
       </if>
@@ -384,6 +424,9 @@
       </if>
       <if test="deletepoi != null" >
         deletepoi = #{deletepoi,jdbcType=BIGINT},
+      </if>
+      <if test="existdeletepoi != null" >
+        existdeletepoi = #{existdeletepoi,jdbcType=BIGINT},
       </if>
       <if test="confirmpoi != null" >
         confirmpoi = #{confirmpoi,jdbcType=BIGINT},
@@ -410,11 +453,13 @@
       username = #{username,jdbcType=VARCHAR},
       roleid = #{roleid,jdbcType=INTEGER},
       time = #{time,jdbcType=VARCHAR},
+      iswork = #{iswork,jdbcType=INTEGER},
       errorcount = #{errorcount,jdbcType=BIGINT},
       taskcount = #{taskcount,jdbcType=BIGINT},
       modifypoi = #{modifypoi,jdbcType=BIGINT},
       createpoi = #{createpoi,jdbcType=BIGINT},
       deletepoi = #{deletepoi,jdbcType=BIGINT},
+      existdeletepoi = #{existdeletepoi,jdbcType=BIGINT},
       confirmpoi = #{confirmpoi,jdbcType=BIGINT},
       visualerrorcount = #{visualerrorcount,jdbcType=BIGINT},
       fielddatacount = #{fielddatacount,jdbcType=BIGINT},

@@ -785,5 +785,61 @@ public class TaskModelDao {
 		}
 		return ret;
 	}
+	
+	// add by lianhr begin 2018/12/18
+	public List<Map<String, Object>> groupTasksByTime(ConfigDBModel configDBModel, String[] times, String time) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		BasicDataSource dataSource = null;
+		try {
+			if (times == null || times.length == 0)
+				return list;
+
+			String startTime = String.format("%s " + times[0], time);
+			String endTime = String.format("%s " + times[1], time);
+			boolean timeFlag = false;
+			if (times[0].equals("08:30:00") && times[1].equals("17:30:00")) {
+				timeFlag = true;
+			}
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT");
+			sql.append("	tasktype,");
+			sql.append("	projectid,");
+			sql.append("	editid,");
+			sql.append("	sum( CASE WHEN editid > 0 THEN 1 ELSE 0 END ) AS editnum,");
+			sql.append("	checkid,");
+			sql.append("	sum( CASE WHEN checkid > 0 THEN 1 ELSE 0 END ) AS checknum ");
+			sql.append(" FROM ");
+			sql.append(configDBModel.getDbschema()).append(".");
+			sql.append(" tb_task ");
+			sql.append(" WHERE state = 2");
+			if (timeFlag) {
+				sql.append("	AND operatetime BETWEEN '" + startTime + "' AND '" + endTime + "' ");
+			} else {
+				sql.append("	AND ((operatetime BETWEEN '" + String.format("%s " + "00:00:00", time) + "' AND '"
+						+ String.format("%s " + "08:29:59", time) + "') or (operatetime BETWEEN '"
+						+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time)
+						+ "')) ");
+			}
+			sql.append("	AND ( editid > 0 OR checkid > 0 ) ");
+			sql.append(" GROUP BY tasktype, projectid, editid, checkid");
+
+			dataSource = Common.getDataSource(configDBModel);
+			list = new JdbcTemplate(dataSource).queryForList(sql.toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			list = new ArrayList<Map<String, Object>>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return list;
+	}
+	// add by lianhr end
 
 }
