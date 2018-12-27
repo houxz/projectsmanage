@@ -26,6 +26,7 @@
 <script type="text/javascript">
 	var roleTypes = {5:"制作",6:"校正"};
 	var poiTaskTypes = eval('(${poiTaskTypes})');
+	var isWorkTimes = eval('(${isWorkTimes})');
 	
 	$(document).ready(function() {
 		$.webeditor.getHead();
@@ -33,6 +34,10 @@
 			locale : 'zh-CN'
 		});
 	});
+	
+	function isWorkTimesFormat(value, row, index) {
+		return isWorkTimes[row.iswork];
+	}
 	
 	function roleTypesFormat(value, row, index) {
 		return roleTypes[row.roleid];
@@ -68,7 +73,7 @@
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr>
-						<th data-field="id" data-width="80"
+						<th data-field="id" data-width="60"
 							data-filter-control="input" data-filter-control-placeholder="">编号</th>
 							
 						<th data-field="tasktype" data-width="160" data-formatter="poiTaskTypesFormat"
@@ -86,21 +91,26 @@
 						<th data-field="time" data-width="100"
 							data-filter-control="input" data-filter-control-placeholder="">统计日期</th>
 							
-						<th data-field="taskcount" data-sortable="true">制作任务</th>
+						<th data-field="iswork" data-width="80" data-formatter="isWorkTimesFormat"
+							data-filter-control="select" data-filter-data="var:isWorkTimes">工作时间</th>
+							
+						<th data-field="taskcount" data-sortable="true">&nbsp;&nbsp;制作&nbsp;&nbsp;<br>任务</th>
 						
-						<th data-field="fielddatacount" data-sortable="true">修改资料</th>
+						<th data-field="fielddatacount" data-sortable="true">&nbsp;&nbsp;修改&nbsp;&nbsp;<br>资料</th>
 						
-						<!-- <th data-field="createpoi" data-sortable="true">新增POI</th> -->
+						<th data-field="createpoi" data-sortable="true">&nbsp;&nbsp;新增&nbsp;&nbsp;<br>POI</th>
 						
-						<th data-field="modifypoi" data-sortable="true">修改POI</th>
+						<th data-field="modifypoi" data-sortable="true">&nbsp;&nbsp;修改&nbsp;&nbsp;<br>POI</th>
 						
-						<!-- <th data-field="deletepoi" data-sortable="true">删除POI</th>
+						<th data-field="deletepoi" data-sortable="true">新增删除<br>POI</th>
 						
-						<th data-field="confirmpoi" data-sortable="true">确认POI</th> -->
+						<th data-field="existdeletepoi" data-sortable="true">存量删除<br>POI</th>
 						
-						<th data-field="errorcount" data-sortable="true">修改错误</th>
+						<!-- <th data-field="confirmpoi" data-sortable="true">&nbsp;&nbsp;确认&nbsp;&nbsp;<br>POI</th> -->
 						
-						<th data-field="visualerrorcount" data-sortable="true">目视错误</th>
+						<th data-field="errorcount" data-sortable="true">&nbsp;&nbsp;修改&nbsp;&nbsp;<br>错误</th>
+						
+						<th data-field="visualerrorcount" data-sortable="true">&nbsp;&nbsp;目视&nbsp;&nbsp;<br>错误</th>
 						
 					</tr>
 				</thead>

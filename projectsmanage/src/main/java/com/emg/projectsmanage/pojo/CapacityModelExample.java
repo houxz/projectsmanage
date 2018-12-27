@@ -564,6 +564,76 @@ public class CapacityModelExample {
             addCriterion("username not between", value1, value2, "username");
             return (Criteria) this;
         }
+        
+        public Criteria andIsworkIsNull() {
+            addCriterion("iswork is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsworkIsNotNull() {
+            addCriterion("iswork is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsworkEqualTo(Integer value) {
+            addCriterion("iswork =", value, "iswork");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsworkNotEqualTo(Integer value) {
+            addCriterion("iswork <>", value, "iswork");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsworkGreaterThan(Integer value) {
+            addCriterion("iswork >", value, "iswork");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsworkGreaterThanOrEqualTo(Integer value) {
+            addCriterion("iswork >=", value, "iswork");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsworkLessThan(Integer value) {
+            addCriterion("iswork <", value, "iswork");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsworkLessThanOrEqualTo(Integer value) {
+            addCriterion("iswork <=", value, "iswork");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsworkLike(Integer value) {
+            addCriterion("iswork like", value, "iswork");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsworkNotLike(Integer value) {
+            addCriterion("iswork not like", value, "iswork");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsworkIn(List<Integer> values) {
+            addCriterion("iswork in", values, "iswork");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsworkNotIn(List<Integer> values) {
+            addCriterion("iswork not in", values, "iswork");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsworkBetween(Integer value1, Integer value2) {
+            addCriterion("iswork between", value1, value2, "iswork");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsworkNotBetween(Integer value1, Integer value2) {
+            addCriterion("iswork not between", value1, value2, "iswork");
+            return (Criteria) this;
+        }
 
         public Criteria andRoleidIsNull() {
             addCriterion("roleid is null");

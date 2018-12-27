@@ -5,11 +5,11 @@ public enum IsWorkTimeEnum {
 	 * 0, "上班时间"
 	 * @return 
 	 */
-	isWorkTime(0, "上班时间"),
+	isWorkTime(0, "上班"),
 	/**
 	 * 1, "下班时间"
 	 */
-	isNotWorkTime(1, "下班时间");
+	isNotWorkTime(1, "下班");
 
 	private Integer value;
 	private String des;
@@ -37,7 +37,7 @@ public enum IsWorkTimeEnum {
 	
 	public static String toJsonStr() {
 		String str = new String("{");
-		for (ItemSetType val : ItemSetType.values()) {
+		for (IsWorkTimeEnum val : IsWorkTimeEnum.values()) {
 			str += "\"" + val.getValue() + "\":\"" + val.getDes() + "\",";
 		}
 		str += "}";

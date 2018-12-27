@@ -18,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.projectsmanage.common.CommonConstants;
+import com.emg.projectsmanage.common.IsWorkTimeEnum;
 import com.emg.projectsmanage.common.TaskTypeEnum;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.RoleType;
@@ -49,6 +50,7 @@ public class ProjectsCapacityCtrl extends BaseCtrl {
 		sb.append("\"" + TaskTypeEnum.POI_MC_GEN.getValue() + "\":\"" + TaskTypeEnum.POI_MC_GEN.getDes() + "\",");
 		sb.append("}");
 		model.addAttribute("poiTaskTypes", sb.toString());
+		model.addAttribute("isWorkTimes", IsWorkTimeEnum.toJsonStr());
 		return "capacity";
 	}
 
@@ -90,6 +92,9 @@ public class ProjectsCapacityCtrl extends BaseCtrl {
 						break;
 					case "roleid":
 						criteria.andRoleidEqualTo(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					case "iswork":
+						criteria.andIsworkEqualTo(Integer.valueOf(filterPara.get(key).toString()));
 						break;
 					case "time":
 						criteria.andTimeEqualTo(filterPara.get(key).toString());

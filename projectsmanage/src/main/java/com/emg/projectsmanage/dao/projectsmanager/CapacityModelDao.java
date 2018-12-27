@@ -17,7 +17,7 @@ public interface CapacityModelDao {
     int insert(CapacityModel record);
     
 	// add by lianhr begin 2018/12/17
-	// 插入根据质检小项统计的结果
+	// 锟斤拷锟斤拷锟斤拷锟斤拷始锟叫★拷锟酵筹拷频慕锟斤拷
 	int insertSpecial(QualityCapcityModel record);
 	// add by lianhr end
 
