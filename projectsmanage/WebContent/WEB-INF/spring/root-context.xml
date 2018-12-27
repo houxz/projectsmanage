@@ -8,7 +8,7 @@
 
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<!-- DB 配置 开始 -->
-	<context:property-placeholder location="WEB-INF/spring/db3.246.properties" ignore-unresolvable="true"/>
+	<context:property-placeholder location="WEB-INF/spring/db3.247.properties" ignore-unresolvable="true"/>
 
 	<!-- MySql 配置 -->
 	<bean id="dataSourceMySqlForAccount" class="org.apache.commons.dbcp.BasicDataSource"
@@ -165,5 +165,29 @@
 		<property name="basePackage" value="com.emg.projectsmanage.dao.pepro.qctask" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForPepro" />
 	</bean>
+	
+	<bean id="dataSourceForQuartz" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${quartz.driverClassName}" />
+		<property name="url" value="${quartz.url}" />
+		<property name="username" value="${quartz.username}" />
+		<property name="password" value="${quartz.password}" />
+		<property name="initialSize" value="${quartz.initialSize}" />
+		<property name="maxIdle" value="${quartz.maxIdle}" />
+		<property name="minIdle" value="${quartz.minIdle}" />
+		<property name="maxActive" value="${quartz.maxActive}" />
+		<property name="logAbandoned" value="${quartz.logAbandoned}" />
+		<property name="validationQuery" value="${quartz.validationQuery}" />
+		<property name="testOnBorrow" value="${quartz.testOnBorrow}" />
+		<property name="testWhileIdle" value="${quartz.testWhileIdle}" />
+		<property name="removeAbandoned" value="${quartz.removeAbandoned}" />
+		<property name="removeAbandonedTimeout" value="${quartz.removeAbandonedTimeout}" />
+		<property name="maxWait" value="${quartz.maxWait}" />
+    </bean>
+	
+	<bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" >
+        <property name="dataSource" ref ="dataSourceForQuartz" />       
+        <property name="applicationContextSchedulerContextKey" value="applicationContextKey"/>
+        <property name="configLocation" value="classpath:quartz.properties"/>			
+    </bean>
 	
 </beans>

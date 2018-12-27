@@ -45,8 +45,10 @@ import com.emg.projectsmanage.pojo.ProjectModelExample;
 import com.emg.projectsmanage.pojo.ProjectModelExample.Criteria;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
+import com.emg.projectsmanage.scheduler.HelloWorldJob;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 import com.emg.projectsmanage.service.ProcessConfigModelService;
+import com.emg.projectsmanage.service.QuartzService;
 
 @Controller
 @RequestMapping("/interface.web")
@@ -72,6 +74,8 @@ public class InterfaceCtrl extends BaseCtrl {
 	private ConfigValueModelDao configValueModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
+	@Autowired
+	private QuartzService quartzService;
 	
 	@RequestMapping(params = "action=insertNewProject", method = RequestMethod.POST)
 	private ModelAndView insertNewProject(Model model,
@@ -1674,11 +1678,27 @@ public class InterfaceCtrl extends BaseCtrl {
 		return json;
 	}
 
-	@RequestMapping(params = "action=doworktasks", method = RequestMethod.POST)
-	private ModelAndView test(Model model, HttpSession session, HttpServletRequest request) {
+	@RequestMapping(params = "action=test", method = RequestMethod.POST)
+	private ModelAndView test(Model model, HttpSession session, HttpServletRequest request,
+			@RequestParam("type") String type) {
 		logger.debug("START");
 		InterfaceResultModel result = new InterfaceResultModel();
-		try {} catch (Exception e) {
+		try {
+			switch (type) {
+			case "add":
+				quartzService.addJob("jobName", "jobGroupName", "triggerName", "triggerGroupName", HelloWorldJob.class, "0/10 * * * * ?");
+				break;
+			case "remove":
+				quartzService.removeJob("jobName", "jobGroupName", "triggerName", "triggerGroupName");
+				break;
+			case "pause":
+				quartzService.pauseJob("jobName", "jobGroupName");
+				break;
+			case "resume":
+				quartzService.resumeJob("jobName", "jobGroupName");
+				break;
+			}
+		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			result.setStatus(false);
 			result.setOption(e.getMessage());
