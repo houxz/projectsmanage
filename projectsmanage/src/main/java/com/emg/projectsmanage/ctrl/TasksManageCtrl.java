@@ -357,24 +357,98 @@ public class TasksManageCtrl extends BaseCtrl {
 	private List<StateMap> getStateMap(ProcessType processType, String stateDes) {
 		List<StateMap> stateMaps = new ArrayList<StateMap>();
 		try {
-			if (processType.equals(ProcessType.ERROR) ||
-				processType.equals(ProcessType.NRFC) ||
-				processType.equals(ProcessType.ATTACH) ||
-				processType.equals(ProcessType.ADJUSTMAP)) {
+			switch (processType) {
+			case ERROR:
+				//TODO 2018年12月29日 上午10:46:26 待补充综检改错部分
+				break;
+			case NRFC:
+				switch (stateDes) {
+				case "编辑中":
+				case "制作中":
+					stateMaps.add(new StateMap(0, 5, TaskTypeEnum.NRFC.getValue(), -1));
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.NRFC.getValue(), -1));
+					stateMaps.add(new StateMap(2, 11, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(2, 12, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(2, 13, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(2, 14, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(2, 15, TaskTypeEnum.NRFC.getValue(), null));
+					break;
+				case "完成":
+					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.NRFC.getValue(), null));
+					break;
+				case "未制作":
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.NRFC.getValue(), null));
+					break;
+				case "悬挂点创建中":
+					stateMaps.add(new StateMap(0, 11, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(0, 12, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(0, 13, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(0, 14, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(0, 15, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(1, 11, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(1, 12, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(1, 13, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(1, 14, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(1, 15, TaskTypeEnum.NRFC.getValue(), null));
+					break;
+				case "预发布完成":
+					stateMaps.add(new StateMap(3, 20, TaskTypeEnum.NRFC.getValue(), null));
+					break;
+				case "质检完成":
+					stateMaps.add(new StateMap(2, 52, TaskTypeEnum.NRFC.getValue(), null));
+					break;
+				case "质检中":
+					stateMaps.add(new StateMap(1, 52, TaskTypeEnum.NRFC.getValue(), null));
+					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.NRFC.getValue(), null));
+					break;
+				}
+				break;
+			case ATTACH:
+				switch (stateDes) {
+				case "编辑中":
+				case "制作中":
+					stateMaps.add(new StateMap(0, 5, TaskTypeEnum.ATTACH.getValue(), -1));
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.ATTACH.getValue(), -1));
+					stateMaps.add(new StateMap(2, 6, TaskTypeEnum.ATTACH.getValue(), null));
+					break;
+				case "完成":
+					stateMaps.add(new StateMap(3, 6, TaskTypeEnum.ATTACH.getValue(), null));
+					break;
+				case "未制作":
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.ATTACH.getValue(), null));
+					break;
+				case "校正错误修改中":
+					stateMaps.add(new StateMap(0, 5, TaskTypeEnum.ATTACH.getValue(), 1));
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.ATTACH.getValue(), 1));
+					break;
+				case "未校正":
+				case "待校正":
+					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.ATTACH.getValue(), null));
+					break;
+				case "校正中":
+					stateMaps.add(new StateMap(0, 6, TaskTypeEnum.ATTACH.getValue(), null));
+					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.ATTACH.getValue(), null));
+					break;
+				case "预发布完成":
+					stateMaps.add(new StateMap(3, 20, TaskTypeEnum.ATTACH.getValue(), null));
+					break;
+				case "质检完成":
+					stateMaps.add(new StateMap(2, 52, TaskTypeEnum.ATTACH.getValue(), null));
+					break;
+				case "质检中":
+					stateMaps.add(new StateMap(1, 52, TaskTypeEnum.ATTACH.getValue(), null));
+					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.ATTACH.getValue(), null));
+					break;
+				}
+				break;
+			case ADJUSTMAP:
 				switch (stateDes) {
 				case "编辑中":
 				case "制作中":
 					stateMaps.add(new StateMap(0, 5, null, -1));
 					stateMaps.add(new StateMap(1, 5, null, -1));
-					stateMaps.add(new StateMap(2, 6, null, null));
-					stateMaps.add(new StateMap(2, 11, null, null));
-					stateMaps.add(new StateMap(2, 12, null, null));
-					stateMaps.add(new StateMap(2, 13, null, null));
-					stateMaps.add(new StateMap(2, 14, null, null));
-					stateMaps.add(new StateMap(2, 15, null, null));
 					break;
 				case "完成":
-					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.NRFC.getValue(), null));
 					stateMaps.add(new StateMap(3, 6, null, null));
 					break;
 				case "未制作":
@@ -386,37 +460,18 @@ public class TasksManageCtrl extends BaseCtrl {
 					break;
 				case "未校正":
 				case "待校正":
-					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.ATTACH.getValue(), null));
 					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.ADJUSTMAP.getValue(), null));
 					break;
 				case "校正中":
 					stateMaps.add(new StateMap(0, 6, null, null));
 					stateMaps.add(new StateMap(1, 6, null, null));
 					break;
-				case "悬挂点创建中":
-					stateMaps.add(new StateMap(0, 11, null, null));
-					stateMaps.add(new StateMap(0, 12, null, null));
-					stateMaps.add(new StateMap(0, 13, null, null));
-					stateMaps.add(new StateMap(0, 14, null, null));
-					stateMaps.add(new StateMap(0, 15, null, null));
-					stateMaps.add(new StateMap(1, 11, null, null));
-					stateMaps.add(new StateMap(1, 12, null, null));
-					stateMaps.add(new StateMap(1, 13, null, null));
-					stateMaps.add(new StateMap(1, 14, null, null));
-					stateMaps.add(new StateMap(1, 15, null, null));
-					break;
 				case "预发布完成":
 					stateMaps.add(new StateMap(3, 20, null, null));
 					break;
-				case "质检完成":
-					stateMaps.add(new StateMap(2, 52, null, null));
-					break;
-				case "质检中":
-					stateMaps.add(new StateMap(1, 52, null, null));
-					stateMaps.add(new StateMap(2, 5, null, null));
-					break;
 				}
-			} else if(processType.equals(ProcessType.POIEDIT)) {
+				break;
+			case POIEDIT:
 				switch (stateDes) {
 				case "未制作":
 					for (TaskTypeEnum type : TaskTypeEnum.getPoiEditTaskTypes()) {
@@ -451,6 +506,10 @@ public class TasksManageCtrl extends BaseCtrl {
 					}
 					break;
 				}
+				break;
+			default:
+				logger.error("Unknow process type: " + processType.toString());
+				break;
 			}
 		} catch (Exception e) {
 		}
@@ -463,22 +522,18 @@ public class TasksManageCtrl extends BaseCtrl {
 		TaskTypeEnum tasktype = TaskTypeEnum.valueOf(task.getTasktype());
 		Integer checkid = task.getCheckid();
 		
-		if (tasktype.equals(TaskTypeEnum.ERROR) ||
-			tasktype.equals(TaskTypeEnum.NRFC) ||
-			tasktype.equals(TaskTypeEnum.ATTACH) ||
-			tasktype.equals(TaskTypeEnum.ADJUSTMAP)) {
+		if (tasktype.equals(TaskTypeEnum.ERROR)) {
+			//TODO 2018年12月29日 上午11:04:42 综检改错待补充 
+			 return "综检改错";
+		} else if (tasktype.equals(TaskTypeEnum.NRFC)) {
 			switch (state) {
 			case 0:
 				switch (process) {
 				case 0:
 					return "未制作";
 				case 5:
-					if (checkid != null && checkid > 0)
-						return "校正错误修改中";
-					else
+					if (checkid == null || checkid <= 0)
 						return "制作中";
-				case 6:
-					return "校正中";
 				case 11:
 				case 12:
 				case 13:
@@ -489,12 +544,8 @@ public class TasksManageCtrl extends BaseCtrl {
 			case 1:
 				switch (process) {
 				case 5:
-					if (checkid != null && checkid > 0)
-						return "校正错误修改中";
-					else
+					if (checkid == null || checkid <= 0)
 						return "制作中";
-				case 6:
-					return "校正中";
 				case 11:
 				case 12:
 				case 13:
@@ -509,8 +560,6 @@ public class TasksManageCtrl extends BaseCtrl {
 				switch (process) {
 				case 5:
 					return "质检中";
-				case 6:
-					return "制作中";
 				case 11:
 				case 12:
 				case 13:
@@ -524,12 +573,95 @@ public class TasksManageCtrl extends BaseCtrl {
 			case 3:
 				switch (process) {
 				case 5:
-					if (tasktype.equals(TaskTypeEnum.NRFC))
-						return "完成";
-					else if(tasktype.equals(TaskTypeEnum.ATTACH) || tasktype.equals(TaskTypeEnum.ADJUSTMAP))
-						return "未校正";
+					return "完成";
+				case 20:
+					return "预发布完成";
+				}
+				break;
+			}
+		} else if (tasktype.equals(TaskTypeEnum.ATTACH)) {
+			switch (state) {
+			case 0:
+				switch (process) {
+				case 0:
+					return "未制作";
+				case 5:
+					if (checkid == null || checkid <= 0)
+						return "制作中";
 					else
-						return "校正中";
+						return "校正错误修改中";
+				case 6:
+					return "校正中";
+				}
+			case 1:
+				switch (process) {
+				case 5:
+					if (checkid != null && checkid > 0)
+						return "校正错误修改中";
+					else
+						return "制作中";
+				case 6:
+					return "校正中";
+				case 52:
+					return "质检中";
+				}
+				break;
+			case 2:
+				switch (process) {
+				case 5:
+					return "质检中";
+				case 6:
+					return "制作中";
+				case 52:
+					return "质检完成";
+				}
+				break;
+			case 3:
+				switch (process) {
+				case 5:
+					return "未校正";
+				case 6:
+					return "完成";
+				case 20:
+					return "预发布完成";
+				}
+				break;
+			}
+		} else if (tasktype.equals(TaskTypeEnum.ADJUSTMAP)) {
+			switch (state) {
+			case 0:
+				switch (process) {
+				case 0:
+					return "未制作";
+				case 5:
+					if (checkid == null || checkid <= 0)
+						return "制作中";
+					else
+						return "校正错误修改中";
+				case 6:
+					return "校正中";
+				}
+			case 1:
+				switch (process) {
+				case 5:
+					if (checkid != null && checkid > 0)
+						return "校正错误修改中";
+					else
+						return "制作中";
+				case 6:
+					return "校正中";
+				}
+				break;
+			case 2:
+				switch (process) {
+				case 6:
+					return "制作中";
+				}
+				break;
+			case 3:
+				switch (process) {
+				case 5:
+					return "未校正";
 				case 6:
 					return "完成";
 				case 20:
