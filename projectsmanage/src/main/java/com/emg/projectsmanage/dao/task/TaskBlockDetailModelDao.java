@@ -153,7 +153,7 @@ public class TaskBlockDetailModelDao {
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	A.projectid,");
-			sql.append("	A.blockid,");
+			//sql.append("	A.blockid,");
 			//sql.append("	B.featureid,");
 			sql.append("	array_to_string(ARRAY(SELECT unnest(array_agg(B.featureid))),',') AS featureid,");
 			sql.append("	A.editid,");
@@ -174,7 +174,8 @@ public class TaskBlockDetailModelDao {
 						+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time)
 						+ "' )) ");
 			}
-			sql.append(" GROUP BY A.tasktype,	A.projectid,	A.blockid,		A.editid,	A.checkid ");
+			//sql.append(" GROUP BY A.tasktype,	A.projectid,	A.blockid,		A.editid,	A.checkid ");
+			sql.append(" GROUP BY A.tasktype,	A.projectid,		A.editid,	A.checkid ");
 
 			dataSource = Common.getDataSource(configDBModel);
 			list = new JdbcTemplate(dataSource).queryForList(sql.toString());
@@ -195,7 +196,7 @@ public class TaskBlockDetailModelDao {
 	// add by lianhr end
 
 	// add by lianhr begin 201/12/13
-	// Í¨¹ýPOI²éÑ¯
+	// Í¨ï¿½ï¿½POIï¿½ï¿½Ñ¯
 	public List<Map<String, Object>> group15102ByPoi(ConfigDBModel configDBModel, Long featureid) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
@@ -229,7 +230,7 @@ public class TaskBlockDetailModelDao {
 	// add by lianhr end
 
 	// add by lianhr begin 201/12/13
-	// Í¨¹ýPOI²éÑ¯
+	// Í¨ï¿½ï¿½POIï¿½ï¿½Ñ¯
 	public List<Map<String, Object>> group15102ByPoiDelete(ConfigDBModel configDBModel, Long featureid) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
@@ -264,7 +265,7 @@ public class TaskBlockDetailModelDao {
 	// add by lianhr end
 	
 	// add by lianhr begin 201/12/13
-		// Í¨¹ýPOI²éÑ¯
+		// Í¨ï¿½ï¿½POIï¿½ï¿½Ñ¯
 		public List<Map<String, Object>> group15102ByPoi(ConfigDBModel configDBModel, String featureid, String condition) {
 			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 			BasicDataSource dataSource = null;
@@ -297,7 +298,7 @@ public class TaskBlockDetailModelDao {
 		// add by lianhr end
 	
 		// add by lianhr begin 201/12/13
-		// Í¨¹ýPOI²éÑ¯
+		// Í¨ï¿½ï¿½POIï¿½ï¿½Ñ¯
 		public List<Map<String, Object>> group15102ByPoiDelete(ConfigDBModel configDBModel, String featureid, String condition) {
 			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 			BasicDataSource dataSource = null;

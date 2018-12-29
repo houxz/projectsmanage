@@ -314,6 +314,10 @@ public class SchedulerTask {
 										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified1.get(0).get("countnum").toString()));
 										List<Map<String, Object>> task15102PoisModified2 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包移位");
 										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified2.get(0).get("countnum").toString()));
+										//modified by lianhr begin 2018/12/28
+										List<Map<String, Object>> task15102PoisModified4 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包确认");
+										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified4.get(0).get("countnum").toString()));
+										//modified by lianhr end
 										List<Map<String, Object>> task15102PoisModified3 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "车调修改");
 										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified3.get(0).get("countnum").toString()));
 										
@@ -801,6 +805,10 @@ public class SchedulerTask {
 										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified1.get(0).get("countnum").toString()));
 										List<Map<String, Object>> task15102PoisModified2 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包移位");
 										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified2.get(0).get("countnum").toString()));
+										//add by lianhr begin 2018/12/28
+										List<Map<String, Object>> task15102PoisModified4 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包确认");
+										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified4.get(0).get("countnum").toString()));
+										//add by lianhr end
 										List<Map<String, Object>> task15102PoisModified3 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "车调修改");
 										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified3.get(0).get("countnum").toString()));
 										
@@ -2274,7 +2282,6 @@ public class SchedulerTask {
 					if (process == null)
 						continue;
 					Integer _processType = projectsProcessModel.getProcesstype();
-					String processname = process.getName();
 					Long projectid = projectsProcessModel.getProjectid();
 					Integer totaltask = projectsProcessModel.getTotaltask();
 					Integer edittask = projectsProcessModel.getEdittask();
@@ -2355,7 +2362,7 @@ public class SchedulerTask {
 						logger.error(e.getMessage(), e);
 					}
 					
-					if (processname.startsWith("POI易淘金编辑_"))
+					if (processType.equals(ProcessType.POIEDIT))
 						continue;
 					
 					if (totaltask.equals(completetask) &&
