@@ -1,7 +1,9 @@
 package com.emg.projectsmanage.ctrl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1680,13 +1682,16 @@ public class InterfaceCtrl extends BaseCtrl {
 
 	@RequestMapping(params = "action=test", method = RequestMethod.POST)
 	private ModelAndView test(Model model, HttpSession session, HttpServletRequest request,
-			@RequestParam("type") String type) {
+			@RequestParam("type") String type,
+			@RequestParam("time") String strTime) {
 		logger.debug("START");
 		InterfaceResultModel result = new InterfaceResultModel();
 		try {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  
+		    Date time = formatter.parse(strTime);  
 			switch (type) {
 			case "add":
-				quartzService.addJob("jobName", "jobGroupName", "triggerName", "triggerGroupName", HelloWorldJob.class, "0/10 * * * * ?");
+				quartzService.addJob("jobName", "jobGroupName", "triggerName", "triggerGroupName", HelloWorldJob.class, time, 125L);
 				break;
 			case "remove":
 				quartzService.removeJob("jobName", "jobGroupName", "triggerName", "triggerGroupName");
