@@ -1,13 +1,12 @@
 package com.emg.projectsmanage.common;
 
 public enum JobStatus {
-	
-	JOB_WAITING(0,"未开启"),
-	JOB_DOING(1,"作业中"),
+	JOB_EXCEPTION(-1,"异常"),
+	JOB_WAITING(0,"待执行"),
+	JOB_DOING(1,"执行中"),
 	JOB_STOP(2,"暂停"),
 	JOB_LOCKED(3,"锁定"),
-	JOB_DONE(4,"完成"),
-	JOB_SUBMIT(5,"提交");
+	JOB_DONE(4,"完成");
 	
 	private int value;
 	

@@ -78,7 +78,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			List<String> batchids = errorModelDao.getErrorBatchids(configDBModelFirstQctask);
 			model.addAttribute("batchids", batchids);
 
-			List<ErrorSetModel> errorSets = errorModelDao.getErrorSets(configDBModelFirstQctask);
+			List<ErrorSetModel> errorSets = errorModelDao.getErrorSets(configDBModelFirstQctask, null);
 			model.addAttribute("errorSets", errorSets);
 
 			return "errorsmanage";
@@ -166,7 +166,7 @@ public class ErrorsManageCtrl extends BaseCtrl {
 			Integer taskdb = ParamUtils.getIntParameter(request, "taskdb", -1);
 
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(taskdb);
-			List<ErrorSetModel> errorSets = errorModelDao.getErrorSets(configDBModel);
+			List<ErrorSetModel> errorSets = errorModelDao.getErrorSets(configDBModel, null);
 			List<String> batchids = errorModelDao.getErrorBatchids(configDBModel);
 
 			json.addObject("errorsets", errorSets);

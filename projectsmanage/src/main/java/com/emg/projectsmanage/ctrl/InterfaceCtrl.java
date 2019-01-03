@@ -47,7 +47,6 @@ import com.emg.projectsmanage.pojo.ProjectModelExample;
 import com.emg.projectsmanage.pojo.ProjectModelExample.Criteria;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
-import com.emg.projectsmanage.scheduler.HelloWorldJob;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 import com.emg.projectsmanage.service.ProcessConfigModelService;
 import com.emg.projectsmanage.service.QuartzService;
@@ -1683,6 +1682,7 @@ public class InterfaceCtrl extends BaseCtrl {
 	@RequestMapping(params = "action=test", method = RequestMethod.POST)
 	private ModelAndView test(Model model, HttpSession session, HttpServletRequest request,
 			@RequestParam("type") String type,
+			@RequestParam("taskid") Long taskid,
 			@RequestParam("time") String strTime) {
 		logger.debug("START");
 		InterfaceResultModel result = new InterfaceResultModel();
@@ -1691,16 +1691,10 @@ public class InterfaceCtrl extends BaseCtrl {
 		    Date time = formatter.parse(strTime);  
 			switch (type) {
 			case "add":
-				quartzService.addJob("jobName", "jobGroupName", "triggerName", "triggerGroupName", HelloWorldJob.class, time, 125L);
+				quartzService.addJob(time, taskid);
 				break;
 			case "remove":
-				quartzService.removeJob("jobName", "jobGroupName", "triggerName", "triggerGroupName");
-				break;
-			case "pause":
-				quartzService.pauseJob("jobName", "jobGroupName");
-				break;
-			case "resume":
-				quartzService.resumeJob("jobName", "jobGroupName");
+				quartzService.removeJob(taskid);
 				break;
 			}
 		} catch (Exception e) {

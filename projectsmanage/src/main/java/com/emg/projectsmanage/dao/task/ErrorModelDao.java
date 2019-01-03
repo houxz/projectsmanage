@@ -69,7 +69,7 @@ public class ErrorModelDao {
 		return batchids;
 	}
 
-	public List<ErrorSetModel> getErrorSets(ConfigDBModel configDBModel) {
+	public List<ErrorSetModel> getErrorSets(ConfigDBModel configDBModel, ErrorSetModel record) {
 		List<ErrorSetModel> errorSets = new ArrayList<ErrorSetModel>();
 		BasicDataSource dataSource = null;
 		try {
@@ -82,10 +82,16 @@ public class ErrorModelDao {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_errorset ");
+			sql.append(" WHERE 1=1 ");
+			
+			if (record != null) {
+				if (record.getId() != null && record.getId().compareTo(0L) > 0) {
+					sql.append(" AND id = " + record.getId());
+				}
+			}
 
 			dataSource = Common.getDataSource(configDBModel);
 			errorSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorSetModel>(ErrorSetModel.class));
-
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			errorSets = new ArrayList<ErrorSetModel>();
@@ -100,7 +106,7 @@ public class ErrorModelDao {
 		}
 		return errorSets;
 	}
-
+	
 	public List<Long> getErrorSetDetailsByErrorSetID(ConfigDBModel configDBModel, Long errorSetID) {
 		List<Long> items = new ArrayList<Long>();
 		BasicDataSource dataSource = null;
@@ -187,8 +193,7 @@ public class ErrorModelDao {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_error ");
-			sql.append(" WHERE 1=1 ");
-			sql.append(" AND " + separator + "batchid" + separator + " =  " + record.getBatchid());
+			sql.append(" WHERE " + separator + "batchid" + separator + " =  " + record.getBatchid());
 			if(erroridxiao != null && erroridxiao >= 0) {
 				sql.append(" AND " + separator + "id" + separator + " >= " + erroridxiao);
 			}
@@ -203,7 +208,6 @@ public class ErrorModelDao {
 				sql.deleteCharAt(sql.length() - 1);
 				sql.append(" ) ");
 			}
-			sql.append(" ORDER BY " + separator + "id" + separator + " ");
 			if (limit.compareTo(0) > 0) {
 				sql.append(" LIMIT " + limit);
 			}
@@ -679,8 +683,7 @@ public class ErrorModelDao {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_error ");
-			sql.append(" WHERE 1=1 ");
-			sql.append(" AND " + separator + "batchid" + separator + " =  " + record.getBatchid());
+			sql.append(" WHERE " + separator + "batchid" + separator + " =  " + record.getBatchid());
 			if(erroridxiao != null && erroridxiao >= 0) {
 				sql.append(" AND " + separator + "id" + separator + " >= " + erroridxiao);
 			}

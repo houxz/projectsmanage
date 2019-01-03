@@ -7,9 +7,11 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobKey;
+import org.quartz.PersistJobDataAfterExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@PersistJobDataAfterExecution
 public class HelloWorldJob implements Job {
 
 	private static final Logger logger = LoggerFactory.getLogger(HelloWorldJob.class);

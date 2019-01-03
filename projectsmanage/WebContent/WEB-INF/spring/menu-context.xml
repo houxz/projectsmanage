@@ -17,6 +17,7 @@
 				<ref bean="capacity" />
 				<!-- <ref bean="downloadexcel" /> -->
 				<ref bean="errorsmanage" />
+				<ref bean="errorstask" />
 				<ref bean="itemsetmanage" />
 				<ref bean="errorsetmanage" />
 				<ref bean="iteminfo" />
@@ -141,6 +142,18 @@
 		<property name="isshow" value="false" />
 	</bean>
 	
+	<bean id="errorstask" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="1014" />
+		<property name="url" value="/projectsmanage/errorstask.web" />
+		<property name="label" value="错误导出任务" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
 	<bean id="errorsmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1008" />
 		<property name="url" value="/projectsmanage/errorsmanage.web" />
