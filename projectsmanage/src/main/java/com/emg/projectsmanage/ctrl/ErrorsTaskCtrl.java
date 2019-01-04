@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.EnableEnum;
 import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
@@ -258,6 +259,7 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 			String dotasktime = ParamUtils.getParameter(request, "dotasktime");
 			Long batchid = ParamUtils.getLongParameter(request, "batchid", -1L);
 			Long errorsetid = ParamUtils.getLongParameter(request, "errorsetid", -1L);
+			Integer uid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
 			
 			Boolean isNewTask = newTaskID.compareTo(0L) <= 0;
 			
@@ -311,6 +313,7 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 				
 				ErrorsTaskModel errorsTaskModel = new ErrorsTaskModel();
 				errorsTaskModel.setName(name);
+				errorsTaskModel.setCreateby(uid);
 				errorsTaskModel.setQctask(qctask);
 				errorsTaskModel.setErrorsrc(errorsrc);
 				errorsTaskModel.setErrortar(errortar);
