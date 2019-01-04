@@ -435,6 +435,66 @@ public class ErrorsTaskModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andCreatebyIsNull() {
+            addCriterion("createby is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatebyIsNotNull() {
+            addCriterion("createby is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatebyEqualTo(Integer value) {
+            addCriterion("createby =", value, "createby");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatebyNotEqualTo(Integer value) {
+            addCriterion("createby <>", value, "createby");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatebyGreaterThan(Integer value) {
+            addCriterion("createby >", value, "createby");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatebyGreaterThanOrEqualTo(Integer value) {
+            addCriterion("createby >=", value, "createby");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatebyLessThan(Integer value) {
+            addCriterion("createby <", value, "createby");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatebyLessThanOrEqualTo(Integer value) {
+            addCriterion("createby <=", value, "createby");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatebyIn(List<Integer> values) {
+            addCriterion("createby in", values, "createby");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatebyNotIn(List<Integer> values) {
+            addCriterion("createby not in", values, "createby");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatebyBetween(Integer value1, Integer value2) {
+            addCriterion("createby between", value1, value2, "createby");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatebyNotBetween(Integer value1, Integer value2) {
+            addCriterion("createby not between", value1, value2, "createby");
+            return (Criteria) this;
+        }
+
         public Criteria andStateIsNull() {
             addCriterion("state is null");
             return (Criteria) this;

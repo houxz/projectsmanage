@@ -4,6 +4,8 @@ public class ErrorsTaskModel {
     private Long id;
 
     private String name;
+    
+    private Integer createby;
 
     private Integer qctask;
     
@@ -270,5 +272,13 @@ public class ErrorsTaskModel {
 
 	public void setErrortarport(String errortarport) {
 		this.errortarport = errortarport;
+	}
+
+	public Integer getCreateby() {
+		return createby;
+	}
+
+	public void setCreateby(Integer createby) {
+		this.createby = createby;
 	}
 }
