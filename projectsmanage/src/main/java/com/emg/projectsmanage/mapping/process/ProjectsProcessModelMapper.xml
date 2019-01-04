@@ -92,7 +92,7 @@
 		</where>
 	</select>
 	<insert id="newProjectsProcess" parameterType="com.emg.projectsmanage.pojo.ProjectsProcessModel" >
-	    insert into process.tb_projectsprocess 
+	    insert into tb_projectsprocess 
 	    	(`processid`, 
 	    	`processtype`,
 	    	`totaltask`, 

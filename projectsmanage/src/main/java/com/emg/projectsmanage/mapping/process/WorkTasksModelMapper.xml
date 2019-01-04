@@ -110,7 +110,7 @@
 		</where>
 	</select>
 	<insert id="newWorkTask" parameterType="com.emg.projectsmanage.pojo.WorkTasksModel" >
-	    insert into process.tb_worktasks 
+	    insert into tb_worktasks 
 	    	(`userid`, 
 	    	`username`, 
 	    	`roleid`, 
