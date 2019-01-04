@@ -15,8 +15,8 @@
 				<ref bean="tasksmanage" />
 				<ref bean="doneprocesses" />
 				<ref bean="capacity" />
-				<!-- <ref bean="downloadexcel" /> -->
-				<ref bean="errorsmanage" />
+				<!-- <ref bean="downloadexcel" />
+				<ref bean="errorsmanage" /> -->
 				<ref bean="errorstask" />
 				<ref bean="itemsetmanage" />
 				<ref bean="errorsetmanage" />
@@ -145,7 +145,7 @@
 	<bean id="errorstask" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1014" />
 		<property name="url" value="/projectsmanage/errorstask.web" />
-		<property name="label" value="错误导出任务" />
+		<property name="label" value="错误导出" />
 		<property name="roleSet">
 			<set>
 				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
