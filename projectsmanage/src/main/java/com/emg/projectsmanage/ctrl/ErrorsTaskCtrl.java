@@ -35,6 +35,7 @@ import com.emg.projectsmanage.pojo.ErrorSetModel;
 import com.emg.projectsmanage.pojo.ErrorsTaskModel;
 import com.emg.projectsmanage.pojo.ErrorsTaskModelExample;
 import com.emg.projectsmanage.pojo.ItemConfigModel;
+import com.emg.projectsmanage.service.QuartzService;
 import com.emg.projectsmanage.pojo.ErrorsTaskModelExample.Criteria;
 
 import net.sf.json.JSONObject;
@@ -51,6 +52,8 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 	private ErrorModelDao errorModelDao;
 	@Autowired
 	private ErrorsTaskModelDao errorsTaskModelDao;
+	@Autowired
+	private QuartzService quartzService;
 
 	/**
 	 * 系统配置页面
@@ -291,6 +294,21 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 			ErrorSetModel errorSet = errorSets.get(0);
 			
 			if (isNewTask) {
+				List<Long> itemIDs = errorModelDao.getErrorSetDetailsByErrorSetID(configDBModel, errorsetid);
+				List<Long> errortypes = new ArrayList<Long>();
+				if (itemIDs != null && !itemIDs.isEmpty()) {
+					List<ItemConfigModel> itemConfigs = errorModelDao.selectErrorTypesByIDs(configDBModel, itemIDs);
+					for (ItemConfigModel itemConfig : itemConfigs) {
+						errortypes.add(itemConfig.getErrortype());
+					}
+				}
+
+				ErrorModel errorsRecord = new ErrorModel();
+				errorsRecord.setBatchid(batchid);
+				ConfigDBModel configDBSrc = configDBModelDao.selectByPrimaryKey(errorsrc);
+
+				Map<String, Object> map = errorModelDao.selectMinAndMaxID(configDBSrc, errorsRecord, errortypes);
+				
 				ErrorsTaskModel errorsTaskModel = new ErrorsTaskModel();
 				errorsTaskModel.setName(name);
 				errorsTaskModel.setQctask(qctask);
@@ -301,7 +319,22 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 				errorsTaskModel.setErrorsetid(errorsetid);
 				errorsTaskModel.setErrorsetname(errorSet.getName());
 				
+				if (map != null && map.containsKey("min")) {
+					errorsTaskModel.setMinerrorid(Long.valueOf(map.get("min").toString()));
+					errorsTaskModel.setCurerrorid(Long.valueOf(map.get("min").toString()));
+				} else {
+					errorsTaskModel.setMinerrorid(0L);
+					errorsTaskModel.setCurerrorid(0L);
+				}
+				if (map != null && map.containsKey("max")) {
+					errorsTaskModel.setMaxerrorid(Long.valueOf(map.get("max").toString()));
+				} else {
+					errorsTaskModel.setMaxerrorid(0L);
+				}
+				
 				if (errorsTaskModelDao.insertSelective(errorsTaskModel) > 0 ) {
+					newTaskID = errorsTaskModel.getId();
+					quartzService.addJob(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dotasktime), newTaskID);
 					result.setResult(1);
 				} else {
 					result.setResult(0);
@@ -319,6 +352,8 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 				errorsTaskModel.setErrorsetname(errorSet.getName());
 				
 				if (errorsTaskModelDao.updateByPrimaryKeySelective(errorsTaskModel) > 0 ) {
+					quartzService.removeJob(newTaskID);
+					quartzService.addJob(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dotasktime), newTaskID);
 					result.setResult(1);
 				} else {
 					result.setResult(0);

@@ -8,12 +8,11 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SimpleTrigger;
 import org.quartz.TriggerBuilder;
-import org.quartz.SimpleScheduleBuilder;
 import org.quartz.TriggerKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.emg.projectsmanage.scheduler.HelloWorldJob;
+import com.emg.projectsmanage.scheduler.ErrorExportJob;
 
 @Service("quartzService")
 public class QuartzService {
@@ -25,20 +24,15 @@ public class QuartzService {
 	
 	private final static String TRIGGERGROUPNAME = "TRIGGERGROUPNAME";
 	
-	private final static Integer IntervalInSeconds = 10;
-
 	public void addJob(Date time, Long taskid) {
 		try {
-			JobDetail job = JobBuilder.newJob(HelloWorldJob.class)
+			JobDetail job = JobBuilder.newJob(ErrorExportJob.class)
 					.withIdentity(taskid.toString(), JOBGROUPNAME)
 					.usingJobData("taskid", taskid)
 					.build();
 			SimpleTrigger trigger = (SimpleTrigger) TriggerBuilder.newTrigger()
 					.withIdentity(taskid.toString(), TRIGGERGROUPNAME)
 					.startAt(time)
-					.withSchedule(SimpleScheduleBuilder.simpleSchedule()
-							.withIntervalInSeconds(IntervalInSeconds)
-							.repeatForever())
 					.build();
 			quartzScheduler.scheduleJob(job, trigger);
 			if (!quartzScheduler.isShutdown()) {
@@ -53,9 +47,11 @@ public class QuartzService {
 		try {
 			TriggerKey triggerKey = TriggerKey.triggerKey(taskid.toString(), TRIGGERGROUPNAME);
 			JobKey jobKey = JobKey.jobKey(taskid.toString(), JOBGROUPNAME);
-			quartzScheduler.pauseTrigger(triggerKey);
-			quartzScheduler.unscheduleJob(triggerKey);
-			quartzScheduler.deleteJob(jobKey);
+			if (quartzScheduler.checkExists(jobKey)) {
+				quartzScheduler.pauseTrigger(triggerKey);
+				quartzScheduler.unscheduleJob(triggerKey);
+				quartzScheduler.deleteJob(jobKey);
+			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

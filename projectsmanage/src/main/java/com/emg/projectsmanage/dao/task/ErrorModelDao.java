@@ -9,10 +9,12 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -177,6 +179,47 @@ public class ErrorModelDao {
 		}
 		return itemConfigs;
 	}
+	
+	public Map<String, Object> selectMinAndMaxID(ConfigDBModel configDBModel, ErrorModel record, List<Long> errortypes) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		BasicDataSource dataSource = null;
+		try {
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT min( id ), max( id ) ");
+			sql.append(" FROM ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_error ");
+			sql.append(" WHERE " + separator + "batchid" + separator + " =  " + record.getBatchid());
+			if (errortypes != null && !errortypes.isEmpty()) {
+				sql.append(" AND " + separator + "errortype" + separator + " IN ( ");
+				for (Long errortype : errortypes) {
+					sql.append(errortype + ",");
+				}
+				sql.deleteCharAt(sql.length() - 1);
+				sql.append(" ) ");
+			}
+
+			dataSource = Common.getDataSource(configDBModel);
+			map = new JdbcTemplate(dataSource).queryForMap(sql.toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return map;
+	}
 
 	public List<ErrorModel> selectErrors(ConfigDBModel configDBModel, ErrorModel record, Integer limit, Integer offset, List<Long> errortypes, Integer erroridxiao, Integer erroridda) {
 		List<ErrorModel> errors = new ArrayList<ErrorModel>();
@@ -287,7 +330,7 @@ public class ErrorModelDao {
 		return ret;
 	}
 
-	public List<ErrorAndErrorRelatedModel> selectErrorAndErrorRelateds(ConfigDBModel configDBModel, ErrorModel record, List<Long> errortypes, Integer limit, Integer offset, Integer erroridxiao, Integer erroridda) {
+	public List<ErrorAndErrorRelatedModel> selectErrorAndErrorRelateds(ConfigDBModel configDBModel, Long batchid, List<Long> errortypes, Long erroridxiao, Long erroridda) {
 		List<ErrorAndErrorRelatedModel> errors = new ArrayList<ErrorAndErrorRelatedModel>();
 		BasicDataSource dataSource = null;
 		try {
@@ -309,11 +352,11 @@ public class ErrorModelDao {
 			sql.append("tb_error_related ter ");
 			sql.append(" ON ter." + separator + "errorid" + separator + " = te." + separator + "id" + separator + " ");
 			sql.append(" WHERE 1=1 ");
-			sql.append(" AND te." + separator + "batchid" + separator + " =  " + record.getBatchid());
-			if (erroridxiao != null && erroridxiao >= 0) {
+			sql.append(" AND te." + separator + "batchid" + separator + " =  " + batchid);
+			if (erroridxiao != null && erroridxiao.compareTo(0L) > 0) {
 				sql.append(" AND te." + separator + "id" + separator + " >= " + erroridxiao);
 			}
-			if (erroridda != null && erroridda >= 0) {
+			if (erroridda != null && erroridda.compareTo(0L) > 0) {
 				sql.append(" AND te." + separator + "id" + separator + " <= " + erroridda);
 			}
 			if (errortypes != null && !errortypes.isEmpty()) {
@@ -325,8 +368,6 @@ public class ErrorModelDao {
 				sql.append(" ) ");
 			}
 			sql.append(" ORDER BY te." + separator + "id" + separator + " ");
-			sql.append(" LIMIT " + limit);
-			sql.append(" OFFSET " + offset);
 
 			dataSource = Common.getDataSource(configDBModel);
 			errors = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorAndErrorRelatedModel>(ErrorAndErrorRelatedModel.class));

@@ -127,7 +127,8 @@
 		html.push('<div>');
 		html.push('<div data-toggle="tooltip" data-html="true" data-placement="top" title="最大错误ID：' + row.maxerrorid + '<br>最小错误ID：' + row.minerrorid + '<br>当前错误ID：' + row.curerrorid + '" >');
 		html.push('<div class="progress');
-		html.push(' progress-striped active');
+		if (row.state == 1)
+			html.push(' progress-striped active');
 		html.push('"style="margin-bottom: 3px;">');
 		html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
 						+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '

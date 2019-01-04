@@ -1,9 +1,7 @@
 package com.emg.projectsmanage.ctrl;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +47,6 @@ import com.emg.projectsmanage.pojo.ProjectsUserModel;
 import com.emg.projectsmanage.pojo.UserRoleModel;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 import com.emg.projectsmanage.service.ProcessConfigModelService;
-import com.emg.projectsmanage.service.QuartzService;
 
 @Controller
 @RequestMapping("/interface.web")
@@ -75,8 +72,6 @@ public class InterfaceCtrl extends BaseCtrl {
 	private ConfigValueModelDao configValueModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
-	@Autowired
-	private QuartzService quartzService;
 	
 	@RequestMapping(params = "action=insertNewProject", method = RequestMethod.POST)
 	private ModelAndView insertNewProject(Model model,
@@ -1686,18 +1681,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			@RequestParam("time") String strTime) {
 		logger.debug("START");
 		InterfaceResultModel result = new InterfaceResultModel();
-		try {
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  
-		    Date time = formatter.parse(strTime);  
-			switch (type) {
-			case "add":
-				quartzService.addJob(time, taskid);
-				break;
-			case "remove":
-				quartzService.removeJob(taskid);
-				break;
-			}
-		} catch (Exception e) {
+		try {} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			result.setStatus(false);
 			result.setOption(e.getMessage());

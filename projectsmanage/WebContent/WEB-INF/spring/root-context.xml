@@ -184,10 +184,13 @@
 		<property name="maxWait" value="${quartz.maxWait}" />
     </bean>
 	
+	<bean id="jobInstance" class="com.emg.projectsmanage.scheduler.QuartzJobFacotry"></bean>
+	
 	<bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" >
-        <property name="dataSource" ref ="dataSourceForQuartz" />       
+        <property name="dataSource" ref ="dataSourceForQuartz" />
         <property name="applicationContextSchedulerContextKey" value="applicationContextKey"/>
-        <property name="configLocation" value="classpath:quartz.properties"/>			
+        <property name="configLocation" value="classpath:quartz.properties"/>
+        <property name="jobFactory" ref="jobInstance"/>
     </bean>
 	
 </beans>
