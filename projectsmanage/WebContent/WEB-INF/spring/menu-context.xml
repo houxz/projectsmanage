@@ -154,18 +154,6 @@
 		<property name="enabled" value="true" />
 		<property name="isshow" value="true" />
 	</bean>
-	<bean id="errorsmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1008" />
-		<property name="url" value="/projectsmanage/errorsmanage.web" />
-		<property name="label" value="错误导出" />
-		<property name="roleSet">
-			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
-			</set>
-		</property>
-		<property name="enabled" value="true" />
-		<property name="isshow" value="true" />
-	</bean>
 	
 	<bean id="itemsetmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1006" />
