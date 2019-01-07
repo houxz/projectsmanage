@@ -136,6 +136,12 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 					case "state":
 						criteria.andStateEqualTo(Integer.valueOf(filterPara.get(key).toString()));
 						break;
+					case "dotasktime":
+						criteria.andDotasktimeLike("%" + filterPara.get(key).toString() + "%");
+						break;
+					case "batchid":
+						criteria.andBatchidEqualTo(Long.valueOf(filterPara.get(key).toString()));
+						break;
 					default:
 						logger.error("未处理的筛选项：" + key);
 						break;
@@ -182,6 +188,10 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 				
 				result.setRows(rows);
 				result.setTotal(count);
+				result.setResult(1);
+			} else {
+				result.setRows(new ArrayList<ErrorsTaskModel>());
+				result.setTotal(0);
 				result.setResult(1);
 			}
 		} catch (Exception e) {

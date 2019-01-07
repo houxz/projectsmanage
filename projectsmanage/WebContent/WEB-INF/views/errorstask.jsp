@@ -384,14 +384,11 @@
 						<th data-field="name" data-width="80" data-filter-control="input"
 							data-filter-control-placeholder="">名称</th>
 						
-						<th data-field="qctaskname" data-width="80" data-formatter="qctaskFormat"
-							data-filter-control="input" data-filter-control-placeholder="">质检任务库</th>
+						<th data-field="qctaskname" data-width="80" data-formatter="qctaskFormat">质检任务库</th>
 						
-						<th data-field="errorsrcname" data-width="80" data-formatter="errorsrcFormat"
-							data-filter-control="input" data-filter-control-placeholder="">错误库</th>
+						<th data-field="errorsrcname" data-width="80" data-formatter="errorsrcFormat">错误库</th>
 						
-						<th data-field="errortarname" data-width="80" data-formatter="errortarFormat"
-							data-filter-control="input" data-filter-control-placeholder="">导入库</th>
+						<th data-field="errortarname" data-width="80" data-formatter="errortarFormat">导入库</th>
 						
 						<th data-field="state" data-width="60" data-formatter="statesFormat"
 							data-filter-control="select" data-filter-data="var:jobStates">状态</th>
@@ -402,8 +399,7 @@
 						<th data-field="batchid" data-width="80" data-filter-control="input"
 							data-filter-control-placeholder="">批次</th>
 						
-						<th data-field="errorsetname" data-width="80" data-filter-control="input"
-							data-filter-control-placeholder="">错误筛选集合</th>
+						<th data-field="errorsetname" data-width="80">错误筛选集合</th>
 						
 						<!-- <th data-field="createtime" data-width="90">创建时间</th> -->
 						
