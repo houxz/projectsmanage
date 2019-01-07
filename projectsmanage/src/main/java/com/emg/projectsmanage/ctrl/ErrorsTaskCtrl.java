@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -362,6 +363,9 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 					result.setResult(0);
 				}
 			}
+		} catch (DuplicateKeyException e) {
+			logger.error(e.getMessage());
+			result.setResultMsg("请勿创建重复的任务！");
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			result.setResultMsg(e.getMessage());
