@@ -10,7 +10,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Cache-Control" CONTENT="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>错误导出</title>
+<title>错误导出任务</title>
 
 <link href="resources/jquery-flexselect-0.9.0/flexselect.css"
 	rel="stylesheet">
@@ -142,7 +142,11 @@
 	}
 	function operationFormat(value, row, index) {
 		var html = new Array();
-		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="showConfigDlg(' + index + ');">配置</div>');
+		if (row.state == 1) {
+			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="pauseErrorTask(' + row.id + ');">暂停</div>');
+		} else if (row.state == 2 || row.state == -1 || row.state == 3 || row.state == 4) {
+			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="resumeErrorTask(' + index + ');">继续</div>');
+		}
 		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="deleteErrorTask(' + row.id + ');">删除</div>');
 		return html.join('');
 	}
@@ -175,20 +179,62 @@
 		return params;
 	}
 	
-	function deleteErrorTask(taskid) {
-		$.webeditor.showMsgBox("info", "删除中...");
+	function pauseErrorTask(taskid) {
+		$.webeditor.showMsgBox("info", "保存中...");
 		jQuery.post("./errorstask.web", {
-			"atn" : "deletetask",
+			"atn" : "pausetask",
 			"taskid" : taskid
 		}, function(json) {
 			if (json.result && json.result > 0) {
 				$('[data-toggle="errorsTask"]').bootstrapTable('refresh');
-				$.webeditor.showMsgLabel("success",'任务删除成功');
 			} else {
 				$.webeditor.showMsgLabel("alert", json.resultMsg);
 			}
 			$.webeditor.showMsgBox("close");
 		}, "json");
+	}
+	
+	function resumeErrorTask(index) {
+		$.webeditor.showConfirmBox("alert","重新识别错误，并继续导出吗？", function(){
+			$.webeditor.showMsgBox("info", "识别错误中...");
+			
+			var data = $('[data-toggle="errorsTask"]').bootstrapTable("getData")[index];
+			
+			jQuery.post("./errorstask.web", {
+				"atn" : "resumetask",
+				"taskid" : data.id,
+				"qctask" : data.qctask,
+				"errorsrc" : data.errorsrc,
+				"dotasktime" : data.dotasktime,
+				"batchid" : data.batchid,
+				"errorsetid" : data.errorsetid
+			}, function(json) {
+				if (json.result && json.result > 0) {
+					$('[data-toggle="errorsTask"]').bootstrapTable('refresh');
+				} else {
+					$.webeditor.showMsgLabel("alert", json.resultMsg);
+				}
+				$.webeditor.showMsgBox("close");
+			}, "json");
+		});
+	}
+	
+	function deleteErrorTask(taskid) {
+		$.webeditor.showConfirmBox("alert","确定要删除这个任务吗？", function(){
+			$.webeditor.showMsgBox("info", "删除中...");
+			jQuery.post("./errorstask.web", {
+				"atn" : "deletetask",
+				"taskid" : taskid
+			}, function(json) {
+				if (json.result && json.result > 0) {
+					$('[data-toggle="errorsTask"]').bootstrapTable('refresh');
+					$.webeditor.showMsgLabel("success",'任务删除成功');
+				} else {
+					$.webeditor.showMsgLabel("alert", json.resultMsg);
+				}
+				$.webeditor.showMsgBox("close");
+			}, "json");
+		});
 	}
 	
 	function getBatches(taskdb) {
@@ -382,7 +428,7 @@
 						</th>
 						
 						<th data-field="name" data-width="80" data-filter-control="input"
-							data-filter-control-placeholder="">名称</th>
+							data-filter-control-placeholder="">任务名称</th>
 						
 						<th data-field="qctaskname" data-width="80" data-formatter="qctaskFormat">质检任务库</th>
 						

@@ -42,12 +42,14 @@ public class QuartzService {
 			throw new RuntimeException(e);
 		}
 	}
-
+	
 	public void removeJob(Long taskid) {
 		try {
 			TriggerKey triggerKey = TriggerKey.triggerKey(taskid.toString(), TRIGGERGROUPNAME);
 			JobKey jobKey = JobKey.jobKey(taskid.toString(), JOBGROUPNAME);
-			if (quartzScheduler.checkExists(jobKey)) {
+			if (quartzScheduler.checkExists(jobKey) && quartzScheduler.checkExists(triggerKey)) {
+				quartzScheduler.pauseJob(jobKey);
+				quartzScheduler.interrupt(jobKey);
 				quartzScheduler.pauseTrigger(triggerKey);
 				quartzScheduler.unscheduleJob(triggerKey);
 				quartzScheduler.deleteJob(jobKey);

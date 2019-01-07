@@ -3,10 +3,11 @@ package com.emg.projectsmanage.scheduler;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.quartz.Job;
+import org.quartz.InterruptableJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.UnableToInterruptJobException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ import com.emg.projectsmanage.pojo.ErrorsTaskModel;
 import com.emg.projectsmanage.pojo.ItemConfigModel;
 
 @Component
-public class ErrorExportJob implements Job {
+public class ErrorExportJob implements InterruptableJob {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ErrorExportJob.class);
 	
@@ -32,6 +33,8 @@ public class ErrorExportJob implements Job {
 	private ConfigDBModelDao configDBModelDao;
 	@Autowired
 	private ErrorModelDao errorModelDao;
+	
+	private boolean _interrupted = false;
 
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -51,7 +54,6 @@ public class ErrorExportJob implements Job {
 				throw e;
 			}
 			
-			//TODO 2019年1月3日 下午5:02:42 补充错误导出的业务逻辑
 			try {
 				ErrorsTaskModel errorsTask = errorsTaskModelDao.selectByPrimaryKey(taskid);
 				Integer qctask = errorsTask.getQctask();
@@ -59,6 +61,7 @@ public class ErrorExportJob implements Job {
 				Integer errortar = errorsTask.getErrortar();
 				Long batchid = errorsTask.getBatchid();
 			    Long errorsetid = errorsTask.getErrorsetid();
+			    Long minerrorid = errorsTask.getMinerrorid();
 			    Long curerrorid = errorsTask.getCurerrorid();
 			    Long maxerrorid = errorsTask.getMaxerrorid();
 			    
@@ -75,7 +78,8 @@ public class ErrorExportJob implements Job {
 				Integer batchNum = 20000;
 				ConfigDBModel configDBSrc = configDBModelDao.selectByPrimaryKey(errorsrc);
 				ConfigDBModel configDBTar = configDBModelDao.selectByPrimaryKey(errortar);
-				while (curerrorid < maxerrorid) {
+				while (curerrorid < maxerrorid && !this._interrupted) {
+					logger.debug(String.format("START EXPORT errors with taskid: %s , < %s - %s - %s >", taskid, minerrorid, curerrorid, maxerrorid));
 					List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(configDBSrc, batchid, errortypes, curerrorid, curerrorid+batchNum-1);
 					if (errorAndRelateds != null && !errorAndRelateds.isEmpty()) {
 						errorModelDao.exportErrors(configDBTar, errorAndRelateds);
@@ -87,6 +91,7 @@ public class ErrorExportJob implements Job {
 						record.setId(taskid);
 						record.setCurerrorid(curerrorid);
 						errorsTaskModelDao.updateByPrimaryKeySelective(record);
+						logger.debug(String.format("COMPLETE EXPORT errors with taskid: %s , < %s - %s - %s >", taskid, minerrorid, curerrorid, maxerrorid));
 					} catch (Exception e) {
 						throw e;
 					}
@@ -96,10 +101,17 @@ public class ErrorExportJob implements Job {
 			}
 		    
 			try {
-				ErrorsTaskModel record = new ErrorsTaskModel();
-				record.setId(taskid);
-				record.setState(JobStatus.JOB_DONE.getValue());
-				errorsTaskModelDao.updateByPrimaryKeySelective(record);
+				if (this._interrupted) {
+					ErrorsTaskModel record = new ErrorsTaskModel();
+					record.setId(taskid);
+					record.setState(JobStatus.JOB_STOP.getValue());
+					errorsTaskModelDao.updateByPrimaryKeySelective(record);
+				} else {
+					ErrorsTaskModel record = new ErrorsTaskModel();
+					record.setId(taskid);
+					record.setState(JobStatus.JOB_DONE.getValue());
+					errorsTaskModelDao.updateByPrimaryKeySelective(record);
+				}
 			} catch (Exception e) {
 				throw e;
 			}
@@ -113,4 +125,10 @@ public class ErrorExportJob implements Job {
 			errorsTaskModelDao.updateByPrimaryKeySelective(record);
 		}
 	}
+	
+	@Override
+    public void interrupt() throws UnableToInterruptJobException {
+        this._interrupted = true;
+        logger.debug("I AM INTERRUPTED");
+    }
 }

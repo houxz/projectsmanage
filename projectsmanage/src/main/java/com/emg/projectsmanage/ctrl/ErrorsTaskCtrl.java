@@ -153,6 +153,7 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 				example.setLimit(limit);
 			if (offset.compareTo(0) > 0)
 				example.setOffset(offset);
+			example.setOrderByClause("id DESC");
 			
 			Integer count = errorsTaskModelDao.countByExample(example);
 			if (count.compareTo(0) > 0) {
@@ -260,9 +261,8 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		logger.debug("START");
 		ResultModel result = new ResultModel();
-		Long newTaskID = -1L;
 		try {
-			newTaskID = ParamUtils.getLongParameter(request, "taskid", -1L);
+			Long newTaskID = ParamUtils.getLongParameter(request, "taskid", -1L);
 			String name = ParamUtils.getParameter(request, "name");
 			Integer qctask = ParamUtils.getIntParameter(request, "qctask", 0);
 			Integer errorsrc = ParamUtils.getIntParameter(request, "errorsrc", 0);
@@ -272,7 +272,13 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 			Long errorsetid = ParamUtils.getLongParameter(request, "errorsetid", -1L);
 			Integer uid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
 			
-			Boolean isNewTask = newTaskID.compareTo(0L) <= 0;
+			if (newTaskID.compareTo(0L) > 0) {
+				result.setResult(0);
+				result.setResultMsg("新增任务ID无需指定");
+				json.addAllObjects(result);
+				logger.debug("EXCEPTION");
+				return json;
+			}
 			
 			SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 			try {
@@ -306,72 +312,51 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 			}
 			ErrorSetModel errorSet = errorSets.get(0);
 			
-			if (isNewTask) {
-				List<Long> itemIDs = errorModelDao.getErrorSetDetailsByErrorSetID(configDBModel, errorsetid);
-				List<Long> errortypes = new ArrayList<Long>();
-				if (itemIDs != null && !itemIDs.isEmpty()) {
-					List<ItemConfigModel> itemConfigs = errorModelDao.selectErrorTypesByIDs(configDBModel, itemIDs);
-					for (ItemConfigModel itemConfig : itemConfigs) {
-						errortypes.add(itemConfig.getErrortype());
-					}
+			List<Long> itemIDs = errorModelDao.getErrorSetDetailsByErrorSetID(configDBModel, errorsetid);
+			List<Long> errortypes = new ArrayList<Long>();
+			if (itemIDs != null && !itemIDs.isEmpty()) {
+				List<ItemConfigModel> itemConfigs = errorModelDao.selectErrorTypesByIDs(configDBModel, itemIDs);
+				for (ItemConfigModel itemConfig : itemConfigs) {
+					errortypes.add(itemConfig.getErrortype());
 				}
+			}
 
-				ErrorModel errorsRecord = new ErrorModel();
-				errorsRecord.setBatchid(batchid);
-				ConfigDBModel configDBSrc = configDBModelDao.selectByPrimaryKey(errorsrc);
+			ErrorModel errorsRecord = new ErrorModel();
+			errorsRecord.setBatchid(batchid);
+			ConfigDBModel configDBSrc = configDBModelDao.selectByPrimaryKey(errorsrc);
 
-				Map<String, Object> map = errorModelDao.selectMinAndMaxID(configDBSrc, errorsRecord, errortypes);
-				
-				ErrorsTaskModel errorsTaskModel = new ErrorsTaskModel();
-				errorsTaskModel.setName(name);
-				errorsTaskModel.setCreateby(uid);
-				errorsTaskModel.setQctask(qctask);
-				errorsTaskModel.setErrorsrc(errorsrc);
-				errorsTaskModel.setErrortar(errortar);
-				errorsTaskModel.setDotasktime(dotasktime);
-				errorsTaskModel.setBatchid(batchid);
-				errorsTaskModel.setErrorsetid(errorsetid);
-				errorsTaskModel.setErrorsetname(errorSet.getName());
-				
-				if (map != null && map.containsKey("min")) {
-					errorsTaskModel.setMinerrorid(Long.valueOf(map.get("min").toString()));
-					errorsTaskModel.setCurerrorid(Long.valueOf(map.get("min").toString()));
-				} else {
-					errorsTaskModel.setMinerrorid(0L);
-					errorsTaskModel.setCurerrorid(0L);
-				}
-				if (map != null && map.containsKey("max")) {
-					errorsTaskModel.setMaxerrorid(Long.valueOf(map.get("max").toString()));
-				} else {
-					errorsTaskModel.setMaxerrorid(0L);
-				}
-				
-				if (errorsTaskModelDao.insertSelective(errorsTaskModel) > 0 ) {
-					newTaskID = errorsTaskModel.getId();
-					quartzService.addJob(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dotasktime), newTaskID);
-					result.setResult(1);
-				} else {
-					result.setResult(0);
-				}
+			Map<String, Object> map = errorModelDao.selectMinAndMaxID(configDBSrc, errorsRecord, errortypes);
+			
+			ErrorsTaskModel errorsTaskModel = new ErrorsTaskModel();
+			errorsTaskModel.setName(name);
+			errorsTaskModel.setCreateby(uid);
+			errorsTaskModel.setQctask(qctask);
+			errorsTaskModel.setErrorsrc(errorsrc);
+			errorsTaskModel.setErrortar(errortar);
+			errorsTaskModel.setDotasktime(dotasktime);
+			errorsTaskModel.setBatchid(batchid);
+			errorsTaskModel.setErrorsetid(errorsetid);
+			errorsTaskModel.setErrorsetname(errorSet.getName());
+			
+			if (map != null && map.containsKey("min")) {
+				errorsTaskModel.setMinerrorid(Long.valueOf(map.get("min").toString()));
+				errorsTaskModel.setCurerrorid(Long.valueOf(map.get("min").toString()));
 			} else {
-				ErrorsTaskModel errorsTaskModel = new ErrorsTaskModel();
-				errorsTaskModel.setId(newTaskID);
-				errorsTaskModel.setName(name);
-				errorsTaskModel.setQctask(qctask);
-				errorsTaskModel.setErrorsrc(errorsrc);
-				errorsTaskModel.setErrortar(errortar);
-				errorsTaskModel.setDotasktime(dotasktime);
-				errorsTaskModel.setBatchid(batchid);
-				errorsTaskModel.setErrorsetid(errorsetid);
-				errorsTaskModel.setErrorsetname(errorSet.getName());
-				
-				if (errorsTaskModelDao.updateByPrimaryKeySelective(errorsTaskModel) > 0 ) {
-					quartzService.removeJob(newTaskID);
-					quartzService.addJob(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dotasktime), newTaskID);
-					result.setResult(1);
-				} else {
-					result.setResult(0);
-				}
+				errorsTaskModel.setMinerrorid(0L);
+				errorsTaskModel.setCurerrorid(0L);
+			}
+			if (map != null && map.containsKey("max")) {
+				errorsTaskModel.setMaxerrorid(Long.valueOf(map.get("max").toString()));
+			} else {
+				errorsTaskModel.setMaxerrorid(0L);
+			}
+			
+			if (errorsTaskModelDao.insertSelective(errorsTaskModel) > 0 ) {
+				newTaskID = errorsTaskModel.getId();
+				quartzService.addJob(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dotasktime), newTaskID);
+				result.setResult(1);
+			} else {
+				result.setResult(0);
 			}
 		} catch (DuplicateKeyException e) {
 			logger.error(e.getMessage());
@@ -382,7 +367,138 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 		}
 
 		json.addAllObjects(result);
+		logger.debug("END");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=pausetask")
+	public ModelAndView pauseErrorsTask(Model model, HttpServletRequest request, HttpSession session,
+			HttpServletResponse response) {
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		logger.debug("START");
+		ResultModel result = new ResultModel();
+		try {
+			Long newTaskID = ParamUtils.getLongParameter(request, "taskid", -1L);
+			
+			if (newTaskID.compareTo(0L) <= 0) {
+				result.setResult(0);
+				result.setResultMsg("任务编号错误：" + newTaskID);
+				json.addAllObjects(result);
+				logger.debug("EXCEPTION");
+				return json;
+			}
+			
+			ErrorsTaskModel errorsTaskModel = new ErrorsTaskModel();
+			errorsTaskModel.setId(newTaskID);
+			errorsTaskModel.setState(JobStatus.JOB_STOP.getValue());
+			
+			quartzService.removeJob(newTaskID);
+			if (errorsTaskModelDao.updateByPrimaryKeySelective(errorsTaskModel) > 0 ) {
+				result.setResult(1);
+			} else {
+				result.setResult(0);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			result.setResultMsg(e.getMessage());
+		}
 
+		json.addAllObjects(result);
+		logger.debug("END");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=resumetask")
+	public ModelAndView resumeErrorsTask(Model model, HttpServletRequest request, HttpSession session,
+			HttpServletResponse response) {
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		logger.debug("START");
+		ResultModel result = new ResultModel();
+		try {
+			Long newTaskID = ParamUtils.getLongParameter(request, "taskid", -1L);
+			Integer qctask = ParamUtils.getIntParameter(request, "qctask", 0);
+			Integer errorsrc = ParamUtils.getIntParameter(request, "errorsrc", 0);
+			String dotasktime = ParamUtils.getParameter(request, "dotasktime");
+			Long batchid = ParamUtils.getLongParameter(request, "batchid", -1L);
+			Long errorsetid = ParamUtils.getLongParameter(request, "errorsetid", -1L);
+			
+			if (newTaskID.compareTo(0L) <= 0) {
+				result.setResult(0);
+				result.setResultMsg("任务编号错误");
+				json.addAllObjects(result);
+				logger.debug("EXCEPTION");
+				return json;
+			}
+			
+			SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			try {
+				Date time = sf.parse(dotasktime);
+				dotasktime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(time);
+			} catch (Exception e) {
+				result.setResult(0);
+				result.setResultMsg(e.getMessage());
+				json.addAllObjects(result);
+				logger.debug("EXCEPTION");
+				return json;
+			}
+			
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(qctask);
+			if (configDBModel == null) {
+				result.setResult(0);
+				result.setResultMsg("未知的数据库配置: " + qctask);
+				json.addAllObjects(result);
+				logger.debug("EXCEPTION");
+				return json;
+			}
+			ErrorSetModel record = new ErrorSetModel();
+			record.setId(errorsetid);
+			List<ErrorSetModel> errorSets = errorModelDao.getErrorSets(configDBModel, record);
+			if (errorSets == null || errorSets.isEmpty()) {
+				result.setResult(0);
+				result.setResultMsg("未知的错误筛选集合: " + errorSets);
+				json.addAllObjects(result);
+				logger.debug("EXCEPTION");
+				return json;
+			}
+			
+			ErrorsTaskModel errorsTaskModel = new ErrorsTaskModel();
+			errorsTaskModel.setId(newTaskID);
+			errorsTaskModel.setState(JobStatus.JOB_WAITING.getValue());
+			
+			List<Long> itemIDs = errorModelDao.getErrorSetDetailsByErrorSetID(configDBModel, errorsetid);
+			List<Long> errortypes = new ArrayList<Long>();
+			if (itemIDs != null && !itemIDs.isEmpty()) {
+				List<ItemConfigModel> itemConfigs = errorModelDao.selectErrorTypesByIDs(configDBModel, itemIDs);
+				for (ItemConfigModel itemConfig : itemConfigs) {
+					errortypes.add(itemConfig.getErrortype());
+				}
+			}
+			
+			ErrorModel errorsRecord = new ErrorModel();
+			errorsRecord.setBatchid(batchid);
+			ConfigDBModel configDBSrc = configDBModelDao.selectByPrimaryKey(errorsrc);
+			
+			Map<String, Object> map = errorModelDao.selectMinAndMaxID(configDBSrc, errorsRecord, errortypes);
+			
+			if (map != null && map.containsKey("max")) {
+				errorsTaskModel.setMaxerrorid(Long.valueOf(map.get("max").toString()));
+			} else {
+				errorsTaskModel.setMaxerrorid(0L);
+			}
+			
+			if (errorsTaskModelDao.updateByPrimaryKeySelective(errorsTaskModel) > 0 ) {
+				quartzService.removeJob(newTaskID);
+				quartzService.addJob(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dotasktime), newTaskID);
+				result.setResult(1);
+			} else {
+				result.setResult(0);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			result.setResultMsg(e.getMessage());
+		}
+
+		json.addAllObjects(result);
 		logger.debug("END");
 		return json;
 	}
@@ -408,6 +524,7 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 			errorsTaskModel.setId(newTaskID);
 			errorsTaskModel.setEnable(EnableEnum.UNABLE.getValue());
 			
+			quartzService.removeJob(newTaskID);
 			if (errorsTaskModelDao.updateByPrimaryKeySelective(errorsTaskModel) > 0 ) {
 				result.setResult(1);
 			} else {

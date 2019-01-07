@@ -186,12 +186,13 @@
 	
 	<bean id="jobInstance" class="com.emg.projectsmanage.scheduler.QuartzJobFacotry"></bean>
 	
-	<bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" >
+	<bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" lazy-init="false">
         <property name="dataSource" ref ="dataSourceForQuartz" />
         <property name="applicationContextSchedulerContextKey" value="applicationContextKey"/>
         <property name="configLocation" value="classpath:quartz.properties"/>
         <property name="jobFactory" ref="jobInstance"/>
         <!--必须的，QuartzScheduler 延时启动，应用启动完后 QuartzScheduler 再启动 -->
+        <property name="autoStartup" value="true" />
         <property name="startupDelay" value="30" />
     </bean>
 	
