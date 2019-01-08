@@ -1,8 +1,8 @@
 package com.emg.projectsmanage.ctrl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -21,11 +21,15 @@ import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.IsWorkTimeEnum;
 import com.emg.projectsmanage.common.TaskTypeEnum;
 import com.emg.projectsmanage.common.ParamUtils;
+import com.emg.projectsmanage.common.ResultModel;
 import com.emg.projectsmanage.common.RoleType;
 import com.emg.projectsmanage.dao.projectsmanager.CapacityModelDao;
+import com.emg.projectsmanage.dao.projectsmanager.CapacityQualityModelDao;
 import com.emg.projectsmanage.pojo.CapacityModel;
 import com.emg.projectsmanage.pojo.CapacityModelExample;
 import com.emg.projectsmanage.pojo.CapacityModelExample.Criteria;
+import com.emg.projectsmanage.pojo.CapacityQualityModel;
+import com.emg.projectsmanage.pojo.CapacityQualityModelExample;
 
 @Controller
 @RequestMapping("/capacity.web")
@@ -34,7 +38,9 @@ public class ProjectsCapacityCtrl extends BaseCtrl {
 	private static final Logger logger = LoggerFactory.getLogger(ProjectsCapacityCtrl.class);
 
 	@Autowired
-	private CapacityModelDao CapacityModelDao;
+	private CapacityModelDao capacityModelDao;
+	@Autowired
+	private CapacityQualityModelDao capacityQualityModelDao;
 
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
@@ -114,8 +120,8 @@ public class ProjectsCapacityCtrl extends BaseCtrl {
 			if (offset.compareTo(0) > 0)
 				example.setOffset(offset);
 
-			List<CapacityModel> rows = CapacityModelDao.selectByExample(example);
-			int count = CapacityModelDao.countByExample(example);
+			List<CapacityModel> rows = capacityModelDao.selectByExample(example);
+			int count = capacityModelDao.countByExample(example);
 
 			json.addObject("rows", rows);
 			json.addObject("total", count);
@@ -127,5 +133,47 @@ public class ProjectsCapacityCtrl extends BaseCtrl {
 		logger.debug("END");
 		return json;
 
+	}
+	
+	@RequestMapping(params = "atn=getdetails")
+	public ModelAndView getDetails(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		ResultModel result = new ResultModel();
+		try {
+			Integer taskType = ParamUtils.getIntParameter(request, "tasktype", -1);
+			Long projectid = ParamUtils.getLongParameter(request, "projectid", -1L);
+			Integer userid = ParamUtils.getIntParameter(request, "userid", -1);
+			Integer roleid = ParamUtils.getIntParameter(request, "roleid", -1);
+			String time = ParamUtils.getParameter(request, "time");
+			Integer iswork = ParamUtils.getIntParameter(request, "iswork", -1);
+			
+			CapacityQualityModelExample example = new CapacityQualityModelExample();
+			example.or()
+				.andTasktypeEqualTo(taskType)
+				.andProjectidEqualTo(projectid)
+				.andUseridEqualTo(userid)
+				.andRoleidEqualTo(roleid)
+				.andTimeEqualTo(time)
+				.andIsworkEqualTo(iswork.byteValue());
+			Integer total = capacityQualityModelDao.countByExample(example );
+			if (total.compareTo(0) > 0) {
+				List<CapacityQualityModel> rows = capacityQualityModelDao.selectByExample(example);
+				result.setResult(1);
+				result.setTotal(total);
+				result.setRows(rows);
+			} else {
+				result.setResult(1);
+				result.setTotal(total);
+				result.setRows(new ArrayList<CapacityQualityModel>());
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			result.setResult(0);
+			result.setResultMsg(e.getMessage());
+		}
+		json.addAllObjects(result);
+		logger.debug("END");
+		return json;
 	}
 }

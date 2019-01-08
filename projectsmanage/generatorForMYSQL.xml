@@ -14,7 +14,7 @@
 		</commentGenerator>
 		<!--数据库链接URL，用户名、密码 -->
 		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
-			connectionURL="jdbc:mysql://192.168.3.247:3306/process"
+			connectionURL="jdbc:mysql://192.168.3.247:3306/projectmanager"
 			userId="root" password="root">
 		</jdbcConnection>
 		<javaTypeResolver>
@@ -29,19 +29,19 @@
 		</javaModelGenerator>
 		<!-- 生成映射文件的包名和位置 -->
 		<sqlMapGenerator
-			targetPackage="com.emg.projectsmanage.mapping.process"
+			targetPackage="com.emg.projectsmanage.mapping.projectsmanager"
 			targetProject="projectsmanage">
 			<property name="enableSubPackages" value="true" />
 		</sqlMapGenerator>
 		<!-- 生成DAO的包名和位置 -->
 		<javaClientGenerator type="XMLMAPPER"
-			targetPackage="com.emg.projectsmanage.dao.process"
+			targetPackage="com.emg.projectsmanage.dao.projectsmanager"
 			targetProject="projectsmanage">
 			<property name="enableSubPackages" value="true" />
 		</javaClientGenerator>
 		<!-- 要生成的表 tableName是数据库中的表名或视图名 domainObjectName是实体类名 -->
-		<table tableName="tb_errorstask"
-			domainObjectName="ErrorsTaskModel" enableCountByExample="true"
+		<table tableName="tb_projects_capacity_quality"
+			domainObjectName="CapacityQualityModel" enableCountByExample="true"
 			enableUpdateByExample="true" enableDeleteByExample="true"
 			enableSelectByExample="true"></table>
 	</context>
