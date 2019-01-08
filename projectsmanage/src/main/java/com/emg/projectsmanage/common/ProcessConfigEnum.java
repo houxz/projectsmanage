@@ -64,7 +64,7 @@ public enum ProcessConfigEnum {
 	/**
 	 * 16, "错误库"
 	 */
-	CUOWUKU(16, "错误库"),
+	CUOWUKU(16, "质检错误库"),
 	/**
 	 * 17, "编辑启动类型"
 	 */
