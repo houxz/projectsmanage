@@ -53,11 +53,11 @@
 		}, "json");
 	}
 
-	function setDefaultValues() {
+	function setDefaultValues(fid) {
 		var params = {
 			"atn" : "setdefaultvalues"
 		};
-		$(".systemSet").each(function() {
+		$("#" + fid + " .systemSet").each(function() {
 			var id = $(this).attr("id");
 			if (id.indexOf("config_") >= 0) {
 				params[id] = $(this).val();
@@ -76,23 +76,27 @@
 </script>
 </head>
 <body>
-	<div class="container" style="max-width: 80%;">
+	<div class="container" style="max-width: 80%; padding-top: 20px;">
 		<div id="headdiv"></div>
-		<div class="row" style="padding-top: 20px; display: none;">
+		<div class="row" style="display: none;">
 			<div id="navbar-example" style="width: 16%; float: left;">
 				<ul class="nav nav-pills nav-stacked">
-					<li class="active"><a href="#sc1">项目基础配置</a></li>
+					<li class="active"><a href="#sc1" style="color: #000000;">质检任务库配置</a></li>
+					<li><a href="#sc2" style="color: #000000;">编辑任务库配置</a></li>
+					<li><a href="#sc3" style="color: #000000;">质检错误库配置</a></li>
+					<li><a href="#sc4" style="color: #000000;">资料库配置</a></li>
+					<li><a href="#sc5" style="color: #000000;">其它配置</a></li>
 				</ul>
 			</div>
 			<div class="navbar-example"
-				style="width: 83%; float: left; overflow-y: auto;" data-spy="scroll"
-				data-target="#navbar-example">
+				style="width: 83%; height: 80vh; float: left; overflow-y: auto; position: relative;" data-spy="scroll"
+				data-target="#navbar-example" data-offset="0" >
 				<div class="panel panel-default" id="sc1">
-					<div class="panel-heading">项目基础配置</div>
+					<div class="panel-heading">质检任务库配置</div>
 					<div class="panel-body">
 						<table class="table">
 							<tr>
-								<td class="configKey">改错项目质检任务库</td>
+								<td class="configKey">综检改错项目</td>
 								<td><select class="form-control systemSet" id="config_2">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
@@ -102,7 +106,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td class="configKey">NR/FC项目质检任务库</td>
+								<td class="configKey">NR/FC项目</td>
 								<td><select class="form-control systemSet" id="config_3">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
@@ -112,7 +116,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td class="configKey">关系附属表项目质检任务库</td>
+								<td class="configKey">关系附属表项目</td>
 								<td><select class="form-control systemSet" id="config_4">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
@@ -122,7 +126,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td class="configKey">全国质检项目质检任务库</td>
+								<td class="configKey">全国质检项目</td>
 								<td><select class="form-control systemSet" id="config_5">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
@@ -133,7 +137,22 @@
 							</tr>
 							
 							<tr>
-								<td class="configKey">改错项目编辑任务库</td>
+								<td class="configKey"></td>
+								<td><div class="btn-group">
+										<button type="button" class="btn btn-default"
+											onclick="setDefaultValues('sc1');">保存</button>
+									</div>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div class="panel panel-default" id="sc2">
+					<div class="panel-heading">编辑任务库配置</div>
+					<div class="panel-body">
+						<table class="table">
+							<tr>
+								<td class="configKey">综检改错项目</td>
 								<td><select class="form-control systemSet" id="config_9">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
@@ -143,7 +162,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td class="configKey">NR/FC项目编辑任务库</td>
+								<td class="configKey">NR/FC项目</td>
 								<td><select class="form-control systemSet" id="config_10">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
@@ -153,7 +172,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td class="configKey">关系附属表项目编辑任务库</td>
+								<td class="configKey">关系附属表项目</td>
 								<td><select class="form-control systemSet" id="config_11">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
@@ -163,7 +182,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td class="configKey">POI项目编辑任务库</td>
+								<td class="configKey">POI编辑项目</td>
 								<td><select class="form-control systemSet" id="config_19">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
@@ -173,7 +192,7 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td class="configKey">整图编辑项目编辑任务库</td>
+								<td class="configKey">整图编辑项目</td>
 								<td><select class="form-control systemSet" id="config_24">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
@@ -184,8 +203,23 @@
 							</tr>
 							
 							<tr>
-								<td class="configKey">错误库</td>
-								<td><select class="form-control systemSet" id="config_15">
+								<td class="configKey"></td>
+								<td><div class="btn-group">
+										<button type="button" class="btn btn-default"
+											onclick="setDefaultValues('sc2');">保存</button>
+									</div>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div class="panel panel-default" id="sc3">
+					<div class="panel-heading">质检错误库配置</div>
+					<div class="panel-body">
+						<table class="table">
+							<tr>
+								<td class="configKey">综检改错项目</td>
+								<td><select class="form-control systemSet" id="config_25">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('error') }">
 												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
@@ -193,18 +227,64 @@
 										</c:forEach>
 								</select></td>
 							</tr>
-							<!-- <tr>
-								<td class="configKey">错误导入库</td>
-								<td><select class="form-control systemSet" id="config_17">
+							<tr>
+								<td class="configKey">NR/FC项目</td>
+								<td><select class="form-control systemSet" id="config_26">
 										<c:forEach items="${configDBModels }" var="configDBModel">
-											<c:if test="${configDBModel['connname'].equals('error2') }">
+											<c:if test="${configDBModel['connname'].equals('error') }">
 												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
 											</c:if>
 										</c:forEach>
 								</select></td>
-							</tr> -->
+							</tr>
 							<tr>
-								<td class="configKey">POI编辑资料库</td>
+								<td class="configKey">关系附属表项目</td>
+								<td><select class="form-control systemSet" id="config_27">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('error') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">全国质检项目</td>
+								<td><select class="form-control systemSet" id="config_28">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('error') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">POI编辑项目</td>
+								<td><select class="form-control systemSet" id="config_29">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('error') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							
+							<tr>
+								<td class="configKey"></td>
+								<td><div class="btn-group">
+										<button type="button" class="btn btn-default"
+											onclick="setDefaultValues('sc3');">保存</button>
+									</div>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div class="panel panel-default" id="sc4">
+					<div class="panel-heading">资料库配置</div>
+					<div class="panel-body">
+						<table class="table">
+							<tr>
+								<td class="configKey">POI编辑项目</td>
 								<td><select class="form-control systemSet" id="config_22">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('fielddata') }">
@@ -213,16 +293,24 @@
 										</c:forEach>
 								</select></td>
 							</tr>
+							
 							<tr>
 								<td class="configKey"></td>
 								<td><div class="btn-group">
 										<button type="button" class="btn btn-default"
-											onclick="setDefaultValues();">保存</button>
-									</div></td>
+											onclick="setDefaultValues('sc4');">保存</button>
+									</div>
+								</td>
 							</tr>
 						</table>
 					</div>
-					<div class="panel-footer"></div>
+				</div>
+				<div class="panel panel-default" id="sc5">
+					<div class="panel-heading">其它配置</div>
+					<div class="panel-body">
+						<table class="table">
+						</table>
+					</div>
 				</div>
 			</div>
 		</div>

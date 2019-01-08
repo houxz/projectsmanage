@@ -304,29 +304,32 @@ public class SchedulerTask {
 										editCapacityModel.setTime(time);
 										editCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
 										
-										ConfigDBModel config15102DBModel = configDBModelDao
-												.selectByPrimaryKey(Integer.valueOf("32"));
-										List<Map<String, Object>> task15102PoisCreate1 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包新增");
-										editCapacityModel.setCreatepoi(editCapacityModel.getCreatepoi() + Integer.parseInt(task15102PoisCreate1.get(0).get("countnum").toString()));
-										List<Map<String, Object>> task15102PoisCreate2 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "车调新增");
-										editCapacityModel.setCreatepoi(editCapacityModel.getCreatepoi() + Integer.parseInt(task15102PoisCreate2.get(0).get("countnum").toString()));
-										List<Map<String, Object>> task15102PoisModified1 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包修改");
-										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified1.get(0).get("countnum").toString()));
-										List<Map<String, Object>> task15102PoisModified2 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包移位");
-										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified2.get(0).get("countnum").toString()));
-										//modified by lianhr begin 2018/12/28
-										List<Map<String, Object>> task15102PoisModified4 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包确认");
-										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified4.get(0).get("countnum").toString()));
-										//modified by lianhr end
-										List<Map<String, Object>> task15102PoisModified3 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "车调修改");
-										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified3.get(0).get("countnum").toString()));
-										
-										List<Map<String, Object>> taskDelete15102Pois1 = taskBlockDetailModelDao.group15102ByPoiDelete(config15102DBModel, featureid, "ver is null");
-										editCapacityModel.setDeletepoi(editCapacityModel.getDeletepoi() + Integer.parseInt(taskDelete15102Pois1.get(0).get("countnum").toString()));
-										List<Map<String, Object>> taskDelete15102Pois2 = taskBlockDetailModelDao.group15102ByPoiDelete(config15102DBModel, featureid, "ver is not null");
-										editCapacityModel.setExistdeletepoi(editCapacityModel.getExistdeletepoi() + Integer.parseInt(taskDelete15102Pois2.get(0).get("countnum").toString()));
-										
-										uniqRecords.put(editUniqRecord, editCapacityModel);
+										ProcessConfigModel config15102 = processConfigModelService
+												.selectByPrimaryKey(ProcessConfigEnum.CUOWUKU, processType);
+										if (config15102 != null && config15102.getDefaultValue() != null && !config15102.getDefaultValue().isEmpty()) {
+											ConfigDBModel config15102DBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config15102.getDefaultValue()));
+											List<Map<String, Object>> task15102PoisCreate1 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包新增");
+											editCapacityModel.setCreatepoi(editCapacityModel.getCreatepoi() + Integer.parseInt(task15102PoisCreate1.get(0).get("countnum").toString()));
+											List<Map<String, Object>> task15102PoisCreate2 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "车调新增");
+											editCapacityModel.setCreatepoi(editCapacityModel.getCreatepoi() + Integer.parseInt(task15102PoisCreate2.get(0).get("countnum").toString()));
+											List<Map<String, Object>> task15102PoisModified1 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包修改");
+											editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified1.get(0).get("countnum").toString()));
+											List<Map<String, Object>> task15102PoisModified2 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包移位");
+											editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified2.get(0).get("countnum").toString()));
+											//modified by lianhr begin 2018/12/28
+											List<Map<String, Object>> task15102PoisModified4 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "众包确认");
+											editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified4.get(0).get("countnum").toString()));
+											//modified by lianhr end
+											List<Map<String, Object>> task15102PoisModified3 = taskBlockDetailModelDao.group15102ByPoi(config15102DBModel, featureid, "车调修改");
+											editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + Integer.parseInt(task15102PoisModified3.get(0).get("countnum").toString()));
+											
+											List<Map<String, Object>> taskDelete15102Pois1 = taskBlockDetailModelDao.group15102ByPoiDelete(config15102DBModel, featureid, "ver is null");
+											editCapacityModel.setDeletepoi(editCapacityModel.getDeletepoi() + Integer.parseInt(taskDelete15102Pois1.get(0).get("countnum").toString()));
+											List<Map<String, Object>> taskDelete15102Pois2 = taskBlockDetailModelDao.group15102ByPoiDelete(config15102DBModel, featureid, "ver is not null");
+											editCapacityModel.setExistdeletepoi(editCapacityModel.getExistdeletepoi() + Integer.parseInt(taskDelete15102Pois2.get(0).get("countnum").toString()));
+											
+											uniqRecords.put(editUniqRecord, editCapacityModel);
+										}
 										
 									}
 									
