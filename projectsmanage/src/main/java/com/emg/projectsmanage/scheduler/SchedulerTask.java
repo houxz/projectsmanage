@@ -930,7 +930,7 @@ public class SchedulerTask {
 												taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) ||
 												taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())){
 											userid = task.getEditid();
-											roleid = RoleType.ROLE_CHECKER.getValue();
+											roleid = RoleType.ROLE_WORKER.getValue();
 										}
 										else {
 											continue;
