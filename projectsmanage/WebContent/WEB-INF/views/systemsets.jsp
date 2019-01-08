@@ -82,10 +82,11 @@
 			<div id="navbar-example" style="width: 16%; float: left;">
 				<ul class="nav nav-pills nav-stacked">
 					<li class="active"><a href="#sc1" style="color: #000000;">质检任务库配置</a></li>
-					<li><a href="#sc2" style="color: #000000;">编辑任务库配置</a></li>
-					<li><a href="#sc3" style="color: #000000;">质检错误库配置</a></li>
-					<li><a href="#sc4" style="color: #000000;">资料库配置</a></li>
-					<li><a href="#sc5" style="color: #000000;">其它配置</a></li>
+					<li><a href="#sc2" style="color: #000000;">质检错误库配置</a></li>
+					<li><a href="#sc3" style="color: #000000;">编辑任务库配置</a></li>
+					<li><a href="#sc4" style="color: #000000;">编辑数据库配置</a></li>
+					<li><a href="#sc5" style="color: #000000;">资料库配置</a></li>
+					<li><a href="#sc6" style="color: #000000;">其它配置</a></li>
 				</ul>
 			</div>
 			<div class="navbar-example"
@@ -148,72 +149,6 @@
 					</div>
 				</div>
 				<div class="panel panel-default" id="sc2">
-					<div class="panel-heading">编辑任务库配置</div>
-					<div class="panel-body">
-						<table class="table" style="margin-bottom: 0;">
-							<tr>
-								<td class="configKey">综检改错项目</td>
-								<td><select class="form-control systemSet" id="config_9">
-										<c:forEach items="${configDBModels }" var="configDBModel">
-											<c:if test="${configDBModel['connname'].equals('task') }">
-												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
-											</c:if>
-										</c:forEach>
-								</select></td>
-							</tr>
-							<tr>
-								<td class="configKey">NR/FC项目</td>
-								<td><select class="form-control systemSet" id="config_10">
-										<c:forEach items="${configDBModels }" var="configDBModel">
-											<c:if test="${configDBModel['connname'].equals('task') }">
-												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
-											</c:if>
-										</c:forEach>
-								</select></td>
-							</tr>
-							<tr>
-								<td class="configKey">关系附属表项目</td>
-								<td><select class="form-control systemSet" id="config_11">
-										<c:forEach items="${configDBModels }" var="configDBModel">
-											<c:if test="${configDBModel['connname'].equals('task') }">
-												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
-											</c:if>
-										</c:forEach>
-								</select></td>
-							</tr>
-							<tr>
-								<td class="configKey">POI编辑项目</td>
-								<td><select class="form-control systemSet" id="config_19">
-										<c:forEach items="${configDBModels }" var="configDBModel">
-											<c:if test="${configDBModel['connname'].equals('task') }">
-												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
-											</c:if>
-										</c:forEach>
-								</select></td>
-							</tr>
-							<tr>
-								<td class="configKey">整图编辑项目</td>
-								<td><select class="form-control systemSet" id="config_24">
-										<c:forEach items="${configDBModels }" var="configDBModel">
-											<c:if test="${configDBModel['connname'].equals('task') }">
-												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
-											</c:if>
-										</c:forEach>
-								</select></td>
-							</tr>
-							
-							<tr>
-								<td class="configKey"></td>
-								<td><div class="btn-group">
-										<button type="button" class="btn btn-default"
-											onclick="setDefaultValues('sc2');">保存</button>
-									</div>
-								</td>
-							</tr>
-						</table>
-					</div>
-				</div>
-				<div class="panel panel-default" id="sc3">
 					<div class="panel-heading">质检错误库配置</div>
 					<div class="panel-body">
 						<table class="table" style="margin-bottom: 0;">
@@ -279,7 +214,139 @@
 						</table>
 					</div>
 				</div>
+				<div class="panel panel-default" id="sc3">
+					<div class="panel-heading">编辑任务库配置</div>
+					<div class="panel-body">
+						<table class="table" style="margin-bottom: 0;">
+							<tr>
+								<td class="configKey">综检改错项目</td>
+								<td><select class="form-control systemSet" id="config_9">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('task') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">NR/FC项目</td>
+								<td><select class="form-control systemSet" id="config_10">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('task') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">关系附属表项目</td>
+								<td><select class="form-control systemSet" id="config_11">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('task') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">POI编辑项目</td>
+								<td><select class="form-control systemSet" id="config_19">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('task') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">整图编辑项目</td>
+								<td><select class="form-control systemSet" id="config_24">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('task') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							
+							<tr>
+								<td class="configKey"></td>
+								<td><div class="btn-group">
+										<button type="button" class="btn btn-default"
+											onclick="setDefaultValues('sc2');">保存</button>
+									</div>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
 				<div class="panel panel-default" id="sc4">
+					<div class="panel-heading">编辑数据库配置</div>
+					<div class="panel-body">
+						<table class="table">
+							<tr>
+								<td class="configKey">综检改错项目</td>
+								<td><select class="form-control systemSet" id="config_30">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('data') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">NR/FC项目</td>
+								<td><select class="form-control systemSet" id="config_31">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('data') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">关系附属表项目</td>
+								<td><select class="form-control systemSet" id="config_32">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('data') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">POI编辑项目</td>
+								<td><select class="form-control systemSet" id="config_33">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('data') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">整图编辑项目</td>
+								<td><select class="form-control systemSet" id="config_34">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('data') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']})</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							
+							<tr>
+								<td class="configKey"></td>
+								<td><div class="btn-group">
+										<button type="button" class="btn btn-default"
+											onclick="setDefaultValues('sc4');">保存</button>
+									</div>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div class="panel panel-default" id="sc5">
 					<div class="panel-heading">资料库配置</div>
 					<div class="panel-body">
 						<table class="table" style="margin-bottom: 0;">
@@ -305,7 +372,7 @@
 						</table>
 					</div>
 				</div>
-				<div class="panel panel-default" id="sc5">
+				<div class="panel panel-default" id="sc6">
 					<div class="panel-heading">其它配置</div>
 					<div class="panel-body">
 						<table class="table">
