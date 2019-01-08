@@ -104,7 +104,11 @@ public enum ProcessConfigEnum {
 	/**
 	 * 26, "制作任务数"
 	 */
-	ZHIZUORENWUSHU(26, "制作任务数");
+	ZHIZUORENWUSHU(26, "制作任务数"),
+	/**
+	 * 27, "编辑数据库"
+	 */
+	BIANJISHUJUKU(27, "编辑数据库");
 
 	private Integer value;
 	private String des;
