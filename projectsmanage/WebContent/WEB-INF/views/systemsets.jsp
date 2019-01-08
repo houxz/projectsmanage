@@ -94,7 +94,7 @@
 				<div class="panel panel-default" id="sc1">
 					<div class="panel-heading">质检任务库配置</div>
 					<div class="panel-body">
-						<table class="table">
+						<table class="table" style="margin-bottom: 0;">
 							<tr>
 								<td class="configKey">综检改错项目</td>
 								<td><select class="form-control systemSet" id="config_2">
@@ -150,7 +150,7 @@
 				<div class="panel panel-default" id="sc2">
 					<div class="panel-heading">编辑任务库配置</div>
 					<div class="panel-body">
-						<table class="table">
+						<table class="table" style="margin-bottom: 0;">
 							<tr>
 								<td class="configKey">综检改错项目</td>
 								<td><select class="form-control systemSet" id="config_9">
@@ -216,7 +216,7 @@
 				<div class="panel panel-default" id="sc3">
 					<div class="panel-heading">质检错误库配置</div>
 					<div class="panel-body">
-						<table class="table">
+						<table class="table" style="margin-bottom: 0;">
 							<tr>
 								<td class="configKey">综检改错项目</td>
 								<td><select class="form-control systemSet" id="config_25">
@@ -282,7 +282,7 @@
 				<div class="panel panel-default" id="sc4">
 					<div class="panel-heading">资料库配置</div>
 					<div class="panel-body">
-						<table class="table">
+						<table class="table" style="margin-bottom: 0;">
 							<tr>
 								<td class="configKey">POI编辑项目</td>
 								<td><select class="form-control systemSet" id="config_22">
