@@ -186,6 +186,8 @@
 						<th data-field="errorrest">
 							剩余<br>错误数</th>
 						
+						<th data-field="fielddatatotal">
+							总数<br>资料数</th>
 					</tr>
 				</thead>
 			</table>
