@@ -156,6 +156,7 @@ public class ProjectsCapacityCtrl extends BaseCtrl {
 				.andRoleidEqualTo(roleid)
 				.andTimeEqualTo(time)
 				.andIsworkEqualTo(iswork.byteValue());
+			example.setOrderByClause("errortype ASC");
 			Integer total = capacityQualityModelDao.countByExample(example );
 			if (total.compareTo(0) > 0) {
 				List<CapacityQualityModel> rows = capacityQualityModelDao.selectByExample(example);
