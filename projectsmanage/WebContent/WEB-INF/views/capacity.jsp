@@ -61,7 +61,7 @@
 	
 	function errorCountFormat(value, row, index) {
 		var html = new Array();
-		if (row.errorcount && row.errorcount > 0) {
+		if (row.errorcount && row.errorcount > 0 && (row.tasktype == 15106 || row.tasktype == 15108 || row.tasktype == 15119)) {
 			html.push('<a href="#" onclick="getDetails(' + row.tasktype + ','
 					+ row.projectid + ','
 					+ row.userid + ','
