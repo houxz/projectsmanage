@@ -207,7 +207,7 @@
 								<td class="configKey"></td>
 								<td><div class="btn-group">
 										<button type="button" class="btn btn-default"
-											onclick="setDefaultValues('sc3');">保存</button>
+											onclick="setDefaultValues('sc2');">保存</button>
 									</div>
 								</td>
 							</tr>
@@ -273,7 +273,7 @@
 								<td class="configKey"></td>
 								<td><div class="btn-group">
 										<button type="button" class="btn btn-default"
-											onclick="setDefaultValues('sc2');">保存</button>
+											onclick="setDefaultValues('sc3');">保存</button>
 									</div>
 								</td>
 							</tr>
@@ -365,7 +365,7 @@
 								<td class="configKey"></td>
 								<td><div class="btn-group">
 										<button type="button" class="btn btn-default"
-											onclick="setDefaultValues('sc4');">保存</button>
+											onclick="setDefaultValues('sc5');">保存</button>
 									</div>
 								</td>
 							</tr>
