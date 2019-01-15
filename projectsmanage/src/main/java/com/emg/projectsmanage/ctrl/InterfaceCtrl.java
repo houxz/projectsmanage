@@ -1633,15 +1633,15 @@ public class InterfaceCtrl extends BaseCtrl {
 			HttpSession session,
 			HttpServletRequest request,
 			@RequestParam("processid") Long processid,
-			@RequestParam("moduleid") Integer moduleid) {
+			@RequestParam(value = "moduleid", required = false, defaultValue = "-1") Integer moduleid,
+			@RequestParam(value = "configid", required = false, defaultValue = "-1") Integer configid) {
 		logger.debug("selectProcessConfigs start!");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			ConfigValueModel value = new ConfigValueModel();
 			value.setProcessId(processid);
-			if (moduleid != null && moduleid.compareTo(0) > 0) {
-				value.setModuleid(moduleid);
-			}
+			value.setModuleid(moduleid);
+			value.setConfigId(configid);
 			List<ConfigValueModel> configList = configValueModelDao.selectConfigsById(value);
 
 			// TODO 需要修改获取config的方式 2018年9月21日 下午5:39:51

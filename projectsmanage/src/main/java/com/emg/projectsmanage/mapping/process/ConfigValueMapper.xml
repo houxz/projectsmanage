@@ -19,10 +19,13 @@
 		<include refid="Base_Column_List" />
 		from tb_config_value,tb_config
 		where processid = #{processid,jdbcType=BIGINT}
-		<if test="moduleid != null" >
+		 AND tb_config_value.configid = tb_config.id
+		 <if test="moduleid != null and moduleid > 0" >
 			AND tb_config_value.moduleid = #{moduleid,jdbcType=INTEGER}
 		</if>
-		 AND tb_config_value.configid = tb_config.id
+		<if test="configid != null and configid > 0" >
+			AND tb_config_value.configid = #{configid,jdbcType=INTEGER}
+		</if>
 	</select>
 	
 	<select id="selectProcessIdByConfig" resultMap="BaseResultMap"
