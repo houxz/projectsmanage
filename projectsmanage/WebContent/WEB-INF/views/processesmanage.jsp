@@ -1097,6 +1097,19 @@
 			$("#config_2_25").parents("tr").hide();
 			$("#config_2_26").parents("tr").hide();
 			break;
+		case 7:
+		case "7":
+			$("#config_1_5").parents("tr").hide();
+			$("#config_1_6").parents("tr").hide();
+			$("#config_1_7").parents("tr").show();
+			$("#config_2_18").parents("tr").show();
+			$("#config_2_19").parents("tr").show();
+			$("#config_2_21").parents("tr").show();
+			$("#config_2_22").parents("tr").hide();
+			$("#config_2_23").parents("tr").hide();
+			$("#config_2_25").parents("tr").show();
+			$("#config_2_26").parents("tr").hide();
+			break;
 		default:
 			console.log("processTypeChange--错误的项目类型：" + selectValue);
 			break;
