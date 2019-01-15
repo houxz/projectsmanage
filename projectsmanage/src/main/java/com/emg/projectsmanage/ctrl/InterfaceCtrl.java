@@ -1047,7 +1047,8 @@ public class InterfaceCtrl extends BaseCtrl {
 			@RequestParam(value = "priority", required = false, defaultValue = "0") Integer newProcessPriority,
 			@RequestParam(value = "state", required = false, defaultValue = "0") Integer newProcessState,
 			@RequestParam(value = "owner", required = false, defaultValue = "0") Integer newProcessOwner,
-			@RequestParam(value = "fielddata", required = false, defaultValue = "") String newProcessFielddata) {
+			@RequestParam(value = "fielddata", required = false, defaultValue = "") String newProcessFielddata,
+			@RequestParam(value = "area", required = false, defaultValue = "") String newProcessArea) {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
@@ -1072,6 +1073,9 @@ public class InterfaceCtrl extends BaseCtrl {
 			} else if (newProcessType.equals(ProcessType.ADJUSTMAP.getValue())) {
 				suffix = "";
 				systemid = SystemType.AdjustMap.getValue();
+			} else if (newProcessType.equals(ProcessType.GEN.getValue())) {
+				suffix = "";
+				systemid = SystemType.poi_GEN.getValue();
 			} else {
 				json.addObject("result", false);
 				json.addObject("resultMsg", "未知的项目类型");
@@ -1085,7 +1089,8 @@ public class InterfaceCtrl extends BaseCtrl {
 			newProcess.setState(newProcessState);
 			newProcess.setUserid(0);
 			newProcess.setUsername("系统工具");
-			if(newProcessType.equals(ProcessType.POIEDIT.getValue())) {
+			if(newProcessType.equals(ProcessType.POIEDIT.getValue()) ||
+				newProcessType.equals(ProcessType.GEN.getValue())) {
 				newProcess.setProgress("0,0");
 			} else if(newProcessType.equals(ProcessType.ADJUSTMAP.getValue())) {
 				newProcess.setProgress("0");
@@ -1125,6 +1130,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), projectName));
 			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), newProcessFielddata));
 			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.GONGYOUSIYOU.getValue(), newProcessOwner.toString()));
+			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANQUYU.getValue(), newProcessArea.toString()));
 			
 			List<ProcessConfigModel> processConfigs = processConfigModelService.selectAllProcessConfigModels(newProcessType);
 			for (ProcessConfigModel processConfig : processConfigs) {
@@ -1135,7 +1141,8 @@ public class InterfaceCtrl extends BaseCtrl {
 				if ((moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUID.getValue())) ||
 					(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue())) ||
 					(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BANGDINGZILIAO.getValue())) ||
-					(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.GONGYOUSIYOU.getValue())))
+					(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.GONGYOUSIYOU.getValue())) ||
+					(moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANQUYU.getValue())))
 					continue;
 
 				configValues.add(new ProcessConfigValueModel(newProcessID, moduleid, configid, defaultValue));
