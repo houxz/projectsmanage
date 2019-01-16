@@ -1560,10 +1560,11 @@ public class SchedulerTask {
 								(state.equals(2) && process.equals(52)) ||
 								(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
 							projectsProcessModel.setEdittask(projectsProcessModel.getEdittask() + count);
-						} else if ((state.equals(3) && process.equals(5)) ||
-								(state.equals(3) && process.equals(20))) {
-							projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
+						} else if ((state.equals(3) && process.equals(5))) {
 							projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
+							projectsProcessModel.setPrepublishtask(projectsProcessModel.getPrepublishtask() + count);
+						} else if ((state.equals(3) && process.equals(20))) {
+							projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
 							projectsProcessModel.setStageTaskMapByStage(3, projectsProcessModel.getStageTaskMapByStage(3) + count);
 						} else if ((state.equals(1) && process.equals(52)) ||
 								(state.equals(2) && process.equals(5)) ||
@@ -1598,8 +1599,9 @@ public class SchedulerTask {
 								(state.equals(2) && process.equals(52)) ||
 								(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
 							workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
-						} else if ((state.equals(3) && process.equals(5)) ||
-								(state.equals(3) && process.equals(20))) {
+						} else if ((state.equals(3) && process.equals(5))) {
+							workTasksModel.setPrepublishtask(workTasksModel.getPrepublishtask() + count);
+						} else if ((state.equals(3) && process.equals(20))) {
 							workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
 						} else if ((state.equals(1) && process.equals(52)) ||
 								(state.equals(2) && process.equals(5)) ||
@@ -1633,8 +1635,9 @@ public class SchedulerTask {
 								(state.equals(2) && process.equals(52)) ||
 								(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
 							workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
-						} else if ((state.equals(3) && process.equals(5)) ||
-								(state.equals(3) && process.equals(20))) {
+						} else if ((state.equals(3) && process.equals(5))) {
+							workTasksModel.setPrepublishtask(workTasksModel.getPrepublishtask() + count);
+						} else if ((state.equals(3) && process.equals(20))) {
 							workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
 						} else if ((state.equals(1) && process.equals(52)) ||
 								(state.equals(2) && process.equals(5)) ||
@@ -1653,6 +1656,7 @@ public class SchedulerTask {
 								workTasksModel.getEdittask().equals(0) &&
 								workTasksModel.getQctask().equals(0) &&
 								workTasksModel.getChecktask().equals(0) &&
+								workTasksModel.getPrepublishtask().equals(0) &&
 								workTasksModel.getCompletetask().equals(0))
 							continue;
 						
@@ -1664,7 +1668,7 @@ public class SchedulerTask {
 							if (emp == null)
 								continue;
 							workTasksModel.setUsername(emp.getRealname());
-							workTasksModel.setTotaltask(workTasksModel.getEdittask() + workTasksModel.getChecktask() + workTasksModel.getQctask() + workTasksModel.getCompletetask());
+							workTasksModel.setTotaltask(workTasksModel.getEdittask() + workTasksModel.getChecktask() + workTasksModel.getQctask() + workTasksModel.getPrepublishtask() + workTasksModel.getCompletetask());
 							workTasksModelDao.newWorkTask(workTasksModel);
 						} catch (DuplicateKeyException e) {
 							logger.error(e.getMessage());
@@ -1697,6 +1701,7 @@ public class SchedulerTask {
 					Integer edittask = projectsProcessModel.getEdittask();
 					Integer qctask = projectsProcessModel.getQctask();
 					Integer checktask = projectsProcessModel.getChecktask();
+					Integer prepublishtask = projectsProcessModel.getPrepublishtask();
 					Integer completetask = projectsProcessModel.getCompletetask();
 					Integer fielddatacount = projectsProcessModel.getFielddatacount();
 					Integer fielddatarest = projectsProcessModel.getFielddatarest();
@@ -1707,6 +1712,7 @@ public class SchedulerTask {
 						edittask.equals(0) &&
 						qctask.equals(0) &&
 						checktask.equals(0) &&
+						prepublishtask.equals(0) &&
 						completetask.equals(0) &&
 						fielddatacount.equals(0) &&
 						fielddatarest.equals(0) &&
@@ -1779,6 +1785,7 @@ public class SchedulerTask {
 							edittask.equals(0) &&
 							qctask.equals(0) &&
 							checktask.equals(0) &&
+							prepublishtask.equals(0) &&
 							fielddatarest.equals(0) &&
 							errorrest.equals(0)) {
 						process.setState(ProcessState.COMPLETE.getValue());
@@ -1863,9 +1870,8 @@ public class SchedulerTask {
 							projectsProcessModel.setChecktask(projectsProcessModel.getChecktask() + count);
 						} else if ((state.equals(3) && process.equals(6))) {
 							projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
-							projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
+							projectsProcessModel.setPrepublishtask(projectsProcessModel.getPrepublishtask() + count);
 						} else if ((state.equals(3) && process.equals(20))) {
-							projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
 							projectsProcessModel.setStageTaskMapByStage(3, projectsProcessModel.getStageTaskMapByStage(3) + count);
 							projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
 						} else if ((state.equals(1) && process.equals(52)) ||
@@ -1903,8 +1909,9 @@ public class SchedulerTask {
 								(state.equals(0) && process.equals(6)) ||
 								(state.equals(1) && process.equals(6))) {
 							workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
-						} else if ((state.equals(3) && process.equals(6)) ||
-								(state.equals(3) && process.equals(20))) {
+						} else if ((state.equals(3) && process.equals(6))) {
+							workTasksModel.setPrepublishtask(workTasksModel.getPrepublishtask() + count);
+						} else if ((state.equals(3) && process.equals(20))) {
 							workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
 						} else if ((state.equals(1) && process.equals(52)) ||
 								(state.equals(2) && process.equals(5))) {
@@ -1940,8 +1947,9 @@ public class SchedulerTask {
 								(state.equals(0) && process.equals(6)) ||
 								(state.equals(1) && process.equals(6))) {
 							workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
-						} else if ((state.equals(3) && process.equals(6)) ||
-								(state.equals(3) && process.equals(20))) {
+						} else if ((state.equals(3) && process.equals(6))) {
+							workTasksModel.setPrepublishtask(workTasksModel.getPrepublishtask() + count);
+						} else if ((state.equals(3) && process.equals(20))) {
 							workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
 						} else if ((state.equals(1) && process.equals(52)) ||
 								(state.equals(2) && process.equals(5))) {
@@ -1958,6 +1966,7 @@ public class SchedulerTask {
 								workTasksModel.getEdittask().equals(0) &&
 								workTasksModel.getQctask().equals(0) &&
 								workTasksModel.getChecktask().equals(0) &&
+								workTasksModel.getPrepublishtask().equals(0) &&
 								workTasksModel.getCompletetask().equals(0))
 							continue;
 						
@@ -1969,7 +1978,7 @@ public class SchedulerTask {
 							if (emp == null)
 								continue;
 							workTasksModel.setUsername(emp.getRealname());
-							workTasksModel.setTotaltask(workTasksModel.getEdittask() + workTasksModel.getChecktask() + workTasksModel.getQctask() + workTasksModel.getCompletetask());
+							workTasksModel.setTotaltask(workTasksModel.getEdittask() + workTasksModel.getChecktask() + workTasksModel.getQctask() + workTasksModel.getPrepublishtask() + workTasksModel.getCompletetask());
 							workTasksModelDao.newWorkTask(workTasksModel);
 						} catch (DuplicateKeyException e) {
 							logger.error(e.getMessage());
@@ -2002,6 +2011,7 @@ public class SchedulerTask {
 					Integer edittask = projectsProcessModel.getEdittask();
 					Integer qctask = projectsProcessModel.getQctask();
 					Integer checktask = projectsProcessModel.getChecktask();
+					Integer prepublishtask = projectsProcessModel.getPrepublishtask();
 					Integer completetask = projectsProcessModel.getCompletetask();
 					Integer fielddatacount = projectsProcessModel.getFielddatacount();
 					Integer fielddatarest = projectsProcessModel.getFielddatarest();
@@ -2012,6 +2022,7 @@ public class SchedulerTask {
 						edittask.equals(0) &&
 						qctask.equals(0) &&
 						checktask.equals(0) &&
+						prepublishtask.equals(0) &&
 						completetask.equals(0) &&
 						fielddatacount.equals(0) &&
 						fielddatarest.equals(0) &&
@@ -2085,6 +2096,7 @@ public class SchedulerTask {
 							qctask.equals(0) &&
 							checktask.equals(0) &&
 							fielddatarest.equals(0) &&
+							prepublishtask.equals(0) &&
 							errorrest.equals(0)) {
 						process.setState(ProcessState.COMPLETE.getValue());
 						processModelDao.updateByPrimaryKeySelective(process );

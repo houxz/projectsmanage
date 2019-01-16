@@ -13,6 +13,7 @@ public class ProjectsProcessModel {
 	private Integer edittask = 0;
 	private Integer qctask = 0;
 	private Integer checktask = 0;
+	private Integer prepublishtask = 0;
 	private Integer completetask = 0;
 	private Integer fielddatacount = 0;
 	private Integer fielddatarest = 0;
@@ -128,5 +129,11 @@ public class ProjectsProcessModel {
 	}
 	public void setStageTaskMapByStage(Integer stage, Integer count) {
 		this.stageTaskMap.put(stage, count);
+	}
+	public Integer getPrepublishtask() {
+		return prepublishtask;
+	}
+	public void setPrepublishtask(Integer prepublishtask) {
+		this.prepublishtask = prepublishtask;
 	}
 }

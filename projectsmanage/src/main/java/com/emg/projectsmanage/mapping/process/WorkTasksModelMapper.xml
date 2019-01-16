@@ -17,6 +17,7 @@
 		<result column="edittask" property="edittask" jdbcType="INTEGER" />
 		<result column="qctask" property="qctask" jdbcType="INTEGER" />
 		<result column="checktask" property="checktask" jdbcType="INTEGER" />
+		<result column="prepublishtask" property="prepublishtask" jdbcType="INTEGER" />
 		<result column="completetask" property="completetask" jdbcType="INTEGER" />
 		<result column="time" property="time" jdbcType="VARCHAR" />
 	</resultMap>
@@ -35,6 +36,7 @@
 			t.`edittask`,
 			t.`qctask`,
 			t.`checktask`,
+			t.`prepublishtask`,
 			t.`completetask`,
 			t.`time`
 		FROM
@@ -121,6 +123,7 @@
 	    	`edittask`, 
 	    	`qctask`, 
 	    	`checktask`, 
+	    	`prepublishtask`,
 	    	`completetask`,
 	    	`time`)
 	    values
@@ -134,6 +137,7 @@
 	      	#{edittask,jdbcType=INTEGER}, 
 	      	#{qctask,jdbcType=INTEGER}, 
 	      	#{checktask,jdbcType=INTEGER}, 
+	      	#{prepublishtask,jdbcType=INTEGER}, 
 	      	#{completetask,jdbcType=INTEGER},
 	      	#{time,jdbcType=VARCHAR})
 	</insert>

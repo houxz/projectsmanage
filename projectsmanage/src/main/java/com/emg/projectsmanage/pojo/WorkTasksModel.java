@@ -14,6 +14,7 @@ public class WorkTasksModel {
 	private Integer edittask = 0;
 	private Integer qctask = 0;
 	private Integer checktask = 0;
+	private Integer prepublishtask = 0;
 	private Integer completetask = 0;
 	private String time;
 	
@@ -106,5 +107,11 @@ public class WorkTasksModel {
 	}
 	public void setProcesstype(Integer processtype) {
 		this.processtype = processtype;
+	}
+	public Integer getPrepublishtask() {
+		return prepublishtask;
+	}
+	public void setPrepublishtask(Integer prepublishtask) {
+		this.prepublishtask = prepublishtask;
 	}
 }

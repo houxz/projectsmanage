@@ -74,6 +74,7 @@
 						<th data-field="edittask" data-sortable="true">编辑中<br>任务</th>
 						<th data-field="qctask" data-sortable="true">质检中<br>任务</th>
 						<th data-field="checktask" data-sortable="true">校正中<br>任务</th>
+						<th data-field="prepublishtask" data-sortable="true">预发布中<br>任务</th>
 						<th data-field="completetask" data-sortable="true">已完成<br>任务</th>
 						<th data-field="fielddatarest" data-sortable="true">剩余<br>资料数</th>
 						<th data-field="errorrest" data-sortable="true">剩余<br>错误数</th>
