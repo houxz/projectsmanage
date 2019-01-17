@@ -460,16 +460,31 @@
 	}
 
 	function changeState(state, processid) {
-		$.webeditor.showMsgBox("info", "保存中...");
-		jQuery.post("./processesmanage.web", {
-			"atn" : "changeState",
-			"processid" : processid,
-			"state" : state
-		}, function(json) {
-			$.webeditor.showMsgBox("close");
-			$('[data-toggle="processes"]').bootstrapTable('refresh');
-			$.webeditor.showMsgLabel("success", "项目状态修改成功");
-		}, "json");
+		if (state == 3) {
+			$.webeditor.showConfirmBox("alert","确定要手动完成这个项目吗？", function(){
+				$.webeditor.showMsgBox("info", "保存中...");
+				jQuery.post("./processesmanage.web", {
+					"atn" : "changeState",
+					"processid" : processid,
+					"state" : state
+				}, function(json) {
+					$.webeditor.showMsgBox("close");
+					$('[data-toggle="processes"]').bootstrapTable('refresh');
+					$.webeditor.showMsgLabel("success", "项目状态修改成功");
+				}, "json");
+			});
+		} else {
+			$.webeditor.showMsgBox("info", "保存中...");
+			jQuery.post("./processesmanage.web", {
+				"atn" : "changeState",
+				"processid" : processid,
+				"state" : state
+			}, function(json) {
+				$.webeditor.showMsgBox("close");
+				$('[data-toggle="processes"]').bootstrapTable('refresh');
+				$.webeditor.showMsgLabel("success", "项目状态修改成功");
+			}, "json");
+		}
 	}
 
 	function changePriority(processid) {
@@ -507,8 +522,14 @@
 			}
 		} else if (row.state == 1) {
 			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(2,' + row.id + ')">暂停</div>');
+			if (row.type == 5) {
+			    html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(3,' + row.id + ')">完成</div>');
+			}
 		} else if (row.state == 2) {
 			html.push('<div class="btn btn-default" style="margin-bottom:3px;" onclick="changeState(1,' + row.id + ')" >开始</div>');
+			if (row.type == 5) {
+			    html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="changeState(3,' + row.id + ')">完成</div>');
+			}
 		}
 
 		return html.join('');

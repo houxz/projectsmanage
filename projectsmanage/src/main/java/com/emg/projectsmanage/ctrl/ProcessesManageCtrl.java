@@ -564,6 +564,11 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			record.setState(state);
 			if (processModelDao.updateByPrimaryKeySelective(record) > 0) {
 				ProjectModel project = new ProjectModel();
+				//add by lianhr begin 2018/01/17
+				if(state.equals(ProcessState.COMPLETE.getValue())) {
+					state = ProjectState.COMPLETE.getValue();
+				}
+				//add by lianhr end
 				project.setOverstate(state);
 				ProjectModelExample example = new ProjectModelExample();
 				com.emg.projectsmanage.pojo.ProjectModelExample.Criteria criteria = example.or();
