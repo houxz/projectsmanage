@@ -34,6 +34,21 @@
 		where processid = #{processid,jdbcType=BIGINT}
 		and configid = #{configid,jdbcType=INTEGER}
 	</select>
+	<select id="selectProcessIDsByCityAndBatch" resultType="java.lang.Long"
+		parameterType="map">
+		SELECT  DISTINCT(c.processid)
+	    FROM (
+					SELECT *
+	        FROM tb_config_value a
+					WHERE a.configid = 25 AND a.value = #{batchid,jdbcType=VARCHAR}
+	        UNION ALL
+	        SELECT *
+	        FROM tb_config_value b
+					WHERE b.configid = 7 AND b.value = #{city,jdbcType=VARCHAR}
+	        ) c
+	    GROUP BY c.processid
+			HAVING COUNT(*) > 1
+	</select>
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
 		delete from tb_config_value
 		where id = #{id,jdbcType=INTEGER}

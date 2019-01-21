@@ -987,6 +987,32 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("selectProjectByName end!");
 		return json;
 	}
+	
+	@RequestMapping(params = "action=selectProcessIDByCityAndBatch", method = RequestMethod.POST)
+	private ModelAndView selectProcessIDByCityAndBatch(Model model, HttpSession session, HttpServletRequest request,
+			@RequestParam("city") String city,
+			@RequestParam("batchid") String batchid) {
+		logger.debug("selectProjectByName start!");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			List<Long> list = processConfigValueModelDao.selectProcessIDsByCityAndBatch(city, batchid);
+			if (list != null && list.size() > 0) {
+				json.addObject("status", true);
+				json.addObject("option", list);
+			} else {
+				json.addObject("status", true);
+				json.addObject("option", null);
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+
+		logger.debug("selectProjectByName end!");
+		return json;
+	}
 
 	@RequestMapping(params = "action=QCUndoProjects", method = RequestMethod.POST)
 	private ModelAndView QCUndoProjects(Model model,

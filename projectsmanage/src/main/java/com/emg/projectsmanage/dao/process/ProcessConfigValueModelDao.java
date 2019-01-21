@@ -26,4 +26,6 @@ public interface ProcessConfigValueModelDao {
     int updateByPrimaryKeySelective(ProcessConfigValueModel record);
 
     int updateByPrimaryKey(ProcessConfigValueModel record);
+    
+    List<Long> selectProcessIDsByCityAndBatch(@Param("city") String city, @Param("batchid") String batchid);
 }
