@@ -164,7 +164,7 @@ public class TaskBlockDetailModelDao {
 			sql.append(" tb_task A,");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task_blockdetail B ");
-			sql.append(" WHERE A.blockid = B.blockid");
+			sql.append(" WHERE A.blockid = B.blockid AND B.pstate = 2");
 			sql.append("	AND A.tasktype in (15102,15110,15111,15210,15211)");
 			if (timeFlag) {
 				sql.append("	AND ( edittime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ");
