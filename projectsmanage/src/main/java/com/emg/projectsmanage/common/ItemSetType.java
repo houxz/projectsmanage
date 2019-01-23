@@ -14,7 +14,15 @@ public enum ItemSetType {
 	/**
 	 * 1, "工具"
 	 */
-	TOOLS(1, "工具");
+	TOOLS(1, "工具"),
+	/**
+	 * 5, "全国九宫格检查逻辑-全国质检"
+	 */
+	JIUGONGGEZHIJIAN(5, "九宫格质检"),
+	/**
+	 * 6, "全域检查逻辑-全国质检"
+	 */
+	QUANYUZHIJIAN(6, "全域质检");
 
 	private Integer value;
 	private String des;
