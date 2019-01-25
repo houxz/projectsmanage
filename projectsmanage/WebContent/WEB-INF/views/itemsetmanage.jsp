@@ -53,6 +53,9 @@
 	
 	var itemsetSysTypes = eval('(${itemsetSysTypes})');
 	var itemsetTypes = eval('(${itemsetTypes})');
+	//add by lianhr begin 2018/01/25
+	var itemInfoTypes2 = {"质检项":"质检项", "工具":"工具", "九宫格质检":"九宫格质检", "全域质检":"全域质检"};
+	//add by lianhr end
 	var itemsetUnits = eval('(${itemsetUnits})');
 	var itemInfoSysTypes = eval('(${itemsetSysTypes})');
 	var itemInfoTypes = eval('(${itemsetTypes})');
@@ -126,6 +129,11 @@
 	function typeFormat(value, row, index) {
 		return itemsetTypes[row.type];
 	}
+	//add by lianhr begin 2018/01/25
+	function typeInfoFormat(value, row, index) {
+		return itemInfoTypes[row.type];
+	}
+	//add by lianhr end
 	
 	function unitFormat(value, row, index) {
 		return itemsetUnits[row.unit];
@@ -538,7 +546,7 @@
 							data-filter-control-placeholder="">图层</th>
 						<th data-field="type" data-formatter="typeFormat"
 							data-filter-control="select" data-filter-data="var:itemsetTypes"
-							data-width="80">类型</th>
+							data-width="140">类型</th>
 						<th data-field="systype" data-formatter="sysFormat"
 							data-filter-control="select" data-width="100"
 							data-filter-data="var:itemsetSysTypes">操作系统</th>
@@ -751,9 +759,11 @@
 					<th data-field="layername" data-filter-control-placeholder=""
 						data-filter-control="input" data-width="90">图层</th>
 						
-					<th data-field="referdata">参考图层</th>
+					<th data-field="referdata" data-formatter="referdataFormat" data-filter-control="input"
+							data-filter-control-placeholder="">参考图层</th>
 					
-					<th data-field="type" data-formatter="typeFormat" data-width="60">类型</th>
+					<th data-field="typeInfo" data-formatter="typeInfoFormat" data-width="100"
+							data-filter-control="select" data-filter-data="var:itemInfoTypes2">类型</th>
 					
 					<th data-field="systype" data-formatter="sysFormat">操作系统</th>
 					

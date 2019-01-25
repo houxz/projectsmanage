@@ -729,6 +729,11 @@ public class ItemSetModelDao {
 				if (record.getLayername() != null && !record.getLayername().isEmpty()) {
 					sql.append(" AND " + separator + "layername" + separator + " = '" + record.getLayername() + "'");
 				}
+				//add by lianhr begin 2019/01/25
+				if (record.getType() != null && record.getType().compareTo(0) >= 0) {
+					sql.append(" AND " + separator + "type" + separator + " = " + record.getType());
+				}
+				//add by lianhr end
 			}
 
 			dataSource = Common.getDataSource(configDBModel);

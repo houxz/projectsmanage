@@ -67,6 +67,9 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			model.addAttribute("itemsetEnables", ItemSetEnable.toJsonStr());
 			model.addAttribute("itemsetSysTypes", ItemSetSysType.toJsonStr());
 			model.addAttribute("itemsetTypes", ItemSetType.toJsonStr());
+			//add by lianhr begin 2019/01/25
+			model.addAttribute("itemInfoTypes2", ItemSetType.toJsonStr());
+			//add by lianhr end
 			model.addAttribute("itemsetUnits", ItemSetUnit.toJsonStr());
 			model.addAttribute("layerElements", LayerElement.toJsonStr());
 			model.addAttribute("processTypes", ProcessType.toJsonStr());
@@ -278,6 +281,11 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					case "layername":
 						record.setLayername(value);
 						break;
+					//add by lianhr begin 2019/01/25
+					case "typeInfo":
+						record.setType(Integer.valueOf(filterPara.get(key).toString()));
+						break;
+					//add by lianhr end
 					default:
 						logger.error("未处理的筛选项：" + key);
 						break;
