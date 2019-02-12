@@ -257,6 +257,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			} else if(type.equals(ProcessType.POIEDIT.getValue())) {
 				suffix = "";
 				systemid = SystemType.poivideoedit.getValue();
+			} else if(type.equals(ProcessType.GEN.getValue())) {
+				suffix = "";
+				systemid = SystemType.poi_GEN.getValue();
 			}
 			//新建/更新流程
 			if (isNewProcess) {
