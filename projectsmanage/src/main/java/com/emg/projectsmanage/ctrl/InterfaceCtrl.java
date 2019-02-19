@@ -971,7 +971,7 @@ public class InterfaceCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			ProjectModelExample example = new ProjectModelExample();
-			example.or().andNameEqualTo(name)
+			example.or().andNameLike(name)
 						.andProtypeEqualTo(proType)
 						.andSystemidEqualTo(systemid);
 			
@@ -1215,7 +1215,7 @@ public class InterfaceCtrl extends BaseCtrl {
 		try {
 			ProcessModelExample example = new ProcessModelExample();
 			example.or()
-				.andNameEqualTo(name)
+				.andNameLike(name)
 				.andTypeEqualTo(type);
 			List<ProcessModel> processes = processModelDao.selectByExample(example);
 			model.addAttribute("status", true);
