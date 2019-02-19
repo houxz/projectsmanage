@@ -35,7 +35,11 @@ public enum RoleType {
 	/**
 	 * 6, "校验人员"
 	 */
-	ROLE_CHECKER(6, "校验人员");
+	ROLE_CHECKER(6, "校验人员"),
+	/**
+	 * 7, "导出人员"
+	 */
+	ROLE_EXPORT(7, "导出人员");
 
 	private Integer value;
 	private String des;
