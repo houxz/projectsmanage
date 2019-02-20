@@ -108,7 +108,11 @@ public enum ProcessConfigEnum {
 	/**
 	 * 27, "编辑数据库"
 	 */
-	BIANJISHUJUKU(27, "编辑数据库");
+	BIANJISHUJUKU(27, "编辑数据库"),
+	/**
+	 * 29, "质检模式"
+	 */
+	ZHIJIANMOSHI(29, "质检模式");
 
 	private Integer value;
 	private String des;

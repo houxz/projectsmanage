@@ -24,6 +24,7 @@ import com.emg.projectsmanage.common.ItemSetEnable;
 import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
 import com.emg.projectsmanage.common.ItemSetUnit;
+import com.emg.projectsmanage.common.ModelEnum;
 import com.emg.projectsmanage.common.OwnerStatus;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.ParamUtils;
@@ -44,6 +45,7 @@ import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
 import com.emg.projectsmanage.dao.task.DatasetModelDao;
 import com.emg.projectsmanage.dao.task.ItemSetModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
+import com.emg.projectsmanage.pojo.ConfigValueModel;
 import com.emg.projectsmanage.pojo.DatasetModel;
 import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.ItemAreaModel;
@@ -106,6 +108,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		model.addAttribute("itemsetSysTypes", ItemSetSysType.toJsonStr());
 		model.addAttribute("itemsetTypes", ItemSetType.toJsonStr());
 		model.addAttribute("itemsetUnits", ItemSetUnit.toJsonStr());
+		//add by lianhr begin 2019/02/19
+		model.addAttribute("itemmodels", ModelEnum.toJsonStr());
+		//add by lianhr end
 
 		return "processesmanage";
 	}
@@ -191,6 +196,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			String strWorkers = ParamUtils.getParameter(request, "config_2_18");
 			String strCheckers = ParamUtils.getParameter(request, "config_2_21");
 			String strDatasets = ParamUtils.getParameter(request, "config_2_25");
+			//add by lianhr begin 2019/02/14
+			String strBatch = ParamUtils.getParameter(request, "strbatch");
+			String strModel = ParamUtils.getParameter(request, "config_1_29");
+			//add by lianhr end
 
 			Boolean isNewProcess = newProcessID.equals(0L);
 
@@ -316,6 +325,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					if (projectid332 > 0) {
 						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUID.getValue(), projectid332.toString()));
 						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue(), config_1_4));
+						//add by lianhr begin 2019/02/14
+						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), strBatch));
+						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANMOSHI.getValue(), strModel));
+						//add by lianhr end
 					}
 				}
 			} else {
@@ -324,7 +337,12 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					!type.equals(ProcessType.POIEDIT.getValue()) && projectid332.compareTo(0L) > 0) {
 					String config_1_4 = newProcessName + "_质检";
 					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue(), config_1_4));
-
+					
+					//add by lianhr begin 2019/02/14
+					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), strBatch));
+					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANMOSHI.getValue(), strModel));
+					//add by lianhr end
+					
 					ProjectModel pro = new ProjectModel();
 					pro.setId(projectid332);
 					pro.setName(config_1_4);
@@ -492,7 +510,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				if ((moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUID.getValue())) ||
 						(moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue())) ||
 						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUID.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue())))
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BANGDINGZILIAO.getValue())))
 					continue;
 				
 				// 这是不能修改的默认配置，这些配置项保留创建任务之初的时候的配置，不再根据系统配置的修改而变动了
@@ -518,7 +537,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 				configValues.add(new ProcessConfigValueModel(newProcessID, moduleid, configid, defaultValue));
 			}
-
+			
 			if (processConfigValueModelDao.deleteByProcessID(newProcessID) >= 0) {
 				ret = processConfigValueModelDao.insert(configValues);
 			}

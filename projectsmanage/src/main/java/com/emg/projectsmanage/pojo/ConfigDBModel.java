@@ -18,6 +18,10 @@ public class ConfigDBModel {
     private String password;
 
     private String port;
+    
+    //add by lianhr begin 2019/02/12
+    private Integer online;
+    //add by lianhr end
 
     public Integer getId() {
         return id;
@@ -90,4 +94,14 @@ public class ConfigDBModel {
 	public void setDbschema(String dbschema) {
 		this.dbschema = dbschema;
 	}
+	
+	//add by lianhr begin 2018/02/12
+	public Integer getOnline() {
+        return online;
+    }
+
+    public void setOnline(Integer online) {
+        this.online = online;
+    }
+	//add by lianhr end
 }
