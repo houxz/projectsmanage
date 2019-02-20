@@ -327,7 +327,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue(), config_1_4));
 						//add by lianhr begin 2019/02/14
 						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), strBatch));
-						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANMOSHI.getValue(), strModel));
+						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANMOSHI.getValue(), strModel));
 						//add by lianhr end
 					}
 				}
@@ -340,7 +340,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					
 					//add by lianhr begin 2019/02/14
 					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), strBatch));
-					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANMOSHI.getValue(), strModel));
+					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANMOSHI.getValue(), strModel));
 					//add by lianhr end
 					
 					ProjectModel pro = new ProjectModel();
