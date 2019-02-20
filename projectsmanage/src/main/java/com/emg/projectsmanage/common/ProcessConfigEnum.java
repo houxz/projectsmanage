@@ -110,6 +110,10 @@ public enum ProcessConfigEnum {
 	 */
 	BIANJISHUJUKU(27, "编辑数据库"),
 	/**
+	 * 28, "任务模式"
+	 */
+	RENWUMOSHI(28, "任务模式"),
+	/**
 	 * 29, "质检模式"
 	 */
 	ZHIJIANMOSHI(29, "质检模式");
