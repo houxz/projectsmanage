@@ -1263,5 +1263,31 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		logger.debug("ItemSetManageCtrl-deleteItemSet end.");
 		return json;
 	}
+	
+	//add by lianhr begin 2019/02/21
+	@RequestMapping(params = "atn=getInfoID")
+	public ModelAndView getInfoID(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("ItemSetManageCtrl-getInfoID start.");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		String curItemsArray = ParamUtils.getParameter(request, "curItemsArray", "");
+		String[] itemsArray = curItemsArray.split(";");
+		String itemInfos = "";
+		ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
+		ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
+		ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+		for(int i = 0; i < itemsArray.length; i++) {
+			String qid = itemsArray[i].split(":")[0].trim();
+			String layer = itemsArray[i].split(":")[1].trim();
+			if(itemSetModelDao.selectItemInfoId(configDBModel, qid, layer).size() > 0) {
+				itemInfos = itemInfos + "," + (itemSetModelDao.selectItemInfoId(configDBModel, qid, layer).get(0));
+			}
+		}
+		ResultModel result = new ResultModel();
+		result.put("itemInfos", itemInfos);
+		json.addAllObjects(result);
+		logger.debug("ItemSetManageCtrl-getInfoID end.");
+		return json;
+	}
+	//add by lianhr end
 
 }
