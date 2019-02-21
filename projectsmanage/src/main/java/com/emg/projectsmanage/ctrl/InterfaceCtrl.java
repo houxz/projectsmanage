@@ -1,15 +1,20 @@
 package com.emg.projectsmanage.ctrl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,10 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import com.emg.projectsmanage.pojo.EmployeeModel;
-import com.emg.projectsmanage.pojo.ProcessConfigModel;
-import com.emg.projectsmanage.pojo.ProcessConfigValueModel;
-import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.InterfaceResultModel;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
@@ -29,6 +30,7 @@ import com.emg.projectsmanage.common.ProcessConfigModuleEnum;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.SystemType;
+import com.emg.projectsmanage.dao.attach.CycleModelDao;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ConfigValueModelDao;
 import com.emg.projectsmanage.dao.process.ProcessConfigValueModelDao;
@@ -38,9 +40,15 @@ import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ConfigValueModel;
+import com.emg.projectsmanage.pojo.CycleModel;
+import com.emg.projectsmanage.pojo.CycleModelExample;
 import com.emg.projectsmanage.pojo.DepartmentModel;
+import com.emg.projectsmanage.pojo.EmployeeModel;
+import com.emg.projectsmanage.pojo.ProcessConfigModel;
+import com.emg.projectsmanage.pojo.ProcessConfigValueModel;
 import com.emg.projectsmanage.pojo.ProcessModel;
 import com.emg.projectsmanage.pojo.ProcessModelExample;
+import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.pojo.ProjectModelExample;
 import com.emg.projectsmanage.pojo.ProjectModelExample.Criteria;
 import com.emg.projectsmanage.pojo.ProjectsUserModel;
@@ -72,6 +80,12 @@ public class InterfaceCtrl extends BaseCtrl {
 	private ConfigValueModelDao configValueModelDao;
 	@Autowired
 	private ConfigDBModelDao configDBModelDao;
+	
+	@Autowired
+	private CycleModelDao cycleModelDao;
+	
+	@Value("${heart.minute}")
+	private String differTime;;
 	
 	@RequestMapping(params = "action=insertNewProject", method = RequestMethod.POST)
 	private ModelAndView insertNewProject(Model model,
@@ -971,7 +985,7 @@ public class InterfaceCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			ProjectModelExample example = new ProjectModelExample();
-			example.or().andNameLike(name)
+			example.or().andNameEqualTo(name)
 						.andProtypeEqualTo(proType)
 						.andSystemidEqualTo(systemid);
 			
@@ -1215,7 +1229,7 @@ public class InterfaceCtrl extends BaseCtrl {
 		try {
 			ProcessModelExample example = new ProcessModelExample();
 			example.or()
-				.andNameLike(name)
+				.andNameEqualTo(name)
 				.andTypeEqualTo(type);
 			List<ProcessModel> processes = processModelDao.selectByExample(example);
 			model.addAttribute("status", true);
@@ -1721,5 +1735,176 @@ public class InterfaceCtrl extends BaseCtrl {
 		}
 		logger.debug("END");
 		return new ModelAndView(new MappingJackson2JsonView()).addAllObjects(result);
+	}
+	
+	/**
+	 * 附属表工期统计 登陆接口
+	 * @param model
+	 * @param session
+	 * @param request
+	 * @param userid 登陆的用户ID
+	 * @param username 登陆的用户名
+	 * @return
+	 */
+	@RequestMapping(params = "action=logincycle", method = RequestMethod.POST)
+	private ModelAndView loginCycle(Model model,
+			HttpSession session,
+			HttpServletRequest request,
+			@RequestParam("userid") Long userid,
+			@RequestParam("projecttype") int projecttype,
+			@RequestParam("username") String username) {
+		logger.debug("login cycle start!");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		if( userid == null || username == null) return json;
+		try {
+			Date today = new Date();
+			CycleModel record = new CycleModel();
+			record.setUserid(userid);
+			record.setUsername(username);
+			record.setLogindate(this.getDateString(today));
+			record.setIsexit(CycleModel.ISEXIT_TRUE);
+			// 更新退出标识为未退出，但最后一次发送心跳包的时候已经超出指定时间间隔的记录
+			cycleModelDao.updateEnd(record, Integer.parseInt(differTime) );
+
+			// 判断是否在其它的机器上已经登陆
+			record.setIsexit(CycleModel.ISEXIT_FALSE);
+			List<CycleModel> cycles = cycleModelDao.selectExistRecord(record);
+			if (cycles != null && !cycles.isEmpty()) {
+				json.addObject("status", false);
+				record.setId(-1l);
+				json.addObject("option", record);
+				return json;
+			}	
+			record.setLogintime(today);
+			record.setLogouttime(today);
+			record.setProjecttype(projecttype);
+			record.setIsexit(CycleModel.ISEXIT_FALSE);
+			cycleModelDao.insert(record);
+			json.addObject("option", record);
+			json.addObject("status", true);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+		logger.debug("login cycle end!");
+		return json;
+	}
+	
+	/**
+	 * 附属表工期统计 登陆接口
+	 * @param model
+	 * @param session
+	 * @param request
+	 * @param userid 登陆的用户ID
+	 * @param username 登陆的用户名
+	 * @return
+	 */
+	@RequestMapping(params = "action=heartbeat", method = RequestMethod.POST)
+	private ModelAndView heartbeat(Model model,
+			HttpSession session,
+			HttpServletRequest request,
+			@RequestParam("id") Long id
+			) {
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		if( id == null ) return json;
+		try {
+			Date today = new Date();
+			CycleModel record = new CycleModel();
+			record.setId(id);
+			record.setLogouttime(today);
+			record.setIsexit(CycleModel.ISEXIT_FALSE);
+			int result = cycleModelDao.updateLogouttime(record);
+			if(result > 0) {
+				json.addObject("option", record);
+				json.addObject("status", true);
+			} else {
+				record.setId(-1l);
+				json.addObject("option", record);
+				json.addObject("status", false);
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+		logger.debug("heart beat cycle end!");
+		return json;
+	}
+	
+	/**
+	 * 附属表工期统计 登陆接口
+	 * @param model
+	 * @param session
+	 * @param request
+	 * @param userid 登陆的用户ID
+	 * @param username 登陆的用户名
+	 * @return
+	 */
+	@RequestMapping(params = "action=exitcycle", method = RequestMethod.POST)
+	private ModelAndView logoutCycle(Model model,
+			HttpSession session,
+			HttpServletRequest request,
+			@RequestParam("id") Long id
+			) {
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		if( id == null ) return json;
+		try {
+			Date today = new Date();
+			CycleModel record = new CycleModel();
+			record.setId(id);
+			record.setLogouttime(today);
+			record.setIsexit(CycleModel.ISEXIT_TRUE);
+			int result = cycleModelDao.updateExit(record);
+			if(result > 0) {
+				json.addObject("option", record);
+				json.addObject("status", true);
+			} else {
+				record.setId(-1l);
+				json.addObject("option", record);
+				json.addObject("status", false);
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+		logger.debug("exit cycle end!");
+		return json;
+	}
+	
+	/**
+	 * 附属表工期统计 登陆接口
+	 * @param model
+	 * @param session
+	 * @param request
+	 * @param userid 登陆的用户ID
+	 * @param username 登陆的用户名
+	 * @return
+	 */
+	@RequestMapping(params = "action=cyclediffer", method = RequestMethod.POST)
+	private ModelAndView cycleDiffer(Model model,
+			HttpSession session,
+			HttpServletRequest request
+			) {
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			
+			json.addObject("option", differTime);
+			json.addObject("status", true);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+		logger.debug("exit cycle end!");
+		return json;
+	}
+	
+	private String getDateString(Date date) {
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		return format.format(date);
 	}
 }

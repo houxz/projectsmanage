@@ -15,6 +15,7 @@
 				<ref bean="tasksmanage" />
 				<ref bean="doneprocesses" />
 				<ref bean="capacity" />
+				<ref bean="attachcapacity" />
 				<!-- <ref bean="downloadexcel" />
 				<ref bean="errorsmanage" /> -->
 				<ref bean="errorstask" />
@@ -118,6 +119,21 @@
 		<property name="code" value="1005" />
 		<property name="url" value="/projectsmanage/capacity.web" />
 		<property name="label" value="产能统计" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_WORKER</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_CHECKER</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
+	
+	<bean id="attachcapacity" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="1015" />
+		<property name="url" value="/projectsmanage/attachcapacity.web" />
+		<property name="label" value="附属表产能统计" />
 		<property name="roleSet">
 			<set>
 				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>

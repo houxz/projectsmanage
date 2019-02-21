@@ -8,7 +8,7 @@
 
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<!-- DB 配置 开始 -->
-	<context:property-placeholder location="WEB-INF/spring/db3.247.properties" ignore-unresolvable="true"/>
+	<context:property-placeholder location="WEB-INF/spring/db41.101.properties" ignore-unresolvable="true"/>
 
 	<!-- MySql 配置 -->
 	<bean id="dataSourceMySqlForAccount" class="org.apache.commons.dbcp.BasicDataSource"
@@ -109,6 +109,36 @@
 		<property name="removeAbandoned" value="${pepro.removeAbandoned}" />
 		<property name="removeAbandonedTimeout" value="${pepro.removeAbandonedTimeout}" />
 		<property name="maxWait" value="${pepro.maxWait}" />
+	</bean>
+	
+	<!-- attach 配置 -->
+	<bean id="dataSourcePostgreForAttach" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${attachcapacity.driverClassName}" />
+		<property name="url" value="${attachcapacity.url}" />
+		<property name="username" value="${attachcapacity.username}" />
+		<property name="password" value="${attachcapacity.password}" />
+		<property name="initialSize" value="${attachcapacity.initialSize}" />
+		<property name="maxIdle" value="${attachcapacity.maxIdle}" />
+		<property name="minIdle" value="${attachcapacity.minIdle}" />
+		<property name="maxActive" value="${attachcapacity.maxActive}" />
+		<property name="logAbandoned" value="${attachcapacity.logAbandoned}" />
+		<property name="validationQuery" value="${attachcapacity.validationQuery}" />
+		<property name="testOnBorrow" value="${attachcapacity.testOnBorrow}" />
+		<property name="testWhileIdle" value="${attachcapacity.testWhileIdle}" />
+		<property name="removeAbandoned" value="${attachcapacity.removeAbandoned}" />
+		<property name="removeAbandonedTimeout" value="${attachcapacity.removeAbandonedTimeout}" />
+		<property name="maxWait" value="${attachcapacity.maxWait}" />
+	</bean>
+	<!-- attachcapacity库 mybatis配置 -->
+	<bean id="sqlSessionFactoryForAttachCapacity" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSourcePostgreForAttach" />
+		<property name="mapperLocations"
+			value="classpath:com/emg/projectsmanage/mapping/attach/*.xml" />
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.emg.projectsmanage.dao.attach" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForAttachCapacity" />
 	</bean>
 	
 	<!-- emapgoaccount库 mybatis配置 -->

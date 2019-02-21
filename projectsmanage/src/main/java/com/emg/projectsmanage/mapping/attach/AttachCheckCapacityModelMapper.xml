@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.projectsmanage.dao.attach.AttachCheckCapacityModelDao" >
+  <resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.AttachCheckCapacityModel" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="userid" property="userid" jdbcType="BIGINT" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="countdate" property="countdate" jdbcType="TIMESTAMP" />
+    <result column="roletype" property="roleType" jdbcType="INTEGER" />
+    <result column="projecttype" property="projectTypeCheck" jdbcType="INTEGER" />
+    <result column="efficiency" property="efficiency" jdbcType="DOUBLE" />
+    <result column="checkcount" property="checkCount" jdbcType="INTEGER" />
+	  <result property="lostDirection" column="lost_direction" jdbcType="INTEGER" />
+	  <result property="makeMoreDirection" column="make_more_direction" jdbcType="INTEGER" />
+	  <result property="endRoadDirection" column="end_road_direction" jdbcType="INTEGER" />
+	  <result property="infoDirection" column="info_direction" jdbcType="INTEGER" />
+	  <result property="exitCodeDirection" column="exit_code_direction" jdbcType="INTEGER" />
+	  <result property="exitDirection" column="exit_direction" jdbcType="INTEGER" />
+	  <result property="unknownDirection" column="unknown_direction" jdbcType="INTEGER" />
+	  <result property="makeMoreLane" column="make_more_lane" jdbcType="INTEGER" />
+	  <result property="turnLane" column="turn_lane" jdbcType="INTEGER" />
+	  <result property="endRoadLane" column="end_road_lane" jdbcType="INTEGER" />
+	  <result property="innerLinkLane" column="inner_link_lane" jdbcType="INTEGER" />
+	  <result property="lostLane" column="lost_lane" jdbcType="INTEGER" />
+	  <result property="unknownLane" column="unknown_lane" jdbcType="INTEGER" />
+	  <result property="lostSceneJunctionview" column="lost_scene_junctionview" jdbcType="INTEGER" />
+	  <result property="lostPatternJunctionview" column="lost_pattern_junctionview" jdbcType="INTEGER" />
+	  <result property="makeMoreSceneJunctionview" column="make_more_scene_junctionview" jdbcType="INTEGER" />
+	  <result property="makeMorePatternJunctionview" column="make_more_pattern_junctionview" jdbcType="INTEGER" />
+	  <result property="pictureTypeSceneJunctionview" column="picture_type_scene_junctionview" jdbcType="INTEGER" />
+	  <result property="pictureTypePatternJunctionview" column="picture_type_pattern_junctionview" jdbcType="INTEGER" />
+	  <result property="arrowSceneJunctionview" column="arrow_scene_junctionview" jdbcType="INTEGER" />
+	  <result property="arrowPatternJunctionview" column="arrow_pattern_junctionview" jdbcType="INTEGER" />
+	  <result property="endRoadSceneJunctionview" column="end_road_scene_junctionview" jdbcType="INTEGER" />
+	  <result property="endRoadPatternJunctionview" column="end_road_pattern_junctionview" jdbcType="INTEGER" />
+	  <result property="pictureChoiceSceneJunctionview" column="picture_choice_scene_junctionview" jdbcType="INTEGER" />
+	  <result property="pictureChoicePatternJunctionview" column="picture_choice_pattern_junctionview" jdbcType="INTEGER" />
+	  <result property="unknownJunctionview" column="unknown_junctionview" jdbcType="INTEGER" />
+	  <result property="worktime" column="worktime" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  
+  <sql id="Base_Column_List" >
+     id,userid,username,projecttype,roletype,countdate,errorcount,efficience,lost_direction,make_more_direction,end_road_direction,info_direction,exit_code_direction,exit_direction,unknown_direction,lost_lane,make_more_lane,turn_lane,end_road_lane,inner_link_lane,unknown_lane,lost_scene_junctionview,lost_pattern_junctionview,make_more_scene_junctionview,make_more_pattern_junctionview,picture_type_scene_junctionview,picture_type_pattern_junctionview,arrow_scene_junctionview,arrow_pattern_junctionview,end_road_scene_junctionview,end_road_pattern_junctionview,picture_choice_scene_junctionview,picture_choice_pattern_junctionview,unknown_junctionview,checkcount
+  </sql>
+
+  <select id="selectcheckAttachCapacity" resultMap="BaseResultMap" parameterType="com.emg.projectsmanage.pojo.AttachCheckCapacityModel" >
+    select
+    
+    <include refid="Base_Column_List" />
+    from tb_error_count
+    
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <!-- <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if> -->
+    <if test="limit != null">
+		limit ${limit}
+	</if>
+	<if test="offset != null">
+		offset ${offset}
+	</if>
+  </select>
+ 
+
+  
+  <select id="countByExample" parameterType="com.emg.projectsmanage.pojo.AttachCheckCapacityModel" resultType="java.lang.Integer" >
+    select count(*) from tb_error_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  
+  <select id="doAttachCheckCapacityTask" parameterType="java.lang.String" resultType="java.lang.String" >
+    select 
+    <choose >
+	    <when test="date != null">
+	    	count_user_error(#{date})
+	    </when>
+	    <when test="date == null">
+	    	count_user_error(to_char(now(), 'YYYY-MM-DD'))
+	    </when>
+    </choose>
+    
+  </select>
+  
+  <update id="updateMakeError"  parameterType="java.util.List">  
+    <foreach collection="models" item="item" index="index" open="" close="" separator=";">
+        insert into tb_error_count(userid, countdate, makeerrorcount) values (#{item.userid}, #{item.countdate}, #{item.makeErrorCount})
+        on conflict (userid, countdate) do update set makeerrorcount=#{item.makeerrorcount}
+    </foreach>    
+</update>
+
+<update id="updateCheckError"  parameterType="java.util.List">  
+    <foreach collection="models" item="item" index="index" open="" close="" separator=";">
+        insert into tb_error_count(userid, countdate, checkerrorcount) values (#{item.userid}, #{item.countdate}, #{item.checkErrorCount})
+        on conflict (userid, countdate) do update set makeerrorcount=#{item.makeerrorcount}
+    </foreach>    
+</update>
+
+  <update id="updateUserName"  parameterType="java.util.List">  
+    <foreach collection="models" item="item" index="index" open="" close="" separator=";">
+        update tb_error_count set username=#{item.username} where userid=#{item.userid}        
+    </foreach>    
+</update>
+  
+</mapper>

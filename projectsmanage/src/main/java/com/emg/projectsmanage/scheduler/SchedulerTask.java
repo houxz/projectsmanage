@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,14 @@ import org.springframework.stereotype.Component;
 import com.emg.projectsmanage.common.CapacityTaskStateEnum;
 import com.emg.projectsmanage.common.CommonConstants;
 import com.emg.projectsmanage.common.IsWorkTimeEnum;
-import com.emg.projectsmanage.common.TaskTypeEnum;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.ProjectState;
 import com.emg.projectsmanage.common.RoleType;
+import com.emg.projectsmanage.common.TaskTypeEnum;
+import com.emg.projectsmanage.dao.attach.AttachCapacityModelDao;
+import com.emg.projectsmanage.dao.attach.AttachCheckCapacityModelDao;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.dao.process.ProjectsProcessModelDao;
@@ -37,9 +40,14 @@ import com.emg.projectsmanage.dao.task.TaskBlockDetailModelDao;
 import com.emg.projectsmanage.dao.task.TaskLinkErrorModelDao;
 import com.emg.projectsmanage.dao.task.TaskLinkFielddataModelDao;
 import com.emg.projectsmanage.dao.task.TaskModelDao;
+import com.emg.projectsmanage.pojo.AttachCapacityModelExample;
+import com.emg.projectsmanage.pojo.AttachCheckCapacityModel;
+import com.emg.projectsmanage.pojo.AttachMakeCapacityModel;
 import com.emg.projectsmanage.pojo.CapacityModel;
 import com.emg.projectsmanage.pojo.CapacityTaskModel;
 import com.emg.projectsmanage.pojo.CapacityTaskModelExample;
+import com.emg.projectsmanage.pojo.CapacityTaskModelExample.Criteria;
+import com.emg.projectsmanage.pojo.CapacityUniq;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
@@ -48,13 +56,11 @@ import com.emg.projectsmanage.pojo.ProjectModel;
 import com.emg.projectsmanage.pojo.ProjectsProcessModel;
 import com.emg.projectsmanage.pojo.QualityCapacityUniq;
 import com.emg.projectsmanage.pojo.QualityCapcityModel;
+import com.emg.projectsmanage.pojo.TaskModel;
 import com.emg.projectsmanage.pojo.WorkTasksModel;
 import com.emg.projectsmanage.pojo.WorkTasksUniq;
-import com.emg.projectsmanage.pojo.TaskModel;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 import com.emg.projectsmanage.service.ProcessConfigModelService;
-import com.emg.projectsmanage.pojo.CapacityTaskModelExample.Criteria;
-import com.emg.projectsmanage.pojo.CapacityUniq;
 
 @Component
 public class SchedulerTask {
@@ -66,6 +72,12 @@ public class SchedulerTask {
 	
 	@Value("${scheduler.worktasks.enable}")
 	private String worktasksEnable;
+	
+	
+	@Value("${scheduler.attachcapacity.enable}")
+	private String attachEnable;
+	
+	
 
 	@Autowired
 	private CapacityTaskModelDao capacityTaskModelDao;
@@ -105,6 +117,12 @@ public class SchedulerTask {
 	
 	@Autowired
 	private ProjectsProcessModelDao projectsProcessModelDao;
+	
+	@Autowired
+	private AttachCapacityModelDao attachCapacityDao;
+	
+	@Autowired
+	private AttachCheckCapacityModelDao attachCheckCapacityDao;
 
 	/**
 	 * 半夜三更 创建每天的任务
@@ -2712,4 +2730,78 @@ public class SchedulerTask {
 			logger.debug("projectsProcess has no records.");
 		}
 	}
+	
+	@Scheduled(cron = "${scheduler.attachcapacity.dotime}")
+	public void attachCapacityDoTask() {
+		if (!attachEnable.equalsIgnoreCase("true"))
+			return;
+		//制作
+		attachCapacityDao.doAttachCapacityTask(getDateString());
+	}
+	
+	/**
+	 * 用来统计附属表校正
+	 * @param date
+	 */
+	@Scheduled(cron = "${scheduler.attachcapacity.dotime}")
+	public void countAttachError() {
+		if (!attachEnable.equalsIgnoreCase("true"))
+			return;
+		//制作
+		attachCheckCapacityDao.doAttachCheckCapacityTask(getDateString());
+	}
+	
+	/**
+	 * 用来统一更新附属表中统计结果的用户名
+	 * 在统计的时候由于统计是在存储过程中统计，不能跨数据库，所以统计的时候没有在表中插入用户名，此方法用来统一更新用户名
+	 */
+	@Scheduled(cron = "${scheduler.attachcapacity.updateuser.dotime}")
+	public void updateCountUserName() {
+		if (!attachEnable.equalsIgnoreCase("true"))
+			return;
+		logger.debug("start update username.");
+		AttachCapacityModelExample example = new AttachCapacityModelExample();
+		AttachCapacityModelExample.Criteria criteria = example.or();
+		criteria.andCountDate(getDateString());
+		List<AttachMakeCapacityModel> makes = attachCapacityDao.selectAttachCapacity(example);
+		List<EmployeeModel> users = emapgoAccountService.getAllEmployees();
+		if (makes != null && users != null) {
+			for(AttachMakeCapacityModel make : makes) {
+				for(EmployeeModel user : users) {
+					if(make.getUserid() == user.getId()) {
+						make.setUsername(user.getRealname());
+					}
+				}
+			}
+			attachCapacityDao.updateUserName(makes);
+		}
+		
+		List<AttachCheckCapacityModel> checks = attachCheckCapacityDao.selectcheckAttachCapacity(example);
+		
+		if (checks != null && users != null) {
+			for(AttachCheckCapacityModel check : checks) {
+				for(EmployeeModel user : users) {
+					if(check.getUserid() == user.getId()) {
+						check.setUsername(user.getRealname());
+					}
+				}
+			}
+			attachCheckCapacityDao.updateUserName(checks);
+		}
+		
+	}
+	
+	/**
+	 * 获得今天日期的指定格式字符串
+	 * @return
+	 */
+	private String getDateString() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Date now = new Date();
+		String nowStr = sdf.format(now.getTime());
+		return nowStr;
+		// return "2018-10-01";
+	}
+		
+	
 }

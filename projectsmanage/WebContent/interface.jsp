@@ -52,6 +52,10 @@
 	              {"name":"基于项目name获取项目信息","type":"post","action":"selectProjectByName","params":["name","proType","systemid"]},
 	              {"name":"获取QC质检项目","type":"post","action":"QCUndoProjects","params":["systemid", "limit"]},
 	              {"name":"获取QC质检项目id","type":"post","action":"QCUndoProjectIDs","params":[]},
+	              {"name":"心跳包登陆","type":"post","action":"logincycle","params":["userid", "username", "projecttype"]},
+	              {"name":"心跳包","type":"post","action":"heartbeat","params":["id"]},
+	              {"name":"心跳包退出","type":"post","action":"exitcycle","params":["id"]},
+	              {"name":"心跳包间隔","type":"post","action":"cyclediffer","params":[]},
 	];
 	
 	function delResult(){
