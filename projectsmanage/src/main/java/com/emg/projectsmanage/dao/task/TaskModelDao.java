@@ -41,6 +41,12 @@ public class TaskModelDao {
 			tasktypes.addAll(TaskTypeEnum.getPoiEditTaskTypes());
 			tasktypes.addAll(TaskTypeEnum.getPoiCheckTaskTypes());
 			break;
+		//add by lianhr begin 2019/02/21
+		case COUNTRY:
+			tasktypes.add(TaskTypeEnum.QC_JIUGONGGE);
+			tasktypes.add(TaskTypeEnum.QC_QUANYU);
+			break;
+		//add by lianhr edn
 		default:
 			tasktypes.add(TaskTypeEnum.UNKNOWN);
 			break;
@@ -249,6 +255,11 @@ public class TaskModelDao {
 			if (record.getPriority() != null && record.getPriority().compareTo(-2) >= 0 && record.getPriority().compareTo(2) <= 0) {
 				sql.append(" AND " + separator + "priority" + separator + " = " + record.getPriority());
 			}
+			//add by lianhr begin 2019/02/22
+			if (record.getBatchid() != null ) {
+				sql.append(" AND " + separator + "batchid" + separator + " = " + record.getBatchid());
+			}
+			//add by lianhr end
 			if (stateMaps != null && stateMaps.size() > 0) {
 				sql.append(" AND ( ");
 				for (StateMap stateMap : stateMaps) {
