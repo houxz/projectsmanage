@@ -48,6 +48,10 @@ public class ErrorModel {
     private String sbound;
 
     private Object bound;
+    
+    //add by lianhr begin 2019/02/25
+    private Long countnum;
+    //add by lianhr end
 
     public Long getId() {
         return id;
@@ -232,4 +236,14 @@ public class ErrorModel {
     public void setBound(Object bound) {
         this.bound = bound;
     }
+    
+    //add by lianhr begin 2019/02/25
+    public Long getCountnum() {
+        return countnum;
+    }
+
+    public void setCountnum(Long countnum) {
+        this.countnum = countnum;
+    }
+    //add by lianhr end
 }

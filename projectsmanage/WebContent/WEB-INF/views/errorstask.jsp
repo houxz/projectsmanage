@@ -283,7 +283,7 @@
 				if (index >= 0) {
 					var data = $('[data-toggle="errorsTask"]').bootstrapTable("getData")[index];
 					$("#config_id").val(data.id);
-					$("#config_name").val(data.name);
+					$("#config_name").val(data.name );
 					$("#config_qctask").val(data.qctask);
 					$("#config_errorsrc").val(data.errorsrc);
 					$("#config_errortar").val(data.errortar);

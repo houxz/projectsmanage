@@ -16,6 +16,7 @@
 				<ref bean="doneprocesses" />
 				<ref bean="capacity" />
 				<ref bean="attachcapacity" />
+				<ref bean ="errorlistexport"/>
 				<!-- <ref bean="downloadexcel" />
 				<ref bean="errorsmanage" /> -->
 				<ref bean="errorstask" />
@@ -256,6 +257,21 @@
 		<property name="roleSet">
 			<set>
 				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
+	
+	<bean id="errorlistexport" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="1033" />
+		<property name="url" value="/projectsmanage/errorlistexport.web" />
+		<property name="label" value="错误清单导出" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_WORKER</value>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_CHECKER</value>
 			</set>
 		</property>
 		<property name="enabled" value="true" />
