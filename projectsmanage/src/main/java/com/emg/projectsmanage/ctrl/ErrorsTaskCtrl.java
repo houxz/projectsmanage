@@ -170,19 +170,25 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 							errorsTask.setQctaskdbname(configDBModel.getDbname());
 							errorsTask.setQctaskdbschema(configDBModel.getDbschema());
 							errorsTask.setQctaskip(configDBModel.getIp());
-							errorsTask.setQctaskport(configDBModel.getPort());
+							//modified by lianhr begin 2019/02/20
+							errorsTask.setQctaskport(configDBModel.getPort()+ "_" + (configDBModel.getOnline().intValue()==0 ? "线上" : "线下"));
+							//modified by lianhr end
 						}
 						if (errorsrc.equals(configDBModel.getId())) {
 							errorsTask.setErrorsrcdbname(configDBModel.getDbname());
 							errorsTask.setErrorsrcdbschema(configDBModel.getDbschema());
 							errorsTask.setErrorsrcip(configDBModel.getIp());
-							errorsTask.setErrorsrcport(configDBModel.getPort());
+							//modified by lianhr begin 2019/02/20
+							errorsTask.setErrorsrcport(configDBModel.getPort() + "_" + (configDBModel.getOnline().intValue()==0 ? "线上" : "线下"));
+							//modified by lianhr end
 						}
 						if (errortar.equals(configDBModel.getId())) {
 							errorsTask.setErrortardbname(configDBModel.getDbname());
 							errorsTask.setErrortardbschema(configDBModel.getDbschema());
 							errorsTask.setErrortarip(configDBModel.getIp());
-							errorsTask.setErrortarport(configDBModel.getPort());
+							//modified by lianhr begin 2019/02/20
+							errorsTask.setErrortarport(configDBModel.getPort() + "_" + (configDBModel.getOnline().intValue()==0 ? "线上" : (configDBModel.getOnline().intValue()==1 ? "线下" : (configDBModel.getOnline().intValue()== 2 ? "POI" : (configDBModel.getOnline().intValue()==3 ? "YY" : (configDBModel.getOnline().intValue()== 4 ? "关系附属" : ""))))));
+							//modified by lianhr end
 						}
 					}
 				}

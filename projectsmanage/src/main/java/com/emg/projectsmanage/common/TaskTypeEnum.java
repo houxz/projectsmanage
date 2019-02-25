@@ -79,7 +79,15 @@ public enum TaskTypeEnum {
 	/**
 	 * 15202, "POI易淘金校正"
 	 */
-	POI_MC_GEN(15202, "POI易淘金校正");
+	POI_MC_GEN(15202, "POI易淘金校正"),
+	/**
+	 * 14004, "九宫格质检"
+	 */
+	QC_JIUGONGGE(14004, "九宫格质检"),
+	/**
+	 * 14006, "全域质检"
+	 */
+	QC_QUANYU(14006, "全域质检");
 
 	private Integer value;
 	private String des;

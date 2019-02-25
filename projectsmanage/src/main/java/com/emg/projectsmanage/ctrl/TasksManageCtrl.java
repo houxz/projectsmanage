@@ -186,6 +186,11 @@ public class TasksManageCtrl extends BaseCtrl {
 			}
 
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
+			//add by lianhr begin 2019/02/21
+			if(processType.getValue().equals(ProcessType.COUNTRY.getValue())) {
+				config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
+			}
+			//add by lianhr end
 			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
 				ConfigDBModel configDBModel = configDBModelDao
 						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -358,9 +363,25 @@ public class TasksManageCtrl extends BaseCtrl {
 		List<StateMap> stateMaps = new ArrayList<StateMap>();
 		try {
 			switch (processType) {
-			case ERROR:
-				//TODO 2018年12月29日 上午10:46:26 待补充综检改错部分
+			case COUNTRY:
+				//TODO 2018年12月29日 上午11:04:42 综检改错待补充 
+				//add by lianhr begin 2019/02/22
+				switch (stateDes) {
+				case "待质检":
+					stateMaps.add(new StateMap(12, 51, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(12, 51, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					break;
+				case "质检中":
+					stateMaps.add(new StateMap(11, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(11, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					break;
+				case "质检完成":
+					stateMaps.add(new StateMap(2, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(2, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					break;
+				}
 				break;
+				//add by lianhr end
 			case NRFC:
 				switch (stateDes) {
 				case "编辑中":
@@ -522,9 +543,32 @@ public class TasksManageCtrl extends BaseCtrl {
 		TaskTypeEnum tasktype = TaskTypeEnum.valueOf(task.getTasktype());
 		Integer checkid = task.getCheckid();
 		
-		if (tasktype.equals(TaskTypeEnum.ERROR)) {
+		if (tasktype.equals(TaskTypeEnum.QC_JIUGONGGE) || tasktype.equals(TaskTypeEnum.QC_QUANYU)) {
 			//TODO 2018年12月29日 上午11:04:42 综检改错待补充 
-			 return "综检改错";
+			//add by lianhr begin 2019/02/22
+			switch (state) {
+			case 12:
+				switch (process) {
+			    case 51:
+			        return "待质检";
+			    }
+				break;
+			case 11:
+				switch (process) {
+			    case 52:
+			        return "质检中";
+			    }
+				break;
+			case 2:
+				switch (process) {
+			    case 52:
+			        return "质检完成";
+			    }
+				break;
+			default:
+				return "异常";
+			}
+			//add by lianhr end
 		} else if (tasktype.equals(TaskTypeEnum.NRFC)) {
 			switch (state) {
 			case 0:

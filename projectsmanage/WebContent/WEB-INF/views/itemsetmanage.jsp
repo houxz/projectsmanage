@@ -388,6 +388,126 @@
 		});
 	}
 	
+	//add by lianhr begin 2019/02/20
+	function importInfos() {
+		$("#dlgImportInfos").dialog({
+			modal : true,
+			width : 520,
+			title : "导入图层与质检项",
+			open : function(event, ui) {
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			close : function(event, ui) {
+				$("#importInfos").val("");
+			},
+			
+			buttons : [ {
+				text : "新增",
+				class : "btn btn-default",
+				click : function() {
+					var importItems = $("#importInfos").val();
+					if (!importItems) {
+						$.webeditor.showMsgLabel("alert", "请输入质检项");
+						return;
+					}
+					if (importItems.indexOf("；") >= 0) {
+						$.webeditor.showMsgLabel("alert", "请使用英文半角分号");
+						return;
+					}
+					if (importItems.indexOf("：") >= 0) {
+						$.webeditor.showMsgLabel("alert", "请使用英文半角冒号");
+						return;
+					}
+					jQuery.post("./itemsetmanage.web", {
+						"atn" : "getInfoID",
+						"curItemsArray" : importItems,
+						"processType" : $("#dlgItemSet table #processType").val()
+					}, function(json) {
+						if (json.itemInfos) {
+							importItems = json.itemInfos;
+							var curItemsArray = new Array();
+							var curItemsCount = 0;
+							var curItems = $("#dlgItemSet table #itemInfos").val().trim();
+							if (curItems.length > 0) {
+								curItemsArray = curItems.split(",");
+								curItemsCount = curItemsArray.length;
+							}
+							
+							var pushin = 0, pushout = 0;
+							$.each(importItems.split(","), function(index, domEle) {
+								if (domEle.trim() && curItemsArray.indexOf(String(domEle.trim())) < 0) {
+									curItemsArray.push(String(domEle.trim()));
+									pushin++;
+								} else {
+									pushout++;
+								}
+							});
+							
+							$("#dlgItemSet table #itemInfos").val(curItemsArray.join(","));
+							$("#dlgItemSet table #itemInfos span").text(curItemsArray.length);
+							$.webeditor.showMsgBox("close");
+							$.webeditor.showMsgLabel("success", "新识别质检项" + pushin + "个，去重" + pushout + "个");
+							$("#dlgImportInfos").dialog("close");
+						}
+					}, "json");
+					
+				}
+			}, {
+				text : "替换",
+				class : "btn btn-default",
+				click : function() {
+					var importItems = $("#importInfos").val();
+					if (!importItems) {
+						$.webeditor.showMsgLabel("alert", "请输入质检项");
+						return;
+					}
+					if (importItems.indexOf("；") >= 0) {
+						$.webeditor.showMsgLabel("alert", "请使用英文半角分号");
+						return;
+					}
+					if (importItems.indexOf("：") >= 0) {
+						$.webeditor.showMsgLabel("alert", "请使用英文半角冒号");
+						return;
+					}
+					jQuery.post("./itemsetmanage.web", {
+						"atn" : "getInfoID",
+						"curItemsArray" : importItems,
+						"processType" : $("#dlgItemSet table #processType").val()
+					}, function(json) {
+						if (json.itemInfos) {
+							importItems = json.itemInfos;
+							var curItemsArray = new Array();
+							var curItemsCount = 0;
+							
+							var pushin = 0, pushout = 0;
+							$.each(importItems.split(","), function(index, domEle) {
+								if (domEle.trim() && curItemsArray.indexOf(String(domEle.trim())) < 0) {
+									curItemsArray.push(String(domEle.trim()));
+									pushin++;
+								} else {
+									pushout++;
+								}
+							});
+							
+							$("#dlgItemSet table #itemInfos").val(curItemsArray.join(","));
+							$("#dlgItemSet table #itemInfos span").text(curItemsArray.length);
+							$.webeditor.showMsgBox("close");
+							$.webeditor.showMsgLabel("success", "新识别质检项" + pushin + "个，去重" + pushout + "个");
+							$("#dlgImportInfos").dialog("close");
+						}
+					}, "json");
+				}
+			}, {
+				text : "关闭",
+				class : "btn btn-default",
+				click : function() {
+					$(this).dialog("close");
+				}
+			} ]
+		});
+	}
+	//add by lianhr end
+	
 	function submitItemSet() {
 		var id = $("#dlgItemSet table #id").val();
 		var name = $("#dlgItemSet table #name").val();
@@ -607,6 +727,8 @@
 								<td class="configValue" style="border-top-color: #fff;">
 									<button type="button" class="btn btn-default"
 										onclick="getItemInfos();">选择图层与质检项</button>
+									<button type="button" class="btn btn-default"
+										onclick="importInfos();">导入图层与质检项</button>
 									<p class="help-block" id="itemInfos">
 										已选择<span>0</span>个图层与质检项
 									</p>
@@ -774,6 +896,9 @@
 	</div>
 	<div id="dlgImportItems" style="display: none;">
 		<textarea class="form-control" rows="12" id="importItems"></textarea>
+	</div>
+	<div id="dlgImportInfos" style="display: none;">
+		<textarea class="form-control" rows="12" id="importInfos"></textarea>
 	</div>
 </body>
 </html>

@@ -895,4 +895,47 @@ public class ItemSetModelDao {
 		}
 		return list;
 	}
+	
+	//add by lianhr begin 2019/02/21
+	/**
+	 * 根据质检项的QID和图层获取对应ID
+	 * 
+	 * @param QID
+	 *            QID
+	 * @param layername
+	 *            layername
+	 * @return
+	 */
+	public List<Long> selectItemInfoId(ConfigDBModel configDBModel, String QID, String layername) {
+		List<Long> items = new ArrayList<Long>();
+		BasicDataSource dataSource = null;
+		try {
+			Integer dbtype = configDBModel.getDbtype();
+
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT id   FROM ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_iteminfo ");
+			sql.append(" WHERE oid = '" + QID + "'");
+			sql.append(" AND layername = '" + layername + "'");
+
+			dataSource = Common.getDataSource(configDBModel);
+			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
+		} catch (Exception e) {
+			items = new ArrayList<Long>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return items;
+	}
+	//add by lianhr end
 }
