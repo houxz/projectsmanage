@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -78,7 +79,6 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 		try {
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
-			String sort = ParamUtils.getParameter(request, "sort", "");
 			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			Map<String, Object> map = new HashMap<String, Object>();
@@ -113,14 +113,17 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 					ProcessType.COUNTRY);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			HashSet<Long> selectbatchids = new HashSet<Long>();
+			List<ErrorModel> errorList = new ArrayList<ErrorModel>();
+			int count = 0;
 			if(map.get("batchid") != null && !String.valueOf(map.get("batchid")).equals("")) {
 				for (int i = 0; i < String.valueOf(map.get("batchid")).split(",").length; i++) {
 					String batchid = String.valueOf(map.get("batchid")).split(",")[i];
 					selectbatchids.add(Long.parseLong(batchid));
 				}
+				errorList = errorModelDao.selectErrorInfos(configDBModel, selectbatchids, map);
+				count = errorModelDao.selectCountErrorInfos(configDBModel, selectbatchids, map);
 			}
-			List<ErrorModel> errorList = errorModelDao.selectErrorInfos(configDBModel, selectbatchids, map);
-			int count = errorModelDao.selectCountErrorInfos(configDBModel, selectbatchids, map);
+			
 
 			json.addObject("rows", errorList);
 			json.addObject("total", count);
