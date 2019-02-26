@@ -34,7 +34,7 @@
 		$('[data-toggle="worktasks"]').bootstrapTable({
 			locale : 'zh-CN',
 			onSearch : function (text) {
-				$.webeditor.showMsgBox("info", "数据加载中，请稍候...");
+				$.webeditor.showMsgBox("info", "数据加载中，请稍候..."); 
 			},
 			onPageChange :function (number, size) {
 				$.webeditor.showMsgBox("info", "数据加载中，请稍候...");

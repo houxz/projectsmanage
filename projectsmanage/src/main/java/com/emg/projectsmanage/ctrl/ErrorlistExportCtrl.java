@@ -65,7 +65,7 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 	private static final Integer[] excelColumnWidth = { 3000, 14000, 3000, 7000, 7000 };
 
 	@RequestMapping()
-	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
+	public String openLader(Model model, HttpServletRequest request, HttpSession session) { 
 		logger.debug("ErrorlistExportCtrl-openLader start.");
 
 		return "errorlistexport";
