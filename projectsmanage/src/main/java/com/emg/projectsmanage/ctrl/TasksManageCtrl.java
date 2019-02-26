@@ -367,6 +367,28 @@ public class TasksManageCtrl extends BaseCtrl {
 				//TODO 2018年12月29日 上午11:04:42 综检改错待补充 
 				//add by lianhr begin 2019/02/22
 				switch (stateDes) {
+				case "异常":
+					stateMaps.add(new StateMap(13, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(14, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(15, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(16, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(17, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(18, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(19, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(22, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(23, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(100, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(13, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(14, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(15, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(16, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(17, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(18, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(19, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(22, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(23, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(100, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					break;
 				case "待质检":
 					stateMaps.add(new StateMap(12, 51, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
 					stateMaps.add(new StateMap(12, 51, TaskTypeEnum.QC_QUANYU.getValue(), null));
