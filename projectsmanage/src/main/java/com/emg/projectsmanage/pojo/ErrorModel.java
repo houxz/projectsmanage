@@ -5,7 +5,7 @@ import java.util.Date;
 public class ErrorModel {
     private Long id;
 
-    private Long taskid;
+    private Long taskid; 
 
     private Long blockid;
 

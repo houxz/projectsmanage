@@ -265,7 +265,7 @@
 	
 	<bean id="errorlistexport" class="com.emg.projectsmanage.auth.MenuAuthModel">
 		<property name="code" value="1033" />
-		<property name="url" value="/projectsmanage/errorlistexport.web" />
+		<property name="url" value="/projectsmanage/errorlistexport.web" /> 
 		<property name="label" value="错误清单导出" />
 		<property name="roleSet">
 			<set>

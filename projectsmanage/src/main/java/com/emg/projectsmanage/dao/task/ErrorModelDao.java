@@ -765,7 +765,7 @@ public class ErrorModelDao {
 			if (batchids == null || batchids.isEmpty())
 				return errorRelateds;
 
-			Integer dbtype = configDBModel.getDbtype();
+			Integer dbtype = configDBModel.getDbtype(); 
 
 			String separator = Common.getDatabaseSeparator(dbtype);
 
