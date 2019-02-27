@@ -401,6 +401,10 @@ public class ErrorModelDao {
 			}
 			prefix.append("tb_error ( ");
 			for (Field field : ErrorModel.class.getDeclaredFields()) {
+				//add by lianhr begin 2019/02/27
+				if (field.getName().compareToIgnoreCase("countnum") == 0)
+					continue;
+				//add by lianhr end
 				if (field.getName().compareToIgnoreCase("id") == 0)
 					continue;
 				prefix.append(field.getName() + ",");
@@ -438,8 +442,13 @@ public class ErrorModelDao {
 							Long errorID = errorAndRelated.getId();
 							if (!errorids.contains(errorID)) {
 								Field[] fields = ErrorModel.class.getDeclaredFields();
+								
 								for (Integer k = 1; k < fields.length; k++) {
 									Field field = fields[k];
+									//add by lianhr begin 2019/02/27
+									if (field.getName().compareToIgnoreCase("countnum") == 0)
+										continue;
+									//add by lianhr end
 									if (field.getName().compareToIgnoreCase("id") == 0)
 										continue;
 									field.setAccessible(true);
