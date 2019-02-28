@@ -567,7 +567,7 @@ public class TasksManageCtrl extends BaseCtrl {
 					stateMaps.add(new StateMap(1, 7, TaskTypeEnum.GEN_WEB.getValue(), null));
 					stateMaps.add(new StateMap(2, 7, TaskTypeEnum.GEN_WEB.getValue(), null));
 					break;
-				case "未校正":
+				case "制作完成":
 					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.GEN_WEB.getValue(), null));
 					break;
 				case "校正完成":
@@ -797,7 +797,7 @@ public class TasksManageCtrl extends BaseCtrl {
 			case 2:
 				switch (process) {
 				case 5:
-					return "未校正";
+					return "制作完成";
 				case 6:
 					return "校正完成";
 				case 7:
