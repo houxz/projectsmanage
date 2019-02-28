@@ -48,6 +48,6 @@
 		JOIN tb_config_type tct ON tc.`type` = tct.`id`
 		LEFT JOIN tb_config_default tcd ON tcd.`processtype` IN (0, #{processType,jdbcType=INTEGER})
 		AND tcd.`configid` = tc.`id`
-		WHERE tc.`id` = #{id,jdbcType=INTEGER}
+		WHERE tc.`id` = #{id,jdbcType=INTEGER}  and tcd.`editable` = 1
 	</select>
 </mapper>
