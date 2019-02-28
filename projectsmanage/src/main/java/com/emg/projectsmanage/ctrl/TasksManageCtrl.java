@@ -526,29 +526,29 @@ public class TasksManageCtrl extends BaseCtrl {
 				switch (stateDes) {
 				case "编辑中":
 				case "制作中":
-					stateMaps.add(new StateMap(0, 5, null, -1));
-					stateMaps.add(new StateMap(1, 5, null, -1));
+					stateMaps.add(new StateMap(0, 5, TaskTypeEnum.ADJUSTMAP.getValue(), -1));
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.ADJUSTMAP.getValue(), -1));
 					break;
 				case "完成":
-					stateMaps.add(new StateMap(3, 6, null, null));
+					stateMaps.add(new StateMap(3, 6, TaskTypeEnum.ADJUSTMAP.getValue(), null));
 					break;
 				case "未制作":
-					stateMaps.add(new StateMap(0, 0, null, null));
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.ADJUSTMAP.getValue(), null));
 					break;
 				case "校正错误修改中":
-					stateMaps.add(new StateMap(0, 5, null, 1));
-					stateMaps.add(new StateMap(1, 5, null, 1));
+					stateMaps.add(new StateMap(0, 5, TaskTypeEnum.ADJUSTMAP.getValue(), 1));
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.ADJUSTMAP.getValue(), 1));
 					break;
 				case "未校正":
 				case "待校正":
 					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.ADJUSTMAP.getValue(), null));
 					break;
 				case "校正中":
-					stateMaps.add(new StateMap(0, 6, null, null));
-					stateMaps.add(new StateMap(1, 6, null, null));
+					stateMaps.add(new StateMap(0, 6, TaskTypeEnum.ADJUSTMAP.getValue(), null));
+					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.ADJUSTMAP.getValue(), null));
 					break;
 				case "预发布完成":
-					stateMaps.add(new StateMap(3, 20, null, null));
+					stateMaps.add(new StateMap(3, 20, TaskTypeEnum.ADJUSTMAP.getValue(), null));
 					break;
 				}
 				break;
