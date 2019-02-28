@@ -80,12 +80,13 @@ public class ErrorExportJob implements InterruptableJob {
 				ConfigDBModel configDBTar = configDBModelDao.selectByPrimaryKey(errortar);
 				while (curerrorid < maxerrorid && !this._interrupted) {
 					logger.debug(String.format("START EXPORT errors with taskid: %s , < %s - %s - %s >", taskid, minerrorid, curerrorid, maxerrorid));
-					List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(configDBSrc, batchid, errortypes, curerrorid, curerrorid+batchNum-1);
+					List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(configDBSrc, batchid, errortypes, curerrorid, batchNum);
 					if (errorAndRelateds != null && !errorAndRelateds.isEmpty()) {
 						errorModelDao.exportErrors(configDBTar, errorAndRelateds);
+						curerrorid = errorAndRelateds.get(errorAndRelateds.size() - 1).getId()+1;
+						curerrorid = curerrorid.compareTo(maxerrorid) > 0 ? maxerrorid : curerrorid;
 					}
-					curerrorid += batchNum;
-					curerrorid = curerrorid.compareTo(maxerrorid) > 0 ? maxerrorid : curerrorid;
+					
 					try {
 						ErrorsTaskModel record = new ErrorsTaskModel();
 						record.setId(taskid);

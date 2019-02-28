@@ -330,7 +330,7 @@ public class ErrorModelDao {
 		return ret;
 	}
 
-	public List<ErrorAndErrorRelatedModel> selectErrorAndErrorRelateds(ConfigDBModel configDBModel, Long batchid, List<Long> errortypes, Long erroridxiao, Long erroridda) {
+	public List<ErrorAndErrorRelatedModel> selectErrorAndErrorRelateds(ConfigDBModel configDBModel, Long batchid, List<Long> errortypes, Long erroridxiao, Integer batchNum) {
 		List<ErrorAndErrorRelatedModel> errors = new ArrayList<ErrorAndErrorRelatedModel>();
 		BasicDataSource dataSource = null;
 		try {
@@ -354,10 +354,7 @@ public class ErrorModelDao {
 			sql.append(" WHERE 1=1 ");
 			sql.append(" AND te." + separator + "batchid" + separator + " =  " + batchid);
 			if (erroridxiao != null && erroridxiao.compareTo(0L) > 0) {
-				sql.append(" AND te." + separator + "id" + separator + " >= " + erroridxiao);
-			}
-			if (erroridda != null && erroridda.compareTo(0L) > 0) {
-				sql.append(" AND te." + separator + "id" + separator + " <= " + erroridda);
+				sql.append(" AND te." + separator + "id" + separator + " > " + erroridxiao);
 			}
 			if (errortypes != null && !errortypes.isEmpty()) {
 				sql.append(" AND te." + separator + "errortype" + separator + " IN ( ");
@@ -368,6 +365,9 @@ public class ErrorModelDao {
 				sql.append(" ) ");
 			}
 			sql.append(" ORDER BY te." + separator + "id" + separator + " ");
+			if (batchNum != null && batchNum.compareTo(0) > 0) {
+				sql.append(" LIMIT " + batchNum);
+			}
 
 			dataSource = Common.getDataSource(configDBModel);
 			errors = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorAndErrorRelatedModel>(ErrorAndErrorRelatedModel.class));
