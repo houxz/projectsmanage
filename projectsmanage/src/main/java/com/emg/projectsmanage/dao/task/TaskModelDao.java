@@ -339,6 +339,9 @@ public class TaskModelDao {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)
+				return list;
+			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	projectid,");
@@ -387,6 +390,9 @@ public class TaskModelDao {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)
+				return list;
+			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	projectid,");
@@ -429,6 +435,9 @@ public class TaskModelDao {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)
+				return list;
+			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	te.taskid,");
@@ -469,6 +478,9 @@ public class TaskModelDao {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)
+				return list;
+			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	t.projectid,");
@@ -513,6 +525,9 @@ public class TaskModelDao {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)
+				return list;
+			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	tf.taskid,");
@@ -553,6 +568,9 @@ public class TaskModelDao {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)
+				return list;
+			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	t.projectid,");
@@ -597,6 +615,9 @@ public class TaskModelDao {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)
+				return list;
+			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	wte.pid AS projectid,");
@@ -628,6 +649,9 @@ public class TaskModelDao {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)
+				return list;
+			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	wt.projectid AS projectid,");
@@ -659,6 +683,9 @@ public class TaskModelDao {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)
+				return list;
+			
 			if (time == null || time.isEmpty())
 				return list;
 			
@@ -702,6 +729,9 @@ public class TaskModelDao {
 		TaskModel task = new TaskModel();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)
+				return task;
+			
 			if (taskid == null || taskid.compareTo(0L) < 0)
 				return task;
 			Integer dbtype = configDBModel.getDbtype();
@@ -736,6 +766,9 @@ public class TaskModelDao {
 		TaskModel task = new TaskModel();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)
+				return task;
+			
 			if (blockid == null || blockid.compareTo(0L) < 0)
 				return task;
 			Integer dbtype = configDBModel.getDbtype();
@@ -771,6 +804,8 @@ public class TaskModelDao {
 		Integer ret = -1;
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)
+				return ret;
 			if (record == null || record.getId() == null || record.getId().compareTo(0L) <= 0)
 				return ret;
 			
@@ -812,6 +847,9 @@ public class TaskModelDao {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
 		try {
+			if (configDBModel == null)
+				return list;
+			
 			if (times == null || times.length == 0)
 				return list;
 

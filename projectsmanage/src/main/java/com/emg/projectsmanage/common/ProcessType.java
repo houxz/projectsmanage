@@ -12,7 +12,7 @@ public enum ProcessType {
 	 */
 	UNKNOWN(-1, "未知项目类型"),
 	/**
-	 * 1, "改错项目"
+	 * 1, "综检改错项目"
 	 */
 	ERROR(1, "综检改错项目"),
 	/**
