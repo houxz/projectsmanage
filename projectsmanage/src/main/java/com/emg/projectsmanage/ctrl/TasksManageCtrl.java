@@ -363,46 +363,9 @@ public class TasksManageCtrl extends BaseCtrl {
 		List<StateMap> stateMaps = new ArrayList<StateMap>();
 		try {
 			switch (processType) {
-			case COUNTRY:
-				//add by lianhr begin 2019/02/22
-				switch (stateDes) {
-				case "异常":
-					stateMaps.add(new StateMap(13, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
-					stateMaps.add(new StateMap(14, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
-					stateMaps.add(new StateMap(15, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
-					stateMaps.add(new StateMap(16, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
-					stateMaps.add(new StateMap(17, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
-					stateMaps.add(new StateMap(18, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
-					stateMaps.add(new StateMap(19, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
-					stateMaps.add(new StateMap(22, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
-					stateMaps.add(new StateMap(23, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
-					stateMaps.add(new StateMap(100, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
-					stateMaps.add(new StateMap(13, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
-					stateMaps.add(new StateMap(14, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
-					stateMaps.add(new StateMap(15, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
-					stateMaps.add(new StateMap(16, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
-					stateMaps.add(new StateMap(17, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
-					stateMaps.add(new StateMap(18, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
-					stateMaps.add(new StateMap(19, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
-					stateMaps.add(new StateMap(22, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
-					stateMaps.add(new StateMap(23, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
-					stateMaps.add(new StateMap(100, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
-					break;
-				case "待质检":
-					stateMaps.add(new StateMap(12, 51, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
-					stateMaps.add(new StateMap(12, 51, TaskTypeEnum.QC_QUANYU.getValue(), null));
-					break;
-				case "质检中":
-					stateMaps.add(new StateMap(11, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
-					stateMaps.add(new StateMap(11, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
-					break;
-				case "质检完成":
-					stateMaps.add(new StateMap(2, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
-					stateMaps.add(new StateMap(2, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
-					break;
-				}
+			case ERROR:
+				// TODO: 综检改错任务列表基于任务状态筛选还需要补充
 				break;
-				//add by lianhr end
 			case NRFC:
 				switch (stateDes) {
 				case "编辑中":
@@ -483,36 +446,46 @@ public class TasksManageCtrl extends BaseCtrl {
 					break;
 				}
 				break;
-			case ADJUSTMAP:
+			case COUNTRY:
+				//add by lianhr begin 2019/02/22
 				switch (stateDes) {
-				case "编辑中":
-				case "制作中":
-					stateMaps.add(new StateMap(0, 5, null, -1));
-					stateMaps.add(new StateMap(1, 5, null, -1));
+				case "异常":
+					stateMaps.add(new StateMap(13, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(14, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(15, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(16, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(17, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(18, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(19, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(22, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(23, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(100, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(13, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(14, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(15, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(16, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(17, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(18, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(19, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(22, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(23, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
+					stateMaps.add(new StateMap(100, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
 					break;
-				case "完成":
-					stateMaps.add(new StateMap(3, 6, null, null));
+				case "待质检":
+					stateMaps.add(new StateMap(12, 51, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(12, 51, TaskTypeEnum.QC_QUANYU.getValue(), null));
 					break;
-				case "未制作":
-					stateMaps.add(new StateMap(0, 0, null, null));
+				case "质检中":
+					stateMaps.add(new StateMap(11, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(11, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
 					break;
-				case "校正错误修改中":
-					stateMaps.add(new StateMap(0, 5, null, 1));
-					stateMaps.add(new StateMap(1, 5, null, 1));
-					break;
-				case "未校正":
-				case "待校正":
-					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.ADJUSTMAP.getValue(), null));
-					break;
-				case "校正中":
-					stateMaps.add(new StateMap(0, 6, null, null));
-					stateMaps.add(new StateMap(1, 6, null, null));
-					break;
-				case "预发布完成":
-					stateMaps.add(new StateMap(3, 20, null, null));
+				case "质检完成":
+					stateMaps.add(new StateMap(2, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
+					stateMaps.add(new StateMap(2, 52, TaskTypeEnum.QC_QUANYU.getValue(), null));
 					break;
 				}
 				break;
+				//add by lianhr end
 			case POIEDIT:
 				switch (stateDes) {
 				case "未制作":
@@ -546,6 +519,61 @@ public class TasksManageCtrl extends BaseCtrl {
 					for (TaskTypeEnum type : TaskTypeEnum.getPoiCheckTaskTypes()) {
 						stateMaps.add(new StateMap(2, 6, type.getValue(), null));
 					}
+					break;
+				}
+				break;
+			case ADJUSTMAP:
+				switch (stateDes) {
+				case "编辑中":
+				case "制作中":
+					stateMaps.add(new StateMap(0, 5, null, -1));
+					stateMaps.add(new StateMap(1, 5, null, -1));
+					break;
+				case "完成":
+					stateMaps.add(new StateMap(3, 6, null, null));
+					break;
+				case "未制作":
+					stateMaps.add(new StateMap(0, 0, null, null));
+					break;
+				case "校正错误修改中":
+					stateMaps.add(new StateMap(0, 5, null, 1));
+					stateMaps.add(new StateMap(1, 5, null, 1));
+					break;
+				case "未校正":
+				case "待校正":
+					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.ADJUSTMAP.getValue(), null));
+					break;
+				case "校正中":
+					stateMaps.add(new StateMap(0, 6, null, null));
+					stateMaps.add(new StateMap(1, 6, null, null));
+					break;
+				case "预发布完成":
+					stateMaps.add(new StateMap(3, 20, null, null));
+					break;
+				}
+				break;
+			case GEN:
+				switch (stateDes) {
+				case "未制作":
+					stateMaps.add(new StateMap(0, null, TaskTypeEnum.GEN_WEB.getValue(), null));
+					break;
+				case "制作中":
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.GEN_WEB.getValue(), null));
+					break;
+				case "校正中":
+					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.GEN_WEB.getValue(), null));
+					break;
+				case "校正错误修改中":
+					stateMaps.add(new StateMap(1, 7, TaskTypeEnum.GEN_WEB.getValue(), null));
+					break;
+				case "未校正":
+					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.GEN_WEB.getValue(), null));
+					break;
+				case "校正完成":
+					stateMaps.add(new StateMap(2, 6, TaskTypeEnum.GEN_WEB.getValue(), null));
+					break;
+				case "完成":
+					stateMaps.add(new StateMap(3, null, TaskTypeEnum.GEN_WEB.getValue(), null));
 					break;
 				}
 				break;
@@ -750,6 +778,31 @@ public class TasksManageCtrl extends BaseCtrl {
 				return "校正中";
 			case 2:
 				return "校正完成";
+			}
+		} else if (tasktype.equals(TaskTypeEnum.GEN_WEB)) {
+			switch (state) {
+			case 0:
+				return "未制作";
+			case 1:
+				switch (process) {
+				case 5:
+					return "制作中";
+				case 6:
+					return "校正中";
+				case 7:
+					return "校正错误修改中";
+				}
+				break;
+			case 2:
+				switch (process) {
+				case 5:
+					return "未校正";
+				case 6:
+					return "校正完成";
+				}
+				break;
+			case 3:
+				return "完成";
 			}
 		}
 		
