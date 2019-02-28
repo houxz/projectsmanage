@@ -122,7 +122,7 @@
 		return jobStates[row.state];
 	}
 	function processFormat(value, row, index) {
-		var pro = row.maxerrorid ? parseFloat((row.curerrorid-row.minerrorid+1)*100/(row.maxerrorid-row.minerrorid+1)).toFixed(3) : 0;
+		var pro = row.maxerrorid ? ((parseFloat((row.curerrorid-row.minerrorid+1)*100/(row.maxerrorid-row.minerrorid+1)).toFixed(3) > 0.01) ? parseFloat((row.curerrorid-row.minerrorid+1)*100/(row.maxerrorid-row.minerrorid+1)).toFixed(3) : 0) : 0;
 		var html = new Array();
 		html.push('<div>');
 		html.push('<div data-toggle="tooltip" data-html="true" data-placement="top" title="最大错误ID：' + row.maxerrorid + '<br>最小错误ID：' + row.minerrorid + '<br>当前错误ID：' + row.curerrorid + '" >');
