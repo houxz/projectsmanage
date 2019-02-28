@@ -21,7 +21,7 @@ public enum TaskTypeEnum {
 	 */
 	ATTACH(13, "关系附属表任务"),
 	/**
-	 * 13, "关系附属表项目"
+	 * 14, "整图编辑任务"
 	 */
 	ADJUSTMAP(14, "整图编辑任务"),
 	/**
