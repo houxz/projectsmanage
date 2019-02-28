@@ -565,6 +565,7 @@ public class TasksManageCtrl extends BaseCtrl {
 					break;
 				case "校正错误修改中":
 					stateMaps.add(new StateMap(1, 7, TaskTypeEnum.GEN_WEB.getValue(), null));
+					stateMaps.add(new StateMap(2, 7, TaskTypeEnum.GEN_WEB.getValue(), null));
 					break;
 				case "未校正":
 					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.GEN_WEB.getValue(), null));
@@ -799,6 +800,8 @@ public class TasksManageCtrl extends BaseCtrl {
 					return "未校正";
 				case 6:
 					return "校正完成";
+				case 7:
+					return "校正错误修改中";
 				}
 				break;
 			case 3:
