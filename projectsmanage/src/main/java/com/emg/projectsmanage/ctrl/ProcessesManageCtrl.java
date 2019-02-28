@@ -270,7 +270,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				if (isNewProcess) {
 					logger.error("自动项目无需手动创建：" + type);
 					json.addObject("result", -1);
-					json.addObject("option", "自动项目无需手动创建");
+					json.addObject("resultMsg", "自动项目无需手动创建");
 					return json;
 				}
 				suffix = "";
@@ -279,7 +279,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				if (isNewProcess) {
 					logger.error("自动项目无需手动创建：" + type);
 					json.addObject("result", -1);
-					json.addObject("option", "自动项目无需手动创建");
+					json.addObject("resultMsg", "自动项目无需手动创建");
 					return json;
 				}
 				suffix = "";
@@ -290,7 +290,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			} else {
 				logger.error("未知的项目类型：" + type);
 				json.addObject("result", -1);
-				json.addObject("option", "未知的项目类型：" + type);
+				json.addObject("resultMsg", "未知的项目类型：" + type);
 				return json;
 			}
 			
