@@ -199,6 +199,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			String strBatch = ParamUtils.getParameter(request, "strbatch");
 			String strModel = ParamUtils.getParameter(request, "config_1_29");
 			//add by lianhr end
+			Integer processEditType = ParamUtils.getIntParameter(request, "config_2_30", 1);
 
 			Boolean isNewProcess = newProcessID.equals(0L);
 
@@ -247,9 +248,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			}
 			
+			// TODO: 新增项目类型需要指定systemid
 			String suffix = new String();
 			Integer systemid = -1;
-			
 			if(type.equals(ProcessType.ERROR.getValue())){
 				suffix = "_改错";
 				systemid = SystemType.MapDbEdit.getValue();
@@ -265,10 +266,34 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			} else if(type.equals(ProcessType.POIEDIT.getValue())) {
 				suffix = "";
 				systemid = SystemType.poivideoedit.getValue();
+			} else if(type.equals(ProcessType.ADJUSTMAP.getValue())) {
+				if (isNewProcess) {
+					logger.error("自动项目无需手动创建：" + type);
+					json.addObject("result", -1);
+					json.addObject("option", "自动项目无需手动创建");
+					return json;
+				}
+				suffix = "";
+				systemid = SystemType.AdjustMap.getValue();
 			} else if(type.equals(ProcessType.GEN.getValue())) {
+				if (isNewProcess) {
+					logger.error("自动项目无需手动创建：" + type);
+					json.addObject("result", -1);
+					json.addObject("option", "自动项目无需手动创建");
+					return json;
+				}
 				suffix = "";
 				systemid = SystemType.poi_GEN.getValue();
+			} else if(type.equals(ProcessType.AREA.getValue())) {
+				suffix = "_行政区划";
+				systemid = SystemType.MapDbEdit_Area.getValue();
+			} else {
+				logger.error("未知的项目类型：" + type);
+				json.addObject("result", -1);
+				json.addObject("option", "未知的项目类型：" + type);
+				return json;
 			}
+			
 			//新建/更新流程
 			if (isNewProcess) {
 				ProcessModel newProcess = new ProcessModel();
@@ -278,9 +303,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				newProcess.setState(0);
 				newProcess.setUserid(uid);
 				newProcess.setUsername(username);
-				if(type.equals(ProcessType.COUNTRY.getValue())) {
-					newProcess.setProgress("0,0,0,0");
-				}
+				newProcess.setProgress("0,0,0,0");
 				if (processModelDao.insertSelective(newProcess) <= 0) {
 					ret = -1;
 					json.addObject("result", ret);
@@ -299,11 +322,12 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 			List<ProcessConfigValueModel> configValues = new ArrayList<ProcessConfigValueModel>();
 
-			//创建/更新质检项目
+			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJILEIXING.getValue(), processEditType.toString()));
+			
+			// TODO: 新增项目类型需要确定是否有质检过程
 			if (isNewProcess) {
-				if(!type.equals(ProcessType.NRFC.getValue()) && 
-					!type.equals(ProcessType.ATTACH.getValue()) &&
-					!type.equals(ProcessType.POIEDIT.getValue())) {
+				if(type.equals(ProcessType.ERROR.getValue()) ||
+					type.equals(ProcessType.COUNTRY.getValue())) {
 					String config_1_4 = newProcessName + "_质检";
 
 					ProjectModel newpro = new ProjectModel();
@@ -331,9 +355,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					}
 				}
 			} else {
-				if(!type.equals(ProcessType.NRFC.getValue()) && 
-					!type.equals(ProcessType.ATTACH.getValue()) &&
-					!type.equals(ProcessType.POIEDIT.getValue()) && projectid332.compareTo(0L) > 0) {
+				if((type.equals(ProcessType.ERROR.getValue()) ||
+					type.equals(ProcessType.COUNTRY.getValue())) && projectid332.compareTo(0L) > 0) {
 					String config_1_4 = newProcessName + "_质检";
 					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue(), config_1_4));
 					
@@ -350,39 +373,54 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			}
 
-			//创建/更新改错项目
-			if (isNewProcess && !type.equals(ProcessType.COUNTRY.getValue())) {
-				ProjectModel newpro = new ProjectModel();
-				newpro.setProcessid(newProcessID);
-				newpro.setName(newProcessName + suffix);
-				newpro.setSystemid(systemid);
-				newpro.setProtype(type);
-				newpro.setPdifficulty(0);
-				newpro.setTasknum(-1);
-				newpro.setOverstate(0);
-				newpro.setCreateby(uid);
-				newpro.setPriority(priority);
-				newpro.setOwner(owner);
+			// TODO: 新增项目类型需要确定是否有改错过程
+			if (isNewProcess) {
+				if (type.equals(ProcessType.ERROR.getValue()) ||
+					type.equals(ProcessType.NRFC.getValue()) ||
+					type.equals(ProcessType.ATTACH.getValue()) ||
+					type.equals(ProcessType.POIEDIT.getValue()) ||
+					type.equals(ProcessType.GEN.getValue()) ||
+					type.equals(ProcessType.AREA.getValue())) {
+					ProjectModel newpro = new ProjectModel();
+					newpro.setProcessid(newProcessID);
+					newpro.setName(newProcessName + suffix);
+					newpro.setSystemid(systemid);
+					newpro.setProtype(type);
+					newpro.setPdifficulty(0);
+					newpro.setTasknum(-1);
+					newpro.setOverstate(0);
+					newpro.setCreateby(uid);
+					newpro.setPriority(priority);
+					newpro.setOwner(owner);
 
-				if (projectModelDao.insert(newpro) > 0) {
-					projectid349 = newpro.getId();
+					if (projectModelDao.insert(newpro) > 0) {
+						projectid349 = newpro.getId();
+					}
+					if (projectid349 > 0) {
+						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUID.getValue(), projectid349.toString()));
+						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newProcessName + suffix));
+					}
 				}
-				if (projectid349 > 0) {
-					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUID.getValue(), projectid349.toString()));
+			} else {
+				if (type.equals(ProcessType.ERROR.getValue()) ||
+					type.equals(ProcessType.NRFC.getValue()) ||
+					type.equals(ProcessType.ATTACH.getValue()) ||
+					type.equals(ProcessType.POIEDIT.getValue()) ||
+					type.equals(ProcessType.GEN.getValue()) ||
+					type.equals(ProcessType.AREA.getValue())) {
 					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newProcessName + suffix));
+	
+					ProjectModel pro = new ProjectModel();
+					pro.setId(projectid349);
+					pro.setName(newProcessName + suffix);
+					pro.setPriority(priority);
+					pro.setOwner(owner);
+					projectModelDao.updateByPrimaryKeySelective(pro);
 				}
-			} else if(!isNewProcess) {
-				configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newProcessName + suffix));
-
-				ProjectModel pro = new ProjectModel();
-				pro.setId(projectid349);
-				pro.setName(newProcessName + suffix);
-				pro.setPriority(priority);
-				pro.setOwner(owner);
-				projectModelDao.updateByPrimaryKeySelective(pro);
 			}
 
-			//更新编辑人员
+			// TODO: 新增项目类型需要配置人员信息
+			// 改错人员
 			if (strWorkers != null && !strWorkers.isEmpty()) {
 				List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
 				Map<String, Object> jsonWorkers = (Map<String, Object>)JSONObject.fromObject(strWorkers);
@@ -478,7 +516,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			}
 			
-			// 处理资料绑定
+			// TODO: 新增项目类型需要确定是否资料相关
 			if (strDatasets != null && !strDatasets.isEmpty() && !isNewProcess) {
 				ProcessConfigValueModel processConfigValueModels = processConfigValueModelDao.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.BANGDINGZILIAO.getValue());
 				if (processConfigValueModels != null && processConfigValueModels.getValue() != null && !processConfigValueModels.getValue().isEmpty()) {
@@ -499,6 +537,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			}
 
+			// TODO: 新增项目类型需要指定其他配置项
 			List<ProcessConfigModel> processConfigs = processConfigModelService.selectAllProcessConfigModels(type);
 			for (ProcessConfigModel processConfig : processConfigs) {
 				Integer moduleid = processConfig.getModuleid();
@@ -509,14 +548,11 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				if ((moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUID.getValue())) ||
 						(moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue())) ||
 						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUID.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue())))
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BANGDINGZILIAO.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANMOSHI.getValue())) ||
+						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJILEIXING.getValue())))
 					continue;
-				
-				//add by lianhr begin 2019/02/20
-				if(type.equals(ProcessType.COUNTRY.getValue()) && (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BANGDINGZILIAO.getValue()))) {
-					continue;
-				}
-				//add by lianhr end
 				
 				// 这是不能修改的默认配置，这些配置项保留创建任务之初的时候的配置，不再根据系统配置的修改而变动了
 				if (!isNewProcess &&
@@ -698,14 +734,18 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
-			itemAreas = itemSetModelDao.getItemAreas(configDBModel, type, itemAreaModel);
+			if (configDBModel != null) {
+				itemAreas = itemSetModelDao.getItemAreas(configDBModel, type, itemAreaModel);
+				
+				json.addObject("rows", itemAreas);
+				json.addObject("count", itemAreas.size());
+				json.addObject("result", 1);
+			} else {
+				json.addObject("result", 0);
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-		json.addObject("rows", itemAreas);
-		json.addObject("count", itemAreas.size());
-		json.addObject("result", 1);
 
 		logger.debug("ProcessesManageCtrl-getItemAreas end.");
 		return json;

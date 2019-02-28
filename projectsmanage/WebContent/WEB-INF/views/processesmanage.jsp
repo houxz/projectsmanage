@@ -1,5 +1,6 @@
 <%@page import="com.emg.projectsmanage.common.ProcessType"%>
 <%@page import="com.emg.projectsmanage.common.ModelEnum"%>
+<%@page import="com.emg.projectsmanage.common.ProcessEditType"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt'%>
@@ -577,6 +578,7 @@
 		$("#strbatch").val("15" + new Date().Format("yyyyMMddHHmmss"));
 		$("#config_1_29").prop('selectedIndex', 0);
 		//add by lianhr end
+		$("#config_2_30").prop('selectedIndex', 0);
 		
 		processTypeChange(1);
 	}
@@ -587,7 +589,7 @@
 		if (processid > 0) {
 			if (state != 0) {
 				disableByProcessType(processtype);
-			}else {
+			} else {
 				enableAllConfigs();
 			}
 			jQuery.post("./processesmanage.web", {
@@ -672,6 +674,7 @@
 							var strbatch = $("#strbatch").val();
 							var config_1_29 = $("#config_1_29").val();
 							//add by lianhr end
+							var config_2_30 = $("#config_2_30").val();
 
 							if (!newProcessName || newProcessName.length <= 0) {
 								$.webeditor.showMsgLabel("alert", "项目名不能为空");
@@ -793,6 +796,7 @@
 									"strbatch" : strbatch,
 									"config_1_29" : config_1_29,
 									//add by lianhr end
+									"config_2_30" : config_2_30
 								},
 								function(json) {
 									if (json.result > 0) {
@@ -1069,6 +1073,7 @@
 		}
 	}
 	
+	// TODO: 新增配置项需要补充啥时候显示
 	function processTypeChange(selectValue) {
 		switch(selectValue) {
 		case 1:
@@ -1085,6 +1090,7 @@
 			$("#config_2_26").parents("tr").hide();
 			$("#config_1_29").parents("tr").hide();
 			$("#strbatch").parents("tr").hide();
+			$("#config_2_30").parents("tr").hide();
 			break;
 		case 2:
 		case "2":
@@ -1100,6 +1106,7 @@
 			$("#config_2_26").parents("tr").hide();
 			$("#config_1_29").parents("tr").hide();
 			$("#strbatch").parents("tr").hide();
+			$("#config_2_30").parents("tr").hide();
 			break;
 		case 3:
 		case "3":
@@ -1115,6 +1122,7 @@
 			$("#config_2_26").parents("tr").hide();
 			$("#config_1_29").parents("tr").hide();
 			$("#strbatch").parents("tr").hide();
+			$("#config_2_30").parents("tr").hide();
 			break;
 		case 4:
 		case "4":
@@ -1130,6 +1138,7 @@
 			$("#config_2_26").parents("tr").hide();
 			$("#strbatch").parents("tr").show();
 			$("#config_1_29").parents("tr").show();
+			$("#config_2_30").parents("tr").hide();
 			break;
 		case 5:
 		case "5":
@@ -1145,6 +1154,7 @@
 			$("#config_2_26").parents("tr").show();
 			$("#strbatch").parents("tr").hide();
 			$("#config_1_29").parents("tr").hide();
+			$("#config_2_30").parents("tr").hide();
 			break;
 		case 6:
 		case "6":
@@ -1160,6 +1170,7 @@
 			$("#config_2_26").parents("tr").hide();
 			$("#strbatch").parents("tr").hide();
 			$("#config_1_29").parents("tr").hide();
+			$("#config_2_30").parents("tr").hide();
 			break;
 		case 7:
 		case "7":
@@ -1175,6 +1186,23 @@
 			$("#config_2_26").parents("tr").hide();
 			$("#strbatch").parents("tr").hide();
 			$("#config_1_29").parents("tr").hide();
+			$("#config_2_30").parents("tr").hide();
+			break;
+		case 8:
+		case "8":
+			$("#config_1_5").parents("tr").hide();
+			$("#config_1_6").parents("tr").hide();
+			$("#config_1_7").parents("tr").show();
+			$("#config_2_18").parents("tr").show();
+			$("#config_2_19").parents("tr").show();
+			$("#config_2_21").parents("tr").show();
+			$("#config_2_22").parents("tr").hide();
+			$("#config_2_23").parents("tr").hide();
+			$("#config_2_25").parents("tr").hide();
+			$("#config_2_26").parents("tr").hide();
+			$("#config_1_29").parents("tr").hide();
+			$("#strbatch").parents("tr").hide();
+			$("#config_2_30").parents("tr").show();
 			break;
 		default:
 			console.log("processTypeChange--错误的项目类型：" + selectValue);
@@ -1191,6 +1219,7 @@
 		$("#config_2_19").removeAttr("disabled");
 		$("#config_2_22").removeAttr("disabled");
 		$("#config_2_26").removeAttr("disabled");
+		$("#config_2_30").removeAttr("disabled");
 	}
 	
 	function disableByProcessType(selectValue) {
@@ -1207,6 +1236,7 @@
 			$("#config_2_26").removeAttr("disabled");
 		}
 		$("#config_processprotype").attr("disabled", true);
+		$("#config_2_30").attr("disabled", true);
 	}
 	//add by lianhr begin 2019/02/14
     Date.prototype.Format = function (fmt) {  
@@ -1237,7 +1267,7 @@
 				data-url="./processesmanage.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="processes" data-height="714"
-				data-page-list="[5, 10, 20, All]" data-page-size="5"
+				data-page-list="[5, 10, 20, 100]" data-page-size="5"
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr>
@@ -1330,6 +1360,18 @@
 							<c:forEach items="${itemmodels }" var="itemmodel">
 								<c:if test="${itemmodel.getValue() > 0 }">
 									<option value="${itemmodel.getValue() }">${itemmodel.getDes() }</option>
+								</c:if>
+							</c:forEach>
+					</select></td>
+				</tr>
+				<tr>
+					<td class="configKey">编辑类型</td>
+					<td class="configValue"><select class="form-control"
+						id="config_2_30">
+							<c:set var="processEditTypes" value="<%= ProcessEditType.values() %>"/>
+							<c:forEach items="${processEditTypes }" var="processEditType">
+								<c:if test="${processEditType.getValue() > 0 }">
+									<option value="${processEditType.getValue() }">${processEditType.getDes() }</option>
 								</c:if>
 							</c:forEach>
 					</select></td>

@@ -116,7 +116,11 @@ public enum ProcessConfigEnum {
 	/**
 	 * 29, "质检模式"
 	 */
-	ZHIJIANMOSHI(29, "质检模式");
+	ZHIJIANMOSHI(29, "质检模式"),
+	/**
+	 * 30, "编辑类型"
+	 */
+	BIANJILEIXING(30, "编辑类型");
 
 	private Integer value;
 	private String des;

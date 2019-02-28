@@ -36,6 +36,10 @@ public enum SystemType {
 	 */
 	MapDbEdit_Country(3493, "综合编辑平台_全国质检"),
 	/**
+	 * 3494, "综合编辑平台_行政区划"
+	 */
+	MapDbEdit_Area(3494, "综合编辑平台_行政区划"),
+	/**
 	 * 350, "整图编辑平台"
 	 */
 	AdjustMap(350, "整图编辑平台"),

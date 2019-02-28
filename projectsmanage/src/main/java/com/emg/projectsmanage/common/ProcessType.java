@@ -38,7 +38,11 @@ public enum ProcessType {
 	/**
 	 * 7, "易淘金线上编辑项目"
 	 */
-	GEN(7, "易淘金线上编辑项目");
+	GEN(7, "易淘金线上编辑项目"),
+	/**
+	 * 8, "行政区划项目"
+	 */
+	AREA(8, "行政区划项目");
 
 	private Integer value;
 	private String des;

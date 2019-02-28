@@ -136,6 +136,16 @@
 										</c:forEach>
 								</select></td>
 							</tr>
+							<tr>
+								<td class="configKey">行政区划项目</td>
+								<td><select class="form-control systemSet" id="config_38">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('task') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']}_<c:if test="${configDBModel['online'] == 0}">线上</c:if><c:if test="${configDBModel['online'] == 1}">线下</c:if>)</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
 							
 							<tr>
 								<td class="configKey"></td>
@@ -203,8 +213,18 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td class="configKey">易淘金项目</td>
+								<td class="configKey">易淘金线上编辑项目</td>
 								<td><select class="form-control systemSet" id="config_37">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('error') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']}_<c:if test="${configDBModel['online'] == 0}">线上</c:if><c:if test="${configDBModel['online'] == 1}">线下</c:if>)</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">行政区划项目</td>
+								<td><select class="form-control systemSet" id="config_40">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('error') }">
 												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']}_<c:if test="${configDBModel['online'] == 0}">线上</c:if><c:if test="${configDBModel['online'] == 1}">线下</c:if>)</option>
@@ -279,8 +299,18 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td class="configKey">易淘金项目</td>
+								<td class="configKey">易淘金线上编辑项目</td>
 								<td><select class="form-control systemSet" id="config_35">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('task') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']}_<c:if test="${configDBModel['online'] == 0}">线上</c:if><c:if test="${configDBModel['online'] == 1}">线下</c:if>)</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">行政区划项目</td>
+								<td><select class="form-control systemSet" id="config_39">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('task') }">
 												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']}_<c:if test="${configDBModel['online'] == 0}">线上</c:if><c:if test="${configDBModel['online'] == 1}">线下</c:if>)</option>
@@ -355,8 +385,18 @@
 								</select></td>
 							</tr>
 							<tr>
-								<td class="configKey">易淘金项目</td>
+								<td class="configKey">易淘金线上编辑项目</td>
 								<td><select class="form-control systemSet" id="config_36">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('data') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']}_<c:if test="${configDBModel['online'] == 0}">线上</c:if><c:if test="${configDBModel['online'] == 1}">线下</c:if>)</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="configKey">行政区划项目</td>
+								<td><select class="form-control systemSet" id="config_41">
 										<c:forEach items="${configDBModels }" var="configDBModel">
 											<c:if test="${configDBModel['connname'].equals('data') }">
 												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']}_<c:if test="${configDBModel['online'] == 0}">线上</c:if><c:if test="${configDBModel['online'] == 1}">线下</c:if>)</option>
