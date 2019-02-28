@@ -20,7 +20,7 @@ public class SelfCheckCtrl {
 		try {
 			
 		} catch (Exception e) {
-			// TODO: handle exception
+			logger.error(e.getMessage(), e);
 		}
 		
 		logger.debug("END");

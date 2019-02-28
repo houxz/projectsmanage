@@ -40,9 +40,9 @@ public enum SystemType {
 	 */
 	AdjustMap(350, "整图编辑平台"),
 	/**
-	 * 360, "易淘金在线编辑平台"
+	 * 360, "易淘金线上编辑平台"
 	 */
-	poi_GEN(360, "易淘金在线编辑平台");
+	poi_GEN(360, "易淘金线上编辑平台");
 
 	private Integer value;
 	private String des;

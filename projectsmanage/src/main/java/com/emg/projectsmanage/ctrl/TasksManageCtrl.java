@@ -364,7 +364,6 @@ public class TasksManageCtrl extends BaseCtrl {
 		try {
 			switch (processType) {
 			case COUNTRY:
-				//TODO 2018年12月29日 上午11:04:42 综检改错待补充 
 				//add by lianhr begin 2019/02/22
 				switch (stateDes) {
 				case "异常":
@@ -566,7 +565,6 @@ public class TasksManageCtrl extends BaseCtrl {
 		Integer checkid = task.getCheckid();
 		
 		if (tasktype.equals(TaskTypeEnum.QC_JIUGONGGE) || tasktype.equals(TaskTypeEnum.QC_QUANYU)) {
-			//TODO 2018年12月29日 上午11:04:42 综检改错待补充 
 			//add by lianhr begin 2019/02/22
 			switch (state) {
 			case 12:

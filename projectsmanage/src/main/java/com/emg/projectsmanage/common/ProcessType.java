@@ -36,9 +36,9 @@ public enum ProcessType {
 	 */
 	ADJUSTMAP(6, "整图编辑项目"),
 	/**
-	 * 7, "易淘金项目"
+	 * 7, "易淘金线上编辑项目"
 	 */
-	GEN(7, "易淘金项目");
+	GEN(7, "易淘金线上编辑项目");
 
 	private Integer value;
 	private String des;
