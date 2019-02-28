@@ -59,7 +59,7 @@
 		return processTypes[row.processtype];
 	}
 	function priFormat(value, row, index) {
-		var html = [];
+		/* var html = [];
 		html.push("<select name='priority_" + row.id + "' id='priority_"
 				+ row.id + "' onchange='changePriority(" + row.processtype + "," + row.id
 				+ ")'  class='form-control'>");
@@ -73,7 +73,8 @@
 			}
 		}
 		html.push("</select>");
-		return html.join("");
+		return html.join(""); */
+		return priorityLevels[row.priority];
 	}
 	function taskTypeFormat(value, row, index) {
 		return taskTypes[row.tasktype];

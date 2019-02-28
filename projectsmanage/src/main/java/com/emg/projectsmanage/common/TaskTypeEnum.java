@@ -87,7 +87,19 @@ public enum TaskTypeEnum {
 	/**
 	 * 14006, "全域质检"
 	 */
-	QC_QUANYU(14006, "全域质检");
+	QC_QUANYU(14006, "全域质检"),
+	/**
+	 * 16101, "易淘金线上编辑任务"
+	 */
+	GEN_WEB(16101, "易淘金线上编辑任务"),
+	/**
+	 * 17, "区划任务"
+	 */
+	AREA_QUHUAN(17, "区划任务"),
+	/**
+	 * 18, "建成区任务"
+	 */
+	AREA_JIANCHENGQU(18, "建成区任务");
 
 	private Integer value;
 	private String des;

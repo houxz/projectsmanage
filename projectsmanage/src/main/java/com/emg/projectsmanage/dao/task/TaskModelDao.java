@@ -37,16 +37,26 @@ public class TaskModelDao {
 		case ATTACH:
 			tasktypes.add(TaskTypeEnum.ATTACH);
 			break;
-		case POIEDIT:
-			tasktypes.addAll(TaskTypeEnum.getPoiEditTaskTypes());
-			tasktypes.addAll(TaskTypeEnum.getPoiCheckTaskTypes());
-			break;
 		//add by lianhr begin 2019/02/21
 		case COUNTRY:
 			tasktypes.add(TaskTypeEnum.QC_JIUGONGGE);
 			tasktypes.add(TaskTypeEnum.QC_QUANYU);
 			break;
 		//add by lianhr edn
+		case POIEDIT:
+			tasktypes.addAll(TaskTypeEnum.getPoiEditTaskTypes());
+			tasktypes.addAll(TaskTypeEnum.getPoiCheckTaskTypes());
+			break;
+		case ADJUSTMAP:
+			tasktypes.add(TaskTypeEnum.ADJUSTMAP);
+			break;
+		case GEN:
+			tasktypes.add(TaskTypeEnum.GEN_WEB);
+			break;
+		case AREA:
+			tasktypes.add(TaskTypeEnum.AREA_QUHUAN);
+			tasktypes.add(TaskTypeEnum.AREA_JIANCHENGQU);
+			break;
 		default:
 			tasktypes.add(TaskTypeEnum.UNKNOWN);
 			break;
