@@ -3,8 +3,11 @@ package com.emg.projectsmanage.ctrl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -1061,8 +1064,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZILIAOKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
-			datasetModels = datasetModelDao.selectDatasets(configDBModel, record, limit, offset);
-			count = datasetModelDao.countErrorSets(configDBModel, record, limit, offset);
+			datasetModels = datasetModelDao.selectDatasets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), record, limit, offset);
+			count = datasetModelDao.countErrorSets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), record, limit, offset);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -1074,4 +1077,20 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return json;
 	}
 
+	private Set<Integer> getDataTypesByProcessType(ProcessType processType) {
+		Set<Integer> set = new HashSet<Integer>();
+		switch (processType) {
+		case POIEDIT:
+			set.add(16);
+			set.add(31);
+			set.add(32);
+			break;
+		case GEN:
+			set.add(22);
+			break;
+		default:
+			break;
+		}
+		return set;
+	}
 }

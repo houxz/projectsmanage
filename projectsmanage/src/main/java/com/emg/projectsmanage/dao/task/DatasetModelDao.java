@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -21,7 +22,7 @@ public class DatasetModelDao {
 	
 	private static final Logger logger = LoggerFactory.getLogger(DatasetModelDao.class);
 	
-	public List<DatasetModel> selectDatasets(ConfigDBModel configDBModel, DatasetModel record, Integer limit, Integer offset) {
+	public List<DatasetModel> selectDatasets(ConfigDBModel configDBModel, List<Integer> dataTypes, DatasetModel record, Integer limit, Integer offset) {
 		List<DatasetModel> datasets = new ArrayList<DatasetModel>();
 		BasicDataSource dataSource = null;
 		try {
@@ -38,7 +39,10 @@ public class DatasetModelDao {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_dataset ");
-			sql.append(" WHERE " + separator + "datatype" + separator + " IN (14, 31, 32) ");
+			sql.append(" WHERE 1=1 ");
+			if (dataTypes != null && !dataTypes.isEmpty()) {
+				sql.append(" AND " + separator + "datatype" + separator + " IN ( " + StringUtils.join(dataTypes, ",") + " ) ");
+			}
 			if (record != null) {
 				if (record.getId() != null && record.getId().compareTo(0L) > 0) {
 					sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
@@ -82,7 +86,7 @@ public class DatasetModelDao {
 		return datasets;
 	}
 
-	public Integer countErrorSets(ConfigDBModel configDBModel, DatasetModel record, Integer limit, Integer offset) {
+	public Integer countErrorSets(ConfigDBModel configDBModel, List<Integer> dataTypes, DatasetModel record, Integer limit, Integer offset) {
 		Integer count = -1;
 		BasicDataSource dataSource = null;
 		try {
@@ -98,7 +102,10 @@ public class DatasetModelDao {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_dataset");
-			sql.append(" WHERE " + separator + "datatype" + separator + " IN (16, 31, 32) ");
+			sql.append(" WHERE 1=1 ");
+			if (dataTypes != null && !dataTypes.isEmpty()) {
+				sql.append(" AND " + separator + "datatype" + separator + " IN ( " + StringUtils.join(dataTypes, ",") + " ) ");
+			}
 			if (record != null) {
 				if (record.getId() != null && record.getId().compareTo(0L) > 0) {
 					sql.append(" AND " + separator + "id" + separator + " = " + record.getId());

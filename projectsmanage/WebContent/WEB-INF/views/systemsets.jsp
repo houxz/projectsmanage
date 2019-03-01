@@ -430,6 +430,16 @@
 										</c:forEach>
 								</select></td>
 							</tr>
+							<tr>
+								<td class="configKey">易淘金线上编辑项目</td>
+								<td><select class="form-control systemSet" id="config_42">
+										<c:forEach items="${configDBModels }" var="configDBModel">
+											<c:if test="${configDBModel['connname'].equals('fielddata') }">
+												<option value="${configDBModel['id']}">${configDBModel['dbname']}<c:if test="${not empty configDBModel['dbschema']}">.${configDBModel['dbschema']}</c:if>(${configDBModel['ip']}:${configDBModel['port']}_<c:if test="${configDBModel['online'] == 0}">线上</c:if><c:if test="${configDBModel['online'] == 1}">线下</c:if>)</option>
+											</c:if>
+										</c:forEach>
+								</select></td>
+							</tr>
 							
 							<tr>
 								<td class="configKey"></td>
