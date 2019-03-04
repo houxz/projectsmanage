@@ -261,7 +261,7 @@
 							+ ' <span style="margin:0 6px;color: black;">'
 							+ parseFloat(values[2]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div>');
-		} else if(processType == 3) {
+		} else if(processType == 3 || processType == 8) {
 			html.push('<div>');
 			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="编辑准备进度：' + parseFloat(values[0]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
