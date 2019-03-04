@@ -71,7 +71,7 @@ public class SystemSetsCtrl extends BaseCtrl {
 
 				ConfigDefaultModel record = new ConfigDefaultModel();
 				record.setId(id);
-				record.setDefaultvalue(defaultValue);
+				record.setDefaultvalue(defaultValue == null || defaultValue.isEmpty() ? "" : defaultValue);
 				configDefaultModelDao.updateByPrimaryKeySelective(record );
 			}
 			json.addObject("ret", 1);
