@@ -354,7 +354,7 @@ public class ErrorModelDao {
 			sql.append(" WHERE 1=1 ");
 			sql.append(" AND te." + separator + "batchid" + separator + " =  " + batchid);
 			if (erroridxiao != null && erroridxiao.compareTo(0L) > 0) {
-				sql.append(" AND te." + separator + "id" + separator + " > " + erroridxiao);
+				sql.append(" AND te." + separator + "id" + separator + " >= " + erroridxiao);
 			}
 			if (errortypes != null && !errortypes.isEmpty()) {
 				sql.append(" AND te." + separator + "errortype" + separator + " IN ( ");
@@ -386,9 +386,9 @@ public class ErrorModelDao {
 		return errors;
 	}
 
-	public Integer exportErrors(ConfigDBModel configDBModel, List<ErrorAndErrorRelatedModel> errorAndRelateds) {
-		Integer ret = 0;
+	public Map<Long, Long> exportErrors(ConfigDBModel configDBModel, List<ErrorAndErrorRelatedModel> errorAndRelateds) {
 		Connection connection = null;
+		ConcurrentHashMap<Long, Long> mact = new ConcurrentHashMap<Long, Long>();
 		try {
 			Integer dbtype = configDBModel.getDbtype();
 
@@ -432,7 +432,6 @@ public class ErrorModelDao {
 				 */
 				Integer batch = 2000;
 				LinkedHashSet<Long> errorids = new LinkedHashSet<Long>();
-				ConcurrentHashMap<Long, Long> mact = new ConcurrentHashMap<Long, Long>();
 				for (Integer i = 0; i <= errorAndRelateds.size() / batch; i++) {
 					LinkedHashSet<Long> curBatchErrors = new LinkedHashSet<Long>();
 					for (int j = 0; j < batch; j++) {
@@ -505,7 +504,7 @@ public class ErrorModelDao {
 							}
 						}
 					}
-					int[] _rets = pst.executeBatch();
+					pst.executeBatch();
 					ResultSet rs = pst.getGeneratedKeys();
 					Integer k = 0;
 					Iterator<Long> it = curBatchErrors.iterator();
@@ -514,9 +513,6 @@ public class ErrorModelDao {
 						Long after = rs.getLong(1);
 						mact.put(Long.valueOf(before), after);
 						k++;
-					}
-					for (int _ret : _rets) {
-						ret += _ret;
 					}
 					connection.commit();
 					//插入2000条之后，等待10秒，防止数据库压力过大
@@ -541,7 +537,7 @@ public class ErrorModelDao {
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			ret = -1;
+			mact = new ConcurrentHashMap<Long, Long>();
 		} finally {
 			if (connection != null) {
 				try {
@@ -552,7 +548,7 @@ public class ErrorModelDao {
 				connection = null;
 			}
 		}
-		return ret;
+		return mact;
 	}
 
 	public List<ErrorRelatedModel> selectErrorRelatedByIDs(ConfigDBModel configDBModel, HashSet<Long> errorids) {
