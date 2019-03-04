@@ -19,6 +19,7 @@
     <result column="enable" property="enable" jdbcType="INTEGER" />
     <result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
     <result column="updatetime" property="updatetime" jdbcType="TIMESTAMP" />
+    <result column="mact" property="mact" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -80,7 +81,7 @@
   </sql>
   <sql id="Base_Column_List" >
     id, name, qctask, errorsrc, errortar, createby, state, minerrorid, curerrorid, maxerrorid, 
-    dotasktime, batchid, errorsetid, errorsetname, enable, createtime, updatetime
+    dotasktime, batchid, errorsetid, errorsetname, enable, createtime, updatetime, mact
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.emg.projectsmanage.pojo.ErrorsTaskModelExample" >
     select
@@ -124,13 +125,13 @@
       state, minerrorid, curerrorid, 
       maxerrorid, dotasktime, batchid, 
       errorsetid, errorsetname, enable, 
-      createtime, updatetime)
+      createtime, updatetime, mact)
     values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{qctask,jdbcType=INTEGER}, 
       #{errorsrc,jdbcType=INTEGER}, #{errortar,jdbcType=INTEGER}, #{createby,jdbcType=INTEGER}, 
       #{state,jdbcType=INTEGER}, #{minerrorid,jdbcType=BIGINT}, #{curerrorid,jdbcType=BIGINT}, 
       #{maxerrorid,jdbcType=BIGINT}, #{dotasktime,jdbcType=VARCHAR}, #{batchid,jdbcType=BIGINT}, 
       #{errorsetid,jdbcType=BIGINT}, #{errorsetname,jdbcType=VARCHAR}, #{enable,jdbcType=INTEGER}, 
-      #{createtime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP})
+      #{createtime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP}, #{mact,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.emg.projectsmanage.pojo.ErrorsTaskModel" >
     insert into tb_errorstask
@@ -186,6 +187,9 @@
       <if test="updatetime != null" >
         updatetime,
       </if>
+      <if test="mact != null" >
+        mact,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -238,6 +242,9 @@
       </if>
       <if test="updatetime != null" >
         #{updatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mact != null" >
+        #{mact,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -301,6 +308,9 @@
       <if test="record.updatetime != null" >
         updatetime = #{record.updatetime,jdbcType=TIMESTAMP},
       </if>
+      <if test="record.mact != null" >
+        mact = #{record.mact,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -324,7 +334,8 @@
       errorsetname = #{record.errorsetname,jdbcType=VARCHAR},
       enable = #{record.enable,jdbcType=INTEGER},
       createtime = #{record.createtime,jdbcType=TIMESTAMP},
-      updatetime = #{record.updatetime,jdbcType=TIMESTAMP}
+      updatetime = #{record.updatetime,jdbcType=TIMESTAMP},
+      mact = #{record.mact,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -380,6 +391,9 @@
       <if test="updatetime != null" >
         updatetime = #{updatetime,jdbcType=TIMESTAMP},
       </if>
+      <if test="mact != null" >
+        mact = #{mact,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -400,7 +414,8 @@
       errorsetname = #{errorsetname,jdbcType=VARCHAR},
       enable = #{enable,jdbcType=INTEGER},
       createtime = #{createtime,jdbcType=TIMESTAMP},
-      updatetime = #{updatetime,jdbcType=TIMESTAMP}
+      updatetime = #{updatetime,jdbcType=TIMESTAMP},
+      mact = #{mact,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

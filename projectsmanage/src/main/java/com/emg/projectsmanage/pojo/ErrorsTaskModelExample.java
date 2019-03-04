@@ -1174,6 +1174,76 @@ public class ErrorsTaskModelExample {
             addCriterion("updatetime not between", value1, value2, "updatetime");
             return (Criteria) this;
         }
+        
+        public Criteria andMactIsNull() {
+            addCriterion("mact is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMactIsNotNull() {
+            addCriterion("mact is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMactEqualTo(String value) {
+            addCriterion("mact =", value, "mact");
+            return (Criteria) this;
+        }
+
+        public Criteria andMactNotEqualTo(String value) {
+            addCriterion("mact <>", value, "mact");
+            return (Criteria) this;
+        }
+
+        public Criteria andMactGreaterThan(String value) {
+            addCriterion("mact >", value, "mact");
+            return (Criteria) this;
+        }
+
+        public Criteria andMactGreaterThanOrEqualTo(String value) {
+            addCriterion("mact >=", value, "mact");
+            return (Criteria) this;
+        }
+
+        public Criteria andMactLessThan(String value) {
+            addCriterion("mact <", value, "mact");
+            return (Criteria) this;
+        }
+
+        public Criteria andMactLessThanOrEqualTo(String value) {
+            addCriterion("mact <=", value, "mact");
+            return (Criteria) this;
+        }
+
+        public Criteria andMactLike(String value) {
+            addCriterion("mact like", value, "mact");
+            return (Criteria) this;
+        }
+
+        public Criteria andMactNotLike(String value) {
+            addCriterion("mact not like", value, "mact");
+            return (Criteria) this;
+        }
+
+        public Criteria andMactIn(List<String> values) {
+            addCriterion("mact in", values, "mact");
+            return (Criteria) this;
+        }
+
+        public Criteria andMactNotIn(List<String> values) {
+            addCriterion("mact not in", values, "mact");
+            return (Criteria) this;
+        }
+
+        public Criteria andMactBetween(String value1, String value2) {
+            addCriterion("mact between", value1, value2, "mact");
+            return (Criteria) this;
+        }
+
+        public Criteria andMactNotBetween(String value1, String value2) {
+            addCriterion("mact not between", value1, value2, "mact");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

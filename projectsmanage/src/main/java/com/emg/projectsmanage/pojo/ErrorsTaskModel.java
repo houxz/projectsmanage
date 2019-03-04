@@ -49,6 +49,8 @@ public class ErrorsTaskModel {
     private String createtime;
 
     private String updatetime;
+    
+    private String mact;
 
     public Long getId() {
         return id;
@@ -280,5 +282,13 @@ public class ErrorsTaskModel {
 
 	public void setCreateby(Integer createby) {
 		this.createby = createby;
+	}
+
+	public String getMact() {
+		return mact;
+	}
+
+	public void setMact(String mact) {
+		this.mact = mact;
 	}
 }
