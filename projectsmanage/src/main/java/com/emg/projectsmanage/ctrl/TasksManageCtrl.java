@@ -409,6 +409,7 @@ public class TasksManageCtrl extends BaseCtrl {
 				}
 				break;
 			case ATTACH:
+			case AREA:
 				switch (stateDes) {
 				case "编辑中":
 				case "制作中":
@@ -672,7 +673,9 @@ public class TasksManageCtrl extends BaseCtrl {
 				}
 				break;
 			}
-		} else if (tasktype.equals(TaskTypeEnum.ATTACH)) {
+		} else if (tasktype.equals(TaskTypeEnum.ATTACH) ||
+				tasktype.equals(TaskTypeEnum.AREA_QUHUAN) ||
+				tasktype.equals(TaskTypeEnum.AREA_JIANCHENGQU)) {
 			switch (state) {
 			case 0:
 				switch (process) {
