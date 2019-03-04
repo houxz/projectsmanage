@@ -41,7 +41,6 @@ import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ConfigValueModel;
 import com.emg.projectsmanage.pojo.CycleModel;
-import com.emg.projectsmanage.pojo.CycleModelExample;
 import com.emg.projectsmanage.pojo.DepartmentModel;
 import com.emg.projectsmanage.pojo.EmployeeModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
@@ -1435,7 +1434,9 @@ public class InterfaceCtrl extends BaseCtrl {
 					status = false;
 					json.addObject("option", "进度未更新");
 				}
-			} else if (proType.equals(ProcessType.NRFC.getValue()) || proType.equals(ProcessType.ATTACH.getValue())) {
+			} else if (proType.equals(ProcessType.NRFC.getValue()) ||
+						proType.equals(ProcessType.ATTACH.getValue()) ||
+						proType.equals(ProcessType.AREA.getValue())) {
 				String sProgress = process.getProgress();
 				if (sProgress.length() > 0) {
 					String[] arProgress = sProgress.split(",");
