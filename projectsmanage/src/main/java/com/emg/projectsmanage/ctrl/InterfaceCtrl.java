@@ -1094,6 +1094,7 @@ public class InterfaceCtrl extends BaseCtrl {
 			String suffix = new String();
 			Integer systemid = -1;
 			
+			// TODO: 新增项目类型需要确认是否需要补充接口内容：新建流程
 			if(newProcessType.equals(ProcessType.ERROR.getValue())){
 				suffix = "_改错";
 				systemid = SystemType.MapDbEdit.getValue();
@@ -1376,6 +1377,7 @@ public class InterfaceCtrl extends BaseCtrl {
 
 			Integer proType = process.getType();
 
+			// TODO: 新增项目类型需要确认是否需要补充接口内容：更新流程进度
 			if (proType.equals(ProcessType.ERROR.getValue())) {
 				String sProgress = process.getProgress();
 				if (sProgress.length() > 0) {
