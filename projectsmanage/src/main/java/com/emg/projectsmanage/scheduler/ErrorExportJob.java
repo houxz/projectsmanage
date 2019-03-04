@@ -2,6 +2,9 @@ package com.emg.projectsmanage.scheduler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.quartz.InterruptableJob;
 import org.quartz.JobDataMap;
@@ -80,9 +83,10 @@ public class ErrorExportJob implements InterruptableJob {
 				ConfigDBModel configDBTar = configDBModelDao.selectByPrimaryKey(errortar);
 				while (curerrorid < maxerrorid && !this._interrupted) {
 					logger.debug(String.format("START EXPORT errors with taskid: %s , < %s - %s - %s >", taskid, minerrorid, curerrorid, maxerrorid));
+					Map<Long, Long> mact = new ConcurrentHashMap<Long, Long>();
 					List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(configDBSrc, batchid, errortypes, curerrorid, batchNum);
 					if (errorAndRelateds != null && !errorAndRelateds.isEmpty()) {
-						errorModelDao.exportErrors(configDBTar, errorAndRelateds);
+						mact = errorModelDao.exportErrors(configDBTar, errorAndRelateds);
 						curerrorid = errorAndRelateds.get(errorAndRelateds.size() - 1).getId()+1;
 						curerrorid = curerrorid.compareTo(maxerrorid) > 0 ? maxerrorid : curerrorid;
 					}
@@ -91,6 +95,14 @@ public class ErrorExportJob implements InterruptableJob {
 						ErrorsTaskModel record = new ErrorsTaskModel();
 						record.setId(taskid);
 						record.setCurerrorid(curerrorid);
+						StringBuilder sb = new StringBuilder();
+						for (Entry<Long, Long> entry : mact.entrySet()) {
+							sb.append(entry.getKey());
+							sb.append("-");
+							sb.append(entry.getValue());
+							sb.append(";");
+						}
+						record.setMact(sb.toString());
 						errorsTaskModelDao.updateByPrimaryKeySelective(record);
 						logger.debug(String.format("COMPLETE EXPORT errors with taskid: %s , < %s - %s - %s >", taskid, minerrorid, curerrorid, maxerrorid));
 					} catch (Exception e) {
