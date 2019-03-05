@@ -862,7 +862,7 @@
 			data-url="./itemsetmanage.web?atn=getiteminfos"
 			data-toggle="itemInfos"
 			data-height="620"
-			data-value-band="itemInfos"
+			data-value-band="itemInfos" data-side-pagination="server"
 			data-response-handler="itemResponse">
 			<thead>
 				<tr>
@@ -887,7 +887,8 @@
 					<th data-field="typeInfo" data-formatter="typeInfoFormat" data-width="100"
 							data-filter-control="select" data-filter-data="var:itemInfoTypes2">类型</th>
 					
-					<th data-field="systype" data-formatter="sysFormat">操作系统</th>
+					<th data-field="systype2" data-formatter="sysFormat" data-filter-control="select" 
+					        data-filter-control="select" data-filter-data="var:itemsetSysTypes">操作系统</th>
 					
 					<th data-field="unit" data-formatter="unitFormat">质检单位</th>
 				</tr>

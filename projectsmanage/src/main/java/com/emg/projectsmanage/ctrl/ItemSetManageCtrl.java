@@ -285,6 +285,9 @@ public class ItemSetManageCtrl extends BaseCtrl {
 					case "typeInfo":
 						record.setType(Integer.valueOf(filterPara.get(key).toString()));
 						break;
+					case "systype2":
+						record.setSystype(Integer.valueOf(filterPara.get(key).toString()));
+						break;
 					//add by lianhr end
 					default:
 						logger.error("未处理的筛选项：" + key);
@@ -1277,9 +1280,15 @@ public class ItemSetManageCtrl extends BaseCtrl {
 		ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 		for(int i = 0; i < itemsArray.length; i++) {
 			String qid = itemsArray[i].split(":")[0].trim();
-			String layer = itemsArray[i].split(":")[1].trim();
+			String layer = "";
+			if(itemsArray[i].split(":").length > 1) {
+				layer = itemsArray[i].split(":")[1].trim();
+			}
 			if(itemSetModelDao.selectItemInfoId(configDBModel, qid, layer).size() > 0) {
-				itemInfos = itemInfos + "," + (itemSetModelDao.selectItemInfoId(configDBModel, qid, layer).get(0));
+				List<Long> qidlist = itemSetModelDao.selectItemInfoId(configDBModel, qid, layer);
+				for(int j = 0; j < qidlist.size(); j++) {
+					itemInfos = itemInfos + "," + (itemSetModelDao.selectItemInfoId(configDBModel, qid, layer).get(j));
+				}
 			}
 		}
 		ResultModel result = new ResultModel();

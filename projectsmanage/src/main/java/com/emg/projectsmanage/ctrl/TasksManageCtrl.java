@@ -450,7 +450,7 @@ public class TasksManageCtrl extends BaseCtrl {
 			case COUNTRY:
 				//add by lianhr begin 2019/02/22
 				switch (stateDes) {
-				case "异常":
+				case "质检异常":
 					stateMaps.add(new StateMap(13, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
 					stateMaps.add(new StateMap(14, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
 					stateMaps.add(new StateMap(15, 52, TaskTypeEnum.QC_JIUGONGGE.getValue(), null));
@@ -616,7 +616,7 @@ public class TasksManageCtrl extends BaseCtrl {
 			    }
 				break;
 			default:
-				return "异常";
+				return "质检异常";
 			}
 			//add by lianhr end
 		} else if (tasktype.equals(TaskTypeEnum.NRFC)) {

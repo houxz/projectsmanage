@@ -53,6 +53,9 @@ public class ErrorModelDao {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_task_batch ");
+			//add by lianhr begin 2019/03/05
+			sql.append(" order by batchid desc");
+			//add by lianhr end
 
 			dataSource = Common.getDataSource(configDBModel);
 			batchids = new JdbcTemplate(dataSource).queryForList(sql.toString(), String.class);
