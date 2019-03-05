@@ -82,6 +82,8 @@
 							data-filter-control-placeholder="" data-width="60">错误类型</th>
 						<th data-field="errorremark" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="200">错误备注</th>
+						<th data-field="errorremark" data-filter-control="input"
+							data-filter-control-placeholder="" data-width="200">错误备注</th>
 						<th data-field="countnum" data-filter-control="input" data-width="160">数量</th>
 					</tr>
 				</thead>

@@ -733,6 +733,9 @@ public class ItemSetModelDao {
 				if (record.getType() != null && record.getType().compareTo(0) >= 0) {
 					sql.append(" AND " + separator + "type" + separator + " = " + record.getType());
 				}
+				if (record.getSystype() != null && record.getSystype().compareTo(0) >= 0) {
+					sql.append(" AND " + separator + "systype" + separator + " = " + record.getSystype());
+				}
 				//add by lianhr end
 			}
 
@@ -920,7 +923,9 @@ public class ItemSetModelDao {
 			}
 			sql.append("tb_iteminfo ");
 			sql.append(" WHERE oid = '" + QID + "'");
-			sql.append(" AND layername = '" + layername + "'");
+			if(!layername.equals("") && layername != null) {
+				sql.append(" AND layername = '" + layername + "'");
+			}
 
 			dataSource = Common.getDataSource(configDBModel);
 			items = new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
