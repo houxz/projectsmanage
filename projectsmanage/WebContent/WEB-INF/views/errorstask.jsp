@@ -142,8 +142,6 @@
 	}
 	function operationFormat(value, row, index) {
 		var html = new Array();
-		//qctask, errorsrc, batchid, errorsetid
-		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="showErrors(' + row.qctask + ',' + row.errorsrc + ',' + row.batchid + ',' + row.errorsetid + ');">详情</div>');
 		if (row.state == 1) {
 			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="pauseErrorTask(' + row.id + ');">暂停</div>');
 		} else if (row.state == 2 || row.state == -1 || row.state == 3 || row.state == 4) {
@@ -300,11 +298,6 @@
 				}
 			},
 			buttons : [
-					{
-						text : "错误详情",
-						class : "btn btn-default",
-						click : getErrors
-					},
 					{
 						text : "提交",
 						class : "btn btn-default",
