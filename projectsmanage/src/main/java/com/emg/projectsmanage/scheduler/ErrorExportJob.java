@@ -87,7 +87,7 @@ public class ErrorExportJob implements InterruptableJob {
 					List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(configDBSrc, batchid, errortypes, curerrorid, batchNum);
 					if (errorAndRelateds != null && !errorAndRelateds.isEmpty()) {
 						mact = errorModelDao.exportErrors(configDBTar, errorAndRelateds);
-						curerrorid = errorAndRelateds.get(errorAndRelateds.size() - 1).getId()+1;
+						curerrorid = errorAndRelateds.get(errorAndRelateds.size() - 1).getId();
 						curerrorid = curerrorid.compareTo(maxerrorid) > 0 ? maxerrorid : curerrorid;
 					}
 					

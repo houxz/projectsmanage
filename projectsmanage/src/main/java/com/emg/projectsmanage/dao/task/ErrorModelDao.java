@@ -354,7 +354,7 @@ public class ErrorModelDao {
 			sql.append(" WHERE 1=1 ");
 			sql.append(" AND te." + separator + "batchid" + separator + " =  " + batchid);
 			if (erroridxiao != null && erroridxiao.compareTo(0L) > 0) {
-				sql.append(" AND te." + separator + "id" + separator + " >= " + erroridxiao);
+				sql.append(" AND te." + separator + "id" + separator + " > " + erroridxiao);
 			}
 			if (errortypes != null && !errortypes.isEmpty()) {
 				sql.append(" AND te." + separator + "errortype" + separator + " IN ( ");
