@@ -1,7 +1,6 @@
 package com.emg.projectsmanage.pojo;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 附属表产能统计类

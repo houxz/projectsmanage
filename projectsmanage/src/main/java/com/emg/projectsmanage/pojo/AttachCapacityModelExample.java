@@ -4,10 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.emg.projectsmanage.pojo.CapacityModelExample.Criteria;
-import com.emg.projectsmanage.pojo.CapacityModelExample.Criterion;
-import com.emg.projectsmanage.pojo.CapacityModelExample.GeneratedCriteria;
-
 public class AttachCapacityModelExample {
 	
 	
