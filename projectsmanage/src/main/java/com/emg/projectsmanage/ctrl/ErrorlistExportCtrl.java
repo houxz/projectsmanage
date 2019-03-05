@@ -39,12 +39,9 @@ import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.ResultModel;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.task.ErrorModelDao;
-import com.emg.projectsmanage.dao.task.ItemSetModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ErrorModel;
-import com.emg.projectsmanage.pojo.ErrorRelatedModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
-import com.emg.projectsmanage.pojo.WorkTasksModel;
 import com.emg.projectsmanage.service.ProcessConfigModelService;
 
 import net.sf.json.JSONObject;
