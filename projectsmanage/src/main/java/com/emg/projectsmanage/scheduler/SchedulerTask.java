@@ -2454,10 +2454,181 @@ public class SchedulerTask {
 		}
 		logger.debug("ATTACH END");
 	}
+	
+	/**
+	 * 全国质检项目进度监控模块
+	 */
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskCOUNTRY() {
 		if (!worktasksEnable.equalsIgnoreCase("true"))
 			return;
+		
+		logger.debug("COUNTRY START");
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Calendar calendar = Calendar.getInstance();
+		Date now = new Date();
+		calendar.setTimeInMillis(now.getTime() - (now.getTime()%(600000)));
+		String nowStr = sdf.format(calendar.getTime());
+		
+		ProcessType processType = ProcessType.UNKNOWN;
+		Map<Long, ProjectsProcessModel> uniqProcesses = new HashMap<Long, ProjectsProcessModel>();
+		try {
+			processType = ProcessType.COUNTRY;
+			
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
+			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
+				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+				
+				List<Map<String, Object>> groupTasks = taskModelDao.groupCountryTasks(configDBModel, new ArrayList<TaskTypeEnum>() {
+					private static final long serialVersionUID = -2621656397432390420L;
+				{
+					add(TaskTypeEnum.QC_JIUGONGGE);
+					add(TaskTypeEnum.QC_QUANYU);
+				}});
+				
+				for (Map<String, Object> group : groupTasks) {
+					Long projectid = (Long) group.get("projectid");
+					Integer state = (Integer) group.get("state");
+					Integer process = (Integer) group.get("process");
+					Integer count = ((Long) group.get("count")).intValue();
+					
+					ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+					if (project == null || project.getProcessid() == null || project.getProcessid().compareTo(0L) < 0)
+						continue;
+					
+					Long processid = project.getProcessid();
+					{
+						ProjectsProcessModel projectsProcessModel = new ProjectsProcessModel();
+						if (uniqProcesses.containsKey(processid)) {
+							projectsProcessModel = uniqProcesses.get(processid);
+							uniqProcesses.remove(processid);
+						}
+						projectsProcessModel.setProcessid(processid);
+						projectsProcessModel.setProcesstype(processType.getValue());
+						projectsProcessModel.setProjectid(projectid);
+						projectsProcessModel.setTime(nowStr);
+						
+						if (state.equals(12) && process.equals(51)) {
+							projectsProcessModel.setIdletask(projectsProcessModel.getIdletask() + count);
+						} else if ((state.equals(11) && process.equals(52)) ||
+									(state.equals(13) && process.equals(52)) ||
+									(state.equals(14) && process.equals(52)) ||
+									(state.equals(15) && process.equals(52)) ||
+									(state.equals(16) && process.equals(52)) ||
+									(state.equals(17) && process.equals(52)) ||
+									(state.equals(18) && process.equals(52)) ||
+									(state.equals(19) && process.equals(52)) ||
+									(state.equals(22) && process.equals(52)) ||
+									(state.equals(23) && process.equals(52)) ||
+									(state.equals(100) && process.equals(52))) {
+							projectsProcessModel.setQctask(projectsProcessModel.getQctask() + count);
+						} else if ((state.equals(2) && process.equals(52))) {
+							projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
+							projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
+						}
+						
+						projectsProcessModel.setTotaltask(projectsProcessModel.getTotaltask() + count);
+						uniqProcesses.put(processid, projectsProcessModel);
+					}
+				}
+			} else {
+				logger.error("There's no COUNTRY DB Config.");
+			}
+		} catch(Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		
+		if (uniqProcesses != null && !uniqProcesses.isEmpty()) {
+			for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
+				try {
+					Long processid = projectsProcessModel.getProcessid();
+					ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+					if (process == null)
+						continue;
+					
+					Long projectid = projectsProcessModel.getProjectid();
+					Integer totaltask = projectsProcessModel.getTotaltask();
+					Integer edittask = projectsProcessModel.getEdittask();
+					Integer qctask = projectsProcessModel.getQctask();
+					Integer checktask = projectsProcessModel.getChecktask();
+					Integer completetask = projectsProcessModel.getCompletetask();
+					Integer fielddatacount = projectsProcessModel.getFielddatacount();
+					Integer fielddatarest = projectsProcessModel.getFielddatarest();
+					Integer errorcount = projectsProcessModel.getErrorcount();
+					Integer errorrest = projectsProcessModel.getErrorrest();
+					
+					if (totaltask.equals(0) &&
+						edittask.equals(0) &&
+						qctask.equals(0) &&
+						checktask.equals(0) &&
+						completetask.equals(0) &&
+						fielddatacount.equals(0) &&
+						fielddatarest.equals(0) &&
+						errorcount.equals(0) &&
+						errorrest.equals(0))
+						continue;
+					
+					try {
+						projectsProcessModelDao.newProjectsProcess(projectsProcessModel);
+					} catch (DuplicateKeyException e) {
+						logger.error(e.getMessage());
+					} catch (Exception e) {
+						logger.error(e.getMessage(), e);
+					}
+					
+					try {
+						String sProgress = process.getProgress();
+						ArrayList<String> alProgress = sProgress.length() > 0 ? new ArrayList<String>(Arrays.asList(sProgress.split(","))) : new ArrayList<String>();
+						Integer length = alProgress.size();
+						while (length < CommonConstants.PROCESSCOUNT_COUNTRY) {
+							alProgress.add("0");
+							length++;
+						}
+						HashMap<Integer, Integer> stageTaskMap = projectsProcessModel.getStageTaskMap();
+						if (stageTaskMap != null && !stageTaskMap.isEmpty()) {
+							DecimalFormat df = new DecimalFormat("0.000");
+							if (stageTaskMap.containsKey(2)) {
+								alProgress.set(1, df.format((float)(stageTaskMap.get(2)*100)/totaltask));
+							}
+						}
+						StringBuilder sbProgress = new StringBuilder();
+						for (String p : alProgress) {
+							sbProgress.append(p);
+							sbProgress.append(",");
+						}
+						sbProgress.deleteCharAt(sbProgress.length() - 1);
+						process.setProgress(sbProgress.toString());
+						processModelDao.updateByPrimaryKeySelective(process );
+					} catch (Exception e) {
+						logger.error(e.getMessage(), e);
+					}
+					
+					if (totaltask.equals(completetask) &&
+							edittask.equals(0) &&
+							qctask.equals(0) &&
+							checktask.equals(0) &&
+							fielddatarest.equals(0) &&
+							errorrest.equals(0)) {
+						process.setState(ProcessState.COMPLETE.getValue());
+						processModelDao.updateByPrimaryKeySelective(process );
+						
+						ProjectModel project = new ProjectModel();
+						project.setId(projectid);
+						project.setOverstate(ProjectState.COMPLETE.getValue());
+						projectModelDao.updateByPrimaryKeySelective(project );
+					}
+				} catch (DuplicateKeyException e) {
+					logger.error(e.getMessage());
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		} else {
+			logger.debug("projectsProcess has no records.");
+		}
+		
+		logger.debug("COUNTRY END");
 	}
 	
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")

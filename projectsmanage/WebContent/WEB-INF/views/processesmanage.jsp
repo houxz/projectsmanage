@@ -1131,9 +1131,9 @@
 			$("#config_1_5").parents("tr").show();
 			$("#config_1_6").parents("tr").show();
 			$("#config_1_7").parents("tr").show();
-			$("#config_2_18").parents("tr").show();
-			$("#config_2_19").parents("tr").show();
-			$("#config_2_21").parents("tr").show();
+			$("#config_2_18").parents("tr").hide();
+			$("#config_2_19").parents("tr").hide();
+			$("#config_2_21").parents("tr").hide();
 			$("#config_2_22").parents("tr").hide();
 			$("#config_2_23").parents("tr").hide();
 			$("#config_2_25").parents("tr").hide();
