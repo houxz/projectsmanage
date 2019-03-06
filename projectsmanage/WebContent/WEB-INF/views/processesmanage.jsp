@@ -522,6 +522,8 @@
 		if (row.state == 0) {
 			if (row.type == 5) {
 				html.push('<div class="btn btn-default disabled" style="margin-bottom:3px;" >开始</div>');
+			} else if(row.type == 4){
+				html.push('<div class="btn btn-default" style="margin-bottom:3px;" disabled onclick="changeState(1,' + row.id + ')" >开始</div>');
 			} else {
 				html.push('<div class="btn btn-default" style="margin-bottom:3px;" onclick="changeState(1,' + row.id + ')" >开始</div>');
 			}
