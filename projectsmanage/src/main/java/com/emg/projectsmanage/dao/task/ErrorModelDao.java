@@ -333,7 +333,7 @@ public class ErrorModelDao {
 		return ret;
 	}
 
-	public List<ErrorAndErrorRelatedModel> selectErrorAndErrorRelateds(ConfigDBModel configDBModel, Long batchid, List<Long> errortypes, Long erroridxiao, Integer batchNum) {
+	public List<ErrorAndErrorRelatedModel> selectErrorAndErrorRelateds(ConfigDBModel configDBModel, Long batchid, List<Long> errortypes, Long erroridxiao, Integer batchNum, Long erroridda) {
 		List<ErrorAndErrorRelatedModel> errors = new ArrayList<ErrorAndErrorRelatedModel>();
 		BasicDataSource dataSource = null;
 		try {
@@ -359,6 +359,7 @@ public class ErrorModelDao {
 			if (erroridxiao != null && erroridxiao.compareTo(0L) > 0) {
 				sql.append(" AND te." + separator + "id" + separator + " > " + erroridxiao);
 			}
+			sql.append(" AND te." + separator + "id" + separator + " <= " + erroridda);
 			if (errortypes != null && !errortypes.isEmpty()) {
 				sql.append(" AND te." + separator + "errortype" + separator + " IN ( ");
 				for (Long errortype : errortypes) {

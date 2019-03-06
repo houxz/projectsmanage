@@ -84,7 +84,7 @@ public class ErrorExportJob implements InterruptableJob {
 				while (curerrorid < maxerrorid && !this._interrupted) {
 					logger.debug(String.format("START EXPORT errors with taskid: %s , < %s - %s - %s >", taskid, minerrorid, curerrorid, maxerrorid));
 					Map<Long, Long> mact = new ConcurrentHashMap<Long, Long>();
-					List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(configDBSrc, batchid, errortypes, curerrorid, batchNum);
+					List<ErrorAndErrorRelatedModel> errorAndRelateds = errorModelDao.selectErrorAndErrorRelateds(configDBSrc, batchid, errortypes, curerrorid, batchNum, maxerrorid);
 					if (errorAndRelateds != null && !errorAndRelateds.isEmpty()) {
 						mact = errorModelDao.exportErrors(configDBTar, errorAndRelateds);
 						curerrorid = errorAndRelateds.get(errorAndRelateds.size() - 1).getId();
