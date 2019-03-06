@@ -44,6 +44,14 @@
 			},
 			onLoadError : function (status) {
 				$.webeditor.showMsgBox("close");
+			},
+			
+			onPostHeader : function () {
+				var obj = $(".form-control.bootstrap-table-filter-control-batchid");
+				$(obj).change(function() {
+					var batchid = $(".form-control.bootstrap-table-filter-control-batchid").val();
+					$("#strbatchid").val(batchid);
+				});
 			}
 		});
 	});
@@ -59,13 +67,14 @@
 		}
 		return params;
 	}
-	
 </script>
 </head>
 <body>
 	<div class="container">
 		<div id="headdiv"></div>
-		<div class="row" style="padding-top: 20px">
+			<div class="input-group" style="width: 100%;">
+		</div>
+		<div id="dlgInfo" class="row" style="padding-top: 20px">
 			<table id="worktasklist" data-unique-id="qid" 
 				data-query-params="queryParams" data-url="./errorlistexport.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
@@ -74,8 +83,15 @@
 				data-search-on-enter-key='true' data-align='center'> 
 				<thead>
 					<tr>
-						<th data-field="batchid" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="80" >批次ID</th>
+						<th data-field="batchid" data-filter-control="input" 
+							data-filter-control-placeholder="" data-width="120" >批次ID
+							<form method="post" action="./errorlistexport.web" id="exportPOIsForm" class="btn btn-default btn-xs">
+								<input id="strbatchid" name="batchid" type="hidden">
+								<div  title="导出Excel">
+									<span class="glyphicon glyphicon-plus" onclick="$('#exportPOIsForm').submit();"></span>
+								</div>
+							</form>
+						</th>
 						<th data-field="qid"  data-filter-control-placeholder=""
 							data-filter-control="input" data-width="80">QID</th>
 						<th data-field="errortype" data-filter-control="input"
@@ -83,12 +99,11 @@
 						<th data-field="errorremark" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="200">错误备注</th>
 						<th data-field="updatetime" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="200">更新时间</th>
-						<th data-field="countnum" data-filter-control="input" data-width="160">数量</th>
+							data-filter-control-placeholder="" data-width="150">更新时间</th>
+						<th data-field="countnum" data-filter-control="input" data-width="100">数量</th>
 					</tr>
 				</thead>
 			</table>
-
 		</div>
 
 		<div id="footdiv"></div>

@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
@@ -41,6 +42,7 @@ import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.task.ErrorModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ErrorModel;
+import com.emg.projectsmanage.pojo.ErrorlistModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
 import com.emg.projectsmanage.service.ProcessConfigModelService;
 
@@ -58,8 +60,8 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 	@Autowired
 	private ErrorModelDao errorModelDao;
 
-	private static final String[] excelColumns = { "批次ID", "QID", "错误类型", "错误备注", "数量" };
-	private static final Integer[] excelColumnWidth = { 3000, 14000, 3000, 7000, 7000 };
+	private static final String[] excelColumns = { "批次ID", "QID", "错误类型", "错误备注", "更新时间", "数量" };
+	private static final Integer[] excelColumnWidth = { 7000, 7000, 4000, 14000, 7000, 3000 };
 
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) { 
@@ -110,14 +112,14 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 					ProcessType.COUNTRY);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 			HashSet<Long> selectbatchids = new HashSet<Long>();
-			List<ErrorModel> errorList = new ArrayList<ErrorModel>();
+			List<ErrorlistModel> errorList = new ArrayList<ErrorlistModel>();
 			int count = 0;
 			if(map.get("batchid") != null && !String.valueOf(map.get("batchid")).equals("")) {
 				for (int i = 0; i < String.valueOf(map.get("batchid")).split(",").length; i++) {
 					String batchid = String.valueOf(map.get("batchid")).split(",")[i];
 					selectbatchids.add(Long.parseLong(batchid));
 				}
-				errorList = errorModelDao.selectErrorInfos(configDBModel, selectbatchids, map);
+				errorList = errorModelDao.selectErrorListInfos(configDBModel, selectbatchids, map);
 				count = errorModelDao.selectCountErrorInfos(configDBModel, selectbatchids, map);
 			}
 			//add by lianhr begin 2019/03/05
@@ -135,9 +137,9 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 		logger.debug("WorkTasksCtrl-pages end.");
 		return json;
 	}
-
-	@RequestMapping(params = "atn=getInfo")
-	public ModelAndView getInfo(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
+	
+	@RequestMapping(method = RequestMethod.POST)
+	public ModelAndView errorlistexport(HttpServletRequest request, HttpServletResponse response) {
 		logger.debug("ErrorListExportCtrl-getInfo start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		String strbatchids = ParamUtils.getParameter(request, "batchid", "");
@@ -151,7 +153,7 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 			selectbatchids.add(Long.parseLong(batchid));
 		}
 		Map<String, Object> map = new HashMap<String, Object>();
-		List<ErrorModel> errorList = errorModelDao.selectErrorInfos(configDBModel, selectbatchids, map);
+		List<ErrorlistModel> errorList = errorModelDao.selectErrorListInfos(configDBModel, selectbatchids, map);
 		ResultModel result = new ResultModel();
 		// 输出Excel
 		logger.debug("START");
@@ -198,7 +200,7 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 				styleC.setBorderRight(HSSFCellStyle.BORDER_THIN);// 右边框
 				styleC.setAlignment(CellStyle.ALIGN_CENTER);
 
-				for (ErrorModel poi : errorList) {
+				for (ErrorlistModel poi : errorList) {
 					Row row = sheet.createRow(rowNo++);
 
 					Field[] fs = poi.getClass().getDeclaredFields();
@@ -206,10 +208,10 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 						Cell cell = row.createCell(i);
 
 						Field f = fs[i];
+						f.setAccessible(true);
 						if (f.get(poi) == null) {
 							continue;
 						}
-						f.setAccessible(true);
 						cell.setCellType(HSSFCell.CELL_TYPE_STRING);
 						cell.setCellValue(f.get(poi).toString());
 					}

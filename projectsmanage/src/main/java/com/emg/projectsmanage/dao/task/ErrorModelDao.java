@@ -31,6 +31,7 @@ import com.emg.projectsmanage.pojo.ErrorAndErrorRelatedModel;
 import com.emg.projectsmanage.pojo.ErrorModel;
 import com.emg.projectsmanage.pojo.ErrorRelatedModel;
 import com.emg.projectsmanage.pojo.ErrorSetModel;
+import com.emg.projectsmanage.pojo.ErrorlistModel;
 import com.emg.projectsmanage.pojo.ItemConfigModel;
 
 @Component
@@ -883,6 +884,68 @@ public class ErrorModelDao {
 			}
 		}
 		return count;
+	}
+	
+	public List<ErrorlistModel> selectErrorListInfos(ConfigDBModel configDBModel, HashSet<Long> batchids, Map<String, Object> map) {
+		List<ErrorlistModel> errorRelateds = new ArrayList<ErrorlistModel>();
+		BasicDataSource dataSource = null;
+		try {
+			if (batchids == null || batchids.isEmpty())
+				return errorRelateds;
+
+			Integer dbtype = configDBModel.getDbtype(); 
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT batchid,qid,errortype,errorremark,updatetime,count(*) as countnum ");
+			sql.append(" FROM ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_error ");
+			sql.append(" WHERE " + separator + "batchid" + separator + " IN ( ");
+			for (Long batchid : batchids) {
+				sql.append(batchid + ",");
+			}
+			sql.deleteCharAt(sql.length() - 1);
+			sql.append(" ) ");
+			if (map.get("qid") != null ) {
+				sql.append(" AND qid = '" +  map.get("qid") + "'");
+			}
+			
+			if (map.get("errortype") != null ) {
+				sql.append(" AND errortype = '" +  map.get("errortype") + "'");
+			}
+			
+			if (map.get("errorremark") != null ) {
+				sql.append(" AND errorremark like '%" +  map.get("errorremark") + "%' ");
+			}
+			
+			sql.append(" group by  batchid,qid,errortype,errorremark,updatetime order by batchid,qid,errortype,errorremark");
+			
+			if (map.get("limit") != null && Integer.parseInt(String.valueOf(map.get("limit")))> 0) {
+				sql.append(" LIMIT " + map.get("limit"));
+			}
+			if (map.get("offset") != null && Integer.parseInt(String.valueOf(map.get("offset")))> 0) {
+				sql.append(" OFFSET " + map.get("limit"));
+			}
+
+			dataSource = Common.getDataSource(configDBModel);
+			errorRelateds = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorlistModel>(ErrorlistModel.class));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			errorRelateds = new ArrayList<ErrorlistModel>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return errorRelateds;
 	}
 	//add by lianhr end
 }

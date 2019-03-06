@@ -51,8 +51,20 @@ public class ErrorsTaskModel {
     private String updatetime;
     
     private String mact;
+    
+    //add by lianhr begin 2019/03/06
+    private String remarkname;
+    //add by lianhr end
 
-    public Long getId() {
+    public String getRemarkname() {
+		return remarkname;
+	}
+
+	public void setRemarkname(String remarkname) {
+		this.remarkname = remarkname;
+	}
+
+	public Long getId() {
         return id;
     }
 

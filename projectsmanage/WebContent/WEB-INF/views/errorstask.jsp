@@ -152,6 +152,7 @@
 	}
 	function qctaskFormat(value, row, index) {
 		var html = new Array();
+		html.push(row.remarkname + "<br>");
 		html.push(row.qctaskdbname + "<br>");
 		html.push(row.qctaskdbschema + "<br>");
 		html.push(row.qctaskip + "<br>");
@@ -160,6 +161,7 @@
 	}
 	function errorsrcFormat(value, row, index) {
 		var html = new Array();
+		html.push(row.remarkname + "<br>");
 		html.push(row.errorsrcdbname + "<br>");
 		html.push(row.errorsrcdbschema + "<br>");
 		html.push(row.errorsrcip + "<br>");
@@ -168,6 +170,7 @@
 	}
 	function errortarFormat(value, row, index) {
 		var html = new Array();
+		html.push(row.remarkname + "<br>");
 		html.push(row.errortardbname + "<br>");
 		html.push(row.errortardbschema + "<br>");
 		html.push(row.errortarip + "<br>");
@@ -505,7 +508,7 @@
 					<td class="configValue">
 						<select name="taskdb" class="form-control" id="config_qctask" onchange="getBatches(this.options[this.options.selectedIndex].value);">
 							<c:forEach items="${taskdbs }" var="dbmodel">
-								<option value="${dbmodel['id'] }">${dbmodel['dbname']}<c:if test="${not empty dbmodel['dbschema']}">.${dbmodel['dbschema']}</c:if>(${dbmodel['ip']}:${dbmodel['port']}_<c:if test="${dbmodel['online'] == 0}">线上</c:if><c:if test="${dbmodel['online'] == 1}">线下</c:if>)</option>
+								<option value="${dbmodel['id'] }">${dbmodel['remarkname']}_${dbmodel['dbname']}<c:if test="${not empty dbmodel['dbschema']}">.${dbmodel['dbschema']}</c:if>(${dbmodel['ip']}:${dbmodel['port']}_<c:if test="${dbmodel['online'] == 0}">线上</c:if><c:if test="${dbmodel['online'] == 1}">线下</c:if>)</option>
 							</c:forEach>
 						</select>
 					</td>
@@ -515,7 +518,7 @@
 					<td class="configValue">
 						<select name="errordb" class="form-control" id="config_errorsrc">
 							<c:forEach items="${errordbs }" var="dbmodel">
-								<option value="${dbmodel['id'] }">${dbmodel['dbname']}<c:if test="${not empty dbmodel['dbschema']}">.${dbmodel['dbschema']}</c:if>(${dbmodel['ip']}:${dbmodel['port']}_<c:if test="${dbmodel['online'] == 0}">线上</c:if><c:if test="${dbmodel['online'] == 1}">线下</c:if>)</option>
+								<option value="${dbmodel['id'] }">${dbmodel['remarkname']}_${dbmodel['dbname']}<c:if test="${not empty dbmodel['dbschema']}">.${dbmodel['dbschema']}</c:if>(${dbmodel['ip']}:${dbmodel['port']}_<c:if test="${dbmodel['online'] == 0}">线上</c:if><c:if test="${dbmodel['online'] == 1}">线下</c:if>)</option>
 							</c:forEach>
 						</select>
 					</td>
@@ -525,7 +528,7 @@
 					<td class="configValue">
 						<select name="error2db" class="form-control" id="config_errortar">
 							<c:forEach items="${error2dbs }" var="dbmodel">
-								<option value="${dbmodel['id'] }">${dbmodel['dbname']}<c:if test="${not empty dbmodel['dbschema']}">.${dbmodel['dbschema']}</c:if>(${dbmodel['ip']}:${dbmodel['port']}_<c:if test="${dbmodel['online'] == 0}">线上</c:if><c:if test="${dbmodel['online'] == 1}">线下</c:if><c:if test="${dbmodel['online'] == 2}">POI</c:if><c:if test="${dbmodel['online'] == 3}">YY</c:if><c:if test="${dbmodel['online'] == 4}">关系附属</c:if>)</option>
+								<option value="${dbmodel['id'] }">${dbmodel['remarkname']}_${dbmodel['dbname']}<c:if test="${not empty dbmodel['dbschema']}">.${dbmodel['dbschema']}</c:if>(${dbmodel['ip']}:${dbmodel['port']}_<c:if test="${dbmodel['online'] == 0}">线上</c:if><c:if test="${dbmodel['online'] == 1}">线下</c:if><c:if test="${dbmodel['online'] == 2}">POI</c:if><c:if test="${dbmodel['online'] == 3}">YY</c:if><c:if test="${dbmodel['online'] == 4}">关系附属</c:if>)</option>
 							</c:forEach>
 						</select>
 					</td>

@@ -13,7 +13,7 @@
     <result column="port" property="port" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, ip, dbtype, dbschema, connname, dbname, user, password, port, online
+    id, ip, dbtype, dbschema, connname, dbname, user, password, port, online,remarkname
   </sql>
   <select id="selectAllConfigDBModels" resultMap="BaseResultMap">
 	select
@@ -33,10 +33,10 @@
   <insert id="insert" parameterType="com.emg.projectsmanage.pojo.ConfigDBModel" >
     insert into tb_config_db (id, ip, dbtype, dbschema, 
       connname, dbname, user, 
-      password, port, online)
+      password, port, online, remarkname)
     values (#{id,jdbcType=INTEGER}, #{ip,jdbcType=VARCHAR}, #{dbtype,jdbcType=INTEGER}, #{dbschema,jdbcType=VARCHAR},
       #{connname,jdbcType=VARCHAR}, #{dbname,jdbcType=VARCHAR}, #{user,jdbcType=VARCHAR}, 
-      #{password,jdbcType=VARCHAR}, #{port,jdbcType=VARCHAR},#{online,jdbcType=INTEGER})
+      #{password,jdbcType=VARCHAR}, #{port,jdbcType=VARCHAR},#{online,jdbcType=INTEGER}, #{remarkname,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.emg.projectsmanage.pojo.ConfigDBModel" >
     insert into tb_config_db
@@ -71,6 +71,9 @@
       <if test="online != null" >
         online,
       </if>
+      <if test="remarkname != null" >
+        remarkname,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -102,6 +105,9 @@
       </if>
       <if test="online != null" >
         #{online,jdbcType=INTEGER},
+      </if>
+      <if test="remarkname != null" >
+        #{remarkname,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -135,6 +141,9 @@
       <if test="online != null" >
         #{online,jdbcType=INTEGER},
       </if>
+      <if test="remarkname != null" >
+        #{remarkname,jdbcType=INTEGER},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -147,7 +156,7 @@
       dbname = #{dbname,jdbcType=VARCHAR},
       user = #{user,jdbcType=VARCHAR},
       password = #{password,jdbcType=VARCHAR},
-      port = #{port,jdbcType=VARCHAR}, online = #{online,jdbcType=INTEGER}
+      port = #{port,jdbcType=VARCHAR}, online = #{online,jdbcType=INTEGER}, remarkname = #{remarkname,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectDbInfos" resultMap="BaseResultMap"

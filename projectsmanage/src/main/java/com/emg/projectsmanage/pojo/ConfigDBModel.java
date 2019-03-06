@@ -22,6 +22,10 @@ public class ConfigDBModel {
     //add by lianhr begin 2019/02/12
     private Integer online;
     //add by lianhr end
+    
+    //add by lianhr begin 2019/03/06
+    private String remarkname;
+    //add by lianhr edn
 
     public Integer getId() {
         return id;
@@ -104,4 +108,16 @@ public class ConfigDBModel {
         this.online = online;
     }
 	//add by lianhr end
+
+    
+    //add by lianhr begin 2019/03/06
+    public String getRemarkname() {
+    	return remarkname;
+    }
+    
+    public void setRemarkname(String remarkname) {
+    	this.remarkname = remarkname;
+    }
+    
+    //add by lianhr end
 }
