@@ -778,7 +778,7 @@ public class ErrorModelDao {
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT batchid,qid,errortype,errorremark,count(*) as countnum ");
+			sql.append(" SELECT batchid,qid,errortype,errorremark,updatetime,count(*) as countnum ");
 			sql.append(" FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
@@ -802,7 +802,7 @@ public class ErrorModelDao {
 				sql.append(" AND errorremark like '%" +  map.get("errorremark") + "%' ");
 			}
 			
-			sql.append(" group by  batchid,qid,errortype,errorremark order by batchid,qid,errortype,errorremark");
+			sql.append(" group by  batchid,qid,errortype,errorremark,updatetime order by batchid,qid,errortype,errorremark");
 			
 			if (map.get("limit") != null && Integer.parseInt(String.valueOf(map.get("limit")))> 0) {
 				sql.append(" LIMIT " + map.get("limit"));
@@ -864,7 +864,7 @@ public class ErrorModelDao {
 				sql.append(" AND errorremark like '%" +  map.get("errorremark") + "%' ");
 			}
 			
-			sql.append("group by  batchid,qid,errortype,errorremark order by batchid,qid,errortype,errorremark");
+			sql.append("group by  batchid,qid,errortype,errorremark,updatetime order by batchid,qid,errortype,errorremark");
 
 			dataSource = Common.getDataSource(configDBModel);
 			List<ErrorModel> errorRelateds = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorModel>(ErrorModel.class));

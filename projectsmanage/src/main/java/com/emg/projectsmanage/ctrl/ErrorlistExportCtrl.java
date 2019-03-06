@@ -120,6 +120,9 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 				errorList = errorModelDao.selectErrorInfos(configDBModel, selectbatchids, map);
 				count = errorModelDao.selectCountErrorInfos(configDBModel, selectbatchids, map);
 			}
+			//add by lianhr begin 2019/03/05
+			
+			//add by lianhr end
 			
 
 			json.addObject("rows", errorList);
