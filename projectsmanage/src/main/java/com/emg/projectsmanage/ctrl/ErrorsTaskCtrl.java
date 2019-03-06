@@ -343,13 +343,12 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 			errorsTaskModel.setBatchid(batchid);
 			errorsTaskModel.setErrorsetid(errorsetid);
 			errorsTaskModel.setErrorsetname(errorSet.getName());
+			errorsTaskModel.setCurerrorid(0L);
 			
 			if (map != null && map.containsKey("min")) {
 				errorsTaskModel.setMinerrorid(Long.valueOf(map.get("min").toString()));
-				errorsTaskModel.setCurerrorid(Long.valueOf(map.get("min").toString()));
 			} else {
 				errorsTaskModel.setMinerrorid(0L);
-				errorsTaskModel.setCurerrorid(0L);
 			}
 			if (map != null && map.containsKey("max")) {
 				errorsTaskModel.setMaxerrorid(Long.valueOf(map.get("max").toString()));
