@@ -862,7 +862,7 @@
 			data-url="./itemsetmanage.web?atn=getiteminfos"
 			data-toggle="itemInfos"
 			data-height="620"
-			data-value-band="itemInfos" data-side-pagination="server"
+			data-value-band="itemInfos"
 			data-response-handler="itemResponse">
 			<thead>
 				<tr>
