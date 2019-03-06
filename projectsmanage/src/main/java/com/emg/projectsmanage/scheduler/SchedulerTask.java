@@ -7,8 +7,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +63,7 @@ import com.emg.projectsmanage.pojo.WorkTasksModel;
 import com.emg.projectsmanage.pojo.WorkTasksUniq;
 import com.emg.projectsmanage.service.EmapgoAccountService;
 import com.emg.projectsmanage.service.ProcessConfigModelService;
+import com.emg.projectsmanage.service.ZMailService;
 
 @Component
 public class SchedulerTask {
@@ -73,12 +76,9 @@ public class SchedulerTask {
 	@Value("${scheduler.worktasks.enable}")
 	private String worktasksEnable;
 	
-	
 	@Value("${scheduler.attachcapacity.enable}")
 	private String attachEnable;
 	
-	
-
 	@Autowired
 	private CapacityTaskModelDao capacityTaskModelDao;
 
@@ -123,6 +123,9 @@ public class SchedulerTask {
 	
 	@Autowired
 	private AttachCheckCapacityModelDao attachCheckCapacityDao;
+	
+	@Autowired
+	private ZMailService zMailService;
 
 	/**
 	 * 半夜三更 创建每天的任务
@@ -2539,6 +2542,7 @@ public class SchedulerTask {
 			logger.error(e.getMessage(), e);
 		}
 		
+		Set<ProcessModel> proNeedMails = new HashSet<ProcessModel>();
 		if (uniqProcesses != null && !uniqProcesses.isEmpty()) {
 			for (ProjectsProcessModel projectsProcessModel : uniqProcesses.values()) {
 				try {
@@ -2581,7 +2585,7 @@ public class SchedulerTask {
 						String sProgress = process.getProgress();
 						ArrayList<String> alProgress = sProgress.length() > 0 ? new ArrayList<String>(Arrays.asList(sProgress.split(","))) : new ArrayList<String>();
 						Integer length = alProgress.size();
-						while (length < CommonConstants.PROCESSCOUNT_COUNTRY) {
+						while (length < CommonConstants.PROCESSCOUNT_ERROR) {
 							alProgress.add("0");
 							length++;
 						}
@@ -2590,6 +2594,18 @@ public class SchedulerTask {
 							DecimalFormat df = new DecimalFormat("0.000");
 							if (stageTaskMap.containsKey(2)) {
 								alProgress.set(1, df.format((float)(stageTaskMap.get(2)*100)/totaltask));
+							}
+							alProgress.set(2, "0");
+							alProgress.set(3, "0");
+							if (!alProgress.get(3).equals("100") &&
+									totaltask.equals(completetask) &&
+									edittask.equals(0) &&
+									qctask.equals(0) &&
+									checktask.equals(0) &&
+									fielddatarest.equals(0) &&
+									errorrest.equals(0)) {
+								proNeedMails.add(process);
+								alProgress.set(3, "100");
 							}
 						}
 						StringBuilder sbProgress = new StringBuilder();
@@ -2623,6 +2639,19 @@ public class SchedulerTask {
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
 				}
+			}
+			
+			if (proNeedMails.size() > 0) {
+				String subject = new String("全国质检项目完成提醒");
+				StringBuilder text = new StringBuilder();
+				text.append("如下项目质检完成：<br>");
+				for (ProcessModel proNeedMail : proNeedMails) {
+					if (!proNeedMail.getType().equals(ProcessType.COUNTRY.getValue()) || !proNeedMail.getState().equals(ProcessState.COMPLETE.getValue()))
+						continue;
+					
+					text.append(String.format("  项目编号：%s，项目名称：%s<br>", proNeedMail.getId(), proNeedMail.getName()));
+				}
+				zMailService.sendRichEmail(subject, text.toString());
 			}
 		} else {
 			logger.debug("projectsProcess has no records.");
