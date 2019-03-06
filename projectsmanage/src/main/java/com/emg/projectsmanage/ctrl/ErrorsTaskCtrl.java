@@ -167,6 +167,7 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 					
 					for (ConfigDBModel configDBModel : configDBModels) {
 						if (qctask.equals(configDBModel.getId())) {
+							errorsTask.setRemarkname(configDBModel.getRemarkname());
 							errorsTask.setQctaskdbname(configDBModel.getDbname());
 							errorsTask.setQctaskdbschema(configDBModel.getDbschema());
 							errorsTask.setQctaskip(configDBModel.getIp());
@@ -175,6 +176,7 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 							//modified by lianhr end
 						}
 						if (errorsrc.equals(configDBModel.getId())) {
+							errorsTask.setRemarkname(configDBModel.getRemarkname());
 							errorsTask.setErrorsrcdbname(configDBModel.getDbname());
 							errorsTask.setErrorsrcdbschema(configDBModel.getDbschema());
 							errorsTask.setErrorsrcip(configDBModel.getIp());
@@ -183,6 +185,7 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 							//modified by lianhr end
 						}
 						if (errortar.equals(configDBModel.getId())) {
+							errorsTask.setRemarkname(configDBModel.getRemarkname());
 							errorsTask.setErrortardbname(configDBModel.getDbname());
 							errorsTask.setErrortardbschema(configDBModel.getDbschema());
 							errorsTask.setErrortarip(configDBModel.getIp());
