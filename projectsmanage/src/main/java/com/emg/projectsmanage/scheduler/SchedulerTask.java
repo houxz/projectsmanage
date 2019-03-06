@@ -2596,8 +2596,10 @@ public class SchedulerTask {
 								alProgress.set(1, df.format((float)(stageTaskMap.get(2)*100)/totaltask));
 							}
 							alProgress.set(2, "0");
-							alProgress.set(3, "0");
-							if (!alProgress.get(3).equals("100") &&
+							if (!alProgress.get(3).equals("100")) {
+								alProgress.set(3, "0");
+							}
+							if(!alProgress.get(3).equals("100") &&
 									totaltask.equals(completetask) &&
 									edittask.equals(0) &&
 									qctask.equals(0) &&

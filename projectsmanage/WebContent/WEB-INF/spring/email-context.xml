@@ -36,6 +36,7 @@
 		<property name="tos">
 			<set>
 				<value>sen.zhang@emapgo.com.cn</value>
+				<value>lina.zhang@emapgo.com.cn</value>
 			</set>
 		</property>
 	</bean>
