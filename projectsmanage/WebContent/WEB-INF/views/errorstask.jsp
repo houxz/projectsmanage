@@ -142,6 +142,8 @@
 	}
 	function operationFormat(value, row, index) {
 		var html = new Array();
+		//qctask, errorsrc, batchid, errorsetid
+		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="showErrors(' + row.qctask + ',' + row.errorsrc + ',' + row.batchid + ',' + row.errorsetid + ',' + row.minerrorid + ',' + row.maxerrorid + ');">详情</div>');
 		if (row.state == 1) {
 			html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="pauseErrorTask(' + row.id + ');">暂停</div>');
 		} else if (row.state == 2 || row.state == -1 || row.state == 3 || row.state == 4) {
@@ -353,7 +355,7 @@
 		});
 	}
 	
-	function showErrors(qctask, errorsrc, batchid, errorsetid) {
+	function showErrors(qctask, errorsrc, batchid, errorsetid, minerrorid, maxerrorid) {
 		$('[data-toggle="errors"]').bootstrapTable({
 			locale : 'zh-CN',
 			queryParams : function(params) {
@@ -361,43 +363,8 @@
 				params["errorsrc"] = errorsrc;
 				params["batchid"] = batchid;
 				params["errorsetid"] = errorsetid;
-				return params;
-			}
-		});
-		
-		$("#errorsDlg").dialog({
-			modal : true,
-			width : document.documentElement.clientWidth * 0.8,
-			title : "错误详情",
-			open : function(event, ui) {
-				$(".ui-dialog-titlebar-close").hide();
-			},
-			close : function (event, ui) {
-				$('[data-toggle="errors"]').bootstrapTable("destroy");
-			},
-			buttons : [{
-						text : "关闭",
-						class : "btn btn-default",
-						click : function() {
-							$(this).dialog("close");
-						}
-					} ]
-		});
-	}
-	
-	function getErrors() {
-		$('[data-toggle="errors"]').bootstrapTable({
-			locale : 'zh-CN',
-			queryParams : function(params) {
-				var qctask = $("#config_qctask").val();
-				var errorsrc = $("#config_errorsrc").val();
-				var batchid = $("#config_batchid + input").val();
-				var errorsetid = $("#config_errorsetid").val();
-				
-				params["qctask"] = qctask;
-				params["errorsrc"] = errorsrc;
-				params["batchid"] = batchid;
-				params["errorsetid"] = errorsetid;
+				params["minerrorid"] = minerrorid;
+				params["maxerrorid"] = maxerrorid;
 				return params;
 			}
 		});

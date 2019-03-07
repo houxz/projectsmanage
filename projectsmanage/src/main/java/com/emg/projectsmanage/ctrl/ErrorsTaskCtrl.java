@@ -562,6 +562,8 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 			Integer errorsrc = ParamUtils.getIntParameter(request, "errorsrc", 0);
 			Long batchid = ParamUtils.getLongParameter(request, "batchid", -1L);
 			Long errorsetid = ParamUtils.getLongParameter(request, "errorsetid", -1L);
+			Integer minerrorid = ParamUtils.getIntParameter(request, "minerrorid", 0);
+			Integer maxerrorid = ParamUtils.getIntParameter(request, "maxerrorid", 0);
 			
 			if (qctask == null || qctask.equals(-1) ||
 					errorsrc == null || errorsrc.equals(-1)) {
@@ -586,8 +588,8 @@ public class ErrorsTaskCtrl extends BaseCtrl {
 
 			ConfigDBModel _configDBModel = configDBModelDao.selectByPrimaryKey(errorsrc);
 
-			List<ErrorModel> rows = errorModelDao.selectErrors(_configDBModel, record, limit, offset, errortypes, null, null);
-			Integer count = errorModelDao.countErrors(_configDBModel, record, errortypes, null, null);
+			List<ErrorModel> rows = errorModelDao.selectErrors(_configDBModel, record, limit, offset, errortypes, minerrorid, maxerrorid);
+			Integer count = errorModelDao.countErrors(_configDBModel, record, errortypes, minerrorid, maxerrorid);
 
 			result.setRows(rows);
 			result.setTotal(count);
