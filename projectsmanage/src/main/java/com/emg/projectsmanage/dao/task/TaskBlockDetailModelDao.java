@@ -156,9 +156,9 @@ public class TaskBlockDetailModelDao {
 			//sql.append("	A.blockid,");
 			//sql.append("	B.featureid,");
 			sql.append("	array_to_string(ARRAY(SELECT unnest(array_agg(B.featureid))),',') AS featureid,");
-			sql.append("	A.editid,");
+			sql.append("	B.editid,");
 			sql.append("	A.tasktype,");
-			sql.append("	A.checkid");
+			sql.append("	B.checkid");
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task A,");
@@ -167,15 +167,15 @@ public class TaskBlockDetailModelDao {
 			sql.append(" WHERE A.blockid = B.blockid AND B.pstate = 2");
 			sql.append("	AND A.tasktype in (15102,15110,15111,15210,15211)");
 			if (timeFlag) {
-				sql.append("	AND ( edittime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ");
+				sql.append("	AND ( B.edittime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ");
 			} else {
-				sql.append("	AND (( edittime BETWEEN '" + String.format("%s " + "00:00:00", time) + "' AND '"
-						+ String.format("%s " + "08:29:59", time) + "' ) or ( edittime BETWEEN '"
+				sql.append("	AND (( B.edittime BETWEEN '" + String.format("%s " + "00:00:00", time) + "' AND '"
+						+ String.format("%s " + "08:29:59", time) + "' ) or ( B.edittime BETWEEN '"
 						+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time)
 						+ "' )) ");
 			}
 			//sql.append(" GROUP BY A.tasktype,	A.projectid,	A.blockid,		A.editid,	A.checkid ");
-			sql.append(" GROUP BY A.tasktype,	A.projectid,		A.editid,	A.checkid ");
+			sql.append(" GROUP BY A.tasktype,	A.projectid,		B.editid,	B.checkid ");
 
 			dataSource = Common.getDataSource(configDBModel);
 			list = new JdbcTemplate(dataSource).queryForList(sql.toString());
@@ -196,7 +196,7 @@ public class TaskBlockDetailModelDao {
 	// add by lianhr end
 
 	// add by lianhr begin 201/12/13
-	// ͨ��POI��ѯ
+	
 	public List<Map<String, Object>> group15102ByPoi(ConfigDBModel configDBModel, Long featureid) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
@@ -230,7 +230,7 @@ public class TaskBlockDetailModelDao {
 	// add by lianhr end
 
 	// add by lianhr begin 201/12/13
-	// ͨ��POI��ѯ
+	
 	public List<Map<String, Object>> group15102ByPoiDelete(ConfigDBModel configDBModel, Long featureid) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
@@ -265,7 +265,7 @@ public class TaskBlockDetailModelDao {
 	// add by lianhr end
 	
 	// add by lianhr begin 201/12/13
-		// ͨ��POI��ѯ
+		
 		public List<Map<String, Object>> group15102ByPoi(ConfigDBModel configDBModel, String featureid, String condition) {
 			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 			BasicDataSource dataSource = null;

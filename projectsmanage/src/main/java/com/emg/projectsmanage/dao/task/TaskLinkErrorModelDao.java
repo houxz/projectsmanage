@@ -139,10 +139,10 @@ public class TaskLinkErrorModelDao {
 			sql.append("	A.taskid,");
 			sql.append("	A.errortype,");
 			sql.append("	COUNT ( A.featureid ) AS count,");
-			// 非目视错误
+			
 			sql.append(
 					"	SUM( CASE WHEN A.errortype BETWEEN 10000000000 AND 19999999999 THEN 1 ELSE 0 END ) AS errorcount,");
-			// 目视错误不动
+			
 			sql.append(
 					"	SUM( CASE WHEN A.errortype BETWEEN 20000000000 AND 29999999999 THEN 1 ELSE 0 END ) AS visualerrorcount,");
 			sql.append("	B.editid");
