@@ -50,42 +50,116 @@
 			onLoadError : function (status) {
 				$.webeditor.showMsgBox("close");
 			},
-			
 			onPostHeader : function () {
 				var obj = $(".form-control.bootstrap-table-filter-control-batchid");
 				$(obj).change(function() {
 					var batchid = $(".form-control.bootstrap-table-filter-control-batchid").val();
 					$("#strbatchid").val(batchid);
+					
+					if(strparams != undefined){
+						if (strparams.filter != undefined && strparams.filter.length > 0) {
+							var filterObj = eval('(' + strparams.filter + ')');
+							if(filterObj != undefined){
+								filterObj.batchid = batchid;
+								strparams.filter = JSON.stringify(filterObj);
+							} else {
+								var filterObj = {batchid : batchid};
+								strparams.filter = JSON.stringify(filterObj);
+							}
+						} else {
+							var filterObj = {batchid : batchid};
+							strparams.filter = JSON.stringify(filterObj);
+						}
+					}
 				});
 				var objqid = $(".form-control.bootstrap-table-filter-control-qid");
 				$(objqid).change(function() {
 					var qid = $(".form-control.bootstrap-table-filter-control-qid").val();
 					$("#strqid").val(qid);
+					
+					if(strparams != undefined){
+						if (strparams.filter != undefined && strparams.filter.length > 0) {
+							var filterObj = eval('(' + strparams.filter + ')');
+							if(filterObj != undefined){
+								filterObj.qid = qid;
+								strparams.filter = JSON.stringify(filterObj);
+							} else {
+								var filterObj = {qid : qid};
+								strparams.filter = JSON.stringify(filterObj);
+							}
+						} else {
+							var filterObj = {qid : qid};
+							strparams.filter = JSON.stringify(filterObj);
+						}
+					}
 				});
 				var objerrortype = $(".form-control.bootstrap-table-filter-control-errortype");
 				$(objerrortype).change(function() {
 					var errortype = $(".form-control.bootstrap-table-filter-control-errortype").val();
 					$("#strerrortype").val(errortype);
+					
+					if(strparams != undefined){
+						if (strparams.filter != undefined && strparams.filter.length > 0) {
+							var filterObj = eval('(' + strparams.filter + ')');
+							if(filterObj != undefined){
+								filterObj.errortype = errortype;
+								strparams.filter = JSON.stringify(filterObj);
+							} else {
+								var filterObj = {errortype : errortype};
+								strparams.filter = JSON.stringify(filterObj);
+							}
+						} else {
+							var filterObj = {errortype : errortype};
+							strparams.filter = JSON.stringify(filterObj);
+						}
+					}
 				});
 				var objerrorremark = $(".form-control.bootstrap-table-filter-control-errorremark");
 				$(objerrorremark).change(function() {
 					var errorremark = $(".form-control.bootstrap-table-filter-control-errorremark").val();
 					$("#strerrorremark").val(errorremark);
+					
+					if(strparams != undefined){
+						if (strparams.filter != undefined && strparams.filter.length > 0) {
+							var filterObj = eval('(' + strparams.filter + ')');
+							if(filterObj != undefined){
+								filterObj.errorremark = errorremark;
+								strparams.filter = JSON.stringify(filterObj);
+							} else {
+								var filterObj = {errorremark : errorremark};
+								strparams.filter = JSON.stringify(filterObj);
+							}
+						} else {
+							var filterObj = {errorremark : errorremark};
+							strparams.filter = JSON.stringify(filterObj);
+						}
+					}
 				});
+				
 				$('#updatetime1').datetimepicker({
 					autoclose : true,
 					language : 'zh-CN'
 				}).on('changeDate',function(ev){
-					var updatetime11 =$("#updatetime1").val();
+					var updatetime11 = $("#updatetime1").val();
 					$("#strupdatetime11").val(updatetime11);
 					if(strparams != undefined){
-						var filterObj = eval('(' + strparams.filter + ')');
-						if(filterObj != undefined){
-							filterObj.updatetime1 = $("#updatetime1").val();
+						if (strparams.filter != undefined && strparams.filter.length > 0) {
+							var filterObj = eval('(' + strparams.filter + ')');
+							if(filterObj != undefined){
+								filterObj.updatetime1 = $("#updatetime1").val();
+								strparams.filter = JSON.stringify(filterObj);
+							} else {
+								var filterObj = {updatetime1 : $("#updatetime1").val()};
+								strparams.filter = JSON.stringify(filterObj);
+							}
+						} else {
+							var filterObj = {updatetime1 : $("#updatetime1").val()};
 							strparams.filter = JSON.stringify(filterObj);
 						}
 					}
-				}); 
+					
+				});
+				
 				$('#updatetime2').datetimepicker({
 					autoclose : true,
 					language : 'zh-CN'
@@ -93,18 +167,23 @@
 					var updatetime22 =$("#updatetime2").val();
 					$("#strupdatetime22").val(updatetime22);
 					if(strparams != undefined){
-						var filterObj = eval('(' + strparams.filter + ')');
-						if(filterObj != undefined){
-							filterObj.updatetime2 = $("#updatetime2").val();
+						if (strparams.filter != undefined && strparams.filter.length > 0) {
+							var filterObj = eval('(' + strparams.filter + ')');
+							if(filterObj != undefined){
+								filterObj.updatetime2 = $("#updatetime2").val();
+								strparams.filter = JSON.stringify(filterObj);
+							} else {
+								var filterObj = {updatetime1 : $("#updatetime1").val()};
+								strparams.filter = JSON.stringify(filterObj);
+							}
+						} else {
+							var filterObj = {updatetime2 : $("#updatetime2").val()};
 							strparams.filter = JSON.stringify(filterObj);
 						}
 					}
-				}); 
-			},
-			
+				});
+			}
 		});
-		
-		
 	});
 	
 	function queryParams(params) {
@@ -123,7 +202,6 @@
 <body>
 	<div class="container">
 		<div id="headdiv"></div>
-		
 		<div id="dlgInfo" class="row" style="padding-top: 20px">
 			<table id="worktasklist" data-unique-id="qid" 
 				data-query-params="queryParams" data-url="./errorlistexport.web?atn=pages"
@@ -135,7 +213,9 @@
 					<tr>
 						<th data-field="batchid" data-filter-control="input" 
 							data-filter-control-placeholder="" data-width="120" >批次ID
-							<span class="glyphicon glyphicon-plus" onclick="$('#exportPOIsForm').submit();"></span>
+							<button type="button" class="btn btn-default btn-xs" title="导出到Excel">
+								<span class="glyphicon glyphicon-floppy-save" onclick="$('#exportPOIsForm').submit();"></span>
+							</button>
 						</th>
 						<th data-field="qid"  data-filter-control-placeholder=""
 							data-filter-control="input" data-width="80">QID</th>
@@ -146,9 +226,9 @@
 						<th data-field="updatetime" 
 							 data-width="150" >更新时间
 							<br>
-							<input id="updatetime1"  data-field="updatetime1" data-filter-control="input" type="text" placeholder="请输入开始时间" style="width: 140px;">
+							<input id="updatetime1" data-field="updatetime1" type="text" placeholder="请输入开始时间" style="width: 140px; height: 34px; padding: 6px 12px; font-size: 14px; line-height: 1.42857143; color: #555; border: 1px solid #ccc; border-radius: 4px;">
 							~
-							<input id="updatetime2"  data-field="updatetime2" data-filter-control="input" type="text" placeholder="请输入开始时间" style="width: 140px;">
+							<input id="updatetime2" data-field="updatetime2" type="text" placeholder="请输入结束时间" style="width: 140px; height: 34px; padding: 6px 12px; font-size: 14px; line-height: 1.42857143; color: #555; border: 1px solid #ccc; border-radius: 4px;">
 						</th>
 						<th data-field="countnum" data-filter-control="input" data-width="100" >数量</th>
 					</tr>
@@ -158,7 +238,7 @@
 
 		<div id="footdiv"></div>
 	</div>
-	<form method="post" action="./errorlistexport.web" id="exportPOIsForm" class="btn btn-default btn-xs">
+	<form method="post" action="./errorlistexport.web" id="exportPOIsForm">
 		<input id="strbatchid" name="batchid" type="hidden">
 		<input id="strqid" name="qid" type="hidden">
 		<input id="strerrortype" name="errortype" type="hidden">
