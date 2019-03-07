@@ -32,7 +32,6 @@
 <script type="text/javascript" src="resources/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
 <script type="text/javascript" src="resources/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
 <script type="text/javascript">
-    var strparams;
 	$(document).ready(function() {
 		$.webeditor.getHead();
 		
@@ -54,133 +53,36 @@
 				var obj = $(".form-control.bootstrap-table-filter-control-batchid");
 				$(obj).change(function() {
 					var batchid = $(".form-control.bootstrap-table-filter-control-batchid").val();
-					$("#strbatchid").val(batchid);
-					
-					if(strparams != undefined){
-						if (strparams.filter != undefined && strparams.filter.length > 0) {
-							var filterObj = eval('(' + strparams.filter + ')');
-							if(filterObj != undefined){
-								filterObj.batchid = batchid;
-								strparams.filter = JSON.stringify(filterObj);
-							} else {
-								var filterObj = {batchid : batchid};
-								strparams.filter = JSON.stringify(filterObj);
-							}
-						} else {
-							var filterObj = {batchid : batchid};
-							strparams.filter = JSON.stringify(filterObj);
-						}
-					}
+					$("#strbatchid").val(batchid.trim());
 				});
 				var objqid = $(".form-control.bootstrap-table-filter-control-qid");
 				$(objqid).change(function() {
 					var qid = $(".form-control.bootstrap-table-filter-control-qid").val();
-					$("#strqid").val(qid);
-					
-					if(strparams != undefined){
-						if (strparams.filter != undefined && strparams.filter.length > 0) {
-							var filterObj = eval('(' + strparams.filter + ')');
-							if(filterObj != undefined){
-								filterObj.qid = qid;
-								strparams.filter = JSON.stringify(filterObj);
-							} else {
-								var filterObj = {qid : qid};
-								strparams.filter = JSON.stringify(filterObj);
-							}
-						} else {
-							var filterObj = {qid : qid};
-							strparams.filter = JSON.stringify(filterObj);
-						}
-					}
+					$("#strqid").val(qid.trim());
 				});
 				var objerrortype = $(".form-control.bootstrap-table-filter-control-errortype");
 				$(objerrortype).change(function() {
 					var errortype = $(".form-control.bootstrap-table-filter-control-errortype").val();
-					$("#strerrortype").val(errortype);
-					
-					if(strparams != undefined){
-						if (strparams.filter != undefined && strparams.filter.length > 0) {
-							var filterObj = eval('(' + strparams.filter + ')');
-							if(filterObj != undefined){
-								filterObj.errortype = errortype;
-								strparams.filter = JSON.stringify(filterObj);
-							} else {
-								var filterObj = {errortype : errortype};
-								strparams.filter = JSON.stringify(filterObj);
-							}
-						} else {
-							var filterObj = {errortype : errortype};
-							strparams.filter = JSON.stringify(filterObj);
-						}
-					}
+					$("#strerrortype").val(errortype.trim());
 				});
 				var objerrorremark = $(".form-control.bootstrap-table-filter-control-errorremark");
 				$(objerrorremark).change(function() {
 					var errorremark = $(".form-control.bootstrap-table-filter-control-errorremark").val();
-					$("#strerrorremark").val(errorremark);
-					
-					if(strparams != undefined){
-						if (strparams.filter != undefined && strparams.filter.length > 0) {
-							var filterObj = eval('(' + strparams.filter + ')');
-							if(filterObj != undefined){
-								filterObj.errorremark = errorremark;
-								strparams.filter = JSON.stringify(filterObj);
-							} else {
-								var filterObj = {errorremark : errorremark};
-								strparams.filter = JSON.stringify(filterObj);
-							}
-						} else {
-							var filterObj = {errorremark : errorremark};
-							strparams.filter = JSON.stringify(filterObj);
-						}
-					}
+					$("#strerrorremark").val(errorremark.trim());
 				});
 				
 				$('#updatetime1').datetimepicker({
 					autoclose : true,
+					linkField : "strupdatetime11",
+					linkFormat: "yyyy-mm-dd hh:ii",
 					language : 'zh-CN'
-				}).on('changeDate',function(ev){
-					var updatetime11 = $("#updatetime1").val();
-					$("#strupdatetime11").val(updatetime11);
-					if(strparams != undefined){
-						if (strparams.filter != undefined && strparams.filter.length > 0) {
-							var filterObj = eval('(' + strparams.filter + ')');
-							if(filterObj != undefined){
-								filterObj.updatetime1 = $("#updatetime1").val();
-								strparams.filter = JSON.stringify(filterObj);
-							} else {
-								var filterObj = {updatetime1 : $("#updatetime1").val()};
-								strparams.filter = JSON.stringify(filterObj);
-							}
-						} else {
-							var filterObj = {updatetime1 : $("#updatetime1").val()};
-							strparams.filter = JSON.stringify(filterObj);
-						}
-					}
-					
 				});
 				
 				$('#updatetime2').datetimepicker({
 					autoclose : true,
+					linkField : "strupdatetime22",
+					linkFormat: "yyyy-mm-dd hh:ii",
 					language : 'zh-CN'
-				}).on('changeDate',function(ev){
-					var updatetime22 =$("#updatetime2").val();
-					$("#strupdatetime22").val(updatetime22);
-					if(strparams != undefined){
-						if (strparams.filter != undefined && strparams.filter.length > 0) {
-							var filterObj = eval('(' + strparams.filter + ')');
-							if(filterObj != undefined){
-								filterObj.updatetime2 = $("#updatetime2").val();
-								strparams.filter = JSON.stringify(filterObj);
-							} else {
-								var filterObj = {updatetime1 : $("#updatetime1").val()};
-								strparams.filter = JSON.stringify(filterObj);
-							}
-						} else {
-							var filterObj = {updatetime2 : $("#updatetime2").val()};
-							strparams.filter = JSON.stringify(filterObj);
-						}
-					}
 				});
 			}
 		});
@@ -189,12 +91,10 @@
 	function queryParams(params) {
 		if (params.filter != undefined) {
 			var filterObj = eval('(' + params.filter + ')');
-			
-			filterObj["updatetime1"] = $("#updatetime1").val();
-			filterObj["updatetime2"] = $("#updatetime2").val();
+			filterObj["updatetime1"] = $("#updatetime1").val().trim();
+			filterObj["updatetime2"] = $("#updatetime2").val().trim();
 			params.filter = JSON.stringify(filterObj);
 		}
-		strparams = params;
 		return params;
 	}
 </script>
