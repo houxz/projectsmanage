@@ -768,68 +768,6 @@ public class ErrorModelDao {
 	}
 	
 	//add by lianhr begin 2019/02/25
-	public List<ErrorModel> selectErrorInfos(ConfigDBModel configDBModel, HashSet<Long> batchids, Map<String, Object> map) {
-		List<ErrorModel> errorRelateds = new ArrayList<ErrorModel>();
-		BasicDataSource dataSource = null;
-		try {
-			if (batchids == null || batchids.isEmpty())
-				return errorRelateds;
-
-			Integer dbtype = configDBModel.getDbtype(); 
-
-			String separator = Common.getDatabaseSeparator(dbtype);
-
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT batchid,qid,errortype,errorremark,updatetime,count(*) as countnum ");
-			sql.append(" FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
-			}
-			sql.append("tb_error ");
-			sql.append(" WHERE " + separator + "batchid" + separator + " IN ( ");
-			for (Long batchid : batchids) {
-				sql.append(batchid + ",");
-			}
-			sql.deleteCharAt(sql.length() - 1);
-			sql.append(" ) ");
-			if (map.get("qid") != null ) {
-				sql.append(" AND qid = '" +  map.get("qid") + "'");
-			}
-			
-			if (map.get("errortype") != null ) {
-				sql.append(" AND errortype = '" +  map.get("errortype") + "'");
-			}
-			
-			if (map.get("errorremark") != null ) {
-				sql.append(" AND errorremark like '%" +  map.get("errorremark") + "%' ");
-			}
-			
-			sql.append(" group by  batchid,qid,errortype,errorremark,updatetime order by batchid,qid,errortype,errorremark");
-			
-			if (map.get("limit") != null && Integer.parseInt(String.valueOf(map.get("limit")))> 0) {
-				sql.append(" LIMIT " + map.get("limit"));
-			}
-			if (map.get("offset") != null && Integer.parseInt(String.valueOf(map.get("offset")))> 0) {
-				sql.append(" OFFSET " + map.get("limit"));
-			}
-
-			dataSource = Common.getDataSource(configDBModel);
-			errorRelateds = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorModel>(ErrorModel.class));
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			errorRelateds = new ArrayList<ErrorModel>();
-		} finally {
-			if (dataSource != null) {
-				try {
-					dataSource.close();
-				} catch (SQLException e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		}
-		return errorRelateds;
-	}
-	
 	public Integer selectCountErrorInfos(ConfigDBModel configDBModel, HashSet<Long> batchids, Map<String, Object> map) {
 		Integer count = -1;
 		BasicDataSource dataSource = null;
@@ -854,19 +792,26 @@ public class ErrorModelDao {
 			}
 			sql.deleteCharAt(sql.length() - 1);
 			sql.append(" ) ");
-			if (map.get("qid") != null ) {
+			if (map.get("qid") != null && !map.get("qid").equals("")) {
 				sql.append(" AND qid = '" +  map.get("qid") + "'");
 			}
 			
-			if (map.get("errortype") != null ) {
+			if (map.get("errortype") != null && !map.get("errortype").equals("")) {
 				sql.append(" AND errortype = '" +  map.get("errortype") + "'");
 			}
 			
-			if (map.get("errorremark") != null ) {
+			if (map.get("errorremark") != null && !map.get("errorremark").equals("")) {
 				sql.append(" AND errorremark like '%" +  map.get("errorremark") + "%' ");
 			}
 			
-			sql.append("group by  batchid,qid,errortype,errorremark,updatetime order by batchid,qid,errortype,errorremark");
+			if (map.get("updatetime1") != null && !map.get("updatetime1").equals("")) {
+				sql.append(" AND updatetime >= '" +  map.get("updatetime1") + "' ");
+			}
+			if (map.get("updatetime2") != null && !map.get("updatetime2").equals("")) {
+				sql.append(" AND updatetime <= '" +  map.get("updatetime2") + "' ");
+			}
+			
+			sql.append("group by  batchid,qid,errortype,errorremark,updatetime order by updatetime,batchid,qid,errortype,errorremark");
 
 			dataSource = Common.getDataSource(configDBModel);
 			List<ErrorModel> errorRelateds = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorModel>(ErrorModel.class));
@@ -910,19 +855,25 @@ public class ErrorModelDao {
 			}
 			sql.deleteCharAt(sql.length() - 1);
 			sql.append(" ) ");
-			if (map.get("qid") != null ) {
+			if (map.get("qid") != null && !map.get("qid").equals("")) {
 				sql.append(" AND qid = '" +  map.get("qid") + "'");
 			}
 			
-			if (map.get("errortype") != null ) {
+			if (map.get("errortype") != null && !map.get("errortype").equals("")) {
 				sql.append(" AND errortype = '" +  map.get("errortype") + "'");
 			}
 			
-			if (map.get("errorremark") != null ) {
+			if (map.get("errorremark") != null && !map.get("errorremark").equals("")) {
 				sql.append(" AND errorremark like '%" +  map.get("errorremark") + "%' ");
 			}
+			if (map.get("updatetime1") != null && !map.get("updatetime1").equals("")) {
+				sql.append(" AND updatetime >= '" +  map.get("updatetime1") + "' ");
+			}
+			if (map.get("updatetime2") != null && !map.get("updatetime2").equals("")) {
+				sql.append(" AND updatetime <= '" +  map.get("updatetime2") + "' ");
+			}
 			
-			sql.append(" group by  batchid,qid,errortype,errorremark,updatetime order by batchid,qid,errortype,errorremark");
+			sql.append(" group by  batchid,qid,errortype,errorremark,updatetime order by updatetime,batchid,qid,errortype,errorremark");
 			
 			if (map.get("limit") != null && Integer.parseInt(String.valueOf(map.get("limit")))> 0) {
 				sql.append(" LIMIT " + map.get("limit"));

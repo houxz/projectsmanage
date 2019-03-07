@@ -54,7 +54,7 @@
 	var itemsetSysTypes = eval('(${itemsetSysTypes})');
 	var itemsetTypes = eval('(${itemsetTypes})');
 	//add by lianhr begin 2018/01/25
-	var itemInfoTypes2 = {"质检项":"质检项", "工具":"工具", "九宫格质检":"九宫格质检", "全域质检":"全域质检"};
+	var itemInfoTypes2 = {"0":"质检项", "1":"工具", "5":"九宫格质检", "6":"全域质检"};
 	//add by lianhr end
 	var itemsetUnits = eval('(${itemsetUnits})');
 	var itemInfoSysTypes = eval('(${itemsetSysTypes})');

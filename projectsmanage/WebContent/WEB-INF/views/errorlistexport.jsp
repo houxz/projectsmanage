@@ -17,6 +17,7 @@
 <link href="resources/bootstrap-table-1.11.1/bootstrap-table.min.css"
 	rel="stylesheet">
 <link href="resources/jquery-ui-1.12.1.custom/jquery-ui.min.css" rel="stylesheet">
+<link href="resources/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css" rel="stylesheet">
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
 <script src="resources/js/webeditor.js"></script>
@@ -27,10 +28,14 @@
 	src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 <script
 	src="resources/bootstrap-table-1.11.1/locale/bootstrap-table-zh-CN.js"></script>
+
+<script type="text/javascript" src="resources/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
+<script type="text/javascript" src="resources/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
 <script type="text/javascript">
+    var strparams;
 	$(document).ready(function() {
 		$.webeditor.getHead();
-		$.webeditor.showMsgBox("info", "数据加载中，请稍候...");
+		
 		$('[data-toggle="worktasks"]').bootstrapTable({
 			locale : 'zh-CN',
 			onSearch : function (text) {
@@ -52,19 +57,65 @@
 					var batchid = $(".form-control.bootstrap-table-filter-control-batchid").val();
 					$("#strbatchid").val(batchid);
 				});
-			}
+				var objqid = $(".form-control.bootstrap-table-filter-control-qid");
+				$(objqid).change(function() {
+					var qid = $(".form-control.bootstrap-table-filter-control-qid").val();
+					$("#strqid").val(qid);
+				});
+				var objerrortype = $(".form-control.bootstrap-table-filter-control-errortype");
+				$(objerrortype).change(function() {
+					var errortype = $(".form-control.bootstrap-table-filter-control-errortype").val();
+					$("#strerrortype").val(errortype);
+				});
+				var objerrorremark = $(".form-control.bootstrap-table-filter-control-errorremark");
+				$(objerrorremark).change(function() {
+					var errorremark = $(".form-control.bootstrap-table-filter-control-errorremark").val();
+					$("#strerrorremark").val(errorremark);
+				});
+				$('#updatetime1').datetimepicker({
+					autoclose : true,
+					language : 'zh-CN'
+				}).on('changeDate',function(ev){
+					var updatetime11 =$("#updatetime1").val();
+					$("#strupdatetime11").val(updatetime11);
+					if(strparams != undefined){
+						var filterObj = eval('(' + strparams.filter + ')');
+						if(filterObj != undefined){
+							filterObj.updatetime1 = $("#updatetime1").val();
+							strparams.filter = JSON.stringify(filterObj);
+						}
+					}
+				}); 
+				$('#updatetime2').datetimepicker({
+					autoclose : true,
+					language : 'zh-CN'
+				}).on('changeDate',function(ev){
+					var updatetime22 =$("#updatetime2").val();
+					$("#strupdatetime22").val(updatetime22);
+					if(strparams != undefined){
+						var filterObj = eval('(' + strparams.filter + ')');
+						if(filterObj != undefined){
+							filterObj.updatetime2 = $("#updatetime2").val();
+							strparams.filter = JSON.stringify(filterObj);
+						}
+					}
+				}); 
+			},
+			
 		});
+		
+		
 	});
 	
 	function queryParams(params) {
 		if (params.filter != undefined) {
 			var filterObj = eval('(' + params.filter + ')');
-			if (filterObj.state != undefined) {
-				filterObj["state"] = filterObj.state;
-				delete filterObj.state;
-				params.filter = JSON.stringify(filterObj);
-			}
+			
+			filterObj["updatetime1"] = $("#updatetime1").val();
+			filterObj["updatetime2"] = $("#updatetime2").val();
+			params.filter = JSON.stringify(filterObj);
 		}
+		strparams = params;
 		return params;
 	}
 </script>
@@ -72,25 +123,19 @@
 <body>
 	<div class="container">
 		<div id="headdiv"></div>
-			<div class="input-group" style="width: 100%;">
-		</div>
+		
 		<div id="dlgInfo" class="row" style="padding-top: 20px">
 			<table id="worktasklist" data-unique-id="qid" 
 				data-query-params="queryParams" data-url="./errorlistexport.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
-				data-pagination="true" data-toggle="worktasks" data-height="714"
+				data-pagination="true" data-toggle="worktasks" data-height="714" 
 				data-page-list="[10, 20, 50, 100]" data-page-size="10"
-				data-search-on-enter-key='true' data-align='center'> 
+				data-search-on-enter-key='true' data-align='center' > 
 				<thead>
 					<tr>
 						<th data-field="batchid" data-filter-control="input" 
 							data-filter-control-placeholder="" data-width="120" >批次ID
-							<form method="post" action="./errorlistexport.web" id="exportPOIsForm" class="btn btn-default btn-xs">
-								<input id="strbatchid" name="batchid" type="hidden">
-								<div  title="导出Excel">
-									<span class="glyphicon glyphicon-plus" onclick="$('#exportPOIsForm').submit();"></span>
-								</div>
-							</form>
+							<span class="glyphicon glyphicon-plus" onclick="$('#exportPOIsForm').submit();"></span>
 						</th>
 						<th data-field="qid"  data-filter-control-placeholder=""
 							data-filter-control="input" data-width="80">QID</th>
@@ -98,9 +143,14 @@
 							data-filter-control-placeholder="" data-width="60">错误类型</th>
 						<th data-field="errorremark" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="200">错误备注</th>
-						<th data-field="updatetime" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="150">更新时间</th>
-						<th data-field="countnum" data-filter-control="input" data-width="100">数量</th>
+						<th data-field="updatetime" 
+							 data-width="150" >更新时间
+							<br>
+							<input id="updatetime1"  data-field="updatetime1" data-filter-control="input" type="text" placeholder="请输入开始时间" style="width: 140px;">
+							~
+							<input id="updatetime2"  data-field="updatetime2" data-filter-control="input" type="text" placeholder="请输入开始时间" style="width: 140px;">
+						</th>
+						<th data-field="countnum" data-filter-control="input" data-width="100" >数量</th>
 					</tr>
 				</thead>
 			</table>
@@ -108,5 +158,13 @@
 
 		<div id="footdiv"></div>
 	</div>
+	<form method="post" action="./errorlistexport.web" id="exportPOIsForm" class="btn btn-default btn-xs">
+		<input id="strbatchid" name="batchid" type="hidden">
+		<input id="strqid" name="qid" type="hidden">
+		<input id="strerrortype" name="errortype" type="hidden">
+		<input id="strerrorremark" name="errorremark" type="hidden">
+		<input id="strupdatetime11" name="updatetime11" type="hidden">
+		<input id="strupdatetime22" name="updatetime22" type="hidden">
+	</form>
 </body>
 </html>

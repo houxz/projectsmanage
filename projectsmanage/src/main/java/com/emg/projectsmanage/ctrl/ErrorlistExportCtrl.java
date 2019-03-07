@@ -41,7 +41,6 @@ import com.emg.projectsmanage.common.ResultModel;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.task.ErrorModelDao;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
-import com.emg.projectsmanage.pojo.ErrorModel;
 import com.emg.projectsmanage.pojo.ErrorlistModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
 import com.emg.projectsmanage.service.ProcessConfigModelService;
@@ -97,6 +96,12 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 					case "errorremark":
 						map.put("errorremark", "%" + filterPara.get(key).toString() + "%"); 
 						break;
+					case "updatetime1":
+						map.put("updatetime1", filterPara.get(key).toString()); 
+						break;
+					case "updatetime2":
+						map.put("updatetime2", filterPara.get(key).toString()); 
+						break;
 					default:
 						break;
 					}
@@ -143,23 +148,38 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 		logger.debug("ErrorListExportCtrl-getInfo start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		String strbatchids = ParamUtils.getParameter(request, "batchid", "");
-		String[] batchids = strbatchids.split(",");
-		ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.CUOWUKU,
-				ProcessType.COUNTRY);
-		ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-		HashSet<Long> selectbatchids = new HashSet<Long>();
-		for (int i = 0; i < batchids.length; i++) {
-			String batchid = batchids[i];
-			selectbatchids.add(Long.parseLong(batchid));
-		}
-		Map<String, Object> map = new HashMap<String, Object>();
-		List<ErrorlistModel> errorList = errorModelDao.selectErrorListInfos(configDBModel, selectbatchids, map);
-		ResultModel result = new ResultModel();
-		// 输出Excel
-		logger.debug("START");
+		
+		String strqid = ParamUtils.getParameter(request, "qid", "");
+		String strerrortype = ParamUtils.getParameter(request, "errortype", "");
+		String strerrorremark = ParamUtils.getParameter(request, "errorremark", "");
+		String strupdatetime1 = ParamUtils.getParameter(request, "updatetime11", "");
+		String strupdatetime2 = ParamUtils.getParameter(request, "updatetime22", "");
 		OutputStream out = null;
 		HSSFWorkbook workBook = null;
+		ResultModel result = new ResultModel();
+		if(strbatchids.equals("")) {
+			json.addAllObjects(result);
+			return json;
+		}
 		try {
+			String[] batchids = strbatchids.split(",");
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.CUOWUKU,
+					ProcessType.COUNTRY);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			HashSet<Long> selectbatchids = new HashSet<Long>();
+			for (int i = 0; i < batchids.length; i++) {
+				String batchid = batchids[i];
+				selectbatchids.add(Long.parseLong(batchid));
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("qid", strqid);
+			map.put("errortype", strerrortype);
+			map.put("errorremark", strerrorremark);
+			map.put("updatetime1", strupdatetime1);
+			map.put("updatetime2", strupdatetime2);
+			List<ErrorlistModel> errorList = errorModelDao.selectErrorListInfos(configDBModel, selectbatchids, map);
+			// 输出Excel
+			logger.debug("START");
 			if (!errorList.isEmpty()) {
 				workBook = new HSSFWorkbook();
 				HSSFSheet sheet = workBook.createSheet();
@@ -247,6 +267,87 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 		// result.put("itemInfos", itemInfos);
 		json.addAllObjects(result);
 		logger.debug("ErrorListExportCtrl-getInfo end.");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=getInfoID")
+	public ModelAndView getInfos(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("WorkTasksCtrl-pages start.");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
+			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
+			String filter = ParamUtils.getParameter(request, "filter", "");
+
+			String strbatchids = ParamUtils.getParameter(request, "batchid", "");
+			
+			String strqid = ParamUtils.getParameter(request, "qid", "");
+			String strerrortype = ParamUtils.getParameter(request, "errortype", "");
+			String strerrorremark = ParamUtils.getParameter(request, "errorremark", "");
+			String strupdatetime1 = ParamUtils.getParameter(request, "updatetime11", "");
+			String strupdatetime2 = ParamUtils.getParameter(request, "updatetime22", "");
+			
+			Map<String, Object> map = new HashMap<String, Object>();
+			if (filter.length() > 0) {
+				Map<String, Object> filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
+				for (String key : filterPara.keySet()) {
+					switch (key) {
+					case "batchid":
+						map.put("batchid", filterPara.get(key).toString());
+						break;
+					case "qid":
+						map.put("qid", filterPara.get(key).toString());
+						break;
+					case "errortype":
+						map.put("errortype", filterPara.get(key).toString());
+						break;
+					case "errorremark":
+						map.put("errorremark", "%" + filterPara.get(key).toString() + "%"); 
+						break;
+					case "updatetime1":
+						map.put("updatetime1", filterPara.get(key).toString()); 
+						break;
+					case "updatetime2":
+						map.put("updatetime2", filterPara.get(key).toString()); 
+						break;
+					default:
+						break;
+					}
+				}
+			}
+			
+			if (limit.compareTo(0) > 0)
+				map.put("limit", limit);
+			if (offset.compareTo(0) > 0)
+				map.put("offset", offset);
+
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.CUOWUKU,
+					ProcessType.COUNTRY);
+			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			HashSet<Long> selectbatchids = new HashSet<Long>();
+			List<ErrorlistModel> errorList = new ArrayList<ErrorlistModel>();
+			int count = 0;
+			if(map.get("batchid") != null && !String.valueOf(map.get("batchid")).equals("")) {
+				for (int i = 0; i < String.valueOf(map.get("batchid")).split(",").length; i++) {
+					String batchid = String.valueOf(map.get("batchid")).split(",")[i];
+					selectbatchids.add(Long.parseLong(batchid));
+				}
+				errorList = errorModelDao.selectErrorListInfos(configDBModel, selectbatchids, map);
+				count = errorModelDao.selectCountErrorInfos(configDBModel, selectbatchids, map);
+			}
+			//add by lianhr begin 2019/03/05
+			
+			//add by lianhr end
+			
+
+			json.addObject("rows", errorList);
+			json.addObject("total", count);
+			json.addObject("result", 1);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		logger.debug("WorkTasksCtrl-pages end.");
 		return json;
 	}
 }
