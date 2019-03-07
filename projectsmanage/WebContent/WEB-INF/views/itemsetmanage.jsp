@@ -54,7 +54,8 @@
 	var itemsetSysTypes = eval('(${itemsetSysTypes})');
 	var itemsetTypes = eval('(${itemsetTypes})');
 	//add by lianhr begin 2018/01/25
-	var itemInfoTypes2 = {"0":"质检项", "1":"工具", "5":"九宫格质检", "6":"全域质检"};
+	var itemInfoTypes2 = {"质检项":"质检项", "工具":"工具", "九宫格质检":"九宫格质检", "全域质检":"全域质检"};
+	var itemsetSysTypes2 = {"32位系统":"32位系统", "64位系统":"64位系统"};
 	//add by lianhr end
 	var itemsetUnits = eval('(${itemsetUnits})');
 	var itemInfoSysTypes = eval('(${itemsetSysTypes})');
@@ -888,7 +889,7 @@
 							data-filter-control="select" data-filter-data="var:itemInfoTypes2">类型</th>
 					
 					<th data-field="systype2" data-formatter="sysFormat" data-filter-control="select" 
-					        data-filter-control="select" data-filter-data="var:itemsetSysTypes">操作系统</th>
+					        data-filter-control="select" data-filter-data="var:itemsetSysTypes2">操作系统</th>
 					
 					<th data-field="unit" data-formatter="unitFormat">质检单位</th>
 				</tr>
