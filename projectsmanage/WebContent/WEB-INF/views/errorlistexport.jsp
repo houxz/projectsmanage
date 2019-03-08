@@ -70,19 +70,22 @@
 					var errorremark = $(".form-control.bootstrap-table-filter-control-errorremark").val();
 					$("#strerrorremark").val(errorremark.trim());
 				});
-				
+				$("#strupdatetime11").val("");
+				$("#strupdatetime22").val("");
 				$('#updatetime1').datetimepicker({
 					autoclose : true,
 					linkField : "strupdatetime11",
 					linkFormat: "yyyy-mm-dd hh:ii",
-					language : 'zh-CN'
+					language : 'zh-CN',
+					clearBtn:true
 				});
 				
 				$('#updatetime2').datetimepicker({
 					autoclose : true,
 					linkField : "strupdatetime22",
 					linkFormat: "yyyy-mm-dd hh:ii",
-					language : 'zh-CN'
+					language : 'zh-CN',
+					clearBtn:true
 				});
 			}
 		});
