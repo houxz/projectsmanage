@@ -1,4 +1,5 @@
 <%@page import="com.emg.projectsmanage.common.ProcessType"%>
+<%@page import="com.emg.projectsmanage.common.ModelEnum"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt'%>
@@ -467,6 +468,15 @@
 						if (obj) {
 							$(obj).val(configValues[index].value);
 						}
+						var a = configValues[index].moduleid;
+						var b = configValues[index].configid;
+						var aa = 2;
+						var bb = 25;
+						//add by lianhr begin 2019/02/14
+						if(a==aa && b==bb){
+							$("#strbatch").val(configValues[index].value);
+						}
+						//add by lianhr end
 					}
 					
 					var config_1_6 = $("#config_1_6").val();
@@ -749,6 +759,8 @@
 			$("#config_2_23").parents("tr").hide();
 			$("#config_2_25").parents("tr").hide();
 			$("#config_2_26").parents("tr").hide();
+			$("#strbatch").parents("tr").hide();
+			$("#config_1_29").parents("tr").hide();
 			break;
 		case 2:
 		case "2":
@@ -762,6 +774,8 @@
 			$("#config_2_23").parents("tr").hide();
 			$("#config_2_25").parents("tr").hide();
 			$("#config_2_26").parents("tr").hide();
+			$("#strbatch").parents("tr").hide();
+			$("#config_1_29").parents("tr").hide();
 			break;
 		case 3:
 		case "3":
@@ -775,6 +789,8 @@
 			$("#config_2_23").parents("tr").hide();
 			$("#config_2_25").parents("tr").hide();
 			$("#config_2_26").parents("tr").hide();
+			$("#strbatch").parents("tr").hide();
+			$("#config_1_29").parents("tr").hide();
 			break;
 		case 4:
 		case "4":
@@ -788,6 +804,8 @@
 			$("#config_2_23").parents("tr").hide();
 			$("#config_2_25").parents("tr").hide();
 			$("#config_2_26").parents("tr").hide();
+			$("#strbatch").parents("tr").show();
+			$("#config_1_29").parents("tr").show();
 			break;
 		case 5:
 		case "5":
@@ -801,6 +819,8 @@
 			$("#config_2_23").parents("tr").show();
 			$("#config_2_25").parents("tr").show();
 			$("#config_2_26").parents("tr").show();
+			$("#strbatch").parents("tr").hide();
+			$("#config_1_29").parents("tr").hide();
 			break;
 		default:
 			console.log("processTypeChange--错误的项目类型：" + selectValue);
@@ -927,6 +947,18 @@
 					</select></td>
 				</tr>
 				<tr>
+					<td class="configKey">质检模式</td>
+					<td class="configValue"><select class="form-control"
+						id="config_1_29">
+							<c:set var="itemmodels" value="<%= ModelEnum.values() %>"/>
+							<c:forEach items="${itemmodels }" var="itemmodel">
+								<c:if test="${itemmodel.getValue() > 0 }">
+									<option value="${itemmodel.getValue() }">${itemmodel.getDes() }</option>
+								</c:if>
+							</c:forEach>
+					</select></td>
+				</tr>
+				<tr>
 					<td class="configKey">区域</td>
 					<td class="configValue">
 						<button type="button" class="btn btn-default"
@@ -993,6 +1025,12 @@
 					<td class="configKey">制作任务数</td>
 					<td class="configValue"><input type="text"
 						class="form-control configValue" id="config_2_26" value="10">
+					</td>
+				</tr>
+				<tr>
+					<td class="configKey">批次</td>
+					<td class="configValue"><input type="text"
+						class="form-control configValue" id="strbatch" value="" disabled>
 					</td>
 				</tr>
 			</tbody>
