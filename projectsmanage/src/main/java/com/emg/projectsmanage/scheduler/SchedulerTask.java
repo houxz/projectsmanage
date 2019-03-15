@@ -37,6 +37,7 @@ import com.emg.projectsmanage.dao.process.ProjectsProcessModelDao;
 import com.emg.projectsmanage.dao.process.WorkTasksModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.CapacityModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.CapacityTaskModelDao;
+import com.emg.projectsmanage.dao.projectsmanager.FeatureFinishedModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
 import com.emg.projectsmanage.dao.task.TaskBlockDetailModelDao;
 import com.emg.projectsmanage.dao.task.TaskLinkErrorModelDao;
@@ -52,6 +53,7 @@ import com.emg.projectsmanage.pojo.CapacityTaskModelExample.Criteria;
 import com.emg.projectsmanage.pojo.CapacityUniq;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.EmployeeModel;
+import com.emg.projectsmanage.pojo.FeatureFinishedModel;
 import com.emg.projectsmanage.pojo.ProcessConfigModel;
 import com.emg.projectsmanage.pojo.ProcessModel;
 import com.emg.projectsmanage.pojo.ProjectModel;
@@ -126,6 +128,11 @@ public class SchedulerTask {
 	
 	@Autowired
 	private ZMailService zMailService;
+	
+	//add by lianhr begin 2019/03/08
+	@Autowired
+	private FeatureFinishedModelDao featureFinishedModelDao;
+	//add by lianhr end
 
 	/**
 	 * 半夜三更 创建每天的任务
@@ -218,7 +225,9 @@ public class SchedulerTask {
 									
 									Map<CapacityUniq, CapacityModel> uniqRecords = new HashMap<CapacityUniq, CapacityModel>();
 									Map<QualityCapacityUniq, QualityCapcityModel> uniqSpecialRecords = new HashMap<QualityCapacityUniq, QualityCapcityModel>();
-									
+									//add by lianhr begin 2019/03/08
+									List<FeatureFinishedModel> featureList = new ArrayList<FeatureFinishedModel>();
+									//add by lianhr end
 									List<Map<String, Object>> taskGroups = taskModelDao.groupTasksByTime(configDBModel, times[ii], time);
 									for (Map<String, Object> taskGroup : taskGroups) {
 										Integer taskType = (Integer) taskGroup.get("tasktype");
@@ -286,8 +295,8 @@ public class SchedulerTask {
 										String featureid = (String) taskBlockDetailGroup.get("featureid");
 										Integer taskType = (Integer) taskBlockDetailGroup.get("tasktype");
 										Integer editid = (Integer) taskBlockDetailGroup.get("editid");
-										Long projectid = (Long) taskBlockDetailGroup.get("projectid");;
-
+										Long projectid = (Long) taskBlockDetailGroup.get("projectid");
+										
 										if (taskType.compareTo(0) <= 0)
 											continue;
 
@@ -313,7 +322,6 @@ public class SchedulerTask {
 										}
 										
 										editCapacityModel.setTasktype(taskType);
-										
 										editCapacityModel.setUserid(editid);
 										EmployeeModel erecord = new EmployeeModel();
 										erecord.setId(editid);
@@ -324,6 +332,29 @@ public class SchedulerTask {
 										editCapacityModel.setRoleid(RoleType.ROLE_WORKER.getValue());
 										editCapacityModel.setTime(time);
 										editCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
+										
+										//add by lianhr begin 2019/03/08
+										for(int fi = 0; fi < featureid.split(",").length; fi++) {
+											String strFeatureid = featureid.split(",")[fi];
+											FeatureFinishedModel featureRecord = new FeatureFinishedModel();
+											featureRecord.setTasktype(taskType);
+											featureRecord.setProjectid(projectid);
+											featureRecord.setUserid(editid);
+											featureRecord.setRoleid(RoleType.ROLE_WORKER.getValue());
+											featureRecord.setFeatureid(Long.parseLong(strFeatureid));
+											
+											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
+											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
+												featureList.add(featureRecord);
+											} else {
+												featureid = featureid.replaceAll(strFeatureid + ",", "").replaceAll(strFeatureid, "");
+											}
+										}
+										if(featureid.substring(featureid.length() - 1).equals(",")) {
+											featureid = featureid.substring(0, featureid.length() - 1);
+										}
+										//add by lianhr end
+										
 										
 										ProcessConfigModel config15102 = processConfigModelService
 												.selectByPrimaryKey(ProcessConfigEnum.BIANJISHUJUKU, processType);
@@ -353,7 +384,7 @@ public class SchedulerTask {
 										}
 										
 									}
-									
+
 									List<Map<String, Object>> taskBlockDetailGroups = taskBlockDetailModelDao.groupTaskBlockDetailsByTime(configDBModel, times[ii], time);
 									for (Map<String, Object> taskBlockDetailGroup : taskBlockDetailGroups) {
 										Long blockid = (Long) taskBlockDetailGroup.get("blockid");
@@ -361,6 +392,9 @@ public class SchedulerTask {
 										Long editnum = (Long) taskBlockDetailGroup.get("editnum");
 										Integer checkid = (Integer) taskBlockDetailGroup.get("checkid");
 										Long checknum = (Long) taskBlockDetailGroup.get("checknum");
+										//add by lianhr begin 2019/03/08
+										String featureid = (String) taskBlockDetailGroup.get("featureid");
+										//add by lianhr end
 										
 										TaskModel task = taskModelDao.getTaskByBlockid(configDBModel, blockid);
 										
@@ -431,6 +465,42 @@ public class SchedulerTask {
 										checkCapacityModel.setTime(time);
 										editCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
 										checkCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
+										//add by lianhr begin 2019/03/08
+										for(int fi = 0; fi < featureid.split(",").length; fi++) {
+											String strFeatureid = featureid.split(",")[fi];
+											FeatureFinishedModel featureRecord = new FeatureFinishedModel();
+											featureRecord.setTasktype(taskType);
+											featureRecord.setProjectid(projectid);
+											if(editid.intValue() != 0) {
+												featureRecord.setUserid(editid);
+												featureRecord.setRoleid(RoleType.ROLE_WORKER.getValue());
+											} else if(checkid.intValue() != 0) {
+												featureRecord.setUserid(checkid);
+												featureRecord.setRoleid(RoleType.ROLE_CHECKER.getValue());
+											}
+											
+											featureRecord.setFeatureid(Long.parseLong(strFeatureid));
+											
+											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
+											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
+												featureList.add(featureRecord);
+											} else {
+												if(editid.intValue() != 0) {
+													if(editnum > 0) {
+														editnum = editnum - 1;
+													} else {
+														editnum = new Long(0);
+													}
+												} else if(checkid.intValue() != 0) {
+													if(checknum > 0) {
+														checknum = checknum - 1;
+													} else {
+														checknum = new Long(0);
+													}
+												}
+											}
+										}
+										//add by lianhr end
 										
 										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + editnum);
 										checkCapacityModel.setModifypoi(checkCapacityModel.getModifypoi() + checknum);
@@ -438,6 +508,7 @@ public class SchedulerTask {
 										uniqRecords.put(editUniqRecord, editCapacityModel);
 										uniqRecords.put(checkUniqRecord, checkCapacityModel);
 									}
+									
 									List<Map<String, Object>> specialTaskLinkErrorGroups = taskLinkErrorModelDao.specialGroupTaskLinkErrorByTime(configDBModel, times[ii], time);
 									for (Map<String, Object> taskLinkErrorGroup : specialTaskLinkErrorGroups) {
 										Long taskid = (Long) taskLinkErrorGroup.get("taskid");
@@ -467,6 +538,7 @@ public class SchedulerTask {
 										Long projectid = task.getProjectid();
 										if (projectid.compareTo(0L) <= 0)
 											continue;
+										
 										QualityCapacityUniq editUniqRecord = new QualityCapacityUniq(taskType, projectid, userid, errortype);
 										QualityCapcityModel editCapacityModel = new QualityCapcityModel();
 										if(uniqSpecialRecords.containsKey(editUniqRecord)) {
@@ -506,12 +578,15 @@ public class SchedulerTask {
 										
 										uniqSpecialRecords.put(editUniqRecord, editCapacityModel);
 									}
-																		
+									
 									List<Map<String, Object>> taskLinkErrorGroups = taskLinkErrorModelDao.groupTaskLinkErrorByTime(configDBModel, times[ii], time);
 									for (Map<String, Object> taskLinkErrorGroup : taskLinkErrorGroups) {
 										Long taskid = (Long) taskLinkErrorGroup.get("taskid");
 										Long errorcount = (Long) taskLinkErrorGroup.get("errorcount");
 										Long visualerrorcount = (Long) taskLinkErrorGroup.get("visualerrorcount");
+										//add by lianhr begin 2019/03/08
+										String featureid = (String) taskLinkErrorGroup.get("errorid");
+										//add by lianhr end
 										
 										TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
 										
@@ -579,6 +654,43 @@ public class SchedulerTask {
 										
 										editCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
 										
+										//add by lianhr begin 2019/03/08
+										if (!taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) &&
+												!taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) &&
+												!taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())){
+											for(int fi = 0; fi < featureid.split(",").length; fi++) {
+												String strFeatureid = featureid.split(",")[fi];
+												FeatureFinishedModel featureRecord = new FeatureFinishedModel();
+												featureRecord.setTasktype(taskType);
+												featureRecord.setProjectid(projectid);
+												featureRecord.setUserid(userid);
+												featureRecord.setRoleid(roleid);
+												
+												featureRecord.setFeatureid(Long.parseLong(strFeatureid));
+												
+												int featurecount = featureFinishedModelDao.queryCount(featureRecord);
+												if(featurecount <= 0 && !featureList.contains(featureRecord)) {
+													featureList.add(featureRecord);
+												} else {
+													if(roleid == RoleType.ROLE_WORKER.getValue()) {
+														if(errorcount > 0) {
+															errorcount = errorcount - 1;
+														} else {
+															errorcount = new Long(0);
+														}
+														
+													} else if(roleid == RoleType.ROLE_CHECKER.getValue()) {
+														if(visualerrorcount > 0) {
+															visualerrorcount = visualerrorcount - 1;
+														} else {
+															visualerrorcount = new Long(0);
+														}
+													}
+												}
+											}
+										}
+										//add by lianhr end
+										
 										editCapacityModel.setErrorcount(editCapacityModel.getErrorcount() + errorcount);
 										editCapacityModel.setVisualerrorcount(editCapacityModel.getVisualerrorcount() + visualerrorcount);
 										
@@ -589,6 +701,9 @@ public class SchedulerTask {
 										Long taskid = (Long) taskLinkFielddataGroup.get("taskid");
 										Long count = (Long) taskLinkFielddataGroup.get("count");
 										TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
+										//add by lianhr begin 2019/03/08
+										String featureid = (String) taskLinkFielddataGroup.get("shapeid");
+										//add by lianhr end
 										
 										if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
 											logger.error("Can not find task by taskid: " + taskid);
@@ -653,6 +768,29 @@ public class SchedulerTask {
 										editCapacityModel.setTime(time);
 										
 										editCapacityModel.setIswork(IsWorkTimeEnum.isWorkTime.getValue());
+										//add by lianhr begin 2019/03/08
+										for(int fi = 0; fi < featureid.split(",").length; fi++) {
+											String strFeatureid = featureid.split(",")[fi];
+											FeatureFinishedModel featureRecord = new FeatureFinishedModel();
+											featureRecord.setTasktype(taskType);
+											featureRecord.setProjectid(projectid);
+											featureRecord.setUserid(userid);
+											featureRecord.setRoleid(roleid);
+											
+											featureRecord.setFeatureid(Long.parseLong(strFeatureid));
+											
+											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
+											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
+												featureList.add(featureRecord);
+											} else {
+												if(count > 0) {
+													count = count - 1;
+												} else {
+													count = new Long(0);
+												}
+											}
+										}
+										//add by lianhr end
 										
 										editCapacityModel.setFielddatacount(editCapacityModel.getFielddatacount() + count);
 										
@@ -683,6 +821,11 @@ public class SchedulerTask {
 											capacityModelDao.insertSpecial(capacityModel);
 										}
 									}
+									//add by lianhr begin 2019/03/08
+									for(int fi = 0; fi < featureList.size(); fi++) {
+										featureFinishedModelDao.insert(featureList.get(fi));
+									}
+									//add by lianhr end
 
 									logger.debug(
 											String.format("Scheduler POIEDIT task( %s ) finished.", newCapacityTask.getTime()));
@@ -712,7 +855,9 @@ public class SchedulerTask {
 									Map<CapacityUniq, CapacityModel> uniqRecords = new HashMap<CapacityUniq, CapacityModel>();
 									
 									Map<QualityCapacityUniq, QualityCapcityModel> uniqSpecialRecords = new HashMap<QualityCapacityUniq, QualityCapcityModel>();
-									
+									//add by lianhr begin 2019/03/08
+									List<FeatureFinishedModel> featureList = new ArrayList<FeatureFinishedModel>();
+									//add by lianhr end
 									List<Map<String, Object>> taskGroups = taskModelDao.groupTasksByTime(configDBModel, times[ii], time);
 									for (Map<String, Object> taskGroup : taskGroups) {
 										Integer taskType = (Integer) taskGroup.get("tasktype");
@@ -780,7 +925,7 @@ public class SchedulerTask {
 										String featureid = (String) taskBlockDetailGroup.get("featureid");
 										Integer taskType = (Integer) taskBlockDetailGroup.get("tasktype");
 										Integer editid = (Integer) taskBlockDetailGroup.get("editid");
-										Long projectid = (Long) taskBlockDetailGroup.get("projectid");;
+										Long projectid = (Long) taskBlockDetailGroup.get("projectid");
 
 										if (taskType.compareTo(0) <= 0)
 											continue;
@@ -819,6 +964,28 @@ public class SchedulerTask {
 										editCapacityModel.setTime(time);
 										editCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
 										
+										//add by lianhr begin 2019/03/08
+										for(int fi = 0; fi < featureid.split(",").length; fi++) {
+											String strFeatureid = featureid.split(",")[fi];
+											FeatureFinishedModel featureRecord = new FeatureFinishedModel();
+											featureRecord.setTasktype(taskType);
+											featureRecord.setProjectid(projectid);
+											featureRecord.setUserid(editid);
+											featureRecord.setRoleid(RoleType.ROLE_WORKER.getValue());
+											featureRecord.setFeatureid(Long.parseLong(strFeatureid));
+											
+											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
+											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
+												featureList.add(featureRecord);
+											} else {
+												featureid = featureid.replaceAll(strFeatureid + ",", "").replaceAll(strFeatureid, "");
+											}
+										}
+										if(featureid.substring(featureid.length() - 1).equals(",")) {
+											featureid = featureid.substring(0, featureid.length() - 1);
+										}
+										//add by lianhr end
+										
 										ProcessConfigModel config15102 = processConfigModelService
 												.selectByPrimaryKey(ProcessConfigEnum.BIANJISHUJUKU, processType);
 										if (config15102 != null && config15102.getDefaultValue() != null && !config15102.getDefaultValue().isEmpty()) {
@@ -855,6 +1022,9 @@ public class SchedulerTask {
 										Long editnum = (Long) taskBlockDetailGroup.get("editnum");
 										Integer checkid = (Integer) taskBlockDetailGroup.get("checkid");
 										Long checknum = (Long) taskBlockDetailGroup.get("checknum");
+										//add by lianhr begin 2019/03/08
+										String featureid = (String) taskBlockDetailGroup.get("featureid");
+										//add by lianhr end
 										
 										TaskModel task = taskModelDao.getTaskByBlockid(configDBModel, blockid);
 										
@@ -926,6 +1096,43 @@ public class SchedulerTask {
 										editCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
 										checkCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
 										
+										//add by lianhr begin 2019/03/08
+										for(int fi = 0; fi < featureid.split(",").length; fi++) {
+											String strFeatureid = featureid.split(",")[fi];
+											FeatureFinishedModel featureRecord = new FeatureFinishedModel();
+											featureRecord.setTasktype(taskType);
+											featureRecord.setProjectid(projectid);
+											if(editid.intValue() != 0) {
+												featureRecord.setUserid(editid);
+												featureRecord.setRoleid(RoleType.ROLE_WORKER.getValue());
+											} else if(checkid.intValue() != 0) {
+												featureRecord.setUserid(checkid);
+												featureRecord.setRoleid(RoleType.ROLE_CHECKER.getValue());
+											}
+											
+											featureRecord.setFeatureid(Long.parseLong(strFeatureid));
+											
+											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
+											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
+												featureList.add(featureRecord);
+											} else {
+												if(editid.intValue() != 0) {
+													if(editnum > 0) {
+														editnum = editnum - 1;
+													} else {
+														editnum = new Long(0);
+													}
+												} else if(checkid.intValue() != 0) {
+													if(checknum > 0) {
+														checknum = checknum - 1;
+													} else {
+														checknum = new Long(0);
+													}
+												}
+											}
+										}
+										//add by lianhr end
+										
 										editCapacityModel.setModifypoi(editCapacityModel.getModifypoi() + editnum);
 										checkCapacityModel.setModifypoi(checkCapacityModel.getModifypoi() + checknum);
 										
@@ -961,6 +1168,7 @@ public class SchedulerTask {
 										Long projectid = task.getProjectid();
 										if (projectid.compareTo(0L) <= 0)
 											continue;
+										
 										QualityCapacityUniq editUniqRecord = new QualityCapacityUniq(taskType, projectid, userid, errortype);
 										QualityCapcityModel editCapacityModel = new QualityCapcityModel();
 										if(uniqSpecialRecords.containsKey(editUniqRecord)) {
@@ -1005,6 +1213,9 @@ public class SchedulerTask {
 										Long taskid = (Long) taskLinkErrorGroup.get("taskid");
 										Long errorcount = (Long) taskLinkErrorGroup.get("errorcount");
 										Long visualerrorcount = (Long) taskLinkErrorGroup.get("visualerrorcount");
+										//add by lianhr begin 2019/03/08
+										String featureid = (String) taskLinkErrorGroup.get("errorid");
+										//add by lianhr end
 										
 										TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
 										
@@ -1021,6 +1232,8 @@ public class SchedulerTask {
 												taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) ||
 												taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())
 												|| 
+												taskType.equals(TaskTypeEnum.POI_DATASET_31.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_DATASET_32.getValue()) ||
 												taskType.equals(TaskTypeEnum.POI_KETOU.getValue()) ||
 												taskType.equals(TaskTypeEnum.POI_GEN.getValue())) {
 											userid = task.getEditid();
@@ -1069,6 +1282,43 @@ public class SchedulerTask {
 										editCapacityModel.setTime(time);
 										editCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
 										
+										//add by lianhr begin 2019/03/08
+										if (!taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) &&
+												!taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) &&
+												!taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())){
+											for(int fi = 0; fi < featureid.split(",").length; fi++) {
+												String strFeatureid = featureid.split(",")[fi];
+												FeatureFinishedModel featureRecord = new FeatureFinishedModel();
+												featureRecord.setTasktype(taskType);
+												featureRecord.setProjectid(projectid);
+												featureRecord.setUserid(userid);
+												featureRecord.setRoleid(roleid);
+												
+												featureRecord.setFeatureid(Long.parseLong(strFeatureid));
+												
+												int featurecount = featureFinishedModelDao.queryCount(featureRecord);
+												if(featurecount <= 0 && !featureList.contains(featureRecord)) {
+													featureList.add(featureRecord);
+												} else {
+													if(roleid == RoleType.ROLE_WORKER.getValue()) {
+														if(errorcount > 0) {
+															errorcount = errorcount - 1;
+														} else {
+															errorcount = new Long(0);
+														}
+														
+													} else if(roleid == RoleType.ROLE_CHECKER.getValue()) {
+														if(visualerrorcount > 0) {
+															visualerrorcount = visualerrorcount - 1;
+														} else {
+															visualerrorcount = new Long(0);
+														}
+													}
+												}
+											}
+										}
+										//add by lianhr end
+										
 										editCapacityModel.setErrorcount(editCapacityModel.getErrorcount() + errorcount);
 										editCapacityModel.setVisualerrorcount(editCapacityModel.getVisualerrorcount() + visualerrorcount);
 										
@@ -1079,6 +1329,9 @@ public class SchedulerTask {
 										Long taskid = (Long) taskLinkFielddataGroup.get("taskid");
 										Long count = (Long) taskLinkFielddataGroup.get("count");
 										TaskModel task = taskModelDao.getTaskByID(configDBModel, taskid);
+										//add by lianhr begin 2019/03/08
+										String featureid = (String) taskLinkFielddataGroup.get("shapeid");
+										//add by lianhr end
 										
 										if (task == null || task.getId() == null || task.getId().compareTo(0L) <= 0) {
 											logger.error("Can not find task by taskid: " + taskid);
@@ -1089,7 +1342,9 @@ public class SchedulerTask {
 										Integer roleid = RoleType.UNKNOWN.getValue();
 
 										Integer taskType = task.getTasktype();
-										if (taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) ||
+										if (taskType.equals(TaskTypeEnum.POI_DATASET_31.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_DATASET_32.getValue()) ||
+												taskType.equals(TaskTypeEnum.POI_FEISHICE.getValue()) ||
 												taskType.equals(TaskTypeEnum.POI_QUANGUOQC.getValue()) ||
 												taskType.equals(TaskTypeEnum.POI_FEISHICEADDRESSTEL.getValue())
 												|| taskType.equals(TaskTypeEnum.POI_KETOU.getValue()) ||
@@ -1140,6 +1395,29 @@ public class SchedulerTask {
 										editCapacityModel.setRoleid(roleid);
 										editCapacityModel.setTime(time);
 										editCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
+										//add by lianhr begin 2019/03/08
+										for(int fi = 0; fi < featureid.split(",").length; fi++) {
+											String strFeatureid = featureid.split(",")[fi];
+											FeatureFinishedModel featureRecord = new FeatureFinishedModel();
+											featureRecord.setTasktype(taskType);
+											featureRecord.setProjectid(projectid);
+											featureRecord.setUserid(userid);
+											featureRecord.setRoleid(roleid);
+											
+											featureRecord.setFeatureid(Long.parseLong(strFeatureid));
+											
+											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
+											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
+												featureList.add(featureRecord);
+											} else {
+												if(count > 0) {
+													count = count - 1;
+												} else {
+													count = new Long(0);
+												}
+											}
+										}
+										//add by lianhr end
 										
 										editCapacityModel.setFielddatacount(editCapacityModel.getFielddatacount() + count);
 										
@@ -1170,6 +1448,11 @@ public class SchedulerTask {
 											capacityModelDao.insertSpecial(capacityModel);
 										}
 									}
+									//add by lianhr begin 2019/03/08
+									for(int fi = 0; fi < featureList.size(); fi++) {
+										featureFinishedModelDao.insert(featureList.get(fi));
+									}
+									//add by lianhr end
 
 									logger.debug(
 											String.format("Scheduler POIEDIT task( %s ) finished.", newCapacityTask.getTime()));
@@ -3332,6 +3615,5 @@ public class SchedulerTask {
 		return nowStr;
 		// return "2018-10-01";
 	}
-		
 	
 }

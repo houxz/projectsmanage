@@ -83,7 +83,10 @@ public class TaskLinkErrorModelDao {
 			sql.append(
 					"	SUM( CASE WHEN errortype BETWEEN 10000000000 AND 19999999999 THEN 1 ELSE 0 END ) AS errorcount,");
 			sql.append(
-					"	SUM( CASE WHEN errortype BETWEEN 20000000000 AND 29999999999 THEN 1 ELSE 0 END ) AS visualerrorcount");
+					"	SUM( CASE WHEN errortype BETWEEN 20000000000 AND 29999999999 THEN 1 ELSE 0 END ) AS visualerrorcount,");
+			//add by lianhr begin 2019/03/08
+			sql.append("array_to_string(ARRAY(SELECT unnest(array_agg(errorid))),',') AS errorid ");
+			//add by lianhr end
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task_link_error ");
