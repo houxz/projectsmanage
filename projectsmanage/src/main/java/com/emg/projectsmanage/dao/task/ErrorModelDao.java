@@ -520,8 +520,8 @@ public class ErrorModelDao {
 						k++;
 					}
 					connection.commit();
-					//插入2000条之后，等待10秒，防止数据库压力过大
-					Thread.sleep(10000);
+					//插入2000条之后，等待1秒，防止数据库压力过大
+					Thread.sleep(1000);
 				}
 
 				List<ErrorRelatedModel> errorRelateds = new ArrayList<ErrorRelatedModel>();

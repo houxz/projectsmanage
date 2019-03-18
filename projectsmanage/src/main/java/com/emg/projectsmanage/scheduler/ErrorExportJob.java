@@ -78,7 +78,7 @@ public class ErrorExportJob implements InterruptableJob {
 					}
 				}
 
-				Integer batchNum = 20000;
+				Integer batchNum = 10000;
 				ConfigDBModel configDBSrc = configDBModelDao.selectByPrimaryKey(errorsrc);
 				ConfigDBModel configDBTar = configDBModelDao.selectByPrimaryKey(errortar);
 				while (curerrorid < maxerrorid && !this._interrupted) {
