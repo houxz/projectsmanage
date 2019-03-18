@@ -811,7 +811,8 @@ public class ErrorModelDao {
 				sql.append(" AND updatetime <= '" +  map.get("updatetime2") + "' ");
 			}
 			
-			sql.append("group by  batchid,qid,errortype,errorremark,updatetime order by updatetime,batchid,qid,errortype,errorremark");
+			//sql.append("group by  batchid,qid,errortype,errorremark,updatetime order by updatetime,batchid,qid,errortype,errorremark");
+			sql.append("group by  batchid,qid,errortype,errorremark order by batchid,qid,errortype,errorremark");
 
 			dataSource = Common.getDataSource(configDBModel);
 			List<ErrorModel> errorRelateds = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorModel>(ErrorModel.class));
@@ -843,7 +844,20 @@ public class ErrorModelDao {
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT batchid,qid,errortype,errorremark,updatetime,count(*) as countnum ");
+			//sql.append(" SELECT batchid,qid,errortype,errorremark,updatetime,count(*) as countnum ");
+			sql.append(" SELECT batchid,qid,errortype,errorremark, ");
+			if ((map.get("updatetime1") != null && !map.get("updatetime1").equals("")) && (map.get("updatetime2") != null && !map.get("updatetime2").equals(""))) {
+				sql.append("'" + map.get("updatetime1") + "~" + map.get("updatetime2")  + "' as updatetime, ");
+			}
+			if ((map.get("updatetime1") != null && !map.get("updatetime1").equals("")) && (map.get("updatetime2") == null || map.get("updatetime2").equals(""))) {
+				sql.append("'" + map.get("updatetime1") + "' as updatetime, ");
+			}
+			if ((map.get("updatetime1") == null || map.get("updatetime1").equals("")) && (map.get("updatetime2") != null && !map.get("updatetime2").equals(""))) {
+				sql.append("'" + map.get("updatetime2") + "' as updatetime, ");
+			}
+
+			sql.append("count(*) as countnum ");
+			
 			sql.append(" FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
@@ -873,7 +887,8 @@ public class ErrorModelDao {
 				sql.append(" AND updatetime <= '" +  map.get("updatetime2") + "' ");
 			}
 			
-			sql.append(" group by  batchid,qid,errortype,errorremark,updatetime order by updatetime,batchid,qid,errortype,errorremark");
+			//sql.append(" group by  batchid,qid,errortype,errorremark,updatetime order by updatetime,batchid,qid,errortype,errorremark");
+			sql.append(" group by  batchid,qid,errortype,errorremark order by batchid,qid,errortype,errorremark");
 			
 			if (map.get("limit") != null && Integer.parseInt(String.valueOf(map.get("limit")))> 0) {
 				sql.append(" LIMIT " + map.get("limit"));

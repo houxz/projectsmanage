@@ -77,6 +77,9 @@ public class TaskLinkFielddataModelDao {
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
 			sql.append("	taskid,");
+			//add by lianhr begin 2019/03/08
+			sql.append("	array_to_string(ARRAY(SELECT unnest(array_agg(shapeid))),',') AS shapeid ,");
+			//add by lianhr end
 			sql.append("	COUNT ( 1 ) AS count");
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");

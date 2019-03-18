@@ -17,7 +17,7 @@ public interface CapacityModelDao {
     int insert(CapacityModel record);
     
 	// add by lianhr begin 2018/12/17
-	// ��������ʼ�С��ͳ�ƵĽ��
+	
 	int insertSpecial(QualityCapcityModel record);
 	// add by lianhr end
 
