@@ -14,8 +14,8 @@
 				<ref bean="projectsprocess" />
 				<ref bean="tasksmanage" />
 				<ref bean="doneprocesses" />
-				<ref bean="capacity" />
-				<ref bean="attachcapacity" />
+				<!-- <ref bean="capacity" />
+				<ref bean="attachcapacity" /> -->
 				<ref bean ="errorlistexport"/>
 				<!-- <ref bean="downloadexcel" />
 				<ref bean="errorsmanage" /> -->
