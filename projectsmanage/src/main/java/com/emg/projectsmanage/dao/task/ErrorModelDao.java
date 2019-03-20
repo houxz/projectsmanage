@@ -95,6 +95,7 @@ public class ErrorModelDao {
 					sql.append(" AND id = " + record.getId());
 				}
 			}
+			sql.append(" ORDER BY id DESC ");
 
 			dataSource = Common.getDataSource(configDBModel);
 			errorSets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<ErrorSetModel>(ErrorSetModel.class));
