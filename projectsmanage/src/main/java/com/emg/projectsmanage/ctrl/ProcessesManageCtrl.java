@@ -1081,7 +1081,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		Set<Integer> set = new HashSet<Integer>();
 		switch (processType) {
 		case POIEDIT:
-			set.add(16);
+			set.add(14);
 			set.add(31);
 			set.add(32);
 			break;
