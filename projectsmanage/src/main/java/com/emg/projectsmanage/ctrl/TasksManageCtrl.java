@@ -18,6 +18,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.PriorityLevel;
 import com.emg.projectsmanage.common.ProcessConfigEnum;
+import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.TaskTypeEnum;
 import com.emg.projectsmanage.common.StateMap;
@@ -68,6 +69,7 @@ public class TasksManageCtrl extends BaseCtrl {
 		model.addAttribute("processTypes", ProcessType.toJsonStr());
 		model.addAttribute("taskTypes", TaskTypeEnum.toJsonStr());	
 		model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
+		model.addAttribute("processStates", ProcessState.toJsonStr());
 		return "tasksmanage";
 	}
 
@@ -104,6 +106,7 @@ public class TasksManageCtrl extends BaseCtrl {
 						projects.addAll(projectModelDao.selectByExample(example));
 						break;
 					case "processname":
+						projects = new ArrayList<ProjectModel>();
 						String processname = filterPara.get(key).toString();
 						ProcessModelExample _example = new ProcessModelExample();
 						_example.or().andNameLike("%" + processname + "%");
@@ -115,7 +118,22 @@ public class TasksManageCtrl extends BaseCtrl {
 							}
 							example.clear();
 							example.or().andProcessidIn(processids);
-							projects = new ArrayList<ProjectModel>();
+							projects.addAll(projectModelDao.selectByExample(example));
+						}
+						break;
+					case "processstate":
+						projects = new ArrayList<ProjectModel>();
+						Integer processstate = Integer.valueOf(filterPara.get(key).toString());
+						ProcessModelExample __example = new ProcessModelExample();
+						__example.or().andStateEqualTo(processstate);
+						List<ProcessModel> _processes = processModelDao.selectByExample(__example);
+						if (_processes != null && _processes.size() > 0) {
+							List<Long> processids = new ArrayList<Long>();
+							for (ProcessModel processModel : _processes) {
+								processids.add(processModel.getId());
+							}
+							example.clear();
+							example.or().andProcessidIn(processids);
 							projects.addAll(projectModelDao.selectByExample(example));
 						}
 						break;
@@ -275,6 +293,7 @@ public class TasksManageCtrl extends BaseCtrl {
 								for (ProcessModel processesInRow : processesInRows) {
 									if (processesInRow.getId().equals(projectsInRow.getProcessid())) {
 										row.setProcessid(processesInRow.getId());
+										row.setProcessstate(processesInRow.getState());
 										row.setProcessname(processesInRow.getName());
 										break;
 									}

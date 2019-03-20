@@ -37,6 +37,7 @@
 	var processTypes = eval('(${processTypes})');
 	var taskTypes = eval('(${taskTypes})');
 	var priorityLevels = eval('(${priorityLevels})');
+	var processStates = eval('(${processStates})');
 	
 	var stateDeses = {"未制作":"未制作", "制作中":"制作中", "制作完成":"制作完成", "校正错误修改中":"校正错误修改中", "待质检":"待质检","质检异常":"质检异常","质检中":"质检中", "质检完成":"质检完成", "未校正":"未校正", "校正中":"校正中", "校正完成":"校正完成", "完成":"完成", "预发布完成":"预发布完成", "悬挂点创建中":"悬挂点创建中"};
 	
@@ -75,6 +76,9 @@
 		html.push("</select>");
 		return html.join(""); */
 		return priorityLevels[row.priority];
+	}
+	function processStateFormat(value, row, index) {
+		return processStates[row.processstate];
 	}
 	function taskTypeFormat(value, row, index) {
 		return taskTypes[row.tasktype];
@@ -134,6 +138,10 @@
 						<th data-field="processname" data-width="120"
 							data-filter-control="input" data-filter-control-placeholder="">
 							项目名称</th>
+							
+						<th data-field="processstate" data-formatter="processStateFormat" 
+							data-filter-control="select" data-filter-data="var:processStates">
+							项目状态</th>
 						
 						<c:choose>
 							<c:when test="${not empty param.process}">
