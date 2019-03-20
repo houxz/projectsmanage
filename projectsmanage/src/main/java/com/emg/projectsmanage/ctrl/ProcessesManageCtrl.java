@@ -521,6 +521,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			
 			// TODO: 新增项目类型需要确定是否资料相关
 			if (strDatasets != null && !strDatasets.isEmpty() && !isNewProcess) {
+				configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), strDatasets));
 				ProcessConfigValueModel processConfigValueModels = processConfigValueModelDao.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.BANGDINGZILIAO.getValue());
 				if (processConfigValueModels != null && processConfigValueModels.getValue() != null && !processConfigValueModels.getValue().isEmpty()) {
 					ArrayList<String> newDatasets = new ArrayList<String>(Arrays.asList(strDatasets.split(",")));
