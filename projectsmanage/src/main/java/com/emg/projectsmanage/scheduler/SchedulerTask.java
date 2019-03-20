@@ -350,7 +350,7 @@ public class SchedulerTask {
 												featureid = featureid.replaceAll(strFeatureid + ",", "").replaceAll(strFeatureid, "");
 											}
 										}
-										if(featureid.substring(featureid.length() - 1).equals(",")) {
+										if(featureid.length() > 0 && featureid.substring(featureid.length() - 1).equals(",")) {
 											featureid = featureid.substring(0, featureid.length() - 1);
 										}
 										//add by lianhr end
@@ -981,7 +981,7 @@ public class SchedulerTask {
 												featureid = featureid.replaceAll(strFeatureid + ",", "").replaceAll(strFeatureid, "");
 											}
 										}
-										if(featureid.substring(featureid.length() - 1).equals(",")) {
+										if(featureid.length() > 0 && featureid.substring(featureid.length() - 1).equals(",")) {
 											featureid = featureid.substring(0, featureid.length() - 1);
 										}
 										//add by lianhr end
