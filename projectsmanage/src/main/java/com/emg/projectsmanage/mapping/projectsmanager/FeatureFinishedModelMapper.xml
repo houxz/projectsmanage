@@ -41,7 +41,7 @@
 		parameterType="com.emg.projectsmanage.pojo.FeatureFinishedModel">
 		SELECT
 			*
-		FROM tb_projects_task_finished 
+		FROM tb_projects_task_finished
 		<where>
 			<if test="id != null">
 				`id` = #{id,jdbcType=INTEGER}
