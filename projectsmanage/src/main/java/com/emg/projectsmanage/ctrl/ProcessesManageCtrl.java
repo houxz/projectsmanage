@@ -520,23 +520,26 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			}
 			
 			// TODO: 新增项目类型需要确定是否资料相关
-			if (strDatasets != null && !strDatasets.isEmpty() && !isNewProcess) {
-				ProcessConfigValueModel processConfigValueModels = processConfigValueModelDao.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.BANGDINGZILIAO.getValue());
-				if (processConfigValueModels != null && processConfigValueModels.getValue() != null && !processConfigValueModels.getValue().isEmpty()) {
-					ArrayList<String> newDatasets = new ArrayList<String>(Arrays.asList(strDatasets.split(",")));
-					ArrayList<String> oldDatasets = new ArrayList<String>(Arrays.asList(processConfigValueModels.getValue().split(",")));
-					newDatasets.removeAll(oldDatasets);
-					if (newDatasets != null && !newDatasets.isEmpty()) {
+			if (strDatasets != null && !strDatasets.isEmpty()) {
+				configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), strDatasets));
+				if (!isNewProcess && type.equals(ProcessType.POIEDIT.getValue())) {
+					ProcessConfigValueModel processConfigValueModels = processConfigValueModelDao.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.BANGDINGZILIAO.getValue());
+					if (processConfigValueModels != null && processConfigValueModels.getValue() != null && !processConfigValueModels.getValue().isEmpty()) {
+						ArrayList<String> newDatasets = new ArrayList<String>(Arrays.asList(strDatasets.split(",")));
+						ArrayList<String> oldDatasets = new ArrayList<String>(Arrays.asList(processConfigValueModels.getValue().split(",")));
+						newDatasets.removeAll(oldDatasets);
+						if (newDatasets != null && !newDatasets.isEmpty()) {
+							ProcessModel process = new ProcessModel();
+							process.setId(newProcessID);
+							process.setState(ProcessState.NEW.getValue());
+							processModelDao.updateByPrimaryKeySelective(process);
+						}
+					} else {
 						ProcessModel process = new ProcessModel();
 						process.setId(newProcessID);
 						process.setState(ProcessState.NEW.getValue());
 						processModelDao.updateByPrimaryKeySelective(process);
 					}
-				} else {
-					ProcessModel process = new ProcessModel();
-					process.setId(newProcessID);
-					process.setState(ProcessState.NEW.getValue());
-					processModelDao.updateByPrimaryKeySelective(process);
 				}
 			}
 
@@ -1081,7 +1084,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		Set<Integer> set = new HashSet<Integer>();
 		switch (processType) {
 		case POIEDIT:
-			set.add(16);
+			set.add(14);
 			set.add(31);
 			set.add(32);
 			break;

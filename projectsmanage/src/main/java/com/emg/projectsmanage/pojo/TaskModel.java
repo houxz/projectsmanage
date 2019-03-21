@@ -61,6 +61,8 @@ public class TaskModel {
 	
 	private String processname;
 	
+	private Integer processstate;
+	
 	private Integer errorrest;
 	
 	private Integer errortotal;
@@ -339,6 +341,14 @@ public class TaskModel {
 
 	public void setCheckname(String checkname) {
 		this.checkname = checkname;
+	}
+
+	public Integer getProcessstate() {
+		return processstate;
+	}
+
+	public void setProcessstate(Integer processstate) {
+		this.processstate = processstate;
 	}
 
 }
