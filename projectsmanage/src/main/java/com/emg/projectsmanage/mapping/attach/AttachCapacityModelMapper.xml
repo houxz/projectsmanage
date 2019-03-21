@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.emg.projectsmanage.dao.attach.AttachCapacityModelDao" >
-  <resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.AttachMakeCapacityModel" >
+  <resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.AttachMakeCapacityModel" > 
     <id column="id" property="id" jdbcType="BIGINT" />
     <result column="userid" property="userid" jdbcType="BIGINT" />
     <result column="processid" property="username" jdbcType="VARCHAR" />
@@ -121,5 +121,10 @@
         update tb_capacity set username=#{item.username} where userid=#{item.userid}        
     </foreach>    
 </update>
+
+  <delete id="deleteCapacityByCountdate" parameterType="java.lang.String" >
+    delete from tb_capacity where  to_char(countdate, 'YYYY-MM-DD')=#{date}
+    
+  </delete>
   
 </mapper>

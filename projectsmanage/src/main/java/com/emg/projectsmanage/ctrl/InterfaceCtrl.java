@@ -1,8 +1,10 @@
 package com.emg.projectsmanage.ctrl;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +32,8 @@ import com.emg.projectsmanage.common.ProcessConfigModuleEnum;
 import com.emg.projectsmanage.common.ProcessState;
 import com.emg.projectsmanage.common.ProcessType;
 import com.emg.projectsmanage.common.SystemType;
+import com.emg.projectsmanage.dao.attach.AttachCapacityModelDao;
+import com.emg.projectsmanage.dao.attach.AttachCheckCapacityModelDao;
 import com.emg.projectsmanage.dao.attach.CycleModelDao;
 import com.emg.projectsmanage.dao.process.ConfigDBModelDao;
 import com.emg.projectsmanage.dao.process.ConfigValueModelDao;
@@ -38,6 +42,9 @@ import com.emg.projectsmanage.dao.process.ProcessModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.projectsmanage.dao.projectsmanager.UserRoleModelDao;
+import com.emg.projectsmanage.pojo.AttachCapacityModelExample;
+import com.emg.projectsmanage.pojo.AttachCheckCapacityModel;
+import com.emg.projectsmanage.pojo.AttachMakeCapacityModel;
 import com.emg.projectsmanage.pojo.ConfigDBModel;
 import com.emg.projectsmanage.pojo.ConfigValueModel;
 import com.emg.projectsmanage.pojo.CycleModel;
@@ -82,6 +89,12 @@ public class InterfaceCtrl extends BaseCtrl {
 	
 	@Autowired
 	private CycleModelDao cycleModelDao;
+	
+	@Autowired
+	private AttachCapacityModelDao attachCapacityDao;
+	
+	@Autowired
+	private AttachCheckCapacityModelDao attachCheckCapacityDao;
 	
 	@Value("${heart.minute}")
 	private String differTime;;
@@ -1905,6 +1918,115 @@ public class InterfaceCtrl extends BaseCtrl {
 		logger.debug("exit cycle end!");
 		return json;
 	}
+	
+	/**
+	 * 附属表统计两个日期之间的每天的产能
+	 * @param model
+	 * @param session
+	 * @param request
+	 * @param userid 登陆的用户ID
+	 * @param username 登陆的用户名
+	 * @return
+	 */
+	@RequestMapping(params = "action=countAttachCapacity", method = RequestMethod.POST)
+	private ModelAndView countAttachCapacity(Model model, 
+			HttpSession session,
+			HttpServletRequest request,
+			@RequestParam("startdate") String startdate,
+			@RequestParam("enddate") String enddate
+			) {
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			List<String> days = this.getDays(startdate, enddate);
+			for (String day : days) {
+				// attachCheckCapacityDao.
+				// 制作
+				attachCapacityDao.deleteCapacityByCountdate(day);
+				attachCapacityDao.doAttachCapacityTask(day);
+				Thread.sleep(3000);
+				// 校正
+				attachCheckCapacityDao.deleteByCountDate(day);
+				attachCheckCapacityDao.doAttachCheckCapacityTask(day);
+				Thread.sleep(3000);
+			
+				// 统计的时候没有填充用户名，下面用来统计完了之后填充用户名
+				List<EmployeeModel> users = emapgoAccountService.getAllEmployees();
+				if (users == null) continue;
+				AttachCapacityModelExample example = new AttachCapacityModelExample();
+				AttachCapacityModelExample.Criteria criteria = example.or();
+				criteria.andCountDate(day);
+				List<AttachMakeCapacityModel> makes = attachCapacityDao.selectAttachCapacity(example);
+				
+				if (makes != null ) {
+					for(AttachMakeCapacityModel make : makes) {
+						for(EmployeeModel user : users) {
+							if(make.getUserid() == user.getId()) {
+								make.setUsername(user.getRealname());
+							}
+						}
+					}
+					attachCapacityDao.updateUserName(makes);
+				}
+				
+				List<AttachCheckCapacityModel> checks = attachCheckCapacityDao.selectcheckAttachCapacity(example);
+				
+				if (checks != null ) {
+					for(AttachCheckCapacityModel check : checks) {
+						for(EmployeeModel user : users) {
+							if(check.getUserid() == user.getId()) {
+								check.setUsername(user.getRealname());
+							}
+						}
+					}
+					attachCheckCapacityDao.updateUserName(checks);
+				}
+				
+			}
+			json.addObject("option", "ok");
+			json.addObject("status", true);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("status", false);
+			json.addObject("option", e.getMessage());
+		}
+		logger.debug("exit cycle end!");
+		return json;
+	}
+	
+	
+	/**
+	 * 获取起始日期和截止日期之前的所有日期
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	private  List<String> getDays(String startTime, String endTime) {
+
+        // 返回的日期集合
+        List<String> days = new ArrayList<String>();
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date start = dateFormat.parse(startTime);
+            Date end = dateFormat.parse(endTime);
+
+            Calendar tempStart = Calendar.getInstance();
+            tempStart.setTime(start);
+
+            Calendar tempEnd = Calendar.getInstance();
+            tempEnd.setTime(end);
+            tempEnd.add(Calendar.DATE, +1);// 日期加1(包含结束)
+            while (tempStart.before(tempEnd)) {
+                days.add(dateFormat.format(tempStart.getTime()));
+                tempStart.add(Calendar.DAY_OF_YEAR, 1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return days;
+    }
 	
 	private String getDateString(Date date) {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");

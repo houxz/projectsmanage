@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.emg.projectsmanage.dao.attach.AttachCheckCapacityModelDao" >
-  <resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.AttachCheckCapacityModel" >
+  <resultMap id="BaseResultMap" type="com.emg.projectsmanage.pojo.AttachCheckCapacityModel" > 
     <id column="id" property="id" jdbcType="BIGINT" />
     <result column="userid" property="userid" jdbcType="BIGINT" />
     <result column="username" property="username" jdbcType="VARCHAR" />
@@ -113,6 +113,11 @@
     </choose>
     
   </select>
+  
+  <delete id="deleteByCountDate" parameterType="java.lang.String" >
+    delete from tb_error_count where  to_char(countdate, 'YYYY-MM-DD')=#{date}
+    
+  </delete>
   
   <update id="updateMakeError"  parameterType="java.util.List">  
     <foreach collection="models" item="item" index="index" open="" close="" separator=";">

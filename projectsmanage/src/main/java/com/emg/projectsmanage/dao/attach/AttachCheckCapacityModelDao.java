@@ -12,7 +12,7 @@ import com.emg.projectsmanage.pojo.AttachCheckCapacityModel;
  * @author Administrator
  *
  */
-public interface AttachCheckCapacityModelDao {
+public interface AttachCheckCapacityModelDao { 
 	
 	/**
 	 * 查询满足条件的附属表产能统计
@@ -50,4 +50,6 @@ public interface AttachCheckCapacityModelDao {
     void updateCheckError(@Param(value="models") List<AttachCheckCapacityModel> models);
 
     void updateUserName(@Param(value="models") List<AttachCheckCapacityModel> models);
+    
+    void deleteByCountDate(@Param(value="date") String date);
 }
