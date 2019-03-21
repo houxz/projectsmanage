@@ -8,30 +8,26 @@
 		<property name="menus">
 			<set>
 				<ref bean="usersmanage" />
-				<!-- <ref bean="skillsmanage" /> -->
+				<ref bean="skillsmanage" />
 				<ref bean="processesmanage" />
-				<!-- <ref bean="worktasks" /> -->
+				<ref bean="worktasks" />
 				<ref bean="projectsprocess" />
 				<ref bean="tasksmanage" />
-				<ref bean="doneprocesses" />
 				<ref bean="capacity" />
-				<!-- <ref bean="attachcapacity" />
-				<ref bean ="errorlistexport"/>
-				<ref bean="downloadexcel" />
-				<ref bean="errorsmanage" />
+				<ref bean="errorlistexport"/>
 				<ref bean="errorstask" />
 				<ref bean="itemsetmanage" />
 				<ref bean="errorsetmanage" />
-				<ref bean="iteminfo" /> -->
+				<ref bean="iteminfo" />
 				<ref bean="systemsets" />
 				<ref bean="sse" />
 				<ref bean="socket" />
 			</set>
 		</property>
 	</bean>
-
+	
 	<bean id="usersmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="999" />
+		<property name="code" value="100" />
 		<property name="url" value="/projectsmanage/usersmanage.web" />
 		<property name="label" value="人员信息管理" />
 		<property name="roleSet">
@@ -46,7 +42,7 @@
 	</bean>
 	
 	<bean id="skillsmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1000" />
+		<property name="code" value="200" />
 		<property name="url" value="/projectsmanage/skillsmanage.web" />
 		<property name="label" value="人员技能管理" />
 		<property name="roleSet">
@@ -58,10 +54,41 @@
 		<property name="isshow" value="false" />
 	</bean>
 	
+	<bean id="systemsets" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="300" />
+		<property name="url" value="/projectsmanage/systemsets.web" />
+		<property name="label" value="系统配置" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_SUPERADMIN</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
+	
 	<bean id="processesmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1001" />
+		<property name="code" value="1000" />
 		<property name="url" value="/projectsmanage/processesmanage.web" />
 		<property name="label" value="项目管理" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+		<property name="children">
+			<set>
+				<ref bean="doneprocesses" />
+			</set>
+		</property>
+	</bean>
+	
+	<bean id="doneprocesses" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="1010" />
+		<property name="url" value="/projectsmanage/doneprocesses.web" />
+		<property name="label" value="已完成项目" />
 		<property name="roleSet">
 			<set>
 				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
@@ -72,7 +99,7 @@
 	</bean>
 	
 	<bean id="worktasks" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1003" />
+		<property name="code" value="1100" />
 		<property name="url" value="/projectsmanage/worktasks.web" />
 		<property name="label" value="作业任务" />
 		<property name="roleSet">
@@ -87,7 +114,7 @@
 	</bean>
 	
 	<bean id="projectsprocess" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1004" />
+		<property name="code" value="1200" />
 		<property name="url" value="/projectsmanage/projectsprocess.web" />
 		<property name="label" value="项目进度" />
 		<property name="roleSet">
@@ -102,7 +129,7 @@
 	</bean>
 	
 	<bean id="tasksmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1013" />
+		<property name="code" value="1300" />
 		<property name="url" value="/projectsmanage/tasksmanage.web" />
 		<property name="label" value="任务列表" />
 		<property name="roleSet">
@@ -117,7 +144,7 @@
 	</bean>
 	
 	<bean id="capacity" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1005" />
+		<property name="code" value="1400" />
 		<property name="url" value="/projectsmanage/capacity.web" />
 		<property name="label" value="产能统计" />
 		<property name="roleSet">
@@ -129,10 +156,15 @@
 		</property>
 		<property name="enabled" value="true" />
 		<property name="isshow" value="true" />
+		<property name="children">
+			<set>
+				<ref bean="attachcapacity" />
+			</set>
+		</property>
 	</bean>
 	
 	<bean id="attachcapacity" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1015" />
+		<property name="code" value="1410" />
 		<property name="url" value="/projectsmanage/attachcapacity.web" />
 		<property name="label" value="附属表产能统计" />
 		<property name="roleSet">
@@ -146,21 +178,8 @@
 		<property name="isshow" value="true" />
 	</bean>
 	
-	<bean id="downloadexcel" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1010" />
-		<property name="url" value="/projectsmanage/downloadexcel.web" />
-		<property name="label" value="Excel下载" />
-		<property name="roleSet">
-			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
-			</set>
-		</property>
-		<property name="enabled" value="false" />
-		<property name="isshow" value="false" />
-	</bean>
-	
 	<bean id="errorstask" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1014" />
+		<property name="code" value="1500" />
 		<property name="url" value="/projectsmanage/errorstask.web" />
 		<property name="label" value="错误导出任务" />
 		<property name="roleSet">
@@ -172,8 +191,21 @@
 		<property name="isshow" value="true" />
 	</bean>
 	
+	<bean id="errorlistexport" class="com.emg.projectsmanage.auth.MenuAuthModel">
+		<property name="code" value="1510" />
+		<property name="url" value="/projectsmanage/errorlistexport.web" /> 
+		<property name="label" value="错误清单导出" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
+	
 	<bean id="itemsetmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1006" />
+		<property name="code" value="1600" />
 		<property name="url" value="/projectsmanage/itemsetmanage.web" />
 		<property name="label" value="质检集合配置" />
 		<property name="roleSet">
@@ -186,7 +218,7 @@
 	</bean>
 	
 	<bean id="errorsetmanage" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1007" />
+		<property name="code" value="1700" />
 		<property name="url" value="/projectsmanage/errorsetmanage.web" />
 		<property name="label" value="错误筛选配置" />
 		<property name="roleSet">
@@ -199,7 +231,7 @@
 	</bean>
 	
 	<bean id="iteminfo" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1009" />
+		<property name="code" value="1800" />
 		<property name="url" value="/projectsmanage/iteminfo.web" />
 		<property name="label" value="质检项配置" />
 		<property name="roleSet">
@@ -211,21 +243,9 @@
 		<property name="isshow" value="true" />
 	</bean>
 	
-	<bean id="systemsets" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="990" />
-		<property name="url" value="/projectsmanage/systemsets.web" />
-		<property name="label" value="系统配置" />
-		<property name="roleSet">
-			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_SUPERADMIN</value>
-			</set>
-		</property>
-		<property name="enabled" value="true" />
-		<property name="isshow" value="true" />
-	</bean>
-	
+	<!-- 这是一些页面不可见的请求 -->
 	<bean id="sse" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1011" />
+		<property name="code" value="-1" />
 		<property name="url" value="/projectsmanage/sse.web" />
 		<property name="label" value="SSE通信" />
 		<property name="roleSet">
@@ -238,7 +258,7 @@
 	</bean>
 	
 	<bean id="socket" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1012" />
+		<property name="code" value="-2" />
 		<property name="url" value="/projectsmanage/socket.web" />
 		<property name="label" value="SOCKET通信" />
 		<property name="roleSet">
@@ -249,31 +269,5 @@
 		<property name="enabled" value="true" />
 		<property name="isshow" value="false" />
 	</bean>
-	
-	<bean id="doneprocesses" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1013" />
-		<property name="url" value="/projectsmanage/doneprocesses.web" />
-		<property name="label" value="已完成项目" />
-		<property name="roleSet">
-			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
-			</set>
-		</property>
-		<property name="enabled" value="true" />
-		<property name="isshow" value="true" />
-	</bean>
-	
-	<bean id="errorlistexport" class="com.emg.projectsmanage.auth.MenuAuthModel">
-		<property name="code" value="1033" />
-		<property name="url" value="/projectsmanage/errorlistexport.web" /> 
-		<property name="label" value="错误清单导出" />
-		<property name="roleSet">
-			<set>
-				<value type="com.emg.projectsmanage.common.RoleType">ROLE_POIVIDEOEDIT</value>
-			</set>
-		</property>
-		<property name="enabled" value="true" />
-		<property name="isshow" value="true" />
-	</bean>
-
+	<!-- END -->
 </beans>

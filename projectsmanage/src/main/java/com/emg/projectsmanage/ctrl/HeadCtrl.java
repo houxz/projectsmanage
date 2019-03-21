@@ -49,6 +49,27 @@ public class HeadCtrl extends BaseCtrl {
 		        result.addAll(roleSet);
 		        result.retainAll(auths);
 		        if(result.size() > 0) {
+		        	Set<MenuAuthModel> children = menuAuthModel.getChildren();
+		        	if (children != null && children.size() > 0) {
+		        		Set<MenuAuthModel> _children = new TreeSet<MenuAuthModel>();
+			        	for (MenuAuthModel child : children) {
+			        		if(fromurl.indexOf(child.getUrl()) >= 0) {
+			        			child.setActive(true);
+			        			menuAuthModel.setActive(true);
+							} else {
+								child.setActive(false);
+							}
+			        		
+							result.clear();
+							Set<RoleType> _roleSet = child.getRoleSet();
+					        result.addAll(_roleSet);
+					        result.retainAll(auths);
+					        if(result.size() > 0) {
+					        	_children.add(child);
+					        }
+			        	}
+			        	menuAuthModel.setChildren(_children);
+		        	}
 		        	menus.add(menuAuthModel);
 		        }
 			}

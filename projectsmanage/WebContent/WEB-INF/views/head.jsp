@@ -9,6 +9,7 @@
 	String account = session.getAttribute(CommonConstants.SESSION_USER_NAME).toString();
 %>
 </script>
+<script src="resources/bootstrap-hover-dropdown/bootstrap-hover-dropdown.js" ></script>
 <div class="headline">
 	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 		<div class="container-fluid">
@@ -19,12 +20,23 @@
 				<ul class="nav navbar-nav">
 					<c:forEach items="${menus }" var="menu">
 						<c:choose>
-							<c:when test="${menu.active }">
-								<li class="active"><a href="${menu.url }">${menu.label }</a></li>
+							<c:when test="${menu.children != null and menu.children.size() > 0 }">
+								<li class="${menu.active ? 'active':'' } dropdown">
+									<a href="${menu.url }" class="dropdown-toggle" data-hover="dropdown">${menu.label }&nbsp;<span class="caret"></span></a>
+									<c:if test="${menu.children != null and menu.children.size() > 0 }">
+										<ul class="dropdown-menu">
+											<c:forEach items="${menu.children }" var="child">
+												<li class="${child.active ? 'active':'' }"><a href="${child.url }">${child.label }</a></li>
+											</c:forEach>
+										</ul>
+									</c:if>
+								</li>
 							</c:when>
 							<c:otherwise>
-								<li><a href="${menu.url }">${menu.label }</a></li>
-    						</c:otherwise>
+								<li class="${menu.active ? 'active':'' }">
+									<a href="${menu.url }">${menu.label }</a>
+								</li>
+							</c:otherwise>
 						</c:choose>
 					</c:forEach>
 				</ul>

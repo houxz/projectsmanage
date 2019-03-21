@@ -12,6 +12,7 @@ public class MenuAuthModel implements Comparable<MenuAuthModel> {
 	private Boolean enabled;
 	private Boolean active = false;
 	private Boolean isshow = false;
+	private Set<MenuAuthModel> children;
 	
 	public String getUrl() {
 		return url;
@@ -54,6 +55,18 @@ public class MenuAuthModel implements Comparable<MenuAuthModel> {
 	public void setActive(Boolean active) {
 		this.active = active;
 	}
+	public Boolean getIsshow() {
+		return isshow;
+	}
+	public void setIsshow(Boolean isshow) {
+		this.isshow = isshow;
+	}
+	public Set<MenuAuthModel> getChildren() {
+		return children;
+	}
+	public void setChildren(Set<MenuAuthModel> children) {
+		this.children = children;
+	}
 	
 	@Override
 	public int compareTo(MenuAuthModel obj) {
@@ -64,14 +77,8 @@ public class MenuAuthModel implements Comparable<MenuAuthModel> {
 			((MenuAuthModel)obj).getEnabled().equals(this.enabled) &&
 			((MenuAuthModel)obj).getActive().equals(this.active)) {
 			return 0;
-		} else
-			return 1;
+		} else {
+			return this.code - ((MenuAuthModel)obj).getCode();
+		}
 	}
-	public Boolean getIsshow() {
-		return isshow;
-	}
-	public void setIsshow(Boolean isshow) {
-		this.isshow = isshow;
-	}
-	
 }
