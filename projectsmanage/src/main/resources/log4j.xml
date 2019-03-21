@@ -19,7 +19,7 @@
 	</appender>
 	
 	<appender name="schedulerFileLoger" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="File" value="${projectsmanage}WEB-INF/schedulerlogs/system.log" />
+		<param name="File" value="${projectsmanage}WEB-INF/schedulerlogs/scheduler.log" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss\} %-5p] - [ %l ] %m%n" />
