@@ -42,8 +42,8 @@
 				</ul>
 
 				<ul class="nav navbar-nav navbar-right">
-					<li><a href="#"><c:out value="<%=account%>" /></a></li>
-					<li><a href="<c:url value='./logout.web'/>">退出</a></li>
+					<li><a href="#"><span class="glyphicon glyphicon-user"></span>&nbsp;<c:out value="<%=account%>" /></a></li>
+					<li><a href="<c:url value='./logout.web'/>"><span class="glyphicon glyphicon-log-out"></span>&nbsp;退出</a></li>
 				</ul>
 			</div>
 		</div>
