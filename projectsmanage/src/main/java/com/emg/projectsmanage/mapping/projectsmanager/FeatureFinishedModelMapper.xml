@@ -15,7 +15,7 @@
 	<select id="queryCount" resultType="java.lang.Integer" parameterType="com.emg.projectsmanage.pojo.FeatureFinishedModel">
 		SELECT COUNT(1)
 		FROM
-		tb_projeccts_task_finished
+		tb_projects_task_finished
 		<where>
 			<if test="id != null">
 				`id` = #{id,jdbcType=INTEGER}
@@ -41,7 +41,7 @@
 		parameterType="com.emg.projectsmanage.pojo.FeatureFinishedModel">
 		SELECT
 			*
-		FROM tb_projeccts_task_finished
+		FROM tb_projects_task_finished
 		<where>
 			<if test="id != null">
 				`id` = #{id,jdbcType=INTEGER}
@@ -64,7 +64,7 @@
 		</where>
 	</select>
 	<insert id="insert" parameterType="com.emg.projectsmanage.pojo.FeatureFinishedModel" >
-	    insert into tb_projeccts_task_finished 
+	    insert into tb_projects_task_finished 
 	    	(`tasktype`,
 	    	 `projectid`,
 	    	 `featureid`,
