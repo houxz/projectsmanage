@@ -134,14 +134,19 @@ public class ItemSetManageCtrl extends BaseCtrl {
 			}
 
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			record.setProcessType(processType.getValue());
-			List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, limit, offset);
-			Integer count = itemSetModelDao.countItemSets(configDBModel, record, limit, offset);
+			if (config != null) {
+				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+				record.setProcessType(processType.getValue());
+				List<ItemSetModel> rows = itemSetModelDao.selectItemSets(configDBModel, record, limit, offset);
+				Integer count = itemSetModelDao.countItemSets(configDBModel, record, limit, offset);
 
-			result.setRows(rows);
-			result.setTotal(count);
-			result.setResult(1);
+				result.setRows(rows);
+				result.setTotal(count);
+				result.setResult(1);
+			} else {
+				result.setResult(1);
+			}
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			result.setResultMsg(e.getMessage());

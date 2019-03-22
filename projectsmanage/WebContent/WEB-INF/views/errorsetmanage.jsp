@@ -581,7 +581,7 @@
 							</c:when>
 							<c:otherwise>
 								<th data-field="processType" data-width="120" data-formatter="processTypeFormat" 
-									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="<%= ProcessType.POIEDIT.getValue() %>">
+									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="<%= ProcessType.ADJUSTMAP.getValue() %>">
 									&nbsp;&nbsp;&nbsp;&nbsp;适用项目类型&nbsp;&nbsp;&nbsp;&nbsp;</th>
 							</c:otherwise>
 						</c:choose>
