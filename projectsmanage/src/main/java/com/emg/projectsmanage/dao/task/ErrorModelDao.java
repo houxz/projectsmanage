@@ -520,25 +520,30 @@ public class ErrorModelDao {
 						mact.put(Long.valueOf(before), after);
 						k++;
 					}
+					
+					try {
+						List<ErrorRelatedModel> errorRelateds = new ArrayList<ErrorRelatedModel>();
+						for (ErrorAndErrorRelatedModel errorAndRelated : errorAndRelateds) {
+							if (errorAndRelated.getRid() == null)
+								continue;
+							ErrorRelatedModel errorRelated = new ErrorRelatedModel();
+							errorRelated.setErrorid(mact.get(errorAndRelated.getId()));
+							errorRelated.setType(errorAndRelated.getRtype());
+							errorRelated.setFeatureid(errorAndRelated.getRfeatureid());
+							errorRelated.setLayerid(errorAndRelated.getRlayerid());
+							errorRelated.setEditver(errorAndRelated.getReditver());
+							errorRelateds.add(errorRelated);
+						}
+
+						exportErrorRelateds(configDBModel, errorRelateds);
+					} catch (Exception ex) {
+						logger.error(ex.getMessage(), ex);
+					}
+					
 					connection.commit();
 					//插入2000条之后，等待1秒，防止数据库压力过大
 					Thread.sleep(1000);
 				}
-
-				List<ErrorRelatedModel> errorRelateds = new ArrayList<ErrorRelatedModel>();
-				for (ErrorAndErrorRelatedModel errorAndRelated : errorAndRelateds) {
-					if (errorAndRelated.getRid() == null)
-						continue;
-					ErrorRelatedModel errorRelated = new ErrorRelatedModel();
-					errorRelated.setErrorid(mact.get(errorAndRelated.getId()));
-					errorRelated.setType(errorAndRelated.getRtype());
-					errorRelated.setFeatureid(errorAndRelated.getRfeatureid());
-					errorRelated.setLayerid(errorAndRelated.getRlayerid());
-					errorRelated.setEditver(errorAndRelated.getReditver());
-					errorRelateds.add(errorRelated);
-				}
-
-				exportErrorRelateds(configDBModel, errorRelateds);
 			}
 
 		} catch (Exception e) {
