@@ -21,6 +21,8 @@
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+<script src="resources/bootstrap-table-1.11.1/extensions/export/bootstrap-table-export.js"></script>
+<script src="resources/tableExport.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/locale/bootstrap-table-zh-CN.js"></script>
 
 <script type="text/javascript">
@@ -127,6 +129,7 @@
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="attachcapacity" data-height="714"
 				data-page-list="[15, 30, 50, 100, all]" data-page-size="10"
+				data-show-export="true" data-show-refresh="true"  
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr >
@@ -182,6 +185,7 @@
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="attachcapacity" data-height="714"
 				data-page-list="[15, 30, 50, 100, all]" data-page-size="10"
+				data-show-export="true" data-show-refresh="true"  
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr >
