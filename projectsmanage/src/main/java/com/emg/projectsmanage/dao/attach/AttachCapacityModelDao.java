@@ -37,6 +37,8 @@ public interface AttachCapacityModelDao {
      */
     String doAttachCapacityTask(@Param(value="date") String date);
     
+    void deleteCapacityByCountdate(@Param(value="date") String date);
+    
     /**
      * 更新每天制作错误统计
      * @param models

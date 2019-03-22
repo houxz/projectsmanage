@@ -3548,8 +3548,10 @@ public class SchedulerTask {
 	public void attachCapacityDoTask() {
 		if (!attachEnable.equalsIgnoreCase("true"))
 			return;
+		String date = getDateString(new Date());
+		attachCapacityDao.deleteCapacityByCountdate(date);
 		//制作
-		attachCapacityDao.doAttachCapacityTask(getDateString());
+		attachCapacityDao.doAttachCapacityTask(date); 
 	}
 	
 	/**
@@ -3560,8 +3562,10 @@ public class SchedulerTask {
 	public void countAttachError() {
 		if (!attachEnable.equalsIgnoreCase("true"))
 			return;
-		//制作
-		attachCheckCapacityDao.doAttachCheckCapacityTask(getDateString());
+		String date = getDateString(new Date());
+		attachCheckCapacityDao.deleteByCountDate(date);
+		//校正
+		attachCheckCapacityDao.doAttachCheckCapacityTask(date);
 	}
 	
 	/**
@@ -3575,7 +3579,7 @@ public class SchedulerTask {
 		logger.debug("start update username.");
 		AttachCapacityModelExample example = new AttachCapacityModelExample();
 		AttachCapacityModelExample.Criteria criteria = example.or();
-		criteria.andCountDate(getDateString());
+		criteria.andCountDate(getDateString(new Date()));
 		List<AttachMakeCapacityModel> makes = attachCapacityDao.selectAttachCapacity(example);
 		List<EmployeeModel> users = emapgoAccountService.getAllEmployees();
 		if (makes != null && users != null) {
@@ -3608,12 +3612,12 @@ public class SchedulerTask {
 	 * 获得今天日期的指定格式字符串
 	 * @return
 	 */
-	private String getDateString() {
+	private String getDateString(Date now) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		Date now = new Date();
 		String nowStr = sdf.format(now.getTime());
 		return nowStr;
-		// return "2018-10-01";
+		// return "2019-03-19";
 	}
+	
 	
 }

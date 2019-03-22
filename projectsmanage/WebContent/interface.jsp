@@ -56,6 +56,7 @@
 	              {"name":"心跳包","type":"post","action":"heartbeat","params":["id"]},
 	              {"name":"心跳包退出","type":"post","action":"exitcycle","params":["id"]},
 	              {"name":"心跳包间隔","type":"post","action":"cyclediffer","params":[]},
+	              {"name":"附属表产能统计","type":"post","action":"countAttachCapacity","params":["startdate", "enddate"]}
 	];
 	
 	function delResult(){

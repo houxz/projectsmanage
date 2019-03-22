@@ -34,7 +34,7 @@ import com.emg.projectsmanage.pojo.ErrorSetModel;
 import com.emg.projectsmanage.pojo.ItemConfigModel;
 
 @Component
-public class AttachErrorModelDao {
+public class AttachErrorModelDao { 
 	
 	private static final Logger logger = LoggerFactory.getLogger(AttachErrorModelDao.class);
 	
