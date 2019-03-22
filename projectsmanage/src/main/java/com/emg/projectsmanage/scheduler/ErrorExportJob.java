@@ -95,14 +95,14 @@ public class ErrorExportJob implements InterruptableJob {
 						ErrorsTaskModel record = new ErrorsTaskModel();
 						record.setId(taskid);
 						record.setCurerrorid(curerrorid);
-						StringBuilder sb = new StringBuilder();
-						for (Entry<Long, Long> entry : mact.entrySet()) {
-							sb.append(entry.getKey());
-							sb.append("-");
-							sb.append(entry.getValue());
-							sb.append(";");
-						}
-						record.setMact(sb.toString());
+//						StringBuilder sb = new StringBuilder();
+//						for (Entry<Long, Long> entry : mact.entrySet()) {
+//							sb.append(entry.getKey());
+//							sb.append("-");
+//							sb.append(entry.getValue());
+//							sb.append(";");
+//						}
+//						record.setMact(sb.toString());
 						errorsTaskModelDao.updateByPrimaryKeySelective(record);
 						logger.debug(String.format("COMPLETE EXPORT errors with taskid: %s , < %s - %s - %s >", taskid, minerrorid, curerrorid, maxerrorid));
 					} catch (Exception e) {
