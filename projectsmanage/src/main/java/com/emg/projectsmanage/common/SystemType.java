@@ -40,6 +40,10 @@ public enum SystemType {
 	 */
 	MapDbEdit_Area(3494, "综合编辑平台_行政区划"),
 	/**
+	 * 3495, "综合编辑平台_关系附属表含资料"
+	 */
+	MapDbEdit_AttachWithData(3495, "综合编辑平台_附属表资料"),
+	/**
 	 * 350, "整图编辑平台"
 	 */
 	AdjustMap(350, "整图编辑平台"),

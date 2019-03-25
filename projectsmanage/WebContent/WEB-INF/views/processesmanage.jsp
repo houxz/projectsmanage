@@ -261,7 +261,7 @@
 							+ ' <span style="margin:0 6px;color: black;">'
 							+ parseFloat(values[2]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div>');
-		} else if(processType == 3 || processType == 8) {
+		} else if(processType == 3 || processType == 8 || processType == 9) {
 			html.push('<div>');
 			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="编辑准备进度：' + parseFloat(values[0]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
@@ -1112,6 +1112,8 @@
 			break;
 		case 3:
 		case "3":
+		case 9:
+		case "9":
 			$("#config_1_5").parents("tr").hide();
 			$("#config_1_6").parents("tr").hide();
 			$("#config_1_7").parents("tr").show();

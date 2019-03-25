@@ -42,7 +42,11 @@ public enum ProcessType {
 	/**
 	 * 8, "行政区划项目"
 	 */
-	AREA(8, "行政区划项目");
+	AREA(8, "行政区划项目"),
+	/**
+	 * 9, "关系附属表含资料项目"
+	 */
+	ATTACHWITHDATA(9, "附属表资料项目");
 
 	private Integer value;
 	private String des;

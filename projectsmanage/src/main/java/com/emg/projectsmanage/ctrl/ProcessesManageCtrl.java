@@ -290,6 +290,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			} else if(type.equals(ProcessType.AREA.getValue())) {
 				suffix = "_行政区划";
 				systemid = SystemType.MapDbEdit_Area.getValue();
+			} else if(type.equals(ProcessType.ATTACHWITHDATA.getValue())) {
+				suffix = "";
+				systemid = SystemType.MapDbEdit_AttachWithData.getValue();
 			} else {
 				logger.error("未知的项目类型：" + type);
 				json.addObject("result", -1);
@@ -383,7 +386,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					type.equals(ProcessType.ATTACH.getValue()) ||
 					type.equals(ProcessType.POIEDIT.getValue()) ||
 					type.equals(ProcessType.GEN.getValue()) ||
-					type.equals(ProcessType.AREA.getValue())) {
+					type.equals(ProcessType.AREA.getValue()) ||
+					type.equals(ProcessType.ATTACHWITHDATA.getValue())) {
 					ProjectModel newpro = new ProjectModel();
 					newpro.setProcessid(newProcessID);
 					newpro.setName(newProcessName + suffix);
@@ -410,7 +414,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					type.equals(ProcessType.ATTACH.getValue()) ||
 					type.equals(ProcessType.POIEDIT.getValue()) ||
 					type.equals(ProcessType.GEN.getValue()) ||
-					type.equals(ProcessType.AREA.getValue())) {
+					type.equals(ProcessType.AREA.getValue()) ||
+					type.equals(ProcessType.ATTACHWITHDATA.getValue())) {
 					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newProcessName + suffix));
 	
 					ProjectModel pro = new ProjectModel();

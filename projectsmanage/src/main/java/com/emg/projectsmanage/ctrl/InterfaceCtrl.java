@@ -1129,6 +1129,9 @@ public class InterfaceCtrl extends BaseCtrl {
 			} else if (newProcessType.equals(ProcessType.GEN.getValue())) {
 				suffix = "";
 				systemid = SystemType.poi_GEN.getValue();
+			} else if (newProcessType.equals(ProcessType.ATTACHWITHDATA.getValue())) {
+				suffix = "";
+				systemid = SystemType.MapDbEdit_AttachWithData.getValue();
 			} else {
 				json.addObject("result", false);
 				json.addObject("resultMsg", "未知的项目类型");
