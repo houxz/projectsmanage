@@ -27,9 +27,7 @@ public class AttachMakeCapacityModel implements Serializable{
 	private int junctionviewUpdate;
 	private int junctionviewDelete;	
 	private int makeErrorCount;
-	/*private int checkErrorCount;
-	private int checkCount; // 校正量
-*/	private int projectType;
+	private int projectType;
 	private int roleType;
 	private double efficiency;
 	private int worktime;

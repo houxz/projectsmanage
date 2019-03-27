@@ -22,7 +22,6 @@
 <script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/extensions/export/bootstrap-table-export.js"></script>
-<script src="resources/tableExport.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/locale/bootstrap-table-zh-CN.js"></script>
 
 <script type="text/javascript">
@@ -33,6 +32,7 @@
 		$('[data-toggle="attachcapacity"]').bootstrapTable({
 			locale : 'zh-CN'
 		});
+		
 		
 	});
 	
@@ -63,6 +63,10 @@
 	}
 	
 	$(function() {
+		$('#attachcapacitymake').bootstrapTable({showExport: true,
+	        exportDataType: $(this).val()});
+		$('#attachheckcapacitycheck').bootstrapTable({showExport: true,
+	        exportDataType: $(this).val()});
         $('#myTab a:first').tab('show'); //初始化显示哪个tab
         $('#myTab a').click(function(e) {
             e.preventDefault(); //阻止a链接的跳转行为
@@ -81,6 +85,7 @@
  	            };
  			$('#attachcapacitymake').bootstrapTable("refresh", opt);
  		});
+ 		
  		
 		$("#searchcheckdata").click(function() {
  			 var opt = {
@@ -117,19 +122,23 @@
 		
 		<div id="myTabContent" class="tab-content">
 		<div id="makediv" class="tab-pane fade in active">
+		<form method="post" action="./attachcapacity.web?atn=exportmake" id="exportMakeData">
 			  <div class="form-group">
 			    <label  for="startdate">开始时间: </label>
 			    <input type="date" id="startdate" name="startdate" />
 			    <label  for="enddate">结束时间: </label>
 			    <input type="date" id="enddate" name="enddate"/>
+			    <input id="flag" name="flag" value="make" type="hidden"/>
 			    <button id="searchmakedata" type="button" class="btn btn-default">搜索</button>
+			    <button id="exportmake" type="button" class="btn btn-default" onclick="$('#exportMakeData').submit();">导出</button>
 			  </div>
+		  </form>
 		<table id="attachcapacitymake" data-unique-id="id"
 				data-query-params="queryParams" data-url="./attachcapacity.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="attachcapacity" data-height="714"
-				data-page-list="[15, 30, 50, 100, all]" data-page-size="10"
-				data-show-export="true" data-show-refresh="true"  
+				data-page-list="[15, 30, 50, 100, all]" data-page-size="30"
+				
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr >
@@ -173,19 +182,22 @@
 			</table>
 		</div>
 		<div id="checkdiv" class="tab-pane fade">	
+		 <form method="post" action="./attachcapacity.web?atn=exportmake" id="exportCheckData">
 			  <div class="form-group">
 			    <label  for="checkstartdate">开始时间: </label>
 			    <input type="date" id="checkstartdate" data-field="checkstartdate"/>
 			    <label  for="checkenddate">结束时间: </label>
 			    <input type="date" id="checkenddate" data-field="checkenddate" />
+			     <input id="flagcheck" name="flag" value="check" type="hidden"/>
 			    <button id="searchcheckdata" type="button" class="btn btn-default">搜索</button>
+			    <button id="exportmake" type="button" class="btn btn-default" onclick="$('#exportCheckData').submit();">导出</button>
 			  </div>
+		  </form>
 			<table id="attachheckcapacitycheck" data-unique-id="id"
 				data-query-params="queryParams" data-url="./attachcapacity.web?atn=checks"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="attachcapacity" data-height="714"
-				data-page-list="[15, 30, 50, 100, all]" data-page-size="10"
-				data-show-export="true" data-show-refresh="true"  
+				data-page-list="[15, 30, 50, 100, all]" data-page-size="30"
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr >
@@ -203,32 +215,32 @@
 						<th data-field="checkCount" data-sortable="true"   data-valign="top" data-align="center" ><br>校正量</th>
 						<th data-field="efficiency" data-sortable="true"   data-valign="top" data-align="center" ><br>效率</th>
 						
-						<th data-field="lostDirection"  data-align="center" data-sortable="true" >漏制作方向<br>信息</th>
-						<th data-field="makeMoreDirection" data-sortable="true">多制作方向<br>信息</th>
-						<th data-field="endRoadDirection" data-sortable="true">结束路段<br>错误</th>
-						<th data-field="infoDirection" data-sortable="true">方向类型及名称<br>（包括中文名称、拼音名称、<br>英文名称）</th>
-						<th data-field="exitCodeDirection" data-sortable="true">出口编号<br>错误</th>
-						<th data-field="exitDirection" data-sortable="true">出口方向<br>错误</th>
-						<th data-field="unknownDirection" data-sortable="true">其它未定义错误<br>（方向信息）</th>
-						<th data-field="lostLane" data-sortable="true">漏制作车道<br>信息</th>
-						<th data-field="makeMoreLane" data-sortable="true">多制作车道<br>信息</th>
-						<th data-field="turnLane" data-sortable="true">车道数/箭头方向<br>/可调头漏制作<br>错误</th>
-						<th data-field="endRoadLane" data-sortable="true">车道号/箭头数<br>/终止道路错误</th>
-						<th data-field="innerLinkLane" data-sortable="true">扩展内连接<br>标识错误<br>（lane信息）</th>
-						<th data-field="unknownLane" data-sortable="true">其它未定义错误<br>（lane信息）</th>
-						<th data-field="lostSceneJunctionview" data-sortable="true">漏制作路口放大图<br>（实景图）</th>
-						<th data-field="lostPatternJunctionview" data-sortable="true">漏制作路口放大图<br>（模式图）</th>
-						<th data-field="makeMoreSceneJunctionview" data-sortable="true">多制作路口放大图<br>（实景图）</th>
-						<th data-field="makeMorePatternJunctionview" data-sortable="true">多制作路口放大图<br>（模式图）</th>
-						<th data-field="pictureTypeSceneJunctionview" data-sortable="true">图形种类错误<br>（实景图）</th>
-						<th data-field="pictureTypePatternJunctionview" data-sortable="true">图形种类错误<br>（模式图）</th>
-						<th data-field="arrowSceneJunctionview" data-sortable="true">箭头图编号错误<br>（实景图）</th>
-						<th data-field="arrowPatternJunctionview" data-sortable="true">箭头图编号错误<br>（模式图）</th>
-						<th data-field="endRoadSceneJunctionview" data-sortable="true">结束道路错误<br>（实景图）</th>
-						<th data-field="endRoadPatternJunctionview" data-sortable="true">结束道路错误<br>（模式图）</th>
-						<th data-field="pictureChoiceSceneJunctionview" data-sortable="true">图片选择错误<br>（实景图）</th>
-						<th data-field="pictureChoicePatternJunctionview" data-sortable="true">图片选择错误<br>（模式图）</th>
-						<th data-field="unknownJunctionview" data-sortable="true">其他未定义错误<br>（路口放大图）</th>
+						<th data-field="lostDirection"  data-align="center" data-sortable="true"  data-valign="top">漏制作方向<br>信息</th>
+						<th data-field="makeMoreDirection" data-sortable="true" data-valign="top">多制作方向<br>信息</th>
+						<th data-field="endRoadDirection" data-sortable="true" data-valign="top">结束路段<br>错误</th>
+						<th data-field="infoDirection" data-sortable="true" data-valign="top">方向类型及名称<br>（包括中文名称、拼音名称、<br>英文名称）</th>
+						<th data-field="exitCodeDirection" data-sortable="true" data-valign="top">出口编号<br>错误</th>
+						<th data-field="exitDirection" data-sortable="true" data-valign="top">出口方向<br>错误</th>
+						<th data-field="unknownDirection" data-sortable="true" data-valign="top">其它未定义错误<br>（方向信息）</th>
+						<th data-field="lostLane" data-sortable="true" data-valign="top">漏制作车道<br>信息</th>
+						<th data-field="makeMoreLane" data-sortable="true" data-valign="top">多制作车道<br>信息</th>
+						<th data-field="turnLane" data-sortable="true" data-valign="top">车道数/箭头方向<br>/可调头漏制作<br>错误</th>
+						<th data-field="endRoadLane" data-sortable="true" data-valign="top">车道号/箭头数<br>/终止道路错误</th>
+						<th data-field="innerLinkLane" data-sortable="true" data-valign="top">扩展内连接<br>标识错误<br>（lane信息）</th>
+						<th data-field="unknownLane" data-sortable="true" data-valign="top">其它未定义错误<br>（lane信息）</th>
+						<th data-field="lostSceneJunctionview" data-sortable="true" data-valign="top">漏制作路口放大图<br>（实景图）</th>
+						<th data-field="lostPatternJunctionview" data-sortable="true" data-valign="top">漏制作路口放大图<br>（模式图）</th>
+						<th data-field="makeMoreSceneJunctionview" data-sortable="true" data-valign="top">多制作路口放大图<br>（实景图）</th>
+						<th data-field="makeMorePatternJunctionview" data-sortable="true" data-valign="top">多制作路口放大图<br>（模式图）</th>
+						<th data-field="pictureTypeSceneJunctionview" data-sortable="true" data-valign="top">图形种类错误<br>（实景图）</th>
+						<th data-field="pictureTypePatternJunctionview" data-sortable="true" data-valign="top">图形种类错误<br>（模式图）</th>
+						<th data-field="arrowSceneJunctionview" data-sortable="true" data-valign="top">箭头图编号错误<br>（实景图）</th>
+						<th data-field="arrowPatternJunctionview" data-sortable="true" data-valign="top">箭头图编号错误<br>（模式图）</th>
+						<th data-field="endRoadSceneJunctionview" data-sortable="true" data-valign="top">结束道路错误<br>（实景图）</th>
+						<th data-field="endRoadPatternJunctionview" data-sortable="true" data-valign="top">结束道路错误<br>（模式图）</th>
+						<th data-field="pictureChoiceSceneJunctionview" data-sortable="true" data-valign="top">图片选择错误<br>（实景图）</th>
+						<th data-field="pictureChoicePatternJunctionview" data-sortable="true" data-valign="top">图片选择错误<br>（模式图）</th>
+						<th data-field="unknownJunctionview" data-sortable="true" data-valign="top">其他未定义错误<br>（路口放大图）</th>
 					</tr>
 				</thead>
 			</table>

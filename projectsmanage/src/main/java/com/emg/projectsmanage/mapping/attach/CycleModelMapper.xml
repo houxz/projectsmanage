@@ -9,6 +9,7 @@
     <result column="logintime" jdbcType="TIMESTAMP" property="logintime" />
     <result column="logouttime" jdbcType="TIMESTAMP" property="logouttime" />
     <result column="timecount" jdbcType="INTEGER" property="timecount" />
+    <result column="projecttype" jdbcType="INTEGER" property="projecttype" />
     <result column="isexit" jdbcType="INTEGER" property="isexit" />
   </resultMap>
   <sql id="Example_Where_Clause">
