@@ -489,11 +489,11 @@ public class TaskModelDao {
 			sql.append(" SELECT");
 			sql.append("	te.taskid,");
 			sql.append("	COUNT( 1 ) AS total,");
-			sql.append("	COUNT( CASE WHEN te.pstate IN ( 0, 1 ) THEN te.id ELSE NULL END ) AS rest ");
+			sql.append("	COUNT( CASE WHEN te.pstate IN ( 0, 1, 3, 4 ) THEN te.id ELSE NULL END ) AS rest ");
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task_link_error te ");
-			sql.append(" WHERE te.pstate IN ( 0, 1, 2 ) ");
+			sql.append(" WHERE te.pstate IN ( 0, 1, 2, 3, 4 ) ");
 			if (taskIDs != null && taskIDs.size() > 0) {
 				sql.append(" AND te.taskid IN ( ");
 				for (Long taskID : taskIDs) {
@@ -532,14 +532,14 @@ public class TaskModelDao {
 			sql.append(" SELECT");
 			sql.append("	t.projectid,");
 			sql.append("	COUNT( 1 ) AS total,");
-			sql.append("	COUNT( CASE WHEN te.pstate IN ( 0, 1 ) THEN te.id ELSE NULL END ) AS rest ");
+			sql.append("	COUNT( CASE WHEN te.pstate IN ( 0, 1, 3, 4 ) THEN te.id ELSE NULL END ) AS rest ");
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task t ");
 			sql.append(" JOIN ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task_link_error te ON te.taskid = t.id ");
-			sql.append(" WHERE te.pstate IN ( 0, 1, 2 ) ");
+			sql.append(" WHERE te.pstate IN ( 0, 1, 2, 3, 4 ) ");
 			if (taskTypes != null && taskTypes.size() > 0) {
 				sql.append(" AND t.tasktype IN ( ");
 				for (TaskTypeEnum taskType : taskTypes) {
@@ -579,11 +579,11 @@ public class TaskModelDao {
 			sql.append(" SELECT");
 			sql.append("	tf.taskid,");
 			sql.append("	COUNT( DISTINCT tf.shapeid ) AS total ,");
-			sql.append(" 	COUNT( DISTINCT CASE WHEN tf.pstate IN (0,1) THEN tf.shapeid ELSE NULL END ) AS rest");
+			sql.append(" 	COUNT( DISTINCT CASE WHEN tf.pstate IN (0, 1, 3, 4) THEN tf.shapeid ELSE NULL END ) AS rest");
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task_link_fielddata tf ");
-			sql.append(" WHERE tf.pstate IN ( 0, 1, 2 ) ");
+			sql.append(" WHERE tf.pstate IN ( 0, 1, 2, 3, 4 ) ");
 			if (taskIDs != null && taskIDs.size() > 0) {
 				sql.append(" AND tf.taskid IN ( ");
 				for (Long taskID : taskIDs) {
@@ -622,14 +622,14 @@ public class TaskModelDao {
 			sql.append(" SELECT");
 			sql.append("	t.projectid,");
 			sql.append("	COUNT( DISTINCT tf.shapeid ) AS total ,");
-			sql.append(" 	COUNT( DISTINCT CASE WHEN tf.pstate IN (0,1) THEN tf.shapeid ELSE NULL END ) AS rest");
+			sql.append(" 	COUNT( DISTINCT CASE WHEN tf.pstate IN (0, 1, 3, 4) THEN tf.shapeid ELSE NULL END ) AS rest");
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task t ");
 			sql.append(" JOIN ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task_link_fielddata tf ON tf.taskid = t.id ");
-			sql.append(" WHERE tf.pstate IN ( 0, 1, 2 )");
+			sql.append(" WHERE tf.pstate IN ( 0, 1, 2, 3, 4 )");
 			if (taskTypes != null && taskTypes.size() > 0) {
 				sql.append(" AND t.tasktype IN ( ");
 				for (TaskTypeEnum taskType : taskTypes) {
