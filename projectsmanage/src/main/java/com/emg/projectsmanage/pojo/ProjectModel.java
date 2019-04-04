@@ -3,41 +3,41 @@ package com.emg.projectsmanage.pojo;
 import java.util.List;
 
 public class ProjectModel {
-    private Long id;
+	private Long id;
 
-    private Long processid;
+	private Long processid;
 
-    private Integer protype;
+	private Integer protype;
 
-    private Integer pdifficulty;
+	private Integer pdifficulty;
 
-    private Integer priority;
+	private Integer priority;
 
-    private Integer tasknum;
+	private Integer tasknum;
 
-    private Integer systemid;
+	private Integer systemid;
 
-    private String description;
+	private String description;
 
-    private Integer createby;
+	private Integer createby;
 
-    private String createtime;
+	private String createtime;
 
-    private String area;
+	private String area;
 
-    private String name;
+	private String name;
 
-    private Integer owner;
+	private Integer owner;
 
-    private String overprogress;
+	private String overprogress;
 
-    private Integer overstate;
+	private Integer overstate;
 
-    private Double poitotckdisl;
+	private Double poitotckdisl;
 
-    private Double poitotckdisr;
-    
-    private String workers;
+	private Double poitotckdisr;
+
+	private String workers;
 
 	private String checkers;
 
@@ -45,141 +45,141 @@ public class ProjectModel {
 
 	private List<ProjectsUserModel> workusers;
 
-    public Long getId() {
-        return id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public Long getProcessid() {
-        return processid;
-    }
+	public Long getProcessid() {
+		return processid;
+	}
 
-    public void setProcessid(Long processid) {
-        this.processid = processid;
-    }
+	public void setProcessid(Long processid) {
+		this.processid = processid;
+	}
 
-    public Integer getProtype() {
-        return protype;
-    }
+	public Integer getProtype() {
+		return protype;
+	}
 
-    public void setProtype(Integer protype) {
-        this.protype = protype;
-    }
+	public void setProtype(Integer protype) {
+		this.protype = protype;
+	}
 
-    public Integer getPdifficulty() {
-        return pdifficulty;
-    }
+	public Integer getPdifficulty() {
+		return pdifficulty;
+	}
 
-    public void setPdifficulty(Integer pdifficulty) {
-        this.pdifficulty = pdifficulty;
-    }
+	public void setPdifficulty(Integer pdifficulty) {
+		this.pdifficulty = pdifficulty;
+	}
 
-    public Integer getPriority() {
-        return priority;
-    }
+	public Integer getPriority() {
+		return priority;
+	}
 
-    public void setPriority(Integer priority) {
-        this.priority = priority;
-    }
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
 
-    public Integer getTasknum() {
-        return tasknum;
-    }
+	public Integer getTasknum() {
+		return tasknum;
+	}
 
-    public void setTasknum(Integer tasknum) {
-        this.tasknum = tasknum;
-    }
+	public void setTasknum(Integer tasknum) {
+		this.tasknum = tasknum;
+	}
 
-    public Integer getSystemid() {
-        return systemid;
-    }
+	public Integer getSystemid() {
+		return systemid;
+	}
 
-    public void setSystemid(Integer systemid) {
-        this.systemid = systemid;
-    }
+	public void setSystemid(Integer systemid) {
+		this.systemid = systemid;
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    public void setDescription(String description) {
-        this.description = description == null ? null : description.trim();
-    }
+	public void setDescription(String description) {
+		this.description = description == null ? null : description.trim();
+	}
 
-    public Integer getCreateby() {
-        return createby;
-    }
+	public Integer getCreateby() {
+		return createby;
+	}
 
-    public void setCreateby(Integer createby) {
-        this.createby = createby;
-    }
+	public void setCreateby(Integer createby) {
+		this.createby = createby;
+	}
 
-    public String getCreatetime() {
-        return createtime;
-    }
+	public String getCreatetime() {
+		return createtime;
+	}
 
-    public void setCreatetime(String createtime) {
-        this.createtime = createtime;
-    }
+	public void setCreatetime(String createtime) {
+		this.createtime = createtime;
+	}
 
-    public String getArea() {
-        return area;
-    }
+	public String getArea() {
+		return area;
+	}
 
-    public void setArea(String area) {
-        this.area = area == null ? null : area.trim();
-    }
+	public void setArea(String area) {
+		this.area = area == null ? null : area.trim();
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name == null ? null : name.trim();
-    }
+	public void setName(String name) {
+		this.name = name == null ? null : name.trim();
+	}
 
-    public Integer getOwner() {
-        return owner;
-    }
+	public Integer getOwner() {
+		return owner;
+	}
 
-    public void setOwner(Integer owner) {
-        this.owner = owner;
-    }
+	public void setOwner(Integer owner) {
+		this.owner = owner;
+	}
 
-    public String getOverprogress() {
-        return overprogress;
-    }
+	public String getOverprogress() {
+		return overprogress;
+	}
 
-    public void setOverprogress(String overprogress) {
-        this.overprogress = overprogress == null ? null : overprogress.trim();
-    }
+	public void setOverprogress(String overprogress) {
+		this.overprogress = overprogress == null ? null : overprogress.trim();
+	}
 
-    public Integer getOverstate() {
-        return overstate;
-    }
+	public Integer getOverstate() {
+		return overstate;
+	}
 
-    public void setOverstate(Integer overstate) {
-        this.overstate = overstate;
-    }
+	public void setOverstate(Integer overstate) {
+		this.overstate = overstate;
+	}
 
-    public Double getPoitotckdisl() {
-        return poitotckdisl;
-    }
+	public Double getPoitotckdisl() {
+		return poitotckdisl;
+	}
 
-    public void setPoitotckdisl(Double poitotckdisl) {
-        this.poitotckdisl = poitotckdisl;
-    }
+	public void setPoitotckdisl(Double poitotckdisl) {
+		this.poitotckdisl = poitotckdisl;
+	}
 
-    public Double getPoitotckdisr() {
-        return poitotckdisr;
-    }
+	public Double getPoitotckdisr() {
+		return poitotckdisr;
+	}
 
-    public void setPoitotckdisr(Double poitotckdisr) {
-        this.poitotckdisr = poitotckdisr;
-    }
+	public void setPoitotckdisr(Double poitotckdisr) {
+		this.poitotckdisr = poitotckdisr;
+	}
 
 	public String getWorkers() {
 		return workers;
@@ -212,4 +212,15 @@ public class ProjectModel {
 	public void setWorkusers(List<ProjectsUserModel> workusers) {
 		this.workusers = workusers;
 	}
+	
+	@Override
+	public int hashCode() {
+		return this.id.hashCode();
+	}
+
+	@Override
+    public boolean equals(Object obj) {
+		ProjectModel pro = (ProjectModel) obj;
+        return id.equals(pro.getId());
+    }
 }

@@ -88,7 +88,8 @@ public class TasksManageCtrl extends BaseCtrl {
 
 			Map<String, Object> filterPara = null;
 			List<Long> projectids = null;
-			List<ProjectModel> projects = null;
+			List<ProjectModel> projects = new ArrayList<ProjectModel>();
+			List<ProjectModel> _projects = new ArrayList<ProjectModel>();
 			List<Integer> editUserids = new ArrayList<Integer>();
 			List<Integer> checkUserids = new ArrayList<Integer>();
 			ProjectModelExample example = new ProjectModelExample();
@@ -102,11 +103,20 @@ public class TasksManageCtrl extends BaseCtrl {
 						Long processid = Long.valueOf(filterPara.get(key).toString());
 						example.clear();
 						example.or().andProcessidEqualTo(processid);
-						projects = new ArrayList<ProjectModel>();
-						projects.addAll(projectModelDao.selectByExample(example));
+						_projects = projectModelDao.selectByExample(example);
+						if (projects.isEmpty()) {
+							projects.addAll(_projects);
+						} else {
+							projects.retainAll(_projects);
+							if (projects.isEmpty()) {
+								json.addObject("rows", new ArrayList<TaskModel>());
+								json.addObject("total", 0);
+								json.addObject("result", 1);
+								return json;
+							}
+						}
 						break;
 					case "processname":
-						projects = new ArrayList<ProjectModel>();
 						String processname = filterPara.get(key).toString();
 						ProcessModelExample _example = new ProcessModelExample();
 						_example.or().andNameLike("%" + processname + "%");
@@ -118,11 +128,21 @@ public class TasksManageCtrl extends BaseCtrl {
 							}
 							example.clear();
 							example.or().andProcessidIn(processids);
-							projects.addAll(projectModelDao.selectByExample(example));
+							_projects = projectModelDao.selectByExample(example);
+							if (projects.isEmpty()) {
+								projects.addAll(_projects);
+							} else {
+								projects.retainAll(_projects);
+								if (projects.isEmpty()) {
+									json.addObject("rows", new ArrayList<TaskModel>());
+									json.addObject("total", 0);
+									json.addObject("result", 1);
+									return json;
+								}
+							}
 						}
 						break;
 					case "processstate":
-						projects = new ArrayList<ProjectModel>();
 						Integer processstate = Integer.valueOf(filterPara.get(key).toString());
 						ProcessModelExample __example = new ProcessModelExample();
 						__example.or().andStateEqualTo(processstate);
@@ -134,7 +154,18 @@ public class TasksManageCtrl extends BaseCtrl {
 							}
 							example.clear();
 							example.or().andProcessidIn(processids);
-							projects.addAll(projectModelDao.selectByExample(example));
+							_projects = projectModelDao.selectByExample(example);
+							if (projects.isEmpty()) {
+								projects.addAll(_projects);
+							} else {
+								projects.retainAll(_projects);
+								if (projects.isEmpty()) {
+									json.addObject("rows", new ArrayList<TaskModel>());
+									json.addObject("total", 0);
+									json.addObject("result", 1);
+									return json;
+								}
+							}
 						}
 						break;
 					case "id":
@@ -196,7 +227,7 @@ public class TasksManageCtrl extends BaseCtrl {
 				}
 			}
 
-			if (projects != null) {
+			if (projects != null && !projects.isEmpty()) {
 				projectids = new ArrayList<Long>();
 				for (ProjectModel project : projects) {
 					projectids.add(project.getId());
