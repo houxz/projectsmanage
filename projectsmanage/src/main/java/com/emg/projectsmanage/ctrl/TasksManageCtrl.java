@@ -696,7 +696,7 @@ public class TasksManageCtrl extends BaseCtrl {
 		} else if (tasktype.equals(TaskTypeEnum.ATTACH) ||
 				tasktype.equals(TaskTypeEnum.AREA_QUHUAN) ||
 				tasktype.equals(TaskTypeEnum.AREA_JIANCHENGQU) ||
-				tasktype.equals(TaskTypeEnum.ATTACHDATA)) {
+				tasktype.equals(TaskTypeEnum.ATTACHWITHDATA)) {
 			switch (state) {
 			case 0:
 				switch (process) {

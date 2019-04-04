@@ -103,7 +103,7 @@ public enum TaskTypeEnum {
 	/**
 	 * 19, "附属表资料"
 	 */
-	ATTACHDATA(19, "附属表资料");
+	ATTACHWITHDATA(19, "附属表资料");
 
 	private Integer value;
 	private String des;
