@@ -57,6 +57,9 @@ public class TaskModelDao {
 			tasktypes.add(TaskTypeEnum.AREA_QUHUAN);
 			tasktypes.add(TaskTypeEnum.AREA_JIANCHENGQU);
 			break;
+		case ATTACHWITHDATA:
+			tasktypes.add(TaskTypeEnum.ATTACHDATA);
+			break;
 		default:
 			tasktypes.add(TaskTypeEnum.UNKNOWN);
 			break;

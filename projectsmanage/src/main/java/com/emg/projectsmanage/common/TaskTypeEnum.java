@@ -99,7 +99,11 @@ public enum TaskTypeEnum {
 	/**
 	 * 18, "建成区任务"
 	 */
-	AREA_JIANCHENGQU(18, "建成区任务");
+	AREA_JIANCHENGQU(18, "建成区任务"),
+	/**
+	 * 19, "附属表资料"
+	 */
+	ATTACHDATA(19, "附属表资料");
 
 	private Integer value;
 	private String des;

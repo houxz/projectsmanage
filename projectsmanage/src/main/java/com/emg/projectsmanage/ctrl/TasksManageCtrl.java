@@ -429,40 +429,41 @@ public class TasksManageCtrl extends BaseCtrl {
 				break;
 			case ATTACH:
 			case AREA:
+			case ATTACHWITHDATA:
 				switch (stateDes) {
 				case "编辑中":
 				case "制作中":
-					stateMaps.add(new StateMap(0, 5, TaskTypeEnum.ATTACH.getValue(), -1));
-					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.ATTACH.getValue(), -1));
-					stateMaps.add(new StateMap(2, 6, TaskTypeEnum.ATTACH.getValue(), null));
+					stateMaps.add(new StateMap(0, 5, null, -1));
+					stateMaps.add(new StateMap(1, 5, null, -1));
+					stateMaps.add(new StateMap(2, 6, null, null));
 					break;
 				case "完成":
-					stateMaps.add(new StateMap(3, 6, TaskTypeEnum.ATTACH.getValue(), null));
+					stateMaps.add(new StateMap(3, 6, null, null));
 					break;
 				case "未制作":
-					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.ATTACH.getValue(), null));
+					stateMaps.add(new StateMap(0, 0, null, null));
 					break;
 				case "校正错误修改中":
-					stateMaps.add(new StateMap(0, 5, TaskTypeEnum.ATTACH.getValue(), 1));
-					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.ATTACH.getValue(), 1));
+					stateMaps.add(new StateMap(0, 5, null, 1));
+					stateMaps.add(new StateMap(1, 5, null, 1));
 					break;
 				case "未校正":
 				case "待校正":
-					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.ATTACH.getValue(), null));
+					stateMaps.add(new StateMap(3, 5, null, null));
 					break;
 				case "校正中":
-					stateMaps.add(new StateMap(0, 6, TaskTypeEnum.ATTACH.getValue(), null));
-					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.ATTACH.getValue(), null));
+					stateMaps.add(new StateMap(0, 6, null, null));
+					stateMaps.add(new StateMap(1, 6, null, null));
 					break;
 				case "预发布完成":
-					stateMaps.add(new StateMap(3, 20, TaskTypeEnum.ATTACH.getValue(), null));
+					stateMaps.add(new StateMap(3, 20, null, null));
 					break;
 				case "质检完成":
-					stateMaps.add(new StateMap(2, 52, TaskTypeEnum.ATTACH.getValue(), null));
+					stateMaps.add(new StateMap(2, 52, null, null));
 					break;
 				case "质检中":
-					stateMaps.add(new StateMap(1, 52, TaskTypeEnum.ATTACH.getValue(), null));
-					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.ATTACH.getValue(), null));
+					stateMaps.add(new StateMap(1, 52, null, null));
+					stateMaps.add(new StateMap(2, 5, null, null));
 					break;
 				}
 				break;
@@ -694,7 +695,8 @@ public class TasksManageCtrl extends BaseCtrl {
 			}
 		} else if (tasktype.equals(TaskTypeEnum.ATTACH) ||
 				tasktype.equals(TaskTypeEnum.AREA_QUHUAN) ||
-				tasktype.equals(TaskTypeEnum.AREA_JIANCHENGQU)) {
+				tasktype.equals(TaskTypeEnum.AREA_JIANCHENGQU) ||
+				tasktype.equals(TaskTypeEnum.ATTACHDATA)) {
 			switch (state) {
 			case 0:
 				switch (process) {
