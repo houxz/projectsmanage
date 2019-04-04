@@ -43,8 +43,6 @@ import com.emg.projectsmanage.pojo.AttachCapacityModelExample;
 import com.emg.projectsmanage.pojo.AttachCapacityModelExample.Criteria;
 import com.emg.projectsmanage.pojo.AttachCheckCapacityModel;
 import com.emg.projectsmanage.pojo.AttachMakeCapacityModel;
-import com.emg.projectsmanage.pojo.CycleModel;
-import com.emg.projectsmanage.pojo.CycleModelExample;
 
 import net.sf.json.JSONObject;
 
@@ -138,63 +136,6 @@ public class ProjectsAttachCapacityCtrl extends BaseCtrl {
 				example.setOffset(offset);
 			// cycleModelDao
 			List<AttachMakeCapacityModel> rows = attachCapacityModelDao.selectAttachCapacity(example);
-			for(int i = rows.size() - 1; i > 0; i--) {
-				AttachMakeCapacityModel child = rows.get(i);
-				AttachMakeCapacityModel inner = rows.get(i - 1);
-				if (inner.getUserid() == child.getUserid() && inner.getProjectType() == child.getProjectType()) {
-					inner.setLaneCreate(inner.getLaneCreate() + child.getLaneCreate());
-					inner.setLaneUpdate(inner.getLaneUpdate() + child.getLaneUpdate());
-					inner.setLaneDelete(inner.getLaneDelete() + child.getLaneDelete());
-					inner.setDirectionCreate(inner.getDirectionCreate() + child.getDirectionCreate());
-					inner.setDirectionUpdate(inner.getDirectionUpdate() + child.getDirectionUpdate());
-					inner.setDirectionDelete(inner.getDirectionDelete() + child.getDirectionDelete());
-					inner.setJunctionviewCreate(inner.getJunctionviewCreate() + child.getJunctionviewCreate());
-					inner.setJunctionviewUpdate(inner.getJunctionviewUpdate() + child.getJunctionviewUpdate());
-					inner.setJunctionviewDelete(inner.getJunctionviewDelete() + child.getJunctionviewDelete());
-					inner.setMakeErrorCount(inner.getMakeErrorCount() + child.getMakeErrorCount());
-					rows.remove(i);
-				}
-			}
-			CycleModelExample cycleModel = new CycleModelExample();
-			CycleModelExample.Criteria cycleCriteria = cycleModel.or();
-			if(startdate != null && !startdate.isEmpty()) {
-				cycleCriteria.andLogintimeGreaterThan(transferDate(startdate));
-			}
-			if (enddate != null && !enddate.isEmpty()) {
-				cycleCriteria.andLogouttimeLessThan(transferDate(enddate));
-			}
-			if (filter.length() > 0) {
-				Map<String, Object> filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
-				for (String key : filterPara.keySet()) {
-					switch (key) {					
-					case "projectType":
-						cycleCriteria.andProjecttypeEqualTo(Integer.valueOf(filterPara.get(key).toString()));
-						break;
-					case "username":
-						cycleCriteria.andUsernameLike("%" + filterPara.get(key).toString() + "%");
-						break;		
-					case "countdate":		
-						criteria.andCountDate(filterPara.get(key).toString());
-						break;
-					default:
-						break;
-					}
-				}
-			}
-			List<CycleModel> cycles = cycleModelDao.selectByExample(cycleModel);
-			for (int i = cycles.size() - 1; i > 0; i--) {
-				if(cycles.get(i).getUserid() == cycles.get(i - 1).getUserid() && cycles.get(i).getProjecttype() == cycles.get(i - 1).getProjecttype() ) {
-					cycles.get(i-1).setTimecount(cycles.get(i).getTimecount() + cycles.get(i - 1).getTimecount());
-					cycles.remove(i);
-				}
-			}
-			for (AttachMakeCapacityModel capacity : rows) {
-				for (CycleModel cycle : cycles) {
-					if(capacity.getUserid() == cycle.getUserid() && capacity.getProjectType() == cycle.getProjecttype()) {
-						capacity.setWorktime(cycle.getTimecount());
-					}
-				}
-			}
 			int count = attachCapacityModelDao.countByExample(example);
 			json.addObject("startdate", startdate);
 			json.addObject("enddate", enddate);
@@ -262,82 +203,6 @@ public class ProjectsAttachCapacityCtrl extends BaseCtrl {
 				example.setOffset(offset);
 
 			List<AttachCheckCapacityModel> rows = attachCheckCapacityModelDao.selectcheckAttachCapacity(example);
-			for(int i = rows.size() - 1; i > 0; i--) {
-				AttachCheckCapacityModel child = rows.get(i);
-				AttachCheckCapacityModel inner = rows.get(i - 1);
-				if (inner.getUserid() == child.getUserid() && inner.getProjectTypeCheck() == child.getProjectTypeCheck()) {
-					inner.setArrowPatternJunctionview(inner.getArrowPatternJunctionview() + child.getArrowPatternJunctionview());
-					inner.setArrowSceneJunctionview(inner.getArrowSceneJunctionview() + child.getArrowSceneJunctionview());
-					inner.setCheckCount(inner.getCheckCount() + child.getCheckCount());
-					inner.setEndRoadDirection(inner.getEndRoadDirection() + child.getEndRoadDirection());
-					inner.setEndRoadLane(inner.getEndRoadLane() + child.getEndRoadLane());
-					inner.setEndRoadPatternJunctionview(inner.getEndRoadPatternJunctionview() + child.getEndRoadPatternJunctionview());
-					inner.setEndRoadSceneJunctionview(inner.getEndRoadSceneJunctionview() + child.getEndRoadSceneJunctionview());
-					inner.setErrorCount(inner.getErrorCount() + child.getErrorCount());
-					inner.setExitCodeDirection(inner.getExitCodeDirection() + child.getExitCodeDirection());
-					inner.setExitDirection(inner.getExitDirection() + child.getExitDirection());
-					inner.setInfoDirection(inner.getInfoDirection() + child.getInfoDirection());
-					inner.setInnerLinkLane(inner.getInnerLinkLane() + child.getInnerLinkLane());
-					inner.setLostDirection(inner.getLostDirection() + child.getLostDirection());
-					inner.setLostLane(inner.getLostLane() + child.getLostLane());
-					inner.setLostPatternJunctionview(inner.getLostPatternJunctionview() + child.getLostPatternJunctionview());
-					inner.setLostSceneJunctionview(inner.getLostPatternJunctionview() + child.getLostPatternJunctionview());
-					inner.setMakeMoreDirection(inner.getMakeMoreDirection() + child.getMakeMoreDirection());
-					inner.setMakeMoreLane(inner.getMakeMoreLane() + child.getMakeMoreLane());
-					inner.setMakeMorePatternJunctionview(inner.getMakeMorePatternJunctionview() + child.getMakeMorePatternJunctionview());
-					inner.setMakeMoreSceneJunctionview(inner.getMakeMoreSceneJunctionview() + inner.getMakeMoreSceneJunctionview());
-					inner.setPictureChoicePatternJunctionview(inner.getPictureChoicePatternJunctionview() + child.getPictureChoicePatternJunctionview());
-					inner.setPictureChoiceSceneJunctionview(inner.getPictureChoiceSceneJunctionview() + child.getPictureChoiceSceneJunctionview());
-					inner.setPictureTypePatternJunctionview(inner.getPictureTypePatternJunctionview() + child.getPictureTypePatternJunctionview());
-					inner.setPictureTypeSceneJunctionview(inner.getPictureTypeSceneJunctionview() + child.getPictureTypeSceneJunctionview());
-					inner.setProjectTypeCheck(inner.getProjectTypeCheck() + child.getProjectTypeCheck());
-					inner.setTurnLane(inner.getTurnLane() + child.getTurnLane());
-					inner.setUnknownDirection(inner.getUnknownDirection() + child.getUnknownDirection());
-					inner.setUnknownJunctionview(inner.getUnknownJunctionview() + child.getUnknownJunctionview());
-					inner.setUnknownLane(inner.getUnknownLane() + child.getUnknownLane());
-				}
-			}
-			CycleModelExample cycleModel = new CycleModelExample();
-			CycleModelExample.Criteria cycleCriteria = cycleModel.or();
-			if(startdate != null && !startdate.isEmpty()) {
-				cycleCriteria.andLogintimeGreaterThan(transferDate(startdate));
-			}
-			if (enddate != null && !enddate.isEmpty()) {
-				cycleCriteria.andLogouttimeLessThan(transferDate(enddate));
-			}
-			if (filter.length() > 0) {
-				Map<String, Object> filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
-				for (String key : filterPara.keySet()) {
-					switch (key) {					
-					case "projectType":
-						cycleCriteria.andProjecttypeEqualTo(Integer.valueOf(filterPara.get(key).toString()));
-						break;
-					case "username":
-						cycleCriteria.andUsernameLike("%" + filterPara.get(key).toString() + "%");
-						break;		
-					case "countdate":		
-						criteria.andCountDate(filterPara.get(key).toString());
-						break;
-					default:
-						break;
-					}
-				}
-			}
-			List<CycleModel> cycles = cycleModelDao.selectByExample(cycleModel);
-			for (int i = cycles.size() - 1; i > 0; i--) {
-				if(cycles.get(i).getUserid() == cycles.get(i - 1).getUserid() && cycles.get(i).getProjecttype() == cycles.get(i - 1).getProjecttype() ) {
-					cycles.get(i-1).setTimecount(cycles.get(i).getTimecount() + cycles.get(i - 1).getTimecount());
-					cycles.remove(i);
-				}
-			}
-			for (AttachCheckCapacityModel capacity : rows) {
-				for (CycleModel cycle : cycles) {
-					if(capacity.getUserid() == cycle.getUserid() && capacity.getProjectTypeCheck() == cycle.getProjecttype()) {
-						capacity.setWorktime(cycle.getTimecount());
-					}
-				}
-			}
-			//List<AttachCheckCapacityModel> rows = attachCheckCapacityModelDao.selectcheckAttachCapacity(example);
 			int count = attachCheckCapacityModelDao.countByExample(example);
 
 			json.addObject("rows", rows);

@@ -155,7 +155,7 @@
 							<th data-field="worktime" 
 							 data-sortable="true"  data-valign="top" data-align="center" rowspan="2">工期</th>
 						<th data-field="makeErrorCount" data-sortable="true"   data-valign="top" data-align="center" rowspan="2"><br>错误量</th>
-						<th data-field="makeErrorCount" data-sortable="true"   data-valign="top" data-align="center" rowspan="2"><br>正确率</th>
+						<th data-field="correctRate" data-sortable="true"   data-valign="top" data-align="center" rowspan="2"><br>正确率</th>
 						<th data-field="efficiency" data-sortable="true"   data-valign="top" data-align="center" rowspan="2"><br>效率</th>
 						<th colspan="3">方向</th>
 						<th data-align="center" colspan="3">车道</th>
@@ -202,12 +202,12 @@
 				<thead>
 					<tr >
 					<th data-field="countdate" 
-							data-filter-control="input" data-filter-control-placeholder=""  data-valign="top" data-align="center" >统计日期</th>
+							data-filter-control="input" data-filter-control-placeholder=""  data-valign="top" data-align="center" data-width="100px" >&nbsp;&nbsp;统计日期&nbsp;&nbsp;</th>
 						
 						<!-- <th data-field="id"  
 							data-filter-control="input" data-filter-control-placeholder=""  data-valign="top" data-align="center" >编号</th> -->
 						<th data-field="username" 
-							data-filter-control="input" data-filter-control-placeholder=""  data-valign="top" data-align="center" >人员</th>
+							data-filter-control="input" data-filter-control-placeholder=""  data-valign="top" data-align="center" data-width="120px" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;人员&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 						  <th data-field="projectTypeCheck"  data-formatter="projectCheckTypesFormat"
 							data-filter-control="select" data-filter-data="var:projectTypes"  data-valign="top" >作业类型</th>
 						<th data-field="worktime" data-sortable="true"   data-valign="top" data-align="center" ><br>工期</th>

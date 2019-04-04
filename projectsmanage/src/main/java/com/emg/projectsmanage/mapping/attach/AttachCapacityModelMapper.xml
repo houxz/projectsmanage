@@ -22,6 +22,7 @@
     <!-- <result column="checkcount" property="checkCount" jdbcType="INTEGER" /> -->
     <result column="efficiency" property="efficiency" jdbcType="DOUBLE" />
     <result column="worktime" property="worktime" jdbcType="INTEGER" />
+    <result column="correctrate" property="correctRate" jdbcType="DOUBLE" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -55,7 +56,7 @@
   
   <sql id="Base_Column_List" >
      userid, username, countdate, lane_create, lane_update, lane_delete, direction_create, direction_update, direction_delete, 
-    junctionview_create, junctionview_update, junctionview_delete, roletype, projecttype, efficiency, id, makeerrorcount
+    junctionview_create, junctionview_update, junctionview_delete, roletype, projecttype, efficiency, id, makeerrorcount,correctrate
   </sql>
 
   <select id="selectAttachCapacity" resultMap="BaseResultMap" parameterType="com.emg.projectsmanage.pojo.AttachMakeCapacityModel" >
@@ -67,9 +68,9 @@
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
-    <!-- <if test="orderByClause != null" >
+    <if test="orderByClause != null" >
       order by ${orderByClause}
-    </if> -->
+    </if>
     <if test="limit != null">
 		limit ${limit}
 	</if>
