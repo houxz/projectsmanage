@@ -1092,6 +1092,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			set.add(14);
 			set.add(31);
 			set.add(32);
+			set.add(35);
 			break;
 		case GEN:
 			set.add(22);
