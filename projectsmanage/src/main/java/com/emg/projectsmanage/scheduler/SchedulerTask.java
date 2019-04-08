@@ -2711,7 +2711,7 @@ public class SchedulerTask {
 						logger.error(e.getMessage(), e);
 					}
 					
-					if (processname.startsWith("POI易淘金编辑_"))
+					if (processname.startsWith("附属表匹配专用"))
 						continue;
 					
 					if (totaltask.equals(completetask) &&
@@ -3023,7 +3023,7 @@ public class SchedulerTask {
 						logger.error(e.getMessage(), e);
 					}
 					
-					if (processname.startsWith("POI易淘金编辑_"))
+					if (processname.startsWith("附属表资料专用"))
 						continue;
 					
 					if (totaltask.equals(completetask) &&
