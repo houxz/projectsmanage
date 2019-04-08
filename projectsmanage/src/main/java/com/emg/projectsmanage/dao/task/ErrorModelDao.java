@@ -54,6 +54,7 @@ public class ErrorModelDao {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_task_batch ");
+			sql.append(" WHERE batchid >= 1500000000000000 AND batchid <= 1599999999999999 ");
 			//add by lianhr begin 2019/03/05
 			sql.append(" order by batchid desc");
 			//add by lianhr end
