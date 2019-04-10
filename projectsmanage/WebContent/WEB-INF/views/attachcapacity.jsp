@@ -185,12 +185,12 @@
 		 <form method="post" action="./attachcapacity.web?atn=exportmake" id="exportCheckData">
 			  <div class="form-group">
 			    <label  for="checkstartdate">开始时间: </label>
-			    <input type="date" id="checkstartdate" data-field="checkstartdate"/>
+			    <input type="date" id="startdate" name="startdate"/>
 			    <label  for="checkenddate">结束时间: </label>
-			    <input type="date" id="checkenddate" data-field="checkenddate" />
+			    <input type="date" id="enddate" name="enddate" />
 			     <input id="flagcheck" name="flag" value="check" type="hidden"/>
 			    <button id="searchcheckdata" type="button" class="btn btn-default">搜索</button>
-			    <button id="exportmake" type="button" class="btn btn-default" onclick="$('#exportCheckData').submit();">导出</button>
+			    <button id="exportcheck" type="button" class="btn btn-default" onclick="$('#exportCheckData').submit();">导出</button>
 			  </div>
 		  </form>
 			<table id="attachheckcapacitycheck" data-unique-id="id"
