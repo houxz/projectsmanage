@@ -202,7 +202,7 @@
 				<thead>
 					<tr >
 					<th data-field="countdate" 
-							data-filter-control="input" data-filter-control-placeholder=""  data-valign="top" data-align="center" data-width="100px" >&nbsp;&nbsp;统计日期&nbsp;&nbsp;</th>
+							data-filter-control="input" data-filter-control-placeholder=""  data-valign="top" data-align="center" data-width="100px" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;统计日期&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 						
 						<!-- <th data-field="id"  
 							data-filter-control="input" data-filter-control-placeholder=""  data-valign="top" data-align="center" >编号</th> -->

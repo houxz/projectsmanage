@@ -61,12 +61,12 @@ public class ProjectsAttachCapacityCtrl extends BaseCtrl {
 	@Autowired
 	private CycleModelDao cycleModelDao;
 	
-	private static final String[] excelColumnsMakeProperties = { "countdate", "username", "projectType", "directionCreate","directionUpdate","directionDelete","laneCreate","laneUpdate","laneDelete","junctionviewCreate","junctionviewUpdate","junctionviewDelete" , "worktime", "makeErrorCount", "efficiency"};
-	private static final String[] excelColumnsCheckProperties = { "countdate", "username", "projectType", "lostDirection","makeMoreDirection","endRoadDirection","infoDirection","exitCodeDirection","exitDirection","unknownDirection","lostLane","makeMoreLane" , "turnLane", "endRoadLane","innerLinkLane","unknownLane","lostSceneJunctionview","lostPatternJunctionview","makeMoreSceneJunctionview","makeMorePatternJunctionview","pictureTypeSceneJunctionview","pictureTypePatternJunctionview","arrowSceneJunctionview","arrowPatternJunctionview","endRoadSceneJunctionview","endRoadPatternJunctionview","pictureChoiceSceneJunctionview","pictureChoicePatternJunctionview","unknownJunctionview","worktime", "checkCount", "efficiency"};
-	private static final String[] excelColumnsMake = { "统计日期", "人员", "作业类型", "新增方向","修改方向","删除方向","新增车道","修改车道","删除车道","新增路口放大图","修改路口放大图","删除路口放大图", "工期", "错误量", "效率" };
-	private static final String[] excelColumnsCheck = { "统计日期", "人员", "作业类型", "漏制作方向信息","多制作方向信息","结束路段错误","方向类型及名称（包括中文名称、拼音名称、英文名称）","出口编号错误","出口方向错误","其它未定义错误（方向信息）","漏制作车道信息","多制作车道信息","车道数/箭头方向/可调头漏制作错误","车道号/箭头数/终止道路错误","扩展内连接标识错误（lane信息）","其它未定义错误（lane信息）","漏制作路口放大图（实景图）","漏制作路口放大图（模式图）","多制作路口放大图（实景图）","多制作路口放大图（模式图）","图形种类错误（实景图）","图形种类错误（模式图）","箭头图编号错误（实景图）","箭头图编号错误（模式图）","结束道路错误（实景图）","结束道路错误（模式图）","图片选择错误（实景图）","图片选择错误（模式图）","其他未定义错误（路口放大图）" , "工期", "错误量",  "效率"};
-	private static final Integer[] excelColumnMakeWidth = { 5000,5000,5000,5000,5000,5000,5000,5000,5000,5000,5000,5000,5000,5000,5000 };
-	private static final Integer[] excelColumnCheckWidth = { 5000,5000,5000,5000,5000,5000,5000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,5000,5000,5000,5000,5000,5000,5000,10000,10000,10000,10000,10000,10000,10000,10000 };
+	private static final String[] excelColumnsMakeProperties = { "countdate", "username", "projectType","makeErrorCount","correctRate",  "directionCreate","directionUpdate","directionDelete","laneCreate","laneUpdate","laneDelete","junctionviewCreate","junctionviewUpdate","junctionviewDelete" , "worktime",  "efficiency"};
+	private static final String[] excelColumnsCheckProperties = { "countdate", "username", "projectTypeCheck","checkCount","errorCount", "lostDirection","makeMoreDirection","endRoadDirection","infoDirection","exitCodeDirection","exitDirection","unknownDirection","lostLane","makeMoreLane" , "turnLane", "endRoadLane","innerLinkLane","unknownLane","lostSceneJunctionview","lostPatternJunctionview","makeMoreSceneJunctionview","makeMorePatternJunctionview","pictureTypeSceneJunctionview","pictureTypePatternJunctionview","arrowSceneJunctionview","arrowPatternJunctionview","endRoadSceneJunctionview","endRoadPatternJunctionview","pictureChoiceSceneJunctionview","pictureChoicePatternJunctionview","unknownJunctionview","worktime",  "efficiency"};
+	private static final String[] excelColumnsMake = { "统计日期", "人员", "作业类型","错误量", "正确率", "新增方向","修改方向","删除方向","新增车道","修改车道","删除车道","新增路口放大图","修改路口放大图","删除路口放大图", "工期",  "效率" };
+	private static final String[] excelColumnsCheck = { "统计日期", "人员", "作业类型", "校正量", "错误量","漏制作方向信息","多制作方向信息","结束路段错误","方向类型及名称（包括中文名称、拼音名称、英文名称）","出口编号错误","出口方向错误","其它未定义错误（方向信息）","漏制作车道信息","多制作车道信息","车道数/箭头方向/可调头漏制作错误","车道号/箭头数/终止道路错误","扩展内连接标识错误（lane信息）","其它未定义错误（lane信息）","漏制作路口放大图（实景图）","漏制作路口放大图（模式图）","多制作路口放大图（实景图）","多制作路口放大图（模式图）","图形种类错误（实景图）","图形种类错误（模式图）","箭头图编号错误（实景图）","箭头图编号错误（模式图）","结束道路错误（实景图）","结束道路错误（模式图）","图片选择错误（实景图）","图片选择错误（模式图）","其他未定义错误（路口放大图）" , "工期",   "效率"};
+	private static final Integer[] excelColumnMakeWidth = { 5000,5000,5000,5000,5000,5000,5000,5000,5000,5000,5000,5000,5000,5000,5000,5000 };
+	private static final Integer[] excelColumnCheckWidth = { 5000,5000,5000,5000,5000,5000,5000,5000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,5000,5000,5000,5000,5000,5000,5000,10000,10000,10000,10000,10000,10000,10000,10000 };
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProjectsattachCapacityCtrl-openLader start.");
@@ -110,6 +110,7 @@ public class ProjectsAttachCapacityCtrl extends BaseCtrl {
 			if (filter.length() > 0) {
 				Map<String, Object> filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {
+					logger.warn("in the make key" + key + ":" + filterPara.get(key).toString());
 					switch (key) {					
 					case "projectType":
 						criteria.andProjectType(Integer.valueOf(filterPara.get(key).toString()));
@@ -173,7 +174,9 @@ public class ProjectsAttachCapacityCtrl extends BaseCtrl {
 			}
 			if (filter.length() > 0) {
 				Map<String, Object> filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
+				
 				for (String key : filterPara.keySet()) {
+					logger.warn("key" + key + ":" + filterPara.get(key).toString());
 					switch (key) {
 					case "id":
 						criteria.andIdEqualTo(Long.valueOf(filterPara.get(key).toString()));
@@ -185,7 +188,7 @@ public class ProjectsAttachCapacityCtrl extends BaseCtrl {
 						criteria.andUsernameLike("%" + filterPara.get(key).toString() + "%");
 						break;
 					case "countdate":		
-						criteria.andCountDate(filterPara.get(key).toString());
+						criteria.andCountDate(filterPara.get(key).toString().trim());
 						break;
 					default:
 						break;
@@ -316,7 +319,7 @@ public class ProjectsAttachCapacityCtrl extends BaseCtrl {
 							}
 							if (f.getName().equalsIgnoreCase(properties[i]) ) {
 								
-								if ( f.getName().equalsIgnoreCase("projectType") ) {
+								if ( f.getName().equalsIgnoreCase("projectType") || f.getName().equalsIgnoreCase("projectTypeCheck") ) {
 									if (f.getInt(make) == 1) {
 										cell.setCellValue("自动匹配");
 									}else {
