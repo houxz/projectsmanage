@@ -27,7 +27,7 @@ public class AttachMakeCapacityModel implements Serializable{
 	private int junctionviewUpdate;
 	private int junctionviewDelete;	
 	private int makeErrorCount;
-	private double correctRate;
+	private String correctRate;
 	private int projectType;
 	private int roleType;
 	private double efficiency;
@@ -158,10 +158,10 @@ public class AttachMakeCapacityModel implements Serializable{
 	public void setWorktime(int worktime) {
 		this.worktime = worktime;
 	}
-	public double getCorrectRate() {
+	public String getCorrectRate() {
 		return correctRate;
 	}
-	public void setCorrectRate(double correctRate) {
+	public void setCorrectRate(String correctRate) {
 		this.correctRate = correctRate;
 	}
 

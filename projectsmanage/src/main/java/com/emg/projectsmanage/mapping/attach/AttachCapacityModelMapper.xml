@@ -22,7 +22,7 @@
     <!-- <result column="checkcount" property="checkCount" jdbcType="INTEGER" /> -->
     <result column="efficiency" property="efficiency" jdbcType="DOUBLE" />
     <result column="worktime" property="worktime" jdbcType="INTEGER" />
-    <result column="correctrate" property="correctRate" jdbcType="DOUBLE" />
+    <result column="correctrate" property="correctRate" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
