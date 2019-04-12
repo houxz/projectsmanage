@@ -3642,6 +3642,7 @@ public class SchedulerTask {
 							projectsProcessModel.setChecktask(projectsProcessModel.getChecktask() + count);
 						} else if ((state.equals(3) && process.equals(6))) {
 							projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
+							projectsProcessModel.setStageTaskMapByStage(1, projectsProcessModel.getStageTaskMapByStage(1) + count);
 						}
 						
 						projectsProcessModel.setTotaltask(projectsProcessModel.getTotaltask() + count);
