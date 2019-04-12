@@ -75,8 +75,24 @@ public class SchedulerTask {
 	@Value("${scheduler.capacity.enable}")
 	private String capacityEnable;
 	
-	@Value("${scheduler.worktasks.enable}")
-	private String worktasksEnable;
+	@Value("${scheduler.worktasks.adjustmap.enable}")
+	private String adjustmapWorktasksEnable;
+	@Value("${scheduler.worktasks.area.enable}")
+	private String areaWorktasksEnable;
+	@Value("${scheduler.worktasks.attach.enable}")
+	private String attachWorktasksEnable;
+	@Value("${scheduler.worktasks.attachdata.enable}")
+	private String attachdataWorktasksEnable;
+	@Value("${scheduler.worktasks.country.enable}")
+	private String countryWorktasksEnable;
+	@Value("${scheduler.worktasks.error.enable}")
+	private String errorWorktasksEnable;
+	@Value("${scheduler.worktasks.genweb.enable}")
+	private String genwebWorktasksEnable;
+	@Value("${scheduler.worktasks.nrfc.enable}")
+	private String nrfcWorktasksEnable;
+	@Value("${scheduler.worktasks.poiedit.enable}")
+	private String poieditWorktasksEnable;
 	
 	@Value("${scheduler.attachcapacity.enable}")
 	private String attachEnable;
@@ -1494,8 +1510,10 @@ public class SchedulerTask {
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskERROR() {
 		try {
-			if (!worktasksEnable.equalsIgnoreCase("true"))
+			if (!errorWorktasksEnable.equalsIgnoreCase("true")) {
+				logger.debug("BREAK OUT CAUSE DISABLED");
 				return;
+			}
 			
 			logger.debug("ERROR START");
 			
@@ -1811,8 +1829,10 @@ public class SchedulerTask {
 	}
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskNRFC() {
-		if (!worktasksEnable.equalsIgnoreCase("true"))
+		if (!nrfcWorktasksEnable.equalsIgnoreCase("true")) {
+			logger.debug("BREAK OUT CAUSE DISABLED");
 			return;
+		}
 		
 		logger.debug("NRFC START");
 		
@@ -2117,8 +2137,10 @@ public class SchedulerTask {
 	
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskAREA() {
-		if (!worktasksEnable.equalsIgnoreCase("true"))
+		if (!areaWorktasksEnable.equalsIgnoreCase("true")) {
+			logger.debug("BREAK OUT CAUSE DISABLED");
 			return;
+		}
 		
 		logger.debug("AREA START");
 		
@@ -2431,8 +2453,10 @@ public class SchedulerTask {
 	
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskATTACH() {
-		if (!worktasksEnable.equalsIgnoreCase("true"))
+		if (!attachWorktasksEnable.equalsIgnoreCase("true")) {
+			logger.debug("BREAK OUT CAUSE DISABLED");
 			return;
+		}
 		
 		logger.debug("ATTACH START");
 		
@@ -2743,8 +2767,10 @@ public class SchedulerTask {
 	
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskATTACHDATA() {
-		if (!worktasksEnable.equalsIgnoreCase("true"))
+		if (!attachdataWorktasksEnable.equalsIgnoreCase("true")) {
+			logger.debug("BREAK OUT CAUSE DISABLED");
 			return;
+		}
 		
 		logger.debug("ATTACHWITHDATA START");
 		
@@ -3058,8 +3084,10 @@ public class SchedulerTask {
 	 */
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskCOUNTRY() {
-		if (!worktasksEnable.equalsIgnoreCase("true"))
+		if (!countryWorktasksEnable.equalsIgnoreCase("true")) {
+			logger.debug("BREAK OUT CAUSE DISABLED");
 			return;
+		}
 		
 		logger.debug("COUNTRY START");
 		
@@ -3264,8 +3292,10 @@ public class SchedulerTask {
 	
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskPOIEDIT() {
-		if (!worktasksEnable.equalsIgnoreCase("true"))
+		if (!poieditWorktasksEnable.equalsIgnoreCase("true")) {
+			logger.debug("BREAK OUT CAUSE DISABLED");
 			return;
+		}
 		
 		logger.debug("POI START");
 		
@@ -3551,8 +3581,10 @@ public class SchedulerTask {
 	}
 	@Scheduled(cron = "${scheduler.worktasks.dotime}")
 	public void worktasksDoTaskADJUSTMAP() {
-		if (!worktasksEnable.equalsIgnoreCase("true"))
+		if (!adjustmapWorktasksEnable.equalsIgnoreCase("true")) {
+			logger.debug("BREAK OUT CAUSE DISABLED");
 			return;
+		}
 		
 		logger.debug("ADJUSTMAP START");
 		
