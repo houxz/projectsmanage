@@ -775,6 +775,7 @@ public class TasksManageCtrl extends BaseCtrl {
 				case 0:
 					return "未制作";
 				}
+				break;
 			case 1:
 				switch (process) {
 				case 5:
