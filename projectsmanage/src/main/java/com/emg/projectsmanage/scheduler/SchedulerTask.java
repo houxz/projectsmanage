@@ -3634,16 +3634,13 @@ public class SchedulerTask {
 						
 						if (state.equals(0) && process.equals(0)) {
 							projectsProcessModel.setIdletask(projectsProcessModel.getIdletask() + count);
-						} else if ((state.equals(0) && process.equals(5)) ||
-								(state.equals(1) && process.equals(5)) ||
+						} else if ((state.equals(1) && process.equals(5)) ||
 								(state.equals(2) && process.equals(6))) {
 							projectsProcessModel.setEdittask(projectsProcessModel.getEdittask() + count);
 						} else if ((state.equals(3) && process.equals(5)) ||
-								(state.equals(0) && process.equals(6)) ||
 								(state.equals(1) && process.equals(6))) {
 							projectsProcessModel.setChecktask(projectsProcessModel.getChecktask() + count);
-						} else if ((state.equals(3) && process.equals(6)) ||
-								(state.equals(3) && process.equals(20))) {
+						} else if ((state.equals(3) && process.equals(6))) {
 							projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
 						}
 						
@@ -3668,25 +3665,14 @@ public class SchedulerTask {
 						
 						if (state.equals(0) && process.equals(0)) {
 							
-						} else if ((state.equals(0) && process.equals(5)) ||
-								(state.equals(1) && process.equals(5)) ||
-								(state.equals(2) && process.equals(6)) ||
-								(state.equals(2) && process.equals(52)) ||
-								(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+						} else if ((state.equals(1) && process.equals(5)) ||
+								(state.equals(2) && process.equals(6))) {
 							workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
-						} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
-								(state.equals(0) && process.equals(6)) ||
+						} else if ((state.equals(3) && process.equals(5)) ||
 								(state.equals(1) && process.equals(6))) {
 							workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
-						} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
-								(state.equals(3) && process.equals(6)) ||
-								(state.equals(3) && process.equals(20))) {
+						} else if (state.equals(3) && process.equals(6)) {
 							workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
-						} else if ((state.equals(1) && process.equals(52)) ||
-								(state.equals(2) && process.equals(5)) ||
-								(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
-								(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
-							workTasksModel.setQctask(workTasksModel.getQctask() + count);
 						}
 						
 						uniqRecords.put(uniqRecord, workTasksModel);
@@ -3709,25 +3695,14 @@ public class SchedulerTask {
 						
 						if (state.equals(0) && process.equals(0)) {
 							
-						} else if ((state.equals(0) && process.equals(5)) ||
-								(state.equals(1) && process.equals(5)) ||
-								(state.equals(2) && process.equals(6)) ||
-								(state.equals(2) && process.equals(52)) ||
-								(state.equals(2) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
+						} else if ((state.equals(1) && process.equals(5)) ||
+								(state.equals(2) && process.equals(6))) {
 							workTasksModel.setEdittask(workTasksModel.getEdittask() + count);
-						} else if ((state.equals(3) && process.equals(5) && !processType.equals(ProcessType.NRFC)) ||
-								(state.equals(0) && process.equals(6)) ||
+						} else if ((state.equals(3) && process.equals(5)) ||
 								(state.equals(1) && process.equals(6))) {
 							workTasksModel.setChecktask(workTasksModel.getChecktask() + count);
-						} else if ((state.equals(3) && process.equals(5) && processType.equals(ProcessType.NRFC)) ||
-								(state.equals(3) && process.equals(6)) ||
-								(state.equals(3) && process.equals(20))) {
+						} else if (state.equals(3) && process.equals(6)) {
 							workTasksModel.setCompletetask(workTasksModel.getCompletetask() + count);
-						} else if ((state.equals(1) && process.equals(52)) ||
-								(state.equals(2) && process.equals(5)) ||
-								(state.equals(0) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0) ||
-								(state.equals(1) && process.compareTo(11) >= 0 && process.compareTo(15) <= 0)) {
-							workTasksModel.setQctask(workTasksModel.getQctask() + count);
 						}
 						
 						uniqRecords.put(uniqRecord, workTasksModel);
