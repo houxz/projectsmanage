@@ -61,6 +61,14 @@ public enum TaskTypeEnum {
 	 */
 	POI_DATASET_32(15111, "车调PPNTPOI制作任务"),
 	/**
+	 * 15111, "车调制作32无照片"
+	 */
+	POI_LCS(15112, "LCS重要类型POI任务"),
+	/**
+	 * 15111, "车调制作32无照片"
+	 */
+	POI_GEN_WEB(15113, "易淘金WEB任务"),
+	/**
 	 * 15210, "车调校正31有照片"
 	 */
 	POI_MC_DATASET_31(15210, "车调POI创建校正任务"),
