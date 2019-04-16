@@ -14,6 +14,7 @@ public class ProjectsProcessModel {
 	private Integer qctask = 0;
 	private Integer checktask = 0;
 	private Integer prepublishtask = 0;
+	private Integer poiunexported = 0;
 	private Integer completetask = 0;
 	private Integer fielddatacount = 0;
 	private Integer fielddatarest = 0;
@@ -135,5 +136,11 @@ public class ProjectsProcessModel {
 	}
 	public void setPrepublishtask(Integer prepublishtask) {
 		this.prepublishtask = prepublishtask;
+	}
+	public Integer getPoiunexported() {
+		return poiunexported;
+	}
+	public void setPoiunexported(Integer poiunexported) {
+		this.poiunexported = poiunexported;
 	}
 }

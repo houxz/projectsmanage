@@ -65,9 +65,9 @@
 				<thead>
 					<tr>
 						<th data-field="processid" data-width="60" data-filter-control="input" data-filter-control-placeholder="">项目编号</th>
-						<th data-field="processname" data-width="240" data-filter-control="input" data-filter-control-placeholder="">项目名称</th>
+						<th data-field="processname" data-width="200" data-filter-control="input" data-filter-control-placeholder="">项目名称</th>
 						<th data-field="processtype" data-formatter="processTypesFormat"
-							data-filter-control="select" data-width="160"
+							data-filter-control="select" data-width="120"
 							data-filter-data="var:processTypes">项目类型</th>
 						<th data-field="totaltask" data-sortable="true">总数<br>任务</th>
 						<th data-field="idletask" data-sortable="true">空闲<br>任务</th>
@@ -76,6 +76,7 @@
 						<th data-field="checktask" data-sortable="true">校正中<br>任务</th>
 						<th data-field="prepublishtask" data-sortable="true">预发布中<br>任务</th>
 						<th data-field="completetask" data-sortable="true">已完成<br>任务</th>
+						<th data-field="poiunexported" data-sortable="true">未发布<br>POI数</th>
 						<th data-field="fielddatarest" data-sortable="true">剩余<br>资料数</th>
 						<th data-field="errorrest" data-sortable="true">剩余<br>错误数</th>
 						<th data-field="time" data-filter-control="input"

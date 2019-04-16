@@ -15,6 +15,7 @@
 		<result column="checktask" property="checktask" jdbcType="INTEGER" />
 		<result column="prepublishtask" property="prepublishtask" jdbcType="INTEGER" />
 		<result column="completetask" property="completetask" jdbcType="INTEGER" />
+		<result column="poiunexported" property="poiunexported" jdbcType="INTEGER" />
 		<result column="fielddatarest" property="fielddatarest" jdbcType="INTEGER" />
 		<result column="fielddatacount" property="fielddatacount" jdbcType="INTEGER" />
 		<result column="errorrest" property="errorrest" jdbcType="INTEGER" />
@@ -35,6 +36,7 @@
 			t.`checktask`,
 			t.`prepublishtask`,
 			t.`completetask`,
+			t.`poiunexported`,
 			t.`fielddatarest`,
 			t.`fielddatacount`,
 			t.`errorrest`,
@@ -103,6 +105,7 @@
 	    	`checktask`, 
 	    	`prepublishtask`,
 	    	`completetask`,
+	    	`poiunexported`,
 	    	`fielddatarest`,
 	    	`fielddatacount`,
 	    	`errorrest`,
@@ -117,6 +120,7 @@
 	      	#{checktask,jdbcType=INTEGER}, 
 	      	#{prepublishtask,jdbcType=INTEGER}, 
 	      	#{completetask,jdbcType=INTEGER},
+	      	#{poiunexported,jdbcType=INTEGER},
 	      	#{fielddatarest,jdbcType=INTEGER},
 	      	#{fielddatacount,jdbcType=INTEGER},
 	      	#{errorrest,jdbcType=INTEGER},

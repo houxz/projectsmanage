@@ -729,6 +729,40 @@ public class TaskModelDao {
 		return list;
 	}
 	
+	public List<Map<String, Object>> groupPOIs(ConfigDBModel configDBModel) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		BasicDataSource dataSource = null;
+		try {
+			if (configDBModel == null)
+				return list;
+			
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT");
+			sql.append("	projectid,");
+			sql.append("	COUNT(1)");
+			sql.append(" FROM ");
+			sql.append(configDBModel.getDbschema()).append(".");
+			sql.append(" tb_poi ");
+			sql.append(" WHERE projectid > 0");
+			sql.append(" GROUP BY projectid");
+
+			dataSource = Common.getDataSource(configDBModel);
+			list = new JdbcTemplate(dataSource).queryForList(sql.toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			list = new ArrayList<Map<String, Object>>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return list;
+	}
+	
 	public List<Map<String, Object>> groupTasksByTime(ConfigDBModel configDBModel, String time) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;

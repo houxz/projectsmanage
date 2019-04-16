@@ -3458,6 +3458,37 @@ public class SchedulerTask {
 			} else {
 				logger.error("There's no POI DB Config.");
 			}
+			
+			ProcessConfigModel _config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJISHUJUKU, processType);
+			if (_config != null && _config.getDefaultValue() != null && !_config.getDefaultValue().isEmpty()) {
+				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+				
+				List<Map<String, Object>> groupPOIs = taskModelDao.groupPOIs(configDBModel);
+				for (Map<String, Object> group : groupPOIs) {
+					Long projectid = (Long) group.get("projectid");
+					Integer count = ((Long) group.get("count")).intValue();
+					
+					ProjectModel project = projectModelDao.selectByPrimaryKey(projectid);
+					if (project == null || project.getProcessid() == null || project.getProcessid().compareTo(0L) < 0)
+						continue;
+					
+					Long processid = project.getProcessid();
+					ProjectsProcessModel projectsProcessModel = new ProjectsProcessModel();
+					if (uniqProcesses.containsKey(processid)) {
+						projectsProcessModel = uniqProcesses.get(processid);
+						uniqProcesses.remove(processid);
+					}
+					projectsProcessModel.setProcessid(processid);
+					projectsProcessModel.setProcesstype(processType.getValue());
+					projectsProcessModel.setProjectid(projectid);
+					projectsProcessModel.setTime(nowStr);
+					
+					projectsProcessModel.setPoiunexported(projectsProcessModel.getPoiunexported() + count);
+					uniqProcesses.put(processid, projectsProcessModel);
+				}
+			} else {
+				logger.error("There's no POI BIANJISHUJUKU DB Config.");
+			}
 		} catch(Exception e) {
 			logger.error(e.getMessage(), e);
 		}
