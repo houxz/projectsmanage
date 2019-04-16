@@ -3461,7 +3461,7 @@ public class SchedulerTask {
 			
 			ProcessConfigModel _config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJISHUJUKU, processType);
 			if (_config != null && _config.getDefaultValue() != null && !_config.getDefaultValue().isEmpty()) {
-				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+				ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(_config.getDefaultValue()));
 				
 				List<Map<String, Object>> groupPOIs = taskModelDao.groupPOIs(configDBModel);
 				for (Map<String, Object> group : groupPOIs) {
