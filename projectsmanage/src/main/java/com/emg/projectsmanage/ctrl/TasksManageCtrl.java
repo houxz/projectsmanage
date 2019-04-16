@@ -429,6 +429,9 @@ public class TasksManageCtrl extends BaseCtrl {
 					stateMaps.add(new StateMap(2, 15, TaskTypeEnum.NRFC.getValue(), null));
 					break;
 				case "完成":
+					stateMaps.add(new StateMap(3, 21, TaskTypeEnum.NRFC.getValue(), null));
+					break;
+				case "制作完成":
 					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.NRFC.getValue(), null));
 					break;
 				case "未制作":
@@ -469,7 +472,7 @@ public class TasksManageCtrl extends BaseCtrl {
 					stateMaps.add(new StateMap(2, 6, null, null));
 					break;
 				case "完成":
-					stateMaps.add(new StateMap(3, 6, null, null));
+					stateMaps.add(new StateMap(3, 21, null, null));
 					break;
 				case "未制作":
 					stateMaps.add(new StateMap(0, 0, null, null));
@@ -481,6 +484,9 @@ public class TasksManageCtrl extends BaseCtrl {
 				case "未校正":
 				case "待校正":
 					stateMaps.add(new StateMap(3, 5, null, null));
+					break;
+				case "校正完成":
+					stateMaps.add(new StateMap(3, 6, null, null));
 					break;
 				case "校正中":
 					stateMaps.add(new StateMap(0, 6, null, null));
@@ -711,9 +717,11 @@ public class TasksManageCtrl extends BaseCtrl {
 			case 3:
 				switch (process) {
 				case 5:
-					return "完成";
+					return "制作完成";
 				case 20:
 					return "预发布完成";
+				case 21:
+					return "完成";
 				}
 				break;
 			}
@@ -762,9 +770,11 @@ public class TasksManageCtrl extends BaseCtrl {
 				case 5:
 					return "未校正";
 				case 6:
-					return "完成";
+					return "校正完成";
 				case 20:
 					return "预发布完成";
+				case 21:
+					return "完成";
 				}
 				break;
 			}
