@@ -743,7 +743,9 @@ public class TaskModelDao {
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_poi ");
-			sql.append(" WHERE projectid > 0 AND (confirm != 'no_confirm' OR optype != 'published')");
+			sql.append(" WHERE projectid > 0");
+			sql.append(" AND NOT ( confirm = 'no_confirm' AND optype = 'init' ) ");
+			sql.append(" AND NOT ( confirm = 'no_confirm' AND optype = 'published' )");
 			sql.append(" GROUP BY projectid");
 
 			dataSource = Common.getDataSource(configDBModel);
