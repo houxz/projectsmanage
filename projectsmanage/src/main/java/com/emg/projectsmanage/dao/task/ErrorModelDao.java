@@ -901,7 +901,7 @@ public class ErrorModelDao {
 				sql.append(" LIMIT " + map.get("limit"));
 			}
 			if (map.get("offset") != null && Integer.parseInt(String.valueOf(map.get("offset")))> 0) {
-				sql.append(" OFFSET " + map.get("limit"));
+				sql.append(" OFFSET " + map.get("offset"));
 			}
 
 			dataSource = Common.getDataSource(configDBModel);
