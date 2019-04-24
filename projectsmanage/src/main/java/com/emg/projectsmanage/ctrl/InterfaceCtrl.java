@@ -1454,6 +1454,7 @@ public class InterfaceCtrl extends BaseCtrl {
 				}
 			} else if (proType.equals(ProcessType.NRFC.getValue()) ||
 						proType.equals(ProcessType.ATTACH.getValue()) ||
+						proType.equals(ProcessType.ATTACHWITHDATA.getValue()) ||
 						proType.equals(ProcessType.AREA.getValue())) {
 				String sProgress = process.getProgress();
 				if (sProgress.length() > 0) {
@@ -1569,6 +1570,12 @@ public class InterfaceCtrl extends BaseCtrl {
 					status = false;
 					json.addObject("option", "进度未更新");
 				}
+			} else if(proType.equals(ProcessType.POIEDIT.getValue()) ||
+					proType.equals(ProcessType.ADJUSTMAP.getValue()) ||
+					proType.equals(ProcessType.GEN.getValue())) {
+			} else {
+				status = false;
+				json.addObject("option", "未处理的项目类型： " + proType);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
