@@ -91,7 +91,7 @@ public class ProjectsAttachCapacityCtrl extends BaseCtrl {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
+			Integer limit = ParamUtils.getIntParameter(request, "limit", 15);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
 			String sort = ParamUtils.getParameter(request, "sort", "");
 			String order = ParamUtils.getParameter(request, "order", "");
@@ -157,7 +157,7 @@ public class ProjectsAttachCapacityCtrl extends BaseCtrl {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
+			Integer limit = ParamUtils.getIntParameter(request, "limit", 15);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
 			String sort = ParamUtils.getParameter(request, "sort", "");
 			String order = ParamUtils.getParameter(request, "order", "");
