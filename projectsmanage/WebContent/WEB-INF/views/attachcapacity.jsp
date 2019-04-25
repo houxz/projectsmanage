@@ -59,6 +59,8 @@
 				params.filter = JSON.stringify(filterObj);
 			}
 		}
+		params["startdate"] = $("#startdate").val();
+		params["enddate"] = $("#enddate").val();
 		return params;
 	}
 	
@@ -122,6 +124,7 @@
 		
 		<div id="myTabContent" class="tab-content">
 		<div id="makediv" class="tab-pane fade in active">
+		<div id="toolbar">
 		<form method="post" action="./attachcapacity.web?atn=exportmake" id="exportMakeData">
 			  <div class="form-group">
 			    <label  for="startdate">开始时间: </label>
@@ -133,11 +136,13 @@
 			    <button id="exportmake" type="button" class="btn btn-default" onclick="$('#exportMakeData').submit();">导出</button>
 			  </div>
 		  </form>
+		  </div>
 		<table id="attachcapacitymake" data-unique-id="id"
+		data-toolbar="#toolbar"
 				data-query-params="queryParams" data-url="./attachcapacity.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="attachcapacity" data-height="714"
-				data-page-list="[15, 30, 50, 100, all]" data-page-size="30"
+				data-page-list="[15, 30, 50, 100, all]" data-page-size="15"
 				
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
@@ -197,7 +202,7 @@
 				data-query-params="queryParams" data-url="./attachcapacity.web?atn=checks"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="attachcapacity" data-height="714"
-				data-page-list="[15, 30, 50, 100, all]" data-page-size="30"
+				data-page-list="[15, 30, 50, 100, all]" data-page-size="15"
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr >
