@@ -309,10 +309,12 @@ public class SchedulerTask {
 									List<Map<String, Object>> task15102Groups = taskBlockDetailModelDao.group15102ByTime(configDBModel, times[ii], time);
 									for (Map<String, Object> taskBlockDetailGroup : task15102Groups) {
 										String featureid = (String) taskBlockDetailGroup.get("featureid");
+										
 										Integer taskType = (Integer) taskBlockDetailGroup.get("tasktype");
 										Integer editid = (Integer) taskBlockDetailGroup.get("editid");
 										Long projectid = (Long) taskBlockDetailGroup.get("projectid");
-										
+										//TODO:
+										logger.debug("002 : group15102ByTime: editid:" + editid + " featureIds:" + featureid);
 										if (taskType.compareTo(0) <= 0)
 											continue;
 
@@ -368,6 +370,8 @@ public class SchedulerTask {
 										}
 										if(featureid.length() > 0 && featureid.substring(featureid.length() - 1).equals(",")) {
 											featureid = featureid.substring(0, featureid.length() - 1);
+											//TODO:
+											logger.debug("003 : group15102ByTime: editid:" + editid + " featureIds:" + featureid);
 										}
 										//add by lianhr end
 										

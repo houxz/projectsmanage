@@ -257,6 +257,9 @@ public class TaskBlockDetailModelDao {
 			//sql.append(" GROUP BY A.tasktype,	A.projectid,	A.blockid,		A.editid,	A.checkid ");
 			sql.append(" GROUP BY A.tasktype,	A.projectid,		B.editid,	B.checkid ");
 
+			//TODO:
+			logger.debug("001 : group15102ByTime: " + sql.toString());
+			
 			dataSource = Common.getDataSource(configDBModel);
 			list = new JdbcTemplate(dataSource).queryForList(sql.toString());
 		} catch (Exception e) {
@@ -365,6 +368,8 @@ public class TaskBlockDetailModelDao {
 					sql.append(" WHERE oid in (" + featureid + ")");
 				}
 				sql.append(" and attrname = 'remark' and attrvalue like'%" + condition + "%'");
+				//TODO:
+				logger.debug("004 : group15102ByTime: featureIdSql " + sql.toString());
 				//modified by lianhr end
 				dataSource = Common.getDataSource(configDBModel);
 				list = new JdbcTemplate(dataSource).queryForList(sql.toString());
