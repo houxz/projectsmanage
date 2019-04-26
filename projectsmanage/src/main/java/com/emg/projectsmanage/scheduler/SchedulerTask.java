@@ -1910,7 +1910,7 @@ public class SchedulerTask {
 						} else if ((state.equals(3) && process.equals(5))) {
 							projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
 							projectsProcessModel.setPrepublishtask(projectsProcessModel.getPrepublishtask() + count);
-						} else if ((state.equals(3) && process.equals(20))) {
+						} else if ((state.equals(3) && process.equals(21))) {
 							projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
 							projectsProcessModel.setStageTaskMapByStage(3, projectsProcessModel.getStageTaskMapByStage(3) + count);
 							projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
@@ -2223,7 +2223,7 @@ public class SchedulerTask {
 						} else if ((state.equals(3) && process.equals(6))) {
 							projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
 							projectsProcessModel.setPrepublishtask(projectsProcessModel.getPrepublishtask() + count);
-						} else if ((state.equals(3) && process.equals(20))) {
+						} else if ((state.equals(3) && process.equals(21))) {
 							projectsProcessModel.setStageTaskMapByStage(3, projectsProcessModel.getStageTaskMapByStage(3) + count);
 							projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
 							projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
@@ -2538,7 +2538,7 @@ public class SchedulerTask {
 						} else if ((state.equals(3) && process.equals(6))) {
 							projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
 							projectsProcessModel.setPrepublishtask(projectsProcessModel.getPrepublishtask() + count);
-						} else if ((state.equals(3) && process.equals(20))) {
+						} else if ((state.equals(3) && process.equals(21))) {
 							projectsProcessModel.setStageTaskMapByStage(3, projectsProcessModel.getStageTaskMapByStage(3) + count);
 							projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
 							projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
@@ -2852,7 +2852,7 @@ public class SchedulerTask {
 						} else if ((state.equals(3) && process.equals(6))) {
 							projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
 							projectsProcessModel.setPrepublishtask(projectsProcessModel.getPrepublishtask() + count);
-						} else if ((state.equals(3) && process.equals(20))) {
+						} else if ((state.equals(3) && process.equals(21))) {
 							projectsProcessModel.setStageTaskMapByStage(3, projectsProcessModel.getStageTaskMapByStage(3) + count);
 							projectsProcessModel.setStageTaskMapByStage(2, projectsProcessModel.getStageTaskMapByStage(2) + count);
 							projectsProcessModel.setCompletetask(projectsProcessModel.getCompletetask() + count);
