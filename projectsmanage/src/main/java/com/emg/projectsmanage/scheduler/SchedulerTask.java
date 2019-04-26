@@ -364,6 +364,8 @@ public class SchedulerTask {
 											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
 											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
 												featureList.add(featureRecord);
+											} else if(featurecount <= 0 && featureList.contains(featureRecord)) {
+												continue;
 											} else {
 												featureid = featureid.replaceAll(strFeatureid + ",", "").replaceAll(strFeatureid, "");
 											}
@@ -504,6 +506,8 @@ public class SchedulerTask {
 											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
 											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
 												featureList.add(featureRecord);
+											} else if(featurecount <= 0 && featureList.contains(featureRecord)) {
+												continue;
 											} else {
 												if(editid.intValue() != 0) {
 													if(editnum > 0) {
@@ -691,6 +695,8 @@ public class SchedulerTask {
 												int featurecount = featureFinishedModelDao.queryCount(featureRecord);
 												if(featurecount <= 0 && !featureList.contains(featureRecord)) {
 													featureList.add(featureRecord);
+												} else if(featurecount <= 0 && featureList.contains(featureRecord)) {
+													continue;
 												} else {
 													if(roleid == RoleType.ROLE_WORKER.getValue()) {
 														if(errorcount > 0) {
@@ -802,6 +808,8 @@ public class SchedulerTask {
 											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
 											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
 												featureList.add(featureRecord);
+											} else if(featurecount <= 0 && featureList.contains(featureRecord)) {
+												continue;
 											} else {
 												if(count > 0) {
 													count = count - 1;
@@ -997,6 +1005,8 @@ public class SchedulerTask {
 											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
 											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
 												featureList.add(featureRecord);
+											} else if(featurecount <= 0 && featureList.contains(featureRecord)) {
+												continue;
 											} else {
 												featureid = featureid.replaceAll(strFeatureid + ",", "").replaceAll(strFeatureid, "");
 											}
@@ -1135,6 +1145,8 @@ public class SchedulerTask {
 											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
 											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
 												featureList.add(featureRecord);
+											} else if(featurecount <= 0 && featureList.contains(featureRecord)) {
+												continue;
 											} else {
 												if(editid.intValue() != 0) {
 													if(editnum > 0) {
@@ -1319,6 +1331,8 @@ public class SchedulerTask {
 												int featurecount = featureFinishedModelDao.queryCount(featureRecord);
 												if(featurecount <= 0 && !featureList.contains(featureRecord)) {
 													featureList.add(featureRecord);
+												} else if(featurecount <= 0 && featureList.contains(featureRecord)) {
+													continue;
 												} else {
 													if(roleid == RoleType.ROLE_WORKER.getValue()) {
 														if(errorcount > 0) {
@@ -1429,6 +1443,8 @@ public class SchedulerTask {
 											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
 											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
 												featureList.add(featureRecord);
+											} else if(featurecount <= 0 && featureList.contains(featureRecord)) {
+												continue;
 											} else {
 												if(count > 0) {
 													count = count - 1;
