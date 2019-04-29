@@ -1057,7 +1057,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						record.setDatatype(Integer.valueOf(value));
 						break;
 					case "batchid":
-						record.setBatchid(Long.valueOf(value));
+						record.setBatchid(value);
 						break;
 					case "path":
 						record.setPath(value);

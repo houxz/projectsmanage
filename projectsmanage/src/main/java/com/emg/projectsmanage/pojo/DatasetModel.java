@@ -33,7 +33,7 @@ public class DatasetModel {
 
     private Integer city_code;
 
-    private Long batchid;
+    private String batchid;
 
     private Object envelope;
 
@@ -165,11 +165,11 @@ public class DatasetModel {
 		this.city_code = city_code;
 	}
 
-	public Long getBatchid() {
+	public String getBatchid() {
 		return batchid;
 	}
 
-	public void setBatchid(Long batchid) {
+	public void setBatchid(String batchid) {
 		this.batchid = batchid;
 	}
 

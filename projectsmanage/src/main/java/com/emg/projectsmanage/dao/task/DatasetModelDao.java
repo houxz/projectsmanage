@@ -53,7 +53,7 @@ public class DatasetModelDao {
 				if (record.getDatatype() != null && record.getDatatype().compareTo(0) > 0) {
 					sql.append(" AND " + separator + "datatype" + separator + " = " + record.getDatatype());
 				}
-				if (record.getBatchid() != null && record.getBatchid().compareTo(0L) > 0) {
+				if (record.getBatchid() != null && !record.getBatchid().isEmpty()) {
 					sql.append(" AND " + separator + "batchid" + separator + " = " + record.getBatchid());
 				}
 				if (record.getPath() != null && !record.getPath().isEmpty()) {
@@ -116,7 +116,7 @@ public class DatasetModelDao {
 				if (record.getDatatype() != null && record.getDatatype().compareTo(0) > 0) {
 					sql.append(" AND " + separator + "datatype" + separator + " = " + record.getDatatype());
 				}
-				if (record.getBatchid() != null && record.getBatchid().compareTo(0L) > 0) {
+				if (record.getBatchid() != null && !record.getBatchid().isEmpty()) {
 					sql.append(" AND " + separator + "batchid" + separator + " = " + record.getBatchid());
 				}
 				if (record.getPath() != null && !record.getPath().isEmpty()) {
