@@ -1,5 +1,6 @@
 <%@page import="com.emg.projectsmanage.common.ProcessType"%>
 <%@page import="com.emg.projectsmanage.common.ModelEnum"%>
+<%@page import="com.emg.projectsmanage.common.ProcessEditType"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt'%>
@@ -54,6 +55,7 @@
 	var autoRefreshProcess = false;
 	
 	var colors = [ "LimeGreen", "MediumSeaGreen", "MediumVioletRed", "Crimson", "Crimson" ];
+	var processStates = eval('(${processStates})');
 	var processTypes = eval('(${processTypes})');
 	var itemAreaTypes = eval('(${itemAreaTypes})');
 	var priorityLevels = eval('(${priorityLevels})');
@@ -61,6 +63,28 @@
 	var itemsetSysTypes = eval('(${itemsetSysTypes})');
 	var itemsetTypes = eval('(${itemsetTypes})');
 	var itemsetUnits = eval('(${itemsetUnits})');
+	//add by lianhr begin 2019/02/19
+	var itemmodels = eval('(${itemmodels})');
+	//add by lianhr end
+	
+	function ajaxRequest(params){
+		$.ajax({
+			url: "./processesmanage.web?atn=pages",
+			type: "POST",
+			dataType: "json",
+			success: function(json){
+				console.log(json);
+				var rows = json.rows;
+                params.success({
+		            total: rows.length,
+		            rows: rows
+		        });
+			},
+			error: function(json){
+				console.log(json);
+			}
+		});
+	}
 	
 	function checkboxFormat(value, row, index) {
 		var workers = $("#" + this.valueBand).val();
@@ -85,6 +109,9 @@
 			return true;
 		else
 			return false;
+	}
+	function statesFormat(value, row, index) {
+		return processStates[row.state];
 	}
 	function processTypesFormat(value, row, index) {
 		return processTypes[row.type];
@@ -206,7 +233,7 @@
 			html.push('</div></div></div>');
 			
 			html.push('<div>');
-			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="发布准备进度：'
+			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="发布进度：'
 							+ parseFloat(values[2]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
 			if (values[2] > 0 && values[2] < 100 && row.state == 1)
@@ -221,7 +248,7 @@
 							+ ' <span style="margin:0 6px;color: black;">'
 							+ parseFloat(values[2]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div>');
-		} else if(processType == 3) {
+		} else if(processType == 3 || processType == 8 || processType == 9) {
 			html.push('<div>');
 			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="编辑准备进度：' + parseFloat(values[0]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
@@ -255,7 +282,7 @@
 			html.push('</div></div></div>');
 			
 			html.push('<div>');
-			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="发布准备进度：'
+			html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="bottom" title="发布进度：'
 							+ parseFloat(values[2]).toFixed(3) + '&#8453;">');
 			html.push('<div class="progress');
 			if (values[2] > 0 && values[2] < 100 && row.state == 1)
@@ -333,6 +360,23 @@
 							+ ' <span style="margin:0 6px;color: black;">'
 							+ parseFloat(values[1]).toFixed(3) + '&#8453;</span>' + ' </div>');
 			html.push('</div></div></div>');
+		} else if(processType == 6) {
+			html.push('<div>');
+			html.push('<div style="width: 80%;float: left;" data-toggle="tooltip" data-placement="top" title="编辑与校正进度：' + parseFloat(values[0]).toFixed(3) + '&#8453;">');
+			html.push('<div class="progress');
+			if (values[0] > 0 && values[0] < 100 && row.state == 1)
+				html.push(' progress-striped active');
+			html.push('"style="margin-bottom: 3px;">');
+			html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
+							+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
+							+ (parseFloat(values[0]).toFixed(3) > 100 ? 100 : parseFloat(values[0]).toFixed(3))
+							+ '%;background-color: '
+							+ colors[0]
+							+ ';">'
+							+ ' <span style="margin:0 6px;color: black;">'
+							+ parseFloat(values[0]).toFixed(3) + '&#8453;</span>' + ' </div>');
+			html.push('</div></div>');
+			html.push('</div>');
 		}
 		return html.join('');
 	}
@@ -444,6 +488,11 @@
 		$("#config_2_25").val("");
 		$("#config_2_25 span").text(0);
 		$("#config_2_26").val(10);
+		//add by lianhr begin 2019/02/14
+		$("#strbatch").val("15" + new Date().Format("yyyyMMddHHmmss"));
+		$("#config_1_29").prop('selectedIndex', 0);
+		//add by lianhr end
+		$("#config_2_30").prop('selectedIndex', 0);
 		
 		processTypeChange(1);
 	}
@@ -454,7 +503,7 @@
 		if (processid > 0) {
 			if (state != 0) {
 				disableByProcessType(processtype);
-			}else {
+			} else {
 				enableAllConfigs();
 			}
 			jQuery.post("./processesmanage.web", {
@@ -745,6 +794,7 @@
 		});
 	}
 
+	// TODO: 新增配置项需要补充啥时候显示
 	function processTypeChange(selectValue) {
 		switch(selectValue) {
 		case 1:
@@ -759,8 +809,9 @@
 			$("#config_2_23").parents("tr").hide();
 			$("#config_2_25").parents("tr").hide();
 			$("#config_2_26").parents("tr").hide();
-			$("#strbatch").parents("tr").hide();
 			$("#config_1_29").parents("tr").hide();
+			$("#strbatch").parents("tr").hide();
+			$("#config_2_30").parents("tr").hide();
 			break;
 		case 2:
 		case "2":
@@ -774,11 +825,14 @@
 			$("#config_2_23").parents("tr").hide();
 			$("#config_2_25").parents("tr").hide();
 			$("#config_2_26").parents("tr").hide();
-			$("#strbatch").parents("tr").hide();
 			$("#config_1_29").parents("tr").hide();
+			$("#strbatch").parents("tr").hide();
+			$("#config_2_30").parents("tr").hide();
 			break;
 		case 3:
 		case "3":
+		case 9:
+		case "9":
 			$("#config_1_5").parents("tr").hide();
 			$("#config_1_6").parents("tr").hide();
 			$("#config_1_7").parents("tr").show();
@@ -789,23 +843,25 @@
 			$("#config_2_23").parents("tr").hide();
 			$("#config_2_25").parents("tr").hide();
 			$("#config_2_26").parents("tr").hide();
-			$("#strbatch").parents("tr").hide();
 			$("#config_1_29").parents("tr").hide();
+			$("#strbatch").parents("tr").hide();
+			$("#config_2_30").parents("tr").hide();
 			break;
 		case 4:
 		case "4":
 			$("#config_1_5").parents("tr").show();
 			$("#config_1_6").parents("tr").show();
 			$("#config_1_7").parents("tr").show();
-			$("#config_2_18").parents("tr").show();
-			$("#config_2_19").parents("tr").show();
-			$("#config_2_21").parents("tr").show();
+			$("#config_2_18").parents("tr").hide();
+			$("#config_2_19").parents("tr").hide();
+			$("#config_2_21").parents("tr").hide();
 			$("#config_2_22").parents("tr").hide();
 			$("#config_2_23").parents("tr").hide();
 			$("#config_2_25").parents("tr").hide();
 			$("#config_2_26").parents("tr").hide();
 			$("#strbatch").parents("tr").show();
 			$("#config_1_29").parents("tr").show();
+			$("#config_2_30").parents("tr").hide();
 			break;
 		case 5:
 		case "5":
@@ -821,6 +877,55 @@
 			$("#config_2_26").parents("tr").show();
 			$("#strbatch").parents("tr").hide();
 			$("#config_1_29").parents("tr").hide();
+			$("#config_2_30").parents("tr").hide();
+			break;
+		case 6:
+		case "6":
+			$("#config_1_5").parents("tr").hide();
+			$("#config_1_6").parents("tr").hide();
+			$("#config_1_7").parents("tr").hide();
+			$("#config_2_18").parents("tr").show();
+			$("#config_2_19").parents("tr").show();
+			$("#config_2_21").parents("tr").show();
+			$("#config_2_22").parents("tr").hide();
+			$("#config_2_23").parents("tr").hide();
+			$("#config_2_25").parents("tr").hide();
+			$("#config_2_26").parents("tr").hide();
+			$("#strbatch").parents("tr").hide();
+			$("#config_1_29").parents("tr").hide();
+			$("#config_2_30").parents("tr").hide();
+			break;
+		case 7:
+		case "7":
+			$("#config_1_5").parents("tr").hide();
+			$("#config_1_6").parents("tr").hide();
+			$("#config_1_7").parents("tr").hide();
+			$("#config_2_18").parents("tr").show();
+			$("#config_2_19").parents("tr").show();
+			$("#config_2_21").parents("tr").show();
+			$("#config_2_22").parents("tr").hide();
+			$("#config_2_23").parents("tr").hide();
+			$("#config_2_25").parents("tr").hide();
+			$("#config_2_26").parents("tr").hide();
+			$("#strbatch").parents("tr").hide();
+			$("#config_1_29").parents("tr").hide();
+			$("#config_2_30").parents("tr").hide();
+			break;
+		case 8:
+		case "8":
+			$("#config_1_5").parents("tr").hide();
+			$("#config_1_6").parents("tr").hide();
+			$("#config_1_7").parents("tr").show();
+			$("#config_2_18").parents("tr").show();
+			$("#config_2_19").parents("tr").show();
+			$("#config_2_21").parents("tr").show();
+			$("#config_2_22").parents("tr").hide();
+			$("#config_2_23").parents("tr").hide();
+			$("#config_2_25").parents("tr").hide();
+			$("#config_2_26").parents("tr").hide();
+			$("#config_1_29").parents("tr").hide();
+			$("#strbatch").parents("tr").hide();
+			$("#config_2_30").parents("tr").show();
 			break;
 		default:
 			console.log("processTypeChange--错误的项目类型：" + selectValue);
@@ -836,8 +941,8 @@
 		$("#config_1_5").removeAttr("disabled");
 		$("#config_2_19").removeAttr("disabled");
 		$("#config_2_22").removeAttr("disabled");
-		$("#config_2_23").removeAttr("disabled");
 		$("#config_2_26").removeAttr("disabled");
+		$("#config_2_30").removeAttr("disabled");
 	}
 	
 	function disableByProcessType(selectValue) {
@@ -846,17 +951,33 @@
 			$("#config_1_5").attr("disabled", true);
 		} else if(selectValue == 5) {
 			$("#config_2_22").attr("disabled", true);
-			$("#config_2_23").attr("disabled", true);
 			$("#config_2_26").attr("disabled", true);
 		} else {
 			$("#config_processname").removeAttr("disabled");
 			$("#config_1_5").removeAttr("disabled");
 			$("#config_2_22").removeAttr("disabled");
-			$("#config_2_23").removeAttr("disabled");
 			$("#config_2_26").removeAttr("disabled");
 		}
 		$("#config_processprotype").attr("disabled", true);
+		$("#config_2_30").attr("disabled", true);
 	}
+	//add by lianhr begin 2019/02/14
+    Date.prototype.Format = function (fmt) {  
+        var o = {  
+            "M+": this.getMonth() + 1,
+            "d+": this.getDate(),
+            "H+": this.getHours(),
+            "m+": this.getMinutes(),
+            "s+": this.getSeconds(),
+            "q+": Math.floor((this.getMonth() + 3) / 3),
+            "S": this.getMilliseconds()
+        };  
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));  
+        for (var k in o)  
+        if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));  
+        return fmt;  
+    }
+	//add by lianhr end
 </script>
 
 </head>
@@ -869,7 +990,7 @@
 				data-url="./doneprocesses.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="processes" data-height="714"
-				data-page-list="[5, 10, 20, All]" data-page-size="5"
+				data-page-list="[5, 10, 20, 100]" data-page-size="5"
 				data-search-on-enter-key='true' data-align='center'>
 				<thead>
 					<tr>
@@ -954,6 +1075,18 @@
 							<c:forEach items="${itemmodels }" var="itemmodel">
 								<c:if test="${itemmodel.getValue() > 0 }">
 									<option value="${itemmodel.getValue() }">${itemmodel.getDes() }</option>
+								</c:if>
+							</c:forEach>
+					</select></td>
+				</tr>
+				<tr>
+					<td class="configKey">编辑类型</td>
+					<td class="configValue"><select class="form-control"
+						id="config_2_30">
+							<c:set var="processEditTypes" value="<%= ProcessEditType.values() %>"/>
+							<c:forEach items="${processEditTypes }" var="processEditType">
+								<c:if test="${processEditType.getValue() > 0 }">
+									<option value="${processEditType.getValue() }">${processEditType.getDes() }</option>
 								</c:if>
 							</c:forEach>
 					</select></td>
@@ -1049,7 +1182,7 @@
 						data-filter-control-placeholder="" data-width="80">编号</th>
 					<th data-field="realname" data-filter-control="input"
 						data-filter-control-placeholder="">人员姓名</th>
-					<th data-field="sampling" data-width="100" data-formatter="samplingFormat">抽检比例</th>
+					<th data-field="sampling" data-width="100" data-click-to-select="false" data-formatter="samplingFormat">抽检比例</th>
 				</tr>
 			</thead>
 		</table>

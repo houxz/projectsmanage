@@ -20,6 +20,7 @@ import com.emg.projectsmanage.common.ItemSetEnable;
 import com.emg.projectsmanage.common.ItemSetSysType;
 import com.emg.projectsmanage.common.ItemSetType;
 import com.emg.projectsmanage.common.ItemSetUnit;
+import com.emg.projectsmanage.common.ModelEnum;
 import com.emg.projectsmanage.common.ParamUtils;
 import com.emg.projectsmanage.common.PriorityLevel;
 import com.emg.projectsmanage.common.ProcessState;
@@ -45,6 +46,7 @@ public class DoneProcessesManageCtrl extends BaseCtrl {
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("OPENLADER");
 
+		model.addAttribute("processStates", ProcessState.undoneToJsonStr());
 		model.addAttribute("processTypes", ProcessType.toJsonStr());
 		model.addAttribute("itemAreaTypes", ItemAreaType.toJsonStr());
 		model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
@@ -52,6 +54,9 @@ public class DoneProcessesManageCtrl extends BaseCtrl {
 		model.addAttribute("itemsetSysTypes", ItemSetSysType.toJsonStr());
 		model.addAttribute("itemsetTypes", ItemSetType.toJsonStr());
 		model.addAttribute("itemsetUnits", ItemSetUnit.toJsonStr());
+		//add by lianhr begin 2019/02/19
+		model.addAttribute("itemmodels", ModelEnum.toJsonStr());
+		//add by lianhr end
 
 		return "doneprocessesmanage";
 	}
