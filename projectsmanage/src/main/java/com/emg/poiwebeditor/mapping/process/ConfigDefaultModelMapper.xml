@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.poiwebeditor.dao.process.ConfigDefaultModelDao" >
+  <resultMap id="BaseResultMap" type="com.emg.poiwebeditor.pojo.ConfigDefaultModel" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="configid" property="configid" jdbcType="INTEGER" />
+    <result column="processtype" property="processtype" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="visible" property="visible" jdbcType="TINYINT" />
+    <result column="editable" property="editable" jdbcType="TINYINT" />
+    <result column="defaultvalue" property="defaultvalue" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, configid, processtype, name, visible, editable, defaultvalue
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.emg.poiwebeditor.pojo.ConfigDefaultModelExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tb_config_default
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_config_default
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tb_config_default
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.emg.poiwebeditor.pojo.ConfigDefaultModelExample" >
+    delete from tb_config_default
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.emg.poiwebeditor.pojo.ConfigDefaultModel" >
+    insert into tb_config_default (id, configid, processtype, 
+      name, visible, editable, 
+      defaultvalue)
+    values (#{id,jdbcType=INTEGER}, #{configid,jdbcType=INTEGER}, #{processtype,jdbcType=INTEGER}, 
+      #{name,jdbcType=VARCHAR}, #{visible,jdbcType=TINYINT}, #{editable,jdbcType=TINYINT}, 
+      #{defaultvalue,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.emg.poiwebeditor.pojo.ConfigDefaultModel" >
+    insert into tb_config_default
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="configid != null" >
+        configid,
+      </if>
+      <if test="processtype != null" >
+        processtype,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="visible != null" >
+        visible,
+      </if>
+      <if test="editable != null" >
+        editable,
+      </if>
+      <if test="defaultvalue != null" >
+        defaultvalue,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="configid != null" >
+        #{configid,jdbcType=INTEGER},
+      </if>
+      <if test="processtype != null" >
+        #{processtype,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="visible != null" >
+        #{visible,jdbcType=TINYINT},
+      </if>
+      <if test="editable != null" >
+        #{editable,jdbcType=TINYINT},
+      </if>
+      <if test="defaultvalue != null" >
+        #{defaultvalue,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.emg.poiwebeditor.pojo.ConfigDefaultModelExample" resultType="java.lang.Integer" >
+    select count(*) from tb_config_default
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update tb_config_default
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.configid != null" >
+        configid = #{record.configid,jdbcType=INTEGER},
+      </if>
+      <if test="record.processtype != null" >
+        processtype = #{record.processtype,jdbcType=INTEGER},
+      </if>
+      <if test="record.name != null" >
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.visible != null" >
+        visible = #{record.visible,jdbcType=TINYINT},
+      </if>
+      <if test="record.editable != null" >
+        editable = #{record.editable,jdbcType=TINYINT},
+      </if>
+      <if test="record.defaultvalue != null" >
+        defaultvalue = #{record.defaultvalue,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update tb_config_default
+    set id = #{record.id,jdbcType=INTEGER},
+      configid = #{record.configid,jdbcType=INTEGER},
+      processtype = #{record.processtype,jdbcType=INTEGER},
+      name = #{record.name,jdbcType=VARCHAR},
+      visible = #{record.visible,jdbcType=TINYINT},
+      editable = #{record.editable,jdbcType=TINYINT},
+      defaultvalue = #{record.defaultvalue,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.emg.poiwebeditor.pojo.ConfigDefaultModel" >
+    update tb_config_default
+    <set >
+      <if test="configid != null" >
+        configid = #{configid,jdbcType=INTEGER},
+      </if>
+      <if test="processtype != null" >
+        processtype = #{processtype,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="visible != null" >
+        visible = #{visible,jdbcType=TINYINT},
+      </if>
+      <if test="editable != null" >
+        editable = #{editable,jdbcType=TINYINT},
+      </if>
+      <if test="defaultvalue != null" >
+        defaultvalue = #{defaultvalue,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.emg.poiwebeditor.pojo.ConfigDefaultModel" >
+    update tb_config_default
+    set configid = #{configid,jdbcType=INTEGER},
+      processtype = #{processtype,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
+      visible = #{visible,jdbcType=TINYINT},
+      editable = #{editable,jdbcType=TINYINT},
+      defaultvalue = #{defaultvalue,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

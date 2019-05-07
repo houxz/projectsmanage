@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.poiwebeditor.dao.attach.AttachCapacityModelDao" >
+  <resultMap id="BaseResultMap" type="com.emg.poiwebeditor.pojo.AttachMakeCapacityModel" > 
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="userid" property="userid" jdbcType="BIGINT" />
+    <result column="processid" property="username" jdbcType="VARCHAR" />
+    <result column="countdate" property="countdate" jdbcType="TIMESTAMP" />
+    <result column="lane_create" property="laneCreate" jdbcType="INTEGER" />
+    <result column="lane_update" property="laneUpdate" jdbcType="INTEGER" />
+    <result column="lane_delete" property="laneDelete" jdbcType="INTEGER" />
+    <result column="direction_create" property="directionCreate" jdbcType="INTEGER" />
+    <result column="direction_update" property="directionUpdate" jdbcType="INTEGER" />
+    <result column="direction_delete" property="directionDelete" jdbcType="INTEGER" />
+    <result column="junctionview_create" property="junctionviewCreate" jdbcType="INTEGER" />
+    <result column="junctionview_update" property="junctionviewUpdate" jdbcType="INTEGER" />
+    <result column="junctionview_delete" property="junctionviewDelete" jdbcType="INTEGER" />
+    <result column="makeerrorcount" property="makeErrorCount" jdbcType="INTEGER" />
+    <!-- <result column="checkerrorcount" property="checkErrorCount" jdbcType="INTEGER" /> -->
+    <result column="roletype" property="roleType" jdbcType="INTEGER" />
+    <result column="projecttype" property="projectType" jdbcType="INTEGER" />
+    <!-- <result column="checkcount" property="checkCount" jdbcType="INTEGER" /> -->
+    <result column="efficiency" property="efficiency" jdbcType="DOUBLE" />
+    <result column="worktime" property="worktime" jdbcType="INTEGER" />
+    <result column="correctrate" property="correctRate" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  
+  <sql id="Base_Column_List" >
+     userid, username, countdate, lane_create, lane_update, lane_delete, direction_create, direction_update, direction_delete, 
+    junctionview_create, junctionview_update, junctionview_delete, roletype, projecttype, efficiency, id, makeerrorcount,correctrate
+  </sql>
+
+  <select id="selectAttachCapacity" resultMap="BaseResultMap" parameterType="com.emg.poiwebeditor.pojo.AttachMakeCapacityModel" >
+    select
+    
+    <include refid="Base_Column_List" />
+    from tb_capacity
+    
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+		limit ${limit}
+	</if>
+	<if test="offset != null">
+		offset ${offset}
+	</if>
+  </select>
+ 
+
+  
+  <select id="countByExample" parameterType="com.emg.poiwebeditor.pojo.CapacityModelExample" resultType="java.lang.Integer" >
+    select count(*) from tb_capacity
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  
+
+
+  <select id="doAttachCapacityTask" parameterType="java.lang.String" resultType="java.lang.String" >
+    select 
+    <choose >
+	    <when test="date != null">
+	    	count_user_capacity(#{date})
+	    </when>
+	    <when test="date == null">
+	    	count_user_capacity(to_char(now(), 'YYYY-MM-DD'))
+	    </when>
+    </choose>
+    
+  </select>
+  
+  <update id="updateMakeError"  parameterType="java.util.List">  
+    <foreach collection="models" item="item" index="index" open="" close="" separator=";">
+        insert into tb_capacity(userid, countdate, makeerrorcount) values (#{item.userid}, #{item.countdate}, #{item.makeErrorCount})
+        on conflict (userid, countdate) do update set makeerrorcount=#{item.makeerrorcount}
+    </foreach>    
+</update>
+
+<update id="updateCheckError"  parameterType="java.util.List">  
+    <foreach collection="models" item="item" index="index" open="" close="" separator=";">
+        insert into tb_capacity(userid, countdate, checkerrorcount) values (#{item.userid}, #{item.countdate}, #{item.checkErrorCount})
+        on conflict (userid, countdate) do update set makeerrorcount=#{item.makeerrorcount}
+    </foreach>    
+</update>
+
+  <update id="updateUserName"  parameterType="java.util.List">  
+    <foreach collection="models" item="item" index="index" open="" close="" separator=";">
+        update tb_capacity set username=#{item.username} where userid=#{item.userid}        
+    </foreach>    
+</update>
+
+  <delete id="deleteCapacityByCountdate" parameterType="java.lang.String" >
+    delete from tb_capacity where  to_char(countdate, 'YYYY-MM-DD')=#{date}
+    
+  </delete>
+  
+</mapper>

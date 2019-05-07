@@ -3,8 +3,8 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt'%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%
-	String baseUrl = request.getScheme()+"://"+ request.getServerName()+":"+request.getServerPort()+"/projectsmanage/interface.web"+"?";
 	String path = request.getContextPath();
+	String baseUrl = request.getScheme()+"://"+ request.getServerName()+":"+request.getServerPort() + path + "/interface.web"+"?";
 %>
 <!DOCTYPE html>
 <html>

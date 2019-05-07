@@ -32,7 +32,7 @@
 		</session-management>
 	</http>
 	
-	<beans:bean id="customerAuthenticationProvider" class="com.emg.projectsmanage.auth.CustomerAuthenticationProvider">
+	<beans:bean id="customerAuthenticationProvider" class="com.emg.poiwebeditor.auth.CustomerAuthenticationProvider">
 		<beans:property name="customUserDetailsService" ref="customUserDetailsService" />
 	</beans:bean>
 

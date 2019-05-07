@@ -18,7 +18,7 @@
 	<div class="container">
 		<form name="f" id="f" method="post" class="well" style="width: 30em; margin: auto; margin-top: 150px;"
 			action="<c:url value='./login'/>">
-			<img src="/projectsmanage/resources/images/logo.jpg" class="center-block img-rounded">
+			<img src="/poiwebeditor/resources/images/logo.jpg" class="center-block img-rounded">
 			<h2 class="text-center">项目管理系统</h2>
 			<br />
 			<div class="input-group input-group-md">

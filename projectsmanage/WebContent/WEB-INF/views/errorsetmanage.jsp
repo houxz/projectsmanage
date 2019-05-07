@@ -1,7 +1,7 @@
-<%@page import="com.emg.projectsmanage.common.ItemSetType"%>
-<%@page import="com.emg.projectsmanage.common.ItemSetSysType"%>
-<%@page import="com.emg.projectsmanage.common.ItemSetUnit"%>
-<%@page import="com.emg.projectsmanage.common.ProcessType"%>
+<%@page import="com.emg.poiwebeditor.common.ItemSetType"%>
+<%@page import="com.emg.poiwebeditor.common.ItemSetSysType"%>
+<%@page import="com.emg.poiwebeditor.common.ItemSetUnit"%>
+<%@page import="com.emg.poiwebeditor.common.ProcessType"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c"%>

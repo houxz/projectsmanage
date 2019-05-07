@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ page import="com.emg.projectsmanage.common.ParamUtils"%>
+<%@ page import="com.emg.poiwebeditor.common.ParamUtils"%>
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt'%>
 <%
 	String path = request.getContextPath();

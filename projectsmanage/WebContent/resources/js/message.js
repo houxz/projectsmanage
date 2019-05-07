@@ -317,7 +317,7 @@ var searchContact = function() {
 
 	var doLink = function() {
 		webSocket = new WebSocket(
-				"ws://localhost:8090/projectsmanage/socket.web");
+				"ws://localhost:8090/poiwebeditor/socket.web");
 		if (webSocket && webSocket.readyState == WebSocket.OPEN) {
 			webSocket.onmessage = function(json) {
 				var count = json.data;

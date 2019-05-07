@@ -44,19 +44,19 @@
 		class="org.springframework.cache.support.SimpleCacheManager">
 		<property name="caches">
 			<set>
-				<bean class="com.emg.projectsmanage.cache.RedisCache4Spring">
+				<bean class="com.emg.poiwebeditor.cache.RedisCache4Spring">
 					<property name="redisTemplate" ref="redisTemplate" />
 					<property name="name" value="CommCache" />
 				</bean>
-				<bean class="com.emg.projectsmanage.cache.RedisCache4Spring">
+				<bean class="com.emg.poiwebeditor.cache.RedisCache4Spring">
 					<property name="redisTemplate" ref="redisTemplate" />
 					<property name="name" value="EmapAccountCache" />
 				</bean>
-				<bean class="com.emg.projectsmanage.cache.RedisCache4Spring">
+				<bean class="com.emg.poiwebeditor.cache.RedisCache4Spring">
 					<property name="redisTemplate" ref="redisTemplate" />
 					<property name="name" value="ProjectManagerRoleCache" />
 				</bean>
-				<bean class="com.emg.projectsmanage.cache.RedisCache4Spring">
+				<bean class="com.emg.poiwebeditor.cache.RedisCache4Spring">
 					<property name="redisTemplate" ref="redisTemplate" />
 					<property name="name" value="MessageCache" />
 				</bean>

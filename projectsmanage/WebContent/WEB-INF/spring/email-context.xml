@@ -30,7 +30,7 @@
         </property>
     </bean>
     
-    <bean id="zMailConfig" class="com.emg.projectsmanage.config.ZMailConfig">
+    <bean id="zMailConfig" class="com.emg.poiwebeditor.config.ZMailConfig">
     	<property name="enabled" value="${mail.enabled}" />
     	<property name="from" value="${mail.smtp.username}" />
 		<property name="tos">

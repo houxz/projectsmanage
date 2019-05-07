@@ -79,7 +79,7 @@
 			<mvc:exclude-mapping path="/selfcheck.web"/>
 			<mvc:exclude-mapping path="/head.web"/>
 			<mvc:exclude-mapping path="/foot.web"/>
-			<beans:bean class="com.emg.projectsmanage.auth.AuthMonitorInterceptor"></beans:bean>
+			<beans:bean class="com.emg.poiwebeditor.auth.AuthMonitorInterceptor"></beans:bean>
 		</mvc:interceptor>
 	</mvc:interceptors>
 

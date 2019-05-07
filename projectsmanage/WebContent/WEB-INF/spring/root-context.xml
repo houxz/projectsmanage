@@ -134,10 +134,10 @@
 	<bean id="sqlSessionFactoryForAttachCapacity" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSourcePostgreForAttach" />
 		<property name="mapperLocations"
-			value="classpath:com/emg/projectsmanage/mapping/attach/*.xml" />
+			value="classpath:com/emg/poiwebeditor/mapping/attach/*.xml" />
 	</bean>
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.emg.projectsmanage.dao.attach" />
+		<property name="basePackage" value="com.emg.poiwebeditor.dao.attach" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForAttachCapacity" />
 	</bean>
 	
@@ -145,10 +145,10 @@
 	<bean id="sqlSessionFactoryForEmapgoaccount" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSourceMySqlForAccount" />
 		<property name="mapperLocations"
-			value="classpath:com/emg/projectsmanage/mapping/emapgoaccount/*.xml" />
+			value="classpath:com/emg/poiwebeditor/mapping/emapgoaccount/*.xml" />
 	</bean>
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.emg.projectsmanage.dao.emapgoaccount" />
+		<property name="basePackage" value="com.emg.poiwebeditor.dao.emapgoaccount" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForEmapgoaccount" />
 	</bean>
 	
@@ -156,10 +156,10 @@
 	<bean id="sqlSessionFactoryForProject" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSourceMySqlForProjectmanager" />
 		<property name="mapperLocations"
-			value="classpath:com/emg/projectsmanage/mapping/projectsmanager/*.xml" />
+			value="classpath:com/emg/poiwebeditor/mapping/projectsmanager/*.xml" />
 	</bean>
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.emg.projectsmanage.dao.projectsmanager" />
+		<property name="basePackage" value="com.emg.poiwebeditor.dao.projectsmanager" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForProject" />
 	</bean>
 
@@ -167,10 +167,10 @@
 	<bean id="sqlSessionFactoryForComm" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSourceMySqlForComm" />
 		<property name="mapperLocations"
-			value="classpath:com/emg/projectsmanage/mapping/comm/*.xml" />
+			value="classpath:com/emg/poiwebeditor/mapping/comm/*.xml" />
 	</bean>
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.emg.projectsmanage.dao.comm" />
+		<property name="basePackage" value="com.emg.poiwebeditor.dao.comm" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForComm" />
 	</bean>
 	
@@ -178,10 +178,10 @@
 	<bean id="sqlSessionFactoryForProcess" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSourceMySqlForProcess" />
 		<property name="mapperLocations"
-			value="classpath:com/emg/projectsmanage/mapping/process/*.xml" />
+			value="classpath:com/emg/poiwebeditor/mapping/process/*.xml" />
 	</bean>
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.emg.projectsmanage.dao.process" />
+		<property name="basePackage" value="com.emg.poiwebeditor.dao.process" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForProcess" />
 	</bean>
 	
@@ -189,10 +189,10 @@
 	<bean id="sqlSessionFactoryForPepro" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSourceMySqlForPepro" />
 		<property name="mapperLocations"
-			value="classpath:com/emg/projectsmanage/mapping/pepro/qctask/*.xml" />
+			value="classpath:com/emg/poiwebeditor/mapping/pepro/qctask/*.xml" />
 	</bean>
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.emg.projectsmanage.dao.pepro.qctask" />
+		<property name="basePackage" value="com.emg.poiwebeditor.dao.pepro.qctask" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryForPepro" />
 	</bean>
 	
@@ -214,7 +214,7 @@
 		<property name="maxWait" value="${quartz.maxWait}" />
     </bean>
 	
-	<bean id="jobInstance" class="com.emg.projectsmanage.scheduler.QuartzJobFacotry"></bean>
+	<bean id="jobInstance" class="com.emg.poiwebeditor.scheduler.QuartzJobFacotry"></bean>
 	
 	<bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" lazy-init="false">
         <property name="dataSource" ref ="dataSourceForQuartz" />

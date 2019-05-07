@@ -3,7 +3,7 @@
 	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	id="WebApp_PoiEditor" version="3.0">
-	<display-name>projectsmanage</display-name>
+	<display-name>poiwebeditor</display-name>
 	<welcome-file-list>
 		<welcome-file>login.jsp</welcome-file>
 	</welcome-file-list>
@@ -17,7 +17,7 @@
 	</context-param>
 	<context-param>
 		<param-name>webAppRootKey</param-name>
-		<param-value>projectsmanage</param-value>
+		<param-value>poiwebeditor</param-value>
 	</context-param>
 	<context-param>
 		<param-name>log4jConfigLocation</param-name>

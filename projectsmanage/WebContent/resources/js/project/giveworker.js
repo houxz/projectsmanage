@@ -228,7 +228,7 @@
 		$.ajax({
 			async : false,
 			type : 'POST',
-			url : './projectsmanage.web',
+			url : './poiwebeditor.web',
 			data : {
 				atn : "add",
 				proid : currentProject.id,

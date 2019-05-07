@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.poiwebeditor.dao.process.ConfigValueModelDao">
+	<resultMap id="BaseResultMap" type="com.emg.poiwebeditor.pojo.ConfigValueModel">
+		<id column="ida" property="id" jdbcType="BIGINT" />
+		<result column="processid" property="processid" jdbcType="BIGINT" />
+		<result column="moduleid" property="moduleid" jdbcType="INTEGER" />
+		<result column="configid" property="configid" jdbcType="INTEGER" />
+		<result column="value" property="value" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		tb_config_value.id as ida, processid, tb_config_value.moduleid, configid, value, name
+	</sql>
+	
+	<select id="selectConfigsById" resultMap="BaseResultMap"
+		parameterType="com.emg.poiwebeditor.pojo.ConfigValueModel">
+		select
+		<include refid="Base_Column_List" />
+		from tb_config_value,tb_config
+		where processid = #{processid,jdbcType=BIGINT}
+		 AND tb_config_value.configid = tb_config.id
+		 <if test="moduleid != null and moduleid > 0" >
+			AND tb_config_value.moduleid = #{moduleid,jdbcType=INTEGER}
+		</if>
+		<if test="configid != null and configid > 0" >
+			AND tb_config_value.configid = #{configid,jdbcType=INTEGER}
+		</if>
+	</select>
+	
+	<select id="selectProcessIdByConfig" resultMap="BaseResultMap"
+		parameterType="com.emg.poiwebeditor.pojo.ConfigValueModel">
+		select
+		processid
+		from tb_config_value
+		where value = #{value,jdbcType=VARCHAR}
+		 AND configid in
+		 (select tb_config.id from tb_config where name like #{name,jdbcType=VARCHAR} AND moduleid = #{moduleid, jdbcType=INTEGER})
+	</select>
+	
+	<select id="selectConfigs" resultMap="BaseResultMap"
+		parameterType="com.emg.poiwebeditor.pojo.ConfigValueModel">
+		select *
+		from tb_config_value
+		<where>
+			<if test="idc != null">
+				idc = #{idc,jdbcType=INTEGER}
+			</if>
+			<if test="processid != null">
+				AND processid = #{processid,jdbcType=BIGINT}
+			</if>
+			<if test="moduleid != null">
+				AND moduleid = #{moduleid,jdbcType=INTEGER}
+			</if>
+			<if test="configid != null">
+				AND configid = #{configid,jdbcType=INTEGER}
+			</if>
+			<if test="value != null">
+				AND value = #{value,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectValueByConfig" resultMap="BaseResultMap"
+		parameterType="com.emg.poiwebeditor.pojo.ConfigValueModel">
+		select
+		value
+		from tb_config_value
+		where processid = #{processid,jdbcType=BIGINT}
+		AND moduleid = #{moduleid,jdbcType=INTEGER}
+		 AND configid in
+		 (select tb_config.id from tb_config where name like #{name,jdbcType=VARCHAR} AND moduleid = #{moduleid, jdbcType=INTEGER})
+	</select>
+	
+</mapper>

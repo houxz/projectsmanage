@@ -3,10 +3,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.emg</groupId>
-	<artifactId>projectsmanage</artifactId>
+	<artifactId>poiwebeditor</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<name>projectsmanage</name>
+	<name>poiwebeditor</name>
 	<url>http://maven.apache.org</url>
 	<properties>
 		<java-version>1.7</java-version>

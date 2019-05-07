@@ -3,7 +3,7 @@ function changeProState(tostate, proid) {
 	$.ajax({
 		async : false,
 		type : 'POST',
-		url : './projectsmanage.web',
+		url : './poiwebeditor.web',
 		data : {
 			atn : "changestate",
 			proid : proid,
@@ -28,7 +28,7 @@ function changeDiff(proid) {
 	$.ajax({
 		async : false,
 		type : 'POST',
-		url : './projectsmanage.web',
+		url : './poiwebeditor.web',
 		data : {
 			atn : "resetdiff",
 			proid : proid,
@@ -52,7 +52,7 @@ function changePriority(proid) {
 	$.ajax({
 		async : false,
 		type : 'POST',
-		url : './projectsmanage.web',
+		url : './poiwebeditor.web',
 		data : {
 			atn : "resetpriority",
 			proid : proid,
@@ -76,7 +76,7 @@ function changeAccess(proid) {
 	$.ajax({
 		async : false,
 		type : 'POST',
-		url : './projectsmanage.web',
+		url : './poiwebeditor.web',
 		data : {
 			atn : "resetpaccess",
 			proid : proid,

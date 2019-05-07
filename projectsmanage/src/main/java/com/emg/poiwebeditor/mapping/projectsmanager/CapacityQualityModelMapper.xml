@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.poiwebeditor.dao.projectsmanager.CapacityQualityModelDao" >
+  <resultMap id="BaseResultMap" type="com.emg.poiwebeditor.pojo.CapacityQualityModel" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="tasktype" property="tasktype" jdbcType="INTEGER" />
+    <result column="processid" property="processid" jdbcType="BIGINT" />
+    <result column="processname" property="processname" jdbcType="VARCHAR" />
+    <result column="projectid" property="projectid" jdbcType="BIGINT" />
+    <result column="errortype" property="errortype" jdbcType="BIGINT" />
+    <result column="userid" property="userid" jdbcType="INTEGER" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="roleid" property="roleid" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="VARCHAR" />
+    <result column="iswork" property="iswork" jdbcType="TINYINT" />
+    <result column="count" property="count" jdbcType="BIGINT" />
+    <result column="errorcount" property="errorcount" jdbcType="BIGINT" />
+    <result column="visualerrorcount" property="visualerrorcount" jdbcType="BIGINT" />
+    <result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, tasktype, processid, processname, projectid, errortype, userid, username, roleid, 
+    time, iswork, count, errorcount, visualerrorcount, createtime
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.emg.poiwebeditor.pojo.CapacityQualityModelExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tb_projects_capacity_quality
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_projects_capacity_quality
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_projects_capacity_quality
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.emg.poiwebeditor.pojo.CapacityQualityModelExample" >
+    delete from tb_projects_capacity_quality
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.emg.poiwebeditor.pojo.CapacityQualityModel" >
+    insert into tb_projects_capacity_quality (id, tasktype, processid, 
+      processname, projectid, errortype, 
+      userid, username, roleid, 
+      time, iswork, count, 
+      errorcount, visualerrorcount, createtime
+      )
+    values (#{id,jdbcType=BIGINT}, #{tasktype,jdbcType=INTEGER}, #{processid,jdbcType=BIGINT}, 
+      #{processname,jdbcType=VARCHAR}, #{projectid,jdbcType=BIGINT}, #{errortype,jdbcType=BIGINT}, 
+      #{userid,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{roleid,jdbcType=INTEGER}, 
+      #{time,jdbcType=VARCHAR}, #{iswork,jdbcType=TINYINT}, #{count,jdbcType=BIGINT}, 
+      #{errorcount,jdbcType=BIGINT}, #{visualerrorcount,jdbcType=BIGINT}, #{createtime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.emg.poiwebeditor.pojo.CapacityQualityModel" >
+    insert into tb_projects_capacity_quality
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="tasktype != null" >
+        tasktype,
+      </if>
+      <if test="processid != null" >
+        processid,
+      </if>
+      <if test="processname != null" >
+        processname,
+      </if>
+      <if test="projectid != null" >
+        projectid,
+      </if>
+      <if test="errortype != null" >
+        errortype,
+      </if>
+      <if test="userid != null" >
+        userid,
+      </if>
+      <if test="username != null" >
+        username,
+      </if>
+      <if test="roleid != null" >
+        roleid,
+      </if>
+      <if test="time != null" >
+        time,
+      </if>
+      <if test="iswork != null" >
+        iswork,
+      </if>
+      <if test="count != null" >
+        count,
+      </if>
+      <if test="errorcount != null" >
+        errorcount,
+      </if>
+      <if test="visualerrorcount != null" >
+        visualerrorcount,
+      </if>
+      <if test="createtime != null" >
+        createtime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tasktype != null" >
+        #{tasktype,jdbcType=INTEGER},
+      </if>
+      <if test="processid != null" >
+        #{processid,jdbcType=BIGINT},
+      </if>
+      <if test="processname != null" >
+        #{processname,jdbcType=VARCHAR},
+      </if>
+      <if test="projectid != null" >
+        #{projectid,jdbcType=BIGINT},
+      </if>
+      <if test="errortype != null" >
+        #{errortype,jdbcType=BIGINT},
+      </if>
+      <if test="userid != null" >
+        #{userid,jdbcType=INTEGER},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="roleid != null" >
+        #{roleid,jdbcType=INTEGER},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=VARCHAR},
+      </if>
+      <if test="iswork != null" >
+        #{iswork,jdbcType=TINYINT},
+      </if>
+      <if test="count != null" >
+        #{count,jdbcType=BIGINT},
+      </if>
+      <if test="errorcount != null" >
+        #{errorcount,jdbcType=BIGINT},
+      </if>
+      <if test="visualerrorcount != null" >
+        #{visualerrorcount,jdbcType=BIGINT},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.emg.poiwebeditor.pojo.CapacityQualityModelExample" resultType="java.lang.Integer" >
+    select count(*) from tb_projects_capacity_quality
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update tb_projects_capacity_quality
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tasktype != null" >
+        tasktype = #{record.tasktype,jdbcType=INTEGER},
+      </if>
+      <if test="record.processid != null" >
+        processid = #{record.processid,jdbcType=BIGINT},
+      </if>
+      <if test="record.processname != null" >
+        processname = #{record.processname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectid != null" >
+        projectid = #{record.projectid,jdbcType=BIGINT},
+      </if>
+      <if test="record.errortype != null" >
+        errortype = #{record.errortype,jdbcType=BIGINT},
+      </if>
+      <if test="record.userid != null" >
+        userid = #{record.userid,jdbcType=INTEGER},
+      </if>
+      <if test="record.username != null" >
+        username = #{record.username,jdbcType=VARCHAR},
+      </if>
+      <if test="record.roleid != null" >
+        roleid = #{record.roleid,jdbcType=INTEGER},
+      </if>
+      <if test="record.time != null" >
+        time = #{record.time,jdbcType=VARCHAR},
+      </if>
+      <if test="record.iswork != null" >
+        iswork = #{record.iswork,jdbcType=TINYINT},
+      </if>
+      <if test="record.count != null" >
+        count = #{record.count,jdbcType=BIGINT},
+      </if>
+      <if test="record.errorcount != null" >
+        errorcount = #{record.errorcount,jdbcType=BIGINT},
+      </if>
+      <if test="record.visualerrorcount != null" >
+        visualerrorcount = #{record.visualerrorcount,jdbcType=BIGINT},
+      </if>
+      <if test="record.createtime != null" >
+        createtime = #{record.createtime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update tb_projects_capacity_quality
+    set id = #{record.id,jdbcType=BIGINT},
+      tasktype = #{record.tasktype,jdbcType=INTEGER},
+      processid = #{record.processid,jdbcType=BIGINT},
+      processname = #{record.processname,jdbcType=VARCHAR},
+      projectid = #{record.projectid,jdbcType=BIGINT},
+      errortype = #{record.errortype,jdbcType=BIGINT},
+      userid = #{record.userid,jdbcType=INTEGER},
+      username = #{record.username,jdbcType=VARCHAR},
+      roleid = #{record.roleid,jdbcType=INTEGER},
+      time = #{record.time,jdbcType=VARCHAR},
+      iswork = #{record.iswork,jdbcType=TINYINT},
+      count = #{record.count,jdbcType=BIGINT},
+      errorcount = #{record.errorcount,jdbcType=BIGINT},
+      visualerrorcount = #{record.visualerrorcount,jdbcType=BIGINT},
+      createtime = #{record.createtime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.emg.poiwebeditor.pojo.CapacityQualityModel" >
+    update tb_projects_capacity_quality
+    <set >
+      <if test="tasktype != null" >
+        tasktype = #{tasktype,jdbcType=INTEGER},
+      </if>
+      <if test="processid != null" >
+        processid = #{processid,jdbcType=BIGINT},
+      </if>
+      <if test="processname != null" >
+        processname = #{processname,jdbcType=VARCHAR},
+      </if>
+      <if test="projectid != null" >
+        projectid = #{projectid,jdbcType=BIGINT},
+      </if>
+      <if test="errortype != null" >
+        errortype = #{errortype,jdbcType=BIGINT},
+      </if>
+      <if test="userid != null" >
+        userid = #{userid,jdbcType=INTEGER},
+      </if>
+      <if test="username != null" >
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="roleid != null" >
+        roleid = #{roleid,jdbcType=INTEGER},
+      </if>
+      <if test="time != null" >
+        time = #{time,jdbcType=VARCHAR},
+      </if>
+      <if test="iswork != null" >
+        iswork = #{iswork,jdbcType=TINYINT},
+      </if>
+      <if test="count != null" >
+        count = #{count,jdbcType=BIGINT},
+      </if>
+      <if test="errorcount != null" >
+        errorcount = #{errorcount,jdbcType=BIGINT},
+      </if>
+      <if test="visualerrorcount != null" >
+        visualerrorcount = #{visualerrorcount,jdbcType=BIGINT},
+      </if>
+      <if test="createtime != null" >
+        createtime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.emg.poiwebeditor.pojo.CapacityQualityModel" >
+    update tb_projects_capacity_quality
+    set tasktype = #{tasktype,jdbcType=INTEGER},
+      processid = #{processid,jdbcType=BIGINT},
+      processname = #{processname,jdbcType=VARCHAR},
+      projectid = #{projectid,jdbcType=BIGINT},
+      errortype = #{errortype,jdbcType=BIGINT},
+      userid = #{userid,jdbcType=INTEGER},
+      username = #{username,jdbcType=VARCHAR},
+      roleid = #{roleid,jdbcType=INTEGER},
+      time = #{time,jdbcType=VARCHAR},
+      iswork = #{iswork,jdbcType=TINYINT},
+      count = #{count,jdbcType=BIGINT},
+      errorcount = #{errorcount,jdbcType=BIGINT},
+      visualerrorcount = #{visualerrorcount,jdbcType=BIGINT},
+      createtime = #{createtime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

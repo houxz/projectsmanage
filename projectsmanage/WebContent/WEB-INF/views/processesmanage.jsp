@@ -1,6 +1,6 @@
-<%@page import="com.emg.projectsmanage.common.ProcessType"%>
-<%@page import="com.emg.projectsmanage.common.ModelEnum"%>
-<%@page import="com.emg.projectsmanage.common.ProcessEditType"%>
+<%@page import="com.emg.poiwebeditor.common.ProcessType"%>
+<%@page import="com.emg.poiwebeditor.common.ModelEnum"%>
+<%@page import="com.emg.poiwebeditor.common.ProcessEditType"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt'%>
@@ -1046,7 +1046,7 @@
 					matchByIDAndIndex.set(data[i].id, i);
 					ids.push(data[i].id);
 				}
-				source = new EventSource('/projectsmanage/sse.web?action=refreshprogress&ids=' + ids.join(","));
+				source = new EventSource('/poiwebeditor/sse.web?action=refreshprogress&ids=' + ids.join(","));
 
 				source.onmessage = function(e) {
 					var progresses = JSON.parse(e.data);

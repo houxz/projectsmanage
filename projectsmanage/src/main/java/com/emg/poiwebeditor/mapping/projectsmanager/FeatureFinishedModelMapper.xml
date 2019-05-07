@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.poiwebeditor.dao.projectsmanager.FeatureFinishedModelDao">
+	<resultMap id="BaseResultMap" type="com.emg.poiwebeditor.pojo.FeatureFinishedModel">
+		<result column="id" property="id" jdbcType="INTEGER" />
+		<result column="projectid" property="projectid" jdbcType="BIGINT" />
+		<result column="featureid" property="featureid" jdbcType="BIGINT" />
+		<result column="userid" property="userid" jdbcType="INTEGER" />
+		<result column="roleid" property="roleid" jdbcType="INTEGER" />
+		<result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, tasktype, projectid, featureid, userid, roleid, createtime
+	</sql>
+	<select id="queryCount" resultType="java.lang.Integer" parameterType="com.emg.poiwebeditor.pojo.FeatureFinishedModel">
+		SELECT COUNT(1)
+		FROM
+		tb_projects_task_finished
+		<where>
+			<if test="id != null">
+				`id` = #{id,jdbcType=INTEGER}
+			</if>
+			<if test="tasktype != null">
+				`tasktype` = #{tasktype,jdbcType=INTEGER}
+			</if>
+			<if test="projectid != null">
+				AND `projectid` = #{projectid,jdbcType=BIGINT}
+			</if>
+			<if test="featureid != null">
+				AND `featureid` = #{featureid,jdbcType=BIGINT}
+			</if>
+			<if test="userid != null">
+				AND `userid` = #{userid,jdbcType=INTEGER}
+			</if>
+			<if test="roleid != null">
+				AND `roleid` = #{roleid,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	<select id="query" resultMap="BaseResultMap"
+		parameterType="com.emg.poiwebeditor.pojo.FeatureFinishedModel">
+		SELECT
+			*
+		FROM tb_projects_task_finished
+		<where>
+			<if test="id != null">
+				`id` = #{id,jdbcType=INTEGER}
+			</if>
+			<if test="tasktype != null">
+				AND `tasktype` = #{tasktype,jdbcType=INTEGER}
+			</if>
+			<if test="projectid != null">
+				AND `projectid` = #{projectid,jdbcType=BIGINT}
+			</if>
+			<if test="featureid != null">
+				AND `featureid` = #{featureid,jdbcType=BIGINT}
+			</if>
+			<if test="userid != null">
+				AND `userid` = #{userid,jdbcType=INTEGER}
+			</if>
+			<if test="roleid != null">
+				AND `roleid` = #{roleid,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	<insert id="insert" parameterType="com.emg.poiwebeditor.pojo.FeatureFinishedModel" >
+	    insert into tb_projects_task_finished 
+	    	(`tasktype`,
+	    	 `projectid`,
+	    	 `featureid`,
+             `userid`,
+             `roleid`)
+	    values
+	    	(#{tasktype,jdbcType=INTEGER},
+	    	 #{projectid,jdbcType=BIGINT}, 
+	    	 #{featureid,jdbcType=BIGINT}, 
+	    	 #{userid,jdbcType=INTEGER}, 
+	    	 #{roleid,jdbcType=INTEGER})
+	</insert>
+</mapper>

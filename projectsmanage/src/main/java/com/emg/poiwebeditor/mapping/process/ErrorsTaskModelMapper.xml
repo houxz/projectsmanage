@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.emg.poiwebeditor.dao.process.ErrorsTaskModelDao" >
+  <resultMap id="BaseResultMap" type="com.emg.poiwebeditor.pojo.ErrorsTaskModel" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="qctask" property="qctask" jdbcType="INTEGER" />
+    <result column="errorsrc" property="errorsrc" jdbcType="INTEGER" />
+    <result column="errortar" property="errortar" jdbcType="INTEGER" />
+    <result column="createby" property="createby" jdbcType="INTEGER" />
+    <result column="state" property="state" jdbcType="INTEGER" />
+    <result column="minerrorid" property="minerrorid" jdbcType="BIGINT" />
+    <result column="curerrorid" property="curerrorid" jdbcType="BIGINT" />
+    <result column="maxerrorid" property="maxerrorid" jdbcType="BIGINT" />
+    <result column="dotasktime" property="dotasktime" jdbcType="VARCHAR" />
+    <result column="batchid" property="batchid" jdbcType="BIGINT" />
+    <result column="errorsetid" property="errorsetid" jdbcType="BIGINT" />
+    <result column="errorsetname" property="errorsetname" jdbcType="VARCHAR" />
+    <result column="enable" property="enable" jdbcType="INTEGER" />
+    <result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="updatetime" property="updatetime" jdbcType="TIMESTAMP" />
+    <result column="mact" property="mact" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, name, qctask, errorsrc, errortar, createby, state, minerrorid, curerrorid, maxerrorid, 
+    dotasktime, batchid, errorsetid, errorsetname, enable, createtime, updatetime, mact
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.emg.poiwebeditor.pojo.ErrorsTaskModelExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tb_errorstask
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+		limit ${limit}
+	</if>
+	<if test="offset != null">
+		offset ${offset}
+	</if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_errorstask
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_errorstask
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.emg.poiwebeditor.pojo.ErrorsTaskModelExample" >
+    delete from tb_errorstask
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.emg.poiwebeditor.pojo.ErrorsTaskModel" >
+    insert into tb_errorstask (id, name, qctask, 
+      errorsrc, errortar, createby, 
+      state, minerrorid, curerrorid, 
+      maxerrorid, dotasktime, batchid, 
+      errorsetid, errorsetname, enable, 
+      createtime, updatetime, mact)
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{qctask,jdbcType=INTEGER}, 
+      #{errorsrc,jdbcType=INTEGER}, #{errortar,jdbcType=INTEGER}, #{createby,jdbcType=INTEGER}, 
+      #{state,jdbcType=INTEGER}, #{minerrorid,jdbcType=BIGINT}, #{curerrorid,jdbcType=BIGINT}, 
+      #{maxerrorid,jdbcType=BIGINT}, #{dotasktime,jdbcType=VARCHAR}, #{batchid,jdbcType=BIGINT}, 
+      #{errorsetid,jdbcType=BIGINT}, #{errorsetname,jdbcType=VARCHAR}, #{enable,jdbcType=INTEGER}, 
+      #{createtime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP}, #{mact,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.emg.poiwebeditor.pojo.ErrorsTaskModel" >
+    insert into tb_errorstask
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="qctask != null" >
+        qctask,
+      </if>
+      <if test="errorsrc != null" >
+        errorsrc,
+      </if>
+      <if test="errortar != null" >
+        errortar,
+      </if>
+      <if test="createby != null" >
+        createby,
+      </if>
+      <if test="state != null" >
+        state,
+      </if>
+      <if test="minerrorid != null" >
+        minerrorid,
+      </if>
+      <if test="curerrorid != null" >
+        curerrorid,
+      </if>
+      <if test="maxerrorid != null" >
+        maxerrorid,
+      </if>
+      <if test="dotasktime != null" >
+        dotasktime,
+      </if>
+      <if test="batchid != null" >
+        batchid,
+      </if>
+      <if test="errorsetid != null" >
+        errorsetid,
+      </if>
+      <if test="errorsetname != null" >
+        errorsetname,
+      </if>
+      <if test="enable != null" >
+        enable,
+      </if>
+      <if test="createtime != null" >
+        createtime,
+      </if>
+      <if test="updatetime != null" >
+        updatetime,
+      </if>
+      <if test="mact != null" >
+        mact,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="qctask != null" >
+        #{qctask,jdbcType=INTEGER},
+      </if>
+      <if test="errorsrc != null" >
+        #{errorsrc,jdbcType=INTEGER},
+      </if>
+      <if test="errortar != null" >
+        #{errortar,jdbcType=INTEGER},
+      </if>
+      <if test="createby != null" >
+        #{createby,jdbcType=INTEGER},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="minerrorid != null" >
+        #{minerrorid,jdbcType=BIGINT},
+      </if>
+      <if test="curerrorid != null" >
+        #{curerrorid,jdbcType=BIGINT},
+      </if>
+      <if test="maxerrorid != null" >
+        #{maxerrorid,jdbcType=BIGINT},
+      </if>
+      <if test="dotasktime != null" >
+        #{dotasktime,jdbcType=VARCHAR},
+      </if>
+      <if test="batchid != null" >
+        #{batchid,jdbcType=BIGINT},
+      </if>
+      <if test="errorsetid != null" >
+        #{errorsetid,jdbcType=BIGINT},
+      </if>
+      <if test="errorsetname != null" >
+        #{errorsetname,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null" >
+        #{enable,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatetime != null" >
+        #{updatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mact != null" >
+        #{mact,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.emg.poiwebeditor.pojo.ErrorsTaskModelExample" resultType="java.lang.Integer" >
+    select count(*) from tb_errorstask
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update tb_errorstask
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.name != null" >
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.qctask != null" >
+        qctask = #{record.qctask,jdbcType=INTEGER},
+      </if>
+      <if test="record.errorsrc != null" >
+        errorsrc = #{record.errorsrc,jdbcType=INTEGER},
+      </if>
+      <if test="record.errortar != null" >
+        errortar = #{record.errortar,jdbcType=INTEGER},
+      </if>
+      <if test="record.createby != null" >
+        createby = #{record.createby,jdbcType=INTEGER},
+      </if>
+      <if test="record.state != null" >
+        state = #{record.state,jdbcType=INTEGER},
+      </if>
+      <if test="record.minerrorid != null" >
+        minerrorid = #{record.minerrorid,jdbcType=BIGINT},
+      </if>
+      <if test="record.curerrorid != null" >
+        curerrorid = #{record.curerrorid,jdbcType=BIGINT},
+      </if>
+      <if test="record.maxerrorid != null" >
+        maxerrorid = #{record.maxerrorid,jdbcType=BIGINT},
+      </if>
+      <if test="record.dotasktime != null" >
+        dotasktime = #{record.dotasktime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.batchid != null" >
+        batchid = #{record.batchid,jdbcType=BIGINT},
+      </if>
+      <if test="record.errorsetid != null" >
+        errorsetid = #{record.errorsetid,jdbcType=BIGINT},
+      </if>
+      <if test="record.errorsetname != null" >
+        errorsetname = #{record.errorsetname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.enable != null" >
+        enable = #{record.enable,jdbcType=INTEGER},
+      </if>
+      <if test="record.createtime != null" >
+        createtime = #{record.createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updatetime != null" >
+        updatetime = #{record.updatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.mact != null" >
+        mact = #{record.mact,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update tb_errorstask
+    set id = #{record.id,jdbcType=BIGINT},
+      name = #{record.name,jdbcType=VARCHAR},
+      qctask = #{record.qctask,jdbcType=INTEGER},
+      errorsrc = #{record.errorsrc,jdbcType=INTEGER},
+      errortar = #{record.errortar,jdbcType=INTEGER},
+      createby = #{record.createby,jdbcType=INTEGER},
+      state = #{record.state,jdbcType=INTEGER},
+      minerrorid = #{record.minerrorid,jdbcType=BIGINT},
+      curerrorid = #{record.curerrorid,jdbcType=BIGINT},
+      maxerrorid = #{record.maxerrorid,jdbcType=BIGINT},
+      dotasktime = #{record.dotasktime,jdbcType=VARCHAR},
+      batchid = #{record.batchid,jdbcType=BIGINT},
+      errorsetid = #{record.errorsetid,jdbcType=BIGINT},
+      errorsetname = #{record.errorsetname,jdbcType=VARCHAR},
+      enable = #{record.enable,jdbcType=INTEGER},
+      createtime = #{record.createtime,jdbcType=TIMESTAMP},
+      updatetime = #{record.updatetime,jdbcType=TIMESTAMP},
+      mact = #{record.mact,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.emg.poiwebeditor.pojo.ErrorsTaskModel" >
+    update tb_errorstask
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="qctask != null" >
+        qctask = #{qctask,jdbcType=INTEGER},
+      </if>
+      <if test="errorsrc != null" >
+        errorsrc = #{errorsrc,jdbcType=INTEGER},
+      </if>
+      <if test="errortar != null" >
+        errortar = #{errortar,jdbcType=INTEGER},
+      </if>
+      <if test="createby != null" >
+        createby = #{createby,jdbcType=INTEGER},
+      </if>
+      <if test="state != null" >
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="minerrorid != null" >
+        minerrorid = #{minerrorid,jdbcType=BIGINT},
+      </if>
+      <if test="curerrorid != null" >
+        curerrorid = #{curerrorid,jdbcType=BIGINT},
+      </if>
+      <if test="maxerrorid != null" >
+        maxerrorid = #{maxerrorid,jdbcType=BIGINT},
+      </if>
+      <if test="dotasktime != null" >
+        dotasktime = #{dotasktime,jdbcType=VARCHAR},
+      </if>
+      <if test="batchid != null" >
+        batchid = #{batchid,jdbcType=BIGINT},
+      </if>
+      <if test="errorsetid != null" >
+        errorsetid = #{errorsetid,jdbcType=BIGINT},
+      </if>
+      <if test="errorsetname != null" >
+        errorsetname = #{errorsetname,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null" >
+        enable = #{enable,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null" >
+        createtime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatetime != null" >
+        updatetime = #{updatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mact != null" >
+        mact = CONCAT_WS('', mact, #{mact,jdbcType=VARCHAR}),
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.emg.poiwebeditor.pojo.ErrorsTaskModel" >
+    update tb_errorstask
+    set name = #{name,jdbcType=VARCHAR},
+      qctask = #{qctask,jdbcType=INTEGER},
+      errorsrc = #{errorsrc,jdbcType=INTEGER},
+      errortar = #{errortar,jdbcType=INTEGER},
+      createby = #{createby,jdbcType=INTEGER},
+      state = #{state,jdbcType=INTEGER},
+      minerrorid = #{minerrorid,jdbcType=BIGINT},
+      curerrorid = #{curerrorid,jdbcType=BIGINT},
+      maxerrorid = #{maxerrorid,jdbcType=BIGINT},
+      dotasktime = #{dotasktime,jdbcType=VARCHAR},
+      batchid = #{batchid,jdbcType=BIGINT},
+      errorsetid = #{errorsetid,jdbcType=BIGINT},
+      errorsetname = #{errorsetname,jdbcType=VARCHAR},
+      enable = #{enable,jdbcType=INTEGER},
+      createtime = #{createtime,jdbcType=TIMESTAMP},
+      updatetime = #{updatetime,jdbcType=TIMESTAMP},
+      mact = #{mact,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
