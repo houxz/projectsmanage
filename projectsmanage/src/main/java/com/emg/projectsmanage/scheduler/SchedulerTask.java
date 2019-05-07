@@ -3884,24 +3884,6 @@ public class SchedulerTask {
 					} catch (Exception e) {
 						logger.error(e.getMessage(), e);
 					}
-					
-					if (processname.startsWith("POI易淘金编辑_"))
-						continue;
-					
-					if (totaltask.equals(completetask) &&
-							edittask.equals(0) &&
-							qctask.equals(0) &&
-							checktask.equals(0) &&
-							fielddatarest.equals(0) &&
-							errorrest.equals(0)) {
-						process.setState(ProcessState.COMPLETE.getValue());
-						processModelDao.updateByPrimaryKeySelective(process );
-						
-						ProjectModel project = new ProjectModel();
-						project.setId(projectid);
-						project.setOverstate(ProjectState.COMPLETE.getValue());
-						projectModelDao.updateByPrimaryKeySelective(project );
-					}
 				} catch (DuplicateKeyException e) {
 					logger.error(e.getMessage());
 				} catch (Exception e) {
