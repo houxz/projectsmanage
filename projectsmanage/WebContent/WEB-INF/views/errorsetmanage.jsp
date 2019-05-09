@@ -707,7 +707,6 @@
 				</tr>
 			</thead>
 		</table>
-		</div>
 	</div>
 	<div id="dlgImportErrorTypes" style="display: none;">
 		<textarea class="form-control" rows="12" id="ImportErrorTypes"></textarea>

@@ -50,7 +50,11 @@ public enum SystemType {
 	/**
 	 * 360, "易淘金线上编辑平台"
 	 */
-	poi_GEN(360, "易淘金线上编辑平台");
+	poi_GEN(360, "易淘金线上编辑平台"),
+	/**
+	 * 370, "POI人工聚合"
+	 */
+	poi_polymerize(370, "POI人工聚合");
 
 	private Integer value;
 	private String des;

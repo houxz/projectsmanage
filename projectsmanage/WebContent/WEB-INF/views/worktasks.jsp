@@ -60,6 +60,7 @@
 		<div id="headdiv"></div>
 		<div class="row" style="padding-top: 20px">
 			<table id="worktasklist" data-unique-id="projectid"
+				data-classes="table table-bordered table-hover table-condensed"
 				data-query-params="queryParams" data-url="./worktasks.web?atn=pages"
 				data-side-pagination="server" data-filter-control="true"
 				data-pagination="true" data-toggle="worktasks" data-height="714"

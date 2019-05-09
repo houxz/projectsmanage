@@ -14,9 +14,6 @@
 				<ref bean="tasksmanage" />
 				<ref bean="projectsprocess" />
 				<ref bean="capacity" />
-				<ref bean="errorstask" />
-				<ref bean="itemsetmanage" />
-				<ref bean="errorsetmanage" />
 				<ref bean="iteminfo" />
 				<ref bean="systemsets" />
 				<ref bean="sse" />

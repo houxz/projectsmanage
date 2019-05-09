@@ -46,7 +46,11 @@ public enum ProcessType {
 	/**
 	 * 9, "关系附属表含资料项目"
 	 */
-	ATTACHWITHDATA(9, "附属表资料项目");
+	ATTACHWITHDATA(9, "附属表资料项目"),
+	/**
+	 * 10, "POI人工聚合项目"
+	 */
+	POIPOLYMERIZE(10, "POI人工聚合项目");
 
 	private Integer value;
 	private String des;

@@ -104,16 +104,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 		model.addAttribute("processStates", ProcessState.undoneToJsonStr());
 		model.addAttribute("processTypes", ProcessType.toJsonStr());
-		model.addAttribute("itemAreaTypes", ItemAreaType.toJsonStr());
 		model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
-		model.addAttribute("itemsetEnables", ItemSetEnable.toJsonStr());
-		model.addAttribute("itemsetSysTypes", ItemSetSysType.toJsonStr());
-		model.addAttribute("itemsetTypes", ItemSetType.toJsonStr());
-		model.addAttribute("itemsetUnits", ItemSetUnit.toJsonStr());
-		//add by lianhr begin 2019/02/19
-		model.addAttribute("itemmodels", ModelEnum.toJsonStr());
-		//add by lianhr end
-
+		
 		return "processesmanage";
 	}
 
@@ -130,6 +122,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Map<String, Object> filterPara = null;
 			ProcessModelExample example = new ProcessModelExample();
 			Criteria criteria = example.or();
+			criteria.andTypeEqualTo(ProcessType.POIPOLYMERIZE.getValue());
 			criteria.andStateNotEqualTo(ProcessState.COMPLETE.getValue());
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
@@ -137,9 +130,6 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					switch (key) {
 					case "id":
 						criteria.andIdEqualTo(Long.valueOf(filterPara.get(key).toString()));
-						break;
-					case "type":
-						criteria.andTypeEqualTo(Integer.valueOf(filterPara.get(key).toString()));
 						break;
 					case "name":
 						criteria.andNameLike("%" + filterPara.get(key).toString() + "%");
@@ -707,125 +697,6 @@ public class ProcessesManageCtrl extends BaseCtrl {
 	}
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(params = "atn=getitemareas")
-	public ModelAndView getItemAreas(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("ProcessesManageCtrl-getItemAreas start.");
-		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		List<ItemAreaModel> itemAreas = new ArrayList<ItemAreaModel>();
-		try {
-			Integer type = ParamUtils.getIntParameter(request, "type", -1);
-			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
-			String filter = ParamUtils.getParameter(request, "filter", "");
-
-			Map<String, Object> filterPara = null;
-			ItemAreaModel itemAreaModel = new ItemAreaModel();
-
-			if (filter.length() > 0) {
-				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
-				for (String key : filterPara.keySet()) {
-					switch (key) {
-					case "id":
-						itemAreaModel.setId(Integer.valueOf(filterPara.get(key).toString()));
-						break;
-					case "areatype":
-						itemAreaModel.setType(Integer.valueOf(filterPara.get(key).toString()));
-						break;
-					case "province":
-						itemAreaModel.setProvince(filterPara.get(key).toString());
-						break;
-					case "city":
-						itemAreaModel.setCity(filterPara.get(key).toString());
-						break;
-					default:
-						logger.error("未处理的筛选项：" + key);
-						break;
-					}
-				}
-			}
-
-			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-			if (configDBModel != null) {
-				itemAreas = itemSetModelDao.getItemAreas(configDBModel, type, itemAreaModel);
-				
-				json.addObject("rows", itemAreas);
-				json.addObject("count", itemAreas.size());
-				json.addObject("result", 1);
-			} else {
-				json.addObject("result", 0);
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-
-		logger.debug("ProcessesManageCtrl-getItemAreas end.");
-		return json;
-	}
-
-	@SuppressWarnings("unchecked")
-	@RequestMapping(params = "atn=getitemsets")
-	public ModelAndView getItemsets(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("ProcessesManageCtrl-getItemsets start.");
-		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		List<ItemSetModel> itemsets = new ArrayList<ItemSetModel>();
-		try {
-			String filter = ParamUtils.getParameter(request, "filter", "");
-			ProcessType processType = ProcessType.valueOf(ParamUtils.getIntParameter(request, "processType", -1));
-
-			Map<String, Object> filterPara = null;
-			ItemSetModel itemSetModel = new ItemSetModel();
-
-			if (filter.length() > 0) {
-				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
-				for (String key : filterPara.keySet()) {
-					switch (key) {
-					case "id":
-						itemSetModel.setId(Long.valueOf(filterPara.get(key).toString()));
-						break;
-					case "name":
-						itemSetModel.setName(filterPara.get(key).toString());
-						break;
-					case "layername":
-						itemSetModel.setLayername(filterPara.get(key).toString());
-						break;
-					case "type":
-						itemSetModel.setType(Integer.valueOf(filterPara.get(key).toString()));
-						break;
-					case "systype":
-						itemSetModel.setSystype(Integer.valueOf(filterPara.get(key).toString()));
-						break;
-					case "referdata":
-						itemSetModel.setReferdata(filterPara.get(key).toString());
-						break;
-					case "unit":
-						itemSetModel.setUnit(Byte.valueOf(filterPara.get(key).toString()));
-						break;
-					case "desc":
-						itemSetModel.setDesc(filterPara.get(key).toString());
-						break;
-					default:
-						logger.error("未处理的筛选项：" + key);
-						break;
-					}
-				}
-			}
-
-			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
-			itemsets = itemSetModelDao.selectItemSets(configDBModel, itemSetModel, -1, -1);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-		json.addObject("rows", itemsets);
-		json.addObject("count", itemsets.size());
-		json.addObject("result", 1);
-
-		logger.debug("ProcessesManageCtrl-getItemsets end.");
-		return json;
-	}
-
-	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=getworkersandcheckers")
 	public ModelAndView getWorkersAndCheckers(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProcessesManageCtrl-getWorkersAndCheckers start.");
@@ -1037,7 +908,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Integer offset = ParamUtils.getIntParameter(request, "offset", -1);
 			String filter = ParamUtils.getParameter(request, "filter", "");
 			
-			ProcessType processType = ProcessType.POIEDIT;
+			ProcessType processType = ProcessType.POIPOLYMERIZE;
 
 			Map<String, Object> filterPara = null;
 			DatasetModel record = new DatasetModel();
@@ -1088,6 +959,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 	private Set<Integer> getDataTypesByProcessType(ProcessType processType) {
 		Set<Integer> set = new HashSet<Integer>();
 		switch (processType) {
+		case POIPOLYMERIZE:
+			set.add(36);
+			break;
 		case POIEDIT:
 			set.add(14);
 			set.add(31);
