@@ -174,12 +174,6 @@ public class TasksManageCtrl extends BaseCtrl {
 					case "name":
 						record.setName(filterPara.get(key).toString());
 						break;
-					case "batchid":
-						record.setBatchid(Long.valueOf(filterPara.get(key).toString()));
-						break;
-					case "tasktype":
-						record.setTasktype(Integer.valueOf(filterPara.get(key).toString()));
-						break;
 					case "priority":
 						record.setPriority(Integer.valueOf(filterPara.get(key).toString()));
 						break;
@@ -243,7 +237,6 @@ public class TasksManageCtrl extends BaseCtrl {
 			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
 				ConfigDBModel configDBModel = configDBModelDao
 						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-				record.setProcesstype(processType.getValue());
 				Integer count = taskModelDao.countTaskModels(configDBModel, record, projectids, editUserids, checkUserids, stateMaps);
 				if (count != null && count.compareTo(0) > 0) {
 					List<TaskModel> rows = taskModelDao.selectTaskModels(configDBModel, record, projectids, editUserids, checkUserids, stateMaps, limit, offset);
@@ -324,7 +317,6 @@ public class TasksManageCtrl extends BaseCtrl {
 								for (ProcessModel processesInRow : processesInRows) {
 									if (processesInRow.getId().equals(projectsInRow.getProcessid())) {
 										row.setProcessid(processesInRow.getId());
-										row.setProcessstate(processesInRow.getState());
 										row.setProcessname(processesInRow.getName());
 										break;
 									}
@@ -335,16 +327,12 @@ public class TasksManageCtrl extends BaseCtrl {
 						
 						for (Map<String, Object> error : errorList) {
 							if (taskid.equals(Long.valueOf(error.get("taskid").toString()))) {
-								row.setErrortotal(Integer.valueOf(error.get("total").toString()));
-								row.setErrorrest(Integer.valueOf(error.get("rest").toString()));
 								break;
 							}
 						}
 						
 						for (Map<String, Object> fielddata : fielddataList) {
 							if (taskid.equals(Long.valueOf(fielddata.get("taskid").toString()))) {
-								row.setFielddatatotal(Integer.valueOf(fielddata.get("total").toString()));
-								row.setFielddatarest(Integer.valueOf(fielddata.get("rest").toString()));
 								break;
 							}
 						}
@@ -641,7 +629,7 @@ public class TasksManageCtrl extends BaseCtrl {
 	private String getStateDes(TaskModel task) {
 		Integer state = task.getState();
 		Integer process = task.getProcess();
-		TaskTypeEnum tasktype = TaskTypeEnum.valueOf(task.getTasktype());
+		TaskTypeEnum tasktype = TaskTypeEnum.UNKNOWN;
 		Integer checkid = task.getCheckid();
 		
 		if (tasktype.equals(TaskTypeEnum.QC_JIUGONGGE) || tasktype.equals(TaskTypeEnum.QC_QUANYU)) {

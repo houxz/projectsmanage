@@ -111,7 +111,11 @@ public enum TaskTypeEnum {
 	/**
 	 * 19, "附属表资料"
 	 */
-	ATTACHWITHDATA(19, "附属表资料");
+	ATTACHWITHDATA(19, "附属表资料"),
+	/**
+	 * 20, "POI人工聚合项目"
+	 */
+	POIPOLYMERIZE(20, "POI人工聚合任务");
 
 	private Integer value;
 	private String des;

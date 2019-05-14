@@ -31,6 +31,7 @@
 	
 	<context:property-placeholder location="WEB-INF/spring/version.properties" ignore-unresolvable="true"/>
 	<context:property-placeholder location="WEB-INF/spring/scheduler.properties" ignore-unresolvable="true"/>
+	<context:property-placeholder location="WEB-INF/spring/webapi.properties" ignore-unresolvable="true"/>
 	
 	<beans:bean id="transactionManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
