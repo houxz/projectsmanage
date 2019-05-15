@@ -75,29 +75,4 @@ public class PublicClient {
 		return referdatas;
 	}
 	
-	public List<ReferdataModel> selectPOIByOid(Long oid) throws Exception {
-		List<ReferdataModel> referdatas = new ArrayList<ReferdataModel>();
-		try {
-			HttpClientResult result = HttpClientUtils.doGet(String.format(selectReferdatasByKeywordidUrl, host, port, path, oid));
-			if (!result.getStatus().equals(HttpStatus.OK))
-				return null;
-			
-			Object json = JSONArray.parse(result.getJson());
-			if (json instanceof JSONArray) {
-				JSONArray data = (JSONArray) json;
-				if (data != null && data.size() > 0) {
-					for (Integer i = 0, len = data.size(); i < len; i++) {
-						ReferdataModel referdata = new ReferdataModel();
-						referdata = JSON.parseObject(data.getJSONObject(i).toJSONString(), ReferdataModel.class);
-						referdatas.add(referdata);
-					}
-				}
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw e;
-		}
-		
-		return referdatas;
-	}
 }

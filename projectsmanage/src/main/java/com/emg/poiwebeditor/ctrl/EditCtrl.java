@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.emg.poiwebeditor.client.POIClient;
 import com.emg.poiwebeditor.client.PublicClient;
 import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.CommonConstants;
@@ -25,6 +26,7 @@ import com.emg.poiwebeditor.dao.process.ProcessModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.poiwebeditor.pojo.KeywordModel;
+import com.emg.poiwebeditor.pojo.POIDo;
 import com.emg.poiwebeditor.pojo.ProcessModel;
 import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ProjectModelExample;
@@ -48,6 +50,8 @@ public class EditCtrl extends BaseCtrl {
 	private TaskModelClient taskModelClient;
 	@Autowired
 	private PublicClient publicClient;
+	@Autowired
+	private POIClient poiClient;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String openLader(Model model, HttpSession session, HttpServletRequest request) {
@@ -245,15 +249,15 @@ public class EditCtrl extends BaseCtrl {
 	public ModelAndView getPOIByOid(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		List<ReferdataModel> referdatas = new ArrayList<ReferdataModel>();
+		POIDo poi = new POIDo();
 		try {
 			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
-			referdatas = publicClient.selectPOIByOid(oid);
+			poi = poiClient.selectPOIByOid(oid);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			referdatas = new ArrayList<ReferdataModel>();
+			poi = new POIDo();
 		}
-		json.addObject("poi", referdatas);
+		json.addObject("poi", poi);
 		json.addObject("count", 1);
 		json.addObject("result", 1);
 

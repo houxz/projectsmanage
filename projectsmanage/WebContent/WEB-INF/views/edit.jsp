@@ -32,14 +32,19 @@
 <script src="resources/js/proj4leaflet.js"></script>
 <script src="resources/js/tileLayer.baidu.js" ></script >
 <script src="resources/leaflet.awesome-markers-2.0/leaflet.awesome-markers.min.js"></script>
+<script type="text/javascript"  src="https://unpkg.com/leaflet.vectorgrid@1.2.0"></script>
    
 <script type="text/javascript">
 	var $emgmap = null, $baidumap = null, $gaodemap = null, $tengxunmap = null;
-	var $emgmaker = null, $baidumaker = null, $gaodemaker = null, $tengxunmaker = null;
+	var $emgmarker = null, $baidumarker = null, $gaodemarker = null, $tengxunmarker = null;
 	var keywordid = eval('(${keywordid})');
 	var zoom = 17;
 	
 	var loaderr = "<span class='red'>加载失败</span>";
+	var redMarker = L.AwesomeMarkers.icon({
+	    	icon: 'coffee',
+	    	markerColor: 'red'
+	  	});
 	
 	$(document).ready(function() {
 		$.webeditor.getHead();
@@ -75,7 +80,6 @@
 	}
 	
 	function drawEMGMap(lat, lng, zoom) {
-		try{
 			if ($emgmap) {
 				$emgmap.setCenter([lng, lat]);
 			} else {
@@ -85,19 +89,15 @@
 			        zoom: zoom-1,
 			        center: [lng, lat]
 			    });
-				
 			}
 			
-			if ($emgmaker) {
-				$emgmaker.setLngLat([lng, lat ]);
+			if ($emgmarker) {
+				$emgmarker.setLngLat([lng, lat ]);
 			} else {
-				$emgmaker = new emapgo.Marker()
+				$emgmarker = new emapgo.Marker()
 					.setLngLat([lng, lat ])
 					.addTo($emgmap);
 			}
-		} catch(e) {
-			
-		}
 	}
 	
 	function drawBaiDuMap(lat, lng, zoom) {
@@ -114,10 +114,10 @@
 				});
 			}
 			
-			if ($baidumaker) {
-				$baidumaker.setLatLng([lat, lng]);
+			if ($baidumarker) {
+				$baidumarker.setLatLng([lat, lng]);
 			} else {
-				$baidumaker = L.marker([lat, lng]).addTo($baidumap);
+				$baidumarker = L.marker([lat, lng], {icon: redMarker}).addTo($baidumap);
 			}
 		} catch(e) {
 			
@@ -137,10 +137,10 @@
 				});
 			}
 			
-			if ($gaodemaker) {
-				$gaodemaker.setLatLng([lat, lng]);
+			if ($gaodemarker) {
+				$gaodemarker.setLatLng([lat, lng]);
 			} else {
-				$gaodemaker = L.marker([lat, lng]).addTo($gaodemap);
+				$gaodemarker = L.marker([lat, lng], {icon: redMarker}).addTo($gaodemap);
 			}
 		} catch(e) {
 			
@@ -163,10 +163,10 @@
 				});
 			}
 			
-			if ($tengxunmaker) {
-				$tengxunmaker.setLatLng([lat, lng]);
+			if ($tengxunmarker) {
+				$tengxunmarker.setLatLng([lat, lng]);
 			} else {
-				$tengxunmaker = L.marker([lat, lng]).addTo($tengxunmap);
+				$tengxunmarker = L.marker([lat, lng], {icon: redMarker}).addTo($tengxunmap);
 			}
 		} catch(e) {
 			
@@ -178,9 +178,19 @@
 			"atn" : "getpoibyoid",
 			"oid" : oid
 		}, function(json) {
+			$("table#tbEdit>tbody td.tdValue>input:text").val("");
 			if (json && json.result == 1) {
 				var poi = json.poi;
+				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(poi.id);
+				$("table#tbEdit>tbody td.tdValue[data-key='name']>input:text").val(poi.namec);
+				$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val(poi.featcode);
+				$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val(poi.sortcode);
+				
+				poi.poitags.forEach(function(tag, index) {
+					$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
+				});
 			} else {
+				$("table#tbEdit>tbody td.tdValue>input:text").val("加载失败");
 			}
 		}, "json");
 	}
@@ -188,16 +198,16 @@
 	function rdChange(srcType, lat, lng, srcInnerId) {
 		if (srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
 			loadEditPOI(srcInnerId);
-			$emgmaker.setLngLat([lng, lat ]);
+			$emgmarker.setLngLat([lng, lat ]);
 			$emgmap.setCenter([lng, lat]);
 		} else if (srcType == <%=SrcTypeEnum.BAIDU.getValue() %>) {
-			$baidumaker.setLatLng([lat, lng]);
+			$baidumarker.setLatLng([lat, lng]);
 			$baidumap.setView([lat, lng]);
 		} else if (srcType == <%=SrcTypeEnum.TENGXUN.getValue() %>) {
-			$tengxunmaker.setLatLng([lat, lng]);
+			$tengxunmarker.setLatLng([lat, lng]);
 			$tengxunmap.setView([lat, lng]);					
 		} else if (srcType == <%=SrcTypeEnum.GAODE.getValue() %>) {
-			$gaodemaker.setLatLng([lat, lng]);
+			$gaodemarker.setLatLng([lat, lng]);
 			$gaodemap.setView([lat, lng]);
 		} else {
 			console.log("Error on srcType: " + srcType);
@@ -219,7 +229,7 @@
 		referdatas.forEach(function(referdata, index) {
 			var html = new Array();
 			html.push("<tr><td class='tdIndex' rowspan='5'>");
-		    html.push("<input type='radio' name='rd" + tbid + "' onChange='rdChange(" + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + "," + referdata.srcInnerId + ");' value='" + referdata.id + "' " + (index == 0 ? 'checked':'') + ">");
+		    html.push("<input type='radio' name='rd" + tbid + "' onChange='rdChange(" + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\");' value='" + referdata.id + "' " + (index == 0 ? 'checked':'') + ">");
 		    html.push("<span class='glyphicon glyphicon-share cursorable'></span></td></tr>");
 		    
 		    html.push("<tr><td class='tdKey'>名称</td>");
@@ -270,6 +280,8 @@
 					baidurefers.sort(refercompare);
 					gaoderefers.sort(refercompare);
 					tengxunrefers.sort(refercompare);
+					
+					loadEditPOI(emgrefers[0].srcInnerId);
 					
 					drawEMGMap(emgrefers[0].srcLat, emgrefers[0].srcLon, zoom);
 					drawBaiDuMap(baidurefers[0].srcLat, baidurefers[0].srcLon, zoom);
@@ -358,35 +370,43 @@
 					    	</tr>
 					  	</thead>
 						<tbody>
-							<tr class="">
+							<tr>
 								<td class="tdKey">OID</td>
-								<td class="tdValue" data-key="oid"><input class="form-control input-sm" type="text"></td>
+								<td class="tdValue" data-key="oid"><input class="form-control input-sm" type="text" disabled></td>
 							</tr>
-							<tr class="">
+							<tr>
 								<td class="tdKey">名称</td>
 								<td class="tdValue" data-key="name"><input class="form-control input-sm" type="text"></td>
 							</tr>
-							<tr class="">
+							<tr>
 								<td class="tdKey">电话</td>
 								<td class="tdValue" data-key="telephone"><input class="form-control input-sm" type="text"></td>
 							</tr>
-							<tr class="">
+							<tr>
+								<td class="tdKey">类型</td>
+								<td class="tdValue" data-key="featcode"><input class="form-control input-sm" type="text"></td>
+							</tr>
+							<tr>
+								<td class="tdKey">系列</td>
+								<td class="tdValue" data-key="sortcode"><input class="form-control input-sm" type="text"></td>
+							</tr>
+							<tr>
 								<td class="tdKey">四级地址</td>
 								<td class="tdValue" data-key="address4"><input class="form-control input-sm" type="text"></td>
 							</tr>
-							<tr class="">
+							<tr>
 								<td class="tdKey">五级地址</td>
 								<td class="tdValue" data-key="address5"><input class="form-control input-sm" type="text"></td>
 							</tr>
-							<tr class="">
+							<tr>
 								<td class="tdKey">六级地址</td>
 								<td class="tdValue" data-key="address6"><input class="form-control input-sm" type="text"></td>
 							</tr>
-							<tr class="">
+							<tr>
 								<td class="tdKey">七级地址</td>
 								<td class="tdValue" data-key="address7"><input class="form-control input-sm" type="text"></td>
 							</tr>
-							<tr class="">
+							<tr>
 								<td class="tdKey">八级地址</td>
 								<td class="tdValue" data-key="address8"><input class="form-control input-sm" type="text"></td>
 							</tr>
