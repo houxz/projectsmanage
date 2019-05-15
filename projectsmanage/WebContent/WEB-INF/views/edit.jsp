@@ -182,7 +182,7 @@
 			if (json && json.result == 1) {
 				var poi = json.poi;
 				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(poi.id);
-				$("table#tbEdit>tbody td.tdValue[data-key='name']>input:text").val(poi.namec);
+				$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
 				$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val(poi.featcode);
 				$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val(poi.sortcode);
 				
@@ -328,7 +328,7 @@
 	<div class="containerdiv">
 		<div class="row-fluid fullHeight">
 			<div class="col-md-2 fullHeight">
-				<div style="position: absolute; top: 3%; left: 0; right: 0; height: 38%; overflow-y: scroll;">
+				<div style="position: absolute; top: 3%; left: 0; right: 0; height: 180px;">
 					<table id="tbKeyword" class="table table-bordered table-condensed">
 						<thead>
 					    	<tr>
@@ -361,7 +361,7 @@
 						</tbody>
 					</table>
 				</div>
-				<div style="position: absolute; top: 30%; left: 0; right: 0; bottom: 60px; overflow-y: scroll;">
+				<div style="position: absolute; top: 185px; left: 0; right: 0; bottom: 60px;">
 					<table id="tbEdit" class="table table-bordered table-condensed">
 						<thead>
 					    	<tr>
@@ -373,10 +373,11 @@
 							<tr>
 								<td class="tdKey">OID</td>
 								<td class="tdValue" data-key="oid"><input class="form-control input-sm" type="text" disabled></td>
+								<td class="tbTool"><span class="glyphicon glyphicon-remove cursorable" onClick="deletePOI(this);"></span></td>
 							</tr>
 							<tr>
 								<td class="tdKey">名称</td>
-								<td class="tdValue" data-key="name"><input class="form-control input-sm" type="text"></td>
+								<td class="tdValue" data-key="name"><textarea class="form-control input-sm"></textarea></td>
 							</tr>
 							<tr>
 								<td class="tdKey">电话</td>
