@@ -299,6 +299,10 @@ button {
 	white-space: -moz-pre-wrap;
 }
 
+.cursorable {
+	cursor: pointer!important;
+}
+
 .dropdown-menu > .active > a,
 .dropdown-menu > .active > a:hover,
 .dropdown-menu > .active > a:focus {
@@ -323,9 +327,16 @@ button {
     width: 100%;
 }
 
-.trIndex {
-	width: 12%;
+tb.tdIndex {
+	width: 25px;
 }
-.tdKey {
-	width: 25%;
+td.tdKey {
+	width: 42px;
+}
+td.tbTool {
+	width: 28px;
+}
+
+.red {
+	color: red;
 }

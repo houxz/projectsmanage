@@ -18,15 +18,15 @@ public enum SrcTypeEnum {
 	/**
 	 * 31, "百度"
 	 */
-	BAIDU(31, "百度"),
+	BAIDU(45, "百度"),
 	/**
 	 * 32,"高德"
 	 */
-	GAODE(32,"高德"),
+	GAODE(47,"高德"),
 	/**
 	 * 33,"腾讯"
 	 */
-	TENGXUN(33,"腾讯");
+	TENGXUN(46,"腾讯");
 
 	private Integer value;
 	private String des;
