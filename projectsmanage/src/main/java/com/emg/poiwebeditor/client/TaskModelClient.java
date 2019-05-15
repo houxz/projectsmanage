@@ -1,5 +1,6 @@
 package com.emg.poiwebeditor.client;
 
+import java.net.URLEncoder;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -20,11 +21,11 @@ public class TaskModelClient {
 	private String path;
 	
 	private final static String SELECT = "select";
-//	private final static String UPDATE = "update";
+	private final static String UPDATE = "update";
 	
 	private static final Logger logger = LoggerFactory.getLogger(TaskModelClient.class);
 	
-//	private String getUrl = "http://%s:%s/%s/mergetask/%s/%s/execute";
+	private String getUrl = "http://%s:%s/%s/mergetask/%s/%s/execute";
 	private String postUrl = "http://%s:%s/%s/mergetask/%s";
 	
 	private String contentType = "application/x-www-form-urlencoded";
@@ -40,6 +41,18 @@ public class TaskModelClient {
 		}
 		
 		return task;
+	}
+	
+	public Long submitEditTask(Long taskid, Integer editid) throws Exception {
+		Long ret = -1L;
+		try {
+			String sql = submitEditTaskSQL(taskid, editid);
+			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE, URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		return ret;
 	}
 	
 	private String getEditTaskSQL(List<Long> projectIDs, Integer userid) {
@@ -64,6 +77,15 @@ public class TaskModelClient {
 		sb.append("			from projectid as p ");
 		sb.append("		) as b where taskid is not null limit 1 ");
 		sb.append(" ) as a(id) where tb_task.id = a.id returning tb_task.*; ");
+		return sb.toString();
+	}
+	
+	private String submitEditTaskSQL(Long taskid, Integer editid) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("UPDATE tb_task");
+		sb.append(" SET endtime=now(),operatetime=now(),state = 2");
+		sb.append(" WHERE id = " + taskid);
+		sb.append(" AND editid = " + editid);
 		return sb.toString();
 	}
 	

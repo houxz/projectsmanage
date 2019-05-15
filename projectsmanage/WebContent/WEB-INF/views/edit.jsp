@@ -32,7 +32,6 @@
 <script src="resources/js/proj4leaflet.js"></script>
 <script src="resources/js/tileLayer.baidu.js" ></script >
 <script src="resources/leaflet.awesome-markers-2.0/leaflet.awesome-markers.min.js"></script>
-<script type="text/javascript"  src="https://unpkg.com/leaflet.vectorgrid@1.2.0"></script>
    
 <script type="text/javascript">
 	var $emgmap = null, $baidumap = null, $gaodemap = null, $tengxunmap = null;
@@ -49,9 +48,11 @@
 	$(document).ready(function() {
 		$.webeditor.getHead();
 		
-		loadKeyword(keywordid);
-		
-		loadReferdatas(keywordid);
+		if (keywordid && keywordid > 0) {
+			loadKeyword(keywordid);
+			
+			loadReferdatas(keywordid);
+		}
 		
 	});
 	
@@ -299,187 +300,210 @@
 		}, "json");
 	}
 	
-	function getNextEditTask(taskid) {
-		jQuery.post("./edit.web", {
-			"atn" : "getnextedittask",
-			"taskid" : taskid
-		}, function(json) {
-			if (json && json.result == 1) {
-				var task = json.task;
-				var process = json.process;
-				var project = json.project;
-				$("#curProcessID").text(process.id);
-				$("#curProcessName").text(process.name);
-				$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
-				$("#curTaskID").text(task.id);
-				$("#curProjectID").text(task.projectid);
-				keywordid = json.keywordid;
-				loadKeyword(keywordid);
-				loadReferdatas(keywordid);
-			} else {
-				console.log("getNextEditTask error");
-			}
-		}, "json");
+	function submitEditTask() {
+		$.webeditor.showConfirmBox("alert","确定要提交并获取下一个资料吗？", function(){
+			$.webeditor.showMsgBox("info", "数据保存中...");
+			jQuery.post("./edit.web", {
+				"atn" : "submitedittask",
+				"taskid" : $("#curTaskID").html(),
+				"getnext" : true
+			}, function(json) {
+				if (json && json.result == 1) {
+					var task = json.task;
+					if (task && task.id) {
+						var process = json.process;
+						var project = json.project;
+						$("#curProcessID").text(process.id);
+						$("#curProcessName").text(process.name);
+						$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
+						$("#curTaskID").text(task.id);
+						$("#curProjectID").text(task.projectid);
+						keywordid = json.keywordid;
+						if (keywordid && keywordid > 0) {
+							loadKeyword(keywordid);
+							loadReferdatas(keywordid);
+						}
+					} else {
+						
+					}
+					
+				} else {
+					console.log("submitEditTask error");
+				}
+				$.webeditor.showMsgBox("close");
+			}, "json");
+		});
 	}
 </script>
 </head>
 <body>
 	<div id="headdiv"></div>
-	<div class="containerdiv">
-		<div class="row-fluid fullHeight">
-			<div class="col-md-2 fullHeight">
-				<div style="position: absolute; top: 3%; left: 0; right: 0; height: 180px;">
-					<table id="tbKeyword" class="table table-bordered table-condensed">
-						<thead>
-					    	<tr>
-					      		<th></th>
-					      		<th>参考数据</th>
-					      		<th></th>
-					    	</tr>
-					  	</thead>
-						<tbody>
-							<tr>
-								<td class="tdKey">名称</td>
-								<td class="tdValue" data-key="name">加载中...</td>
-								<td class="tbTool"><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
-							</tr>
-							<tr>
-								<td class="tdKey">地址</td>
-								<td class="tdValue" data-key="address">加载中...</td>
-								<td class="tbTool"><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
-							</tr>
-							<tr>
-								<td class="tdKey">电话</td>
-								<td class="tdValue" data-key="telephone">加载中...</td>
-								<td class="tbTool"><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
-							</tr>
-							<tr>
-								<td class="tdKey">分类</td>
-								<td class="tdValue" data-key="categoryName">加载中...</td>
-								<td class="tbTool"><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<div style="position: absolute; top: 185px; left: 0; right: 0; bottom: 60px;">
-					<table id="tbEdit" class="table table-bordered table-condensed">
-						<thead>
-					    	<tr>
-					      		<th></th>
-					      		<th>当前编辑数据</th>
-					    	</tr>
-					  	</thead>
-						<tbody>
-							<tr>
-								<td class="tdKey">OID</td>
-								<td class="tdValue" data-key="oid"><input class="form-control input-sm" type="text" disabled></td>
-								<td class="tbTool"><span class="glyphicon glyphicon-remove cursorable" onClick="deletePOI(this);"></span></td>
-							</tr>
-							<tr>
-								<td class="tdKey">名称</td>
-								<td class="tdValue" data-key="name"><textarea class="form-control input-sm"></textarea></td>
-							</tr>
-							<tr>
-								<td class="tdKey">电话</td>
-								<td class="tdValue" data-key="telephone"><input class="form-control input-sm" type="text"></td>
-							</tr>
-							<tr>
-								<td class="tdKey">类型</td>
-								<td class="tdValue" data-key="featcode"><input class="form-control input-sm" type="text"></td>
-							</tr>
-							<tr>
-								<td class="tdKey">系列</td>
-								<td class="tdValue" data-key="sortcode"><input class="form-control input-sm" type="text"></td>
-							</tr>
-							<tr>
-								<td class="tdKey">四级地址</td>
-								<td class="tdValue" data-key="address4"><input class="form-control input-sm" type="text"></td>
-							</tr>
-							<tr>
-								<td class="tdKey">五级地址</td>
-								<td class="tdValue" data-key="address5"><input class="form-control input-sm" type="text"></td>
-							</tr>
-							<tr>
-								<td class="tdKey">六级地址</td>
-								<td class="tdValue" data-key="address6"><input class="form-control input-sm" type="text"></td>
-							</tr>
-							<tr>
-								<td class="tdKey">七级地址</td>
-								<td class="tdValue" data-key="address7"><input class="form-control input-sm" type="text"></td>
-							</tr>
-							<tr>
-								<td class="tdKey">八级地址</td>
-								<td class="tdValue" data-key="address8"><input class="form-control input-sm" type="text"></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<div style="position: absolute; left: 0; right: 0; bottom: 12px; height: 38px; text-align: center;">
-					<button class="btn btn-default">稍后修改</button>
-					<button class="btn btn-default" onClick="getNextEditTask();">保存</button>
-					<button class="btn btn-default">提交</button>
-				</div>
-			</div>
-			<div class="col-md-10 fullHeight">
-				<div style="position: absolute; top: 0; left: 0; right: 0; height: 50%;">
-			    	<div class="mappanel" style="position: absolute; top: 0; left: 0; width: 24.8%; height: 100%;">
-			    		<div class="panel panel-default">
-						    <div class="panel-heading"><strong>EMG地图</strong></div>
-						    <div class="panel-body">
-						    	<div id="emgmap" style="height: 100%;"></div>
-						    </div>
-						</div>
-			    	</div>
-			    	<div class="mappanel" style="position: absolute; top: 0; left: 25%; width: 24.8%; height: 100%;">
-			    		<div class="panel panel-default">
-						    <div class="panel-heading"><strong>百度地图</strong></div>
-						    <div class="panel-body">
-						    	<div id="baidumap" style="height: 100%;"></div>
-						    </div>
-						</div>
-			    	</div>
-			    	<div class="mappanel" style="position: absolute; top: 0; left: 50%; width: 24.8%; height: 100%;">
-			    		<div class="panel panel-default">
-						    <div class="panel-heading"><strong>高德地图</strong></div>
-						    <div class="panel-body">
-						    	<div id="gaodemap" style="height: 100%;"></div>
-						    </div>
-						</div>
-			    	</div>
-			    	<div class="mappanel" style="position: absolute; top: 0; left: 75%; width: 24.8%; height: 100%;">
-			    		<div class="panel panel-default">
-						    <div class="panel-heading"><strong>腾讯地图</strong></div>
-						    <div class="panel-body">
-						    	<div id="tengxunmap" style="height: 100%;"></div>
-						    </div>
-						</div>
-			    	</div>
-				</div>
-				<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 50%;">
-					<div style="position: absolute; top: 0; left: 0; width: 24.8%; height: 100%; overflow-y: scroll;">
-						<table id="tbemg" class="table table-bordered table-condensed">
-							<tbody><tr><td>加载中...</td></tr></tbody>
+	<c:choose>
+		<c:when test="${task != null and task.id != null}">
+		<div class="containerdiv">
+			<div class="row-fluid fullHeight">
+				<div class="col-md-2 fullHeight">
+					<div style="position: absolute; top: 3%; left: 0; right: 0; height: 200px;">
+						<table id="tbKeyword" class="table table-bordered table-condensed">
+							<thead>
+						    	<tr>
+						      		<th></th>
+						      		<th>参考数据</th>
+						      		<th></th>
+						    	</tr>
+						  	</thead>
+							<tbody>
+								<tr>
+									<td class="tdKey">名称</td>
+									<td class="tdValue" data-key="name">加载中...</td>
+									<td class="tbTool"><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
+								</tr>
+								<tr>
+									<td class="tdKey">地址</td>
+									<td class="tdValue" data-key="address">加载中...</td>
+									<td class="tbTool"><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
+								</tr>
+								<tr>
+									<td class="tdKey">电话</td>
+									<td class="tdValue" data-key="telephone">加载中...</td>
+									<td class="tbTool"><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
+								</tr>
+								<tr>
+									<td class="tdKey">分类</td>
+									<td class="tdValue" data-key="categoryName">加载中...</td>
+									<td class="tbTool"><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
+								</tr>
+							</tbody>
 						</table>
-			    	</div>
-			    	<div style="position: absolute; top: 0; left: 25%; width: 24.8%; height: 100%; overflow-y: scroll;">
-						<table  id="tbbaidu" class="table table-bordered table-condensed">
-							<tbody><tr><td>加载中...</td></tr></tbody>
+					</div>
+					<div style="position: absolute; top: 205px; left: 0; right: 0; bottom: 60px;">
+						<table id="tbEdit" class="table table-bordered table-condensed">
+							<thead>
+						    	<tr>
+						      		<th></th>
+						      		<th>当前编辑数据</th>
+						    	</tr>
+						  	</thead>
+							<tbody>
+								<tr>
+									<td class="tdKey">OID</td>
+									<td class="tdValue" data-key="oid"><input class="form-control input-sm" type="text" disabled></td>
+									<td class="tbTool"><span class="glyphicon glyphicon-remove cursorable" onClick="deletePOI(this);"></span></td>
+								</tr>
+								<tr>
+									<td class="tdKey">名称</td>
+									<td class="tdValue" data-key="name"><textarea class="form-control input-sm"></textarea></td>
+								</tr>
+								<tr>
+									<td class="tdKey">电话</td>
+									<td class="tdValue" data-key="telephone"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">类型</td>
+									<td class="tdValue" data-key="featcode"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">系列</td>
+									<td class="tdValue" data-key="sortcode"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">四级地址</td>
+									<td class="tdValue" data-key="address4"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">五级地址</td>
+									<td class="tdValue" data-key="address5"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">六级地址</td>
+									<td class="tdValue" data-key="address6"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">七级地址</td>
+									<td class="tdValue" data-key="address7"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">八级地址</td>
+									<td class="tdValue" data-key="address8"><input class="form-control input-sm" type="text"></td>
+								</tr>
+							</tbody>
 						</table>
-			    	</div>
-			    	<div style="position: absolute; top: 0; left: 50%; width: 24.8%; height: 100%; overflow-y: scroll;">
-						<table id="tbgaode" class="table table-bordered table-condensed">
-							<tbody><tr><td>加载中...</td></tr></tbody>
-						</table>
-			    	</div>
-			    	<div style="position: absolute; top: 0; left: 75%; width: 24.8%; height: 100%; overflow-y: scroll;">
-						<table id="tbtengxun" class="table table-bordered table-condensed">
-							<tbody><tr><td>加载中...</td></tr></tbody>
-						</table>
-			    	</div>
+					</div>
+					<div style="position: absolute; left: 0; right: 0; bottom: 12px; height: 38px; text-align: center;">
+						<button class="btn btn-default">稍后修改</button>
+						<button class="btn btn-default">保存</button>
+						<button class="btn btn-default" onClick="submitEditTask();">提交</button>
+					</div>
+				</div>
+				<div class="col-md-10 fullHeight">
+					<div style="position: absolute; top: 0; left: 0; right: 0; height: 50%;">
+				    	<div class="mappanel" style="position: absolute; top: 0; left: 0; width: 24.8%; height: 100%;">
+				    		<div class="panel panel-default">
+							    <div class="panel-heading"><strong>EMG地图</strong></div>
+							    <div class="panel-body">
+							    	<div id="emgmap" style="height: 100%; z-index: 10;"></div>
+							    </div>
+							</div>
+				    	</div>
+				    	<div class="mappanel" style="position: absolute; top: 0; left: 25%; width: 24.8%; height: 100%;">
+				    		<div class="panel panel-default">
+							    <div class="panel-heading"><strong>百度地图</strong></div>
+							    <div class="panel-body">
+							    	<div id="baidumap" style="height: 100%; z-index: 10;"></div>
+							    </div>
+							</div>
+				    	</div>
+				    	<div class="mappanel" style="position: absolute; top: 0; left: 50%; width: 24.8%; height: 100%;">
+				    		<div class="panel panel-default">
+							    <div class="panel-heading"><strong>高德地图</strong></div>
+							    <div class="panel-body">
+							    	<div id="gaodemap" style="height: 100%; z-index: 10;"></div>
+							    </div>
+							</div>
+				    	</div>
+				    	<div class="mappanel" style="position: absolute; top: 0; left: 75%; width: 24.8%; height: 100%;">
+				    		<div class="panel panel-default">
+							    <div class="panel-heading"><strong>腾讯地图</strong></div>
+							    <div class="panel-body">
+							    	<div id="tengxunmap" style="height: 100%; z-index: 10;"></div>
+							    </div>
+							</div>
+				    	</div>
+					</div>
+					<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 50%;">
+						<div style="position: absolute; top: 0; left: 0; width: 24.8%; height: 100%; overflow-y: scroll;">
+							<table id="tbemg" class="table table-bordered table-condensed">
+								<tbody><tr><td>加载中...</td></tr></tbody>
+							</table>
+				    	</div>
+				    	<div style="position: absolute; top: 0; left: 25%; width: 24.8%; height: 100%; overflow-y: scroll;">
+							<table  id="tbbaidu" class="table table-bordered table-condensed">
+								<tbody><tr><td>加载中...</td></tr></tbody>
+							</table>
+				    	</div>
+				    	<div style="position: absolute; top: 0; left: 50%; width: 24.8%; height: 100%; overflow-y: scroll;">
+							<table id="tbgaode" class="table table-bordered table-condensed">
+								<tbody><tr><td>加载中...</td></tr></tbody>
+							</table>
+				    	</div>
+				    	<div style="position: absolute; top: 0; left: 75%; width: 24.8%; height: 100%; overflow-y: scroll;">
+							<table id="tbtengxun" class="table table-bordered table-condensed">
+								<tbody><tr><td>加载中...</td></tr></tbody>
+							</table>
+				    	</div>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+		</c:when>
+		<c:otherwise>
+			<div class="well" style="width: 30em; margin: auto; margin-top: 150px;">
+				<br>
+				<img src="/poiwebeditor/resources/images/hasnotask.png" class="center-block img-rounded">
+				<h2 class="text-center">没有任务了</h2>
+			</div>
+		</c:otherwise>
+	</c:choose>
 	<div class="footline">
 		<div><span>当前项目编号：</span><span id="curProcessID">${process.id}</span></div>
 		<div><span>当前项目：</span><span id="curProcessName">${process.name}</span></div>
