@@ -2,6 +2,8 @@ package com.emg.poiwebeditor.ctrl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -12,23 +14,30 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.emg.poiwebeditor.client.POIClient;
 import com.emg.poiwebeditor.client.PublicClient;
 import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.CommonConstants;
+import com.emg.poiwebeditor.common.POIAttrnameEnum;
 import com.emg.poiwebeditor.common.ParamUtils;
 import com.emg.poiwebeditor.common.RoleType;
 import com.emg.poiwebeditor.common.SystemType;
-import com.emg.poiwebeditor.common.TaskTypeEnum;
 import com.emg.poiwebeditor.dao.process.ProcessModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.poiwebeditor.pojo.KeywordModel;
+import com.emg.poiwebeditor.pojo.POIDo;
 import com.emg.poiwebeditor.pojo.ProcessModel;
 import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ProjectModelExample;
 import com.emg.poiwebeditor.pojo.ProjectsUserModel;
 import com.emg.poiwebeditor.pojo.ReferdataModel;
+import com.emg.poiwebeditor.pojo.TagDO;
 import com.emg.poiwebeditor.pojo.TaskModel;
 
 @Controller
@@ -47,12 +56,253 @@ public class EditCtrl extends BaseCtrl {
 	private TaskModelClient taskModelClient;
 	@Autowired
 	private PublicClient publicClient;
+	@Autowired
+	private POIClient poiClient;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String openLader(Model model, HttpSession session, HttpServletRequest request) {
 		logger.debug("OPENLADER");
+		TaskModel task = new TaskModel();
+		ProjectModel project = new ProjectModel();
+		ProcessModel process = new ProcessModel();
+		Long keywordid = -1L;
+		
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			
+			task = getNextEditTask(userid);
+			if (task != null  && task.getId() != null) {
+				Long projectid = task.getProjectid();
+				if (projectid.compareTo(0L) > 0) {
+					project = projectModelDao.selectByPrimaryKey(projectid);
+					
+					Long processid = project.getProcessid();
+					if (processid.compareTo(0L) > 0) {
+						process = processModelDao.selectByPrimaryKey(processid);
+					}
+				}
+				
+				keywordid = task.getKeywordid();
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		
+		model.addAttribute("task", task);
+		model.addAttribute("project", project);
+		model.addAttribute("process", process);
+		model.addAttribute("keywordid", keywordid);
+		
+		logger.debug("OPENLADER OVER");
+		return "edit";
+	}
+	
+	@RequestMapping(params = "atn=submitedittask")
+	public ModelAndView submitEditTask(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		TaskModel task = new TaskModel();
+		ProjectModel project = new ProjectModel();
+		ProcessModel process = new ProcessModel();
+		Long keywordid = -1L;
+		try {
+			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
+			
+			if (taskModelClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
+				json.addObject("resultMsg", "任务提交失败");
+				json.addObject("result", 0);
+				return json;
+			}
+			
+			if (getnext) {
+				task = getNextEditTask(userid);
+				if (task != null  && task.getId() != null) {
+					Long projectid = task.getProjectid();
+					if (projectid.compareTo(0L) > 0) {
+						project = projectModelDao.selectByPrimaryKey(projectid);
+						
+						Long processid = project.getProcessid();
+						if (processid.compareTo(0L) > 0) {
+							process = processModelDao.selectByPrimaryKey(processid);
+						}
+					}
+					
+					keywordid = task.getKeywordid();
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		json.addObject("task", task);
+		json.addObject("project", project);
+		json.addObject("process", process);
+		json.addObject("keywordid", keywordid);
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+
+	@RequestMapping(params = "atn=getkeywordbyid")
+	public ModelAndView getKeywordByID(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		KeywordModel keyword = new KeywordModel();
+		try {
+			Long keywordid = ParamUtils.getLongParameter(request, "keywordid", -1);
+			keyword = publicClient.selectKeywordsByID(keywordid);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			keyword = new KeywordModel();
+		}
+		json.addObject("rows", keyword);
+		json.addObject("count", 1);
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=getreferdatabykeywordid")
+	public ModelAndView getReferdataByKeywordID(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<ReferdataModel> referdatas = new ArrayList<ReferdataModel>();
+		try {
+			Long keywordid = ParamUtils.getLongParameter(request, "keywordid", -1);
+			referdatas = publicClient.selectReferdatasByKeywordid(keywordid);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			referdatas = new ArrayList<ReferdataModel>();
+		}
+		json.addObject("rows", referdatas);
+		json.addObject("count", referdatas.size());
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=getpoibyoid")
+	public ModelAndView getPOIByOid(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		POIDo poi = new POIDo();
+		try {
+			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
+			poi = poiClient.selectPOIByOid(oid);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			poi = new POIDo();
+		}
+		json.addObject("poi", poi);
+		json.addObject("count", 1);
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	@RequestMapping(params = "atn=deletepoibyoid")
+	public ModelAndView deletePOIByOid(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		Long ret = -1L;
+		try {
+			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
+			ret = poiClient.deletePOIByOid(oid);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			ret = -1L;
+		}
+		json.addObject("result", ret);
+
+		logger.debug("END");
+		return json;
+	}
+	@RequestMapping(params = "atn=updatepoibyoid")
+	public ModelAndView updatePOIByOid(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		Long ret = -1L;
+		try {
+			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
+			String namec = ParamUtils.getParameter(request, "namec");
+			String tel = ParamUtils.getParameter(request, "tel");
+			Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
+			String sortcode = ParamUtils.getParameter(request, "sortcode");
+			String address4 = ParamUtils.getParameter(request, "address4");
+			String address5 = ParamUtils.getParameter(request, "address5");
+			String address6 = ParamUtils.getParameter(request, "address6");
+			String address7 = ParamUtils.getParameter(request, "address7");
+			String address8 = ParamUtils.getParameter(request, "address8");
+			
+			POIDo poi = poiClient.selectPOIByOid(oid);
+			logger.debug(JSON.toJSON(poi).toString());
+			poi.setNamec(namec);
+			poi.setFeatcode(featcode);
+			poi.setSortcode(sortcode);
+			Set<TagDO> tags = poi.getPoitags();
+			{
+				TagDO tag = new TagDO();
+				tag.setId(oid);
+				tag.setK(POIAttrnameEnum.tel.toString());
+				tag.setV(tel);
+				tags.add(tag);
+			}
+			{
+				TagDO tag = new TagDO();
+				tag.setId(oid);
+				tag.setK(POIAttrnameEnum.address4.toString());
+				tag.setV(address4);
+				tags.add(tag);
+			}
+			{
+				TagDO tag = new TagDO();
+				tag.setId(oid);
+				tag.setK(POIAttrnameEnum.address5.toString());
+				tag.setV(address5);
+				tags.add(tag);
+			}
+			{
+				TagDO tag = new TagDO();
+				tag.setId(oid);
+				tag.setK(POIAttrnameEnum.address6.toString());
+				tag.setV(address6);
+				tags.add(tag);
+			}
+			{
+				TagDO tag = new TagDO();
+				tag.setId(oid);
+				tag.setK(POIAttrnameEnum.address7.toString());
+				tag.setV(address7);
+				tags.add(tag);
+			}
+			{
+				TagDO tag = new TagDO();
+				tag.setId(oid);
+				tag.setK(POIAttrnameEnum.address8.toString());
+				tag.setV(address8);
+				tags.add(tag);
+			}
+			logger.debug(JSON.toJSON(poi).toString());
+			ret = poiClient.updatePOI(userid, poi);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			ret = -1L;
+		}
+		json.addObject("result", ret);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	private TaskModel getNextEditTask(Integer userid) {
+		TaskModel task = new TaskModel();
+		try {
 			RoleType roleType = RoleType.ROLE_WORKER;
 			SystemType systemType = SystemType.poi_polymerize;
 			
@@ -86,12 +336,6 @@ public class EditCtrl extends BaseCtrl {
 			example.setOrderByClause("priority DESC, id");
 			myProjects.addAll(projectModelDao.selectByExample(example));
 			
-			TaskModel task = new TaskModel();
-			ProjectModel project = new ProjectModel();
-			ProcessModel process = new ProcessModel();
-			KeywordModel keyword = new KeywordModel();
-			List<ReferdataModel> referdatas = new ArrayList<ReferdataModel>();
-			
 			if (myProjects != null && !myProjects.isEmpty()) {
 				List<Long> _myProjectIDs = new ArrayList<Long>();
 				for (ProjectModel myProject : myProjects) {
@@ -99,35 +343,10 @@ public class EditCtrl extends BaseCtrl {
 				}
 				
 				task = taskModelClient.selectMyNextEditTask(_myProjectIDs, userid);
-				if (task != null  && task.getId() != null) {
-					Long projectid = task.getProjectid();
-					if (projectid.compareTo(0L) > 0) {
-						project = projectModelDao.selectByPrimaryKey(projectid);
-						
-						Long processid = project.getProcessid();
-						if (processid.compareTo(0L) > 0) {
-							process = processModelDao.selectByPrimaryKey(processid);
-						}
-					}
-					
-					Long keywordid = task.getKeywordid();
-					if (keywordid != null && keywordid.compareTo(0L) > 0) {
-						keyword = publicClient.selectKeywordsByID(keywordid);
-						
-						referdatas = publicClient.selectReferdatasByKeywordid(keywordid);
-					}
-				}
 			}
-			model.addAttribute("task", task);
-			model.addAttribute("project", project);
-			model.addAttribute("process", process);
-			model.addAttribute("keyword", keyword);
-			model.addAttribute("referdata", referdatas);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-		logger.debug("OPENLADER OVER");
-		return "edit";
+		return task;
 	}
-
 }

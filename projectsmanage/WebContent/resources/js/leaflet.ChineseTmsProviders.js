@@ -19,9 +19,9 @@ L.TileLayer.ChinaProvider = L.TileLayer.extend({
 L.TileLayer.ChinaProvider.providers = {
 	EMG: {
 		Normal: {
-			Map: "http://tiles.emapgo.cn/data/emg.china-streets/{z}/{x}/{y}.pbf"
+			Map: "http://tiles.emapgo.cn/data/emg.china-streets/{z}/{x}/{y}.pbf",
 		},
-        Subdomains: ['a', 'b', 'c']
+		Subdomains: ['a', 'b', 'c']
 	},
 	
 	BaiDu: {

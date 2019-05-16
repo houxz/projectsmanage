@@ -1,7 +1,7 @@
 package com.emg.poiwebeditor.client;
 
+import java.net.URLEncoder;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,6 @@ import com.emg.poiwebeditor.common.Common;
 import com.emg.poiwebeditor.common.DatabaseType;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
-import com.emg.poiwebeditor.pojo.keywordModelForTask;
 
 @Service
 public class TaskModelClient {
@@ -30,11 +28,11 @@ public class TaskModelClient {
 	private String path;
 	
 	private final static String SELECT = "select";
-//	private final static String UPDATE = "update";
+	private final static String UPDATE = "update";
 	
 	private static final Logger logger = LoggerFactory.getLogger(TaskModelClient.class);
 	
-//	private String getUrl = "http://%s:%s/%s/mergetask/%s/%s/execute";
+	private String getUrl = "http://%s:%s/%s/mergetask/%s/%s/execute";
 	private String postUrl = "http://%s:%s/%s/mergetask/%s";
 	
 	private String contentType = "application/x-www-form-urlencoded";
@@ -50,6 +48,27 @@ public class TaskModelClient {
 		}
 		
 		return task;
+	}
+	
+	public Long submitEditTask(Long taskid, Integer editid) throws Exception {
+		Long ret = -1L;
+		try {
+			String sql = submitEditTaskSQL(taskid, editid);
+			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE, URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		return ret;
+	}
+	
+	private String submitEditTaskSQL(Long taskid, Integer editid) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("UPDATE tb_task");
+		sb.append(" SET endtime=now(),operatetime=now(),state = 2");
+		sb.append(" WHERE id = " + taskid);
+		sb.append(" AND editid = " + editid);
+		return sb.toString();
 	}
 	
 	private String getEditTaskSQL(List<Long> projectIDs, Integer userid) {
@@ -85,8 +104,6 @@ public class TaskModelClient {
 				return false;
 			Integer dbtype = configDBModel.getDbtype();
 
-			String separator = Common.getDatabaseSeparator(dbtype);
-
 			StringBuffer sql = new StringBuffer();
 			sql.append(" insert into ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
@@ -96,9 +113,6 @@ public class TaskModelClient {
 			sql.append(" (name,projectid,priority,rank,keywordid) ");
 			sql.append(" values('hxztest'," + projectid +",0,0,"+ shapeid +")");
 				
-System.out.println(sql);
-
-	
 			dataSource = Common.getDataSource(configDBModel);
 			int insertcount = new  JdbcTemplate(dataSource).update(sql.toString());
 			
