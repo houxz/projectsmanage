@@ -335,7 +335,7 @@
 						$("table#tbgaode>tbody").html("<tr><td>无数据</td></tr>");
 					}
 					
-					if (baidurefers && baidurefers.length > 0) {
+					if (tengxunrefers && tengxunrefers.length > 0) {
 						tengxunrefers.sort(refercompare);
 						drawTengXunMap(tengxunrefers[0].srcLat, tengxunrefers[0].srcLon, zoom);
 						drawReferdatas("tbtengxun", tengxunrefers);
