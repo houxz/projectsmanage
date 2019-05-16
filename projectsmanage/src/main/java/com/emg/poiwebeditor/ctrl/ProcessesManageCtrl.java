@@ -627,6 +627,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					pro.setOverstate(1);
 					projectModelDao.updateByPrimaryKeySelective(pro);
 					
+					
 					ProcessModel process = new ProcessModel();
 					process.setId(newProcessID);
 					process.setState(1);
