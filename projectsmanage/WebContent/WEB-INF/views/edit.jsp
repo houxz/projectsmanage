@@ -193,6 +193,8 @@
 	}
 	
 	function loadEditPOI(oid) {
+		if (!oid || oid <= 0) 	return;
+		
 		jQuery.post("./edit.web", {
 			"atn" : "getpoibyoid",
 			"oid" : oid
