@@ -33,6 +33,7 @@
 <script src="resources/js/proj4leaflet.js"></script>
 <script src="resources/js/tileLayer.baidu.js" ></script >
 <script src="resources/leaflet.awesome-markers-2.0/leaflet.awesome-markers.min.js"></script>
+<script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.js"></script>
    
 <script type="text/javascript">
 	var $emgmap = null, $baidumap = null, $gaodemap = null, $tengxunmap = null;
@@ -98,6 +99,7 @@
 	}
 	
 	function drawEMGMap(lat, lng, zoom) {
+		try{
 			if ($emgmap) {
 				$emgmap.setCenter([lng, lat]);
 			} else {
@@ -117,6 +119,9 @@
 					.setLngLat([lng, lat ])
 					.addTo($emgmap);
 			}
+		} catch(e) {
+			
+		}
 	}
 	
 	function drawBaiDuMap(lat, lng, zoom) {
@@ -136,7 +141,7 @@
 			if ($baidumarker) {
 				$baidumarker.setLatLng([lat, lng]);
 			} else {
-				$baidumarker = L.marker([lat, lng], {icon: redMarker}).addTo($baidumap);
+				$baidumarker = L.marker([lat, lng], {icon: matchMarker}).addTo($baidumap);
 			}
 		} catch(e) {
 			
@@ -159,7 +164,7 @@
 			if ($gaodemarker) {
 				$gaodemarker.setLatLng([lat, lng]);
 			} else {
-				$gaodemarker = L.marker([lat, lng], {icon: redMarker}).addTo($gaodemap);
+				$gaodemarker = L.marker([lat, lng], {icon: matchMarker}).addTo($gaodemap);
 			}
 		} catch(e) {
 			
@@ -185,7 +190,7 @@
 			if ($tengxunmarker) {
 				$tengxunmarker.setLatLng([lat, lng]);
 			} else {
-				$tengxunmarker = L.marker([lat, lng], {icon: redMarker}).addTo($tengxunmap);
+				$tengxunmarker = L.marker([lat, lng], {icon: matchMarker}).addTo($tengxunmap);
 			}
 		} catch(e) {
 			
@@ -301,22 +306,44 @@
 						}
 					});
 					
-					emgrefers.sort(refercompare);
-					baidurefers.sort(refercompare);
-					gaoderefers.sort(refercompare);
-					tengxunrefers.sort(refercompare);
+					if (emgrefers && emgrefers.length > 0) {
+						emgrefers.sort(refercompare);
+						loadEditPOI(emgrefers[0].srcInnerId);
+						drawEMGMap(emgrefers[0].srcLat, emgrefers[0].srcLon, zoom);
+						drawReferdatas("tbemg", emgrefers);
+					} else {
+						$("#emgmap").html("无数据");
+						$("table#tbemg>tbody").html("<tr><td>无数据</td></tr>");
+					}
 					
-					loadEditPOI(emgrefers[0].srcInnerId);
+					if (baidurefers && baidurefers.length > 0) {
+						baidurefers.sort(refercompare);
+						drawBaiDuMap(baidurefers[0].srcLat, baidurefers[0].srcLon, zoom);
+						drawReferdatas("tbbaidu", baidurefers);
+						
+					} else {
+						$("#baidumap").html("无数据");
+						$("table#tbbaidu>tbody").html("<tr><td>无数据</td></tr>");
+					}
 					
-					drawEMGMap(emgrefers[0].srcLat, emgrefers[0].srcLon, zoom);
-					drawBaiDuMap(baidurefers[0].srcLat, baidurefers[0].srcLon, zoom);
-					drawGaoDeMap(gaoderefers[0].srcLat, gaoderefers[0].srcLon, zoom);
-					drawTengXunMap(tengxunrefers[0].srcLat, tengxunrefers[0].srcLon, zoom);
+					if (gaoderefers && gaoderefers.length > 0) {
+						gaoderefers.sort(refercompare);
+						drawGaoDeMap(gaoderefers[0].srcLat, gaoderefers[0].srcLon, zoom);
+						drawReferdatas("tbgaode", gaoderefers);
+					} else {
+						$("#gaodemap").html("无数据");
+						$("table#tbgaode>tbody").html("<tr><td>无数据</td></tr>");
+					}
 					
-					drawReferdatas("tbemg", emgrefers);
-					drawReferdatas("tbbaidu", baidurefers);
-					drawReferdatas("tbgaode", gaoderefers);
-					drawReferdatas("tbtengxun", tengxunrefers);
+					if (baidurefers && baidurefers.length > 0) {
+						tengxunrefers.sort(refercompare);
+						drawTengXunMap(tengxunrefers[0].srcLat, tengxunrefers[0].srcLon, zoom);
+						drawReferdatas("tbtengxun", tengxunrefers);
+					} else {
+						$("#tengxunmap").html("无数据");
+						$("table#tbtengxun>tbody").html("<tr><td>无数据</td></tr>");
+					}
+					
 				}
 			} else {
 				
