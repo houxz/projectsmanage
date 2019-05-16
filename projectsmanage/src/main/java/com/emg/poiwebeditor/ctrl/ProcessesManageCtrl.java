@@ -624,7 +624,14 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					ProjectModel pro = new ProjectModel();
 					pro.setId(projectid349);
 					pro.setTasknum(taskcount);
+					pro.setOverstate(1);
 					projectModelDao.updateByPrimaryKeySelective(pro);
+					
+					ProcessModel process = new ProcessModel();
+					process.setId(newProcessID);
+					process.setState(1);
+					processModelDao.updateByPrimaryKeySelective(process);
+					
 				} else {
 					System.out.println("有资料未创建任务");
 				}
