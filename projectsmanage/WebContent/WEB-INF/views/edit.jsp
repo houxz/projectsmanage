@@ -108,8 +108,12 @@
 			        container : 'emgmap',
 			        style: 'http://tiles.emapgo.cn/styles/outdoor/style.json',
 			        zoom: zoom-1,
-			        center: [lng, lat]
+			        center: [lng, lat],
+			        localIdeographFontFamily : "'Noto Sans', 'Noto Sans CJK SC', sans-serif"
 			    });
+				$emgmap.on('styledata',function(){
+					$emgmap.setPaintProperty('china-building', 'fill-extrusion-height', 0);
+				})
 			}
 			
 			if ($emgmarker) {
@@ -320,7 +324,6 @@
 						baidurefers.sort(refercompare);
 						drawBaiDuMap(baidurefers[0].srcLat, baidurefers[0].srcLon, zoom);
 						drawReferdatas("tbbaidu", baidurefers);
-						
 					} else {
 						$("#baidumap").html("无数据");
 						$("table#tbbaidu>tbody").html("<tr><td>无数据</td></tr>");
