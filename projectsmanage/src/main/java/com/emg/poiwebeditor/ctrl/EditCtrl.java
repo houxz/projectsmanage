@@ -2,6 +2,8 @@ package com.emg.poiwebeditor.ctrl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -19,6 +21,7 @@ import com.emg.poiwebeditor.client.POIClient;
 import com.emg.poiwebeditor.client.PublicClient;
 import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.CommonConstants;
+import com.emg.poiwebeditor.common.POIAttrnameEnum;
 import com.emg.poiwebeditor.common.ParamUtils;
 import com.emg.poiwebeditor.common.RoleType;
 import com.emg.poiwebeditor.common.SystemType;
@@ -32,6 +35,7 @@ import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ProjectModelExample;
 import com.emg.poiwebeditor.pojo.ProjectsUserModel;
 import com.emg.poiwebeditor.pojo.ReferdataModel;
+import com.emg.poiwebeditor.pojo.TagDO;
 import com.emg.poiwebeditor.pojo.TaskModel;
 
 @Controller
@@ -195,6 +199,98 @@ public class EditCtrl extends BaseCtrl {
 		json.addObject("poi", poi);
 		json.addObject("count", 1);
 		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	@RequestMapping(params = "atn=deletepoibyoid")
+	public ModelAndView deletePOIByOid(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		Long ret = -1L;
+		try {
+			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
+			ret = poiClient.deletePOIByOid(oid);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			ret = -1L;
+		}
+		json.addObject("result", ret);
+
+		logger.debug("END");
+		return json;
+	}
+	@RequestMapping(params = "atn=updatepoibyoid")
+	public ModelAndView updatePOIByOid(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		Long ret = -1L;
+		try {
+			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
+			String namec = ParamUtils.getParameter(request, "namec");
+			String tel = ParamUtils.getParameter(request, "tel");
+			Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
+			String sortcode = ParamUtils.getParameter(request, "sortcode");
+			String address4 = ParamUtils.getParameter(request, "address4");
+			String address5 = ParamUtils.getParameter(request, "address5");
+			String address6 = ParamUtils.getParameter(request, "address6");
+			String address7 = ParamUtils.getParameter(request, "address7");
+			String address8 = ParamUtils.getParameter(request, "address8");
+			
+			POIDo poi = poiClient.selectPOIByOid(oid);
+			poi.setNamec(namec);
+			poi.setFeatcode(featcode);
+			poi.setSortcode(sortcode);
+			Set<TagDO> tags = poi.getPoitags();
+			{
+				TagDO tag = new TagDO();
+				tag.setId(oid);
+				tag.setK(POIAttrnameEnum.tel.toString());
+				tag.setV(tel);
+				tags.add(tag);
+			}
+			{
+				TagDO tag = new TagDO();
+				tag.setId(oid);
+				tag.setK(POIAttrnameEnum.address4.toString());
+				tag.setV(address4);
+				tags.add(tag);
+			}
+			{
+				TagDO tag = new TagDO();
+				tag.setId(oid);
+				tag.setK(POIAttrnameEnum.address5.toString());
+				tag.setV(address5);
+				tags.add(tag);
+			}
+			{
+				TagDO tag = new TagDO();
+				tag.setId(oid);
+				tag.setK(POIAttrnameEnum.address6.toString());
+				tag.setV(address6);
+				tags.add(tag);
+			}
+			{
+				TagDO tag = new TagDO();
+				tag.setId(oid);
+				tag.setK(POIAttrnameEnum.address7.toString());
+				tag.setV(address7);
+				tags.add(tag);
+			}
+			{
+				TagDO tag = new TagDO();
+				tag.setId(oid);
+				tag.setK(POIAttrnameEnum.address8.toString());
+				tag.setV(address8);
+				tags.add(tag);
+			}
+			ret = poiClient.updatePOI(userid, poi);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			ret = -1L;
+		}
+		json.addObject("result", ret);
 
 		logger.debug("END");
 		return json;

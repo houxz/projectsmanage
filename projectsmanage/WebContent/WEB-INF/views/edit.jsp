@@ -352,6 +352,60 @@
 			}, "json");
 		});
 	}
+	
+	function deletePOI(obj) {
+		$.webeditor.showConfirmBox("alert","确定要删除这个POI吗？", function(){
+			var oid = $(obj).parent().prev().children()[0].value;
+			$.webeditor.showMsgBox("info", "数据保存中...");
+			jQuery.post("./edit.web", {
+				"atn" : "deletepoibyoid",
+				"oid" : oid
+			}, function(json) {
+				if (json && json.result > 0) {
+					$("table#tbEdit>tbody td.tdValue>input:text").val("");
+					$.webeditor.showMsgLabel("success", "POI删除成功");
+				} else {
+					$.webeditor.showMsgLabel("alert", "POI删除失败");
+				}
+				$.webeditor.showMsgBox("close");
+			}, "json");
+		});
+	}
+	
+	function updatePOI() {
+		var oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
+		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
+		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
+		var sortcode = $("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val();
+		var address4 = $("table#tbEdit>tbody td.tdValue[data-key='address4']>input:text").val();
+		var address5 = $("table#tbEdit>tbody td.tdValue[data-key='address5']>input:text").val();
+		var address6 = $("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val();
+		var address7 = $("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val();
+		var address8 = $("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val();
+		
+		$.webeditor.showMsgBox("info", "数据保存中...");
+		jQuery.post("./edit.web", {
+			"atn" : "updatepoibyoid",
+			"oid" : oid,
+			"namec" : namec,
+			"tel" : tel,
+			"featcode" : featcode,
+			"sortcode" : sortcode,
+			"address4" : address4,
+			"address5" : address5,
+			"address6" : address6,
+			"address7" : address7,
+			"address8" : address8
+		}, function(json) {
+			if (json && json.result > 0) {
+				$.webeditor.showMsgLabel("success", "保存成功");
+			} else {
+				$.webeditor.showMsgLabel("alert", "保存失败");
+			}
+			$.webeditor.showMsgBox("close");
+		}, "json");
+	}
 </script>
 </head>
 <body>
@@ -413,7 +467,7 @@
 								</tr>
 								<tr>
 									<td class="tdKey">电话</td>
-									<td class="tdValue" data-key="telephone"><input class="form-control input-sm" type="text"></td>
+									<td class="tdValue" data-key="tel"><input class="form-control input-sm" type="text"></td>
 								</tr>
 								<tr>
 									<td class="tdKey">类型</td>
@@ -448,7 +502,7 @@
 					</div>
 					<div style="position: absolute; left: 0; right: 0; bottom: 12px; height: 38px; text-align: center;">
 						<button class="btn btn-default">稍后修改</button>
-						<button class="btn btn-default">保存</button>
+						<button class="btn btn-default" onClick="updatePOI();">保存</button>
 						<button class="btn btn-default" onClick="submitEditTask();">提交</button>
 					</div>
 				</div>

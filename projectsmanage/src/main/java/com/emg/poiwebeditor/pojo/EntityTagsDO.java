@@ -1,15 +1,15 @@
 package com.emg.poiwebeditor.pojo;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class EntityTagsDO extends EntityCommonFieldsDO {
-	private List<TagDO> poitags = new ArrayList<TagDO>();
+	private Set<TagDO> poitags = new HashSet<TagDO>();
 	
-	public List<TagDO> getPoitags() {
-		return poitags == null ? new ArrayList<TagDO>() : poitags;
+	public Set<TagDO> getPoitags() {
+		return poitags == null ? new HashSet<TagDO>() : poitags;
 	}
-	public void setPoitags(List<TagDO> tags) {
+	public void setPoitags(Set<TagDO> tags) {
 		this.poitags = tags;
 	}
 }
