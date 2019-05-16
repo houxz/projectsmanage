@@ -626,6 +626,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					pro.setTasknum(taskcount);
 					pro.setOverstate(1);
 					projectModelDao.updateByPrimaryKeySelective(pro);
+					
 					//更新状态
 					ProcessModel process = new ProcessModel();
 					process.setId(newProcessID);
