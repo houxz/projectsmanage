@@ -1,13 +1,23 @@
 package com.emg.poiwebeditor.client;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.emg.poiwebeditor.common.Common;
+import com.emg.poiwebeditor.common.DatabaseType;
+import com.emg.poiwebeditor.pojo.ConfigDBModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
+import com.emg.poiwebeditor.pojo.keywordModelForTask;
 
 @Service
 public class TaskModelClient {
@@ -67,4 +77,46 @@ public class TaskModelClient {
 		return sb.toString();
 	}
 	
+	//获取批次的keyid集合
+	public Boolean InsertNewTask(ConfigDBModel configDBModel,Long projectid,Long shapeid){
+		BasicDataSource dataSource = null;
+		try {
+			if ( configDBModel == null)
+				return false;
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" insert into ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append(" tb_task  ");
+			sql.append(" (name,projectid,priority,rank,keywordid) ");
+			sql.append(" values('hxztest'," + projectid +",0,0,"+ shapeid +")");
+				
+System.out.println(sql);
+
+	
+			dataSource = Common.getDataSource(configDBModel);
+			int insertcount = new  JdbcTemplate(dataSource).update(sql.toString());
+			
+			if( insertcount > 0 )
+				return true;
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+	
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return false;
+	}
 }

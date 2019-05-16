@@ -392,6 +392,7 @@
 				$("#config_processstatus").val(state);
 				
 				$("#config_processpriority").val(priority);
+				$("#config_processprotype").val(processtype);
 				$(".ui-dialog-titlebar-close").hide();
 			},
 			buttons : [
@@ -402,7 +403,8 @@
 							var processid = $("#config_processid").val();
 							var newProcessName = $("#config_processname").val();
 							var priority = $("#config_processpriority").val();
-							var protype = $("#config_processprotype").val();
+// 							var protype = $("#config_processprotype").val();
+							var protype = 10;
 							var config_1_5 = $("#config_1_5").val();
 							var config_1_6 = $("#config_1_6").val();
 							var config_1_7 = $("#config_1_7").val();
@@ -474,6 +476,8 @@
 								break;
 							case 6:
 							case "6":
+							case 10://byhxz 人工确认项目
+							case "10":
 								break;
 							default:
 								console.log("错误的项目类型：" + protype);

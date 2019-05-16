@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.CommonConstants;
 import com.emg.poiwebeditor.common.ItemAreaType;
 import com.emg.poiwebeditor.common.ItemSetEnable;
@@ -60,6 +61,7 @@ import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ProjectModelExample;
 import com.emg.poiwebeditor.pojo.ProjectsUserModel;
 import com.emg.poiwebeditor.pojo.UserRoleModel;
+import com.emg.poiwebeditor.pojo.keywordModelForTask;
 import com.emg.poiwebeditor.pojo.ProcessModelExample.Criteria;
 import com.emg.poiwebeditor.service.EmapgoAccountService;
 import com.emg.poiwebeditor.service.ProcessConfigModelService;
@@ -97,6 +99,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 	private ItemSetModelDao itemSetModelDao = new ItemSetModelDao();
 	
 	private DatasetModelDao datasetModelDao = new DatasetModelDao();
+	
+	private TaskModelClient taskModelDao = new TaskModelClient();
 
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
@@ -283,6 +287,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			} else if(type.equals(ProcessType.ATTACHWITHDATA.getValue())) {
 				suffix = "";
 				systemid = SystemType.MapDbEdit_AttachWithData.getValue();
+			} //新增人工确认项目byhxz
+			else if(type.equals(ProcessType.POIPOLYMERIZE.getValue())) {
+				suffix="";
+				systemid = SystemType.poi_polymerize.getValue();
 			} else {
 				logger.error("未知的项目类型：" + type);
 				json.addObject("result", -1);
@@ -321,53 +329,55 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJILEIXING.getValue(), processEditType.toString()));
 			
 			// TODO: 新增项目类型需要确定是否有质检过程
-			if (isNewProcess) {
-				if(type.equals(ProcessType.ERROR.getValue()) ||
-					type.equals(ProcessType.COUNTRY.getValue())) {
-					String config_1_4 = newProcessName + "_质检";
-
-					ProjectModel newpro = new ProjectModel();
-					newpro.setProcessid(newProcessID);
-					newpro.setName(config_1_4);
-					newpro.setSystemid(SystemType.DBMapChecker.getValue());
-					newpro.setProtype(type);
-					newpro.setPdifficulty(0);
-					newpro.setTasknum(-1);
-					newpro.setOverstate(0);
-					newpro.setCreateby(uid);
-					newpro.setPriority(priority);
-					newpro.setOwner(OwnerStatus.PUBLIC.getValue());
-
-					if (projectModelDao.insert(newpro) > 0) {
-						projectid332 = newpro.getId();
-					}
-					if (projectid332 > 0) {
-						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUID.getValue(), projectid332.toString()));
-						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue(), config_1_4));
-						//add by lianhr begin 2019/02/14
-						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), strBatch));
-						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANMOSHI.getValue(), strModel));
-						//add by lianhr end
-					}
-				}
-			} else {
-				if((type.equals(ProcessType.ERROR.getValue()) ||
-					type.equals(ProcessType.COUNTRY.getValue())) && projectid332.compareTo(0L) > 0) {
-					String config_1_4 = newProcessName + "_质检";
-					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue(), config_1_4));
-					
-					//add by lianhr begin 2019/02/14
-					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), strBatch));
-					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANMOSHI.getValue(), strModel));
-					//add by lianhr end
-					
-					ProjectModel pro = new ProjectModel();
-					pro.setId(projectid332);
-					pro.setName(config_1_4);
-					pro.setPriority(priority);
-					projectModelDao.updateByPrimaryKeySelective(pro);
-				}
-			}
+//			if (isNewProcess) {
+//				if(type.equals(ProcessType.ERROR.getValue()) ||
+//					type.equals(ProcessType.COUNTRY.getValue()) ||
+//					type.equals(ProcessType.POIPOLYMERIZE.getValue()) //增加人工确认项目byhxz
+//						) {
+//					String config_1_4 = newProcessName + "_质检";
+//
+//					ProjectModel newpro = new ProjectModel();
+//					newpro.setProcessid(newProcessID);
+//					newpro.setName(config_1_4);
+//					newpro.setSystemid(SystemType.DBMapChecker.getValue());
+//					newpro.setProtype(type);
+//					newpro.setPdifficulty(0);
+//					newpro.setTasknum(-1);
+//					newpro.setOverstate(0);
+//					newpro.setCreateby(uid);
+//					newpro.setPriority(priority);
+//					newpro.setOwner(OwnerStatus.PUBLIC.getValue());
+//
+//					if (projectModelDao.insert(newpro) > 0) {
+//						projectid332 = newpro.getId();
+//					}
+//					if (projectid332 > 0) {
+//						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUID.getValue(), projectid332.toString()));
+//						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue(), config_1_4));
+//						//add by lianhr begin 2019/02/14
+//						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), strBatch));
+//						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANMOSHI.getValue(), strModel));
+//						//add by lianhr end
+//					}
+//				}
+//			} else {
+//				if((type.equals(ProcessType.ERROR.getValue()) ||
+//					type.equals(ProcessType.COUNTRY.getValue())) && projectid332.compareTo(0L) > 0) {
+//					String config_1_4 = newProcessName + "_质检";
+//					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue(), config_1_4));
+//					
+//					//add by lianhr begin 2019/02/14
+//					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), strBatch));
+//					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue(), ProcessConfigEnum.ZHIJIANMOSHI.getValue(), strModel));
+//					//add by lianhr end
+//					
+//					ProjectModel pro = new ProjectModel();
+//					pro.setId(projectid332);
+//					pro.setName(config_1_4);
+//					pro.setPriority(priority);
+//					projectModelDao.updateByPrimaryKeySelective(pro);
+//				}
+//			}
 
 			// TODO: 新增项目类型需要确定是否有改错过程
 			if (isNewProcess) {
@@ -377,7 +387,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					type.equals(ProcessType.POIEDIT.getValue()) ||
 					type.equals(ProcessType.GEN.getValue()) ||
 					type.equals(ProcessType.AREA.getValue()) ||
-					type.equals(ProcessType.ATTACHWITHDATA.getValue())) {
+					type.equals(ProcessType.ATTACHWITHDATA.getValue())||
+					type.equals(ProcessType.POIPOLYMERIZE.getValue())	//byhxz
+					) {
 					ProjectModel newpro = new ProjectModel();
 					newpro.setProcessid(newProcessID);
 					newpro.setName(newProcessName + suffix);
@@ -405,7 +417,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					type.equals(ProcessType.POIEDIT.getValue()) ||
 					type.equals(ProcessType.GEN.getValue()) ||
 					type.equals(ProcessType.AREA.getValue()) ||
-					type.equals(ProcessType.ATTACHWITHDATA.getValue())) {
+					type.equals(ProcessType.ATTACHWITHDATA.getValue())||
+					type.equals(ProcessType.POIPOLYMERIZE.getValue())
+						) {
 					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newProcessName + suffix));
 	
 					ProjectModel pro = new ProjectModel();
@@ -517,7 +531,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			// TODO: 新增项目类型需要确定是否资料相关
 			if (strDatasets != null && !strDatasets.isEmpty()) {
 				configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), strDatasets));
-				if (!isNewProcess && type.equals(ProcessType.POIEDIT.getValue())) {
+//				if (!isNewProcess && type.equals(ProcessType.POIEDIT.getValue())) {
+				if (!isNewProcess && type.equals(ProcessType.POIPOLYMERIZE.getValue())) {
 					ProcessConfigValueModel processConfigValueModels = processConfigValueModelDao.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.BANGDINGZILIAO.getValue());
 					if (processConfigValueModels != null && processConfigValueModels.getValue() != null && !processConfigValueModels.getValue().isEmpty()) {
 						ArrayList<String> newDatasets = new ArrayList<String>(Arrays.asList(strDatasets.split(",")));
@@ -582,12 +597,52 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			if (processConfigValueModelDao.deleteByProcessID(newProcessID) >= 0) {
 				ret = processConfigValueModelDao.insert(configValues);
 			}
+			
+			if (isNewProcess) {
+				System.out.println("########################################################");
+				System.out.println("=============create task================================");
+				ProcessType processType = ProcessType.POIPOLYMERIZE;
+				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZILIAOKU,
+						processType);
+				ConfigDBModel configDBModel = configDBModelDao
+						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+
+				List<keywordModelForTask> keyids = datasetModelDao.selectKeyidsbyDataset(configDBModel, 0, 0,  Long.valueOf(strDatasets));// 116L);
+				int shapeCount = keyids.size();
+				int taskcount = 0;
+				if (shapeCount > 0) {
+					ConfigDBModel configDBModelForTask = configDBModelDao.selectByPrimaryKey(55);
+					for (int indexShape = 0; indexShape < shapeCount; indexShape++) {
+						keywordModelForTask task = keyids.get(indexShape);
+						Long shapeid = task.getId();
+						Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349, shapeid);
+						if (bSuccess)
+							taskcount++;
+					}
+				}
+				if (shapeCount == taskcount) {
+					ProjectModel pro = new ProjectModel();
+					pro.setId(projectid349);
+					pro.setTasknum(taskcount);
+					projectModelDao.updateByPrimaryKeySelective(pro);
+				} else {
+					System.out.println("有资料未创建任务");
+				}
+			}
+
+			//=================================================================
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			json.addObject("result", -1);
 			json.addObject("option", e.getMessage());
 			return json;
 		}
+		
+
+
+
+
 		json.addObject("result", ret);
 		json.addObject("pid", newProcessID);
 
@@ -896,6 +951,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return json;
 	}
 	
+	//创建任务的时候绑定资料面板获取数据
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=getdatasets")
 	public ModelAndView getDatasets(Model model, HttpServletRequest request, HttpSession session) {
@@ -945,6 +1001,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 			datasetModels = datasetModelDao.selectDatasets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), record, limit, offset);
 			count = datasetModelDao.countErrorSets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), record, limit, offset);
+	
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

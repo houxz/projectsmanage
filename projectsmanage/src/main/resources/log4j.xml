@@ -28,7 +28,7 @@
 
 	<!-- Application Loggers -->
 	<logger name="com.emg">
-		<level value="warn" />
+		<level value="debug" />
 	</logger>
 	
 	<logger name="com.emg.poiwebeditor.scheduler" additivity="false">

@@ -3,6 +3,7 @@ package com.emg.poiwebeditor.dao.task;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +17,7 @@ import com.emg.poiwebeditor.common.Common;
 import com.emg.poiwebeditor.common.DatabaseType;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
 import com.emg.poiwebeditor.pojo.DatasetModel;
+import com.emg.poiwebeditor.pojo.keywordModelForTask;
 
 @Component
 public class DatasetModelDao {
@@ -141,4 +143,51 @@ public class DatasetModelDao {
 		return count;
 	}
 
+	//获取批次的keyid集合
+	public List<keywordModelForTask> selectKeyidsbyDataset(ConfigDBModel configDBModel, Integer limit, Integer offset,Long datasetid) {
+		List<keywordModelForTask> datasets = new ArrayList<keywordModelForTask>();
+		BasicDataSource dataSource = null;
+		try {
+			if ( configDBModel == null)
+				return datasets;
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT id");
+			sql.append(" FROM ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_keywords ");
+			sql.append(" WHERE 1=1 ");
+		
+			sql.append(" AND " + separator + "datasetid" + separator + " IN ( " + datasetid + " ) ");
+			
+System.out.println(sql);
+
+			sql.append(" ORDER BY id asc ");
+	
+			dataSource = Common.getDataSource(configDBModel);
+	
+			datasets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<keywordModelForTask>(keywordModelForTask.class));
+		
+//			List<Long> das =  new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			datasets = new ArrayList<keywordModelForTask>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return datasets;
+	}
+	
 }
