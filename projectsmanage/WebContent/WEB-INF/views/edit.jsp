@@ -18,6 +18,7 @@
 <link href="resources/css/css.css" rel="stylesheet" />
 <link href='http://static.emapgo.cn/webjs-sdk/css/emapgo-1.0.0.css' rel='stylesheet' />
 <link href="resources/js/leaflet/leaflet.css" rel="stylesheet" />
+<link rel="stylesheet" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">
 <link href="resources/leaflet.awesome-markers-2.0/leaflet.awesome-markers.css" rel="stylesheet">
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
@@ -41,9 +42,25 @@
 	
 	var loaderr = "<span class='red'>加载失败</span>";
 	var redMarker = L.AwesomeMarkers.icon({
-	    	icon: 'coffee',
-	    	markerColor: 'red'
+	    	icon: 'tag',
+	    	markerColor: 'blue',
+	    	iconColor:'white'
 	  	});
+	var editMarker = L.AwesomeMarkers.icon({
+    	icon: 'edit',
+    	markerColor: 'red',
+    	iconColor:'white'
+  	});
+	var referMarker = L.AwesomeMarkers.icon({
+    	icon: 'eye-open',
+    	markerColor: 'blue',
+    	iconColor:'white'
+  	});
+	var matchMarker = L.AwesomeMarkers.icon({
+    	icon: 'tag',
+    	markerColor: 'blue',
+    	iconColor:'white'
+  	});
 	
 	$(document).ready(function() {
 		$.webeditor.getHead();
@@ -221,7 +238,7 @@
 		var value = $this.parent().prev().html();
 		var key = $this.parent().prev().data("key");
 		
-		$("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>input:text").val(value);
+		$("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>textarea").val(value);
 	}
 	
 	function drawReferdatas(tbid, referdatas) {
@@ -229,7 +246,7 @@
 		$tbody.empty();
 		referdatas.forEach(function(referdata, index) {
 			var html = new Array();
-			html.push("<tr><td class='tdIndex' rowspan='5'>");
+			html.push("<tr class='trIndex'><td class='tdIndex' rowspan='5'>");
 		    html.push("<input type='radio' name='rd" + tbid + "' onChange='rdChange(" + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\");' value='" + referdata.id + "' " + (index == 0 ? 'checked':'') + ">");
 		    html.push("<span class='glyphicon glyphicon-share cursorable'></span></td></tr>");
 		    
@@ -245,7 +262,7 @@
 		    html.push("<td class='tdValue' data-key='class'>" + referdata.orgCategoryName + "</td>");
 		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
 		    
-		    html.push("<tr><td class='tdKey'>地址</td>");
+		    html.push("<tr class='trEnd'><td class='tdKey'>地址</td>");
 		    html.push("<td class='tdValue' data-key='address'>" + referdata.address + "</td>");
 		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
 		    
@@ -347,9 +364,8 @@
 						<table id="tbKeyword" class="table table-bordered table-condensed">
 							<thead>
 						    	<tr>
-						      		<th></th>
+						      		<th><span class="glyphicon glyphicon-eye-open"></span></th>
 						      		<th>参考数据</th>
-						      		<th></th>
 						    	</tr>
 						  	</thead>
 							<tbody>
@@ -380,7 +396,7 @@
 						<table id="tbEdit" class="table table-bordered table-condensed">
 							<thead>
 						    	<tr>
-						      		<th></th>
+						      		<th><span class="glyphicon glyphicon-edit"></span></th>
 						      		<th>当前编辑数据</th>
 						    	</tr>
 						  	</thead>
