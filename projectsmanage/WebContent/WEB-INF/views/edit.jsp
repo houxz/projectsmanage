@@ -101,6 +101,7 @@
 			if ($emgmap) {
 				$emgmap.setCenter([lng, lat]);
 			} else {
+				$("#emgmap").empty();
 				$emgmap = new emapgo.Map({
 			        container : 'emgmap',
 			        style: 'http://tiles.emapgo.cn/styles/outdoor/style.json',
@@ -251,7 +252,8 @@
 			var html = new Array();
 			html.push("<tr class='trIndex'><td class='tdIndex' rowspan='5'>");
 		    html.push("<input type='radio' name='rd" + tbid + "' onChange='rdChange(" + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\");' value='" + referdata.id + "' " + (index == 0 ? 'checked':'') + ">");
-		    html.push("<span class='glyphicon glyphicon-share cursorable'></span></td></tr>");
+		    //html.push("<span class='glyphicon glyphicon-share cursorable'></span></td></tr>");
+		    html.push("</td></tr>");
 		    
 		    html.push("<tr><td class='tdKey'>名称</td>");
 		    html.push("<td class='tdValue' data-key='name'>" + referdata.name + "</td>");
@@ -382,7 +384,14 @@
 	}
 	
 	function updatePOI() {
-		var oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+		var oid = null;
+		try {
+			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+		} catch(e) {
+			return;
+		}
+		if (!oid || oid <= 0) 	return;
+		
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
 		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
@@ -521,7 +530,7 @@
 				    		<div class="panel panel-default">
 							    <div class="panel-heading"><strong>EMG地图</strong></div>
 							    <div class="panel-body">
-							    	<div id="emgmap" style="height: 100%; z-index: 10;"></div>
+							    	<div id="emgmap" style="height: 100%; z-index: 10;">加载中...</div>
 							    </div>
 							</div>
 				    	</div>
@@ -529,7 +538,7 @@
 				    		<div class="panel panel-default">
 							    <div class="panel-heading"><strong>百度地图</strong></div>
 							    <div class="panel-body">
-							    	<div id="baidumap" style="height: 100%; z-index: 10;"></div>
+							    	<div id="baidumap" style="height: 100%; z-index: 10;">加载中...</div>
 							    </div>
 							</div>
 				    	</div>
@@ -537,7 +546,7 @@
 				    		<div class="panel panel-default">
 							    <div class="panel-heading"><strong>高德地图</strong></div>
 							    <div class="panel-body">
-							    	<div id="gaodemap" style="height: 100%; z-index: 10;"></div>
+							    	<div id="gaodemap" style="height: 100%; z-index: 10;">加载中...</div>
 							    </div>
 							</div>
 				    	</div>
@@ -545,7 +554,7 @@
 				    		<div class="panel panel-default">
 							    <div class="panel-heading"><strong>腾讯地图</strong></div>
 							    <div class="panel-body">
-							    	<div id="tengxunmap" style="height: 100%; z-index: 10;"></div>
+							    	<div id="tengxunmap" style="height: 100%; z-index: 10;">加载中...</div>
 							    </div>
 							</div>
 				    	</div>

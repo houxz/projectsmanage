@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.emg.poiwebeditor.client.POIClient;
 import com.emg.poiwebeditor.client.PublicClient;
 import com.emg.poiwebeditor.client.TaskModelClient;
@@ -239,6 +241,7 @@ public class EditCtrl extends BaseCtrl {
 			String address8 = ParamUtils.getParameter(request, "address8");
 			
 			POIDo poi = poiClient.selectPOIByOid(oid);
+			logger.debug(JSON.toJSON(poi).toString());
 			poi.setNamec(namec);
 			poi.setFeatcode(featcode);
 			poi.setSortcode(sortcode);
@@ -285,6 +288,7 @@ public class EditCtrl extends BaseCtrl {
 				tag.setV(address8);
 				tags.add(tag);
 			}
+			logger.debug(JSON.toJSON(poi).toString());
 			ret = poiClient.updatePOI(userid, poi);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
