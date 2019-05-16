@@ -238,6 +238,8 @@
 		var value = $this.parent().prev().html();
 		var key = $this.parent().prev().data("key");
 		
+		key = (key == "telephone" ? "tel" : key);
+		
 		$("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>textarea").val(value);
 		$("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>input:text").val(value);
 	}
@@ -354,8 +356,15 @@
 	}
 	
 	function deletePOI(obj) {
+		var oid = null;
+		try {
+			oid = $(obj).parent().prev().children()[0].value;
+		} catch(e) {
+			return;
+		}
+		if (!oid || oid <= 0) 	return;
+		
 		$.webeditor.showConfirmBox("alert","确定要删除这个POI吗？", function(){
-			var oid = $(obj).parent().prev().children()[0].value;
 			$.webeditor.showMsgBox("info", "数据保存中...");
 			jQuery.post("./edit.web", {
 				"atn" : "deletepoibyoid",
