@@ -239,6 +239,7 @@
 		var key = $this.parent().prev().data("key");
 		
 		$("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>textarea").val(value);
+		$("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>input:text").val(value);
 	}
 	
 	function drawReferdatas(tbid, referdatas) {
