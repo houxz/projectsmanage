@@ -87,6 +87,55 @@ public class DatasetModelDao {
 		}
 		return datasets;
 	}
+	
+	//查询可创建交互确认的dataset byxhz20190517 state =3 process = 2
+	public List<DatasetModel> selectOkDatasets(ConfigDBModel configDBModel, List<Integer> dataTypes, Integer limit, Integer offset) {
+		List<DatasetModel> datasets = new ArrayList<DatasetModel>();
+		BasicDataSource dataSource = null;
+		try {
+			if ( configDBModel == null)
+				return datasets;
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT *");
+			sql.append(" FROM ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_dataset ");
+			sql.append(" WHERE state = 3 and process = 2 ");
+			if (dataTypes != null && !dataTypes.isEmpty()) {
+				sql.append(" AND " + separator + "datatype" + separator + " IN ( " + StringUtils.join(dataTypes, ",") + " ) ");
+			}
+		
+			sql.append(" ORDER BY id desc ");
+			if (limit.compareTo(0) > 0) {
+				sql.append(" LIMIT " + limit);
+			}
+			if (offset.compareTo(0) > 0) {
+				sql.append(" OFFSET " + offset);
+			}
+System.out.println(sql);
+			dataSource = Common.getDataSource(configDBModel);
+			datasets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<DatasetModel>(DatasetModel.class));
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			datasets = new ArrayList<DatasetModel>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return datasets;
+	}
 
 	public Integer countErrorSets(ConfigDBModel configDBModel, List<Integer> dataTypes, DatasetModel record, Integer limit, Integer offset) {
 		Integer count = -1;
@@ -126,6 +175,45 @@ public class DatasetModelDao {
 				}
 			}
 
+			dataSource = Common.getDataSource(configDBModel);
+			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			count = -1;
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return count;
+	}
+	
+	//查询可创建交互确认任务的资料数 byhxz20190517  state =3 process = 2
+	public Integer countOKDataSets(ConfigDBModel configDBModel, List<Integer> dataTypes) {
+		Integer count = -1;
+		BasicDataSource dataSource = null;
+		try {
+			if (configDBModel == null)	return count;
+			
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT count(*) FROM ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_dataset");
+			sql.append(" WHERE state = 3 and process = 2 ");
+			if (dataTypes != null && !dataTypes.isEmpty()) {
+				sql.append(" AND " + separator + "datatype" + separator + " IN ( " + StringUtils.join(dataTypes, ",") + " ) ");
+			}
+			
 			dataSource = Common.getDataSource(configDBModel);
 			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
 		} catch (Exception e) {
@@ -188,6 +276,51 @@ System.out.println(sql);
 			}
 		}
 		return datasets;
+	}
+	
+		//更新dataset 状态
+	public Boolean updateDataSetStatebyDataset(ConfigDBModel configDBModel, Long datasetid, Integer state,Integer process) {
+		BasicDataSource dataSource = null;
+		try {
+			if (configDBModel == null)
+				return false;
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" update ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_dataset ");
+			sql.append(" set state = " + state);
+			sql.append(" , process=" + process);
+			sql.append(" where id = " + datasetid);
+
+			System.out.println(sql);
+
+			dataSource = Common.getDataSource(configDBModel);
+
+			int row = new JdbcTemplate(dataSource).update(sql.toString());
+			if (row == 1)
+				return true;
+			else
+				return false;
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return false;
 	}
 	
 }

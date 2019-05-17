@@ -184,7 +184,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		try {
 			newProcessID = ParamUtils.getLongParameter(request, "processid", -1L);
 			String newProcessName = ParamUtils.getParameter(request, "newProcessName");
-			Integer type = ParamUtils.getIntParameter(request, "type", 0);
+			//页面不再提供类型的输入了 byhxz20190517
+			//Integer type = ParamUtils.getIntParameter(request, "type", 0);
+			Integer type = ProcessType.POIPOLYMERIZE.getValue();
 			Integer priority = ParamUtils.getIntParameter(request, "priority", 0);
 			Integer uid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
 			String username = (String) session.getAttribute(CommonConstants.SESSION_USER_NAME);
@@ -248,48 +250,61 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			// TODO: 新增项目类型需要指定systemid
 			String suffix = new String();
 			Integer systemid = -1;
-			if(type.equals(ProcessType.ERROR.getValue())){
-				suffix = "_改错";
-				systemid = SystemType.MapDbEdit.getValue();
-			} else if(type.equals(ProcessType.NRFC.getValue())) {
-				suffix = "_NR/FC";
-				systemid = SystemType.MapDbEdit_NRFC.getValue();
-			} else if(type.equals(ProcessType.ATTACH.getValue())) {
-				suffix = "_关系附属表";
-				systemid = SystemType.MapDbEdit_Attach.getValue();
-			} else if(type.equals(ProcessType.COUNTRY.getValue())) {
-				suffix = "_全国质检";
-				systemid = SystemType.MapDbEdit_Country.getValue();
-			} else if(type.equals(ProcessType.POIEDIT.getValue())) {
+// 这些不再需要byhxz20190517
+//			if(type.equals(ProcessType.ERROR.getValue())){
+//				suffix = "_改错";
+//				systemid = SystemType.MapDbEdit.getValue();
+//			} else if(type.equals(ProcessType.NRFC.getValue())) {
+//				suffix = "_NR/FC";
+//				systemid = SystemType.MapDbEdit_NRFC.getValue();
+//			} else if(type.equals(ProcessType.ATTACH.getValue())) {
+//				suffix = "_关系附属表";
+//				systemid = SystemType.MapDbEdit_Attach.getValue();
+//			} else if(type.equals(ProcessType.COUNTRY.getValue())) {
+//				suffix = "_全国质检";
+//				systemid = SystemType.MapDbEdit_Country.getValue();
+//			} else if(type.equals(ProcessType.POIEDIT.getValue())) {
+//				suffix = "";
+//				systemid = SystemType.poivideoedit.getValue();
+//			} else if(type.equals(ProcessType.ADJUSTMAP.getValue())) {
+//				if (isNewProcess) {
+//					logger.error("自动项目无需手动创建：" + type);
+//					json.addObject("result", -1);
+//					json.addObject("resultMsg", "自动项目无需手动创建");
+//					return json;
+//				}
+//				suffix = "";
+//				systemid = SystemType.AdjustMap.getValue();
+//			} else if(type.equals(ProcessType.GEN.getValue())) {
+//				if (isNewProcess) {
+//					logger.error("自动项目无需手动创建：" + type);
+//					json.addObject("result", -1);
+//					json.addObject("resultMsg", "自动项目无需手动创建");
+//					return json;
+//				}
+//				suffix = "";
+//				systemid = SystemType.poi_GEN.getValue();
+//			} else if(type.equals(ProcessType.AREA.getValue())) {
+//				suffix = "_行政区划";
+//				systemid = SystemType.MapDbEdit_Area.getValue();
+//			} else if(type.equals(ProcessType.ATTACHWITHDATA.getValue())) {
+//				suffix = "";
+//				systemid = SystemType.MapDbEdit_AttachWithData.getValue();
+//			} //新增人工确认项目byhxz
+//			else if(type.equals(ProcessType.POIPOLYMERIZE.getValue())) {
+//				suffix="";
+//				systemid = SystemType.poi_polymerize.getValue();
+//			} else {
+//				logger.error("未知的项目类型：" + type);
+//				json.addObject("result", -1);
+//				json.addObject("resultMsg", "未知的项目类型：" + type);
+//				return json;
+//			}
+			
+//====================
+		//新增人工确认项目byhxz
+			if (type.equals(ProcessType.POIPOLYMERIZE.getValue())) {
 				suffix = "";
-				systemid = SystemType.poivideoedit.getValue();
-			} else if(type.equals(ProcessType.ADJUSTMAP.getValue())) {
-				if (isNewProcess) {
-					logger.error("自动项目无需手动创建：" + type);
-					json.addObject("result", -1);
-					json.addObject("resultMsg", "自动项目无需手动创建");
-					return json;
-				}
-				suffix = "";
-				systemid = SystemType.AdjustMap.getValue();
-			} else if(type.equals(ProcessType.GEN.getValue())) {
-				if (isNewProcess) {
-					logger.error("自动项目无需手动创建：" + type);
-					json.addObject("result", -1);
-					json.addObject("resultMsg", "自动项目无需手动创建");
-					return json;
-				}
-				suffix = "";
-				systemid = SystemType.poi_GEN.getValue();
-			} else if(type.equals(ProcessType.AREA.getValue())) {
-				suffix = "_行政区划";
-				systemid = SystemType.MapDbEdit_Area.getValue();
-			} else if(type.equals(ProcessType.ATTACHWITHDATA.getValue())) {
-				suffix = "";
-				systemid = SystemType.MapDbEdit_AttachWithData.getValue();
-			} //新增人工确认项目byhxz
-			else if(type.equals(ProcessType.POIPOLYMERIZE.getValue())) {
-				suffix="";
 				systemid = SystemType.poi_polymerize.getValue();
 			} else {
 				logger.error("未知的项目类型：" + type);
@@ -297,6 +312,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				json.addObject("resultMsg", "未知的项目类型：" + type);
 				return json;
 			}
+			
+			//==========================
 			
 			//新建/更新流程
 			if (isNewProcess) {
@@ -607,7 +624,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				ConfigDBModel configDBModel = configDBModelDao
 						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
-				List<keywordModelForTask> keyids = datasetModelDao.selectKeyidsbyDataset(configDBModel, 0, 0,  Long.valueOf(strDatasets));// 116L);
+				List<keywordModelForTask> keyids = datasetModelDao.selectKeyidsbyDataset(configDBModel, 0, 0,  Long.valueOf(strDatasets));
 				int shapeCount = keyids.size();
 				int taskcount = 0;
 				if (shapeCount > 0) {
@@ -620,6 +637,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 							taskcount++;
 					}
 				}
+				//创建的任务数等于资料数
 				if (shapeCount == taskcount) {
 					ProjectModel pro = new ProjectModel();
 					pro.setId(projectid349);
@@ -633,7 +651,12 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					process.setState(1);
 					processModelDao.updateByPrimaryKeySelective(process);
 					
+					//更新资料状态 任务创建完成
+					datasetModelDao.updateDataSetStatebyDataset(configDBModel, Long.valueOf(strDatasets),3,3);
+					
 				} else {
+					//更新资料状态任务创建 异常
+					datasetModelDao.updateDataSetStatebyDataset(configDBModel, Long.valueOf(strDatasets),2,3);
 					System.out.println("有资料未创建任务");
 				}
 			}
@@ -647,10 +670,6 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			return json;
 		}
 		
-
-
-
-
 		json.addObject("result", ret);
 		json.addObject("pid", newProcessID);
 
@@ -1006,10 +1025,13 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZILIAOKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-
-			datasetModels = datasetModelDao.selectDatasets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), record, limit, offset);
-			count = datasetModelDao.countErrorSets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), record, limit, offset);
+//   不需要通用查询byhxz20190517
+//			datasetModels = datasetModelDao.selectDatasets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), record, limit, offset);
+//			count = datasetModelDao.countErrorSets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), record, limit, offset);
 	
+			//只需查询能创建任务的dataset
+			datasetModels = datasetModelDao.selectOkDatasets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), limit, offset);
+			count = datasetModelDao.countOKDataSets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)));
 			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
