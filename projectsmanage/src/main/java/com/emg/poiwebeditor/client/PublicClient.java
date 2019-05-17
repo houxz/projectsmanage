@@ -38,6 +38,8 @@ public class PublicClient {
 			
 			Object json = JSONArray.parse(result.getJson());
 			if (json instanceof JSONArray) {
+				JSONArray array = (JSONArray)json;
+				if (array.size() <1) return keyword;
 				JSONObject data = ((JSONArray) json).getJSONObject(0);
 				keyword = JSON.parseObject(data.toJSONString(), KeywordModel.class);
 			}
