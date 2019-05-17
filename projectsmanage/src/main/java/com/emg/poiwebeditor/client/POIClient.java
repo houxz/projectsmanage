@@ -16,6 +16,7 @@ import com.emg.poiwebeditor.common.RoleEnum;
 import com.emg.poiwebeditor.common.SystemType;
 import com.emg.poiwebeditor.pojo.ChangePOIVO;
 import com.emg.poiwebeditor.pojo.POIDo;
+import com.emg.poiwebeditor.pojo.PoiMergeDO;
 
 @Service
 public class POIClient {
@@ -31,7 +32,9 @@ public class POIClient {
 	
 	private final static String selectPOIByOidUrl = "http://%s:%s/%s/poi/load/%s/%s";
 	private final static String deletePOIByOidUrl = "http://%s:%s/%s/poi/delete";
-	private final static String updatePOIUrl = "http://%s:%s/%s/poi/upload/merge";
+	private final static String updatePOIRelationUrl = "http://%s:%s/%s/poi/upload/merge";
+	private final static String updatePOIInfoUrl = "http://%s:%s/%s/poi/updateinfo";
+	private final static String getPOIId = "http://%s:%s/%s/poi/maxid";
 	
 	private String contentType = "application/json";
 	
@@ -79,7 +82,7 @@ public class POIClient {
 		}
 	}
 	
-	public Long updatePOI(Long uId, POIDo poi) throws Exception {
+	public Long updatePOI(Long uId, POIDo poi, List<PoiMergeDO> relations) throws Exception {
 		ChangePOIVO changeVO = new ChangePOIVO();
 		changeVO.setRole(RoleEnum.edit);
 		List<POIDo> poiModify = new ArrayList<POIDo>();
@@ -87,13 +90,44 @@ public class POIClient {
 		changeVO.setPoiModify(poiModify);
 		changeVO.setuId(uId);
 		
+		changeVO.setPoiMergeModify(relations);
 		JSONObject json = (JSONObject) JSON.toJSON(changeVO);
+		HttpClientResult result = null;
+		if (relations == null ) {
+			JSONObject poiJson = (JSONObject) JSON.toJSON(poi);
+			result = HttpClientUtils.doPost(String.format(updatePOIInfoUrl, host, port, path), contentType, poiJson.toString());
+			if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
+				String isstr = result.getJson().replace("\r\n", "");
+				
+				return Long.parseLong(isstr);
+			}
+			
+		} else {
+			result = HttpClientUtils.doPost(String.format(updatePOIRelationUrl, host, port, path), contentType, json.toString());
+		}
 		
-		HttpClientResult result = HttpClientUtils.doPost(String.format(updatePOIUrl, host, port, path), contentType, json.toString());
+		// if (relations == null)
 		if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
 			return Long.valueOf(1);
 		} else {
 			return -1L;
 		}
+	}
+	
+	public Long getPoiId() throws Exception {
+		POIDo poi = new POIDo();
+		try {
+			HttpClientResult result = HttpClientUtils.doGet(String.format(getPOIId, host, port, path,  SystemType.poi_polymerize.getValue()));
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			String isstr = result.getJson().replace("\r\n", "");
+			
+			return Long.parseLong(isstr);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+			
 	}
 }

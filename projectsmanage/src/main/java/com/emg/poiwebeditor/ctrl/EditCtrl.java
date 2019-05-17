@@ -21,7 +21,11 @@ import com.alibaba.fastjson.JSON;
 import com.emg.poiwebeditor.client.POIClient;
 import com.emg.poiwebeditor.client.PublicClient;
 import com.emg.poiwebeditor.client.TaskModelClient;
+import com.emg.poiwebeditor.common.CheckEnum;
 import com.emg.poiwebeditor.common.CommonConstants;
+import com.emg.poiwebeditor.common.ConfirmEnum;
+import com.emg.poiwebeditor.common.GradeEnum;
+import com.emg.poiwebeditor.common.OpTypeEnum;
 import com.emg.poiwebeditor.common.POIAttrnameEnum;
 import com.emg.poiwebeditor.common.ParamUtils;
 import com.emg.poiwebeditor.common.RoleType;
@@ -31,6 +35,7 @@ import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.poiwebeditor.pojo.KeywordModel;
 import com.emg.poiwebeditor.pojo.POIDo;
+import com.emg.poiwebeditor.pojo.PoiMergeDO;
 import com.emg.poiwebeditor.pojo.ProcessModel;
 import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ProjectModelExample;
@@ -109,7 +114,58 @@ public class EditCtrl extends BaseCtrl {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
+			String qid = ParamUtils.getParameter(request, "qid");
+			Long errorType = ParamUtils.getLongParameter(request, "errorType", 0);
+			String srcType = ParamUtils.getParameter(request, "srcType");
+			String baiduSrcInnerId = ParamUtils.getParameter(request, "SrcInnerId");
+			String emgSrcInnerId = ParamUtils.getParameter(request, "emgSrcInnerId");
+			String gaodeSrcInnerId = ParamUtils.getParameter(request, "gaodeSrcInnerId");
+			String tengxunSrcInnerId = ParamUtils.getParameter(request, "tengxunSrcInnerId");
+			int emgSrcType = ParamUtils.getIntParameter(request, "emgSrcType", 0);
+			int baiduSrcType = ParamUtils.getIntParameter(request, "baiduSrcType", 0);
+			int gaodeSrcType = ParamUtils.getIntParameter(request, "gaodeSrcType", 0);
+			int tengxunSrcType = ParamUtils.getIntParameter(request, "tengxunSrcType", 0);
+			POIDo poi = this.getPOI(request);
+			List<PoiMergeDO> relations = new ArrayList<PoiMergeDO>();
+			PoiMergeDO tengxunRelation = new PoiMergeDO();
+			tengxunRelation.setTaskId(taskid);
+			tengxunRelation.setSrcInnerId(tengxunSrcInnerId);
+			tengxunRelation.setSrcType(tengxunSrcType);
+			tengxunRelation.setOid(poi.getId());
+			tengxunRelation.setQid(qid);
+			tengxunRelation.setErrorType(errorType);
+			relations.add(tengxunRelation);
 			
+			PoiMergeDO baiduRelation = new PoiMergeDO();
+			baiduRelation.setTaskId(taskid);
+			baiduRelation.setSrcInnerId(baiduSrcInnerId);
+			baiduRelation.setSrcType(baiduSrcType);
+			baiduRelation.setOid(poi.getId());
+			baiduRelation.setQid(qid);
+			baiduRelation.setErrorType(baiduSrcType);
+			relations.add(baiduRelation);
+			
+			PoiMergeDO gaodeRelation = new PoiMergeDO();
+			gaodeRelation.setTaskId(taskid);
+			gaodeRelation.setSrcInnerId(gaodeSrcInnerId);
+			gaodeRelation.setSrcType(gaodeSrcType);
+			gaodeRelation.setOid(poi.getId());
+			gaodeRelation.setQid(qid);
+			gaodeRelation.setErrorType(gaodeSrcType);
+			relations.add(gaodeRelation);
+			if(srcType != null) {
+				//如果srctype=null则说明该资料不是来自于点评，需要保存的关系的，emg-baidu,emg-gaode, emg-tengxun
+				PoiMergeDO dianpingRelation = new PoiMergeDO();
+				dianpingRelation.setTaskId(taskid);
+				dianpingRelation.setSrcInnerId(emgSrcInnerId);
+				dianpingRelation.setSrcType(emgSrcType);
+				dianpingRelation.setOid(poi.getId());
+				dianpingRelation.setQid(qid);
+				dianpingRelation.setErrorType(emgSrcType);
+				relations.add(dianpingRelation);
+			}
+			Long u = new Long(userid);
+			poiClient.updatePOI(u, poi, relations);
 			if (taskModelClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
 				json.addObject("resultMsg", "任务提交失败");
 				json.addObject("result", 0);
@@ -228,7 +284,7 @@ public class EditCtrl extends BaseCtrl {
 		Long ret = -1L;
 		try {
 			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
+		/*	Long oid = ParamUtils.getLongParameter(request, "oid", -1);
 			String namec = ParamUtils.getParameter(request, "namec");
 			String tel = ParamUtils.getParameter(request, "tel");
 			Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
@@ -286,9 +342,14 @@ public class EditCtrl extends BaseCtrl {
 				tag.setK(POIAttrnameEnum.address8.toString());
 				tag.setV(address8);
 				tags.add(tag);
-			}
+			}*/
+			POIDo  poi = this.getPOI(request);
+			
+			
 			logger.debug(JSON.toJSON(poi).toString());
-			ret = poiClient.updatePOI(userid, poi);
+			
+			ret = poiClient.updatePOI(userid, poi, null);
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			ret = -1L;
@@ -297,6 +358,83 @@ public class EditCtrl extends BaseCtrl {
 
 		logger.debug("END");
 		return json;
+	}
+	
+	/**
+	 * 根据前台传递过来的参数设置POI
+	 * @return
+	 */
+	private POIDo getPOI(HttpServletRequest request) throws Exception{
+		Long oid = ParamUtils.getLongParameter(request, "oid", -1);
+		if (oid < 0) {
+			oid = poiClient.getPoiId();
+		}
+		String namec = ParamUtils.getParameter(request, "namec");
+		String tel = ParamUtils.getParameter(request, "tel");
+		Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
+		String sortcode = ParamUtils.getParameter(request, "sortcode");
+		String address4 = ParamUtils.getParameter(request, "address4");
+		String address5 = ParamUtils.getParameter(request, "address5");
+		String address6 = ParamUtils.getParameter(request, "address6");
+		String address7 = ParamUtils.getParameter(request, "address7");
+		String address8 = ParamUtils.getParameter(request, "address8");
+		
+		POIDo poi = poiClient.selectPOIByOid(oid);
+		logger.debug(JSON.toJSON(poi).toString());
+		poi.setId(oid);
+		poi.setNamec(namec);
+		poi.setGrade(GradeEnum.general);
+		poi.setSystemId(370);
+		poi.setConfirm(ConfirmEnum.ready_for_qc);
+		poi.setAutoCheck(CheckEnum.uncheck);
+		poi.setManualCheck(CheckEnum.uncheck);
+		poi.setOpTypeEnum(OpTypeEnum.submit);
+		poi.setFeatcode(featcode);
+		poi.setSortcode(sortcode);
+		Set<TagDO> tags = poi.getPoitags();
+		{
+			TagDO tag = new TagDO();
+			tag.setId(oid);
+			tag.setK(POIAttrnameEnum.tel.toString());
+			tag.setV(tel);
+			tags.add(tag);
+		}
+		{
+			TagDO tag = new TagDO();
+			tag.setId(oid);
+			tag.setK(POIAttrnameEnum.address4.toString());
+			tag.setV(address4);
+			tags.add(tag);
+		}
+		{
+			TagDO tag = new TagDO();
+			tag.setId(oid);
+			tag.setK(POIAttrnameEnum.address5.toString());
+			tag.setV(address5);
+			tags.add(tag);
+		}
+		{
+			TagDO tag = new TagDO();
+			tag.setId(oid);
+			tag.setK(POIAttrnameEnum.address6.toString());
+			tag.setV(address6);
+			tags.add(tag);
+		}
+		{
+			TagDO tag = new TagDO();
+			tag.setId(oid);
+			tag.setK(POIAttrnameEnum.address7.toString());
+			tag.setV(address7);
+			tags.add(tag);
+		}
+		{
+			TagDO tag = new TagDO();
+			tag.setId(oid);
+			tag.setK(POIAttrnameEnum.address8.toString());
+			tag.setV(address8);
+			tags.add(tag);
+		}
+		 return poi;
 	}
 	
 	private TaskModel getNextEditTask(Integer userid) {

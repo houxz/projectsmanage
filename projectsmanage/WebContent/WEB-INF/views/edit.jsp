@@ -254,6 +254,19 @@
 		
 		$("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>textarea").val(value);
 		$("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>input:text").val(value);
+		if (key == "address") {
+			$("table#tbEdit>tbody td.tdValue[data-key='address4']>textarea").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='address4']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='address5']>textarea").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='address5']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='address6']>textarea").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='address7']>textarea").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='address8']>textarea").val(value);
+			$("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val(value);
+			
+		}
 	}
 	
 	function drawReferdatas(tbid, referdatas) {
@@ -355,12 +368,61 @@
 	}
 	
 	function submitEditTask() {
+		
+		
+		
+		var oid = null;
+		try {
+			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+		} catch(e) {
+			return;
+		}
+		if (!oid || oid <= 0) 	return;
+		
+		//tbbaidu, tbgaode, tbtengxun, tbemg
+		var baiduSrcInnerId = $('#tbbaidusrcInnerId').text();
+		var baiduSrcType = $('#tbbaidusrcType').text();
+		var gaodeSrcInnerId = $('#tbgaodesrcInnerId').text();
+		var gaodeSrcType = $('#tbgaodesrcType').text();
+		var tengxunSrcInnerId = $('#tbtengxunsrcInnerId').text();
+		var tengxunSrcType = $('#tbtengxunsrcType').text();
+		var emgSrcInnerId = $('#tbemgsrcInnerId').text();
+		var emgSrcType = $('#tbemgsrcType').text();
+		
+		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
+		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
+		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
+		var sortcode = $("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val();
+		var address4 = $("table#tbEdit>tbody td.tdValue[data-key='address4']>input:text").val();
+		var address5 = $("table#tbEdit>tbody td.tdValue[data-key='address5']>input:text").val();
+		var address6 = $("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val();
+		var address7 = $("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val();
+		var address8 = $("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val();
+		
 		$.webeditor.showConfirmBox("alert","确定要提交并获取下一个资料吗？", function(){
 			$.webeditor.showMsgBox("info", "数据保存中...");
 			jQuery.post("./edit.web", {
 				"atn" : "submitedittask",
 				"taskid" : $("#curTaskID").html(),
-				"getnext" : true
+				"getnext" : true,
+				"baiduSrcInnerId": baiduSrcInnerId,
+				"baiduSrcType": baiduSrcType,
+				"gaodeSrcInnerId": gaodeSrcInnerId,
+				"gaodeSrcType": gaodeSrcType,
+				"tengxunSrcInnerId": tengxunSrcInnerId,
+				"tengxunSrcType": tengxunSrcType,
+				"emgSrcInnerId": emgSrcInnerId,
+				"emgSrcType": emgSrcType,
+				"namec": namec,
+				"oid": oid,
+				"tel": tel,
+				"featcode" : featcode,
+				"sortcode" : sortcode,
+				"address4" : address4,
+				"address5" : address5,
+				"address6" : address6,
+				"address7" : address7,
+				"address8" : address8
 			}, function(json) {
 				if (json && json.result == 1) {
 					var task = json.task;
@@ -422,7 +484,7 @@
 		} catch(e) {
 			return;
 		}
-		if (!oid || oid <= 0) 	return;
+		// if (!oid || oid <= 0) 	return;
 		
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
@@ -449,6 +511,7 @@
 			"address8" : address8
 		}, function(json) {
 			if (json && json.result > 0) {
+				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(json.result);
 				$.webeditor.showMsgLabel("success", "保存成功");
 			} else {
 				$.webeditor.showMsgLabel("alert", "保存失败");
