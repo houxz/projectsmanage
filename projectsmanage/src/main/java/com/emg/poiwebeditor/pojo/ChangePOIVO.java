@@ -29,6 +29,10 @@ public class ChangePOIVO {
 	private List<POIDo> poiModify;
 	
 	private List<POIDo> poiDel;
+	
+	  private List<PoiMergeDO> poiMergeCreate;
+	  private List<PoiMergeDO> poiMergeModify;
+	  private List<PoiMergeDO> poiMergeDel;
 
 	public long getuId() {
 		return uId;
@@ -124,6 +128,30 @@ public class ChangePOIVO {
 
 	public void setPoiDel(List<POIDo> poiDel) {
 		this.poiDel = poiDel;
+	}
+
+	public List<PoiMergeDO> getPoiMergeCreate() {
+		return poiMergeCreate;
+	}
+
+	public void setPoiMergeCreate(List<PoiMergeDO> poiMergeCreate) {
+		this.poiMergeCreate = poiMergeCreate;
+	}
+
+	public List<PoiMergeDO> getPoiMergeModify() {
+		return poiMergeModify;
+	}
+
+	public void setPoiMergeModify(List<PoiMergeDO> poiMergeModify) {
+		this.poiMergeModify = poiMergeModify;
+	}
+
+	public List<PoiMergeDO> getPoiMergeDel() {
+		return poiMergeDel;
+	}
+
+	public void setPoiMergeDel(List<PoiMergeDO> poiMergeDel) {
+		this.poiMergeDel = poiMergeDel;
 	}
 
 }
