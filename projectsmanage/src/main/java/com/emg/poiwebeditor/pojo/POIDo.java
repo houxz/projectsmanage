@@ -2,12 +2,13 @@ package com.emg.poiwebeditor.pojo;
 
 import com.emg.poiwebeditor.common.CheckEnum;
 import com.emg.poiwebeditor.common.ConfirmEnum;
+import com.emg.poiwebeditor.common.GradeEnum;
 
 public class POIDo extends AttachDO {
 	private String namec;
 	private Integer owner = 0;
 	private String sortcode;
-	private String grade;
+	private GradeEnum grade;
 	private Long projectid = 0L;
 
 	private CheckEnum autoCheck = null;
@@ -16,6 +17,8 @@ public class POIDo extends AttachDO {
 	
 	private Integer newFeatCode;
 	private String newSortCode;
+	
+	private long systemId;
 	
 	public String getNamec() {
 		return namec;
@@ -35,12 +38,7 @@ public class POIDo extends AttachDO {
 	public void setSortcode(String sortcode) {
 		this.sortcode = sortcode;
 	}
-	public String getGrade() {
-		return grade;
-	}
-	public void setGrade(String grade) {
-		this.grade = grade;
-	}
+	
 	public Long getProjectid() {
 		return projectid;
 	}
@@ -76,6 +74,18 @@ public class POIDo extends AttachDO {
 	}
 	public void setNewSortCode(String newSortCode) {
 		this.newSortCode = newSortCode;
+	}
+	public long getSystemId() {
+		return systemId;
+	}
+	public void setSystemId(long systemId) {
+		this.systemId = systemId;
+	}
+	public GradeEnum getGrade() {
+		return grade;
+	}
+	public void setGrade(GradeEnum grade) {
+		this.grade = grade;
 	}
 	
 	
