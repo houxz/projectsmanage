@@ -1,4 +1,4 @@
-<%@page import="com.emg.poiwebeditor.common.SrcTypeEnum"%>
+<%@ page import="com.emg.poiwebeditor.common.SrcTypeEnum"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt'%>
@@ -138,7 +138,7 @@
 					center:  [lat, lng],
 					zoom: zoom+1,
 					crs: L.CRS.Baidu,
-					layers : [new L.tileLayer.baidu({ layer: 'custom'})]
+					layers : [new L.tileLayer.baidu({layer: 'custom'})]
 				});
 			}
 			

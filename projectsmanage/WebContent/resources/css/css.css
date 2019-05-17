@@ -2,6 +2,10 @@ html, body {
 	height:100%
 }
 
+textarea {
+	resize: vertical;
+}
+
 .fullHeight {
 	height: 100%;
 }
