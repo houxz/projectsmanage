@@ -38,6 +38,7 @@
 <script type="text/javascript">
 	var $emgmap = null, $baidumap = null, $gaodemap = null, $tengxunmap = null;
 	var $emgmarker = null, $baidumarker = null, $gaodemarker = null, $tengxunmarker = null;
+	var srcType, baiduSrcInnerId, baiduSrcType, gaodeSrcInnerId, gaodeSrcType, tengxunSrcInnerId, tengxunSrcInnerId, tengxunSrcType, emgSrcInnerId, emgSrcType;
 	var keywordid = eval('(${keywordid})');
 	var zoom = 17;
 	
@@ -81,6 +82,7 @@
 		}, function(json) {
 			if (json && json.result == 1) {
 				var keyword = json.rows;
+				srcType = keyword.srcType;
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='name']").html(keyword.name);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='address']").html(keyword.address);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='telephone']").html(keyword.telephone);
@@ -209,7 +211,7 @@
 			"oid" : oid
 		}, function(json) {
 			$("table#tbEdit>tbody td.tdValue>input:text").val("");
-			if (json && json.result == 1) {
+			if (json && json.result == 1 && json.poi != null) {
 				var poi = json.poi;
 				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(poi.id);
 				$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
@@ -225,20 +227,30 @@
 		}, "json");
 	}
 	
+	
+	
 	function rdChange(srcType, lat, lng, srcInnerId) {
 		if (srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
 			loadEditPOI(srcInnerId);
 			$emgmarker.setLngLat([lng, lat ]);
 			$emgmap.setCenter([lng, lat]);
+			emgSrcInnerId = srcInnerId;
+			emgSrcType = srcType;
 		} else if (srcType == <%=SrcTypeEnum.BAIDU.getValue() %>) {
 			$baidumarker.setLatLng([lat, lng]);
 			$baidumap.setView([lat, lng]);
+			baiduSrcInnerId = srcInnerId;
+			baiduSrcType = srcType;
 		} else if (srcType == <%=SrcTypeEnum.TENGXUN.getValue() %>) {
 			$tengxunmarker.setLatLng([lat, lng]);
-			$tengxunmap.setView([lat, lng]);					
+			$tengxunmap.setView([lat, lng]);	
+			tengxunSrcInnerId = srcInnerId;
+			tengxunSrcType = srcType;
 		} else if (srcType == <%=SrcTypeEnum.GAODE.getValue() %>) {
 			$gaodemarker.setLatLng([lat, lng]);
 			$gaodemap.setView([lat, lng]);
+			gaodeSrcInnerId = srcInnerId;
+			gaodeSrcType = srcType;
 		} else {
 			console.log("Error on srcType: " + srcType);
 			return;
@@ -328,6 +340,8 @@
 						loadEditPOI(emgrefers[0].srcInnerId);
 						drawEMGMap(emgrefers[0].srcLat, emgrefers[0].srcLon, zoom);
 						drawReferdatas("tbemg", emgrefers);
+						emgSrcInnerId = emgrefers[0].srcInnerId;
+						emgSrcType = emgrefers[0].srcType;
 					} else {
 						$("#emgmap").html("无数据");
 						$("table#tbemg>tbody").html("<tr><td>无数据</td></tr>");
@@ -337,6 +351,8 @@
 						baidurefers.sort(refercompare);
 						drawBaiDuMap(baidurefers[0].srcLat, baidurefers[0].srcLon, zoom);
 						drawReferdatas("tbbaidu", baidurefers);
+						baiduSrcInnerId = baidurefers[0].srcInnerId;
+						baiduSrcType = baidurefers[0].srcType;
 					} else {
 						$("#baidumap").html("无数据");
 						$("table#tbbaidu>tbody").html("<tr><td>无数据</td></tr>");
@@ -346,6 +362,8 @@
 						gaoderefers.sort(refercompare);
 						drawGaoDeMap(gaoderefers[0].srcLat, gaoderefers[0].srcLon, zoom);
 						drawReferdatas("tbgaode", gaoderefers);
+						gaodeSrcInnerId = gaoderefers[0].srcInnerId;
+						gaodeSrcType = gaoderefers[0].srcType;
 					} else {
 						$("#gaodemap").html("无数据");
 						$("table#tbgaode>tbody").html("<tr><td>无数据</td></tr>");
@@ -355,6 +373,8 @@
 						tengxunrefers.sort(refercompare);
 						drawTengXunMap(tengxunrefers[0].srcLat, tengxunrefers[0].srcLon, zoom);
 						drawReferdatas("tbtengxun", tengxunrefers);
+						tengxunSrcInnerId = tengxunrefers[0].srcInnerId;
+						tengxunSrcType = tengxunrefers[0].srcType;
 					} else {
 						$("#tengxunmap").html("无数据");
 						$("table#tbtengxun>tbody").html("<tr><td>无数据</td></tr>");
@@ -380,14 +400,14 @@
 		if (!oid || oid <= 0) 	return;
 		
 		//tbbaidu, tbgaode, tbtengxun, tbemg
-		var baiduSrcInnerId = $('#tbbaidusrcInnerId').text();
+		/* var baiduSrcInnerId = $('# ').text();
 		var baiduSrcType = $('#tbbaidusrcType').text();
 		var gaodeSrcInnerId = $('#tbgaodesrcInnerId').text();
 		var gaodeSrcType = $('#tbgaodesrcType').text();
 		var tengxunSrcInnerId = $('#tbtengxunsrcInnerId').text();
 		var tengxunSrcType = $('#tbtengxunsrcType').text();
 		var emgSrcInnerId = $('#tbemgsrcInnerId').text();
-		var emgSrcType = $('#tbemgsrcType').text();
+		var emgSrcType = $('#tbemgsrcType').text(); */
 		
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
@@ -399,12 +419,63 @@
 		var address7 = $("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val();
 		var address8 = $("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val();
 		
-		$.webeditor.showConfirmBox("alert","确定要提交并获取下一个资料吗？", function(){
+		$.webeditor.showMsgBox("info", "数据保存中...");
+		jQuery.post("./edit.web", {
+			"atn" : "submitedittask",
+			"taskid" : $("#curTaskID").html(),
+			"getnext" : true,
+			"srcType":srcType,
+			"baiduSrcInnerId": baiduSrcInnerId,
+			"baiduSrcType": baiduSrcType,
+			"gaodeSrcInnerId": gaodeSrcInnerId,
+			"gaodeSrcType": gaodeSrcType,
+			"tengxunSrcInnerId": tengxunSrcInnerId,
+			"tengxunSrcType": tengxunSrcType,
+			"emgSrcInnerId": emgSrcInnerId,
+			"emgSrcType": emgSrcType,
+			"namec": namec,
+			"oid": oid,
+			"tel": tel,
+			"featcode" : featcode,
+			"sortcode" : sortcode,
+			"address4" : address4,
+			"address5" : address5,
+			"address6" : address6,
+			"address7" : address7,
+			"address8" : address8
+		}, function(json) {
+			if (json && json.result == 1) {
+				var task = json.task;
+				if (task && task.id) {
+					var process = json.process;
+					var project = json.project;
+					$("#curProcessID").text(process.id);
+					$("#curProcessName").text(process.name);
+					$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
+					$("#curTaskID").text(task.id);
+					$("#curProjectID").text(task.projectid);
+					keywordid = json.keywordid;
+					if (keywordid && keywordid > 0) {
+						loadKeyword(keywordid);
+						loadReferdatas(keywordid);
+					}
+				} else {
+					
+				}
+				
+			} else {
+				console.log("submitEditTask error");
+			}
+		});
+			$.webeditor.showMsgBox("close");
+		
+		/* $.webeditor.showConfirmBox("alert","确定要提交并获取下一个资料吗？", function(){
 			$.webeditor.showMsgBox("info", "数据保存中...");
 			jQuery.post("./edit.web", {
 				"atn" : "submitedittask",
 				"taskid" : $("#curTaskID").html(),
 				"getnext" : true,
+				"srcType":srcType,
 				"baiduSrcInnerId": baiduSrcInnerId,
 				"baiduSrcType": baiduSrcType,
 				"gaodeSrcInnerId": gaodeSrcInnerId,
@@ -448,7 +519,7 @@
 				}
 				$.webeditor.showMsgBox("close");
 			}, "json");
-		});
+		}); */
 	}
 	
 	function deletePOI(obj) {

@@ -103,6 +103,7 @@ public class POIClient {
 			}
 			
 		} else {
+			changeVO.setPoiMergeModify(relations);
 			result = HttpClientUtils.doPost(String.format(updatePOIRelationUrl, host, port, path), contentType, json.toString());
 		}
 		
