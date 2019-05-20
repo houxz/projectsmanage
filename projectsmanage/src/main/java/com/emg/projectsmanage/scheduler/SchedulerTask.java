@@ -3911,7 +3911,7 @@ public class SchedulerTask {
 	 * 用来统计附属表校正
 	 * @param date
 	 */
-	@Scheduled(cron = "${scheduler.attachcapacity.dotime}")
+	@Scheduled(cron = "${scheduler.attachcapacity.counterror.dotime}")
 	public void countAttachError() {
 		if (!attachEnable.equalsIgnoreCase("true"))
 			return;
