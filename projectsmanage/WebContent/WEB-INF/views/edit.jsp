@@ -38,7 +38,7 @@
 <script type="text/javascript">
 	var $emgmap = null, $baidumap = null, $gaodemap = null, $tengxunmap = null;
 	var $emgmarker = null, $baidumarker = null, $gaodemarker = null, $tengxunmarker = null;
-	var srcType, baiduSrcInnerId, baiduSrcType, gaodeSrcInnerId, gaodeSrcType, tengxunSrcInnerId, tengxunSrcInnerId, tengxunSrcType, emgSrcInnerId, emgSrcType;
+	var srcType, srcInnerId, baiduSrcInnerId, baiduSrcType, gaodeSrcInnerId, gaodeSrcType, tengxunSrcInnerId, tengxunSrcInnerId, tengxunSrcType, emgSrcInnerId, emgSrcType;
 	var keywordid = eval('(${keywordid})');
 	var zoom = 17;
 	
@@ -83,6 +83,7 @@
 			if (json && json.result == 1) {
 				var keyword = json.rows;
 				srcType = keyword.srcType;
+				srcInnerId = keyword.srcInnerId;
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='name']").html(keyword.name);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='address']").html(keyword.address);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='telephone']").html(keyword.telephone);
@@ -425,6 +426,7 @@
 			"taskid" : $("#curTaskID").html(),
 			"getnext" : true,
 			"srcType":srcType,
+			"srcInnerId": srcInnerId,
 			"baiduSrcInnerId": baiduSrcInnerId,
 			"baiduSrcType": baiduSrcType,
 			"gaodeSrcInnerId": gaodeSrcInnerId,

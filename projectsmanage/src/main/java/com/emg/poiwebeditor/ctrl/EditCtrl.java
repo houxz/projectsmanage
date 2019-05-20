@@ -400,6 +400,7 @@ public class EditCtrl extends BaseCtrl {
 		String qid = ParamUtils.getParameter(request, "qid");
 		Long errorType = ParamUtils.getLongParameter(request, "errorType", 0);
 		String srcType = ParamUtils.getParameter(request, "srcType");
+		String srcInnerId = ParamUtils.getParameter(request, "srcInnerId");
 		String baiduSrcInnerId = ParamUtils.getParameter(request, "baiduSrcInnerId");
 		String emgSrcInnerId = ParamUtils.getParameter(request, "emgSrcInnerId");
 		String gaodeSrcInnerId = ParamUtils.getParameter(request, "gaodeSrcInnerId");
@@ -440,11 +441,11 @@ public class EditCtrl extends BaseCtrl {
 			//如果srctype=null则说明该资料不是来自于点评，需要保存的关系的，emg-baidu,emg-gaode, emg-tengxun
 			PoiMergeDO dianpingRelation = new PoiMergeDO();
 			dianpingRelation.setTaskId(taskid);
-			dianpingRelation.setSrcInnerId(emgSrcInnerId);
-			dianpingRelation.setSrcType(emgSrcType);
+			dianpingRelation.setSrcInnerId(srcInnerId);
+			dianpingRelation.setSrcType(Integer.parseInt(srcType));
 			dianpingRelation.setOid(poi.getId());
 			dianpingRelation.setQid(qid);
-			dianpingRelation.setErrorType(emgSrcType);
+			dianpingRelation.setErrorType(errorType);
 			relations.add(dianpingRelation);
 		}
 		return relations;
