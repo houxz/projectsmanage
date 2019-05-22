@@ -38,7 +38,8 @@
 <script type="text/javascript">
 	var $emgmap = null, $baidumap = null, $gaodemap = null, $tengxunmap = null;
 	var $emgmarker = null, $baidumarker = null, $gaodemarker = null, $tengxunmarker = null;
-	var srcType, srcInnerId, baiduSrcInnerId, baiduSrcType, gaodeSrcInnerId, gaodeSrcType, tengxunSrcInnerId, tengxunSrcInnerId, tengxunSrcType, emgSrcInnerId, emgSrcType;
+	var srcType, srcInnerId, baiduSrcInnerId, baiduSrcType, gaodeSrcInnerId, gaodeSrcType, tengxunSrcInnerId, tengxunSrcInnerId, tengxunSrcType, emgSrcInnerId, emgSrcType, dianpingGeo;
+	var emgDel, baiduDel, tengxunDel, gaodeDel;
 	var keywordid = eval('(${keywordid})');
 	var zoom = 17;
 	
@@ -72,8 +73,9 @@
 			
 			loadReferdatas(keywordid);
 		}
-		
 	});
+	
+	
 	
 	function loadKeyword(keywordid) {
 		jQuery.post("./edit.web", {
@@ -84,6 +86,7 @@
 				var keyword = json.rows;
 				srcType = keyword.srcType;
 				srcInnerId = keyword.srcInnerId;
+				dianpingGeo = keyword.geo;
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='name']").html(keyword.name);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='address']").html(keyword.address);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='telephone']").html(keyword.telephone);
@@ -99,6 +102,23 @@
 	
 	function refercompare(a, b) {
 		return a.sequence - b.sequence;
+	}
+	
+	function addMakerOnEMGMap(map ) {
+		if (map) {
+			var img = new Image();
+			// img.src = 'http://m.emapgo.cn/demo/electricize/img/poi_center.png';
+			img.src = "resources/images/start.png";
+			if (dianpingGeo) {
+				// POINT (102.486719835069 24.9213802083333)
+				var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+				var marker = new emapgo.Marker(img		
+				)
+				.setLngLat(geo)
+				.addTo(map);
+			}
+			
+		}
 	}
 	
 	function drawEMGMap(lat, lng, zoom) {
@@ -117,6 +137,13 @@
 				$emgmap.on('styledata',function(){
 					$emgmap.setPaintProperty('china-building', 'fill-extrusion-height', 0);
 				})
+				$emgmap.on('click', function(e) {
+					if (e && $emgmarker) {
+						$emgmarker.setLngLat([e.lngLat.lng,e.lngLat.lat]);
+						dianpingGeo = 'MULTIPOINT (' + e.lngLat.lng + " " + e.lngLat.lat + ")";
+					}
+					console.log(e);
+					});
 			}
 			
 			if ($emgmarker) {
@@ -125,6 +152,10 @@
 				$emgmarker = new emapgo.Marker()
 					.setLngLat([lng, lat ])
 					.addTo($emgmap);
+				$emgmarker.on('click', function(e) {
+					console.log("in the maker");
+					console.log(e);
+				});
 			}
 		} catch(e) {
 			
@@ -229,14 +260,50 @@
 	}
 	
 	
-	
-	function rdChange(srcType, lat, lng, srcInnerId) {
-		if (srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
+
+	function rdChange(ck, srcType, lat, lng, srcInnerId) {
+		 <%-- if (ck.checked == false) {
+			if (srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
+				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("-1");
+				
+				emgSrcInnerId = "";
+				emgSrcType = 0;
+			} else if (srcType == <%=SrcTypeEnum.BAIDU.getValue() %>) {
+				baiduSrcInnerId = "";
+				baiduSrcType = 0;
+			} else if (srcType == <%=SrcTypeEnum.TENGXUN.getValue() %>) {
+				tengxunSrcInnerId = "";
+				tengxunSrcType = 0;
+			} else if (srcType == <%=SrcTypeEnum.GAODE.getValue() %>) {
+				gaodeSrcInnerId = "";
+				gaodeSrcType = 0;
+			} else {
+				console.log("Error on srcType: " + srcType);
+				return;
+			}
+			return;
+		} 
+		 $("input[name='"+ ck.name +"']:checkbox").prop("checked", false);
+		ck.checked = true;  --%>		
+		if (ck.checked == false && srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
+			$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("-1");
+			emgSrcInnerId = "";
+			emgSrcType = 0;
+		}else if (ck.checked == true && srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
 			loadEditPOI(srcInnerId);
 			$emgmarker.setLngLat([lng, lat ]);
 			$emgmap.setCenter([lng, lat]);
 			emgSrcInnerId = srcInnerId;
 			emgSrcType = srcType;
+			 $("input[name='"+ ck.name +"']:checkbox").prop("checked", false);
+			ck.checked = true; 
+		}
+		if (srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
+			/* loadEditPOI(srcInnerId);
+			$emgmarker.setLngLat([lng, lat ]);
+			$emgmap.setCenter([lng, lat]);
+			emgSrcInnerId = srcInnerId;
+			emgSrcType = srcType; */
 		} else if (srcType == <%=SrcTypeEnum.BAIDU.getValue() %>) {
 			$baidumarker.setLatLng([lat, lng]);
 			$baidumap.setView([lat, lng]);
@@ -282,14 +349,21 @@
 		}
 	}
 	
+	//根据数据库里存储的关系选中地图中的状态
+	function checkRelation() {
+		
+	}
+	
 	function drawReferdatas(tbid, referdatas) {
 		var $tbody = $("table#" + tbid + ">tbody");
 		$tbody.empty();
 		referdatas.forEach(function(referdata, index) {
 			var html = new Array();
+			html.push("<table id ='"+ tbid + referdata.id + "' class=\"table table-bordered table-condensed\"><tbody>");
 			html.push("<tr class='trIndex'><td class='tdIndex' rowspan='5'>");
-		    html.push("<input type='radio' name='rd" + tbid + "' onChange='rdChange(" + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\");' value='" + referdata.id + "' " + (index == 0 ? 'checked':'') + ">");
+		    //html.push("<input type='checkbox' name='rd" + tbid + "' onChange='rdChange(this, " + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\");' value='" + referdata.id + "' " + (index == 0 ? 'checked':'') + ">");
 		    //html.push("<span class='glyphicon glyphicon-share cursorable'></span></td></tr>");
+		    html.push("<input type='checkbox' name='rd" + tbid + "' onChange='rdChange(this, " + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\");' value='" + referdata.id + "' >");
 		    html.push("</td></tr>");
 		    
 		    html.push("<tr><td class='tdKey'>名称</td>");
@@ -308,6 +382,10 @@
 		    html.push("<td class='tdValue' data-key='address'>" + referdata.address + "</td>");
 		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
 		    
+		    html.push("<tr  style='display:none'><td class='tdKey'>srcType,srcInnerId</td>");
+		    html.push("<td class='tdValue' data-key='srcInnerId'>" + referdata.srcInnerId + "</td>");
+		    html.push("<td class='tdValue' data-key='srcType'>" + referdata.srcType + "</td></tr>");
+		    html.push("</tbody></table>");
 		    $tbody.append(html.join(''));
 		});
 	}
@@ -343,6 +421,7 @@
 						drawReferdatas("tbemg", emgrefers);
 						emgSrcInnerId = emgrefers[0].srcInnerId;
 						emgSrcType = emgrefers[0].srcType;
+						addMakerOnEMGMap($emgmap);
 					} else {
 						$("#emgmap").html("无数据");
 						$("table#tbemg>tbody").html("<tr><td>无数据</td></tr>");
@@ -389,9 +468,6 @@
 	}
 	
 	function submitEditTask() {
-		
-		
-		
 		var oid = null;
 		try {
 			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
@@ -399,17 +475,16 @@
 			return;
 		}
 		if (!oid || oid <= 0) 	return;
-		
-		//tbbaidu, tbgaode, tbtengxun, tbemg
-		/* var baiduSrcInnerId = $('# ').text();
-		var baiduSrcType = $('#tbbaidusrcType').text();
-		var gaodeSrcInnerId = $('#tbgaodesrcInnerId').text();
-		var gaodeSrcType = $('#tbgaodesrcType').text();
-		var tengxunSrcInnerId = $('#tbtengxunsrcInnerId').text();
-		var tengxunSrcType = $('#tbtengxunsrcType').text();
-		var emgSrcInnerId = $('#tbemgsrcInnerId').text();
-		var emgSrcType = $('#tbemgsrcType').text(); */
-		
+		var $tbemg = $("#tbbaidu");
+		var tables = ["rdtbemg", "rdtbbaidu", "rdtbtengxun", "rdtbgaode"];
+		var relations = [];
+		for (var i = 0; i < tables.length; i++) {
+			// $("#" + tables[i] + " table tbody tr :checkbox")
+			var checkTable = $("input[name='" +tables[i] +"']:checked").parents("table")[0];
+			
+			var relation = {"srcInnerId" : checkTable.find("tbody td.tdValue[data-key='srcInnerId']>input:text").val()};
+			
+		}
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
 		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
@@ -444,7 +519,8 @@
 			"address5" : address5,
 			"address6" : address6,
 			"address7" : address7,
-			"address8" : address8
+			"address8" : address8,
+			"dianpingGeo" : dianpingGeo
 		}, function(json) {
 			if (json && json.result == 1) {
 				var task = json.task;
@@ -581,7 +657,8 @@
 			"address5" : address5,
 			"address6" : address6,
 			"address7" : address7,
-			"address8" : address8
+			"address8" : address8,
+			"dianpingGeo" : dianpingGeo
 		}, function(json) {
 			if (json && json.result > 0) {
 				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(json.result);

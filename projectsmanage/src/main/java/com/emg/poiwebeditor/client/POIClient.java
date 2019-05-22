@@ -35,6 +35,7 @@ public class POIClient {
 	private final static String updatePOIRelationUrl = "http://%s:%s/%s/poi/upload/merge";
 	private final static String updatePOIInfoUrl = "http://%s:%s/%s/poi/updateinfo";
 	private final static String getPOIId = "http://%s:%s/%s/poi/maxid";
+	private final static String poiRelation =  "http://%s:%s/%s/poiMerge/oid/%s";
 	
 	private String contentType = "application/json";
 	
@@ -60,6 +61,38 @@ public class POIClient {
 		return poi;
 	}
 	
+	/**
+	 * 查询relation
+	 * @param oid
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PoiMergeDO> selectPOIRelation(String oid) throws Exception {
+		List<PoiMergeDO> relations = new ArrayList<PoiMergeDO>();
+		try {
+			HttpClientResult result = HttpClientUtils.doGet(String.format(poiRelation, host, port, path, oid));
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			
+			Object json = JSONArray.parse(result.getJson());
+			if (json instanceof JSONArray) {
+				JSONArray data = (JSONArray) json;
+				if (data != null && data.size() > 0) {
+					for (Integer i = 0, len = data.size(); i < len; i++) {
+						PoiMergeDO referdata = new PoiMergeDO();
+						referdata = JSON.parseObject(data.getJSONObject(i).toJSONString(), PoiMergeDO.class);
+						relations.add(referdata);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return relations;
+	}
+	
 	public Long deletePOIByOid(Long oid) throws Exception {
 		try {
 			StringBuilder params = new StringBuilder();
@@ -83,6 +116,7 @@ public class POIClient {
 	}
 	
 	public Long updatePOI(Long uId, POIDo poi, List<PoiMergeDO> relations) throws Exception {
+
 		ChangePOIVO changeVO = new ChangePOIVO();
 		changeVO.setRole(RoleEnum.edit);
 		List<POIDo> poiModify = new ArrayList<POIDo>();

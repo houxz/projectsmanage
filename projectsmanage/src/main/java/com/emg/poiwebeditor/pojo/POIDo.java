@@ -1,7 +1,5 @@
 package com.emg.poiwebeditor.pojo;
 
-import com.emg.poiwebeditor.common.CheckEnum;
-import com.emg.poiwebeditor.common.ConfirmEnum;
 import com.emg.poiwebeditor.common.GradeEnum;
 
 public class POIDo extends AttachDO {
@@ -11,9 +9,9 @@ public class POIDo extends AttachDO {
 	private GradeEnum grade;
 	private Long projectid = 0L;
 
-	private CheckEnum autoCheck = null;
+	/*private CheckEnum autoCheck = null;
 	private CheckEnum manualCheck = null;
-	private ConfirmEnum confirm = null;
+	private ConfirmEnum confirm = null;*/
 	
 	private Integer newFeatCode;
 	private String newSortCode;
@@ -45,7 +43,7 @@ public class POIDo extends AttachDO {
 	public void setProjectid(Long projectid) {
 		this.projectid = projectid;
 	}
-	public CheckEnum getAutoCheck() {
+	/*public CheckEnum getAutoCheck() {
 		return autoCheck;
 	}
 	public void setAutoCheck(CheckEnum autoCheck) {
@@ -62,7 +60,7 @@ public class POIDo extends AttachDO {
 	}
 	public void setConfirm(ConfirmEnum confirm) {
 		this.confirm = confirm;
-	}
+	}*/
 	public Integer getNewFeatCode() {
 		return newFeatCode;
 	}

@@ -114,7 +114,7 @@ public class EditCtrl extends BaseCtrl {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			POIDo poi = this.getPOI(request);
 			poi.setConfirmUId(Long.valueOf(userid));
-			poi.setuId(Long.valueOf(userid));
+			poi.setUid(Long.valueOf(userid));
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 			List<PoiMergeDO> relations = this.getRelation(request, poi);
@@ -298,9 +298,11 @@ public class EditCtrl extends BaseCtrl {
 				tags.add(tag);
 			}*/
 			POIDo  poi = this.getPOI(request);
+			String dianpingGeo = ParamUtils.getParameter(request, "dianpingGeo");
+			poi.setGeo(dianpingGeo);
 			poi.setConfirmUId(userid);
-			poi.setuId(userid);
-			poi.setConfirm(ConfirmEnum.ready_for_qc);
+			poi.setUid(userid);
+			
 			
 			logger.debug(JSON.toJSON(poi).toString());
 			
@@ -322,9 +324,7 @@ public class EditCtrl extends BaseCtrl {
 	 */
 	private POIDo getPOI(HttpServletRequest request) throws Exception{
 		Long oid = ParamUtils.getLongParameter(request, "oid", -1);
-		if (oid < 0) {
-			oid = poiClient.getPoiId();
-		}
+		
 		String namec = ParamUtils.getParameter(request, "namec");
 		String tel = ParamUtils.getParameter(request, "tel");
 		Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
@@ -334,68 +334,157 @@ public class EditCtrl extends BaseCtrl {
 		String address6 = ParamUtils.getParameter(request, "address6");
 		String address7 = ParamUtils.getParameter(request, "address7");
 		String address8 = ParamUtils.getParameter(request, "address8");
+		String geo = ParamUtils.getParameter(request, "dianpingGeo");
 		
-		// POIDo poi = poiClient.selectPOIByOid(oid);
+		
 		POIDo poi = new POIDo();
 		logger.debug(JSON.toJSON(poi).toString());
-		poi.setId(oid);
-		poi.setNamec(namec);
-		poi.setGrade(GradeEnum.general);
-		poi.setSystemId(370);
 		
+		poi.setNamec(namec);
+		if (oid < 0) {
+			oid = poiClient.getPoiId();
+			poi.setGrade(GradeEnum.general);
+		}
+		poi.setId(oid);
+		poi.setSystemId(370);
+		poi.setConfirm(ConfirmEnum.ready_for_qc);
 		poi.setAutoCheck(CheckEnum.uncheck);
 		poi.setManualCheck(CheckEnum.uncheck);
 		poi.setOpTypeEnum(OpTypeEnum.submit);
+		poi.setGeo(geo);
 		poi.setFeatcode(featcode);
 		poi.setSortcode(sortcode);
+		POIDo savePoi = poiClient.selectPOIByOid(oid);
 		Set<TagDO> tags = poi.getPoitags();
-		{
-			TagDO tag = new TagDO();
-			tag.setId(oid);
-			tag.setK(POIAttrnameEnum.tel.toString());
-			tag.setV(tel);
-			tags.add(tag);
+		if (savePoi != null && savePoi.getPoitags() != null) {
+			Set<TagDO> saveTags = savePoi.getPoitags();
+			
+			for (TagDO tag : saveTags) {
+				if (!savePoi.getNamec().equals(namec)) {
+					TagDO namep = new TagDO();
+					namep.setId(oid);
+					namep.setK(POIAttrnameEnum.namep.toString());
+					namep.setV(null);
+					tags.add(namep);
+					
+					TagDO namee = new TagDO();
+					namee.setId(oid);
+					namee.setK(POIAttrnameEnum.namee.toString());
+					namee.setV(null);
+					tags.add(namee);
+				}
+				
+				if ("address4".equals(tag.getK())) {
+					if (address4 == null || address4.isEmpty()) {
+						tag.setV(null);
+						tags.add(tag);
+						TagDO tag4e = new TagDO();
+						tag4e.setId(oid);
+						tag4e.setK(POIAttrnameEnum.address4e.toString());
+						tag4e.setV(null);
+						tags.add(tag4e);
+						TagDO tag4p = new TagDO();
+						tag4p.setId(oid);
+						tag4p.setK(POIAttrnameEnum.address4p.toString());
+						tag4p.setV(null);
+						tags.add(tag4p);
+						
+					}
+				}else if ("address5".equals(tag.getK())) {
+					if (address5 == null || address5.isEmpty()) {
+						tag.setV(null);
+						tags.add(tag);
+						TagDO tag5e = new TagDO();
+						tag5e.setId(oid);
+						tag5e.setK(POIAttrnameEnum.address5e.toString());
+						tag5e.setV(null);
+						tags.add(tag5e);
+						TagDO tag5p = new TagDO();
+						tag5p.setId(oid);
+						tag5p.setK(POIAttrnameEnum.address5p.toString());
+						tag5p.setV(null);
+						tags.add(tag5p);
+						
+					}
+				}else if ("address6".equals(tag.getK())) {
+					if (address6 == null || address6.isEmpty()) {
+						tag.setV(null);
+						tags.add(tag);
+						TagDO tag6e = new TagDO();
+						tag6e.setId(oid);
+						tag6e.setK(POIAttrnameEnum.address6e.toString());
+						tag6e.setV(null);
+						tags.add(tag6e);
+						TagDO tag6p = new TagDO();
+						tag6p.setId(oid);
+						tag6p.setK(POIAttrnameEnum.address6p.toString());
+						tag6p.setV(null);
+						tags.add(tag6p);
+						
+					}
+				}else if ("address7".equals(tag.getK())) {
+					if (address7 == null || address7.isEmpty()) {
+						tag.setV(null);
+						tags.add(tag);
+						TagDO tag7e = new TagDO();
+						tag7e.setId(oid);
+						tag7e.setK(POIAttrnameEnum.address7e.toString());
+						tag7e.setV(null);
+						tags.add(tag7e);
+						TagDO tag7p = new TagDO();
+						tag7p.setId(oid);
+						tag7p.setK(POIAttrnameEnum.address7p.toString());
+						tag7p.setV(null);
+						tags.add(tag7p);
+						
+					}
+				}else if ("address8".equals(tag.getK())) {
+					if (address8 != null && !address8.equals(tag.getV())) {
+						tag.setV(null);
+						tags.add(tag);
+						TagDO tag8e = new TagDO();
+						tag8e.setId(oid);
+						tag8e.setK(POIAttrnameEnum.address8e.toString());
+						tag8e.setV(null);
+						tags.add(tag8e);
+						TagDO tag8p = new TagDO();
+						tag8p.setId(oid);
+						tag8p.setK(POIAttrnameEnum.address8p.toString());
+						tag8p.setV(null);
+						tags.add(tag8p);
+						
+					}
+				}
+			}
 		}
-		{
-			TagDO tag = new TagDO();
-			tag.setId(oid);
-			tag.setK(POIAttrnameEnum.address4.toString());
-			tag.setV(address4);
-			tags.add(tag);
-		}
-		{
-			TagDO tag = new TagDO();
-			tag.setId(oid);
-			tag.setK(POIAttrnameEnum.address5.toString());
-			tag.setV(address5);
-			tags.add(tag);
-		}
-		{
-			TagDO tag = new TagDO();
-			tag.setId(oid);
-			tag.setK(POIAttrnameEnum.address6.toString());
-			tag.setV(address6);
-			tags.add(tag);
-		}
-		{
-			TagDO tag = new TagDO();
-			tag.setId(oid);
-			tag.setK(POIAttrnameEnum.address7.toString());
-			tag.setV(address7);
-			tags.add(tag);
-		}
-		{
-			TagDO tag = new TagDO();
-			tag.setId(oid);
-			tag.setK(POIAttrnameEnum.address8.toString());
-			tag.setV(address8);
-			tags.add(tag);
-		}
+		
+		
+		TagDO tag = new TagDO();
+		tag.setId(oid);
+		tag.setK(POIAttrnameEnum.tel.toString());
+		tag.setV(tel);
+		tags.add(tag);
+		
+		TagDO tag8 = new TagDO();
+		tag8.setId(oid);
+		tag8.setK(POIAttrnameEnum.address8.toString());
+		tag8.setV(address8);
+		tags.add(tag8);
 		 return poi;
 	}
 	
-	private List<PoiMergeDO> getRelation(HttpServletRequest request, POIDo poi) {
+	/**
+	 * 用数据库中现在已经存在的relation和需要保存的relation进行比较，确定哪些是需要新增修改的，哪些是需要删除的
+	 */
+	public void getSaveRelation(POIDo poi, Long keywordid)  throws Exception{
+		List<PoiMergeDO> relations = poiClient.selectPOIRelation(poi.getId() + "");
+		List<ReferdataModel>referdatas = publicClient.selectReferdatasByKeywordid(keywordid);
+		// for ()
+	}
+	
+	private List<PoiMergeDO> getRelation(HttpServletRequest request, POIDo poi) throws Exception{
 		Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+		if  (poi == null || poi.getId() < 0) return null;
 		
 		String qid = ParamUtils.getParameter(request, "qid");
 		Long errorType = ParamUtils.getLongParameter(request, "errorType", 0);
