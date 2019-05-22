@@ -41,6 +41,7 @@
 	var srcType, srcInnerId, baiduSrcInnerId, baiduSrcType, gaodeSrcInnerId, gaodeSrcType, tengxunSrcInnerId, tengxunSrcInnerId, tengxunSrcType, emgSrcInnerId, emgSrcType, dianpingGeo;
 	var emgDel, baiduDel, tengxunDel, gaodeDel;
 	var keywordid = eval('(${keywordid})');
+	var keyword = null;
 	var zoom = 17;
 	
 	var loaderr = "<span class='red'>加载失败</span>";
@@ -83,7 +84,7 @@
 			"keywordid" : keywordid
 		}, function(json) {
 			if (json && json.result == 1) {
-				var keyword = json.rows;
+				keyword = json.rows;
 				srcType = keyword.srcType;
 				srcInnerId = keyword.srcInnerId;
 				dianpingGeo = keyword.geo;
@@ -140,7 +141,7 @@
 				$emgmap.on('click', function(e) {
 					if (e && $emgmarker) {
 						$emgmarker.setLngLat([e.lngLat.lng,e.lngLat.lat]);
-						dianpingGeo = 'MULTIPOINT (' + e.lngLat.lng + " " + e.lngLat.lat + ")";
+						dianpingGeo = 'MULTIPOINT (' + e.lngLat.lng + " " + e.lngLat.lat + "," +  + e.lngLat.lng + " " + e.lngLat.lat +")";
 					}
 					console.log(e);
 					});
@@ -363,7 +364,7 @@
 			html.push("<tr class='trIndex'><td class='tdIndex' rowspan='5'>");
 		    //html.push("<input type='checkbox' name='rd" + tbid + "' onChange='rdChange(this, " + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\");' value='" + referdata.id + "' " + (index == 0 ? 'checked':'') + ">");
 		    //html.push("<span class='glyphicon glyphicon-share cursorable'></span></td></tr>");
-		    html.push("<input type='checkbox' name='rd" + tbid + "' onChange='rdChange(this, " + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\");' value='" + referdata.id + "' >");
+		    html.push("<input type='checkbox' name='rd" + tbid + "' onChange='rdChange(this, " + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\");' value='" + referdata.id + "," + referdata.srcInnerId + "," + referdata.srcType + "' >");
 		    html.push("</td></tr>");
 		    
 		    html.push("<tr><td class='tdKey'>名称</td>");
@@ -382,9 +383,9 @@
 		    html.push("<td class='tdValue' data-key='address'>" + referdata.address + "</td>");
 		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
 		    
-		    html.push("<tr  style='display:none'><td class='tdKey'>srcType,srcInnerId</td>");
+		   /*  html.push("<tr  style='display:none'><td class='tdKey'>srcType,srcInnerId</td>");
 		    html.push("<td class='tdValue' data-key='srcInnerId'>" + referdata.srcInnerId + "</td>");
-		    html.push("<td class='tdValue' data-key='srcType'>" + referdata.srcType + "</td></tr>");
+		    html.push("<td class='tdValue' data-key='srcType'>" + referdata.srcType + "</td></tr>"); */
 		    html.push("</tbody></table>");
 		    $tbody.append(html.join(''));
 		});
@@ -424,7 +425,16 @@
 						addMakerOnEMGMap($emgmap);
 					} else {
 						$("#emgmap").html("无数据");
-						$("table#tbemg>tbody").html("<tr><td>无数据</td></tr>");
+						if (keyword && keyword.geo) {
+							var geo = keyword.geo.replace("POINT (","").replace(")", "").split(" ");
+							drawEMGMap(geo[1], geo[0], zoom);
+							// drawReferdatas("tbemg", emgrefers);
+							/* emgSrcInnerId = emgrefers[0].srcInnerId;
+							emgSrcType = emgrefers[0].srcType; */
+							addMakerOnEMGMap($emgmap);
+							$("table#tbemg>tbody").html("<tr><td>无数据</td></tr>");
+						}
+						
 					}
 					
 					if (baidurefers && baidurefers.length > 0) {
@@ -481,8 +491,10 @@
 		for (var i = 0; i < tables.length; i++) {
 			// $("#" + tables[i] + " table tbody tr :checkbox")
 			var checkTable = $("input[name='" +tables[i] +"']:checked").parents("table")[0];
-			
-			var relation = {"srcInnerId" : checkTable.find("tbody td.tdValue[data-key='srcInnerId']>input:text").val()};
+			/* $.each($("input[name='" +tables[i] +"']:checked"), function(){
+				var v = $(this).val();
+			}); */
+			// var relation = {"srcInnerId" : checkTable.find("tbody td.tdValue[data-key='srcInnerId']>input:text").val()};
 			
 		}
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
@@ -644,7 +656,10 @@
 		var address6 = $("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val();
 		var address7 = $("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val();
 		var address8 = $("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val();
-		
+		if(namec == null || namec.trim() == "" || featcode == null || featcode.trim()) {
+			$.webeditor.showMsgLabel("alert", "名称和分类不能为空");
+			return;
+		}
 		$.webeditor.showMsgBox("info", "数据保存中...");
 		jQuery.post("./edit.web", {
 			"atn" : "updatepoibyoid",
