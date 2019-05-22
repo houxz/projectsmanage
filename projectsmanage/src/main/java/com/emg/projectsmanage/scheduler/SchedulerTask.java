@@ -3899,12 +3899,15 @@ public class SchedulerTask {
 	
 	@Scheduled(cron = "${scheduler.attachcapacity.dotime}")
 	public void attachCapacityDoTask() {
+		logger.debug("附属表统计产能--start");
 		if (!attachEnable.equalsIgnoreCase("true"))
 			return;
 		String date = getDateString(new Date());
+		logger.debug("日期="+date);
 		attachCapacityDao.deleteCapacityByCountdate(date);
 		//制作
 		attachCapacityDao.doAttachCapacityTask(date); 
+		logger.debug("附属表统计产能--end");
 	}
 	
 	/**
@@ -3913,12 +3916,15 @@ public class SchedulerTask {
 	 */
 	@Scheduled(cron = "${scheduler.attachcapacity.counterror.dotime}")
 	public void countAttachError() {
+		logger.debug("附属表统计错误-start");
 		if (!attachEnable.equalsIgnoreCase("true"))
 			return;
 		String date = getDateString(new Date());
+		logger.debug("日期="+date);
 		attachCheckCapacityDao.deleteByCountDate(date);
 		//校正
 		attachCheckCapacityDao.doAttachCheckCapacityTask(date);
+		logger.debug("附属表统计错误--end");
 	}
 	
 	/**
@@ -3958,6 +3964,7 @@ public class SchedulerTask {
 			}
 			attachCheckCapacityDao.updateUserName(checks);
 		}
+		logger.debug("end update username");
 		
 	}
 	

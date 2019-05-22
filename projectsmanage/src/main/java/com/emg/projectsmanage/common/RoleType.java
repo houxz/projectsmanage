@@ -39,7 +39,11 @@ public enum RoleType {
 	/**
 	 * 7, "导出人员"
 	 */
-	ROLE_EXPORT(7, "导出人员");
+	ROLE_EXPORT(7, "导出人员"),
+	/**
+	 * 8, "可被抽检"
+	 */
+	ROLE_SPOTCHECK(8, "可被抽检");
 
 	private Integer value;
 	private String des;
