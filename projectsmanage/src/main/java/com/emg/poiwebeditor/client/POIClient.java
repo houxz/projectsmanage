@@ -30,7 +30,8 @@ public class POIClient {
 	
 	private static final Logger logger = LoggerFactory.getLogger(POIClient.class);
 	
-	private final static String selectPOIByOidUrl = "http://%s:%s/%s/poi/load/%s/%s";
+	private final static String selectPOIByOidUrl = "http://%s:%s/%s/poi/ids/%s";
+	// private final static String selectPOIByOidUrl = "http://%s:%s/%s/poi/load/%s/%s";
 	private final static String deletePOIByOidUrl = "http://%s:%s/%s/poi/delete";
 	private final static String updatePOIRelationUrl = "http://%s:%s/%s/poi/upload/merge";
 	private final static String updatePOIInfoUrl = "http://%s:%s/%s/poi/updateinfo";
@@ -42,7 +43,7 @@ public class POIClient {
 	public POIDo selectPOIByOid(Long oid) throws Exception {
 		POIDo poi = new POIDo();
 		try {
-			HttpClientResult result = HttpClientUtils.doGet(String.format(selectPOIByOidUrl, host, port, path, oid, SystemType.poi_polymerize.getValue()));
+			HttpClientResult result = HttpClientUtils.doGet(String.format(selectPOIByOidUrl, host, port, path, oid));
 			if (!result.getStatus().equals(HttpStatus.OK))
 				return null;
 			

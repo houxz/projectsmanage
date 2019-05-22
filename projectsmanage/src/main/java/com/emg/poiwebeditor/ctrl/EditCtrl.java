@@ -18,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.emg.poiwebeditor.client.POIClient;
 import com.emg.poiwebeditor.client.PublicClient;
 import com.emg.poiwebeditor.client.TaskModelClient;
@@ -43,6 +44,8 @@ import com.emg.poiwebeditor.pojo.ProjectsUserModel;
 import com.emg.poiwebeditor.pojo.ReferdataModel;
 import com.emg.poiwebeditor.pojo.TagDO;
 import com.emg.poiwebeditor.pojo.TaskModel;
+
+import net.sf.json.JSONObject;
 
 @Controller
 @RequestMapping("/edit.web")
@@ -112,12 +115,13 @@ public class EditCtrl extends BaseCtrl {
 		Long keywordid = -1L;
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			String saveRelations = ParamUtils.getParameter(request, "relations");
 			POIDo poi = this.getPOI(request);
 			poi.setConfirmUId(Long.valueOf(userid));
 			poi.setUid(Long.valueOf(userid));
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
-			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-			List<PoiMergeDO> relations = this.getRelation(request, poi);
+			List<PoiMergeDO> relations = this.getRelation(taskid, saveRelations);
 			Long u = new Long(userid);
 			poiClient.updatePOI(u, poi, relations);
 			if (taskModelClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
@@ -169,6 +173,25 @@ public class EditCtrl extends BaseCtrl {
 		}
 		json.addObject("rows", keyword);
 		json.addObject("count", 1);
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=getRelationByOid")
+	public ModelAndView getRelationByOid(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<PoiMergeDO> relations = new ArrayList<PoiMergeDO>();
+		try {
+			String oid = ParamUtils.getParameter(request, "oid");
+			relations = poiClient.selectPOIRelation(oid);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		json.addObject("rows", relations);
+		json.addObject("count", relations.size());
 		json.addObject("result", 1);
 
 		logger.debug("END");
@@ -339,11 +362,13 @@ public class EditCtrl extends BaseCtrl {
 		
 		POIDo poi = new POIDo();
 		logger.debug(JSON.toJSON(poi).toString());
-		
+		POIDo savePoi = poiClient.selectPOIByOid(oid);
 		poi.setNamec(namec);
 		if (oid < 0) {
 			oid = poiClient.getPoiId();
 			poi.setGrade(GradeEnum.general);
+		}else {
+			poi.setGrade(savePoi.getGrade());
 		}
 		poi.setId(oid);
 		poi.setSystemId(370);
@@ -354,7 +379,7 @@ public class EditCtrl extends BaseCtrl {
 		poi.setGeo(geo);
 		poi.setFeatcode(featcode);
 		poi.setSortcode(sortcode);
-		POIDo savePoi = poiClient.selectPOIByOid(oid);
+		
 		Set<TagDO> tags = poi.getPoitags();
 		if (savePoi != null && savePoi.getPoitags() != null) {
 			Set<TagDO> saveTags = savePoi.getPoitags();
@@ -482,7 +507,7 @@ public class EditCtrl extends BaseCtrl {
 		// for ()
 	}
 	
-	private List<PoiMergeDO> getRelation(HttpServletRequest request, POIDo poi) throws Exception{
+	/*private List<PoiMergeDO> getRelation(HttpServletRequest request, POIDo poi) throws Exception{
 		Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 		if  (poi == null || poi.getId() < 0) return null;
 		
@@ -539,7 +564,25 @@ public class EditCtrl extends BaseCtrl {
 		}
 		return relations;
 	}
+	*/
 	
+	private List<PoiMergeDO> getRelation(long taskid, String str) {
+		// Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+		Object json = JSONArray.parse(str);
+		List<PoiMergeDO> relations = new ArrayList<PoiMergeDO>();
+		if (json instanceof JSONArray) {
+			JSONArray data = (JSONArray) json;
+			if (data != null && data.size() > 0) {
+				for (Integer i = 0, len = data.size(); i < len; i++) {
+					PoiMergeDO referdata = new PoiMergeDO();
+					referdata = JSON.parseObject(data.getJSONObject(i).toJSONString(), PoiMergeDO.class);
+					referdata.setTaskId(taskid);
+					relations.add(referdata);
+				}
+			}
+		}
+		return relations;
+	}
 	private TaskModel getNextEditTask(Integer userid) {
 		TaskModel task = new TaskModel();
 		try {
