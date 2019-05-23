@@ -30,7 +30,8 @@ public class POIClient {
 	
 	private static final Logger logger = LoggerFactory.getLogger(POIClient.class);
 	
-	private final static String selectPOIByOidUrl = "http://%s:%s/%s/poi/load/%s/%s";
+	private final static String selectPOIByOidUrl = "http://%s:%s/%s/poi/ids/%s";
+	// private final static String selectPOIByOidUrl = "http://%s:%s/%s/poi/load/%s/%s";
 	private final static String deletePOIByOidUrl = "http://%s:%s/%s/poi/delete";
 	private final static String updatePOIRelationUrl = "http://%s:%s/%s/poi/upload/merge";
 	private final static String updatePOIInfoUrl = "http://%s:%s/%s/poi/updateinfo";
@@ -42,7 +43,7 @@ public class POIClient {
 	public POIDo selectPOIByOid(Long oid) throws Exception {
 		POIDo poi = new POIDo();
 		try {
-			HttpClientResult result = HttpClientUtils.doGet(String.format(selectPOIByOidUrl, host, port, path, oid, SystemType.poi_polymerize.getValue()));
+			HttpClientResult result = HttpClientUtils.doGet(String.format(selectPOIByOidUrl, host, port, path, oid));
 			if (!result.getStatus().equals(HttpStatus.OK))
 				return null;
 			
@@ -120,14 +121,17 @@ public class POIClient {
 		ChangePOIVO changeVO = new ChangePOIVO();
 		changeVO.setRole(RoleEnum.edit);
 		List<POIDo> poiModify = new ArrayList<POIDo>();
-		poiModify.add(poi);
+		if (poi != null) {
+			poiModify.add(poi);
+		}
+		
 		changeVO.setPoiModify(poiModify);
 		changeVO.setuId(uId);
 		
 		changeVO.setPoiMergeModify(relations);
 		JSONObject json = (JSONObject) JSON.toJSON(changeVO);
 		HttpClientResult result = null;
-		if (relations == null ) {
+		if (relations == null && poi != null) {
 			JSONObject poiJson = (JSONObject) JSON.toJSON(poi);
 			result = HttpClientUtils.doPost(String.format(updatePOIInfoUrl, host, port, path), contentType, poiJson.toString());
 			if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
@@ -164,5 +168,25 @@ public class POIClient {
 		}
 		
 			
+	}
+	
+	public Long updatePOIToDB(POIDo poi) throws Exception {
+		HttpClientResult result = null;
+		if ( poi != null) {
+			JSONObject poiJson = (JSONObject) JSON.toJSON(poi);
+			result = HttpClientUtils.doPost(String.format(updatePOIInfoUrl, host, port, path), contentType, poiJson.toString());
+			if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
+				String isstr = result.getJson().replace("\r\n", "");
+				
+				return Long.parseLong(isstr);
+			}
+			
+		} 
+		// if (relations == null)
+		if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
+			return Long.valueOf(1);
+		} else {
+			return -1L;
+		}
 	}
 }

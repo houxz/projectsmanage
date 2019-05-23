@@ -1,6 +1,7 @@
 package com.emg.poiwebeditor.dao.task;
 
 import java.lang.reflect.Field;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -18,14 +19,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.emg.poiwebeditor.client.ExecuteSQLApiClientUtils;
+import com.emg.poiwebeditor.client.HttpClientResult;
+import com.emg.poiwebeditor.client.HttpClientUtils;
 import com.emg.poiwebeditor.common.Common;
 import com.emg.poiwebeditor.common.DatabaseType;
+import com.emg.poiwebeditor.common.SystemType;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
 import com.emg.poiwebeditor.pojo.ErrorAndErrorRelatedModel;
 import com.emg.poiwebeditor.pojo.ErrorModel;
@@ -33,11 +44,23 @@ import com.emg.poiwebeditor.pojo.ErrorRelatedModel;
 import com.emg.poiwebeditor.pojo.ErrorSetModel;
 import com.emg.poiwebeditor.pojo.ErrorlistModel;
 import com.emg.poiwebeditor.pojo.ItemConfigModel;
+import com.emg.poiwebeditor.pojo.KeywordModel;
 
 @Component
 public class ErrorModelDao {
 	
+	@Value("${errApi.host}")
+	private String host;
+	@Value("${errApi.port}")
+	private String port;
+	@Value("${errApi.path}")
+	private String path;
+	
 	private static final Logger logger = LoggerFactory.getLogger(ErrorModelDao.class);
+	//通过接口查询错误
+//	private static final String selectErrUrl = "http://%s:%s/poierror/%s/%s/execute";
+	private static final String selectErrUrl = "http://%s:%s/%s/poierror/select/%s/execute";
+	//"http://192.168.0.84:9055/sql-executor/poitask/select/select%201/execute";
 	
 	public List<String> getErrorBatchids(ConfigDBModel configDBModel) {
 		List<String> batchids = new ArrayList<String>();
@@ -921,4 +944,74 @@ public class ErrorModelDao {
 		return errorRelateds;
 	}
 	//add by lianhr end
+	
+	//byhxz20190520
+	public List<ErrorModel> selectErrorsbyPoiid(Long poiid) {
+		List<ErrorModel> errors = new ArrayList<ErrorModel>();
+		//just for test
+		//poiid =20000123522494L;// 20000191844967L;
+		try {
+			StringBuffer sql = new StringBuffer();
+			//查询未关闭的错误
+			sql.append(" SELECT id,featureid,field_name,editvalue,qid,errortype,modifystate,errorstate,errorremark FROM tb_error");
+			sql.append(" WHERE errorstate != 2  and  " + "featureid=" + poiid);
+					
+			String f = String.format(selectErrUrl, host, port, path, sql.toString());
+			
+			String f2 = URLEncoder.encode(URLEncoder.encode(f, "utf-8"), "utf-8");
+			
+			String s =  URLEncoder.encode(URLEncoder.encode(sql.toString(), "utf-8"), "utf-8");
+			
+			String f3 = String.format(selectErrUrl, host, port, path, s );
+			
+	//		HttpClientResult result = HttpClientUtils.doGet(String.format(selectErrUrl, host, port, path,sql));
+	//byhxz20190521 json解析有问题，好像是updatetime 默认是YYYY-MM-DD hh-mm-ss 但是查询结果待有毫秒
+	//暂时不用 select * 查询了 ，待稍后解决后再用
+			HttpClientResult result = HttpClientUtils.doGet( f3 );
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			JSONObject jsonh = JSONObject.parseObject( result.getJson() );
+			if( jsonh.containsKey("data")) {
+				Object data = jsonh.get("data");
+				if( data instanceof JSONArray) {
+					JSONArray jsonArray = (JSONArray)data;
+					for(Integer i = 0 ; i < jsonArray.size() ; i++) {
+						ErrorModel errModel = JSON.parseObject(jsonArray.get(i).toString(), ErrorModel.class);
+						errors.add(errModel);
+						}
+				}
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			errors = new ArrayList<ErrorModel>();
+		} 
+		return errors;
+	}
+	
+	//byhxz20190523 更新错误状态
+	public Long updateErrors(List<Long> errorids) {
+			Long ret = -1L;
+			try {
+				StringBuffer sql = new StringBuffer();
+				//查询未关闭的错误
+				sql.append(" update tb_error set errorstate = 2, modifystate =2");
+				sql.append(" WHERE  id in (" + StringUtils.join(errorids, ",") );
+				sql.append(" )");
+						
+				String f = String.format(selectErrUrl, host, port, path, sql.toString());
+				String f2 = URLEncoder.encode(URLEncoder.encode(f, "utf-8"), "utf-8");
+				String s =  URLEncoder.encode(URLEncoder.encode(sql.toString(), "utf-8"), "utf-8");
+				String f3 = String.format(selectErrUrl, host, port, path, s );
+				
+				HttpClientResult result = HttpClientUtils.doGet( f3 );
+				if (!result.getStatus().equals(HttpStatus.OK))
+					return ret;
+				JSONObject jsonh = JSONObject.parseObject( result.getJson() );
+				ret = 1L;
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			} 
+			return ret;
+		}
 }

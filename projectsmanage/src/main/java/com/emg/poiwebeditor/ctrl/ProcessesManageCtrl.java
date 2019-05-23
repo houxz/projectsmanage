@@ -128,6 +128,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Criteria criteria = example.or();
 			criteria.andTypeEqualTo(ProcessType.POIPOLYMERIZE.getValue());
 			criteria.andStateNotEqualTo(ProcessState.COMPLETE.getValue());
+			//hxz 根据id , 项目名称，用户，优先级，项目状态 过滤项目时触发以下代码
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {
@@ -700,6 +701,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		logger.debug("ProcessesManageCtrl-changeState start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Integer ret = -1;
+		//hxz项目管理操作中的 暂停按钮触发这里
 		try {
 			Long processid = ParamUtils.getLongParameter(request, "processid", -1);
 			Integer state = ParamUtils.getIntParameter(request, "state", -1);
