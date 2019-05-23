@@ -115,15 +115,24 @@ public class EditCtrl extends BaseCtrl {
 		Long keywordid = -1L;
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 			String saveRelations = ParamUtils.getParameter(request, "relations");
-			POIDo poi = this.getPOI(request);
-			poi.setConfirmUId(Long.valueOf(userid));
-			poi.setUid(Long.valueOf(userid));
+			POIDo poi = null;
+			if (oid != -1) {
+				poi = this.getPOI(request);
+				poi.setConfirmUId(Long.valueOf(userid));
+				poi.setUid(Long.valueOf(userid));
+			}
+			
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			List<PoiMergeDO> relations = this.getRelation(taskid, saveRelations);
 			Long u = new Long(userid);
 			poiClient.updatePOI(u, poi, relations);
+			if (oid != -1) {
+				taskModelClient.InsertNewPOITask(taskid, oid);
+			}
+			
 			if (taskModelClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
 				json.addObject("resultMsg", "任务提交失败");
 				json.addObject("result", 0);
@@ -397,6 +406,24 @@ public class EditCtrl extends BaseCtrl {
 					namee.setK(POIAttrnameEnum.namee.toString());
 					namee.setV(null);
 					tags.add(namee);
+					
+					TagDO namees = new TagDO();
+					namees.setId(oid);
+					namees.setK(POIAttrnameEnum.names.toString());
+					namees.setV(null);
+					tags.add(namees);
+					
+					TagDO namesp = new TagDO();
+					namesp.setId(oid);
+					namesp.setK(POIAttrnameEnum.namesp.toString());
+					namesp.setV(null);
+					tags.add(namesp);
+					
+					TagDO namese = new TagDO();
+					namese.setId(oid);
+					namese.setK(POIAttrnameEnum.namese.toString());
+					namese.setV(null);
+					tags.add(namese);
 				}
 				
 				if ("address4".equals(tag.getK())) {

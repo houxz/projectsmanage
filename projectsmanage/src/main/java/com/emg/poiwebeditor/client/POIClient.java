@@ -121,14 +121,17 @@ public class POIClient {
 		ChangePOIVO changeVO = new ChangePOIVO();
 		changeVO.setRole(RoleEnum.edit);
 		List<POIDo> poiModify = new ArrayList<POIDo>();
-		poiModify.add(poi);
+		if (poi != null) {
+			poiModify.add(poi);
+		}
+		
 		changeVO.setPoiModify(poiModify);
 		changeVO.setuId(uId);
 		
 		changeVO.setPoiMergeModify(relations);
 		JSONObject json = (JSONObject) JSON.toJSON(changeVO);
 		HttpClientResult result = null;
-		if (relations == null ) {
+		if (relations == null && poi != null) {
 			JSONObject poiJson = (JSONObject) JSON.toJSON(poi);
 			result = HttpClientUtils.doPost(String.format(updatePOIInfoUrl, host, port, path), contentType, poiJson.toString());
 			if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {

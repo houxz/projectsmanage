@@ -566,7 +566,7 @@
 		} catch(e) {
 			return;
 		}
-		if (!oid || oid <= 0) 	return;
+		// if (!oid || oid <= 0) 	return;
 		var $tbemg = $("#tbbaidu");
 		var tables = ["tbemg", "tbbaidu", "tbtengxun", "tbgaode"];
 		var relations = [];

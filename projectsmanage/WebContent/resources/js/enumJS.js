@@ -108,8 +108,9 @@ var gaodeCode = {
 		lingyindian: {name:"冷饮店",featcode:"2060310",sortcode:""},
 		gaobingdian: {name:"糕饼店",featcode:"2070401",sortcode:"3000718"},
 		tianpindian: {name:"甜品店",featcode:"2060310",sortcode:""}
-}
-var tenxunCode= {
+};
+
+var tengxunCode= {
 		zhongcanting: {name:"中餐厅",featcode:"2040201",sortcode:"3000299"},
 		xican: {name:"西餐",featcode:"2040201",sortcode:"3000217"},
 		huoguo: {name:"火锅",featcode:"2040201",sortcode:"2000219"},
@@ -181,4 +182,4 @@ var tenxunCode= {
 		bisa: {name:"比萨",featcode:"2040201",sortcode:"3000217"},
 		bingqilin: {name:"冰淇淋",featcode:"2060310",sortcode:""},
 		xiaochiheyinliao: {name:"小吃和饮料",featcode:"2040203",sortcode:"3000399"}
-}
+};

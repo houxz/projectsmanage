@@ -133,4 +133,19 @@ public class TaskModelClient {
 		}
 		return false;
 	}
+	
+	//每次提交的时候向tb_link_poi中插入一条数据
+	public Long InsertNewPOITask(Long taskid, Long oid) throws Exception{
+		Long ret = -1L;
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append("insert into task.tb_task_link_poi(poiid, updatetime, taskid) values(");
+			sb.append(oid).append(",").append("now()").append(",").append(taskid).append(")");
+			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE, URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		return ret;
+	}
 }
