@@ -24,6 +24,7 @@
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
 <script src="resources/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 <script src="resources/js/webeditor.js"></script>
+<script src="resources/js/enumJS.js"></script>
 <script src="resources/js/common.js"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src='http://static.emapgo.cn/webjs-sdk/js/emapgo-1.0.0.js'></script>
@@ -38,7 +39,7 @@
 <script type="text/javascript">
 	var $emgmap = null, $baidumap = null, $gaodemap = null, $tengxunmap = null;
 	var $emgmarker = null, $baidumarker = null, $gaodemarker = null, $tengxunmarker = null;
-	var srcType, srcInnerId, baiduSrcInnerId, baiduSrcType, gaodeSrcInnerId, gaodeSrcType, tengxunSrcInnerId, tengxunSrcInnerId, tengxunSrcType, emgSrcInnerId, emgSrcType, dianpingGeo;
+	var srcType, srcInnerId,  dianpingGeo;
 	var emgDel, baiduDel, tengxunDel, gaodeDel;
 	var keywordid = eval('(${keywordid})');
 	var keyword = null;
@@ -72,8 +73,11 @@
 		$.webeditor.getHead();
 		
 		if (keywordid && keywordid > 0) {
+			loadKeyword(keywordid);	
 			loadReferdatas(keywordid);
-			loadKeyword(keywordid);			
+			
+		}else {
+			$.webeditor.showMsgLabel("alert", "没有获取到参考资料");
 		}
 	});
 	
@@ -88,9 +92,6 @@
 				keyword = json.rows;
 				srcType = keyword.srcType;
 				srcInnerId = keyword.srcInnerId;
-				console.log(keyword);
-				
-				loadRelation(keyword.srcInnerId);
 				
 				dianpingGeo = keyword.geo;
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='name']").html(keyword.name);
@@ -385,6 +386,50 @@
 			$("table#tbEdit>tbody td.tdValue[data-key='address8']>textarea").val(value);
 			$("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val(value);
 			
+		}else if (key == "class") {
+			var parent = $($this.parents("table")[0]).attr("id");
+			var valueArray = value.split(";");
+			if (parent.indexOf("tbbaidu") != -1) {
+				getCode(baiduCode, valueArray);
+			}else if(parent.indexOf("tbtengxun") != -1) {
+				getCode(tengxunCode, valueArray);
+			}else if(parent.indexOf("tbgaode") != -1) {
+				getCode(gaodeCode, valueArray);
+			}else if(parent.indexOf("tbemg") != -1) {
+				//当选中为EMG的分类时要去库里查询当前编辑库中的featcode, sortcode
+				var v = $($this.parents("table")[0]).find("input[type=checkbox]").val();
+				var oid = v.split(",")[1];
+				jQuery.post("./edit.web", {
+					"atn" : "getpoibyoid",
+					"oid" : oid
+				}, function(json) {
+					if (json && json.result == 1 && json.poi != null) {
+						var poi = json.poi;
+						$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val(poi.featcode);
+						$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val(poi.sortcode);
+						
+					}
+				}, "json");
+			}
+		}
+	}
+	
+	function getCode(objCodes, values) {
+		if (objCodes == null || values == null) return;
+		var flag = false;
+		for (var j = 0; j < values.length; j++) {
+			for (let key in objCodes){
+			// for (var i = 0; i < Object.keys(objCodes).length; i++) {
+				if(objCodes[key].name == values[j]) {
+					$("table#tbEdit>tbody td.tdValue[data-key='featcode']>textarea").val(objCodes[key].featcode);
+					$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val(objCodes[key].featcode);
+					$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>textarea").val(objCodes[key].sortcode);
+					$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val(objCodes[key].sortcode);
+					flag = true;
+					break;
+				}
+			}
+			if (flag) break;
 		}
 	}
 	
@@ -503,7 +548,9 @@
 						$("table#tbtengxun>tbody").html("<tr><td>无数据</td></tr>");
 					}
 					
-					
+					if (keyword) {
+						loadRelation(keyword);
+					}
 				}
 			} else {
 				
@@ -729,7 +776,7 @@
 		var address6 = $("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val();
 		var address7 = $("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val();
 		var address8 = $("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val();
-		if(namec == null || namec.trim() == "" || featcode == null || featcode.trim()) {
+		if(namec == null || namec.trim() == "" || featcode == null || featcode.trim() == "") {
 			$.webeditor.showMsgLabel("alert", "名称和分类不能为空");
 			return;
 		}
