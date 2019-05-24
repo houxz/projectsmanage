@@ -169,7 +169,6 @@ public class POIClient {
 		
 			
 	}
-	
 	public Long updatePOIToDB(POIDo poi) throws Exception {
 		HttpClientResult result = null;
 		if ( poi != null) {
