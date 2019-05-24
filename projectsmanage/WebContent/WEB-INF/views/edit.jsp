@@ -164,20 +164,25 @@
 		return a.sequence - b.sequence;
 	}
 	
-	function addMakerOnEMGMap(map ) {
-		if (map) {
-			var img = new Image();
-			// img.src = 'http://m.emapgo.cn/demo/electricize/img/poi_center.png';
-			img.src = "resources/images/start.png";
-			if (dianpingGeo) {
+	function addMakerOnEMGMap(map, isEmg ) {
+		if (map == null || dianpingGeo == null) return;
+		var img = new Image();
+		// img.src = 'http://m.emapgo.cn/demo/electricize/img/poi_center.png';
+		img.src = "resources/images/start.png";
+		var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+		if(isEmg) {
 				// POINT (102.486719835069 24.9213802083333)
-				var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
-				var marker = new emapgo.Marker(img		
-				)
-				.setLngLat(geo)
-				.addTo(map);
-			}
 			
+			var marker = new emapgo.Marker(img		
+			)
+			.setLngLat(geo)
+			.addTo(map);
+		}else{
+			var myIcon = L.icon({
+			    iconUrl: 'resources/images/start.png',
+			    iconSize: [31, 40]
+			});
+			L.marker([geo[1], geo[0]], {icon: myIcon}).addTo(map);
 		}
 	}
 	
@@ -231,11 +236,12 @@
 					zoomControl : false,
 					center:  [lat, lng],
 					zoom: zoom+1,
-					crs: L.CRS.Baidu,
-					layers : [new L.tileLayer.baidu({layer: 'custom'})]
+					//crs: L.CRS.Baidu,
+					//layers : [new L.tileLayer.baidu({layer: 'custom'})]
+					zoom: zoom,
+					layers : [L.tileLayer.chinaProvider('GaoDe.Normal.Map', {})]
 				});
 			}
-			
 			if ($baidumarker) {
 				$baidumarker.setLatLng([lat, lng]);
 			} else {
@@ -388,12 +394,15 @@
 			
 		}else if (key == "class") {
 			var parent = $($this.parents("table")[0]).attr("id");
-			var valueArray = value.split(";");
+			
 			if (parent.indexOf("tbbaidu") != -1) {
+				var valueArray = value.split(";");
 				getCode(baiduCode, valueArray);
 			}else if(parent.indexOf("tbtengxun") != -1) {
+				var valueArray = value.split(":");
 				getCode(tengxunCode, valueArray);
 			}else if(parent.indexOf("tbgaode") != -1) {
+				var valueArray = value.split(";");
 				getCode(gaodeCode, valueArray);
 			}else if(parent.indexOf("tbemg") != -1) {
 				//当选中为EMG的分类时要去库里查询当前编辑库中的featcode, sortcode
@@ -500,7 +509,7 @@
 						drawReferdatas("tbemg", emgrefers);
 						emgSrcInnerId = emgrefers[0].srcInnerId;
 						emgSrcType = emgrefers[0].srcType;
-						addMakerOnEMGMap($emgmap);
+						addMakerOnEMGMap($emgmap, true);
 					} else {
 						$("#emgmap").html("无数据");
 						if (keyword && keyword.geo) {
@@ -509,7 +518,7 @@
 							// drawReferdatas("tbemg", emgrefers);
 							/* emgSrcInnerId = emgrefers[0].srcInnerId;
 							emgSrcType = emgrefers[0].srcType; */
-							addMakerOnEMGMap($emgmap);
+							addMakerOnEMGMap($emgmap, true);
 							$("table#tbemg>tbody").html("<tr><td>无数据</td></tr>");
 						}
 						
@@ -521,6 +530,7 @@
 						drawReferdatas("tbbaidu", baidurefers);
 						baiduSrcInnerId = baidurefers[0].srcInnerId;
 						baiduSrcType = baidurefers[0].srcType;
+						addMakerOnEMGMap($baidumap, false);
 					} else {
 						$("#baidumap").html("无数据");
 						$("table#tbbaidu>tbody").html("<tr><td>无数据</td></tr>");
@@ -532,6 +542,7 @@
 						drawReferdatas("tbgaode", gaoderefers);
 						gaodeSrcInnerId = gaoderefers[0].srcInnerId;
 						gaodeSrcType = gaoderefers[0].srcType;
+						addMakerOnEMGMap($gaodemap, false);
 					} else {
 						$("#gaodemap").html("无数据");
 						$("table#tbgaode>tbody").html("<tr><td>无数据</td></tr>");
@@ -543,6 +554,7 @@
 						drawReferdatas("tbtengxun", tengxunrefers);
 						tengxunSrcInnerId = tengxunrefers[0].srcInnerId;
 						tengxunSrcType = tengxunrefers[0].srcType;
+						addMakerOnEMGMap($tengxunmap, false);
 					} else {
 						$("#tengxunmap").html("无数据");
 						$("table#tbtengxun>tbody").html("<tr><td>无数据</td></tr>");
@@ -577,7 +589,7 @@
 				var srcInnerId = $(this).val().split(",")[1];
 				var srcType = $(this).val().split(",")[2];
 				if (i == 0 && (keyword.srcType != null && keyword.srcType > 0 )) {
-					
+					//EMG 选中保存的是EMG和poi的
 					var relation = new Object();
 					relation.srcInnerId = keyword.srcInnerId;
 					relation.srcType = keyword.srcType;
@@ -599,6 +611,17 @@
 					// relations.push({"srcInnerId":srcInnerId, "srcType"： srcType, "oid": oid});
 				}
 			});
+			
+			if ($("#tbemg input:checked") != null && oid > 0) {
+				//			
+				var relation = new Object();
+				relation.srcInnerId = keyword.srcInnerId;
+				relation.srcType = keyword.srcType;
+				relation.oid = oid;
+				relation.qid = keyword.qid;
+				relation.errorType = keyword.errorType;
+				relations.push(relation);
+			}
 			// var relation = {"srcInnerId" : checkTable.find("tbody td.tdValue[data-key='srcInnerId']>input:text").val()};
 			
 		}
@@ -632,16 +655,6 @@
 			"taskid" : $("#curTaskID").html(),
 			"getnext" : true,
 			"relations": JSON.stringify(relations),
-			/* "srcType":srcType,
-			"srcInnerId": srcInnerId,
-			"baiduSrcInnerId": baiduSrcInnerId,
-			"baiduSrcType": baiduSrcType,
-			"gaodeSrcInnerId": gaodeSrcInnerId,
-			"gaodeSrcType": gaodeSrcType,
-			"tengxunSrcInnerId": tengxunSrcInnerId,
-			"tengxunSrcType": tengxunSrcType,
-			"emgSrcInnerId": emgSrcInnerId,
-			"emgSrcType": emgSrcType, */
 			"namec": namec,
 			"oid": oid,
 			"tel": tel,
