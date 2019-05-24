@@ -4014,8 +4014,10 @@ public class SchedulerTask {
 		//3.0 查看某任务状态
 		try {
 			Integer projectcount = rows.size();
+			logger.debug("本次扫描项目数:" + projectcount);
 			for( int indexproject = 0; indexproject < projectcount ; indexproject++) {
 				Long projectid = rows.get(indexproject).getId();
+				logger.debug("本次扫描项目:" + projectid);
 				List<TaskModel> tasklist = taskModelClient.selectTaskByProjectId(projectid);
 				Integer taskcount = tasklist.size();
 				for( int indextask = 0 ; indextask < taskcount ; indextask++) {

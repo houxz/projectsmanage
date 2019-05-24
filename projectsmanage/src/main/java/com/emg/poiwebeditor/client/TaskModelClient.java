@@ -28,44 +28,42 @@ public class TaskModelClient {
 	private String port;
 	@Value("${taskApi.path}")
 	private String path;
-
+	
 	private final static String SELECT = "select";
 	private final static String UPDATE = "update";
-
+	
 	private static final Logger logger = LoggerFactory.getLogger(TaskModelClient.class);
-
+	
 	private String getUrl = "http://%s:%s/%s/mergetask/%s/%s/execute";
 	private String postUrl = "http://%s:%s/%s/mergetask/%s";
-
+	
 	private String contentType = "application/x-www-form-urlencoded";
-
+	
 	public TaskModel selectMyNextEditTask(List<Long> projectIDs, Integer userid) throws Exception {
 		TaskModel task = null;
 		try {
 			String sql = getEditTaskSQL(projectIDs, userid);
-			task = (TaskModel) ExecuteSQLApiClientUtils.postModel(String.format(postUrl, host, port, path, SELECT),
-					contentType, "sql=" + sql, TaskModel.class);
+			task = (TaskModel) ExecuteSQLApiClientUtils.postModel(String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sql, TaskModel.class);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw e;
 		}
-
+		
 		return task;
 	}
-
+	
 	public Long submitEditTask(Long taskid, Integer editid) throws Exception {
 		Long ret = -1L;
 		try {
 			String sql = submitEditTaskSQL(taskid, editid);
-			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE,
-					URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")));
+			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE, URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw e;
 		}
 		return ret;
 	}
-
+	
 	private String submitEditTaskSQL(Long taskid, Integer editid) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("UPDATE tb_task");
@@ -74,11 +72,10 @@ public class TaskModelClient {
 		sb.append(" AND editid = " + editid);
 		return sb.toString();
 	}
-
+	
 	private String getEditTaskSQL(List<Long> projectIDs, Integer userid) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(" with projectid(projectid) as (select * from unnest(array[" + StringUtils.join(projectIDs, ",")
-				+ "])), ");
+		sb.append(" with projectid(projectid) as (select * from unnest(array[" + StringUtils.join(projectIDs, ",") + "])), ");
 		sb.append("		sorttable(state, process, sortvalue) as (values(1,5,0)) ");
 		sb.append(" update tb_task ");
 		sb.append(" set starttime=now(),operatetime=now(),state=1,process=5,editid= " + userid);
@@ -87,12 +84,11 @@ public class TaskModelClient {
 		sb.append("			select coalesce ( ");
 		sb.append("				( select id from tb_task ");
 		sb.append("					join sorttable using(state, process) ");
-		sb.append("					where editid=" + userid + " and projectid=p.projectid ");
+		sb.append("					where editid=" + userid +" and projectid=p.projectid ");
 		sb.append("					order by sortvalue ,id ");
 		sb.append("					limit 1 for update), ");
 		sb.append("				( select id from tb_task ");
-		sb.append(
-				"					where (state=0 and process=0 ) and projectid=p.projectid and ( editid=0 or editid ISNULL) ");
+		sb.append("					where (state=0 and process=0 ) and projectid=p.projectid and ( editid=0 or editid ISNULL) ");
 		sb.append("					order by id ");
 		sb.append("					limit 1 for update) ");
 		sb.append("			) as taskid ");
@@ -101,12 +97,12 @@ public class TaskModelClient {
 		sb.append(" ) as a(id) where tb_task.id = a.id returning tb_task.*; ");
 		return sb.toString();
 	}
-
-	// 获取批次的keyid集合
-	public Boolean InsertNewTask(ConfigDBModel configDBModel, Long projectid, Long shapeid) {
+	
+	//获取批次的keyid集合
+	public Boolean InsertNewTask(ConfigDBModel configDBModel,Long projectid,Long shapeid){
 		BasicDataSource dataSource = null;
 		try {
-			if (configDBModel == null)
+			if ( configDBModel == null)
 				return false;
 			Integer dbtype = configDBModel.getDbtype();
 
@@ -117,17 +113,17 @@ public class TaskModelClient {
 			}
 			sql.append(" tb_task  ");
 			sql.append(" (name,projectid,priority,rank,keywordid) ");
-			sql.append(" values(''," + projectid + ",0,0," + shapeid + ")");
-
+			sql.append(" values('name'," + projectid +",0,0,"+ shapeid +")");
+				
 			dataSource = Common.getDataSource(configDBModel);
-			int insertcount = new JdbcTemplate(dataSource).update(sql.toString());
-
-			if (insertcount > 0)
+			int insertcount = new  JdbcTemplate(dataSource).update(sql.toString());
+			
+			if( insertcount > 0 )
 				return true;
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-
+	
 		} finally {
 			if (dataSource != null) {
 				try {
