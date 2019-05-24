@@ -128,6 +128,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Criteria criteria = example.or();
 			criteria.andTypeEqualTo(ProcessType.POIPOLYMERIZE.getValue());
 			criteria.andStateNotEqualTo(ProcessState.COMPLETE.getValue());
+			//hxz 根据id , 项目名称，用户，优先级，项目状态 过滤项目时触发以下代码
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {

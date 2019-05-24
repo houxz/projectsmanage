@@ -10,6 +10,7 @@
 				<ref bean="usersmanage" />
 				<ref bean="skillsmanage" />
 				<ref bean="edit" />
+				<ref bean="modify" />
 				<ref bean="processesmanage" />
 				<ref bean="worktasks" />
 				<ref bean="tasksmanage" />
@@ -68,6 +69,19 @@
 		<property name="code" value="999" />
 		<property name="url" value="/poiwebeditor/edit.web" />
 		<property name="label" value="制作" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_WORKER</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
+	
+	<bean id="modify" class="com.emg.poiwebeditor.auth.MenuAuthModel">
+		<property name="code" value="998" />
+		<property name="url" value="/poiwebeditor/modify.web" />
+		<property name="label" value="改错" />
 		<property name="roleSet">
 			<set>
 				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_WORKER</value>

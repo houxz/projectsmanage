@@ -169,4 +169,23 @@ public class POIClient {
 		
 			
 	}
+	public Long updatePOIToDB(POIDo poi) throws Exception {
+		HttpClientResult result = null;
+		if ( poi != null) {
+			JSONObject poiJson = (JSONObject) JSON.toJSON(poi);
+			result = HttpClientUtils.doPost(String.format(updatePOIInfoUrl, host, port, path), contentType, poiJson.toString());
+			if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
+				String isstr = result.getJson().replace("\r\n", "");
+				
+				return Long.parseLong(isstr);
+			}
+			
+		} 
+		// if (relations == null)
+		if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
+			return Long.valueOf(1);
+		} else {
+			return -1L;
+		}
+	}
 }
