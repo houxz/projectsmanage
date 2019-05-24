@@ -677,6 +677,16 @@
 					$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
 					$("#curTaskID").text(task.id);
 					$("#curProjectID").text(task.projectid);
+					$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='address4']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='address5']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val("");
 					keywordid = json.keywordid;
 					if (keywordid && keywordid > 0) {
 						loadKeyword(keywordid);

@@ -490,15 +490,23 @@ public class EditCtrl extends BaseCtrl {
 						tags.add(tag7p);
 						
 					}
-				}else if ("address8".equals(tag.getK())) {
+				}else if ("address8e".equals(tag.getK())) {
 					if (address8 != null && !address8.equals(tag.getV())) {
-						tag.setV(null);
-						tags.add(tag);
+						/*tag.setV(null);
+						tags.add(tag);*/
 						TagDO tag8e = new TagDO();
 						tag8e.setId(oid);
 						tag8e.setK(POIAttrnameEnum.address8e.toString());
 						tag8e.setV(null);
 						tags.add(tag8e);
+						
+						
+					}
+				}else if ("address8p".equals(tag.getK())) {
+					if (address8 != null && !address8.equals(tag.getV())) {
+						/*tag.setV(null);
+						tags.add(tag);*/
+						
 						TagDO tag8p = new TagDO();
 						tag8p.setId(oid);
 						tag8p.setK(POIAttrnameEnum.address8p.toString());
