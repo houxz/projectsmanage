@@ -45,7 +45,8 @@
 	var keywordid = eval('(${keywordid})');
 	var zoom = 17;
 	var shapegeo;
-	
+	var poigeo;
+
 
 	var loaderr = "<span class='red'>加载失败</span>";
 	var redMarker = L.AwesomeMarkers.icon({
@@ -101,6 +102,8 @@
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='telephone']").html(keyword.telephone);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='categoryName']").html(keyword.categoryName);						
 				shapegeo = keyword.geo;
+				//两个地方都绘制是因为jsp执行是线程级别，不能确定谁先执行完
+				addMakerOnEMGMap($emgmap);
 			} else {
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='name']").html(loaderr);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='address']").html(loaderr);
@@ -151,7 +154,8 @@
 				$emgmap.on('click', function(e) {
 					if (e && $emgmarker) {
 						$emgmarker.setLngLat([e.lngLat.lng,e.lngLat.lat]);
-						dianpingGeo = 'MULTIPOINT (' + e.lngLat.lng + " " + e.lngLat.lat + "," +  + e.lngLat.lng + " " + e.lngLat.lat +")";
+						dianpingGeo = 'MULTIPOINT (' + e.lngLat.lng + " " + e.lngLat.lat + "," +  + e.lngLat.lng + " " + e.lngLat.lat +")";//?
+						poigeo = 'MULTIPOINT (' + e.lngLat.lng + " " + e.lngLat.lat + "," +  + e.lngLat.lng + " " + e.lngLat.lat +")";
 					}
 					console.log(e);
 					});
@@ -193,6 +197,7 @@
 				});
 				
 	 			var geo = poi.geo.replace("MULTIPOINT ((","").replace("),","").replace("(","").replace(")", "").split(" ");
+	 			poigeo = geo;
 	 			drawEMGMap(geo[1], geo[0], zoom);
 	 			addMakerOnEMGMap($emgmap);
 			} else {
@@ -201,48 +206,46 @@
 		}, "json");
 	}
 	
-	function rdChange(srcType, lat, lng, srcInnerId) {
-		 // $("input[name='"+ ck.name +"']:checkbox").prop("checked", false);
-		// 	ck.checked = true; 
-		if (ck.checked == false && srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
-			$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("-1");
-			emgSrcInnerId = "";
-			emgSrcType = 0;
-		}else if (ck.checked == true && srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
-			loadEditPOI(srcInnerId);
-			$emgmarker.setLngLat([lng, lat ]);
-			$emgmap.setCenter([lng, lat]);
-			emgSrcInnerId = srcInnerId;
-			emgSrcType = srcType;
-			 $("input[name='"+ ck.name +"']:checkbox").prop("checked", false);
-			ck.checked = true; 
-		}
-		if (srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
-			/* loadEditPOI(srcInnerId);
-			$emgmarker.setLngLat([lng, lat ]);
-			$emgmap.setCenter([lng, lat]);
-			emgSrcInnerId = srcInnerId;
-			emgSrcType = srcType; */
-		} else if (srcType == <%=SrcTypeEnum.BAIDU.getValue() %>) {
-			$baidumarker.setLatLng([lat, lng]);
-			$baidumap.setView([lat, lng]);
-			baiduSrcInnerId = srcInnerId;
-			baiduSrcType = srcType;
-		} else if (srcType == <%=SrcTypeEnum.TENGXUN.getValue() %>) {
-			$tengxunmarker.setLatLng([lat, lng]);
-			$tengxunmap.setView([lat, lng]);	
-			tengxunSrcInnerId = srcInnerId;
-			tengxunSrcType = srcType;
-		} else if (srcType == <%=SrcTypeEnum.GAODE.getValue() %>) {
-			$gaodemarker.setLatLng([lat, lng]);
-			$gaodemap.setView([lat, lng]);
-			gaodeSrcInnerId = srcInnerId;
-			gaodeSrcType = srcType;
-		} else {
-			console.log("Error on srcType: " + srcType);
-			return;
-		}
-	}
+// 	function rdChange(srcType, lat, lng, srcInnerId) {
+<%-- 		if (ck.checked == false && srcType == <%=SrcTypeEnum.EMG.getValue() %>) { --%>
+// 			$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("-1");
+// 			emgSrcInnerId = "";
+// 			emgSrcType = 0;
+<%-- 		}else if (ck.checked == true && srcType == <%=SrcTypeEnum.EMG.getValue() %>) { --%>
+// 			loadEditPOI(srcInnerId);
+// 			$emgmarker.setLngLat([lng, lat ]);
+// 			$emgmap.setCenter([lng, lat]);
+// 			emgSrcInnerId = srcInnerId;
+// 			emgSrcType = srcType;
+// 			 $("input[name='"+ ck.name +"']:checkbox").prop("checked", false);
+// 			ck.checked = true; 
+// 		}
+<%-- 		if (srcType == <%=SrcTypeEnum.EMG.getValue() %>) { --%>
+// 			loadEditPOI(srcInnerId);
+// 			$emgmarker.setLngLat([lng, lat ]);
+// 			$emgmap.setCenter([lng, lat]);
+// 			emgSrcInnerId = srcInnerId;
+// 			emgSrcType = srcType; 
+<%-- 		} else if (srcType == <%=SrcTypeEnum.BAIDU.getValue() %>) { --%>
+// 			$baidumarker.setLatLng([lat, lng]);
+// 			$baidumap.setView([lat, lng]);
+// 			baiduSrcInnerId = srcInnerId;
+// 			baiduSrcType = srcType;
+<%-- 		} else if (srcType == <%=SrcTypeEnum.TENGXUN.getValue() %>) { --%>
+// 			$tengxunmarker.setLatLng([lat, lng]);
+// 			$tengxunmap.setView([lat, lng]);	
+// 			tengxunSrcInnerId = srcInnerId;
+// 			tengxunSrcType = srcType;
+<%-- 		} else if (srcType == <%=SrcTypeEnum.GAODE.getValue() %>) { --%>
+// 			$gaodemarker.setLatLng([lat, lng]);
+// 			$gaodemap.setView([lat, lng]);
+// 			gaodeSrcInnerId = srcInnerId;
+// 			gaodeSrcType = srcType;
+// 		} else {
+// 			console.log("Error on srcType: " + srcType);
+// 			return;
+// 		}
+// 	}
 	
 	function textCopy(obj) {
 		var $this = $(obj);
@@ -255,70 +258,65 @@
 		$("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>input:text").val(value);
 	}
 	
-	function drawReferdatas(tbid, referdatas) {
-		var $tbody = $("table#" + tbid + ">tbody");
-		$tbody.empty();
-		referdatas.forEach(function(referdata, index) {
-			var html = new Array();
-			html.push("<table id ='"+ tbid + referdata.id + "' class=\"table table-bordered table-condensed\"><tbody>");
-			html.push("<tr class='trIndex'><td class='tdIndex' rowspan='5'>");
-		    //html.push("<input type='checkbox' name='rd" + tbid + "' onChange='rdChange(this, " + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\");' value='" + referdata.id + "' " + (index == 0 ? 'checked':'') + ">");
-		    //html.push("<span class='glyphicon glyphicon-share cursorable'></span></td></tr>");
-		    html.push("<input type='checkbox' name='rd" + tbid + "' onChange='rdChange(this, " + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\");' value='" + referdata.id + "," + referdata.srcInnerId + "," + referdata.srcType + "' >");
-		    html.push("</td></tr>");
+// 	function drawReferdatas(tbid, referdatas) {
+// 		var $tbody = $("table#" + tbid + ">tbody");
+// 		$tbody.empty();
+// 		referdatas.forEach(function(referdata, index) {
+// 			var html = new Array();
+// 			html.push("<table id ='"+ tbid + referdata.id + "' class=\"table table-bordered table-condensed\"><tbody>");
+// 			html.push("<tr class='trIndex'><td class='tdIndex' rowspan='5'>");
+// 		    html.push("<input type='checkbox' name='rd" + tbid + "' onChange='rdChange(this, " + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\");' value='" + referdata.id + "," + referdata.srcInnerId + "," + referdata.srcType + "' >");
+// 		    html.push("</td></tr>");
 		    
-		    html.push("<tr><td class='tdKey'>名称</td>");
-		    html.push("<td class='tdValue' data-key='name'>" + referdata.name + "</td>");
-		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
+// 		    html.push("<tr><td class='tdKey'>名称</td>");
+// 		    html.push("<td class='tdValue' data-key='name'>" + referdata.name + "</td>");
+// 		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
 		    
-		    html.push("<tr><td class='tdKey'>电话</td>");
-		    html.push("<td class='tdValue' data-key='telephone'>" + referdata.tel + "</td>");
-		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
+// 		    html.push("<tr><td class='tdKey'>电话</td>");
+// 		    html.push("<td class='tdValue' data-key='telephone'>" + referdata.tel + "</td>");
+// 		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
 		    
-		    html.push("<tr><td class='tdKey'>分类</td>");
-		    html.push("<td class='tdValue' data-key='class'>" + referdata.orgCategoryName + "</td>");
-		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
+// 		    html.push("<tr><td class='tdKey'>分类</td>");
+// 		    html.push("<td class='tdValue' data-key='class'>" + referdata.orgCategoryName + "</td>");
+// 		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
 		    
-		    html.push("<tr class='trEnd'><td class='tdKey'>地址</td>");
-		    html.push("<td class='tdValue' data-key='address'>" + referdata.address + "</td>");
-		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
+// 		    html.push("<tr class='trEnd'><td class='tdKey'>地址</td>");
+// 		    html.push("<td class='tdValue' data-key='address'>" + referdata.address + "</td>");
+// 		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
 		    
-		   /*  html.push("<tr  style='display:none'><td class='tdKey'>srcType,srcInnerId</td>");
-		    html.push("<td class='tdValue' data-key='srcInnerId'>" + referdata.srcInnerId + "</td>");
-		    html.push("<td class='tdValue' data-key='srcType'>" + referdata.srcType + "</td></tr>"); */
-		    html.push("</tbody></table>");
-		    $tbody.append(html.join(''));
-		});
-	}
+// 		    html.push("</tbody></table>");
+// 		    $tbody.append(html.join(''));
+// 		});
+// 	}
 	
-	function loadReferdatas(keywordid) {
-		jQuery.post("./modify.web", {
-			"atn" : "getreferdatabykeywordid",
-			"keywordid" : keywordid
-		}, function(json) {
-			if (json && json.result == 1) {
-				var referdatas = json.rows;
-				var emgrefers = new Array();
-				if (referdatas && referdatas.length > 0) {
-					referdatas.forEach(function(referdata, index) {
-						if (referdata.srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
-							emgrefers.push(referdata);
-						} 
-					});
+// 	function loadReferdatas(keywordid) {
+// 		jQuery.post("./modify.web", {
+// 			"atn" : "getreferdatabykeywordid",
+// 			"keywordid" : keywordid
+// 		}, function(json) {
+// 			if (json && json.result == 1) {
+// 				var referdatas = json.rows;
+// 				var emgrefers = new Array();
+// 				if (referdatas && referdatas.length > 0) {
+// 					referdatas.forEach(function(referdata, index) {
+<%-- 						if (referdata.srcType == <%=SrcTypeEnum.EMG.getValue() %>) { --%>
+// 							emgrefers.push(referdata);
+// 						} 
+// 					});
 					
-					if (emgrefers && emgrefers.length > 0) {
-						emgrefers.sort(refercompare);
-						drawEMGMap(emgrefers[0].srcLat, emgrefers[0].srcLon, zoom);
-					} else {
-						$("#emgmap").html("无数据");
-						$("table#tbemg>tbody").html("<tr><td>无数据</td></tr>");
-					}	
-				}
-			} else {
+// 					if (emgrefers && emgrefers.length > 0) {
+// 						emgrefers.sort(refercompare);
+// 						drawEMGMap(emgrefers[0].srcLat, emgrefers[0].srcLon, zoom);
+// 					} else {
+// 						$("#emgmap").html("无数据");
+// 						$("table#tbemg>tbody").html("<tr><td>无数据</td></tr>");
+// 					}	
+// 				}
+// 			} else {
 				
-			}
-		}, "json");
-	}
+// 			}
+// 		}, "json");
+// 	}
 	
 	function submitEditTask() {
 		var oid = null;
@@ -328,18 +326,12 @@
 			return;
 		}
 		if (!oid || oid <= 0) 	return;
-		var $tbemg = $("#tbbaidu");
-		var tables = ["rdtbemg", "rdtbbaidu", "rdtbtengxun", "rdtbgaode"];
-		var relations = [];
-		for (var i = 0; i < tables.length; i++) {
-			// $("#" + tables[i] + " table tbody tr :checkbox")
-			var checkTable = $("input[name='" +tables[i] +"']:checked").parents("table")[0];
-			/* $.each($("input[name='" +tables[i] +"']:checked"), function(){
-				var v = $(this).val();
-			}); */
-			// var relation = {"srcInnerId" : checkTable.find("tbody td.tdValue[data-key='srcInnerId']>input:text").val()};
-			
-		}
+// 		var $tbemg = $("#tbbaidu");
+// 		var tables = ["rdtbemg", "rdtbbaidu", "rdtbtengxun", "rdtbgaode"];
+// 		var relations = [];
+// 		for (var i = 0; i < tables.length; i++) {
+// 			var checkTable = $("input[name='" +tables[i] +"']:checked").parents("table")[0];
+// 		}
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
 		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
@@ -357,12 +349,12 @@
 			"getnext" : true,
 			"srcType":srcType,
 			"srcInnerId": srcInnerId,
-			"baiduSrcInnerId": baiduSrcInnerId,
-			"baiduSrcType": baiduSrcType,
-			"gaodeSrcInnerId": gaodeSrcInnerId,
-			"gaodeSrcType": gaodeSrcType,
-			"tengxunSrcInnerId": tengxunSrcInnerId,
-			"tengxunSrcType": tengxunSrcType,
+// 			"baiduSrcInnerId": baiduSrcInnerId,
+// 			"baiduSrcType": baiduSrcType,
+// 			"gaodeSrcInnerId": gaodeSrcInnerId,
+// 			"gaodeSrcType": gaodeSrcType,
+// 			"tengxunSrcInnerId": tengxunSrcInnerId,
+// 			"tengxunSrcType": tengxunSrcType,
 			"emgSrcInnerId": emgSrcInnerId,
 			"emgSrcType": emgSrcType,
 			"namec": namec,
@@ -375,7 +367,8 @@
 			"address6" : address6,
 			"address7" : address7,
 			"address8" : address8,
-			"dianpingGeo" : dianpingGeo
+			"dianpingGeo" : dianpingGeo,
+			"poigeo":poigeo
 		}, function(json) {
 			if (json && json.result == 1) {
 				var task = json.task;
@@ -391,7 +384,7 @@
 					keywordid = json.keywordid;
 					if (keywordid && keywordid > 0) {
 						loadKeyword(keywordid);
-						loadReferdatas(keywordid);
+// 						loadReferdatas(keywordid);
 						loadEditPOI(poiid);
 					}
 				} else {
@@ -439,7 +432,7 @@
 			return;
 		}
 		if (!oid || oid <= 0) 	return;
-		
+	
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
 		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
@@ -451,18 +444,26 @@
 		var address8 = $("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val();
 		
 		$.webeditor.showMsgBox("info", "数据保存中...");
-		jQuery.post("./edit.web", {
+		jQuery.post("./modify.web", {
 			"atn" : "updatepoibyoid",
-			"oid" : oid,
-			"namec" : namec,
-			"tel" : tel,
+			"taskid" : $("#curTaskID").html(),
+			"getnext" : false,
+			"srcType":srcType,
+			"srcInnerId": srcInnerId,
+			"emgSrcInnerId": emgSrcInnerId,
+			"emgSrcType": emgSrcType,
+			"namec": namec,
+			"oid": oid,
+			"tel": tel,
 			"featcode" : featcode,
 			"sortcode" : sortcode,
 			"address4" : address4,
 			"address5" : address5,
 			"address6" : address6,
 			"address7" : address7,
-			"address8" : address8
+			"address8" : address8,
+			"dianpingGeo" : dianpingGeo,
+			"poigeo":poigeo
 		}, function(json) {
 			if (json && json.result > 0) {
 				$.webeditor.showMsgLabel("success", "保存成功");

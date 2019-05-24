@@ -283,7 +283,7 @@ public class ModifyErrorCtrl {
 		return json;
 	}
 
-	// 提交任务
+		// 提交任务
 		@RequestMapping(params = "atn=submitmodifytask")
 		public ModelAndView submitModifyTask(Model model, HttpServletRequest request, HttpSession session) {
 			logger.debug("START");
@@ -349,6 +349,75 @@ public class ModifyErrorCtrl {
 			logger.debug("END");
 			return json;
 		}
+		
+	// 保存POI
+	@RequestMapping(params = "atn=updatepoibyoid")
+	public ModelAndView updateModifyTask(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		TaskModel task = new TaskModel();
+		ProjectModel project = new ProjectModel();
+		ProcessModel process = new ProcessModel();
+		Long keywordid = -1L;
+		try {
+			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			POIDo poi = this.getSavePOI(request);
+			poi.setConfirmUId(Long.valueOf(userid));
+			poi.setUid(Long.valueOf(userid));
+			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			curTaskId = taskid;
+			poiClient.updatePOIToDB(poi);
+//			List<Long> errorids = new ArrayList<Long>();
+//			Integer errorcount = curErrorList.size();
+//			for (Integer i = 0; i < errorcount; i++) {
+//				errorids.add(curErrorList.get(i).getId());
+//			}
+//			// 先修改错误状态
+//			if (errorModelDao.updateErrors(errorids).compareTo(0L) <= 0) {
+//				json.addObject("resultMsg", "修改错误状态为解决失败");
+//				json.addObject("result", 0);
+//				return json;
+//			}
+//			if (taskModelClient.submitModifyTask(taskid, userid, 2).compareTo(0L) <= 0) {
+//				json.addObject("resultMsg", "任务提交失败");
+//				json.addObject("result", 0);
+//				return json;
+//			}
+//
+//			if (getnext) {
+//				task = getModifyTask(userid);
+//				if (task != null && task.getId() != null) {
+//					Long projectid = task.getProjectid();
+//					if (projectid.compareTo(0L) > 0) {
+//						project = projectModelDao.selectByPrimaryKey(projectid);
+//
+//						Long processid = project.getProcessid();
+//						if (processid.compareTo(0L) > 0) {
+//							process = processModelDao.selectByPrimaryKey(processid);
+//						}
+//					}
+//
+//					keywordid = task.getKeywordid();
+//				}
+//			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+//		json.addObject("task", task);
+//		json.addObject("project", project);
+//		json.addObject("process", process);
+//		json.addObject("keywordid", keywordid);
+//		json.addObject("result", 1);
+//
+//		model.addAttribute("poiid", curPoiId);
+//		model.addAttribute("errorlist", curErrorList);
+		
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
 	
 	private TaskModel getNextModifyTaskByProjectId(Integer userid, Long projectid, Long taskid) {
 		TaskModel task = new TaskModel();
@@ -449,7 +518,22 @@ public class ModifyErrorCtrl {
 					} else if (check == CheckEnum.uncheck) {
 						// 未质检出 : 跳过任务
 						curTaskId = taskid;
-						return false;// 继续找下个任务
+						ConfirmEnum confirm =  poi.getConfirm();
+						if( confirm == ConfirmEnum.no_confirm) {
+							//中途保存过POI
+							curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
+							Integer errcount = curErrorList.size();
+							if (errcount > 0) {
+								// 存在待修改的质检错误
+								return true;// 找到作业任务
+							} else {
+								// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
+								// 这是工具bug 或者流程 被人为修改
+								return false;
+							}
+						}else {
+							return false;// 继续找下个任务
+						}
 					} else if (check == CheckEnum.err) {
 						// 质检出错误：加载错误改错
 						// 根据POI查询错误
@@ -494,7 +578,8 @@ public class ModifyErrorCtrl {
 		String address6 = ParamUtils.getParameter(request, "address6");
 		String address7 = ParamUtils.getParameter(request, "address7");
 		String address8 = ParamUtils.getParameter(request, "address8");
-		String geo = ParamUtils.getParameter(request, "dianpingGeo");
+//		String geo = ParamUtils.getParameter(request, "dianpingGeo");
+		String geo = ParamUtils.getParameter(request, "poigeo");
 
 		POIDo poi = new POIDo();
 		logger.debug(JSON.toJSON(poi).toString());
@@ -516,6 +601,165 @@ public class ModifyErrorCtrl {
 		poi.setGeo(geo);
 		poi.setFeatcode(featcode);
 		poi.setSortcode(sortcode);
+		
+		Set<TagDO> tags = poi.getPoitags();
+		if (savePoi != null && savePoi.getPoitags() != null) {
+			Set<TagDO> saveTags = savePoi.getPoitags();
+			
+			for (TagDO tag : saveTags) {
+				if (!savePoi.getNamec().equals(namec)) {
+					TagDO namep = new TagDO();
+					namep.setId(oid);
+					namep.setK(POIAttrnameEnum.namep.toString());
+					namep.setV(null);
+					tags.add(namep);
+					
+					TagDO namee = new TagDO();
+					namee.setId(oid);
+					namee.setK(POIAttrnameEnum.namee.toString());
+					namee.setV(null);
+					tags.add(namee);
+				}
+				
+				if ("address4".equals(tag.getK())) {
+					if (address4 == null || address4.isEmpty()) {
+						tag.setV(null);
+						tags.add(tag);
+						TagDO tag4e = new TagDO();
+						tag4e.setId(oid);
+						tag4e.setK(POIAttrnameEnum.address4e.toString());
+						tag4e.setV(null);
+						tags.add(tag4e);
+						TagDO tag4p = new TagDO();
+						tag4p.setId(oid);
+						tag4p.setK(POIAttrnameEnum.address4p.toString());
+						tag4p.setV(null);
+						tags.add(tag4p);
+						
+					}
+				}else if ("address5".equals(tag.getK())) {
+					if (address5 == null || address5.isEmpty()) {
+						tag.setV(null);
+						tags.add(tag);
+						TagDO tag5e = new TagDO();
+						tag5e.setId(oid);
+						tag5e.setK(POIAttrnameEnum.address5e.toString());
+						tag5e.setV(null);
+						tags.add(tag5e);
+						TagDO tag5p = new TagDO();
+						tag5p.setId(oid);
+						tag5p.setK(POIAttrnameEnum.address5p.toString());
+						tag5p.setV(null);
+						tags.add(tag5p);
+						
+					}
+				}else if ("address6".equals(tag.getK())) {
+					if (address6 == null || address6.isEmpty()) {
+						tag.setV(null);
+						tags.add(tag);
+						TagDO tag6e = new TagDO();
+						tag6e.setId(oid);
+						tag6e.setK(POIAttrnameEnum.address6e.toString());
+						tag6e.setV(null);
+						tags.add(tag6e);
+						TagDO tag6p = new TagDO();
+						tag6p.setId(oid);
+						tag6p.setK(POIAttrnameEnum.address6p.toString());
+						tag6p.setV(null);
+						tags.add(tag6p);
+						
+					}
+				}else if ("address7".equals(tag.getK())) {
+					if (address7 == null || address7.isEmpty()) {
+						tag.setV(null);
+						tags.add(tag);
+						TagDO tag7e = new TagDO();
+						tag7e.setId(oid);
+						tag7e.setK(POIAttrnameEnum.address7e.toString());
+						tag7e.setV(null);
+						tags.add(tag7e);
+						TagDO tag7p = new TagDO();
+						tag7p.setId(oid);
+						tag7p.setK(POIAttrnameEnum.address7p.toString());
+						tag7p.setV(null);
+						tags.add(tag7p);
+						
+					}
+				}else if ("address8".equals(tag.getK())) {
+					if (address8 != null && !address8.equals(tag.getV())) {
+						tag.setV(null);
+						tags.add(tag);
+						TagDO tag8e = new TagDO();
+						tag8e.setId(oid);
+						tag8e.setK(POIAttrnameEnum.address8e.toString());
+						tag8e.setV(null);
+						tags.add(tag8e);
+						TagDO tag8p = new TagDO();
+						tag8p.setId(oid);
+						tag8p.setK(POIAttrnameEnum.address8p.toString());
+						tag8p.setV(null);
+						tags.add(tag8p);
+						
+					}
+				}
+			}
+		}
+		
+		
+		TagDO tag = new TagDO();
+		tag.setId(oid);
+		tag.setK(POIAttrnameEnum.tel.toString());
+		tag.setV(tel);
+		tags.add(tag);
+		
+		TagDO tag8 = new TagDO();
+		tag8.setId(oid);
+		tag8.setK(POIAttrnameEnum.address8.toString());
+		tag8.setV(address8);
+		tags.add(tag8);
+		 return poi;
+	}
+	
+	/**
+	 * 根据前台传递过来的参数设置POI
+	 * 只保存POI
+	 * @return
+	 */
+	private POIDo getSavePOI(HttpServletRequest request) throws Exception {
+		Long oid = ParamUtils.getLongParameter(request, "oid", -1);
+
+		String namec = ParamUtils.getParameter(request, "namec");
+		String tel = ParamUtils.getParameter(request, "tel");
+		Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
+		String sortcode = ParamUtils.getParameter(request, "sortcode");
+		String address4 = ParamUtils.getParameter(request, "address4");
+		String address5 = ParamUtils.getParameter(request, "address5");
+		String address6 = ParamUtils.getParameter(request, "address6");
+		String address7 = ParamUtils.getParameter(request, "address7");
+		String address8 = ParamUtils.getParameter(request, "address8");
+//		String geo = ParamUtils.getParameter(request, "dianpingGeo");
+		String geo = ParamUtils.getParameter(request, "poigeo");
+
+		POIDo poi = new POIDo();
+		logger.debug(JSON.toJSON(poi).toString());
+		
+		POIDo savePoi = poiClient.selectPOIByOid(oid);
+		poi.setNamec(namec);
+		if (oid < 0) {
+			oid = poiClient.getPoiId();
+			poi.setGrade(GradeEnum.general);
+		}else {
+			poi.setGrade(savePoi.getGrade());
+		}
+		poi.setId(oid);
+		poi.setSystemId(370);
+		poi.setGeo(geo);
+		poi.setFeatcode(featcode);
+		poi.setSortcode(sortcode);
+		poi.setConfirm(ConfirmEnum.no_confirm);
+//		poi.setAutoCheck(CheckEnum.uncheck); err 不应被修改，否则再次加载怎么验证
+//		poi.setManualCheck(CheckEnum.uncheck);
+//		poi.setOpTypeEnum(OpTypeEnum.submit);
 		
 		Set<TagDO> tags = poi.getPoitags();
 		if (savePoi != null && savePoi.getPoitags() != null) {
