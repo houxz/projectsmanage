@@ -44,10 +44,6 @@
 	var emgDel, baiduDel, tengxunDel, gaodeDel;
 	var keywordid = eval('(${keywordid})');
 	var zoom = 17;
-	var poix;
-	var poiy;
-	var shapx;
-	var shapy;
 	var shapegeo;
 	
 
