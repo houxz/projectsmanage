@@ -326,12 +326,6 @@
 			return;
 		}
 		if (!oid || oid <= 0) 	return;
-// 		var $tbemg = $("#tbbaidu");
-// 		var tables = ["rdtbemg", "rdtbbaidu", "rdtbtengxun", "rdtbgaode"];
-// 		var relations = [];
-// 		for (var i = 0; i < tables.length; i++) {
-// 			var checkTable = $("input[name='" +tables[i] +"']:checked").parents("table")[0];
-// 		}
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
 		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
@@ -349,12 +343,6 @@
 			"getnext" : true,
 			"srcType":srcType,
 			"srcInnerId": srcInnerId,
-// 			"baiduSrcInnerId": baiduSrcInnerId,
-// 			"baiduSrcType": baiduSrcType,
-// 			"gaodeSrcInnerId": gaodeSrcInnerId,
-// 			"gaodeSrcType": gaodeSrcType,
-// 			"tengxunSrcInnerId": tengxunSrcInnerId,
-// 			"tengxunSrcType": tengxunSrcType,
 			"emgSrcInnerId": emgSrcInnerId,
 			"emgSrcType": emgSrcType,
 			"namec": namec,
@@ -384,11 +372,12 @@
 					keywordid = json.keywordid;
 					if (keywordid && keywordid > 0) {
 						loadKeyword(keywordid);
-// 						loadReferdatas(keywordid);
 						loadEditPOI(poiid);
 					}
 				} else {
-					
+					$.webeditor.showMsgBox("close");
+					$.webeditor.showConfirmBox("info","没有任务了");
+					window.location.reload();
 				}
 				
 			} else {

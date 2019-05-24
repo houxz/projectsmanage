@@ -368,53 +368,12 @@ public class ModifyErrorCtrl {
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 			curTaskId = taskid;
 			poiClient.updatePOIToDB(poi);
-//			List<Long> errorids = new ArrayList<Long>();
-//			Integer errorcount = curErrorList.size();
-//			for (Integer i = 0; i < errorcount; i++) {
-//				errorids.add(curErrorList.get(i).getId());
-//			}
-//			// 先修改错误状态
-//			if (errorModelDao.updateErrors(errorids).compareTo(0L) <= 0) {
-//				json.addObject("resultMsg", "修改错误状态为解决失败");
-//				json.addObject("result", 0);
-//				return json;
-//			}
-//			if (taskModelClient.submitModifyTask(taskid, userid, 2).compareTo(0L) <= 0) {
-//				json.addObject("resultMsg", "任务提交失败");
-//				json.addObject("result", 0);
-//				return json;
-//			}
-//
-//			if (getnext) {
-//				task = getModifyTask(userid);
-//				if (task != null && task.getId() != null) {
-//					Long projectid = task.getProjectid();
-//					if (projectid.compareTo(0L) > 0) {
-//						project = projectModelDao.selectByPrimaryKey(projectid);
-//
-//						Long processid = project.getProcessid();
-//						if (processid.compareTo(0L) > 0) {
-//							process = processModelDao.selectByPrimaryKey(processid);
-//						}
-//					}
-//
-//					keywordid = task.getKeywordid();
-//				}
-//			}
+
+
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-		}
-//		json.addObject("task", task);
-//		json.addObject("project", project);
-//		json.addObject("process", process);
-//		json.addObject("keywordid", keywordid);
-//		json.addObject("result", 1);
-//
-//		model.addAttribute("poiid", curPoiId);
-//		model.addAttribute("errorlist", curErrorList);
-		
+		}	
 		json.addObject("result", 1);
-
 		logger.debug("END");
 		return json;
 	}
@@ -424,7 +383,6 @@ public class ModifyErrorCtrl {
 		// 查询当前项目下，当前任务 为基准的下一个任务 (前提条件：任务是没有优先级，就是顺序往下拿的)
 		// 为什么不用任务List的任务 来筛选是担心任务id太多导致sql很长
 		try {
-
 			task = taskModelClient.selectMyNextModifyTaskByProjectIdAndTaskId(projectid, taskid, userid);
 			if (task != null && task.getId() != null)
 				taskModelClient.updateModifyTask(task.getId(), userid, 1, 6);
@@ -442,7 +400,6 @@ public class ModifyErrorCtrl {
 			SystemType systemType = SystemType.poi_polymerize;
 
 			List<ProjectModel> myProjects = new ArrayList<ProjectModel>();
-
 			ProjectsUserModel record = new ProjectsUserModel();
 			record.setUserid(userid);
 			record.setRoleid(roleType.getValue());
