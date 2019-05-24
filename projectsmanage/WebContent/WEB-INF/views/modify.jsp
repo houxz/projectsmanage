@@ -43,8 +43,12 @@
 	var srcType, srcInnerId, baiduSrcInnerId, baiduSrcType, gaodeSrcInnerId, gaodeSrcType, tengxunSrcInnerId, tengxunSrcInnerId, tengxunSrcType, emgSrcInnerId, emgSrcType, dianpingGeo;
 	var emgDel, baiduDel, tengxunDel, gaodeDel;
 	var keywordid = eval('(${keywordid})');
-//	var errorlist = eval('(${errorlist})');
 	var zoom = 17;
+	var poix;
+	var poiy;
+	var shapx;
+	var shapy;
+	var shapegeo;
 	
 
 	var loaderr = "<span class='red'>加载失败</span>";
@@ -73,9 +77,12 @@
 		$.webeditor.getHead();
 	
 		if (keywordid && keywordid > 0) {
-			loadKeyword(keywordid);
-			loadReferdatas(keywordid);
+ 			loadKeyword(keywordid);
+			//改错不需要加载四方检索结果20190524
+//   		loadReferdatas(keywordid);
 			loadEditPOI( ${poiid});
+
+			
 		}else {
 			$.webeditor.showMsgLabel("alert", "没有获取到参考资料");
 		}
@@ -96,7 +103,8 @@
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='name']").html(keyword.name);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='address']").html(keyword.address);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='telephone']").html(keyword.telephone);
-				$("table#tbKeyword>tbody tr td.tdValue[data-key='categoryName']").html(keyword.categoryName);
+				$("table#tbKeyword>tbody tr td.tdValue[data-key='categoryName']").html(keyword.categoryName);						
+				shapegeo = keyword.geo;
 			} else {
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='name']").html(loaderr);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='address']").html(loaderr);
@@ -108,6 +116,24 @@
 	
 	function refercompare(a, b) {
 		return a.sequence - b.sequence;
+	}
+	
+	//地图上绘制参考数据图标
+	function addMakerOnEMGMap(map ) {
+		if (map) {
+			var img = new Image();
+			// img.src = 'http://m.emapgo.cn/demo/electricize/img/poi_center.png';
+			img.src = "resources/images/start.png";
+			if (shapegeo) {
+				// POINT (102.486719835069 24.9213802083333)
+				var geo = shapegeo.replace("POINT (","").replace(")", "").split(" ");
+				var marker = new emapgo.Marker(img		
+				)
+				.setLngLat(geo)
+				.addTo(map);
+			}
+			
+		}
 	}
 	
 	function drawEMGMap(lat, lng, zoom) {
@@ -169,6 +195,10 @@
 				poi.poitags.forEach(function(tag, index) {
 					$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
 				});
+				
+	 			var geo = poi.geo.replace("MULTIPOINT ((","").replace("),","").replace("(","").replace(")", "").split(" ");
+	 			drawEMGMap(geo[1], geo[0], zoom);
+	 			addMakerOnEMGMap($emgmap);
 			} else {
 				$("table#tbEdit>tbody td.tdValue>input:text").val("加载失败");
 			}
@@ -273,27 +303,16 @@
 			if (json && json.result == 1) {
 				var referdatas = json.rows;
 				var emgrefers = new Array();
-				var baidurefers = new Array();
-				var gaoderefers = new Array();
-				var tengxunrefers = new Array();
 				if (referdatas && referdatas.length > 0) {
 					referdatas.forEach(function(referdata, index) {
 						if (referdata.srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
 							emgrefers.push(referdata);
-						} else if (referdata.srcType == <%=SrcTypeEnum.BAIDU.getValue() %>) {
-							baidurefers.push(referdata);
-						} else if (referdata.srcType == <%=SrcTypeEnum.TENGXUN.getValue() %>) {
-							tengxunrefers.push(referdata);					
-						} else if (referdata.srcType == <%=SrcTypeEnum.GAODE.getValue() %>) {
-							gaoderefers.push(referdata);
-						}
+						} 
 					});
 					
 					if (emgrefers && emgrefers.length > 0) {
 						emgrefers.sort(refercompare);
-//						loadEditPOI(emgrefers[0].srcInnerId);
 						drawEMGMap(emgrefers[0].srcLat, emgrefers[0].srcLon, zoom);
-						drawReferdatas("tbemg", emgrefers);
 					} else {
 						$("#emgmap").html("无数据");
 						$("table#tbemg>tbody").html("<tr><td>无数据</td></tr>");
