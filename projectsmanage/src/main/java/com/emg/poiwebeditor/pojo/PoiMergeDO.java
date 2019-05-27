@@ -16,6 +16,8 @@ public class PoiMergeDO extends EntityPrimaryKeyDO{
 	private String createTime;
 	private long taskId= -1L;
 	private String importTime;
+	
+	private boolean isDel;
 	public int getSrcType() {
 		return srcType;
 	}
@@ -69,6 +71,12 @@ public class PoiMergeDO extends EntityPrimaryKeyDO{
 	}
 	public void setImportTime(String importTime) {
 		this.importTime = importTime;
+	}
+	public boolean isDel() {
+		return isDel;
+	}
+	public void setDel(boolean isDel) {
+		this.isDel = isDel;
 	}
 
 }

@@ -20,7 +20,10 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.emg.poiwebeditor.client.POIClient;
+import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.CapacityTaskStateEnum;
+import com.emg.poiwebeditor.common.CheckEnum;
 import com.emg.poiwebeditor.common.CommonConstants;
 import com.emg.poiwebeditor.common.IsWorkTimeEnum;
 import com.emg.poiwebeditor.common.ProcessConfigEnum;
@@ -28,6 +31,7 @@ import com.emg.poiwebeditor.common.ProcessState;
 import com.emg.poiwebeditor.common.ProcessType;
 import com.emg.poiwebeditor.common.ProjectState;
 import com.emg.poiwebeditor.common.RoleType;
+import com.emg.poiwebeditor.common.SystemType;
 import com.emg.poiwebeditor.common.TaskTypeEnum;
 import com.emg.poiwebeditor.dao.attach.AttachCapacityModelDao;
 import com.emg.poiwebeditor.dao.attach.AttachCheckCapacityModelDao;
@@ -39,6 +43,7 @@ import com.emg.poiwebeditor.dao.projectsmanager.CapacityModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.CapacityTaskModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.FeatureFinishedModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
+import com.emg.poiwebeditor.dao.task.ErrorModelDao;
 import com.emg.poiwebeditor.dao.task.TaskBlockDetailModelDao;
 import com.emg.poiwebeditor.dao.task.TaskLinkErrorModelDao;
 import com.emg.poiwebeditor.dao.task.TaskLinkFielddataModelDao;
@@ -52,13 +57,18 @@ import com.emg.poiwebeditor.pojo.CapacityTaskModelExample;
 import com.emg.poiwebeditor.pojo.CapacityUniq;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
 import com.emg.poiwebeditor.pojo.EmployeeModel;
+import com.emg.poiwebeditor.pojo.ErrorModel;
 import com.emg.poiwebeditor.pojo.FeatureFinishedModel;
+import com.emg.poiwebeditor.pojo.POIDo;
 import com.emg.poiwebeditor.pojo.ProcessConfigModel;
 import com.emg.poiwebeditor.pojo.ProcessModel;
+import com.emg.poiwebeditor.pojo.ProcessModelExample;
 import com.emg.poiwebeditor.pojo.ProjectModel;
+import com.emg.poiwebeditor.pojo.ProjectModelExample;
 import com.emg.poiwebeditor.pojo.ProjectsProcessModel;
 import com.emg.poiwebeditor.pojo.QualityCapacityUniq;
 import com.emg.poiwebeditor.pojo.QualityCapcityModel;
+import com.emg.poiwebeditor.pojo.TaskLinkPoiModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
 import com.emg.poiwebeditor.pojo.WorkTasksModel;
 import com.emg.poiwebeditor.pojo.WorkTasksUniq;
@@ -66,6 +76,8 @@ import com.emg.poiwebeditor.pojo.CapacityTaskModelExample.Criteria;
 import com.emg.poiwebeditor.service.EmapgoAccountService;
 import com.emg.poiwebeditor.service.ProcessConfigModelService;
 import com.emg.poiwebeditor.service.ZMailService;
+
+import net.sf.json.JSONObject;
 
 @Component
 public class SchedulerTask {
@@ -149,6 +161,15 @@ public class SchedulerTask {
 	@Autowired
 	private FeatureFinishedModelDao featureFinishedModelDao;
 	//add by lianhr end
+	
+	@Autowired
+	private TaskModelClient taskModelClient;
+	
+	@Autowired
+	private POIClient poiClient;
+	@Autowired
+	private ErrorModelDao errorModelDao;
+
 
 	/**
 	 * 半夜三更 创建每天的任务
@@ -3972,5 +3993,129 @@ public class SchedulerTask {
 		// return "2019-03-19";
 	}
 	
+	/*
+	 * 定时扫描任务库，修改制作完成的任务为 1）可改错 2） 改错完成(质检ok)
+	 * */
+	@Scheduled(cron = "${scheduler.modifytask.dotime}")
+	public void scanfModifyTask() {
+		logger.debug("####scanfModifyTask()##start#####");
+		
+		// 1.0 获取所有开启的项目	
+		
+		ProjectModelExample example = new ProjectModelExample();
+		com.emg.poiwebeditor.pojo.ProjectModelExample.Criteria criteria = example.or();
+		criteria.andOverstateEqualTo(ProjectState.START.getValue());
+		criteria.andSystemidEqualTo(SystemType.poi_polymerize.getValue());
+		
+
+		example.setOrderByClause("priority desc, id");
+		List<ProjectModel> rows = projectModelDao.selectByExample(example);
+		// 2.0 遍历项目id,根据项目id ；变量所有的任务
+		//3.0 查看某任务状态
+		try {
+			Integer projectcount = rows.size();
+			logger.debug("本次扫描项目数:" + projectcount);
+			for( int indexproject = 0; indexproject < projectcount ; indexproject++) {
+				Long projectid = rows.get(indexproject).getId();
+				logger.debug("本次扫描项目:" + projectid);
+				List<TaskModel> tasklist = taskModelClient.selectTaskByProjectId(projectid);
+				Integer taskcount = tasklist.size();
+				for( int indextask = 0 ; indextask < taskcount ; indextask++) {
+					TaskModel task = tasklist.get(indextask);
+					if(  (task.getState() == 2 && task.getProcess() == 5) ||
+						 (task.getState() == 2 && task.getProcess() == 6)	) {
+							Integer ret = isTaskAvaliable(task);
+							if( ret == 1 || ret == 2 || ret ==3 || ret ==4 ) {
+								//处理方案待定
+							}else {
+								//处理方案待定 怎么避免不停的重复查询?
+							}
+					}
+					else {
+						logger.debug("任务存在其他状态请查找原因");
+					}
+				}
+			}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		logger.debug("####scanfModifyTask()##end#####\"");
+		
+	}
 	
+	/*修改任务状态
+	 *  0：未知
+	 *  1: 任务下没有POI，任务自动置为完成
+	 *  2: 任务下POI 质检OK，任务自动置为完成
+	 *  3： 任务下POI还未质检出结果
+	 *  4：任务下POI质检出错误，任务自动设置为待改错 0,6
+	 *  5: POI编辑库状态为err,但是错误库没有找到待修改的错误 数据异常
+	 *  6：POI被其他系统占用
+	 *  
+	 */
+	private Integer isTaskAvaliable(TaskModel task) {
+		try {
+			Integer userid = task.getEditid();
+			Long taskid = task.getId();
+			// 查询质检错误
+			// 获取任务关联的POI
+			TaskLinkPoiModel linkpoi = taskModelClient.selectTaskLinkPoiByTaskid(task.getId());
+			if (linkpoi == null || linkpoi.getId() ==null ) {
+				// 关联POI不存在，任务设置质检完成 ?
+				if (taskModelClient.submitModifyTask(taskid, userid, 3) <= 0) {
+					// 修改状态失败
+					logger.debug("修改任务状态失败3,6");
+				}
+				return 1;// 继续找下个任务
+			} else {
+				Long poiid = linkpoi.getPoiId();
+				POIDo poi = new POIDo();
+				poi = poiClient.selectPOIByOid(poiid);
+				if (poi.getSystemId() == 370) {// web编辑作业的点
+					CheckEnum check = poi.getAutoCheck();
+					if (check == CheckEnum.ok) {
+						// 质检OK 设置任务状态 3,6
+						if (taskModelClient.submitModifyTask(taskid, userid, 3).compareTo(0L) <= 0) {
+							// json.addObject("resultMsg", "任务提交失败");
+						}
+						return 2;// 继续找下个任务
+					} else if (check == CheckEnum.uncheck) {
+						// 未质检出 : 跳过任务
+						return 3;// 继续找下个任务
+					} else if (check == CheckEnum.err) {
+						// 质检出错误：加载错误改错
+						// 根据POI查询错误
+						List<ErrorModel> curErrorList = new ArrayList<ErrorModel>();
+						curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
+						Integer errcount = curErrorList.size();
+						if (errcount > 0) {
+							// 存在待修改的质检错误
+							if (taskModelClient.updateModifyTask(taskid, userid, 0, 6).compareTo(0L) <= 0) {
+								logger.debug("修改任务状态失败0,6");
+							}
+							return 4;// 找到作业任务
+						} else {
+							// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
+							// 这是工具bug 或者流程 被人为修改
+							if (taskModelClient.updateModifyTask(taskid, userid, 4, 6).compareTo(0L) <= 0) {
+								logger.debug("修改任务状态失败4,6");
+							}
+							return 5;
+						}
+					}
+				} else {// 其他作业的点暂时不能处理：跳过任务
+					return 6;
+				}
+
+			}
+		} // if( task!=null && task.getId() != null)
+		catch (Exception e) {
+			logger.debug(e.getMessage(), e);
+		}
+		return 0;
+	}
+
 }
