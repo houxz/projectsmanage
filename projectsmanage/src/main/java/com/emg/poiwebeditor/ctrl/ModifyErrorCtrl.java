@@ -378,6 +378,19 @@ public class ModifyErrorCtrl {
 		return json;
 	}
 	
+	// 获取错误
+	@RequestMapping(params = "atn=geterrorlistbyid")
+	public ModelAndView getErrorList(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+
+		json.addObject("errorlist", curErrorList);
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
 	private TaskModel getNextModifyTaskByProjectId(Integer userid, Long projectid, Long taskid) {
 		TaskModel task = new TaskModel();
 		// 查询当前项目下，当前任务 为基准的下一个任务 (前提条件：任务是没有优先级，就是顺序往下拿的)
@@ -714,10 +727,7 @@ public class ModifyErrorCtrl {
 		poi.setFeatcode(featcode);
 		poi.setSortcode(sortcode);
 		poi.setConfirm(ConfirmEnum.no_confirm);
-//		poi.setAutoCheck(CheckEnum.uncheck); err 不应被修改，否则再次加载怎么验证
-//		poi.setManualCheck(CheckEnum.uncheck);
-//		poi.setOpTypeEnum(OpTypeEnum.submit);
-		
+	
 		Set<TagDO> tags = poi.getPoitags();
 		if (savePoi != null && savePoi.getPoitags() != null) {
 			Set<TagDO> saveTags = savePoi.getPoitags();
