@@ -20,6 +20,7 @@
 <link href="resources/js/leaflet/leaflet.css" rel="stylesheet" />
 <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">
 <link href="resources/leaflet.awesome-markers-2.0/leaflet.awesome-markers.css" rel="stylesheet">
+<link href="resources/mapbox/mapbox-gl.css" rel="stylesheet">
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
 <script src="resources/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
@@ -35,7 +36,9 @@
 <script src="resources/js/tileLayer.baidu.js" ></script >
 <script src="resources/leaflet.awesome-markers-2.0/leaflet.awesome-markers.min.js"></script>
 <script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.js"></script>
-   
+<script src="resources/mapbox/mapbox-gl.js" ></script >
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=C1D7k5in8hXWy6njGuPbDXKEksGzUro1"></script>
+
 <script type="text/javascript">
 	var $emgmap = null, $baidumap = null, $gaodemap = null, $tengxunmap = null;
 	var $emgmarker = null, $baidumarker = null, $gaodemarker = null, $tengxunmarker = null;
@@ -229,46 +232,63 @@
 	
 	function drawBaiDuMap(lat, lng, zoom) {
 		try{
-			if ($baidumap) {
-				$baidumap.setView([lat, lng]);
-			} else {
-				$baidumap = L.map('baidumap', {
-					zoomControl : false,
-					center:  [lat, lng],
-					zoom: zoom+1,
-					//crs: L.CRS.Baidu,
-					//layers : [new L.tileLayer.baidu({layer: 'custom'})]
-					zoom: zoom,
-					layers : [L.tileLayer.chinaProvider('GaoDe.Normal.Map', {})]
-				});
-			}
-			if ($baidumarker) {
-				$baidumarker.setLatLng([lat, lng]);
-			} else {
-				$baidumarker = L.marker([lat, lng], {icon: matchMarker}).addTo($baidumap);
-			}
+			$("#baidumap").empty();
+			var convertor = new BMap.Convertor();
+	        var pointArr = [];
+	        pointArr.push(new BMap.Point(lng, lat));
+	        convertor.translate(pointArr, 3, 5, function(data){
+	        	if(data.status === 0) {
+	        		$baidumap = new BMap.Map("baidumap");
+	        		$baidumap.centerAndZoom(data.points[0], zoom+1);
+	    			$baidumap.enableScrollWheelZoom(true);
+	    			
+		    	  	$baidumarker = new BMap.Marker(data.points[0]);
+					$baidumarker.disableDragging();
+					$baidumap.addOverlay($baidumarker);
+		      	}
+	        });
 		} catch(e) {
-			
 		}
 	}
 	
 	function drawGaoDeMap(lat, lng, zoom) {
 		try{
 			if ($gaodemap) {
-				$gaodemap.setView([lat, lng]);
+				$gaodemap.setCenter([lng, lat]);
 			} else {
-				$gaodemap = L.map('gaodemap', {
-					zoomControl : false,
-					center:  [lat, lng],
-					zoom: zoom,
-					layers : [L.tileLayer.chinaProvider('GaoDe.Normal.Map', {})]
+				$("#gaodemap").empty();
+				$gaodemap = new mapboxgl.Map({
+					container: 'gaodemap',
+					style: {
+						"version": 8,
+				        "sprite": "http://tiles.emapgo.cn/styles/outdoor/sprite",
+				        "glyphs": "http://static.emapgo.cn/{fontstack}/{range}.pbf",
+				        "sources": {
+				          "osm-tiles": {
+				            "type": "raster",
+				            "tileSize": 256,
+				            'tiles': [
+				                  "http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}"
+				              ]
+				          }
+				        },
+				        "layers": [{
+				          "id": "simple-tiles",
+				          "type": "raster",
+				          "source": "osm-tiles",
+				        }]
+					},
+					center:  [lng, lat],
+					zoom: zoom-1,
 				});
 			}
 			
 			if ($gaodemarker) {
-				$gaodemarker.setLatLng([lat, lng]);
+				$gaodemarker.setLngLat([lng, lat]);
 			} else {
-				$gaodemarker = L.marker([lat, lng], {icon: matchMarker}).addTo($gaodemap);
+				$gaodemarker = new mapboxgl.Marker()
+							  .setLngLat([lng, lat])
+							  .addTo($gaodemap);
 			}
 		} catch(e) {
 			
@@ -278,23 +298,43 @@
 	function drawTengXunMap(lat, lng, zoom) {
 		try{
 			if ($tengxunmap) {
-				$tengxunmap.setView([lat, lng]);
+				$tengxunmap.setCenter([lng, lat]);
 			} else {
-				$tengxunmap = L.map('tengxunmap', {
-					zoomControl : false,
-					center:  [lat, lng],
-					zoom: zoom,
-					layers : [L.tileLayer.chinaProvider('TengXun.Normal.Map', {
-						subdomains: '0123',
-						tms:true
-					})]
+				$("#tengxunmap").empty();
+				$tengxunmap = new mapboxgl.Map({
+					container: 'tengxunmap',
+					style: {
+						"version": 8,
+				        "sprite": "http://tiles.emapgo.cn/styles/outdoor/sprite",
+				        "glyphs": "http://static.emapgo.cn/{fontstack}/{range}.pbf",
+				        "sources": {
+				          "osm-tiles": {
+				            "type": "raster",
+				            "scheme": "tms",
+				            "tileSize": 256,
+				            'tiles': [
+				                  "http://rt1.map.gtimg.com/tile?z={z}&x={x}&y={y}&styleid=0"
+				              ]
+				        
+				          }
+				        },
+				        "layers": [{
+				          "id": "simple-tiles",
+				          "type": "raster",
+				          "source": "osm-tiles",
+				        }]
+					},
+					center:  [lng, lat],
+					zoom: zoom-1
 				});
 			}
 			
 			if ($tengxunmarker) {
-				$tengxunmarker.setLatLng([lat, lng]);
+				$tengxunmarker.setLngLat([lng, lat]);
 			} else {
-				$tengxunmarker = L.marker([lat, lng], {icon: matchMarker}).addTo($tengxunmap);
+				$tengxunmarker = new mapboxgl.Marker()
+							  .setLngLat([lng, lat])
+							  .addTo($tengxunmap);
 			}
 		} catch(e) {
 			
@@ -350,18 +390,17 @@
 			emgSrcInnerId = srcInnerId;
 			emgSrcType = srcType; */
 		} else if (srcType == <%=SrcTypeEnum.BAIDU.getValue() %>) {
-			$baidumarker.setLatLng([lat, lng]);
-			$baidumap.setView([lat, lng]);
+			drawBaiDuMap(lat, lng, zoom);
 			baiduSrcInnerId = srcInnerId;
 			baiduSrcType = srcType;
 		} else if (srcType == <%=SrcTypeEnum.TENGXUN.getValue() %>) {
-			$tengxunmarker.setLatLng([lat, lng]);
-			$tengxunmap.setView([lat, lng]);	
+			$tengxunmarker.setLngLat([lng, lat]);
+			$tengxunmap.setCenter([lng, lat]);	
 			tengxunSrcInnerId = srcInnerId;
 			tengxunSrcType = srcType;
 		} else if (srcType == <%=SrcTypeEnum.GAODE.getValue() %>) {
-			$gaodemarker.setLatLng([lat, lng]);
-			$gaodemap.setView([lat, lng]);
+			$gaodemarker.setLngLat([lng, lat]);
+			$gaodemap.setCenter([lng, lat]);
 			gaodeSrcInnerId = srcInnerId;
 			gaodeSrcType = srcType;
 		} else {
