@@ -45,8 +45,6 @@ import com.emg.poiwebeditor.pojo.ReferdataModel;
 import com.emg.poiwebeditor.pojo.TagDO;
 import com.emg.poiwebeditor.pojo.TaskModel;
 
-import net.sf.json.JSONObject;
-
 @Controller
 @RequestMapping("/edit.web")
 public class EditCtrl extends BaseCtrl {
@@ -270,65 +268,6 @@ public class EditCtrl extends BaseCtrl {
 		Long ret = -1L;
 		try {
 			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-		/*	Long oid = ParamUtils.getLongParameter(request, "oid", -1);
-			String namec = ParamUtils.getParameter(request, "namec");
-			String tel = ParamUtils.getParameter(request, "tel");
-			Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
-			String sortcode = ParamUtils.getParameter(request, "sortcode");
-			String address4 = ParamUtils.getParameter(request, "address4");
-			String address5 = ParamUtils.getParameter(request, "address5");
-			String address6 = ParamUtils.getParameter(request, "address6");
-			String address7 = ParamUtils.getParameter(request, "address7");
-			String address8 = ParamUtils.getParameter(request, "address8");
-			
-			POIDo poi = poiClient.selectPOIByOid(oid);
-			logger.debug(JSON.toJSON(poi).toString());
-			poi.setNamec(namec);
-			poi.setFeatcode(featcode);
-			poi.setSortcode(sortcode);
-			Set<TagDO> tags = poi.getPoitags();
-			{
-				TagDO tag = new TagDO();
-				tag.setId(oid);
-				tag.setK(POIAttrnameEnum.tel.toString());
-				tag.setV(tel);
-				tags.add(tag);
-			}
-			{
-				TagDO tag = new TagDO();
-				tag.setId(oid);
-				tag.setK(POIAttrnameEnum.address4.toString());
-				tag.setV(address4);
-				tags.add(tag);
-			}
-			{
-				TagDO tag = new TagDO();
-				tag.setId(oid);
-				tag.setK(POIAttrnameEnum.address5.toString());
-				tag.setV(address5);
-				tags.add(tag);
-			}
-			{
-				TagDO tag = new TagDO();
-				tag.setId(oid);
-				tag.setK(POIAttrnameEnum.address6.toString());
-				tag.setV(address6);
-				tags.add(tag);
-			}
-			{
-				TagDO tag = new TagDO();
-				tag.setId(oid);
-				tag.setK(POIAttrnameEnum.address7.toString());
-				tag.setV(address7);
-				tags.add(tag);
-			}
-			{
-				TagDO tag = new TagDO();
-				tag.setId(oid);
-				tag.setK(POIAttrnameEnum.address8.toString());
-				tag.setV(address8);
-				tags.add(tag);
-			}*/
 			POIDo  poi = this.getPOI(request);
 			String dianpingGeo = ParamUtils.getParameter(request, "dianpingGeo");
 			poi.setGeo(dianpingGeo);
@@ -392,127 +331,44 @@ public class EditCtrl extends BaseCtrl {
 		Set<TagDO> tags = poi.getPoitags();
 		if (savePoi != null && savePoi.getPoitags() != null) {
 			Set<TagDO> saveTags = savePoi.getPoitags();
+			saveAddress(saveTags, tags,address4, "address4", "address4e", "address4p", oid);
+			saveAddress(saveTags, tags,address5, "address5", "address5e", "address5p", oid);
+			saveAddress(saveTags, tags,address6, "address6", "address6e", "address6p", oid);
+			saveAddress(saveTags, tags,address7, "address7", "address7e", "address7p", oid);
+			saveAddress(saveTags, tags,address8, "address8", "address8e", "address8p", oid);
 			
 			for (TagDO tag : saveTags) {
 				if (!savePoi.getNamec().equals(namec)) {
-					TagDO namep = new TagDO();
-					namep.setId(oid);
-					namep.setK(POIAttrnameEnum.namep.toString());
-					namep.setV(null);
-					tags.add(namep);
-					
-					TagDO namee = new TagDO();
-					namee.setId(oid);
-					namee.setK(POIAttrnameEnum.namee.toString());
-					namee.setV(null);
-					tags.add(namee);
-					
-					TagDO namees = new TagDO();
-					namees.setId(oid);
-					namees.setK(POIAttrnameEnum.names.toString());
-					namees.setV(null);
-					tags.add(namees);
-					
-					TagDO namesp = new TagDO();
-					namesp.setId(oid);
-					namesp.setK(POIAttrnameEnum.namesp.toString());
-					namesp.setV(null);
-					tags.add(namesp);
-					
-					TagDO namese = new TagDO();
-					namese.setId(oid);
-					namese.setK(POIAttrnameEnum.namese.toString());
-					namese.setV(null);
-					tags.add(namese);
-				}
-				
-				if ("address4".equals(tag.getK())) {
-					if (address4 == null || address4.isEmpty()) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag4e = new TagDO();
-						tag4e.setId(oid);
-						tag4e.setK(POIAttrnameEnum.address4e.toString());
-						tag4e.setV(null);
-						tags.add(tag4e);
-						TagDO tag4p = new TagDO();
-						tag4p.setId(oid);
-						tag4p.setK(POIAttrnameEnum.address4p.toString());
-						tag4p.setV(null);
-						tags.add(tag4p);
-						
-					}
-				}else if ("address5".equals(tag.getK())) {
-					if (address5 == null || address5.isEmpty()) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag5e = new TagDO();
-						tag5e.setId(oid);
-						tag5e.setK(POIAttrnameEnum.address5e.toString());
-						tag5e.setV(null);
-						tags.add(tag5e);
-						TagDO tag5p = new TagDO();
-						tag5p.setId(oid);
-						tag5p.setK(POIAttrnameEnum.address5p.toString());
-						tag5p.setV(null);
-						tags.add(tag5p);
-						
-					}
-				}else if ("address6".equals(tag.getK())) {
-					if (address6 == null || address6.isEmpty()) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag6e = new TagDO();
-						tag6e.setId(oid);
-						tag6e.setK(POIAttrnameEnum.address6e.toString());
-						tag6e.setV(null);
-						tags.add(tag6e);
-						TagDO tag6p = new TagDO();
-						tag6p.setId(oid);
-						tag6p.setK(POIAttrnameEnum.address6p.toString());
-						tag6p.setV(null);
-						tags.add(tag6p);
-						
-					}
-				}else if ("address7".equals(tag.getK())) {
-					if (address7 == null || address7.isEmpty()) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag7e = new TagDO();
-						tag7e.setId(oid);
-						tag7e.setK(POIAttrnameEnum.address7e.toString());
-						tag7e.setV(null);
-						tags.add(tag7e);
-						TagDO tag7p = new TagDO();
-						tag7p.setId(oid);
-						tag7p.setK(POIAttrnameEnum.address7p.toString());
-						tag7p.setV(null);
-						tags.add(tag7p);
-						
-					}
-				}else if ("address8e".equals(tag.getK())) {
-					if (address8 != null && !address8.equals(tag.getV())) {
-						/*tag.setV(null);
-						tags.add(tag);*/
-						TagDO tag8e = new TagDO();
-						tag8e.setId(oid);
-						tag8e.setK(POIAttrnameEnum.address8e.toString());
-						tag8e.setV(null);
-						tags.add(tag8e);
-						
-						
-					}
-				}else if ("address8p".equals(tag.getK())) {
-					if (address8 != null && !address8.equals(tag.getV())) {
-						/*tag.setV(null);
-						tags.add(tag);*/
-						
-						TagDO tag8p = new TagDO();
-						tag8p.setId(oid);
-						tag8p.setK(POIAttrnameEnum.address8p.toString());
-						tag8p.setV(null);
-						tags.add(tag8p);
-						
+					if ("namep".equals(tag.getK())) {
+						TagDO namep = new TagDO();
+						namep.setId(oid);
+						namep.setK(POIAttrnameEnum.namep.toString());
+						namep.setV(null);
+						tags.add(namep);
+					}else if("namee".equals(tag.getK())) {
+						TagDO namee = new TagDO();
+						namee.setId(oid);
+						namee.setK(POIAttrnameEnum.namee.toString());
+						namee.setV(null);
+						tags.add(namee);
+					}else if("names".equals(tag.getK())) {
+						TagDO namees = new TagDO();
+						namees.setId(oid);
+						namees.setK(POIAttrnameEnum.names.toString());
+						namees.setV(null);
+						tags.add(namees);
+					}else if("namesp".equals(tag.getK())) {
+						TagDO namesp = new TagDO();
+						namesp.setId(oid);
+						namesp.setK(POIAttrnameEnum.namesp.toString());
+						namesp.setV(null);
+						tags.add(namesp);
+					}else if ("namese".equals(tag.getK())) {
+						TagDO namese = new TagDO();
+						namese.setId(oid);
+						namese.setK(POIAttrnameEnum.namese.toString());
+						namese.setV(null);
+						tags.add(namese);
 					}
 				}
 			}
@@ -525,12 +381,83 @@ public class EditCtrl extends BaseCtrl {
 		tag.setV(tel);
 		tags.add(tag);
 		
-		TagDO tag8 = new TagDO();
-		tag8.setId(oid);
-		tag8.setK(POIAttrnameEnum.address8.toString());
-		tag8.setV(address8);
-		tags.add(tag8);
+		
 		 return poi;
+	}
+	
+	/**
+	 * 保存address值，同时看数据库里相应的中英文是否为空，不为空则打isdel =t
+	 * @param saveTags 
+	 * @param tags
+	 * @param address
+	 * @param addressKey
+	 * @param addresse
+	 * @param addressp
+	 * @param oid
+	 */
+	private void saveAddress(Set<TagDO> saveTags, Set<TagDO> tags, String address, String addressKey,String addresse, String addressp, long oid) {
+		TagDO addresstag = this.getTag(saveTags, addressKey);
+		TagDO tag4e = this.getTag(saveTags, addresse);
+		TagDO tag4p = this.getTag(saveTags, addressp);
+		if (addresstag == null && address != null) {
+			TagDO tag4 = new TagDO();
+			tag4.setId(oid);
+			tag4.setK(addressKey);
+			tag4.setV(address);
+			tags.add(tag4);
+			
+			if(tag4e != null) {
+				tag4e.setV(null);
+				tags.add(tag4e);
+			}
+			
+			if(tag4p != null) {
+				tag4p.setV(null);
+				tags.add(tag4p);
+			}
+		} else if (addresstag != null && address == null) {
+			addresstag.setV(null);
+			tags.add(addresstag);
+			if(tag4e != null) {
+				tag4e.setV(null);
+				tags.add(tag4e);
+			}
+			
+			if(tag4p != null) {
+				tag4p.setV(null);
+				tags.add(tag4p);
+			}
+		} else if(addresstag != null && address != null && !addresstag.getV().equals(address)) {
+			addresstag.setV(address);
+			tags.add(addresstag);
+			if(tag4e != null) {
+				tag4e.setV(null);
+				tags.add(tag4e);
+			}
+			
+			if(tag4p != null) {
+				tag4p.setV(null);
+				tags.add(tag4p);
+			}
+		}
+	}
+	
+	/**
+	 * 从tags中查找指定key的tag, 并且满足相应的条件
+	 * @param tags
+	 * @param key
+	 * @param compare
+	 * @return
+	 */
+	private TagDO getTag(Set<TagDO> tags, String key) {
+		if(tags == null || tags.isEmpty() || key == null) return null;
+		for (TagDO tag : tags) {
+			if (key.equals(tag.getK())) {
+				// tag.setV(null);
+				return tag;
+			}
+		}
+		return null;
 	}
 	
 	/**
