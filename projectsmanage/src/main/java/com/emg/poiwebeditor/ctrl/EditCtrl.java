@@ -192,8 +192,9 @@ public class EditCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		List<PoiMergeDO> relations = new ArrayList<PoiMergeDO>();
 		try {
-			String oid = ParamUtils.getParameter(request, "oid");
-			relations = poiClient.selectPOIRelation(oid);
+			String srcInnerId = ParamUtils.getParameter(request, "srcInnerId");
+			int srcType = ParamUtils.getIntParameter(request, "srcType", 0);
+			relations = poiClient.selectPOIRelation(srcInnerId, srcType);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

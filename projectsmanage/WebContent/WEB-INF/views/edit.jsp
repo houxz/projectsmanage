@@ -46,6 +46,7 @@
 	var emgDel, baiduDel, tengxunDel, gaodeDel;
 	var keywordid = eval('(${keywordid})');
 	var keyword = null;
+	var systemOid = -1; // 当前编辑器左侧有OID
 	// 用来存储数据库中保存着的relation 关系
 	var databaseSaveRelation = [];
 	var zoom = 17;
@@ -110,12 +111,14 @@
 		}, "json");
 	}
 	
-	function loadRelation(oid) {
+	function loadRelation(srcInnerId, srcType) {
 		jQuery.post("./edit.web", {
 			"atn" : "getRelationByOid",
-			"oid" : oid
+			"srcInnerId" : srcInnerId,
+			"srcType": srcType
 		}, function(json) {
-			var tables = ["tbemg", "tbbaidu", "tbtengxun", "tbgaode"];
+			var tables = ["rdtbemg", "rdtbbaidu", "rdtbtengxun", "rdtbgaode"];
+			var tbtables = ["tbemg", "tbbaidu", "tbtengxun", "tbgaode"];
 			if (json && json.result == 1 && json.rows.length > 0) {
 				var relations = json.rows;
 				
@@ -125,23 +128,24 @@
 						var srcType = $(this).val().split(",")[2];
 						for (var j = 0; j < relations.length; j++) {
 							if (i == 0) {
-								if (keyword.srcInnerId == relations[j].srcInnerId && keyword.srcType == relations[j].srcType && oid == relations[j].oid) {
+								if (keyword.srcInnerId == relations[j].srcInnerId && keyword.srcType == relations[j].srcType && srcInnerId == relations[j].oid) {
+									// 当为EMG数据时，srcinnerid则为oid
 									$(this).prop("checked", true);
 									var relation = new Object();
 									relation.srcInnerId = keyword.srcInnerId;
 									relation.srcType = keyword.srcType;
-									relation.oid = oid;
+									relation.oid = srcInnerId;
 									relation.id = relations[j].id;
 									// relations.push({"srcInnerId"： keyword.srcInnerId, "srcType"： keyword.srcType, "oid": oid});
 									databaseSaveRelation.push(relation);
 								}
 							}else {
-								if (srcInnerId == relations[j].srcInnerId && srcType == relations[j].srcType && oid == relations[j].oid) {
+								if (srcInnerId == relations[j].srcInnerId && srcType == relations[j].srcType && systemOid == relations[j].oid) {
 									$(this).prop("checked", true);
 									var relation = new Object();
 									relation.srcInnerId = srcInnerId;
 									relation.srcType = srcType;
-									relation.oid = oid;
+									relation.oid = systemOid;
 									relation.id = relations[j].id;
 									databaseSaveRelation.push(relation);
 									// databaseSaveRelation.push({"srcInnerId":srcInnerId, "srcType"： srcType, "oid": oid});
@@ -153,9 +157,9 @@
 				}
 				
 			} else {
-				for (var i = 0; i < tables.length; i++) {
-					if ( $("#" + tables[i] + " input:checkbox") && $("#" + tables[i] + " input:checkbox").length > 0) {
-						$("#" + tables[i] + " input:checkbox")[0].checked = true;
+				for (var i = 0; i < tbtables.length; i++) {
+					if ( $("#" + tbtables[i] + " input:checkbox") && $("#" + tbtables[i] + " input:checkbox").length > 0) {
+						$("#" + tbtables[i] + " input:checkbox")[0].checked = true;
 					}
 					
 				}
@@ -186,7 +190,7 @@
 			    iconSize: [31, 40]
 			});
 			L.marker([geo[1], geo[0]], {icon: myIcon}).addTo(map);
-		}
+		} 
 	}
 	
 	function drawEMGMap(lat, lng, zoom) {
@@ -259,6 +263,7 @@
 				$("#gaodemap").empty();
 				$gaodemap = new mapboxgl.Map({
 					container: 'gaodemap',
+					crossDomain: true,
 					style: {
 						"version": 8,
 				        "sprite": "http://tiles.emapgo.cn/styles/outdoor/sprite",
@@ -274,12 +279,10 @@
 				            		"https://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}&scl=1&ltype=11"
 				              	],
 				              	transformRequest: (url, resourceType)=> {
-				              	    if(resourceType === 'Source' && url.startsWith('http://myHost')) {
-				              	      	return {
-				              	       		url: url,
-				              	       		headers: { 'Access-Control-Allow-Origin' : '*' }
-				              	     	}
-				              	    }
+			              	      	return {
+			              	       		url: url,
+			              	       		headers: { 'Access-Control-Allow-Origin' : '*' }
+			              	     	}
 				              	}
 				          	}
 				        },
@@ -354,7 +357,7 @@
 	
 	function loadEditPOI(oid) {
 		if (!oid || oid <= 0) 	return;
-		
+		systemOid = oid;
 		jQuery.post("./edit.web", {
 			"atn" : "getpoibyoid",
 			"oid" : oid
@@ -580,7 +583,7 @@
 						drawReferdatas("tbbaidu", baidurefers);
 						baiduSrcInnerId = baidurefers[0].srcInnerId;
 						baiduSrcType = baidurefers[0].srcType;
-						addMakerOnEMGMap($baidumap, false);
+						// addMakerOnEMGMap($baidumap, false);
 					} else {
 						$("#baidumap").html("无数据");
 						$("table#tbbaidu>tbody").html("<tr><td>无数据</td></tr>");
@@ -592,7 +595,7 @@
 						drawReferdatas("tbgaode", gaoderefers);
 						gaodeSrcInnerId = gaoderefers[0].srcInnerId;
 						gaodeSrcType = gaoderefers[0].srcType;
-						addMakerOnEMGMap($gaodemap, false);
+						// addMakerOnEMGMap($gaodemap, false);
 					} else {
 						$("#gaodemap").html("无数据");
 						$("table#tbgaode>tbody").html("<tr><td>无数据</td></tr>");
@@ -604,14 +607,14 @@
 						drawReferdatas("tbtengxun", tengxunrefers);
 						tengxunSrcInnerId = tengxunrefers[0].srcInnerId;
 						tengxunSrcType = tengxunrefers[0].srcType;
-						addMakerOnEMGMap($tengxunmap, false);
+						// addMakerOnEMGMap($tengxunmap, false);
 					} else {
 						$("#tengxunmap").html("无数据");
 						$("table#tbtengxun>tbody").html("<tr><td>无数据</td></tr>");
 					}
 					
 					if (keyword) {
-						loadRelation(keyword);
+						loadRelation(keyword.srcInnerId, keyword.srcType);
 					}
 				}
 			} else {
@@ -638,7 +641,7 @@
 				relations.push();
 				var srcInnerId = $(this).val().split(",")[1];
 				var srcType = $(this).val().split(",")[2];
-				if (i == 0 && (keyword.srcType != null && keyword.srcType > 0 )) {
+				if (i == 0 && (keyword.srcType != null && keyword.srcType > 0 ) && oid > 0) {
 					//EMG 选中保存的是EMG和poi的
 					var relation = new Object();
 					relation.srcInnerId = keyword.srcInnerId;
@@ -662,7 +665,7 @@
 				}
 			});
 			
-			if ($("#tbemg input:checked") != null && oid > 0) {
+			/* if ($("#tbemg input:checked") != null && oid > 0) {
 				//			
 				var relation = new Object();
 				relation.srcInnerId = keyword.srcInnerId;
@@ -671,7 +674,7 @@
 				relation.qid = keyword.qid;
 				relation.errorType = keyword.errorType;
 				relations.push(relation);
-			}
+			} */
 			// var relation = {"srcInnerId" : checkTable.find("tbody td.tdValue[data-key='srcInnerId']>input:text").val()};
 			
 		}
