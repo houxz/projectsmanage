@@ -264,18 +264,29 @@
 				        "sprite": "http://tiles.emapgo.cn/styles/outdoor/sprite",
 				        "glyphs": "http://static.emapgo.cn/{fontstack}/{range}.pbf",
 				        "sources": {
-				          "osm-tiles": {
-				            "type": "raster",
-				            "tileSize": 256,
-				            'tiles': [
-				                  "http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}"
-				              ]
-				          }
+				          	"osm-tiles": {
+				            	"type": "raster",
+				            	"tileSize": 256,
+				            	'tiles': [
+				                  	"https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}&scl=1&ltype=11",
+				            		"https://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}&scl=1&ltype=11",
+				            		"https://webrd03.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}&scl=1&ltype=11",
+				            		"https://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}&scl=1&ltype=11"
+				              	],
+				              	transformRequest: (url, resourceType)=> {
+				              	    if(resourceType === 'Source' && url.startsWith('http://myHost')) {
+				              	      	return {
+				              	       		url: url,
+				              	       		headers: { 'Access-Control-Allow-Origin' : '*' }
+				              	     	}
+				              	    }
+				              	}
+				          	}
 				        },
 				        "layers": [{
-				          "id": "simple-tiles",
-				          "type": "raster",
-				          "source": "osm-tiles",
+				          	"id": "simple-tiles",
+				          	"type": "raster",
+				          	"source": "osm-tiles",
 				        }]
 					},
 					center:  [lng, lat],
