@@ -478,6 +478,10 @@
 							case "6":
 							case 10://byhxz 人工确认项目
 							case "10":
+								if(!config_2_25 || config_2_25.length <=0){
+									$.webeditor.showMsgLabel("alert","请关联资料");
+									return ;
+								} 
 								break;
 							default:
 								console.log("错误的项目类型：" + protype);

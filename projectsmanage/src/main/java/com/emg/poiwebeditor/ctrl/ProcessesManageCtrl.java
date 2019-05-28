@@ -194,6 +194,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Integer owner = ParamUtils.getIntParameter(request, "config_2_19", 0) == 1 ? 1 : 0;
 			String strWorkers = ParamUtils.getParameter(request, "config_2_18");
 			String strCheckers = ParamUtils.getParameter(request, "config_2_21");
+			//绑定资料datasetid字符串  "133,132,131"
 			String strDatasets = ParamUtils.getParameter(request, "config_2_25");
 			//add by lianhr begin 2019/02/14
 			String strBatch = ParamUtils.getParameter(request, "strbatch");
@@ -617,15 +618,14 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			}
 			
 			if (isNewProcess) {
-				System.out.println("########################################################");
-				System.out.println("=============create task================================");
 				ProcessType processType = ProcessType.POIPOLYMERIZE;
 				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZILIAOKU,
 						processType);
 				ConfigDBModel configDBModel = configDBModelDao
 						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
-				List<keywordModelForTask> keyids = datasetModelDao.selectKeyidsbyDataset(configDBModel, 0, 0,  Long.valueOf(strDatasets));
+				//"133,132,131"
+				List<keywordModelForTask> keyids = datasetModelDao.selectKeyidsbyDataset(configDBModel, 0, 0,  strDatasets);
 				int shapeCount = keyids.size();
 				int taskcount = 0;
 				if (shapeCount > 0) {

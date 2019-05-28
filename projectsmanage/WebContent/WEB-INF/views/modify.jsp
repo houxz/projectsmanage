@@ -103,7 +103,7 @@
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='categoryName']").html(keyword.categoryName);						
 				shapegeo = keyword.geo;
 				//两个地方都绘制是因为jsp执行是线程级别，不能确定谁先执行完
-				addMakerOnEMGMap($emgmap);
+				addMakerOnEMGMap($emgmap,true);
 			} else {
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='name']").html(loaderr);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='address']").html(loaderr);
@@ -118,22 +118,45 @@
 	}
 	
 	//地图上绘制参考数据图标
-	function addMakerOnEMGMap(map ) {
-		if (map) {
-			var img = new Image();
-			// img.src = 'http://m.emapgo.cn/demo/electricize/img/poi_center.png';
-			img.src = "resources/images/start.png";
-			if (shapegeo) {
-				// POINT (102.486719835069 24.9213802083333)
-				var geo = shapegeo.replace("POINT (","").replace(")", "").split(" ");
-				var marker = new emapgo.Marker(img		
-				)
-				.setLngLat(geo)
-				.addTo(map);
-			}
+// 	function addMakerOnEMGMap(map ) {
+// 		if (map) {
+// 			var img = new Image();
+// 			// img.src = 'http://m.emapgo.cn/demo/electricize/img/poi_center.png';
+// 			img.src = "resources/images/start.png";
+// 			if (shapegeo) {
+// 				// POINT (102.486719835069 24.9213802083333)
+// 				var geo = shapegeo.replace("POINT (","").replace(")", "").split(" ");
+// 				var marker = new emapgo.Marker(img		
+// 				)
+// 				.setLngLat(geo)
+// 				.addTo(map);
+// 			}
 			
+// 		}
+// 	}
+	
+		function addMakerOnEMGMap(map, isEmg ) {
+		if (map == null || dianpingGeo == null) return;
+		var img = new Image();
+		// img.src = 'http://m.emapgo.cn/demo/electricize/img/poi_center.png';
+		img.src = "resources/images/start.png";
+		var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+		if(isEmg) {
+				// POINT (102.486719835069 24.9213802083333)
+			
+			var marker = new emapgo.Marker(img		
+			)
+			.setLngLat(geo)
+			.addTo(map);
+		}else{
+			var myIcon = L.icon({
+			    iconUrl: 'resources/images/start.png',
+			    iconSize: [31, 40]
+			});
+			L.marker([geo[1], geo[0]], {icon: myIcon}).addTo(map);
 		}
 	}
+	
 	
 	function drawEMGMap(lat, lng, zoom) {
 		try{
@@ -244,7 +267,7 @@
 	 			var geo = poi.geo.replace("MULTIPOINT ((","").replace("),","").replace("(","").replace(")", "").split(" ");
 	 			poigeo = geo;
 	 			drawEMGMap(geo[1], geo[0], zoom);
-	 			addMakerOnEMGMap($emgmap);
+	 			addMakerOnEMGMap($emgmap,true);
 				}
 			} else {
 				$("table#tbEdit>tbody td.tdValue>input:text").val("加载失败");

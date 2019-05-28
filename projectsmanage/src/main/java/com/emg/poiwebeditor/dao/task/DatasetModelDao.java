@@ -232,7 +232,7 @@ System.out.println(sql);
 	}
 
 	//获取批次的keyid集合
-	public List<keywordModelForTask> selectKeyidsbyDataset(ConfigDBModel configDBModel, Integer limit, Integer offset,Long datasetid) {
+	public List<keywordModelForTask> selectKeyidsbyDataset(ConfigDBModel configDBModel, Integer limit, Integer offset,String sdatasetid) {
 		List<keywordModelForTask> datasets = new ArrayList<keywordModelForTask>();
 		BasicDataSource dataSource = null;
 		try {
@@ -251,7 +251,7 @@ System.out.println(sql);
 			sql.append("tb_keywords ");
 			sql.append(" WHERE 1=1 ");
 		
-			sql.append(" AND " + separator + "datasetid" + separator + " IN ( " + datasetid + " ) ");
+			sql.append(" AND " + separator + "datasetid" + separator + " IN ( " + sdatasetid + " ) ");
 			
 System.out.println(sql);
 

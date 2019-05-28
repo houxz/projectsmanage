@@ -84,10 +84,13 @@ public class LoginCtrl extends BaseCtrl {
 			} else if (hasRole(request, RoleType.ROLE_POIVIDEOEDIT.toString())) {
 				logger.debug("LoginCtrl-login end to leader page.");
 				return "redirect:processesmanage.web";
-			} else if (hasRole(request, RoleType.ROLE_WORKER.toString()) || hasRole(request, RoleType.ROLE_CHECKER.toString())) {
+			} else if (hasRole(request, RoleType.ROLE_WORKER.toString())) {
 				logger.debug("LoginCtrl-login end to worker page.");
-				return "redirect:worktasks.web";
-			} else {
+				return "redirect:edit.web"; //制作任务跳转到制作
+			} else if( hasRole(request, RoleType.ROLE_CHECKER.toString())) {
+				logger.debug("LoginCtrl-login end to worker page.");
+				return "redirect:edit.web";//校正任务跳转到校正页面 暂时没有校正临时跳转到制作
+			}else {
 				if (session != null) {
 					session.invalidate();
 				}
