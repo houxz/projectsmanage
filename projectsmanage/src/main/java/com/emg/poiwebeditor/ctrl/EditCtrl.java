@@ -190,16 +190,18 @@ public class EditCtrl extends BaseCtrl {
 	public ModelAndView getRelationByOid(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-		List<PoiMergeDO> relations = new ArrayList<PoiMergeDO>();
+		List<PoiMergeDO> relations = null;
 		try {
 			String srcInnerId = ParamUtils.getParameter(request, "srcInnerId");
 			int srcType = ParamUtils.getIntParameter(request, "srcType", 0);
 			relations = poiClient.selectPOIRelation(srcInnerId, srcType);
+			if (relations == null) relations = new ArrayList<PoiMergeDO>();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 		json.addObject("rows", relations);
 		json.addObject("count", relations.size());
+		
 		json.addObject("result", 1);
 
 		logger.debug("END");
@@ -270,8 +272,9 @@ public class EditCtrl extends BaseCtrl {
 		try {
 			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			POIDo  poi = this.getPOI(request);
-			String dianpingGeo = ParamUtils.getParameter(request, "dianpingGeo");
-			poi.setGeo(dianpingGeo);
+			String geo = ParamUtils.getParameter(request, "geo");
+			poi.setGeo(geo);
+			poi.setConfirm(ConfirmEnum.confirm_ok);
 			poi.setConfirmUId(userid);
 			poi.setUid(userid);
 			
@@ -306,7 +309,7 @@ public class EditCtrl extends BaseCtrl {
 		String address6 = ParamUtils.getParameter(request, "address6");
 		String address7 = ParamUtils.getParameter(request, "address7");
 		String address8 = ParamUtils.getParameter(request, "address8");
-		String geo = ParamUtils.getParameter(request, "dianpingGeo");
+		String geo = ParamUtils.getParameter(request, "geo");
 		
 		
 		POIDo poi = new POIDo();
