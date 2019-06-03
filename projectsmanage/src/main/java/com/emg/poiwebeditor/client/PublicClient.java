@@ -2,6 +2,7 @@ package com.emg.poiwebeditor.client;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,10 +25,13 @@ public class PublicClient {
 	@Value("${publicApi.path}")
 	private String path;
 	
+	private String contentType = "application/json";
+	
 	private static final Logger logger = LoggerFactory.getLogger(PublicClient.class);
 	
 	private final static String selectKeywordsByIDUrl = "http://%s:%s/%s/keyword/loadbyids/%s";
 	private final static String selectReferdatasByKeywordidUrl = "http://%s:%s/%s/referdata/loadbykeyword/%s";
+	private final static String updateKeyword = "http://%s:%s/%s/keyword/update";
 	
 	public KeywordModel selectKeywordsByID(Long keywordid) throws Exception {
 		KeywordModel keyword = new KeywordModel();
@@ -75,6 +79,27 @@ public class PublicClient {
 		}
 		
 		return referdatas;
+	}
+	
+	public Long updateKeyword(KeywordModel keyword) throws Exception {
+		List<ReferdataModel> referdatas = new ArrayList<ReferdataModel>();
+		HttpClientResult result = null;
+		if(keyword != null) {
+			JSONObject json = (JSONObject) JSON.toJSON(keyword);
+			result = HttpClientUtils.doPost(String.format(updateKeyword, host, port, path), contentType, json.toString());
+			if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
+				String isstr = result.getJson().replace("\r\n", "");
+				
+				return Long.parseLong(isstr);
+			}
+			
+		} 
+		// if (relations == null)
+		if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
+			return Long.valueOf(1);
+		} else {
+			return -1L;
+		}
 	}
 	
 }

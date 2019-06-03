@@ -72,15 +72,15 @@
     	markerColor: 'blue',
     	iconColor:'white'
   	});
-	var dtd = $.Deferred(); 
-	var dtd2 = $.Deferred();
+	
+	
 	$(document).ready(function() {
 		$.webeditor.getHead();
 		
 		if (keywordid && keywordid > 0) {
 			
 			$.when( 
-				loadKeyword(keywordid, dtd),loadReferdatas(keywordid, dtd2)
+				loadKeyword(keywordid),loadReferdatas(keywordid)
 			).done(function() {
 				if (keyword) {
 					loadRelation(keyword.srcInnerId, keyword.srcType);
@@ -95,7 +95,8 @@
 	
 	
 	
-	function loadKeyword(keywordid, dtd) {
+	function loadKeyword(keywordid) {
+		var dtd = $.Deferred(); 
 		jQuery.post("./edit.web", {
 			"atn" : "getkeywordbyid",
 			"keywordid" : keywordid
@@ -193,16 +194,22 @@
 	
 	
 	function drawEMGMap(lat, lng, zoom) {
+		var geo = null;
+		if(dianpingGeo != null ){
+			geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+		}else {
+			geo = [lng, lat];
+		}
 		try{
-			if ($emgmap) {
-				$emgmap.setCenter([lng, lat]);
-			} else {
+			if ($emgmap != null && geo != null) {
+				$emgmap.setCenter(geo);
+			} else  {
 				$("#emgmap").empty();
 				$emgmap = new emapgo.Map({
 			        container : 'emgmap',
 			        style: 'http://tiles.emapgo.cn/styles/outdoor/style.json',
 			        zoom: zoom-1,
-			        center: [lng, lat],
+			        center: geo,
 			        localIdeographFontFamily : "'Noto Sans', 'Noto Sans CJK SC', sans-serif"
 			    });
 				$emgmap.on('styledata',function(){
@@ -217,11 +224,11 @@
 					console.log(e);
 					});
 			}
-			if(keyword != null && keyword.geo != null) {
+			if(keyword != null && keyword.geo != null && dianpingGeo != null) {
 				var img = new Image();
 				img.src = "resources/images/start.png";
 				
-				var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+				
 				// var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val().replace("MULTIPOINT (","").replace(")", "").split(" ");
 				if ($emgmarkerBase) {
 					$emgmarkerBase.setLngLat(geo);
@@ -250,11 +257,17 @@
 	}
 	
 	function drawBaiDuMap(lat, lng, zoom) {
+		var geo = null;
+		if(dianpingGeo != null ){
+			geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+		}else {
+			geo = [lng, lat];
+		}
 		try{
 			$("#baidumap").empty();
 			var convertor = new BMap.Convertor();
 	        var pointArr = [];
-	        pointArr.push(new BMap.Point(lng, lat));
+	        pointArr.push(new BMap.Point(geo[0], geo[1]));
 	        var geo = null;
 	        if(keyword != null && keyword.geo != null) {
 				
@@ -283,9 +296,15 @@
 	}
 	
 	function drawGaoDeMap(lat, lng, zoom) {
+		var geo = null;
+		if(dianpingGeo != null ){
+			geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+		}else {
+			geo = [lng, lat];
+		}
 		try{
 			if ($gaodemap) {
-				$gaodemap.setCenter([lng, lat]);
+				$gaodemap.setCenter(geo);
 			} else {
 				$("#gaodemap").empty();
 				$gaodemap = new mapboxgl.Map({
@@ -319,7 +338,7 @@
 				          	"source": "osm-tiles",
 				        }]
 					},
-					center:  [lng, lat],
+					center: geo,
 					zoom: zoom-1,
 				});
 			}
@@ -332,10 +351,10 @@
 							  .addTo($gaodemap);
 			}
 			
-			if(keyword != null && keyword.geo != null) {
+			if(keyword != null && keyword.geo != null && dianpingGeo != null) {
 				var img = new Image();
 				img.src = "resources/images/start.png";
-				var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+				// var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
 				// var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val().replace("MULTIPOINT (","").replace(")", "").split(" ");
 				if ($gaodemarkerBase) {
 					$gaodemarkerBase.setLngLat(geo);
@@ -352,9 +371,15 @@
 	}
 	
 	function drawTengXunMap(lat, lng, zoom) {
+		var geo = null;
+		if(dianpingGeo != null ){
+			geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+		}else {
+			geo = [lng, lat];
+		}
 		try{
 			if ($tengxunmap) {
-				$tengxunmap.setCenter([lng, lat]);
+				$tengxunmap.setCenter(geo);
 			} else {
 				$("#tengxunmap").empty();
 				$tengxunmap = new mapboxgl.Map({
@@ -380,7 +405,7 @@
 				          "source": "osm-tiles",
 				        }]
 					},
-					center:  [lng, lat],
+					center:  geo,
 					zoom: zoom-1
 				});
 			}
@@ -395,7 +420,7 @@
 			if(keyword != null && keyword.geo != null) {
 				var img = new Image();
 				img.src = "resources/images/start.png";
-				var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+				// var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
 				// var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val().replace("MULTIPOINT (","").replace(")", "").split(" ");
 				if ($tengxunmarkerBase) {
 					$tengxunmarkerBase.setLngLat(geo);
@@ -581,7 +606,9 @@
 		});
 	}
 	
-	function loadReferdatas(keywordid, dtd) {
+	function loadReferdatas(keywordid) {
+		var dtd = $.Deferred();
+	
 		jQuery.post("./edit.web", {
 			"atn" : "getreferdatabykeywordid",
 			"keywordid" : keywordid
@@ -662,6 +689,64 @@
 		return dtd;
 	}
 	
+	//标识资料错误
+	function keywordError(){
+		var isLoadNextTask = $("table#tbEdit>tbody td.tdKey[data-key='isLoadNextTask']>input:checkbox").prop("checked");
+	
+			$.webeditor.showMsgBox("info", "数据保存中...");
+			jQuery.post("./edit.web", {
+				"atn" : "keywordError",
+				"taskid" : $("#curTaskID").html(),
+				"getnext" : isLoadNextTask,
+				"keywordid": keyword.id
+				
+				// "isLoadNextTask": isLoadNextTask
+			}, function(json) {
+				if (json && json.result == 1) {
+					var task = json.task;
+					if (task && task.id) {
+						var process = json.process;
+						var project = json.project;
+						$("#curProcessID").text(process.id);
+						$("#curProcessName").text(process.name);
+						$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
+						$("#curTaskID").text(task.id);
+						$("#curProjectID").text(task.projectid);
+						$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
+						$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
+						$("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
+						$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val("");
+						$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val("");
+						$("table#tbEdit>tbody td.tdValue[data-key='address4']>input:text").val("");
+						$("table#tbEdit>tbody td.tdValue[data-key='address5']>input:text").val("");
+						$("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val("");
+						$("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val("");
+						$("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val("");
+						$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("");
+						keywordid = json.keywordid;
+						
+						if (keywordid && keywordid > 0) {
+							
+							$.when( 
+								loadKeyword(keywordid),loadReferdatas(keywordid)
+							).done(function() {
+								if (keyword) {
+									loadRelation(keyword.srcInnerId, keyword.srcType);
+								}
+							});
+						}
+					} else {
+						
+					}
+					
+				} else {
+					console.log("submitEditTask error");
+				}
+				$.webeditor.showMsgBox("close");
+			}, "json");
+	
+	}
+	
 	function submitEditTask() {
 		var oid = null;
 		try {
@@ -673,6 +758,7 @@
 		// var $tbemg = $("#tbbaidu");
 		var tables = ["tbemg", "tbbaidu", "tbtengxun", "tbgaode"];
 		var relations = [];
+		var emgChecked = false;
 		for (var i = 0; i < tables.length; i++) {
 			// $("#" + tables[i] + " table tbody tr :checkbox")
 			$("#" + tables[i] + " input:checked").each(function(){
@@ -681,6 +767,7 @@
 				var srcType = $(this).val().split(",")[2];
 				if (i == 0 && (keyword.srcType != null && keyword.srcType > 0 ) && oid > 0) {
 					//EMG 选中保存的是EMG和poi的
+					emgChecked = true;
 					var relation = new Object();
 					relation.srcInnerId = keyword.srcInnerId;
 					relation.srcType = keyword.srcType;
@@ -705,6 +792,16 @@
 			
 			
 		}
+		if (!emgChecked && oid > -1) {
+			var relation = new Object();
+			relation.srcInnerId = keyword.srcInnerId;
+			relation.srcType = keyword.srcType;
+			relation.oid = oid;
+			relation.qid = keyword.qid;
+			relation.errorType = keyword.errorType;
+			// relations.push({"srcInnerId"： keyword.srcInnerId, "srcType"： keyword.srcType, "oid": oid});
+			relations.push(relation);
+		}
 		
 		var delFlag = false;
 		if (databaseSaveRelation != null && relations != null) {
@@ -715,8 +812,7 @@
 						// 此种情况需要人工确认，表明数据库中的关系存在且已经确认过，但现在提交的与库里保存的不一致
 						delFlag = true;
 						break;
-						/* databaseSaveRelation[j].isDel = true;
-						relations.push(databaseSaveRelation[j]); */
+						
 					}
 					if (delFlag) break;
 					/* if (relations[i].srcInnerId == databaseSaveRelation[j].srcInnerId && relations[i].srcType == databaseSaveRelation[j].srcType && relations[i].oid == databaseSaveRelation[j].oid && databaseSaveRelation[j].importTime == null) {
@@ -794,9 +890,20 @@
 							$("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val("");
 							$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("");
 							keywordid = json.keywordid;
-							if (keywordid && keywordid > 0) {
+							/* if (keywordid && keywordid > 0) {
 								loadKeyword(keywordid);
 								loadReferdatas(keywordid);
+								
+							} */
+							if (keywordid && keywordid > 0) {
+								
+								$.when( 
+									loadKeyword(keywordid),loadReferdatas(keywordid)
+								).done(function() {
+									if (keyword) {
+										loadRelation(keyword.srcInnerId, keyword.srcType);
+									}
+								});
 							}
 						} else {
 							
@@ -847,9 +954,19 @@
 						$("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val("");
 						$("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val("");
 						keywordid = json.keywordid;
-						if (keywordid && keywordid > 0) {
+						/* if (keywordid && keywordid > 0) {
 							loadKeyword(keywordid);
 							loadReferdatas(keywordid);
+						} */
+						if (keywordid && keywordid > 0) {
+							
+							$.when( 
+								loadKeyword(keywordid),loadReferdatas(keywordid)
+							).done(function() {
+								if (keyword) {
+									loadRelation(keyword.srcInnerId, keyword.srcType);
+								}
+							});
 						}
 					} else {
 						
@@ -911,8 +1028,8 @@
 		var address7 = $("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val();
 		var address8 = $("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val();
 		var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val();
-		if(namec == null || namec.trim() == "" || featcode == null || featcode.trim() == "") {
-			$.webeditor.showMsgLabel("alert", "名称和分类不能为空");
+		if(namec == null || namec.trim() == "" || featcode == null || featcode.trim() == "" || geo == null || geo.trim() == "") {
+			$.webeditor.showMsgLabel("alert", "名称、分类、坐标不能为空");
 			return;
 		}
 		$.webeditor.showMsgBox("info", "数据保存中...");
@@ -1045,6 +1162,7 @@
 						<button class="btn btn-default">稍后修改</button>
 						<button class="btn btn-default" onClick="updatePOI();">保存</button>
 						<button class="btn btn-default" onClick="submitEditTask();">提交</button>
+						<button class="btn btn-default" onClick="keywordError();">资料错误</button>
 					</div>
 				</div>
 				<div class="col-md-10 fullHeight">

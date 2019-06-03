@@ -598,4 +598,64 @@ public class EditCtrl extends BaseCtrl {
 		}
 		return task;
 	}
+	/**
+	 * keyword 打错误标识，并把根据getnext值决定是滞获取下一任务
+	 * @param model
+	 * @param request
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping(params = "atn=keywordError")
+	public ModelAndView keywordError(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		TaskModel task = new TaskModel();
+		ProjectModel project = new ProjectModel();
+		ProcessModel process = new ProcessModel();
+		Long keywordid = -1L;
+		try {
+			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			Long keywordId = ParamUtils.getLongParameter(request, "keywordid", -1);
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			
+			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
+			Long u = new Long(userid);
+			KeywordModel keyword = new KeywordModel();
+			keyword.setId(keywordId);
+			keyword.setState(1);
+			publicClient.updateKeyword(keyword);
+			if (taskModelClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
+				json.addObject("resultMsg", "任务提交失败");
+				json.addObject("result", 0);
+				return json;
+			}
+			
+			if (getnext) {
+				task = getNextEditTask(userid);
+				if (task != null  && task.getId() != null) {
+					Long projectid = task.getProjectid();
+					if (projectid.compareTo(0L) > 0) {
+						project = projectModelDao.selectByPrimaryKey(projectid);
+						
+						Long processid = project.getProcessid();
+						if (processid.compareTo(0L) > 0) {
+							process = processModelDao.selectByPrimaryKey(processid);
+						}
+					}
+					
+					keywordid = task.getKeywordid();
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		json.addObject("task", task);
+		json.addObject("project", project);
+		json.addObject("process", process);
+		json.addObject("keywordid", keywordid);
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
 }

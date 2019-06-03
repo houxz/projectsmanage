@@ -21,6 +21,7 @@ public class KeywordModel {
 	private Long oid;
 	private String qid;
 	private Long errorType;
+	private int state;
 	public Long getId() {
 		return id;
 	}
@@ -140,6 +141,12 @@ public class KeywordModel {
 	}
 	public void setErrorType(Long errorType) {
 		this.errorType = errorType;
+	}
+	public int getState() {
+		return state;
+	}
+	public void setState(int state) {
+		this.state = state;
 	}
 
 
