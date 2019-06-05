@@ -101,7 +101,7 @@
 			"atn" : "getkeywordbyid",
 			"keywordid" : keywordid
 		}, function(json) {
-			if (json && json.result == 1) {
+			if (json && json.result == 1 && json.rows != null) {
 				keyword = json.rows;
 				srcType = keyword.srcType;
 				srcInnerId = keyword.srcInnerId;
@@ -112,6 +112,7 @@
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='telephone']").html(keyword.telephone);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='categoryName']").html(keyword.categoryName);
 			} else {
+				loaderr = "没有资料了";
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='name']").html(loaderr);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='address']").html(loaderr);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='telephone']").html(loaderr);
@@ -776,7 +777,7 @@
 					relation.errorType = keyword.errorType;
 					// relations.push({"srcInnerId"： keyword.srcInnerId, "srcType"： keyword.srcType, "oid": oid});
 					relations.push(relation);
-				}else {
+				}else if (i > 0){
 					
 					// $(this).prop("checked", true);
 					var relation = new Object();
@@ -792,7 +793,7 @@
 			
 			
 		}
-		if (!emgChecked && oid > -1) {
+		if (!emgChecked && oid > -1 && keyword != null && keyword.srcInnerid != null) {
 			var relation = new Object();
 			relation.srcInnerId = keyword.srcInnerId;
 			relation.srcType = keyword.srcType;
@@ -912,7 +913,6 @@
 					} else {
 						console.log("submitEditTask error");
 					}
-					$.webeditor.showMsgBox("close");
 				}, "json");
 			});
 		}else {
