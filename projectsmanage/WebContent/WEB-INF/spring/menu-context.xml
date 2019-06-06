@@ -12,6 +12,7 @@
 				<ref bean="edit" />
 				<ref bean="modify" />
 				<ref bean="processesmanage" />
+				<ref bean="uploadfielddata" />
 <!-- 				<ref bean="worktasks" /> -->
 <!-- 				<ref bean="tasksmanage" /> -->
 <!-- 				<ref bean="projectsprocess" /> -->
@@ -113,6 +114,19 @@
 		<property name="code" value="1010" />
 		<property name="url" value="/poiwebeditor/doneprocesses.web" />
 		<property name="label" value="已完成项目" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_POIVIDEOEDIT</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
+	
+	<bean id="uploadfielddata" class="com.emg.poiwebeditor.auth.MenuAuthModel">
+		<property name="code" value="1020" />
+		<property name="url" value="/poiwebeditor/fielddatamanage.web" />
+		<property name="label" value="资料管理" />
 		<property name="roleSet">
 			<set>
 				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_POIVIDEOEDIT</value>

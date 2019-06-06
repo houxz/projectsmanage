@@ -9,15 +9,22 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import com.emg.poiwebeditor.client.ExecuteSQLApiClientUtils;
+import com.emg.poiwebeditor.client.HttpClientResult;
+import com.emg.poiwebeditor.client.HttpClientUtils;
 import com.emg.poiwebeditor.common.Common;
 import com.emg.poiwebeditor.common.DatabaseType;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
 import com.emg.poiwebeditor.pojo.DatasetModel;
+import com.emg.poiwebeditor.pojo.KeywordModel;
 import com.emg.poiwebeditor.pojo.keywordModelForTask;
+
+import com.alibaba.fastjson.JSONObject;
 
 @Component
 public class DatasetModelDao {
@@ -61,7 +68,16 @@ public class DatasetModelDao {
 				if (record.getPath() != null && !record.getPath().isEmpty()) {
 					sql.append(" AND " + separator + "path" + separator + " like '%" + record.getPath() + "%'");
 				}
+				if(record.getState() != null && record.getState().compareTo(0) > 0) {
+					sql.append(" AND " + separator + "state" + separator + "=" + record.getState() );
+				}
+				if(record.getProcess() != null && record.getProcess().compareTo(0) > 0) {
+					sql.append(" AND " + separator + "process" + separator + "=" + record.getProcess() );
+				}
 			}
+			
+			sql.append(" AND (state != 3 OR process != 8) ");//不显示项目完成的资料
+			
 			sql.append(" ORDER BY id desc ");
 			if (limit.compareTo(0) > 0) {
 				sql.append(" LIMIT " + limit);
@@ -69,7 +85,7 @@ public class DatasetModelDao {
 			if (offset.compareTo(0) > 0) {
 				sql.append(" OFFSET " + offset);
 			}
-
+System.out.println(sql.toString());
 			dataSource = Common.getDataSource(configDBModel);
 			datasets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<DatasetModel>(DatasetModel.class));
 
@@ -173,7 +189,15 @@ System.out.println(sql);
 				if (record.getPath() != null && !record.getPath().isEmpty()) {
 					sql.append(" AND " + separator + "path" + separator + " like '%" + record.getPath() + "%'");
 				}
+				if(record.getState() != null && record.getState().compareTo(0) > 0) {
+					sql.append(" AND " + separator + "state" + separator + "=" + record.getState() );
+				}
+				if(record.getProcess() != null && record.getProcess().compareTo(0) > 0) {
+					sql.append(" AND " + separator + "process" + separator + "=" + record.getProcess() );
+				}
 			}
+			
+			sql.append(" AND (state != 3 OR process != 8) ");//不显示项目完成的资料
 
 			dataSource = Common.getDataSource(configDBModel);
 			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
@@ -279,7 +303,7 @@ System.out.println(sql);
 	}
 	
 		//更新dataset 状态
-	public Boolean updateDataSetStatebyDataset(ConfigDBModel configDBModel, Long datasetid, Integer state,Integer process) {
+	public Boolean updateDataSetStatebyDataset(ConfigDBModel configDBModel, String datasetid, Integer state,Integer process) {
 		BasicDataSource dataSource = null;
 		try {
 			if (configDBModel == null)
@@ -296,14 +320,14 @@ System.out.println(sql);
 			sql.append("tb_dataset ");
 			sql.append(" set state = " + state);
 			sql.append(" , process=" + process);
-			sql.append(" where id = " + datasetid);
+			sql.append(" where id in ( " + datasetid +" )");
 
 			System.out.println(sql);
 
 			dataSource = Common.getDataSource(configDBModel);
 
 			int row = new JdbcTemplate(dataSource).update(sql.toString());
-			if (row == 1)
+			if (row > 0 )
 				return true;
 			else
 				return false;
@@ -323,4 +347,341 @@ System.out.println(sql);
 		return false;
 	}
 	
+	//插入dataset空记录
+	public Long InsertDataset(ConfigDBModel configDBModel) {
+		Long id = -1L;
+		BasicDataSource dataSource = null;
+		try {
+			if (configDBModel == null)
+				return -1L;
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" insert into  ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			
+			sql.append("tb_dataset (recordcount,datatype,batchid)values(0,0,0)");
+			sql.append(" RETURNING id");
+			dataSource = Common.getDataSource(configDBModel);
+
+			id = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null,Long.class);
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return id;
+	}
+	
+	
+	public Boolean updateDataset(ConfigDBModel configDBModel,DatasetModel dataset) {
+		BasicDataSource dataSource = null;
+		Boolean bret = false;
+		try {
+			if (configDBModel == null)
+				return false;
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" update  ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_dataset ");
+			sql.append("set ver = 0 " );
+			if(dataset.getRecordcount() != null)
+			sql.append(",recordcount ="+ dataset.getRecordcount().toString()); 
+			if( dataset.getPath() != null)
+				sql.append(",path='" + dataset.getPath() +"'");
+			if( dataset.getName() != null)
+				sql.append(",name='"+ dataset.getName() +"'");
+			sql.append(",datatype=37");
+			sql.append(",startdatetime=now()");
+			if( dataset.getUsername() != null)
+				sql.append(",username='"+dataset.getUsername() +"'");
+			if( dataset.getRoleid() != null)
+				sql.append(",userid="+ dataset.getRoleid().toString());
+			if(dataset.getReason() != null)
+				sql.append(",reason="+ dataset.getReason().toString() );
+			if( dataset.getMode() != null)
+				sql.append(",mode=" + dataset.getMode().toString() );
+			if( dataset.getDatasource() != null)
+				sql.append(",datasource="+dataset.getDatasource() );
+			if( dataset.getArea_code() != null)
+				sql.append(",area_code=" + dataset.getArea_code().toString());
+			if( dataset.getCity_code() != null)
+				sql.append(",city_code="+ dataset.getCity_code().toString() );
+			if(dataset.getBatchid() != null)
+				sql.append(",batchid=" + dataset.getBatchid() );
+			if( dataset.getEnvelope() != null)
+				sql.append(",envelope=" + dataset.getEnvelope().toString() );// 这里可能有问题
+			if( dataset.getState() != null)
+				sql.append(",state = " +  dataset.getState().toString());
+			if( dataset.getProcess() != null)
+				sql.append(" , process=" + dataset.getProcess().toString() );
+			
+			sql.append(" where id ="+ dataset.getId() );
+System.out.println(sql);
+
+			dataSource = Common.getDataSource(configDBModel);
+
+			int row = new JdbcTemplate(dataSource).update(sql.toString());
+			if (row == 1)
+				bret = true;
+		
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return bret;
+	}
+	
+	/*
+	 * tb_keywords表插入记录
+	 * */
+	public Boolean Insertkeyword(ConfigDBModel configDBModel,KeywordModel kmodel) {
+		BasicDataSource dataSource = null;
+		Boolean bret = false;
+		try {
+			if (configDBModel == null)
+				return false;
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			String fieldsname = "";
+			
+			
+			StringBuffer sql = new StringBuffer();
+			sql.append(" insert into  ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_keywords (province,city,district,name,address,telephone,src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
+			if( kmodel.getProvince() !=null)
+				sql.append("'"+ kmodel.getProvince() +"',");
+			else
+				sql.append("'',");
+			if(kmodel.getCity() != null)
+				sql.append("'" + kmodel.getCity() +"',");
+			else
+				sql.append("'',");
+			
+			if(kmodel.getDistrict() != null)
+				sql.append("'" + kmodel.getDistrict() +"',");
+			else
+				sql.append("'',");
+			
+			if(kmodel.getName() != null)
+				sql.append("'" + kmodel.getName() + "',");
+			else
+				sql.append("'',");
+			
+			if(kmodel.getAddress()!= null)
+				sql.append("'" + kmodel.getAddress() + "',");
+			else
+				sql.append("'',");
+			
+			if(kmodel.getTelephone() != null)
+				sql.append("'" + kmodel.getTelephone() +"',");
+			else
+				sql.append("'',");
+			
+//			if(kmodel.getDesc() != null)
+//				sql.append( "'" + kmodel.getDesc() + "',");
+//			else
+//				sql.append("'',");
+				
+	
+			
+			if(kmodel.getSrcType() != null)
+				sql.append( kmodel.getSrcType() +",");
+			else
+				sql.append("NULL,");
+			
+			if(kmodel.getSrcInnerId() != null)
+				sql.append("'"+kmodel.getSrcInnerId() + "',");
+			else
+				sql.append("'',");
+			
+			if(kmodel.getRemark() != null)
+				sql.append("'"+ kmodel.getRemark() +"',");
+			else
+				sql.append("'',");
+			
+			if(kmodel.getDatasetId() != null)
+				sql.append(kmodel.getDatasetId() +",");
+			else
+				sql.append("NULL,");
+			
+			if(kmodel.getQueryType() != null)
+				sql.append(kmodel.getQueryType() + ",");
+			else
+				sql.append("NULL,");
+				
+			if(kmodel.getDistance() != null)
+				sql.append(kmodel.getDistance() + ",");
+			else
+				sql.append("NULL,");
+			
+			if(kmodel.getPoiType() != null)
+				sql.append("'" +kmodel.getPoiType()+"'");
+			else
+				sql.append("''");
+			
+			sql.append(" )");
+System.out.println(sql);
+
+			dataSource = Common.getDataSource(configDBModel);
+
+			int row = new JdbcTemplate(dataSource).update(sql.toString());
+			if (row == 1)
+				bret = true;
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return bret;
+	}
+	
+	/*
+	 * tb_batch表插入数据
+	 * */
+	public Long InsertBatch(ConfigDBModel configDBModel,Long batchid,Integer userid,String username) {
+		Long id = -1L;
+		BasicDataSource dataSource = null;
+		try {
+			if (configDBModel == null)
+				return -1L;
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" insert into  ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			
+			sql.append("tb_batch (batchid,userid,username,uploadstarttime)values(");
+			sql.append( batchid +",");
+			sql.append(userid + ",'");
+			sql.append(username  + "',");
+			sql.append("now()" +")" );
+			sql.append(" RETURNING id");
+			dataSource = Common.getDataSource(configDBModel);
+
+			id = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null,Long.class);
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return id;
+	}
+	
+	/*
+	 * 更新endtime
+	 * */
+	public Boolean updateBatch(ConfigDBModel configDBModel,Long bid) {
+		BasicDataSource dataSource = null;
+		Boolean bret = false;
+		try {
+			if (configDBModel == null)
+				return false;
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			String fieldsname = "";
+			
+			
+			StringBuffer sql = new StringBuffer();
+			sql.append(" update  ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append(" tb_batch set uploadendtime = now() where id = " + bid);
+			
+System.out.println(sql);
+
+			dataSource = Common.getDataSource(configDBModel);
+
+			int row = new JdbcTemplate(dataSource).update(sql.toString());
+			if (row == 1)
+				bret = true;
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return bret;
+	}
+	
+	public Long getBatchid() {
+		String httpurl = "http://192.168.3.247:9057/api-fileddata/batch/edit/getId/400";
+		Long ret = -1L;
+		try {
+			HttpClientResult result = HttpClientUtils.doGet(httpurl);
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return ret;
+			
+			JSONObject json = JSONObject.parseObject(result.getJson());
+			if (json.containsKey("batchId")) {
+		    	ret = (Long)json.get("batchId");
+		    }
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return ret;
+	}
 }

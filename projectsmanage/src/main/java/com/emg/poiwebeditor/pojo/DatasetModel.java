@@ -36,6 +36,10 @@ public class DatasetModel {
     private String batchid;
 
     private Object envelope;
+    
+    private Integer state;
+    
+    private Integer process;
 
 	public Long getId() {
 		return id;
@@ -179,6 +183,22 @@ public class DatasetModel {
 
 	public void setEnvelope(Object envelope) {
 		this.envelope = envelope;
+	}
+	
+	public Integer getState() {
+		return state;
+	}
+	
+	public void setState(Integer state) {
+		this.state = state;
+	}
+	
+	public Integer getProcess() {
+		return process;
+	}
+	
+	public void  setProcess(Integer process) {
+		this.process = process;
 	}
 
 }

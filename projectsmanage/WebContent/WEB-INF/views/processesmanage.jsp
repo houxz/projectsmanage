@@ -113,6 +113,8 @@
 		return itemsetUnits[row.unit];
 	}
 	
+	
+// 	项目进度
 	function progressFormat(value, row, index) {
 		var values = value.split(',');
 		var processType = row.type;

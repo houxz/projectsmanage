@@ -653,11 +653,11 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					processModelDao.updateByPrimaryKeySelective(process);
 					
 					//更新资料状态 任务创建完成
-					datasetModelDao.updateDataSetStatebyDataset(configDBModel, Long.valueOf(strDatasets),3,3);
+					datasetModelDao.updateDataSetStatebyDataset(configDBModel, strDatasets,3,3);
 					
 				} else {
 					//更新资料状态任务创建 异常
-					datasetModelDao.updateDataSetStatebyDataset(configDBModel, Long.valueOf(strDatasets),2,3);
+					datasetModelDao.updateDataSetStatebyDataset(configDBModel, strDatasets,2,3);
 					System.out.println("有资料未创建任务");
 				}
 			}
