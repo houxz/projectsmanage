@@ -310,7 +310,7 @@ public class EditCtrl extends BaseCtrl {
 		String address7 = ParamUtils.getParameter(request, "address7");
 		String address8 = ParamUtils.getParameter(request, "address8");
 		String geo = ParamUtils.getParameter(request, "geo");
-		
+		Long projectId = ParamUtils.getLongParameter(request, "projectId", 0);
 		
 		POIDo poi = new POIDo();
 		logger.debug(JSON.toJSON(poi).toString());
@@ -331,7 +331,7 @@ public class EditCtrl extends BaseCtrl {
 		poi.setGeo(geo);
 		poi.setFeatcode(featcode);
 		poi.setSortcode(sortcode);
-		
+		poi.setProjectid(projectId);
 		Set<TagDO> tags = poi.getPoitags();
 		if (savePoi != null && savePoi.getPoitags() != null) {
 			Set<TagDO> saveTags = savePoi.getPoitags();

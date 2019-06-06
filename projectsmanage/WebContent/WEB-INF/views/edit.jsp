@@ -766,7 +766,7 @@
 				relations.push();
 				var srcInnerId = $(this).val().split(",")[1];
 				var srcType = $(this).val().split(",")[2];
-				if (i == 0 && (keyword.srcType != null && keyword.srcType > 0 ) && oid > 0) {
+				if (i == 0 && oid > 0 && (keyword.srcType != null && keyword.srcType > 0 ) && oid > 0) {
 					//EMG 选中保存的是EMG和poi的
 					emgChecked = true;
 					var relation = new Object();
@@ -777,7 +777,7 @@
 					relation.errorType = keyword.errorType;
 					// relations.push({"srcInnerId"： keyword.srcInnerId, "srcType"： keyword.srcType, "oid": oid});
 					relations.push(relation);
-				}else if (i > 0){
+				}else if (i > 0 && oid > 0){
 					
 					// $(this).prop("checked", true);
 					var relation = new Object();
@@ -793,7 +793,7 @@
 			
 			
 		}
-		if (!emgChecked && oid > -1 && keyword != null && keyword.srcInnerid != null) {
+		if (!emgChecked && oid > -1 && keyword != null && keyword.srcInnerId != null) {
 			var relation = new Object();
 			relation.srcInnerId = keyword.srcInnerId;
 			relation.srcType = keyword.srcType;
@@ -835,7 +835,7 @@
 			}
 		}
 		
-		
+		var projectId = $("#curProjectID").val();
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
 		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
@@ -867,6 +867,7 @@
 					"address7" : address7,
 					"address8" : address8,
 					"geo" : geo,
+					"projectId": projectId
 					// "isLoadNextTask": isLoadNextTask
 				}, function(json) {
 					if (json && json.result == 1) {
@@ -1017,7 +1018,7 @@
 			return;
 		}
 		// if (!oid || oid <= 0) 	return;
-		
+		var projectId = $("#curProjectID").val();
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
 		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
@@ -1045,7 +1046,8 @@
 			"address6" : address6,
 			"address7" : address7,
 			"address8" : address8,
-			"geo" : geo
+			"geo" : geo,
+			"projectId": projectId
 		}, function(json) {
 			if (json && json.result > 0) {
 				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(json.result);
