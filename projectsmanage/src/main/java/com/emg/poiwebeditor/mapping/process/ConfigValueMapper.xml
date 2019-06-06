@@ -7,10 +7,10 @@
 		<result column="moduleid" property="moduleid" jdbcType="INTEGER" />
 		<result column="configid" property="configid" jdbcType="INTEGER" />
 		<result column="value" property="value" jdbcType="VARCHAR" />
-		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="config_name" property="name" jdbcType="VARCHAR" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		tb_config_value.id as ida, processid, tb_config_value.moduleid, configid, value, name
+		tb_config_value.id as ida, processid, tb_config_value.moduleid, configid, value, name as config_name
 	</sql>
 	
 	<select id="selectConfigsById" resultMap="BaseResultMap"

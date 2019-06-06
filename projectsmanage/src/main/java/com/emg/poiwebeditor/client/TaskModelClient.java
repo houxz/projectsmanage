@@ -301,6 +301,31 @@ public class TaskModelClient {
 
 		return tasklist;
 	}
+	
+	// 查询项目pid下的所有制作提交（2,5），改错提交(2,6)的任务
+		public List<TaskModel> selectTaskByProjectId(String projectid) throws Exception {
+			List<TaskModel> tasklist = new ArrayList<TaskModel>();
+			try {
+				StringBuilder sb = new StringBuilder();
+				sb.append("select * from tb_task where projectid in(" + projectid + ")");
+				sb.append(" and ( (state = 2 and process =5) or ( state = 2 and process =6) )");
+				String sql = sb.toString();
+//					tasklist = (List<TaskModel>) ExecuteSQLApiClientUtils.postModel(String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sql, TaskModel.class);
+				ArrayList<Object> arr = ExecuteSQLApiClientUtils.getList(String.format(getUrl, host, port, path, SELECT,
+						URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")), TaskModel.class);
+
+				int count = arr.size();
+				for (int i = 0; i < count; i++) {
+					TaskModel task = (TaskModel) arr.get(i);
+					tasklist.add(task);
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw e;
+			}
+
+			return tasklist;
+		}
 
 	// byhxz20190520
 	public TaskModel selectMyNextModifyTaskByProjectsAndUserId(List<Long> projectIDs, Integer userid) throws Exception {

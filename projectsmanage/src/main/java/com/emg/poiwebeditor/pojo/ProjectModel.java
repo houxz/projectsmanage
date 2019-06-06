@@ -44,6 +44,8 @@ public class ProjectModel {
 	private List<ProjectsUserModel> checkusers;
 
 	private List<ProjectsUserModel> workusers;
+	
+	private List<ConfigValueModel> configs;
 
 	public Long getId() {
 		return id;
@@ -223,4 +225,12 @@ public class ProjectModel {
 		ProjectModel pro = (ProjectModel) obj;
         return id.equals(pro.getId());
     }
+
+	public List<ConfigValueModel> getConfigs() {
+		return configs;
+	}
+
+	public void setConfigs(List<ConfigValueModel> configs) {
+		this.configs = configs;
+	}
 }

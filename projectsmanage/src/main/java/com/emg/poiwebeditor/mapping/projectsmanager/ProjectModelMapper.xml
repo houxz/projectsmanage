@@ -19,6 +19,16 @@
 		<result column="overstate" property="overstate" jdbcType="INTEGER" />
 		<result column="poitotckdisl" property="poitotckdisl" jdbcType="DOUBLE" />
 		<result column="poitotckdisr" property="poitotckdisr" jdbcType="DOUBLE" />
+		<collection  property="configs" ofType="com.emg.poiwebeditor.pojo.ConfigValueModel"
+			javaType="ArrayList">
+			<id column="ida" property="id" jdbcType="BIGINT" />
+			<result column="processid" property="processid" jdbcType="BIGINT" />
+			<result column="moduleid" property="moduleid" jdbcType="INTEGER" />
+			<result column="configid" property="configid" jdbcType="INTEGER" />
+			<result column="value" property="value" jdbcType="VARCHAR" />
+			<result column="config_name" property="name" jdbcType="VARCHAR" />
+			 </collection>
+		
 	</resultMap>
 	<sql id="Example_Where_Clause">
 		<where>
@@ -451,4 +461,16 @@
 		#{poitotckdisr,jdbcType=DOUBLE}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
+	
+	<select id="selectProjectWithConfig" resultMap="BaseResultMap">
+		select p.id, p.processid, protype, pdifficulty, priority, tasknum,
+		systemid, description,
+		createby, createtime,
+		area, p.`name`, p.`owner`,
+		overprogress, overstate, poitotckdisl, poitotckdisr, v.id as ida, v.configid, v.moduleid, v.`value`, c.`name` as config_name 
+		from projectmanager.tb_projects p
+		join process.tb_config_value v on p.processid = v.processid
+		join process.tb_config c on c.id = v.configid
+		WHERE p.overstate = #{state} and p.systemid = #{systemId}
+	</select>
 </mapper>

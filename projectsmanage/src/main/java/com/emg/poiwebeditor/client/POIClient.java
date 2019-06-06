@@ -38,6 +38,7 @@ public class POIClient {
 	private final static String getPOIId = "http://%s:%s/%s/poi/maxid";
 	private final static String poiRelation =  "http://%s:%s/%s/poiMerge/oid/%s";
 	private final static String getRelationByKeword =  "http://%s:%s/%s/poiMerge/%s/%s";
+	private final static String updateManucheck =  "http://%s:%s/%s/poi/manucheck/project/%s";
 	
 	private String contentType = "application/json";
 	
@@ -215,6 +216,18 @@ public class POIClient {
 			
 		} 
 		// if (relations == null)
+		if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
+			return Long.valueOf(1);
+		} else {
+			return -1L;
+		}
+	}
+	
+	public Long updateManucheck(String projectId) throws Exception {
+		HttpClientResult result = HttpClientUtils.doGet(String.format(updateManucheck, host, port, path, projectId));
+		if (!result.getStatus().equals(HttpStatus.OK))
+			return null;
+		
 		if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
 			return Long.valueOf(1);
 		} else {

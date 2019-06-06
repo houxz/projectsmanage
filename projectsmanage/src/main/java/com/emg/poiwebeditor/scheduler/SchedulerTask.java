@@ -54,15 +54,16 @@ import com.emg.poiwebeditor.pojo.AttachMakeCapacityModel;
 import com.emg.poiwebeditor.pojo.CapacityModel;
 import com.emg.poiwebeditor.pojo.CapacityTaskModel;
 import com.emg.poiwebeditor.pojo.CapacityTaskModelExample;
+import com.emg.poiwebeditor.pojo.CapacityTaskModelExample.Criteria;
 import com.emg.poiwebeditor.pojo.CapacityUniq;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
+import com.emg.poiwebeditor.pojo.ConfigValueModel;
 import com.emg.poiwebeditor.pojo.EmployeeModel;
 import com.emg.poiwebeditor.pojo.ErrorModel;
 import com.emg.poiwebeditor.pojo.FeatureFinishedModel;
 import com.emg.poiwebeditor.pojo.POIDo;
 import com.emg.poiwebeditor.pojo.ProcessConfigModel;
 import com.emg.poiwebeditor.pojo.ProcessModel;
-import com.emg.poiwebeditor.pojo.ProcessModelExample;
 import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ProjectModelExample;
 import com.emg.poiwebeditor.pojo.ProjectsProcessModel;
@@ -72,12 +73,9 @@ import com.emg.poiwebeditor.pojo.TaskLinkPoiModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
 import com.emg.poiwebeditor.pojo.WorkTasksModel;
 import com.emg.poiwebeditor.pojo.WorkTasksUniq;
-import com.emg.poiwebeditor.pojo.CapacityTaskModelExample.Criteria;
 import com.emg.poiwebeditor.service.EmapgoAccountService;
 import com.emg.poiwebeditor.service.ProcessConfigModelService;
 import com.emg.poiwebeditor.service.ZMailService;
-
-import net.sf.json.JSONObject;
 
 @Component
 public class SchedulerTask {
@@ -3996,7 +3994,7 @@ public class SchedulerTask {
 	/*
 	 * 定时扫描任务库，修改制作完成的任务为 1）可改错 2） 改错完成(质检ok)
 	 * */
-	@Scheduled(cron = "${scheduler.modifytask.dotime}")
+	// @Scheduled(cron = "${scheduler.modifytask.dotime}")
 	public void scanfModifyTask() {
 		logger.debug("####scanfModifyTask()##start#####");
 		
@@ -4117,5 +4115,84 @@ public class SchedulerTask {
 		}
 		return 0;
 	}
+	
+	/*
+	 * 定时扫描任务库，修改制作完成的任务为 1）可改错 2） 改错完成(质检ok)
+	 * */
+	@Scheduled(cron = "${scheduler.modifytask.dotime}")
+	public void updateTaskState() {
+		logger.debug("####scanfModifyTask()##start#####");
+		
+		// 1.0 获取所有开启的项目	
+		
+		/*ProjectModelExample example = new ProjectModelExample();
+		com.emg.poiwebeditor.pojo.ProjectModelExample.Criteria criteria = example.or();
+		criteria.andOverstateEqualTo(ProjectState.START.getValue());
+		criteria.andSystemidEqualTo(SystemType.poi_polymerize.getValue());
+		
+
+		example.setOrderByClause("priority desc, id");*/
+		List<ProjectModel> rows = projectModelDao.selectProjectWithConfig( ProjectState.START.getValue(),SystemType.poi_polymerize.getValue());
+		// 2.0 遍历项目id,根据项目id ；变量所有的任务
+		//3.0 查看某任务状态
+		try {
+			Integer projectcount = rows.size();
+			logger.debug("本次扫描项目数:" + projectcount);
+			//用来存储所有免校正的项目ID
+			StringBuilder uncheckProject = new StringBuilder();
+			StringBuilder projectIds = new StringBuilder();
+			for( ProjectModel project : rows) {
+				Long projectid = project.getId();
+				logger.debug("本次扫描项目:" + projectid);
+				projectIds.append(projectid).append(",");
+				List<ConfigValueModel> configs = project.getConfigs();
+				if (configs != null) {
+					for (ConfigValueModel config : configs) {
+						// 如果为免校正的项目则给当前项目下的所有poi 打manucheck 为ok的标签
+						if ("免校正".equals(config.getName()) && config.getValue().equals("1")) {
+							uncheckProject.append(projectid).append(",");
+						}
+					}
+				}
+				
+				
+			}
+			
+			//处理所有免检项目
+			if(uncheckProject != null && uncheckProject.length() > 0) {
+				logger.debug("免校正的项目ID为：" + uncheckProject);
+				poiClient.updateManucheck(uncheckProject.substring(0, uncheckProject.length() - 1));
+			}
+			//处理所有改错项目
+			if(projectIds != null && projectIds.length() > 0) {
+				List<TaskModel> tasklist = taskModelClient.selectTaskByProjectId(projectIds.substring(0, projectIds.length() - 1));
+				Integer taskcount = tasklist.size();
+				for( int indextask = 0 ; indextask < taskcount ; indextask++) {
+					TaskModel task = tasklist.get(indextask);
+					if(  (task.getState() == 2 && task.getProcess() == 5) ||
+						 (task.getState() == 2 && task.getProcess() == 6)	) {
+							Integer ret = isTaskAvaliable(task);
+							if( ret == 1 || ret == 2 || ret ==3 || ret ==4 ) {
+								//处理方案待定
+							}else {
+								//处理方案待定 怎么避免不停的重复查询?
+							}
+					}
+					else {
+						logger.debug("任务存在其他状态请查找原因");
+					}
+				}
+			}
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		logger.debug("####scanfModifyTask()##end#####\"");
+		
+	}
+	
 
 }

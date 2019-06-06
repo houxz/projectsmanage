@@ -28,4 +28,11 @@ public interface ProjectModelDao {
 	int updateByPrimaryKeySelective(ProjectModel record);
 
 	int updateByPrimaryKey(ProjectModel record);
+	
+	/**
+	 * 查询所有开启的项目，并且返回相关的config
+	 * @param configName
+	 * @return
+	 */
+	List<ProjectModel> selectProjectWithConfig( @Param("state") int state, @Param("systemId") int systemId);
 }
