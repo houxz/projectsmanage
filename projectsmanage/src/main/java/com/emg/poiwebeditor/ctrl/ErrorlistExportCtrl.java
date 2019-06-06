@@ -192,7 +192,7 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 					Row row0 = sheet.createRow(rowNo++);
 					HSSFCellStyle style0 = workBook.createCellStyle();
 					HSSFFont font0 = workBook.createFont();
-					font0.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);// 加粗
+					/*font0.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);// 加粗
 					style0.setFont(font0);
 					style0.setAlignment(CellStyle.ALIGN_CENTER);// 居中
 					style0.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);// 背景色
@@ -201,7 +201,7 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 					style0.setBorderLeft(HSSFCellStyle.BORDER_THIN);// 左边框
 					style0.setBorderTop(HSSFCellStyle.BORDER_THIN);// 上边框
 					style0.setBorderRight(HSSFCellStyle.BORDER_THIN);// 右边框
-
+*/
 					for (Integer i = 0; i < excelColumns.length; i++) {
 						sheet.setColumnWidth(i, excelColumnWidth[i]);
 
@@ -214,11 +214,11 @@ public class ErrorlistExportCtrl extends BaseCtrl {
 				}
 
 				HSSFCellStyle styleC = workBook.createCellStyle();
-				styleC.setBorderBottom(HSSFCellStyle.BORDER_THIN); // 下边框
+				/*styleC.setBorderBottom(HSSFCellStyle.BORDER_THIN); // 下边框
 				styleC.setBorderLeft(HSSFCellStyle.BORDER_THIN);// 左边框
 				styleC.setBorderTop(HSSFCellStyle.BORDER_THIN);// 上边框
 				styleC.setBorderRight(HSSFCellStyle.BORDER_THIN);// 右边框
-				styleC.setAlignment(CellStyle.ALIGN_CENTER);
+				styleC.setAlignment(CellStyle.ALIGN_CENTER);*/
 
 				for (ErrorlistModel poi : errorList) {
 					Row row = sheet.createRow(rowNo++);
