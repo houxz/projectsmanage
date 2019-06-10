@@ -48,11 +48,13 @@
 </head>
 
 <script type="text/javascript">
+var bar = $('.bar');
+var percent = $('.percent');
+var status = $('#staus');
+
 	$(document).ready(function(){
 		
-		var bar = $('.bar');
-		var percent = $('.percent');
-		var status = $('#staus');
+		
 		
 		$.webeditor.getHead();
 		
@@ -89,6 +91,9 @@
 		
 		$('#uploadform').submit( function(){
 			$(this).ajaxSubmit(options);
+			
+			uploadtimer();
+			
 			return false;
 		});
 	
@@ -153,18 +158,26 @@
 	}
 	
 	
-// 	var uploadtimer = setTimeout(function a(){
-// 		ajax({
-// 			url:"./fielddatamanage.web?ant=a",
-// 			data:data,
-// 			success:function(data){
-// 				if(data < max)
-// 					setTimeout(a,3000);
-// 			}
-// 		})
-// 	},1000);
-	
-	
+
+	function uploadtimer() {
+		setTimeout(function a() {
+			jQuery.post("./fielddatamanage.web", {
+				atn : 'getprogress'
+			}, function(json) {
+				var result = json.result;
+				if (result == 1) {
+					var count = json.count;
+					var totall = json.totall;
+
+					var percentComplete = Math.ceil(count / totall * 100);
+					var pg = document.getElementById('pg');
+					pg.value = percentComplete;
+					if (count != totall && count != 0)
+						uploadtimer();
+				}
+			}, "json");
+		}, 1000);
+	}
 	
 	
 </script>
@@ -184,6 +197,7 @@
 <!--     	<div class="bar"></div> -->
 <!--     	<div class="percent">0%</div> -->
 <!--     </div> -->
+<progress max="100" value="0" id="pg"></progress>
     <div id="status"></div>
 	</div>
 	<div id='loadmsg'></div>

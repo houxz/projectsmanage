@@ -59,6 +59,9 @@ public class FieldDataManageCtrl extends BaseCtrl {
 	EmapgoAccountService emapgoAccountService;
 
 	private DatasetModelDao datasetModelDao = new DatasetModelDao();
+	
+	private Integer    uploadcount = 0;
+	private Integer    uploadtotall =  100;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String openLander() {
@@ -71,6 +74,8 @@ public class FieldDataManageCtrl extends BaseCtrl {
 	@RequestMapping(params = "atn=pages")
 	public ModelAndView getFieldDataInfoList(Model model, HttpServletRequest request, HttpSession session) {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		uploadcount = 0;
+		uploadtotall =100;
 		try {
 			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
@@ -152,6 +157,8 @@ public class FieldDataManageCtrl extends BaseCtrl {
 			throws IllegalStateException, IOException {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 
+		uploadtotall =100;
+		uploadcount = 1;
 		String account = getLoginAccount(session);
 		EmployeeModel record = new EmployeeModel();
 		record.setUsername(account);
@@ -227,9 +234,10 @@ public class FieldDataManageCtrl extends BaseCtrl {
 								int lastrowindex = sheet.getLastRowNum();// 从第二行开始为正文数据
 								if (lastrowindex <= 0)
 									continue;
+								uploadtotall = lastrowindex ; 
 								HSSFRow fields = sheet.getRow(0);
 								for (int indexrow = 1; indexrow <= lastrowindex; indexrow++) {
-
+									uploadcount = indexrow;
 									HSSFRow row = sheet.getRow(indexrow);
 									KeywordModel kmodel = changerowtoKeywordModel(row, fields);
 									if (kmodel != null && kmodel.getId() != null) {
@@ -271,6 +279,15 @@ public class FieldDataManageCtrl extends BaseCtrl {
 		return json;
 	}
 
+	@RequestMapping(params = "atn=getprogress")
+	public ModelAndView af(HttpServletRequest request, HttpSession session) {
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		json.addObject("result", 1);
+		json.addObject("count",uploadcount);
+		json.addObject("totall",uploadtotall);
+		return json;
+	}
+	
 	/*
 	 * 将excel一行转换成一个model
 	 */
