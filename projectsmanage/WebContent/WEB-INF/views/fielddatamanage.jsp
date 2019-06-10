@@ -49,6 +49,11 @@
 
 <script type="text/javascript">
 	$(document).ready(function(){
+		
+		var bar = $('.bar');
+		var percent = $('.percent');
+		var status = $('#staus');
+		
 		$.webeditor.getHead();
 		
 		$('[data-toggle="fielddata"]').bootstrapTable({
@@ -56,6 +61,24 @@
 			onLoadSuccess:function(data){},
 			onPostHeader:function(){}
 		});
+		
+// 		$('form').ajaxForm({
+// 			uploadProgress:function(event,postion,total,percentComplete){//上传过程
+// 				//position 已上传了多少
+// 				//total 总大小
+// 				//已经上传的百分数
+// 				var percentVal = percentComplete +'%';
+// // 				bar.width(percentVal);
+// // 				percent.html(percentVal);
+// 			},
+			
+// 			success:function(data){
+// 				var percentVal='100%';
+// // 				bar.width(percentVal);
+// // 				percent.html(percentVal);
+				
+// 			}
+// 		});
 		
 		var options={
 				target:'#loadmsg',
@@ -69,6 +92,8 @@
 			return false;
 		});
 	
+		
+		
 	});
 	
 	
@@ -128,6 +153,19 @@
 	}
 	
 	
+// 	var uploadtimer = setTimeout(function a(){
+// 		ajax({
+// 			url:"./fielddatamanage.web?ant=a",
+// 			data:data,
+// 			success:function(data){
+// 				if(data < max)
+// 					setTimeout(a,3000);
+// 			}
+// 		})
+// 	},1000);
+	
+	
+	
 	
 </script>
 
@@ -139,11 +177,14 @@
 	<div>上传资料</div>
 	<form id='uploadform' name='uploadfile' action="./fielddatamanage.web?atn=springUpload" method='post' enctype='multipart/form-data'>
 	<input id='fp' type='file' name='uploadfile' />
-	<input type="hidden" name = "filepath" value = "path111"/>
 	<br/><br/>
 	<input  type="submit" value='上传'/>
 	</form>
-	
+<!--     <div class="progress"> -->
+<!--     	<div class="bar"></div> -->
+<!--     	<div class="percent">0%</div> -->
+<!--     </div> -->
+    <div id="status"></div>
 	</div>
 	<div id='loadmsg'></div>
 	

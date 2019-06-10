@@ -14,7 +14,7 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.CellType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -291,21 +291,31 @@ public class FieldDataManageCtrl extends BaseCtrl {
 				continue;
 			double dvalue = 0;
 			String svalue = "";
-			CellType celltype = cell.getCellTypeEnum();
-			switch (celltype) {
-			case NUMERIC: {
+			int ictype = cell.getCellType();
+			if( ictype ==HSSFCell.CELL_TYPE_STRING ) {
+				svalue = cell.getStringCellValue();
+		
+			}else if(ictype == HSSFCell.CELL_TYPE_NUMERIC) {
 				dvalue = cell.getNumericCellValue();
 				svalue = String.valueOf(dvalue);
-				break;
 			}
-			case STRING: {
-				svalue = cell.getStringCellValue();
-				break;
-			}
-			default: {
-				break;
-			}
-			}// switch (celltype)
+			
+			//poi1.7以上版本才有
+//			CellType celltype = cell.getCellTypeEnum();
+//			switch (celltype) {
+//			case NUMERIC: {
+//				dvalue = cell.getNumericCellValue();
+//				svalue = String.valueOf(dvalue);
+//				break;
+//			}
+//			case STRING: {
+//				svalue = cell.getStringCellValue();
+//				break;
+//			}
+//			default: {
+//				break;
+//			}
+//			}// switch (celltype)
 
 			if (strfieldname.equals("序号")) {
 				Long l1 = Double.valueOf(svalue).longValue();
