@@ -16,7 +16,7 @@
 <!-- 				<ref bean="worktasks" /> -->
 <!-- 				<ref bean="tasksmanage" /> -->
 <!-- 				<ref bean="projectsprocess" /> -->
-<!-- 				<ref bean="capacity" /> -->
+				<ref bean="capacity" />
 				<ref bean="iteminfo" />
 				<ref bean="systemsets" />
 				<ref bean="sse" />
@@ -181,20 +181,20 @@
 <!-- 		<property name="isshow" value="true" /> -->
 <!-- 	</bean> -->
 	
-<!-- 	<bean id="capacity" class="com.emg.poiwebeditor.auth.MenuAuthModel"> -->
-<!-- 		<property name="code" value="1400" /> -->
-<!-- 		<property name="url" value="/poiwebeditor/capacity.web" /> -->
-<!-- 		<property name="label" value="产能统计" /> -->
-<!-- 		<property name="roleSet"> -->
-<!-- 			<set> -->
-<!-- 				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_POIVIDEOEDIT</value> -->
-<!-- 				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_WORKER</value> -->
-<!-- 				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_CHECKER</value> -->
-<!-- 			</set> -->
-<!-- 		</property> -->
-<!-- 		<property name="enabled" value="true" /> -->
-<!-- 		<property name="isshow" value="true" /> -->
-<!-- 	</bean> -->
+	<bean id="capacity" class="com.emg.poiwebeditor.auth.MenuAuthModel">
+		<property name="code" value="1400" />
+		<property name="url" value="/poiwebeditor/confirmpoicapacity.web" />
+		<property name="label" value="产能统计" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_POIVIDEOEDIT</value>
+				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_WORKER</value>
+				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_CHECKER</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
 	
 	<bean id="errorstask" class="com.emg.poiwebeditor.auth.MenuAuthModel">
 		<property name="code" value="1500" />

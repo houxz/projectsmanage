@@ -265,6 +265,32 @@ public class TaskModelClient {
 		}
 		return ret;
 	}
+	
+	/**
+	 * 把稍后修改的状态由1，5 改成5，5
+	 * @param taskid
+	 * @param editid
+	 * @param state
+	 * @param process
+	 * @return
+	 * @throws Exception
+	 */
+	public Long updateTaskState(Integer editid, Integer state, Integer process) throws Exception {
+		Long ret = -1L;
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append("UPDATE tb_task");
+			sb.append(" SET operatetime=now(),state = " + state);
+			sb.append(",process =" + process);
+			sb.append(" WHERE editid = " + editid);
+			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE,
+					URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		return ret;
+	}
 
 	// byhxz
 	private String updateModifyTaskSQL(Long taskid, Integer editid, Integer state, Integer process) {

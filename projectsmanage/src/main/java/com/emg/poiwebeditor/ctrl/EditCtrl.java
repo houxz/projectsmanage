@@ -1,6 +1,8 @@
 package com.emg.poiwebeditor.ctrl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -74,7 +76,7 @@ public class EditCtrl extends BaseCtrl {
 		
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-			
+			taskModelClient.updateTaskState(userid, 5, 5);
 			task = getNextEditTask(userid);
 			if (task != null  && task.getId() != null) {
 				Long projectid = task.getProjectid();
@@ -111,6 +113,7 @@ public class EditCtrl extends BaseCtrl {
 		ProjectModel project = new ProjectModel();
 		ProcessModel process = new ProcessModel();
 		Long keywordid = -1L;
+		long ret = -1l;
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
@@ -126,7 +129,7 @@ public class EditCtrl extends BaseCtrl {
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			List<PoiMergeDO> relations = this.getRelation(taskid, saveRelations);
 			Long u = new Long(userid);
-			poiClient.updatePOI(u, poi, relations);
+			ret = poiClient.updatePOI(u, poi, relations);
 			if (oid != -1) {
 				taskModelClient.InsertNewPOITask(taskid, oid);
 			}
@@ -155,12 +158,61 @@ public class EditCtrl extends BaseCtrl {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			logger.error(e.getMessage(), e);
+			ret = -1l;
+			json.addObject("error", e.getMessage());
 		}
 		json.addObject("task", task);
 		json.addObject("project", project);
 		json.addObject("process", process);
 		json.addObject("keywordid", keywordid);
-		json.addObject("result", 1);
+		json.addObject("result", ret);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=getNextTask")
+	public ModelAndView getNextTask(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		TaskModel task = new TaskModel();
+		ProjectModel project = new ProjectModel();
+		ProcessModel process = new ProcessModel();
+		Long keywordid = -1L;
+		long ret = -1l;
+		try {
+			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			taskModelClient.updateModifyTask(taskid, userid, 5, 5);
+			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
+			
+			if (getnext) {
+				task = getNextEditTask(userid);
+				if (task != null  && task.getId() != null) {
+					Long projectid = task.getProjectid();
+					if (projectid.compareTo(0L) > 0) {
+						project = projectModelDao.selectByPrimaryKey(projectid);
+						
+						Long processid = project.getProcessid();
+						if (processid.compareTo(0L) > 0) {
+							process = processModelDao.selectByPrimaryKey(processid);
+						}
+					}
+					
+					keywordid = task.getKeywordid();
+				}
+				ret = 1l;
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			
+		}
+		json.addObject("task", task);
+		json.addObject("project", project);
+		json.addObject("process", process);
+		json.addObject("keywordid", keywordid);
+		json.addObject("result", ret);
 
 		logger.debug("END");
 		return json;
@@ -253,8 +305,18 @@ public class EditCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Long ret = -1L;
 		try {
+			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
-			ret = poiClient.deletePOIByOid(oid);
+			POIDo  poi = this.getPOI(request);
+			poi.setConfirm(ConfirmEnum.confirm_ok);
+			poi.setConfirmUId(userid);
+			poi.setUid(userid);
+			poi.setId(oid);
+			poi.setSystemId(SystemType.poi_polymerize.getValue());
+			logger.debug(JSON.toJSON(poi).toString());
+			
+			
+			ret = poiClient.deletePOIByOid(poi);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			ret = -1L;
@@ -285,7 +347,8 @@ public class EditCtrl extends BaseCtrl {
 			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			ret = -1L;
+			ret = -1l;
+			json.addObject("error", e.getMessage());
 		}
 		json.addObject("result", ret);
 
@@ -309,6 +372,7 @@ public class EditCtrl extends BaseCtrl {
 		String address6 = ParamUtils.getParameter(request, "address6");
 		String address7 = ParamUtils.getParameter(request, "address7");
 		String address8 = ParamUtils.getParameter(request, "address8");
+		String remark = ParamUtils.getParameter(request, "remark");
 		String geo = ParamUtils.getParameter(request, "geo");
 		Long projectId = ParamUtils.getLongParameter(request, "projectId", 0);
 		
@@ -385,6 +449,23 @@ public class EditCtrl extends BaseCtrl {
 		tag.setV(tel);
 		tags.add(tag);
 		
+		TagDO inputdatatype = new TagDO();
+		inputdatatype.setId(oid);
+		inputdatatype.setK(POIAttrnameEnum.inputdatatype.toString());
+		inputdatatype.setV(4 + "");
+		tags.add(inputdatatype);
+		TagDO remarkTag = new TagDO();
+		remarkTag.setId(oid);
+		remarkTag.setK(POIAttrnameEnum.remark.toString());
+		SimpleDateFormat f   = new SimpleDateFormat("yyyyMMdd");   
+        String date = f.format(new Date()); 
+        remarkTag.setV((remark == null || remark.isEmpty()) ? date + "四方检索" : remark + ";" + date + "四方检索");
+		tags.add(remarkTag);
+		TagDO dataset = new TagDO();
+		dataset.setId(oid);
+		dataset.setK(POIAttrnameEnum.dataset.toString());
+		dataset.setV(2 + "");
+		tags.add(dataset);
 		
 		 return poi;
 	}

@@ -428,4 +428,138 @@ public class TaskBlockDetailModelDao {
 			return list;
 		}
 		// add by lianhr end
+		
+		public List<Map<String, Object>> group1ByTime(ConfigDBModel configDBModel, String[] times, String time) {
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			BasicDataSource dataSource = null;
+			try {
+				if (time == null || time.isEmpty())
+					return list;
+
+				String startTime = String.format("%s " + times[0], time);
+				String endTime = String.format("%s " + times[1], time);
+
+				boolean timeFlag = false;
+				if (times[0].equals("08:30:00") && times[1].equals("17:30:00")) {
+					timeFlag = true;
+				}
+
+				StringBuffer sql = new StringBuffer();
+				sql.append(" SELECT");
+				sql.append("	A.projectid,");
+				sql.append("	array_to_string(ARRAY(SELECT unnest(array_agg(B.poiid))),',') AS featureid,");
+				sql.append("	A.editid,");
+				sql.append("	A.checkid");
+				sql.append(" FROM ");
+				sql.append(configDBModel.getDbschema()).append(".");
+				sql.append(" tb_task A,");
+				sql.append(configDBModel.getDbschema()).append(".");
+				sql.append(" tb_task_link_poi B ");
+				sql.append(" WHERE A.id = B.taskid AND A.state = 3 ");
+				if (timeFlag) {
+					sql.append("	AND ( A.operatetime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ");
+				} else {
+					sql.append("	AND (( A.operatetime BETWEEN '" + String.format("%s " + "00:00:00", time) + "' AND '"
+							+ String.format("%s " + "08:29:59", time) + "' ) or ( A.operatetime BETWEEN '"
+							+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time)
+							+ "' )) ");
+				}
+				//sql.append(" GROUP BY A.tasktype,	A.projectid,	A.blockid,		A.editid,	A.checkid ");
+				sql.append(" GROUP BY 	A.projectid,		A.editid,	A.checkid ");
+
+				//TODO:
+				logger.debug("001 : group15102ByTime: " + sql.toString());
+				
+				dataSource = Common.getDataSource(configDBModel);
+				list = new JdbcTemplate(dataSource).queryForList(sql.toString());
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				list = new ArrayList<Map<String, Object>>();
+			} finally {
+				if (dataSource != null) {
+					try {
+						dataSource.close();
+					} catch (SQLException e) {
+						logger.error(e.getMessage(), e);
+					}
+				}
+			}
+			return list;
+		}
+		
+		public List<Map<String, Object>> groupTaskBlockDetailsByTime2(ConfigDBModel configDBModel, String[] times,
+				String time) {
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			BasicDataSource dataSource = null;
+			try {
+				if (time == null || time.isEmpty())
+					return list;
+
+				String startTime = String.format("%s " + times[0], time);
+				String endTime = String.format("%s " + times[1], time);
+
+				boolean timeFlag = false;
+				if (times[0].equals("08:30:00") && times[1].equals("17:30:00")) {
+					timeFlag = true;
+				}
+
+				StringBuffer sql = new StringBuffer();
+				sql.append(" SELECT");
+				sql.append("	editid,");
+				if(timeFlag){
+					sql.append("	sum( CASE WHEN editid > 0 AND ( operatetime BETWEEN '" + startTime + "' AND '" + endTime
+							+ "' ) THEN 1 ELSE 0 END ) AS editnum,");
+				} else {
+					sql.append("	sum( CASE WHEN editid > 0 AND (( operatetime BETWEEN '" + String.format("%s " + "00:00:00", time) +"' AND '" + String.format("%s " + "08:29:59", time) + "' ) or (operatetime BETWEEN '"+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time) +"')) THEN 1 ELSE 0 END ) AS editnum,");
+				}
+				
+				sql.append("	checkid,");
+				if (timeFlag) {
+					sql.append("	sum( CASE WHEN checkid > 0 AND ( operatetime BETWEEN '" + startTime + "' AND '" + endTime
+							+ "' ) THEN 1 ELSE 0 END ) AS checknum, ");
+				}else {
+					sql.append("	sum( CASE WHEN checkid > 0 AND (( operatetime BETWEEN '" + String.format("%s " + "00:00:00", time) +"' AND '" + String.format("%s " + "08:29:59", time) + "' ) or (operatetime BETWEEN '"+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time) +"')) THEN 1 ELSE 0 END ) AS checknum,");
+				}
+				sql.append("array_to_string(ARRAY(SELECT unnest(array_agg(poiid))),',') AS featureid");
+				sql.append(" FROM ");
+				sql.append(configDBModel.getDbschema()).append(".");
+				sql.append(" tb_task_link_poi ");
+				sql.append(" WHERE pstate = 2");
+				sql.append("	AND (");
+				if (timeFlag) {
+					sql.append("	( editid > 0 AND ( operatetime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ) ");
+					sql.append(
+							"	OR ( checkid > 0 AND ( operatetime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ) ");
+				} else {
+					sql.append("	( editid > 0 AND (( operatetime BETWEEN '" + String.format("%s " + "00:00:00", time)
+							+ "' AND '" + String.format("%s " + "08:29:59", time) + "' ) or ( operatetime BETWEEN '"
+							+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time)
+							+ "' )) ) ");
+					sql.append("	OR ( checkid > 0 AND ( (operatetime BETWEEN '" + String.format("%s " + "00:00:00", time)
+							+ "' AND '" + String.format("%s " + "08:29:59", time) + "') or (operatetime BETWEEN '"
+							+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time)
+							+ "') ) ) ");
+				}
+				sql.append("	) ");
+				sql.append(" GROUP BY editid, checkid ");
+
+System.out.println(sql.toString());
+				
+				dataSource = Common.getDataSource(configDBModel);
+				list = new JdbcTemplate(dataSource).queryForList(sql.toString());
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				list = new ArrayList<Map<String, Object>>();
+			} finally {
+				if (dataSource != null) {
+					try {
+						dataSource.close();
+					} catch (SQLException e) {
+						logger.error(e.getMessage(), e);
+					}
+				}
+			}
+			return list;
+		}
+		
 }

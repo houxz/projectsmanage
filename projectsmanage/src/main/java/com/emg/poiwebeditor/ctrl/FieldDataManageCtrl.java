@@ -58,7 +58,9 @@ public class FieldDataManageCtrl extends BaseCtrl {
 	@Autowired
 	EmapgoAccountService emapgoAccountService;
 
-	private DatasetModelDao datasetModelDao = new DatasetModelDao();
+	//private DatasetModelDao datasetModelDao = new DatasetModelDao();
+	@Autowired
+	private DatasetModelDao datasetModelDao;
 	
 	private Integer    uploadcount = 0;
 	private Integer    uploadtotall =  100;
@@ -153,7 +155,7 @@ public class FieldDataManageCtrl extends BaseCtrl {
 	}
 
 	@RequestMapping(params = "atn=springUpload")
-	public ModelAndView springUpload2(HttpServletRequest request, HttpSession session)
+	public ModelAndView springUpload(HttpServletRequest request, HttpSession session)
 			throws IllegalStateException, IOException {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 
@@ -181,6 +183,13 @@ public class FieldDataManageCtrl extends BaseCtrl {
 			try {
 				MultipartHttpServletRequest multiRequest = multipartResolver.resolveMultipart(request);
 
+				Boolean ischeck = CheckField(multiRequest ,json);
+				if( ischeck == false) {
+					uploadcount = 0;
+					json.addObject("result",0);
+					return json;
+				}
+				
 				ProcessType processType = ProcessType.POIPOLYMERIZE;
 				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZILIAOKU,
 						processType);
@@ -203,12 +212,19 @@ public class FieldDataManageCtrl extends BaseCtrl {
 						// 一次遍历所有文件
 						MultipartFile file = multiRequest.getFile(iter.next().toString());
 						if (file != null) {
-							InputStream input = file.getInputStream();
-
+							InputStream  input = file.getInputStream();
 							DatasetModel dataset = new DatasetModel();
 							String filename = file.getOriginalFilename();
 							int indexc = filename.indexOf(".");
 							String name = filename.substring(0, indexc);
+							String ext = filename.substring(indexc+1);
+							if( ext.compareToIgnoreCase("xls") !=0 ) {
+								uploadcount = 0;
+								json.addObject("err","只支持xls格式");
+								json.addObject("result", 0);
+								return json;
+							}
+								
 							dataset.setName(name);
 							dataset.setPath(file.getOriginalFilename());// 浏览器做了安全设置,js页无法获取上传路径
 							// 一个文件一个dataset
@@ -224,6 +240,10 @@ public class FieldDataManageCtrl extends BaseCtrl {
 							dataset.setId(datasetid);
 							dataset.setUsername(realname);
 							dataset.setRoleid(userid);
+							Double xmin = 1000d;
+							Double ymin = 1000d;
+							Double xmax = 0d;
+							Double ymax = 0d;
 							Boolean bInsertError = false;// 插入数据库过程是否有问题
 							List<KeywordModel> kmodellist = new ArrayList<KeywordModel>();
 							HSSFWorkbook workbook = new HSSFWorkbook(input);
@@ -242,11 +262,33 @@ public class FieldDataManageCtrl extends BaseCtrl {
 									KeywordModel kmodel = changerowtoKeywordModel(row, fields);
 									if (kmodel != null && kmodel.getId() != null) {
 										kmodel.setDatasetId(datasetid);
-
+										kmodel.setSrcType(110);// 预定义都写这个值
+										
 										Boolean bInsert = datasetModelDao.Insertkeyword(configDBModel, kmodel);
 										if (!bInsert)
 											bInsertError = true;
 										kmodellist.add(kmodel);
+										
+										if(kmodel.getGeo() != null) {
+											//计算整个dataset的envelope
+											String sgeo = kmodel.getGeo();
+											int indexzk = sgeo.indexOf('(');
+											int indexyk = sgeo.indexOf(')');
+											int indexkg = sgeo.indexOf(' ');
+											String sx = sgeo.substring(indexzk+1, indexkg);
+											String sy = sgeo.substring(indexkg,indexyk);
+											Double x = Double.parseDouble(sx);
+											Double y = Double.parseDouble(sy);
+											if( x < xmin)
+												xmin = x;
+											if( x > xmax)
+												xmax = x;
+											if( y<ymin)
+												ymin = y;
+											if( y>ymax)
+												ymax=y;
+										}
+										
 									}
 								}
 							}
@@ -259,7 +301,27 @@ public class FieldDataManageCtrl extends BaseCtrl {
 								dataset.setState(3);
 								dataset.setProcess(1);// 上传完成
 							}
-
+								
+							//设置成默认值
+							dataset.setReason(0);
+							dataset.setMode(0);
+							dataset.setArea_code(0);
+							dataset.setCity_code(0);
+							dataset.setDatasource(110);//预定义的
+							if( xmax>0 && ymax>0) {
+								//POLYGON((132.972469618056 49.1760601128472,132.972469618056 18.2250998263889,82.0648600260417 18.2250998263889,82.0648600260417 49.1760601128472,132.972469618056 49.1760601128472))
+								StringBuilder envelope = new StringBuilder();
+								envelope.append("POLYGON((");
+								envelope.append(xmin.toString() +" " + ymin.toString() + ",");
+								envelope.append(xmax.toString() +" " + ymin.toString() + ",");
+								envelope.append(xmax.toString() +" " + ymax.toString() + ",");
+								envelope.append(xmin.toString() +" " + ymax.toString() + ",");
+								envelope.append(xmin.toString() +" " + ymin.toString());
+								envelope.append("))");
+								
+								
+								dataset.setEnvelope(envelope);
+							}
 							Boolean bupdate = datasetModelDao.updateDataset(configDBModel, dataset);
 
 						}
@@ -288,6 +350,74 @@ public class FieldDataManageCtrl extends BaseCtrl {
 		return json;
 	}
 	
+	/* 检查表头是否有出入
+	 * 将
+	 */
+	public Boolean CheckField(MultipartHttpServletRequest multiRequest , ModelAndView json) {
+		Iterator<String> iter = multiRequest.getFileNames();
+		try {
+		while (iter.hasNext()) {
+		// 一次遍历所有文件
+		MultipartFile file = multiRequest.getFile(iter.next().toString());
+		if (file != null) {
+			InputStream  input = file.getInputStream();
+			String filename = file.getOriginalFilename();
+			int indexc = filename.indexOf(".");
+			String name = filename.substring(0, indexc);
+			String ext = filename.substring(indexc+1);
+			if( ext.compareToIgnoreCase("xls") !=0 ) {
+				json.addObject("err","只支持xls格式");
+				return false;
+			}			
+			HSSFWorkbook workbook = new HSSFWorkbook(input);
+			int sheetnum = workbook.getNumberOfSheets();
+			for (int index = 0; index < sheetnum; index++) {
+				HSSFSheet sheet = workbook.getSheetAt(index);
+				HSSFRow fields = sheet.getRow(0);
+				if (fields == null)
+					continue;
+				int firstcelindex = fields.getFirstCellNum();
+				int lastcelindex = fields.getLastCellNum();
+
+				for (int indexcel = firstcelindex; indexcel < lastcelindex; indexcel++) {
+					HSSFCell field = fields.getCell(indexcel);
+					String strfieldname = field.getStringCellValue();
+
+					if (strfieldname.equals("序号")) {
+					} else if (strfieldname.equals("省份")) {
+					} else if (strfieldname.equals("城市")) {
+					} else if (strfieldname.equals("区县")) {
+					} else if (strfieldname.equals("名称")) {
+					} else if (strfieldname.equals("地址")) {
+					} else if (strfieldname.equals("电话")) {
+					} else if (strfieldname.equals("相关描述")) {
+					} else if (strfieldname.equals("POI类别")) {
+					} else if (strfieldname.equals("POI系列")) {
+					} else if (strfieldname.equals("经纬度")) {
+					} else if (strfieldname.equals("关联照片")) {
+					} else if (strfieldname.equals("数据来源")) {
+					} else if (strfieldname.equals("数据源类型")) {
+					} else if (strfieldname.equals("数据源ID")) {
+					} else if (strfieldname.equals("备注")) {
+					} else if (strfieldname.equals("datasetid")) {
+					} else if (strfieldname.equals("检索方式")) {
+					} else if (strfieldname.equals("周边检索距离")) {
+					}else {
+						json.addObject("err","出现定义外表字段");
+						return false;
+					}
+				}
+						
+			}
+		}//if (file != null)
+		}//while (iter.hasNext()) {
+		}catch(Exception e) {
+			return false;
+		}
+		
+		return true;
+	}
+	
 	/*
 	 * 将excel一行转换成一个model
 	 */
@@ -299,8 +429,10 @@ public class FieldDataManageCtrl extends BaseCtrl {
 		int firstcelindex = row.getFirstCellNum();
 		int lastcelindex = row.getLastCellNum();
 
-		for (int indexcel = firstcelindex; indexcel < lastcelindex; indexcel++) {
+		for (int indexcel = firstcelindex; indexcel <= lastcelindex; indexcel++) {
 			HSSFCell field = fields.getCell(indexcel);
+			if(field==null)
+				continue;
 			String strfieldname = field.getStringCellValue();
 
 			HSSFCell cell = row.getCell(indexcel);
@@ -315,25 +447,10 @@ public class FieldDataManageCtrl extends BaseCtrl {
 			}else if(ictype == HSSFCell.CELL_TYPE_NUMERIC) {
 				dvalue = cell.getNumericCellValue();
 				svalue = String.valueOf(dvalue);
+			}else {
+				continue;
 			}
 			
-			//poi1.7以上版本才有
-//			CellType celltype = cell.getCellTypeEnum();
-//			switch (celltype) {
-//			case NUMERIC: {
-//				dvalue = cell.getNumericCellValue();
-//				svalue = String.valueOf(dvalue);
-//				break;
-//			}
-//			case STRING: {
-//				svalue = cell.getStringCellValue();
-//				break;
-//			}
-//			default: {
-//				break;
-//			}
-//			}// switch (celltype)
-
 			if (strfieldname.equals("序号")) {
 				Long l1 = Double.valueOf(svalue).longValue();
 				kmodel.setId(l1);// 默认必须有
@@ -356,13 +473,18 @@ public class FieldDataManageCtrl extends BaseCtrl {
 			} else if (strfieldname.equals("POI系列")) {
 
 			} else if (strfieldname.equals("经纬度")) {
-
+				//POINT(114.448479817708 36.6204405381944)
+				if( svalue != null) {
+					String sgeo = svalue.replace(',', ' ');
+					kmodel.setGeo("POINT("+sgeo+")");
+				}
+				
 			} else if (strfieldname.equals("关联照片")) {
 
 			} else if (strfieldname.equals("数据来源")) {
 
 			} else if (strfieldname.equals("数据源类型")) {
-				kmodel.setSrcType(Integer.valueOf(svalue));
+				//20190611需求要求写死110 不读此字段了  kmodel.setSrcType(Integer.valueOf(svalue));
 			} else if (strfieldname.equals("数据源ID")) {
 				kmodel.setSrcInnerId(svalue);
 			} else if (strfieldname.equals("备注")) {

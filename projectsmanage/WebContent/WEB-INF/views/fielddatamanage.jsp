@@ -48,13 +48,8 @@
 </head>
 
 <script type="text/javascript">
-var bar = $('.bar');
-var percent = $('.percent');
-var status = $('#staus');
 
 	$(document).ready(function(){
-		
-		
 		
 		$.webeditor.getHead();
 		
@@ -64,26 +59,10 @@ var status = $('#staus');
 			onPostHeader:function(){}
 		});
 		
-// 		$('form').ajaxForm({
-// 			uploadProgress:function(event,postion,total,percentComplete){//上传过程
-// 				//position 已上传了多少
-// 				//total 总大小
-// 				//已经上传的百分数
-// 				var percentVal = percentComplete +'%';
-// // 				bar.width(percentVal);
-// // 				percent.html(percentVal);
-// 			},
-			
-// 			success:function(data){
-// 				var percentVal='100%';
-// // 				bar.width(percentVal);
-// // 				percent.html(percentVal);
-				
-// 			}
-// 		});
 		
 		var options={
 				target:'#loadmsg',
+				beforeSubmit:checkRequest,
 				success:showResponse,
 				restForm:true,
 				dataType:'json'
@@ -101,6 +80,18 @@ var status = $('#staus');
 		
 	});
 	
+	function checkRequest(formData,jqForm,options){
+		//检查提交的文件格式
+		var filename = $('#fp').val();
+		var fileext = filename.substring(filename.length-4);
+		if( fileext != ".xls" && fileext !=".XLS"){
+			$.webeditor.showConfirmBox("info","只支持xls格式",null);
+			return false;
+		}
+		else
+			return true;
+	}
+	
 	
 	function showResponse( statusText, xhr, $form) {
 		var a = statusText.result;
@@ -110,25 +101,18 @@ var status = $('#staus');
 		//responseText，服务器返回的是字符串（当然包括html，不包括json）
 		
 		if( xhr == 'success' && a == 1){
-			
-			//$.webeditor.showMsgBox("info","上传成功");
-			//location.reload();
 			$.webeditor.showConfirmBox("info","上传成功",function(){
 				$.webeditor.showMsgBox("info", "刷新资料列表中...");
-// 				jQuery.post("./fielddatamanage.web",{
-// 					atn:'pages'
-// 				},function(json){
-					
-// 					$.webeditor.showMsgBox("close");
-// 				},"json");
 				location.reload();
 				$.webeditor.showMsgBox("close");
 			});
-			
-			
 		}else{
-			$.webeditor.showMsgBox("info","上传失败");
-			$.webeditor.showMsgBox("close");
+			var err= statusText.err;
+			if( err != null){
+				$.webeditor.showConfirmBox("info","上传失败\r\n" + err );
+			}else{
+				$.webeditor.showConfirmBox("info","上传失败");
+			}
 		}
 		
 	}
@@ -190,15 +174,10 @@ var status = $('#staus');
 	<div>上传资料</div>
 	<form id='uploadform' name='uploadfile' action="./fielddatamanage.web?atn=springUpload" method='post' enctype='multipart/form-data'>
 	<input id='fp' type='file' name='uploadfile' />
-	<br/><br/>
+	<br/>
 	<input  type="submit" value='上传'/>
 	</form>
-<!--     <div class="progress"> -->
-<!--     	<div class="bar"></div> -->
-<!--     	<div class="percent">0%</div> -->
-<!--     </div> -->
-<progress max="100" value="0" id="pg"></progress>
-    <div id="status"></div>
+	<progress max="100" value="0" id="pg"></progress>
 	</div>
 	<div id='loadmsg'></div>
 	
@@ -208,7 +187,7 @@ var status = $('#staus');
     		data-url="./fielddatamanage.web?atn=pages"
     		data-side-pagination="server" data-filter-control="true"
     		data-pagination="true" data-toggle="fielddata" data-height="714"
-    		data-page-list="[5,10,20,100]" data-page-size="5"
+    		data-page-list="[5,10,20,100]" data-page-size="10"
     		data-search-on-enter-key='true' data-align='center'>
     		<thead>
     			<tr>

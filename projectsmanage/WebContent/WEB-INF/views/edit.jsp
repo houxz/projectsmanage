@@ -47,8 +47,10 @@
 	var keywordid = eval('(${keywordid})');
 	var keyword = null;
 	var systemOid = -1; // 当前编辑器左侧有OID
-	// 用来存储数据库中保存着的relation 关系
-	var databaseSaveRelation = [], originalCheckRelation = [];
+	// databaseSaveRelation: 用来存储数据库中保存着的relation 关系, originalCheckRelation: 数据库中存在emg和点评的关系，但该点在现在EMG中没有，单独记录，用来做提示框条件， currentCheckRelation： 数据库中有，且已经被选中的
+	var databaseSaveRelation = [], originalCheckRelation = [], currentCheckRelation = [];
+	// 用来缓存选中的referdata
+	var referdataDataCheck = [];
 	var zoom = 17;
 	
 	var loaderr = "<span class='red'>加载失败</span>";
@@ -83,7 +85,10 @@
 				loadKeyword(keywordid),loadReferdatas(keywordid)
 			).done(function() {
 				if (keyword) {
-					loadRelation(keyword.srcInnerId, keyword.srcType);
+					$.when( loadRelation(keyword.srcInnerId, keyword.srcType)).done(function() {
+						initArray();
+					});
+					
 				}
 			});
 			
@@ -92,6 +97,129 @@
 			$.webeditor.showMsgLabel("alert", "没有获取到参考资料");
 		}
 	});
+	
+	function initArray() {
+		originalCheckRelation = [];
+		currentCheckRelation = [];
+		var tbtables = [ "tbbaidu", "tbtengxun", "tbgaode"];
+		var baidu =null;
+		var tengxun = null;
+		var gaode = null;	
+		if ( $("#tbbaidu input:checkbox") != null  || $("#tbbaidu input:checkbox").length > 0) {
+			baidu = $("#tbbaidu input:checked")[0];			
+		}
+		if ( $("#tbtengxun input:checkbox") != null  || $("#tbtengxun input:checkbox").length > 0) {
+			tengxun = $("#tbtengxun input:checked")[0];			
+		}
+		if ( $("#tbgaode input:checkbox") != null  || $("#tbgaode input:checkbox").length > 0) {
+			gaode = $("#tbgaode input:checked")[0];			
+		}
+		
+		var baiduName = null,baiduTel = null,tengxunName = null, tengxunTel = null, gaodeName = null, gaodeTel = null;
+		if (baidu != null ) {
+			var baidutable = $("#tbbaidu" +baidu.value.split(",")[0]);
+			baiduName = $(baidutable.find("tbody tr td[data-key=name]")[0]);
+			baiduTel = $(baidutable.find("tbody tr td[data-key=telephone]")[0]);
+		}
+		
+		if (tengxun != null ) {
+			var tengxuntable = $("#tbtengxun" +tengxun.value.split(",")[0]);
+			tengxunName = $(tengxuntable.find("tbody tr td[data-key=name]")[0]);
+			tengxunTel = $(tengxuntable.find("tbody tr td[data-key=telephone]")[0]);
+		}
+		
+		if (gaode != null ) {
+			var gaodetable = $("#tbgaode" +gaode.value.split(",")[0]);
+			gaodeName = $(gaodetable.find("tbody tr td[data-key=name]")[0]);
+			gaodeTel = $(gaodetable.find("tbody tr td[data-key=telephone]")[0]);
+		}
+		var namecount = 1;
+		if(baiduName != null && tengxunName != null && baiduName.text() == tengxunName.text()) {
+			namecount++;
+			if (namecount == 2) {
+				baiduName.css("background-color", "yellow");
+				tengxunName.css("background-color", "yellow");
+			}
+			
+		}	
+		if(baiduName != null && gaodeName != null && baiduName.text() == gaodeName.text()) {
+			namecount++;
+			if (namecount == 2) {
+				baiduName.css("background-color", "yellow");
+				gaodeName.css("background-color", "yellow");
+			}else if (namecount == 3){
+				baiduName.css("background-color", "green");
+				gaodeName.css("background-color", "green");
+				tengxunName.css("background-color", "green");
+			}
+		}	
+		
+		if(tengxunName != null && gaodeName != null && tengxunName.text() == gaodeName.text()) {
+			namecount++;
+			if (namecount == 2) {
+				tengxunName.css("background-color", "yellow");
+				gaodeName.css("background-color", "yellow");
+			}else if (namecount == 3){
+				baiduName.css("background-color", "green");
+				gaodeName.css("background-color", "green");
+				tengxunName.css("background-color", "green");
+			}
+		}	
+		
+		var telcount = 1;
+		var baiduTelArray = [], gaodeTelArray = [], tengxunTelArray = [];
+		if(baiduTel != null) {
+			baiduTelArray = baiduTel.text().split(";");
+		}
+		if(tengxunTel != null) {
+			tengxunTelArray = tengxunTel.text().split("; ");
+		}
+		if(gaodeTel != null) {
+			gaodeTelArray = gaodeTel.text().split(";");
+		}
+		if(baiduTel != null && tengxunTel != null && baiduTel.text() == tengxunTel.text()) {
+			telcount++;
+			if (telcount == 2) {
+				baiduTel.css("background-color", "yellow");
+				tengxunTel.css("background-color", "yellow");
+			}
+			
+		}	
+		for(var i = 0; i < baiduTelArray.length; i++) {
+			for (var j = 0; j < gaodeTelArray.length; j++) {
+				var btel = baiduTelArray[i].split(")")[1];
+				var gtel = gaodeTelArray[j].split("-")[1];
+				if (btel == gtel) {
+					baiduTel
+				}
+			}
+		}
+		
+		
+		if(baiduTel != null && gaodeTel != null && baiduTel.text() == gaodeTel.text()) {
+			telcount++;
+			if (telcount == 2) {
+				baiduTel.css("background-color", "yellow");
+				gaodeTel.css("background-color", "yellow");
+			}else if (telcount == 3){
+				baiduTel.css("background-color", "green");
+				gaodeTel.css("background-color", "green");
+				tengxunTel.css("background-color", "green");
+			}
+		}	
+		
+		if(tengxunTel != null && gaodeTel != null && tengxunTel.text() == gaodeTel.text()) {
+			telcount++;
+			if (telcount == 2) {
+				tengxunTel.css("background-color", "yellow");
+				gaodeTel.css("background-color", "yellow");
+			}else if (telcount == 3){
+				baiduTel.css("background-color", "green");
+				gaodeTel.css("background-color", "green");
+				tengxunTel.css("background-color", "green");
+			}
+		}	
+	}
 	
 	
 	
@@ -124,6 +252,7 @@
 	}
 	
 	function loadRelation(srcInnerId, srcType) {
+		var dtd = $.Deferred(); 
 		jQuery.post("./edit.web", {
 			"atn" : "getRelationByOid",
 			"srcInnerId" : srcInnerId,
@@ -146,24 +275,15 @@
 									// 当为EMG数据时，srcinnerid则为oid
 									$(this).prop("checked", true);
 									loadEditPOI(srcInnerId);
-									var relation = new Object();
-									relation.srcInnerId = keyword.srcInnerId;
-									relation.srcType = keyword.srcType;
-									relation.oid = srcInnerId;
-									relation.id = databaseSaveRelation[j].id;
-									originalCheckRelation.push(relation);
 									flags[i] = true;
-								}
-							}else {
+									currentCheckRelation.push(databaseSaveRelation[j]);
+								} 
+							} else {
 								if (srcInnerId == databaseSaveRelation[j].srcInnerId && srcType == databaseSaveRelation[j].srcType && systemOid == databaseSaveRelation[j].oid) {
 									$(this).prop("checked", true);
-									var relation = new Object();
-									relation.srcInnerId = srcInnerId;
-									relation.srcType = srcType;
-									relation.oid = systemOid;
-									relation.id = databaseSaveRelation[j].id;
-									originalCheckRelation.push(relation);
+									
 									flags[i] = true;
+									currentCheckRelation.push(databaseSaveRelation[j]);
 								}
 							}
 						}
@@ -172,21 +292,33 @@
 				}
 				
 			} 
-			// else {
-				for (var i = 0; i < tbtables.length; i++) {
-					if ( $("#" + tbtables[i] + " input:checkbox") && $("#" + tbtables[i] + " input:checkbox").length > 0 && !flags[i]) {
-						$("#" + tbtables[i] + " input:checkbox")[0].checked = true;
-						if (i == 0 ) {
-							var srcInnerId = $("#" + tbtables[i] + " input:checkbox")[0].value.split(",")[1];
-							loadEditPOI(srcInnerId);
-						}
+			if (!flags[0]) {
+				for (var j = 0; j < databaseSaveRelation.length; j++) {
+					if (keyword.srcInnerId == databaseSaveRelation[j].srcInnerId && keyword.srcType == databaseSaveRelation[j].srcType) {
+						// 在数据库里存在点评和EMG的关系，但是在界面上加载的时候，EMG中却没有指定oid的数据
+						
+						originalCheckRelation.push(databaseSaveRelation[j]);
 						
 					}
-					
+				}
+			}
+			
+			// else {
+			for (var i = 0; i < tbtables.length; i++) {
+				if ( $("#" + tbtables[i] + " input:checkbox") && $("#" + tbtables[i] + " input:checkbox").length > 0 && !flags[i]) {
+					$("#" + tbtables[i] + " input:checkbox")[0].checked = true;
+					if (i == 0 ) {
+						var srcInnerId = $("#" + tbtables[i] + " input:checkbox")[0].value.split(",")[1];
+						loadEditPOI(srcInnerId);
+					}
 					
 				}
-			// }
+				
+				
+			}
+			dtd.resolve();
 		}, "json");
+		return dtd;
 	}
 	
 	function refercompare(a, b) {
@@ -683,7 +815,7 @@
 					} */
 				}
 			} else {
-				
+				keywordError();
 			}
 			dtd.resolve();
 		}, "json");
@@ -724,6 +856,7 @@
 						$("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val("");
 						$("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val("");
 						$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("");
+						$("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val("");
 						keywordid = json.keywordid;
 						
 						if (keywordid && keywordid > 0) {
@@ -732,7 +865,9 @@
 								loadKeyword(keywordid),loadReferdatas(keywordid)
 							).done(function() {
 								if (keyword) {
-									loadRelation(keyword.srcInnerId, keyword.srcType);
+									$.when( loadRelation(keyword.srcInnerId, keyword.srcType)).done(function() {
+										initArray();
+									});
 								}
 							});
 						}
@@ -749,21 +884,21 @@
 	}
 	
 	function submitEditTask() {
+	
 		var oid = null;
 		try {
 			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
 		} catch(e) {
 			return;
 		}
-		// if (!oid || oid <= 0) 	return;
-		// var $tbemg = $("#tbbaidu");
+		
 		var tables = ["tbemg", "tbbaidu", "tbtengxun", "tbgaode"];
 		var relations = [];
 		var emgChecked = false;
 		for (var i = 0; i < tables.length; i++) {
 			// $("#" + tables[i] + " table tbody tr :checkbox")
 			$("#" + tables[i] + " input:checked").each(function(){
-				relations.push();
+				// relations.push();
 				var srcInnerId = $(this).val().split(",")[1];
 				var srcType = $(this).val().split(",")[2];
 				if (i == 0 && oid > 0 && (keyword.srcType != null && keyword.srcType > 0 ) && oid > 0) {
@@ -775,7 +910,6 @@
 					relation.oid = oid;
 					relation.qid = keyword.qid;
 					relation.errorType = keyword.errorType;
-					// relations.push({"srcInnerId"： keyword.srcInnerId, "srcType"： keyword.srcType, "oid": oid});
 					relations.push(relation);
 				}else if (i > 0 && oid > 0){
 					
@@ -787,13 +921,12 @@
 					relation.qid = keyword.qid;
 					relation.errorType = keyword.errorType;
 					relations.push(relation);
-					// relations.push({"srcInnerId":srcInnerId, "srcType"： srcType, "oid": oid});
 				}
 			});
 			
 			
 		}
-		if (!emgChecked && oid > -1 && keyword != null && keyword.srcInnerId != null) {
+		if (!emgChecked && oid > -1 && oid.trim() != "" && keyword != null && keyword.srcInnerId != null) {
 			var relation = new Object();
 			relation.srcInnerId = keyword.srcInnerId;
 			relation.srcType = keyword.srcType;
@@ -805,6 +938,7 @@
 		}
 		
 		var delFlag = false;
+		//提示删除标识
 		if (databaseSaveRelation != null && relations != null) {
 			for (var j = 0; j < databaseSaveRelation.length; j++) {
 				var flag = false;
@@ -816,25 +950,25 @@
 						
 					}
 					if (delFlag) break;
-					/* if (relations[i].srcInnerId == databaseSaveRelation[j].srcInnerId && relations[i].srcType == databaseSaveRelation[j].srcType && relations[i].oid == databaseSaveRelation[j].oid && databaseSaveRelation[j].importTime == null) {
-						// 此种情况为该relation已经存在且为正确关系，只需要修改qid和errortype
-						flag = true;
-					}else if(relations[i].srcInnerId == databaseSaveRelation[j].srcInnerId && relations[i].srcType == databaseSaveRelation[j].srcType && relations[i].oid != databaseSaveRelation[j].oid && databaseSaveRelation[j].importTime != null) {
-						// 此种情况需要人工确认，表明数据库中的关系存在且已经确认过，但现在提交的与库里保存的不一致
-						delFlag = true;
-						databaseSaveRelation[j].isDel = true;
-						relations.push(databaseSaveRelation[j]);
-					}else if(relations[i].srcInnerId == databaseSaveRelation[j].srcInnerId && relations[i].srcType == databaseSaveRelation[j].srcType && relations[i].oid != databaseSaveRelation[j].oid && databaseSaveRelation[j].importTime == null) {
-						//这种情况说明该relation在库里存在，但不正确且没有人工确认过可以直接修改
-						// flag = true;
-						databaseSaveRelation[j].isDel = true;
-						relations.push(databaseSaveRelation[j]);
-					} */
+					
 				}
 				
 			}
 		}
-		
+		// 在库里保存了关系，现在取消掉，需要删除relation,且没有新增POI点，即oid为-1
+		if (currentCheckRelation != null && (relations == null || relations.length == 0) && oid !="") {
+			for (var i = 0; i < currentCheckRelation.length; i++) {
+				currentCheckRelation[i].isDel = true;
+				relations.push(currentCheckRelation[i]);
+			}
+		}
+		if (originalCheckRelation != null && originalCheckRelation.length > 0 && oid > 0) {
+			
+			// $.webeditor.showMsgLabel("alert", "与EMG的关系在数据库中已经存在，但EMG检索未查询到该记录，请连接开发人员查明此问题");
+			$.webeditor.showCheckBox("alert", "与EMG的关系在数据库中已经存在，但EMG检索未查询到该记录，请连接开发人员查明此问题");
+			// $.webeditor.showMsgBox("close");
+			return;
+		} 
 		var projectId = $("#curProjectID").val();
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
@@ -845,12 +979,13 @@
 		var address6 = $("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val();
 		var address7 = $("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val();
 		var address8 = $("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val();
+		var remark = $("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val();
 		var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val();
 		var isLoadNextTask = $("table#tbEdit>tbody td.tdKey[data-key='isLoadNextTask']>input:checkbox").prop("checked");
 		$.webeditor.showMsgBox("info", "数据保存中...");
 		if(delFlag) {
 			$.webeditor.showConfirmBox("alert","保存的关系已经在数据库中存在，是否删除原关系保存新的关系", function(){
-				$.webeditor.showMsgBox("info", "数据保存中...");
+				
 				jQuery.post("./edit.web", {
 					"atn" : "submitedittask",
 					"taskid" : $("#curTaskID").html(),
@@ -867,52 +1002,23 @@
 					"address7" : address7,
 					"address8" : address8,
 					"geo" : geo,
+					"remark": remark,
 					"projectId": projectId
 					// "isLoadNextTask": isLoadNextTask
 				}, function(json) {
 					if (json && json.result == 1) {
-						var task = json.task;
-						if (task && task.id) {
-							var process = json.process;
-							var project = json.project;
-							$("#curProcessID").text(process.id);
-							$("#curProcessName").text(process.name);
-							$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
-							$("#curTaskID").text(task.id);
-							$("#curProjectID").text(task.projectid);
-							$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
-							$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
-							$("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
-							$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val("");
-							$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val("");
-							$("table#tbEdit>tbody td.tdValue[data-key='address4']>input:text").val("");
-							$("table#tbEdit>tbody td.tdValue[data-key='address5']>input:text").val("");
-							$("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val("");
-							$("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val("");
-							$("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val("");
-							$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("");
-							keywordid = json.keywordid;
-							/* if (keywordid && keywordid > 0) {
-								loadKeyword(keywordid);
-								loadReferdatas(keywordid);
-								
-							} */
-							if (keywordid && keywordid > 0) {
-								
-								$.when( 
-									loadKeyword(keywordid),loadReferdatas(keywordid)
-								).done(function() {
-									if (keyword) {
-										loadRelation(keyword.srcInnerId, keyword.srcType);
-									}
-								});
-							}
-						} else {
-							
+						if (!isLoadNextTask) {
+							$("#submitTask").prop("disabled", true); 
 						}
+						var task = json.task;
+						initTask(task, json);
 						
 					} else {
-						console.log("submitEditTask error");
+						if(json.error != null && json.error.length > 0) {
+							$.webeditor.showMsgLabel("alert", json.error);
+						}else {
+							$.webeditor.showMsgLabel("alert", "提交失败");
+						}
 					}
 				}, "json");
 			});
@@ -932,56 +1038,73 @@
 				"address6" : address6,
 				"address7" : address7,
 				"address8" : address8,
-				"geo" : geo
+				"geo" : geo,
+				"remark": remark,
+				"projectId": projectId
 			}, function(json) {
 				if (json && json.result == 1) {
-					var task = json.task;
-					if (task && task.id) {
-						var process = json.process;
-						var project = json.project;
-						$("#curProcessID").text(process.id);
-						$("#curProcessName").text(process.name);
-						$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
-						$("#curTaskID").text(task.id);
-						$("#curProjectID").text(task.projectid);
-						$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
-						$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
-						$("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
-						$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val("");
-						$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val("");
-						$("table#tbEdit>tbody td.tdValue[data-key='address4']>input:text").val("");
-						$("table#tbEdit>tbody td.tdValue[data-key='address5']>input:text").val("");
-						$("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val("");
-						$("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val("");
-						$("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val("");
-						keywordid = json.keywordid;
-						/* if (keywordid && keywordid > 0) {
-							loadKeyword(keywordid);
-							loadReferdatas(keywordid);
-						} */
-						if (keywordid && keywordid > 0) {
-							
-							$.when( 
-								loadKeyword(keywordid),loadReferdatas(keywordid)
-							).done(function() {
-								if (keyword) {
-									loadRelation(keyword.srcInnerId, keyword.srcType);
-								}
-							});
-						}
-					} else {
-						
+					if (!isLoadNextTask) {
+						$("#submitTask").prop("disabled", true); 
 					}
+				
+					var task = json.task;
+					initTask(task, json);
 					
 				} else {
-					console.log("submitEditTask error");
+					if(json.error != null && json.error.length > 0) {
+						$.webeditor.showMsgLabel("alert", json.error);
+					}else {
+						$.webeditor.showMsgLabel("alert", "提交失败");
+					}
 				}
 			});
 		}
 		
-		/*  */
-			$.webeditor.showMsgBox("close");
 		
+		$.webeditor.showMsgBox("close");
+		
+	}
+	
+	function initTask(task, json) {
+		if (task && task.id) {
+			var process = json.process;
+			var project = json.project;
+			$("#curProcessID").text(process.id);
+			$("#curProcessName").text(process.name);
+			$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
+			$("#curTaskID").text(task.id);
+			$("#curProjectID").text(task.projectid);
+			$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='address4']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='address5']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("");
+			keywordid = json.keywordid;
+			/* if (keywordid && keywordid > 0) {
+				loadKeyword(keywordid);
+				loadReferdatas(keywordid);
+				
+			} */
+			if (keywordid && keywordid > 0) {
+				
+				$.when( 
+					loadKeyword(keywordid),loadReferdatas(keywordid)
+				).done(function() {
+					if (keyword) {
+						$.when( loadRelation(keyword.srcInnerId, keyword.srcType)).done(function() {
+							initArray();
+						});
+					}
+				});
+			}
+		} 
 	}
 	
 	function deletePOI(obj) {
@@ -1028,6 +1151,7 @@
 		var address6 = $("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val();
 		var address7 = $("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val();
 		var address8 = $("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val();
+		var remark = $("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val();
 		var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val();
 		if(namec == null || namec.trim() == "" || featcode == null || featcode.trim() == "" || geo == null || geo.trim() == "") {
 			$.webeditor.showMsgLabel("alert", "名称、分类、坐标不能为空");
@@ -1047,16 +1171,67 @@
 			"address7" : address7,
 			"address8" : address8,
 			"geo" : geo,
+			"remark": remark,
 			"projectId": projectId
 		}, function(json) {
 			if (json && json.result > 0) {
 				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(json.result);
 				$.webeditor.showMsgLabel("success", "保存成功");
 			} else {
-				$.webeditor.showMsgLabel("alert", "保存失败");
+				
+				if(json.error != null && json.error.length > 0) {
+					$.webeditor.showMsgLabel("alert", json.error);
+				}else {
+					$.webeditor.showMsgLabel("alert", "保存失败");
+				}
+				
 			}
 			$.webeditor.showMsgBox("close");
 		}, "json");
+	}
+	
+	function getNextTask() {
+		jQuery.post("./edit.web", {
+			"atn" : "getNextTask",
+			"taskid" : $("#curTaskID").html(),
+			"getnext" : true,
+		}, function(json) {
+			if (json && json.result == 1) {
+				var task = json.task;
+				if (task && task.id) {
+					var process = json.process;
+					var project = json.project;
+					$("#curProcessID").text(process.id);
+					$("#curProcessName").text(process.name);
+					$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
+					$("#curTaskID").text(task.id);
+					$("#curProjectID").text(task.projectid);
+					$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='address4']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='address5']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val("");
+					$("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val("");
+					keywordid = json.keywordid;
+					if (keywordid && keywordid > 0) {
+						
+						$.when( 
+							loadKeyword(keywordid),loadReferdatas(keywordid)
+						).done(function() {
+							if (keyword) {
+								$.when( loadRelation(keyword.srcInnerId, keyword.srcType)).done(function() {
+									initArray();
+								});
+							}
+						});
+					}
+				}
+			}
+		});
 	}
 </script>
 </head>
@@ -1119,7 +1294,11 @@
 								</tr>
 								<tr>
 									<td class="tdKey">电话</td>
-									<td class="tdValue" data-key="tel"><input class="form-control input-sm" type="text"></td>
+									<td class="tdValue" data-key="tel">
+										<input onkeyup="value=value.replace(/[^\0-9\-\;]/g,'')" 
+										onpaste="value=value.replace(/[^\0-9\-\;]/g,'')" 
+										oncontextmenu = "return false;"
+									class="form-control input-sm" type="text"></td>
 								</tr>
 								<tr>
 									<td class="tdKey">类型</td>
@@ -1157,13 +1336,18 @@
 									<td class="tdKey" data-key="isLoadNextTask"><input  type="checkbox" checked="true"></td>
 									<td class="tdValue" >是否获取下一条任务</td>
 								</tr>
+								
+								<tr style="display:none">
+									<td class="tdKey">备注</td>
+									<td class="tdValue" data-key="remark"><input class="form-control input-sm" type="text"></td>
+								</tr>
 							</tbody>
 						</table>
 					</div>
 					<div style="position: absolute; left: 0; right: 0; bottom: 12px; height: 38px; text-align: center;">
-						<button class="btn btn-default">稍后修改</button>
+						<button class="btn btn-default" onClick="getNextTask();">稍后修改</button>
 						<button class="btn btn-default" onClick="updatePOI();">保存</button>
-						<button class="btn btn-default" onClick="submitEditTask();">提交</button>
+						<button id="submitTask" class="btn btn-default" onClick="submitEditTask();">提交</button>
 						<button class="btn btn-default" onClick="keywordError();">资料错误</button>
 					</div>
 				</div>

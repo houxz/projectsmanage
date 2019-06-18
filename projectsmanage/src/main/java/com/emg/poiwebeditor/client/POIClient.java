@@ -128,17 +128,10 @@ public class POIClient {
 		return relations;
 	}
 	
-	public Long deletePOIByOid(Long oid) throws Exception {
+	public Long deletePOIByOid(POIDo poi) throws Exception {
 		try {
-			StringBuilder params = new StringBuilder();
-			params.append("{");
-			params.append("\"id\":");
-			params.append(oid);
-			params.append(",");
-			params.append("\"systemId\":");
-			params.append(SystemType.poi_polymerize.getValue());
-			params.append("}");
-			HttpClientResult result = HttpClientUtils.doPost(String.format(deletePOIByOidUrl, host, port, path), contentType, params.toString() );
+			JSONObject poiJson = (JSONObject) JSON.toJSON(poi);
+			HttpClientResult result = HttpClientUtils.doPost(String.format(deletePOIByOidUrl, host, port, path), contentType, poiJson.toString() );
 			if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
 				return Long.valueOf(1);
 			} else {
@@ -165,26 +158,29 @@ public class POIClient {
 		changeVO.setPoiMergeModify(relations);
 		JSONObject json = (JSONObject) JSON.toJSON(changeVO);
 		HttpClientResult result = null;
+		long ret = -1l;
 		if (relations == null && poi != null) {
 			JSONObject poiJson = (JSONObject) JSON.toJSON(poi);
-			result = HttpClientUtils.doPost(String.format(updatePOIInfoUrl, host, port, path), contentType, poiJson.toString());
+			result = HttpClientUtils.doPostHttpClient(String.format(updatePOIInfoUrl, host, port, path), contentType, poiJson.toString());
 			if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
 				String isstr = result.getJson().replace("\r\n", "");
 				
-				return Long.parseLong(isstr);
+				ret =  Long.parseLong(isstr);
 			}
 			
 		} else {
 			changeVO.setPoiMergeModify(relations);
-			result = HttpClientUtils.doPost(String.format(updatePOIRelationUrl, host, port, path), contentType, json.toString());
+			result = HttpClientUtils.doPostHttpClient(String.format(updatePOIRelationUrl, host, port, path), contentType, json.toString());
 		}
 		
-		// if (relations == null)
-		if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
-			return Long.valueOf(1);
-		} else {
-			return -1L;
+		if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error") && ret < 0) {
+			ret = 1l;
+		} else if (result.getStatus().equals(HttpStatus.BAD_REQUEST) && result.getJson() != null) {
+			JSONObject obj = JSONObject.parseObject(result.getJson());
+			String error = obj.getString("errMsg");
+			throw new Exception(error);
 		}
+		return ret;
 	}
 	
 	public Long getPoiId() throws Exception {

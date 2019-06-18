@@ -1051,6 +1051,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		switch (processType) {
 		case POIPOLYMERIZE:
 			set.add(36);
+			set.add(37);//上传的资料清单类型
 			break;
 		case POIEDIT:
 			set.add(14);

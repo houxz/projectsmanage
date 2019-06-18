@@ -27,7 +27,9 @@
 		<http-basic />
 		<logout invalidate-session="true" logout-success-url="/login.jsp?logout=1" />
 		<session-management>
-			<concurrency-control error-if-maximum-exceeded="true" expired-url="/login.jsp?logout=2"
+			<!-- <concurrency-control error-if-maximum-exceeded="true" expired-url="/login.jsp?logout=2"
+				max-sessions="1" /> -->
+				<concurrency-control expired-url="/login.jsp?logout=2"
 				max-sessions="1" />
 		</session-management>
 	</http>

@@ -9,6 +9,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,7 +30,12 @@ import com.alibaba.fastjson.JSONObject;
 @Component
 public class DatasetModelDao {
 	
+	@Value("${fielddatabatchidurl}")
+	private String batchidUrl ;
+	
 	private static final Logger logger = LoggerFactory.getLogger(DatasetModelDao.class);
+
+	
 	
 	public List<DatasetModel> selectDatasets(ConfigDBModel configDBModel, List<Integer> dataTypes, DatasetModel record, Integer limit, Integer offset) {
 		List<DatasetModel> datasets = new ArrayList<DatasetModel>();
@@ -428,7 +434,7 @@ System.out.println(sql);
 			if(dataset.getBatchid() != null)
 				sql.append(",batchid=" + dataset.getBatchid() );
 			if( dataset.getEnvelope() != null)
-				sql.append(",envelope=" + dataset.getEnvelope().toString() );// 这里可能有问题
+				sql.append(",envelope='" + dataset.getEnvelope().toString() +"'");// 这里可能有问题
 			if( dataset.getState() != null)
 				sql.append(",state = " +  dataset.getState().toString());
 			if( dataset.getProcess() != null)
@@ -479,7 +485,7 @@ System.out.println(sql);
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
-			sql.append("tb_keywords (province,city,district,name,address,telephone,src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
+			sql.append("tb_keywords (province,city,district,name,address,telephone,geo,\"desc\",src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
 			if( kmodel.getProvince() !=null)
 				sql.append("'"+ kmodel.getProvince() +"',");
 			else
@@ -509,10 +515,15 @@ System.out.println(sql);
 			else
 				sql.append("'',");
 			
-//			if(kmodel.getDesc() != null)
-//				sql.append( "'" + kmodel.getDesc() + "',");
-//			else
-//				sql.append("'',");
+			if(kmodel.getGeo() != null)
+				sql.append("'" + kmodel.getGeo() +"',");
+			else
+				sql.append("NULL,");
+			
+			if(kmodel.getDesc() != null)
+				sql.append( "'" + kmodel.getDesc() + "',");
+			else
+				sql.append("'',");
 				
 	
 			
@@ -666,7 +677,7 @@ System.out.println(sql);
 	}
 	
 	public Long getBatchid() {
-		String httpurl = "http://192.168.3.247:9057/api-fileddata/batch/edit/getId/400";
+		String httpurl = batchidUrl;
 		Long ret = -1L;
 		try {
 			HttpClientResult result = HttpClientUtils.doGet(httpurl);
