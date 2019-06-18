@@ -76,7 +76,7 @@ public class EditCtrl extends BaseCtrl {
 		
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-			taskModelClient.updateTaskState(userid, 5, 5);
+			// taskModelClient.updateTaskState(userid, 5, 5);
 			task = getNextEditTask(userid);
 			if (task != null  && task.getId() != null) {
 				Long projectid = task.getProjectid();
@@ -437,18 +437,16 @@ public class EditCtrl extends BaseCtrl {
 						namese.setK(POIAttrnameEnum.namese.toString());
 						namese.setV(null);
 						tags.add(namese);
+					}else if ("tel".equals(tag.getK())) {
+						TagDO telTag = new TagDO();
+						telTag.setId(oid);
+						telTag.setK(POIAttrnameEnum.tel.toString());
+						telTag.setV(null);
+						tags.add(telTag);
 					}
 				}
 			}
 		}
-		
-		
-		TagDO tag = new TagDO();
-		tag.setId(oid);
-		tag.setK(POIAttrnameEnum.tel.toString());
-		tag.setV(tel);
-		tags.add(tag);
-		
 		TagDO inputdatatype = new TagDO();
 		inputdatatype.setId(oid);
 		inputdatatype.setK(POIAttrnameEnum.inputdatatype.toString());

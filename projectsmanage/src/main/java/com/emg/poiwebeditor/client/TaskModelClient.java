@@ -282,7 +282,7 @@ public class TaskModelClient {
 			sb.append("UPDATE tb_task");
 			sb.append(" SET operatetime=now(),state = " + state);
 			sb.append(",process =" + process);
-			sb.append(" WHERE editid = " + editid);
+			sb.append(" WHERE state = 5 and process = 5 and  editid = " + editid);
 			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE,
 					URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
 		} catch (Exception e) {

@@ -223,8 +223,7 @@ public class SchedulerTask {
 	public void capacityDoTask() {
 		if (!capacityEnable.equalsIgnoreCase("true"))
 			return;
-		if (capacityEnable.equalsIgnoreCase("true"))
-			return;
+	
 
 		try {
 			CapacityTaskModelExample example = new CapacityTaskModelExample();

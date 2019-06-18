@@ -312,6 +312,12 @@
 		    <version>4.5.8</version>
 		</dependency>
 
+		<dependency>
+		    <groupId>org.aspectj</groupId>
+		    <artifactId>aspectjrt</artifactId>
+		    <version>1.9.4</version>
+		</dependency>
+
 
 	</dependencies>
 	<build>

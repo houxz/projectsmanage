@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.CommonConstants;
 import com.emg.poiwebeditor.common.RoleType;
 import com.emg.poiwebeditor.dao.projectsmanager.LogModelDao;
@@ -30,6 +31,9 @@ public class LoginCtrl extends BaseCtrl {
 
 	@Autowired
 	private LogModelDao logModelDao;
+	
+	@Autowired
+	private TaskModelClient taskModelClient;
 
 	@RequestMapping()
 	public String login(Model model, HttpSession session, HttpServletRequest request) {
@@ -64,6 +68,7 @@ public class LoginCtrl extends BaseCtrl {
 			
 				userid = user.getId();
 				realname = user.getRealname();
+				taskModelClient.updateTaskState(userid, 1, 5);
 			}
 			
 			session.setAttribute(CommonConstants.SESSION_USER_ACC, account);
