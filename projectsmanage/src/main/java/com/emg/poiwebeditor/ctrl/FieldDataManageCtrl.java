@@ -300,6 +300,8 @@ public class FieldDataManageCtrl extends BaseCtrl {
 							} else {
 								dataset.setState(3);
 								dataset.setProcess(1);// 上传完成
+								//from guoqianqian src_inner_id 全部赋值 id
+								Boolean bUpdate = datasetModelDao.Updatekeywordsrcinnerid(configDBModel, datasetid);
 							}
 								
 							//设置成默认值

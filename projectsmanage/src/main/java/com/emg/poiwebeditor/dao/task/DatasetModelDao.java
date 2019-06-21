@@ -695,4 +695,52 @@ System.out.println(sql);
 		
 		return ret;
 	}
+	
+	/*
+	 * tb_keywords 更新记录
+	 * */
+	public Boolean Updatekeywordsrcinnerid(ConfigDBModel configDBModel,Long datasetid) {
+		BasicDataSource dataSource = null;
+		Boolean bret = false;
+		try {
+			if (configDBModel == null)
+				return false;
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			String fieldsname = "";
+			
+			
+			StringBuffer sql = new StringBuffer();
+			sql.append(" update  ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_keywords set src_inner_id = id where datasetid = " + datasetid.toString());
+		
+System.out.println(sql);
+
+			dataSource = Common.getDataSource(configDBModel);
+
+			int row = new JdbcTemplate(dataSource).update(sql.toString());
+			if (row > 0)
+				bret = true;
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return bret;
+	}
+	
+	
 }

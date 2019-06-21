@@ -4214,6 +4214,8 @@ public class SchedulerTask {
 		if (!poicapacityEnable.equalsIgnoreCase("true"))
 			return;
 		
+		logger.debug(String.format("Scheduler POIPOLYMERIZE task started."));
+		
 		try {
 			CapacityTaskModelExample example = new CapacityTaskModelExample();
 			Criteria criteria = example.or();

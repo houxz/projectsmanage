@@ -11,6 +11,9 @@
 	<context:property-placeholder location="WEB-INF/spring/db3.247.properties" ignore-unresolvable="true"/>
 	<context:property-placeholder location="WEB-INF/spring/webapi.properties" ignore-unresolvable="true"/>
 
+<!-- 	<context:property-placeholder location="WEB-INF/spring/db41.102.properties" ignore-unresolvable="true"/> -->
+<!-- 	<context:property-placeholder location="WEB-INF/spring/webapi.properties" ignore-unresolvable="true"/> -->
+
 	<!-- MySql 配置 -->
 	<bean id="dataSourceMySqlForAccount" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">

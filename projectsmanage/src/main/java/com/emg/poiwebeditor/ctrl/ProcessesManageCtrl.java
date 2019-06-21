@@ -629,7 +629,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				int shapeCount = keyids.size();
 				int taskcount = 0;
 				if (shapeCount > 0) {
-					ConfigDBModel configDBModelForTask = configDBModelDao.selectByPrimaryKey(55);
+					ProcessConfigModel configtask = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU,
+							processType);
+					ConfigDBModel configDBModelForTask = configDBModelDao.selectByPrimaryKey( Integer.valueOf(configtask.getDefaultValue()));
 					for (int indexShape = 0; indexShape < shapeCount; indexShape++) {
 						keywordModelForTask task = keyids.get(indexShape);
 						Long shapeid = task.getId();
