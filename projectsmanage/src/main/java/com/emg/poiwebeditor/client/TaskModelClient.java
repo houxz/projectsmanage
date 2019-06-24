@@ -34,8 +34,10 @@ public class TaskModelClient {
 	
 	private static final Logger logger = LoggerFactory.getLogger(TaskModelClient.class);
 	
-	private String getUrl = "http://%s:%s/%s/mergetask/%s/%s/execute";
-	private String postUrl = "http://%s:%s/%s/mergetask/%s";
+	/*private String getUrl = "http://%s:%s/%s/mergetask/%s/%s/execute";
+	private String postUrl = "http://%s:%s/%s/mergetask/%s";*/
+	private String getUrl = "http://%s:%s/%s/poitask/%s/%s/execute";
+	private String postUrl = "http://%s:%s/%s/poitask/%s";
 	
 	private String contentType = "application/x-www-form-urlencoded";
 	
@@ -43,6 +45,7 @@ public class TaskModelClient {
 		TaskModel task = null;
 		try {
 			String sql = getEditTaskSQL(projectIDs, userid);
+			logger.debug(sql);
 			task = (TaskModel) ExecuteSQLApiClientUtils.postModel(String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sql, TaskModel.class);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

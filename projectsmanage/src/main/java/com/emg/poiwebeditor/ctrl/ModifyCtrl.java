@@ -536,7 +536,12 @@ public class ModifyCtrl {
 			curTaskId = taskid;
 			List<PoiMergeDO> relations = this.getRelation(request, poi);
 			Long u = new Long(userid);
-			poiClient.updatePOI(u, poi, relations);
+			if (poi != null) {
+				poiClient.updatePOI(u, poi);
+			}
+			if (relations != null) {
+				publicClient.updateRelations(u, relations);
+			}
 			if (taskModelClient.submitModifyTask(taskid, userid,2).compareTo(0L) <= 0) {
 				json.addObject("resultMsg", "任务提交失败");
 				json.addObject("result", 0);

@@ -21,6 +21,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.emg.poiwebeditor.client.POIClient;
 import com.emg.poiwebeditor.client.PublicClient;
 import com.emg.poiwebeditor.client.TaskModelClient;
@@ -37,6 +38,7 @@ import com.emg.poiwebeditor.dao.process.ProcessModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.poiwebeditor.pojo.KeywordModel;
+import com.emg.poiwebeditor.pojo.ModifiedlogDO;
 import com.emg.poiwebeditor.pojo.POIDo;
 import com.emg.poiwebeditor.pojo.PoiMergeDO;
 import com.emg.poiwebeditor.pojo.ProcessModel;
@@ -46,6 +48,7 @@ import com.emg.poiwebeditor.pojo.ProjectsUserModel;
 import com.emg.poiwebeditor.pojo.ReferdataModel;
 import com.emg.poiwebeditor.pojo.TagDO;
 import com.emg.poiwebeditor.pojo.TaskModel;
+
 
 @Controller
 @RequestMapping("/edit.web")
@@ -119,6 +122,7 @@ public class EditCtrl extends BaseCtrl {
 			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 			String saveRelations = ParamUtils.getParameter(request, "relations");
+			String source = ParamUtils.getParameter(request, "source");
 			POIDo poi = null;
 			if (oid != -1) {
 				poi = this.getPOI(request);
@@ -129,10 +133,30 @@ public class EditCtrl extends BaseCtrl {
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			List<PoiMergeDO> relations = this.getRelation(taskid, saveRelations);
 			Long u = new Long(userid);
-			ret = poiClient.updatePOI(u, poi, relations);
+			if (poi != null) {
+				ret = poiClient.updatePOI(u, poi);
+				if (source != null) {
+					JSONArray temp = JSONArray.parseArray(source);
+					POIDo p = poiClient.selectPOIByOid(oid);
+					for(int i = 0; i < temp.size(); i++) {
+						JSONObject obj = (JSONObject)temp.get(i);
+						if(p.getVer() == null || p.getVer().isEmpty()) {
+							//1: 修改 2：新增
+							obj.put("flag", 2);
+						}else {
+							obj.put("flag", 1);
+						}
+					}
+					publicClient.updateModifiedlogs( temp.toJSONString());
+				}
+			}
+			if (relations != null) {
+				ret = publicClient.updateRelations(u,  relations);
+			}
 			if (oid != -1) {
 				taskModelClient.InsertNewPOITask(taskid, oid);
 			}
+			
 			
 			if (taskModelClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
 				json.addObject("resultMsg", "任务提交失败");
@@ -246,7 +270,7 @@ public class EditCtrl extends BaseCtrl {
 		try {
 			String srcInnerId = ParamUtils.getParameter(request, "srcInnerId");
 			int srcType = ParamUtils.getIntParameter(request, "srcType", 0);
-			relations = poiClient.selectPOIRelation(srcInnerId, srcType);
+			relations = publicClient.selectPOIRelation(srcInnerId, srcType);
 			if (relations == null) relations = new ArrayList<PoiMergeDO>();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -343,7 +367,9 @@ public class EditCtrl extends BaseCtrl {
 			
 			logger.debug(JSON.toJSON(poi).toString());
 			
-			ret = poiClient.updatePOI(userid, poi, null);
+			if (poi != null) {
+				ret = poiClient.updatePOI(userid, poi);
+			}
 			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

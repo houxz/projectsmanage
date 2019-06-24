@@ -2,7 +2,7 @@ package com.emg.poiwebeditor.pojo;
 
 public class EntityCommonUserDO extends EntityPrimaryKeyDO {
 
-	private Long uid;
+	private Long uId;
 	private Long manualCheckUId;
 	private Long confirmUId;
 	private Long modifyUId;
@@ -10,12 +10,7 @@ public class EntityCommonUserDO extends EntityPrimaryKeyDO {
 	private String confirmUserName;
 	private String checkUserName;
 	private String modifyUserName;
-	public Long getUid() {
-		return uid;
-	}
-	public void setUid(Long uid) {
-		this.uid = uid;
-	}
+	
 	public Long getManualCheckUId() {
 		return manualCheckUId;
 	}
@@ -57,6 +52,12 @@ public class EntityCommonUserDO extends EntityPrimaryKeyDO {
 	}
 	public void setModifyUserName(String modifyUserName) {
 		this.modifyUserName = modifyUserName;
+	}
+	public Long getuId() {
+		return uId;
+	}
+	public void setuId(Long uId) {
+		this.uId = uId;
 	}
 	
 	

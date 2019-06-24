@@ -8,6 +8,7 @@ public class POIDo extends AttachDO {
 	private String sortcode;
 	private GradeEnum grade;
 	private Long projectid = 0L;
+	private Long userid = 0l;
 
 	/*private CheckEnum autoCheck = null;
 	private CheckEnum manualCheck = null;
@@ -84,6 +85,12 @@ public class POIDo extends AttachDO {
 	}
 	public void setGrade(GradeEnum grade) {
 		this.grade = grade;
+	}
+	public Long getUid() {
+		return userid;
+	}
+	public void setUid(Long uid) {
+		this.userid = uid;
 	}
 	
 	

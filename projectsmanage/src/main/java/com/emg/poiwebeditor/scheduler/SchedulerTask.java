@@ -4517,7 +4517,7 @@ public class SchedulerTask {
 									List<Map<String, Object>> task15102Groups = taskBlockDetailModelDao.group1ByTime(configDBModel, times[ii], time);
 									for (Map<String, Object> taskBlockDetailGroup : task15102Groups) {
 										String featureid = (String) taskBlockDetailGroup.get("featureid");
-										Integer taskType = (Integer) taskBlockDetailGroup.get("tasktype");
+										Integer taskType = 1;//(Integer) taskBlockDetailGroup.get("tasktype");
 										Integer editid = (Integer) taskBlockDetailGroup.get("editid");
 										Long projectid = (Long) taskBlockDetailGroup.get("projectid");
 
