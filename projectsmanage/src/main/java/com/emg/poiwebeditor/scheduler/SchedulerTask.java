@@ -4415,7 +4415,13 @@ public class SchedulerTask {
 							
 									//add by lianhr begin 2019/03/08
 									//byhxz20190617 将统计过的任务写到这里
+									int size = featureList.size();
 									for(int fi = 0; fi < featureList.size(); fi++) {
+										FeatureFinishedModel f = featureList.get(fi);
+										if(f.getId() == null) {
+											int a = 0;
+											a+=1;
+										}
 										featureFinishedModelDao.insert(featureList.get(fi));
 									}
 									//add by lianhr end
