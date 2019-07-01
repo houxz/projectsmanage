@@ -982,7 +982,7 @@
 			data-height="520">
 			<thead>
 				<tr>
-					<th data-field="state" data-checkbox="true" data-value-band="config_2_25" data-formatter="checkboxFormat"></th>
+					<th data-field="check" data-checkbox="true" data-value-band="config_2_25" data-formatter="checkboxFormat"></th>
 					<th data-field="id" data-filter-control="input"
 						data-filter-control-placeholder="" data-width="50">编号</th>
 						
