@@ -423,6 +423,8 @@
 							var config_1_29 = $("#config_1_29").val();
 							//add by lianhr end
 							var config_2_30 = $("#config_2_30").val();
+							
+							var config_2_31 = $("#config_2_31").val();
 
 							if (!newProcessName || newProcessName.length <= 0) {
 								$.webeditor.showMsgLabel("alert", "项目名不能为空");
@@ -550,7 +552,8 @@
 									"strbatch" : strbatch,
 									"config_1_29" : config_1_29,
 									//add by lianhr end
-									"config_2_30" : config_2_30
+									"config_2_30" : config_2_30,
+									"config_2_31" : config_2_31
 								},
 								function(json) {
 									if (json.result > 0) {
@@ -919,6 +922,13 @@
 							已绑定<span>0</span>份资料
 						</p>
 					</td>
+				</tr>
+				<tr>
+				<td class="configKey">是否为可信数据源</td>
+				<td class="configValue"><select class="form-control" id="config_2_31">
+					<option value="1">是</option>
+					<option value="0">否</option>
+				</select></td>
 				</tr>
 				<tr>
 					<td class="configKey">制作任务数</td>

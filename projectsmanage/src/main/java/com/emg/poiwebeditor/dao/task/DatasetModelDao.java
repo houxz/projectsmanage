@@ -273,26 +273,24 @@ System.out.println(sql);
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT id");
+			sql.append(" select tb_keywords.\"id\", \"count\"(tb_referdata.src_type = 1 or null ) as emapcount,\"count\"(tb_referdata.src_type = 45 or null ) as bdcount ,\r\n" + 
+					" \"count\"(tb_referdata.src_type = 46 or null ) as txcount , \"count\"(tb_referdata.src_type = 47 or null ) as gdcount ");
 			sql.append(" FROM ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
-			sql.append("tb_keywords ");
+			sql.append(" tb_keywords LEFT JOIN tb_referdata on \r\n" + 
+					"tb_keywords.\"id\" = tb_referdata.ref_keyword_id ");
 			sql.append(" WHERE 1=1 ");
 		
 			sql.append(" AND " + separator + "datasetid" + separator + " IN ( " + sdatasetid + " ) ");
 			
-System.out.println(sql);
-
-			sql.append(" ORDER BY id asc ");
+			sql.append("  GROUP BY tb_keywords.id ORDER BY id asc ");
 	
 			dataSource = Common.getDataSource(configDBModel);
 	
 			datasets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<keywordModelForTask>(keywordModelForTask.class));
 		
-//			List<Long> das =  new JdbcTemplate(dataSource).queryForList(sql.toString(), Long.class);
-
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			datasets = new ArrayList<keywordModelForTask>();

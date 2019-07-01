@@ -4375,29 +4375,29 @@ public class SchedulerTask {
 										
 										
 										Integer modifypoicount = featureid.split(",").length;
-										for(int fi = 0; fi < featureid.split(",").length; fi++) {
-											String strFeatureid = featureid.split(",")[fi];
-											FeatureFinishedModel featureRecord = new FeatureFinishedModel();
-											featureRecord.setTasktype(taskType);
-											featureRecord.setProjectid(projectid);
-											featureRecord.setUserid(editid);
-											featureRecord.setRoleid(RoleType.ROLE_WORKER.getValue());
-											featureRecord.setFeatureid(Long.parseLong(strFeatureid));
-											
-											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
-											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
-												featureList.add(featureRecord);
-											} else if(featurecount <= 0 && featureList.contains(featureRecord)) {
-												continue;
-											} else {
-												featureid = featureid.replaceAll(strFeatureid + ",", "").replaceAll(strFeatureid, "");
-											}
-										}
-										if(featureid.length() > 0 && featureid.substring(featureid.length() - 1).equals(",")) {
-											featureid = featureid.substring(0, featureid.length() - 1);
-											//TODO:
-											logger.debug("003 : group15102ByTime: editid:" + editid + " featureIds:" + featureid);
-										}
+//										for(int fi = 0; fi < featureid.split(",").length; fi++) {
+//											String strFeatureid = featureid.split(",")[fi];
+//											FeatureFinishedModel featureRecord = new FeatureFinishedModel();
+//											featureRecord.setTasktype(taskType);
+//											featureRecord.setProjectid(projectid);
+//											featureRecord.setUserid(editid);
+//											featureRecord.setRoleid(RoleType.ROLE_WORKER.getValue());
+//											featureRecord.setFeatureid(Long.parseLong(strFeatureid));
+//											
+//											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
+//											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
+//												featureList.add(featureRecord);
+//											} else if(featurecount <= 0 && featureList.contains(featureRecord)) {
+//												continue;
+//											} else {
+//												featureid = featureid.replaceAll(strFeatureid + ",", "").replaceAll(strFeatureid, "");
+//											}
+//										}
+//										if(featureid.length() > 0 && featureid.substring(featureid.length() - 1).equals(",")) {
+//											featureid = featureid.substring(0, featureid.length() - 1);
+//											//TODO:
+//											logger.debug("003 : group15102ByTime: editid:" + editid + " featureIds:" + featureid);
+//										}
 										
 										editCapacityModel.setModifypoi(modifypoicount.longValue());
 										
@@ -4415,15 +4415,9 @@ public class SchedulerTask {
 							
 									//add by lianhr begin 2019/03/08
 									//byhxz20190617 将统计过的任务写到这里
-									int size = featureList.size();
-									for(int fi = 0; fi < featureList.size(); fi++) {
-										FeatureFinishedModel f = featureList.get(fi);
-										if(f.getId() == null) {
-											int a = 0;
-											a+=1;
-										}
-										featureFinishedModelDao.insert(featureList.get(fi));
-									}
+//									for(int fi = 0; fi < featureList.size(); fi++) {
+//										featureFinishedModelDao.insert(featureList.get(fi));
+//									}
 									//add by lianhr end
 
 									logger.debug(
@@ -4564,27 +4558,27 @@ public class SchedulerTask {
 										editCapacityModel.setIswork(IsWorkTimeEnum.isNotWorkTime.getValue());
 										
 										Integer modifypoicount = featureid.split(",").length;
-										for(int fi = 0; fi < featureid.split(",").length; fi++) {
-											String strFeatureid = featureid.split(",")[fi];
-											FeatureFinishedModel featureRecord = new FeatureFinishedModel();
-											featureRecord.setTasktype(taskType);
-											featureRecord.setProjectid(projectid);
-											featureRecord.setUserid(editid);
-											featureRecord.setRoleid(RoleType.ROLE_WORKER.getValue());
-											featureRecord.setFeatureid(Long.parseLong(strFeatureid));
-											
-											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
-											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
-												featureList.add(featureRecord);
-											} else if(featurecount <= 0 && featureList.contains(featureRecord)) {
-												continue;
-											} else {
-												featureid = featureid.replaceAll(strFeatureid + ",", "").replaceAll(strFeatureid, "");
-											}
-										}
-										if(featureid.length() > 0 && featureid.substring(featureid.length() - 1).equals(",")) {
-											featureid = featureid.substring(0, featureid.length() - 1);
-										}
+//										for(int fi = 0; fi < featureid.split(",").length; fi++) {
+//											String strFeatureid = featureid.split(",")[fi];
+//											FeatureFinishedModel featureRecord = new FeatureFinishedModel();
+//											featureRecord.setTasktype(taskType);
+//											featureRecord.setProjectid(projectid);
+//											featureRecord.setUserid(editid);
+//											featureRecord.setRoleid(RoleType.ROLE_WORKER.getValue());
+//											featureRecord.setFeatureid(Long.parseLong(strFeatureid));
+//											
+//											int featurecount = featureFinishedModelDao.queryCount(featureRecord);
+//											if(featurecount <= 0 && !featureList.contains(featureRecord)) {
+//												featureList.add(featureRecord);
+//											} else if(featurecount <= 0 && featureList.contains(featureRecord)) {
+//												continue;
+//											} else {
+//												featureid = featureid.replaceAll(strFeatureid + ",", "").replaceAll(strFeatureid, "");
+//											}
+//										}
+//										if(featureid.length() > 0 && featureid.substring(featureid.length() - 1).equals(",")) {
+//											featureid = featureid.substring(0, featureid.length() - 1);
+//										}
 										
 										editCapacityModel.setModifypoi(modifypoicount.longValue());
 										
@@ -4601,9 +4595,9 @@ public class SchedulerTask {
 									}
 									
 									//add by lianhr begin 2019/03/08
-									for(int fi = 0; fi < featureList.size(); fi++) {
-										featureFinishedModelDao.insert(featureList.get(fi));
-									}
+//									for(int fi = 0; fi < featureList.size(); fi++) {
+//										featureFinishedModelDao.insert(featureList.get(fi));
+//									}
 									//add by lianhr end
 
 									logger.debug(

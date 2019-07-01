@@ -45,9 +45,7 @@
 	var $emgmap = null, $baidumap = null, $gaodemap = null, $tengxunmap = null;
 	var $emgmarker = null, $baidumarker = null, $gaodemarker = null, $tengxunmarker = null;
 	var $emgmarkerBase = null, $baidumarkerBase = null, $gaodemarkerBase = null, $tengxunmarkerBase = null;
-	// var srcType, srcInnerId, dianpingGeo;
 	var dianpingGeo;
-	var emgDel, baiduDel, tengxunDel, gaodeDel;
 	var keywordid = eval('(${keywordid})');
 	var keyword = null;
 	var systemOid = -1; // 当前编辑器左侧有OID
@@ -88,9 +86,6 @@
 				loadKeyword(keywordid),loadReferdatas(keywordid)
 			).done(function() {
 				if (keyword) {
-					/* $.when( loadRelation(keyword.srcInnerId, keyword.srcType)).done(function() {
-						initArray();
-					}); */
 					loadRelation(keyword.srcInnerId, keyword.srcType);
 				}
 			});
@@ -164,126 +159,126 @@
 		}
 	}
 
-function setSortcode(){
-	var band2 = $("#sortcodePOI").data("band2");
-	if (!band2) return;
-	
-	var sname = "";
-	var ssort = "";
-	var sorts = $("#sortcodePOI tbody>tr>td>div>label>input");
-	for( var i = 0 ;i < sorts.length;i++){
-		if(sorts[i].checked == true){
-			var s1 = sorts[i].name;
-			var s2 = sorts[i].value;
-			if( sname == ""){
-				sname = s1;
-				ssort = s2;
-			}
-			else{
-				sname +=";";
-				sname +=s1;
-				ssort +=";";
-				ssort +=s2;
+	function setSortcode(){
+		var band2 = $("#sortcodePOI").data("band2");
+		if (!band2) return;
+		
+		var sname = "";
+		var ssort = "";
+		var sorts = $("#sortcodePOI tbody>tr>td>div>label>input");
+		for( var i = 0 ;i < sorts.length;i++){
+			if(sorts[i].checked == true){
+				var s1 = sorts[i].name;
+				var s2 = sorts[i].value;
+				if( sname == ""){
+					sname = s1;
+					ssort = s2;
+				}
+				else{
+					sname +=";";
+					sname +=s1;
+					ssort +=";";
+					ssort +=s2;
+				}
 			}
 		}
-	}
-	
-	if (band2 < 0) {
-		$('#sortcode').val(ssort);
-		$('#sortcodename').val(sname);
-	} else {
-		$("tr.trIndex" + band2 + ":eq(5) td input").val(ssort);
-		$("tr.trIndex" + band2 + ":eq(6) td input").val(sname);
-	}
-	
-	$("#sortcodePOI").dialog("close");
-}
-
-function dlgFeatcodePOIConfig(band2) {
-	$("#featcodePOI").data("band2", band2);
-	$("#featcodePOI").dialog({
-		modal : true,
-		closeOnEscape : false,
-		resizable : false,
-		width : 320,
-		heigth: 500,
-		position: { at: "right" },
-		title : "设置featecode",
-		open : function(event, ui) {
-			$(".ui-dialog-titlebar-close").hide();
-		},
-		close : function() {
-		},
-		buttons : [ {
-			text : "确定",
-			'class' : "btn btn-default",
-			click : setFeatcode
-		}, {
-			text : "取消",
-			'class' : "btn btn-default",
-			click : function() {
-				$(this).dialog("close");
-			}
-		} ]
-	});
-}
-
-function drawsortcheck(featcode){
-	var sortcodes = getsortcode(featcode);
-	var tbody = $("#sortcodePOI tbody");
-	tbody.empty();
-	var html = new Array();
-	var len = sortcodes.length;
-	if (len > 0) {
-		for(var i = 0 ; i < len; i++){
-			var sortcodename = sortcodes[i][0];
-			var sortcode = sortcodes[i][1];
-			html.push('<tr><td><div class="checkbox" style="margin-top: 2px; margin-bottom: 2px;"><label><input type="checkbox" name="'+sortcodename+'" value="'+sortcode+'">'+ sortcodename+'</label></div></td></tr>');
+		
+		if (band2 < 0) {
+			$('#sortcode').val(ssort);
+			$('#sortcodename').val(sname);
+		} else {
+			$("tr.trIndex" + band2 + ":eq(5) td input").val(ssort);
+			$("tr.trIndex" + band2 + ":eq(6) td input").val(sname);
 		}
-	} else {
-		html.push('无数据');
-	}
-	tbody.append(html.join(""));
-}
-
-function dlgSortcodeConfig(band2) {
-	$("#sortcodePOI").data("band2", band2);
-	
-	if (band2 < 0) {
-		var featcode=  $('#featcode').val();	
-		drawsortcheck(featcode);
-	} else {
-		var featcode=  $("tr.trIndex" + band2 + ":eq(3) td input").val();
-		drawsortcheck(featcode);
+		
+		$("#sortcodePOI").dialog("close");
 	}
 	
-	$("#sortcodePOI").dialog({
-		modal : true,
-		closeOnEscape : false,
-		resizable : false,
-		width : 320,
-		heigth: 500,
-		overflow: scroll,
-		position: { at: "right" },
-		title : "设置sortcode",
-		open : function(event, ui) {
-			$(".ui-dialog-titlebar-close").hide();
-		},
-		close : function() {
-		},
-		buttons : [ {
-			text : "确定",
-			'class' : "btn btn-default",
-			click : setSortcode
-		}, {
-			text : "取消",
-			'class' : "btn btn-default",
-			click : function() {
-				$(this).dialog("close");
+	function dlgFeatcodePOIConfig(band2) {
+		$("#featcodePOI").data("band2", band2);
+		$("#featcodePOI").dialog({
+			modal : true,
+			closeOnEscape : false,
+			resizable : false,
+			width : 320,
+			heigth: 500,
+			position: { at: "right" },
+			title : "设置featecode",
+			open : function(event, ui) {
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			close : function() {
+			},
+			buttons : [ {
+				text : "确定",
+				'class' : "btn btn-default",
+				click : setFeatcode
+			}, {
+				text : "取消",
+				'class' : "btn btn-default",
+				click : function() {
+					$(this).dialog("close");
+				}
+			} ]
+		});
+	}
+	
+	function drawsortcheck(featcode){
+		var sortcodes = getsortcode(featcode);
+		var tbody = $("#sortcodePOI tbody");
+		tbody.empty();
+		var html = new Array();
+		var len = sortcodes.length;
+		if (len > 0) {
+			for(var i = 0 ; i < len; i++){
+				var sortcodename = sortcodes[i][0];
+				var sortcode = sortcodes[i][1];
+				html.push('<tr><td><div class="checkbox" style="margin-top: 2px; margin-bottom: 2px;"><label><input type="checkbox" name="'+sortcodename+'" value="'+sortcode+'">'+ sortcodename+'</label></div></td></tr>');
 			}
-		} ]
-	});
-}
+		} else {
+			html.push('无数据');
+		}
+		tbody.append(html.join(""));
+	}
+	
+	function dlgSortcodeConfig(band2) {
+		$("#sortcodePOI").data("band2", band2);
+		
+		if (band2 < 0) {
+			var featcode=  $('#featcode').val();	
+			drawsortcheck(featcode);
+		} else {
+			var featcode=  $("tr.trIndex" + band2 + ":eq(3) td input").val();
+			drawsortcheck(featcode);
+		}
+		
+		$("#sortcodePOI").dialog({
+			modal : true,
+			closeOnEscape : false,
+			resizable : false,
+			width : 320,
+			heigth: 500,
+			overflow: scroll,
+			position: { at: "right" },
+			title : "设置sortcode",
+			open : function(event, ui) {
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			close : function() {
+			},
+			buttons : [ {
+				text : "确定",
+				'class' : "btn btn-default",
+				click : setSortcode
+			}, {
+				text : "取消",
+				'class' : "btn btn-default",
+				click : function() {
+					$(this).dialog("close");
+				}
+			} ]
+		});
+	}
 	
 	// 记录数据来源
 	// txtValue:要复制的值
@@ -302,7 +297,8 @@ function dlgSortcodeConfig(band2) {
 		var oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
 		var length = source.length;
 		for (var i = 0; i < datasource.length; i++) {
-			source[length + i] = {srcType: datasource[i].srcType, srcInnerId: datasource[i].srcInnerId, oid: oid, k: key, oldValue: value, newValue: txtValue, flag: oid > 0 ? 1 : 2, keywordId:keyword.id};
+			// source[length + i] = {srcType: datasource[i].srcType, srcInnerId: datasource[i].srcInnerId, oid: oid, k: key, oldValue: value, newValue: txtValue, flag: oid > 0 ? 1 : 2, keywordId:keyword.id};
+			source[length + i] = {srcType: datasource[i].srcType, srcInnerId: datasource[i].srcInnerId, oid: oid, k: key,  newValue: txtValue, flag: oid > 0 ? 1 : 2, keywordId:keyword.id};
 		}
 		
 	}
@@ -361,20 +357,18 @@ function dlgSortcodeConfig(band2) {
 			nameArray.push(dianpingName);
 		}
 		var mark = [];
-		for (var i = 0 ; i < nameArray.length - 1; i++) {
-			for (var j = 0; j < nameArray[i].length; j++) {
-				
-				for (var k = 0; j < nameArray[i+1].length; j++) {
-					var btel = nameArray[i][j].innerText;
-					var gtel = nameArray[i+1][k].innerText;
-					if (btel == gtel) {
-						
-						mark.pushNoRepeat(nameArray[i][j]);
-						mark.pushNoRepeat(nameArray[i+1][k]);
-						break;
-					}
+		for (var j = 0; j < nameArray.length - 1; j++) {
+			var bname = nameArray[j][0].innerText;
+			for (var k = j + 1; k < nameArray.length; k++) {
+				var gname = nameArray[k][0].innerText;
+				if (bname == gname ) {
+					mark.pushNoRepeat(nameArray[j][0]);
+					mark.pushNoRepeat(nameArray[k][0]);
+					// break;
 				}
 			}
+			//为了避免出现百度和腾讯一样，高德和点评一样，却被误标为四个一样的情况
+			if (mark.length >= 2) break;
 		}
 		if (2 == mark.length) {
 			changeColor(mark, "green");
@@ -402,6 +396,7 @@ function dlgSortcodeConfig(band2) {
 		if(dianpingTelArray != null &&  dianpingTelArray.length > 0) {
 			telArray.push(dianpingTelArray);
 		}
+		if (telArray == null || telArray.length == 0) return null;
 		for(var i = 0; i< telArray.length - 1; i++) {
 			for (var j = i + 1; j < telArray.length; j++) {
 				if (telArray[i].length < telArray[j].length) {
@@ -416,37 +411,40 @@ function dlgSortcodeConfig(band2) {
 		for (var i = 0 ; i < telArray.length - 1; i++) {
 			for (var j = 0; j < telArray[i].length; j++) {
 				var btel = getTel(telArray[i][j].innerText);
+				btel = btel.replace(";","");
 				for (var k = 0; k < telArray[i+1].length; k++) {
 					var gtel = getTel(telArray[i+1][k].innerText);
-					if (btel == gtel) {
-						if (telMarks == null || telMarks.length == 0) {
+					gtel = gtel.replace(";", "");
+					if (btel != gtel)continue;
+					
+					if (telMarks == null || telMarks.length == 0) {
+						var telMark = new Object();
+						telMark.tel = gtel;
+						telMark.array = [telArray[i][j], telArray[i+1][k]];
+						telMarks.push(telMark);
+					}else {
+						var flag = false;
+						for (var z = 0; z< telMarks.length; z++) {
+							if (telMarks[z].tel == btel) {
+								telMarks[z].array.pushNoRepeat(telArray[i][j]);
+								telMarks[z].array.pushNoRepeat(telArray[i+1][k]);
+								flag = true;
+							}
+						}
+						if (!flag) {
 							var telMark = new Object();
 							telMark.tel = gtel;
 							telMark.array = [telArray[i][j], telArray[i+1][k]];
 							telMarks.push(telMark);
-						}else {
-							var flag = false;
-							for (var z = 0; z< telMarks.length; z++) {
-								if (telMarks[z].tel == btel) {
-									telMarks[z].array.pushNoRepeat(telArray[i][j]);
-									telMarks[z].array.pushNoRepeat(telArray[i+1][k]);
-									flag = true;
-								}
-							}
-							if (!flag) {
-								var telMark = new Object();
-								telMark.tel = gtel;
-								telMark.array = [telArray[i][j], telArray[i+1][k]];
-								telMarks.push(telMark);
-							}
 						}
-						
-						break;
 					}
+					//break;
 				}
+				
 			}
-			
 		}
+		
+		
 		for (var z = 0; z< telMarks.length; z++) {
 			if (telMarks[z].array.length == 2) {
 				changeColor(telMarks[z].array, "green");
@@ -456,11 +454,15 @@ function dlgSortcodeConfig(band2) {
 				changeColor(telMarks[z].array, "#7D7DFF");
 			} 
 		}
+		
+		
 		return telMarks;
 	}
 	
 	
 	function initArray() {
+		console.log("开始初始化颜色开始");
+		console.log(new Date());
 		originalCheckRelation = [];
 		currentCheckRelation = [];
 		var tbtables = [ "tbbaidu", "tbtengxun", "tbgaode"];
@@ -497,20 +499,14 @@ function dlgSortcodeConfig(band2) {
 		}
 		
 		if (keyword != null) {
-			// $("table#tbKeyword>tbody tr td.tdValue[data-key='name']").text();
 			dianpingName = $("table#tbKeyword>tbody tr td.tdValue[data-key='name']");
 			dianpingTel = $("table#tbKeyword>tbody tr td.tdValue[data-key='telephone']");
 		}
 		var markName = markNameColor(baiduName,gaodeName, tengxunName, dianpingName);
 		if (markName != null && markName.length > 1){
-			/* $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(markName[0].innerText);
-			$("table#tbEdit>tbody td.tdValue[data-key='name']>input:text").val(markName[0].innerText); */
-			
 			var datasource = getSRC(markName);
-			
 			changeName(markName[0].innerText, datasource, "namec");
 		}
-		
 		var baiduTelArray = [], gaodeTelArray = [], tengxunTelArray = [], dianpingTelArray = [];
 		if(baiduTel != null) {
 			baiduTelArray = baiduTel.find("span");
@@ -526,11 +522,11 @@ function dlgSortcodeConfig(band2) {
 		}
 		
 		var telMarks = markTelColor(baiduTelArray, gaodeTelArray, tengxunTelArray, dianpingTelArray);
-		var tel = "";
+		
 		var tbtables = ["tbemg", "tbbaidu", "tbtengxun", "tbgaode"];
-		var btel = $("table#tbbaidu>tbody td.tdValue[data-key='hideTel']").text();
-		var ttel = $("table#tbtengxun>tbody td.tdValue[data-key='hideTel']").text();
-		var gtel = $("table#tbgaode>tbody td.tdValue[data-key='hideTel']").text();
+		var btel = $($("table#tbbaidu>tbody td.tdValue[data-key='hideTel']")[0]).text();
+		var ttel = $($("table#tbtengxun>tbody td.tdValue[data-key='hideTel']")[0]).text();
+		var gtel = $($("table#tbgaode>tbody td.tdValue[data-key='hideTel']")[0]).text();
 		var dtel = $("table#tbKeyword>tbody td.tdValue[data-key='hideTel']").text();
 		if (btel != null && btel.trim() != "" && btel == ttel && ttel == gtel && gtel == dtel) {
 			var datasource = getSRC([baidu,gaode, tengxun, keyword]);
@@ -540,23 +536,26 @@ function dlgSortcodeConfig(band2) {
 			var datasource = getSRC([baidu,gaode, tengxun, null]);
 			changeName(btel, datasource, "tel");
 		}
-		
+		console.log("结束初始化颜色");
+		console.log(new Date());
 	}
 	
 	function getTel(tempTel) {
 		//var tempTel = tel.innerText;
 		var gtel = ""
 		if (tempTel.indexOf("-") > -1) {
-			gtel = tempTel.split("-")[1];
+			gtel = tempTel.split("-")[1].trim();
 		}else {
 			// gtel = tempTel.innerText;
-			gtel = tempTel;
+			gtel = tempTel.trim();
 		}
 		return gtel;
 	}
 	
 	
 	function loadKeyword(keywordid) {
+		console.log("加载keyword开始");
+		console.log(new Date());
 		var dtd = $.Deferred(); 
 		jQuery.post("./edit.web", {
 			"atn" : "getkeywordbyid",
@@ -578,15 +577,24 @@ function dlgSortcodeConfig(band2) {
 			    	
 			    	// html.push("<td class='tdValue' data-key='telephone'>");
 			    	for (var i = 0; i < tel.length; i++) {
-			    		if (i == 0) {
-			    			keywordTel.append("<span>" + tel[i] + ";</span>");
+			    		if(i != tel.length - 1) {
+			    			if (i == 0) {
+				    			keywordTel.append("<span>" + tel[i] + ";</span>");
+				    		}else {
+				    			if (tel[i].indexOf("-") < 0) {
+				    				keywordTel.append("<span>" + tel[i] + ";</span>");
+				    			}else {
+				    				keywordTel.append("<span>" + tel[i].split("-")[1] + ";</span>");
+				    			}
+				    		}
 			    		}else {
 			    			if (tel[i].indexOf("-") < 0) {
-			    				keywordTel.append("<span>" + tel[i] + ";</span>");
+			    				keywordTel.append("<span>" + tel[i] + "</span>");
 			    			}else {
-			    				keywordTel.append("<span>" + tel[i].split("-")[1] + ";</span>");
+			    				keywordTel.append("<span>" + tel[i].split("-")[1] + "</span>");
 			    			}
 			    		}
+			    		
 			    	}
 			    }else {
 			    	$("table#tbKeyword>tbody tr td.tdValue[data-key='telephone']").html(keyword.telephone);
@@ -601,11 +609,15 @@ function dlgSortcodeConfig(band2) {
 			}
 			dtd.resolve();
 		}, "json");
+		console.log("加载keyword结束");
+		console.log(new Date());
 		return dtd;
 	}
 	
 	function loadRelation(srcInnerId, srcType) {
 		var dtd = $.Deferred(); 
+		console.log("加载relation开始");
+		console.log(new Date());
 		jQuery.post("./edit.web", {
 			"atn" : "getRelationByOid",
 			"srcInnerId" : srcInnerId,
@@ -685,6 +697,8 @@ function dlgSortcodeConfig(band2) {
 			
 			dtd.resolve();
 		}, "json");
+		console.log(new Date());
+		console.log("加载relation结束");
 		return dtd;
 	}
 	
@@ -914,8 +928,6 @@ function dlgSortcodeConfig(band2) {
 			if(keyword != null && keyword.geo != null) {
 				var img = new Image();
 				img.src = "resources/images/start.png";
-				// var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
-				// var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val().replace("MULTIPOINT (","").replace(")", "").split(" ");
 				if ($tengxunmarkerBase) {
 					$tengxunmarkerBase.setLngLat(geo);
 				} else {
@@ -945,10 +957,7 @@ function dlgSortcodeConfig(band2) {
 				$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
 				$("#featcode").val(poi.featcode);
 				$("#sortcode").val(poi.sortcode);
-				/* $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val(poi.featcode);
-				$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val(poi.sortcode); */
 				$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val(poi.geo);
-				// dianpingGeo = poi.geo;
 				poi.poitags.forEach(function(tag, index) {
 					$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
 				});
@@ -960,13 +969,12 @@ function dlgSortcodeConfig(band2) {
 		return dtd;
 	}
 	
-	
-
 	function rdChange(ck, srcType, lat, lng, srcInnerId) {
 		if (ck.checked == false && srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
 			$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("-1");
 			emgSrcInnerId = "";
 			emgSrcType = 0;
+			
 		}else if (ck.checked == true && srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
 			loadEditPOI(srcInnerId);
 			$emgmarker.setLngLat([lng, lat ]);
@@ -977,6 +985,7 @@ function dlgSortcodeConfig(band2) {
 			ck.checked = true; 
 		}
 		if (srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
+			source = [];
 		} else if (srcType == <%=SrcTypeEnum.BAIDU.getValue() %>) {
 			drawBaiDuMap(lat, lng, zoom);
 		} else if (srcType == <%=SrcTypeEnum.TENGXUN.getValue() %>) {
@@ -997,14 +1006,16 @@ function dlgSortcodeConfig(band2) {
 		var value = $this.parent().prev().html();
 		var key = $this.parent().prev().data("key");
 		key = (key == "telephone" ? "tel" : key);
-		var oldObj = null;
+		// var oldObj = null;
+		var oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
 		if (source != null && source.length > 0) {
 			var flag = false;
 			var ktemp = key == "name" ? "namec" : key;
 			for (var i = source.length - 1; i > -1; i--) {
 				
 				if(source[i].k == ktemp && value != null && value.trim() != "") {
-					oldObj = source.splice(i,1);
+					var t = source.splice(i,1);
+					// oldObj = t[0];
 				}
 			}
 		}
@@ -1014,20 +1025,26 @@ function dlgSortcodeConfig(band2) {
 			obj.srcType = z.split(",")[2];
 			obj.srcInnerId = z.split(",")[1];
 			obj.newValue = value;
-			if (oldObj != null) {
+			obj.oid = oid;
+			/* if (oldObj != null) {
 				obj.oldValue = oldObj.oldValue;
 			}else {
 				obj.oldValue = key == "name" ?  $("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>textarea").val() : $("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>input:text").val();
-			}
+			} */
 			obj.keywordId = keyword.id;
+			if (key == "name") {
+				obj.k = "namec";
+			}else if (key == "address") {
+				obj.k = "address8";
+			}else {
+				obj.k = "geo";
+			}
 			obj.k = key == "name" ? "namec" :key; 
 			source.push(obj);
 		}
 		
 		$("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>textarea").val(value);
 		$("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>input:text").val(value);
-		
-		
 		if (key == "address") {
 			$("table#tbEdit>tbody td.tdValue[data-key='address4']>input:text").val("");
 			$("table#tbEdit>tbody td.tdValue[data-key='address5']>input:text").val("");
@@ -1059,8 +1076,6 @@ function dlgSortcodeConfig(band2) {
 						var poi = json.poi;
 						$("#featcode").val(poi.featcode);
 						$("#sortcode").val(poi.sortcode);
-						/* $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val(poi.featcode);
-						$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val(poi.sortcode); */
 						
 					}
 				}, "json");
@@ -1082,11 +1097,12 @@ function dlgSortcodeConfig(band2) {
 				obj.srcInnerId = z.split(",")[1];
 				obj.newValue = tel;
 				obj.k = "tel";
-				if (oldObj != null) {
+				obj.oid = oid;
+				/* if (oldObj != null) {
 					obj.oldValue = oldObj.oldValue;
 				}else {
 					obj.oldValue = $("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>input:text").val();
-				}
+				} */
 				obj.keywordId = keyword.id;
 				source.push(obj);
 			}
@@ -1094,10 +1110,11 @@ function dlgSortcodeConfig(band2) {
 		}
 		
 	}
-	
-	function getCode(objCodes, values, oldObj, ele) {
+	//function getCode(objCodes, values, oldObj, ele) {
+	function getCode(objCodes, values,  ele) {
 		if (objCodes == null || values == null) return;
 		var flag = false;
+		var oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
 		for (var j =  values.length -1 ; j > -1; j--) {
 			for (let key in objCodes){
 				if(objCodes[key].name != values[j]) continue;
@@ -1108,11 +1125,12 @@ function dlgSortcodeConfig(band2) {
 					obj.srcInnerId = z.split(",")[1];
 					obj.newValue = objCodes[key].featcode;
 					obj.k = "featcode";
-					if (oldObj != null) {
+					obj.oid = oid;
+					/* if (oldObj != null) {
 						obj.oldValue = oldObj.oldValue;
 					}else {
 						obj.oldValue = $("#featcode").val();
-					}
+					} */
 					obj.keywordId = keyword.id;
 					source.push(obj);
 				}
@@ -1123,11 +1141,12 @@ function dlgSortcodeConfig(band2) {
 					obj.srcInnerId = z.split(",")[1];
 					obj.newValue = objCodes[key].sortcode;
 					obj.k = "sortcode";
-					if (oldObj != null) {
+					obj.oid = oid;
+					/* if (oldObj != null) {
 						obj.oldValue = oldObj.oldValue;
 					}else {
 						obj.oldValue = $("#sortcode").val();
-					}
+					} */
 					obj.keywordId = keyword.id;
 					source.push(obj);
 				}
@@ -1166,30 +1185,35 @@ function dlgSortcodeConfig(band2) {
 		    	var tel = [];
 		    	if (tbid == "tbbaidu") {
 		    		var str = referdata.tel.replace(/\(/g,"").replace(/\)/g, "-");
-		    		tel = str.split(",");
-		    	}else {
-		    		tel = referdata.tel.split(";");
 		    	}
+		    		tel = referdata.tel.split(";");
+		    	
 		    	html.push("<td class='tdValue' data-key='telephone'>");
 		    	for (var i = 0; i < tel.length; i++) {
-		    		if (i == 0) {
-		    			html.push("<span>" + tel[i] + ";</span>");
+		    		if(i != tel.length - 1) {
+		    			if (i == 0) {
+			    			html.push("<span>" + tel[i].trim() + ";</span>");
+			    		}else {
+			    			if (tel[i].indexOf("-") < 0) {
+			    				html.push("<span>" + tel[i].trim() + ";</span>");
+			    			}else {
+			    				html.push("<span>" + tel[i].split("-")[1].trim() + ";</span>");
+			    			}
+			    		}
 		    		}else {
 		    			if (tel[i].indexOf("-") < 0) {
-		    				html.push("<span>" + tel[i] + ";</span>");
+		    				html.push("<span>" + tel[i].trim() + "</span>");
 		    			}else {
-		    				html.push("<span>" + tel[i].split("-")[1] + ";</span>");
+		    				html.push("<span>" + tel[i].split("-")[1].trim() + "</span>");
 		    			}
 		    		}
+		    		
 		    	}
 		    	html.push("</td><td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
 		    }else {
 		    	html.push("<td class='tdValue' data-key='telephone'>" + referdata.tel + "</td>");
 		    	html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
 		    }
-		    
-		    
-		    
 		    
 		    html.push("<tr><td class='tdKey'>分类</td>");
 		    html.push("<td class='tdValue' data-key='class'>" + referdata.orgCategoryName + "</td>");
@@ -1199,11 +1223,9 @@ function dlgSortcodeConfig(band2) {
 		    html.push("<td class='tdValue' data-key='geo'>MULTIPOINT (" + referdata.srcLon + " " + referdata.srcLat + "," +   referdata.srcLon + " " + referdata.srcLat +")</td>");
 		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
 		    
-		    
 		    html.push("<tr class='trEnd'><td class='tdKey'>地址</td>");
 		    html.push("<td class='tdValue' data-key='address'>" + referdata.address + "</td>");
 		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
-		    
 		   
 		    html.push("</tbody></table>");
 		    $tbody.append(html.join(''));
@@ -1212,7 +1234,8 @@ function dlgSortcodeConfig(band2) {
 	
 	function loadReferdatas(keywordid) {
 		var dtd = $.Deferred();
-	
+		console.log("加载referdata开始");
+		console.log(new Date());
 		jQuery.post("./edit.web", {
 			"atn" : "getreferdatabykeywordid",
 			"keywordid" : keywordid
@@ -1242,7 +1265,6 @@ function dlgSortcodeConfig(band2) {
 						drawReferdatas("tbemg", emgrefers);
 						emgSrcInnerId = emgrefers[0].srcInnerId;
 						emgSrcType = emgrefers[0].srcType;
-						//addMakerOnEMGMap($emgmap, true, $emgmarkerBase);
 					} else {
 						$("#emgmap").html("无数据");
 						if (keyword && keyword.geo) {
@@ -1279,16 +1301,14 @@ function dlgSortcodeConfig(band2) {
 						$("#tengxunmap").html("无数据");
 						$("table#tbtengxun>tbody").html("<tr><td>无数据</td></tr>");
 					}
-					
-					/* if (keyword) {
-						loadRelation(keyword.srcInnerId, keyword.srcType);
-					} */
 				}
 			} else {
 				keywordError();
 			}
 			dtd.resolve();
 		}, "json");
+		console.log("加载referdata结束");
+		console.log(new Date());
 		return dtd;
 	}
 	
@@ -1302,8 +1322,6 @@ function dlgSortcodeConfig(band2) {
 				"taskid" : $("#curTaskID").html(),
 				"getnext" : isLoadNextTask,
 				"keywordid": keyword.id
-				
-				// "isLoadNextTask": isLoadNextTask
 			}, function(json) {
 				if (json && json.result == 1) {
 					var task = json.task;
@@ -1328,16 +1346,13 @@ function dlgSortcodeConfig(band2) {
 						$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("");
 						$("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val("");
 						keywordid = json.keywordid;
-						
+						initKeywordColor();
 						if (keywordid && keywordid > 0) {
 							
 							$.when( 
 								loadKeyword(keywordid),loadReferdatas(keywordid)
 							).done(function() {
 								if (keyword) {
-									/* $.when( loadRelation(keyword.srcInnerId, keyword.srcType)).done(function() {
-										initArray();
-									}); */
 									loadRelation(keyword.srcInnerId, keyword.srcType);
 								}
 							});
@@ -1384,7 +1399,6 @@ function dlgSortcodeConfig(band2) {
 					relations.push(relation);
 				}else if (i > 0 && oid > 0){
 					
-					// $(this).prop("checked", true);
 					var relation = new Object();
 					relation.srcInnerId = srcInnerId;
 					relation.srcType = srcType;
@@ -1517,7 +1531,6 @@ function dlgSortcodeConfig(band2) {
 					if (!isLoadNextTask) {
 						$("#submitTask").prop("disabled", true); 
 					}
-				
 					var task = json.task;
 					initTask(task, json);
 					
@@ -1557,27 +1570,27 @@ function dlgSortcodeConfig(band2) {
 			$("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val("");
 			$("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val("");
 			$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("");
+			
+			initKeywordColor();
 			keywordid = json.keywordid;
-			/* if (keywordid && keywordid > 0) {
-				loadKeyword(keywordid);
-				loadReferdatas(keywordid);
-				
-			} */
 			if (keywordid && keywordid > 0) {
 				
 				$.when( 
 					loadKeyword(keywordid),loadReferdatas(keywordid)
 				).done(function() {
 					if (keyword) {
-						
 						loadRelation(keyword.srcInnerId, keyword.srcType);
-						/* $.when( loadRelation(keyword.srcInnerId, keyword.srcType)).done(function() {
-							initArray();
-						}); */
 					}
 				});
 			}
 		} 
+	}
+	
+	function initKeywordColor() {
+		var keyEle = $("table#tbKeyword>tbody td.tdValue");
+		for(var i = 0; i < keyEle.length; i++) {
+			keyEle[i].style.backgroundColor = "white";
+		}
 	}
 	
 	function deletePOI(obj) {
@@ -1587,6 +1600,7 @@ function dlgSortcodeConfig(band2) {
 		} catch(e) {
 			return;
 		}
+		source = [];
 		if (!oid || oid <= 0) 	return;
 		var projectId = $("#curProjectID").val();
 		$.webeditor.showConfirmBox("alert","确定要删除这个POI吗？", function(){
@@ -1614,7 +1628,6 @@ function dlgSortcodeConfig(band2) {
 		} catch(e) {
 			return;
 		}
-		// if (!oid || oid <= 0) 	return;
 		var projectId = $("#curProjectID").val();
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
@@ -1664,6 +1677,22 @@ function dlgSortcodeConfig(band2) {
 		}, "json");
 	}
 	
+	function valueChange(obj) {
+		var $this = $(obj);
+		var key = $this.parent().data("key");
+		
+		if (source != null && source.length > 0) {
+			var flag = false;
+			var ktemp = key == "name" ? "namec" : key;
+			for (var i = source.length - 1; i > -1; i--) {
+				
+				if(source[i].k == ktemp ) {
+					oldObj = source.splice(i,1);
+				}
+			}
+		}
+	}
+	
 	function getNextTask() {
 		jQuery.post("./edit.web", {
 			"atn" : "getNextTask",
@@ -1691,17 +1720,13 @@ function dlgSortcodeConfig(band2) {
 					$("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val("");
 					$("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val("");
 					keywordid = json.keywordid;
+					initKeywordColor();
 					if (keywordid && keywordid > 0) {
-						
 						$.when( 
 							loadKeyword(keywordid),loadReferdatas(keywordid)
 						).done(function() {
 							if (keyword) {
 								loadRelation(keyword.srcInnerId, keyword.srcType);
-							
-								/* $.when( loadRelation(keyword.srcInnerId, keyword.srcType)).done(function() {
-									initArray();
-								}); */
 							}
 						});
 					}
@@ -1730,7 +1755,7 @@ function dlgSortcodeConfig(band2) {
 								<tr>
 									<td class="tdKey">名称</td>
 									<td class="tdValue" data-key="name">加载中...</td>
-									<td class="tbTool"><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
+									<td class="tbTool" ><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
 								</tr>
 								<tr>
 									<td class="tdKey">地址</td>
@@ -1771,15 +1796,17 @@ function dlgSortcodeConfig(band2) {
 								</tr>
 								<tr>
 									<td class="tdKey">名称</td>
-									<td class="tdValue" data-key="name"><textarea class="form-control input-sm"></textarea></td>
+									<td class="tdValue" data-key="name"><textarea onchange="valueChange(this)" class="form-control input-sm"></textarea></td>
 								</tr>
 								<tr>
 									<td class="tdKey">电话</td>
+									<!-- onchange="value=value.replace(/[^\0-9\-\;]/g,'')"  -->
 									<td class="tdValue" data-key="tel">
 										<input onkeyup="value=value.replace(/[^\0-9\-\;]/g,'')" 
 										onpaste="value=value.replace(/[^\0-9\-\;]/g,'')" 
-										onchange="value=value.replace(/[^\0-9\-\;]/g,'')" 
+										onchange="valueChange(this)"
 										oncontextmenu = "return false;"
+										onblur = ""
 									class="form-control input-sm" type="text"></td>
 								</tr>
 								<tr>
@@ -1787,7 +1814,7 @@ function dlgSortcodeConfig(band2) {
 									<td class="tdValue" data-key="featcode">
 									<!-- <input id="featcode" class="form-control input-sm" type="text"> -->
 									<div class="input-group">
-										<input id="featcode" class="form-control input-sm" type="text">
+										<input id="featcode" onchange="valueChange(this)" class="form-control input-sm" type="text">
 										<span class="input-group-addon" style="cursor: pointer;" onClick="dlgFeatcodePOIConfig(-1);" title="选择类型代码">选择</span>
 									</div>
 									
@@ -1798,7 +1825,7 @@ function dlgSortcodeConfig(band2) {
 									<td class="tdValue" data-key="sortcode">
 										<!-- <input class="form-control input-sm" type="text"> -->
 										<div class="input-group">
-											<input type="text" class="form-control" id="sortcode" placeholder="请输入系列代码">
+											<input type="text" onchange="valueChange(this)" class="form-control" id="sortcode" placeholder="请输入系列代码">
 											<span class="input-group-addon" style="cursor: pointer;" onClick="dlgSortcodeConfig(-1);" title="选择系列代码">选择</span>
 										</div>
 									</td>
@@ -1821,7 +1848,7 @@ function dlgSortcodeConfig(band2) {
 								</tr>
 								<tr>
 									<td class="tdKey">八级地址</td>
-									<td class="tdValue" data-key="address8"><input class="form-control input-sm" type="text"></td>
+									<td class="tdValue" data-key="address8"><input onchange="valueChange(this)" class="form-control input-sm" type="text"></td>
 								</tr>
 								<tr>
 									<td class="tdKey">坐标</td>

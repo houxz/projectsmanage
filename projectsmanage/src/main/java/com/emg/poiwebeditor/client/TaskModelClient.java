@@ -102,7 +102,7 @@ public class TaskModelClient {
 	}
 	
 	//获取批次的keyid集合
-	public Boolean InsertNewTask(ConfigDBModel configDBModel,Long projectid,Long shapeid){
+	public Boolean InsertNewTask(ConfigDBModel configDBModel,Long projectid,Long shapeid,Integer state){
 		BasicDataSource dataSource = null;
 		try {
 			if ( configDBModel == null)
@@ -115,8 +115,8 @@ public class TaskModelClient {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append(" tb_task  ");
-			sql.append(" (name,projectid,priority,rank,keywordid) ");
-			sql.append(" values('name'," + projectid +",0,0,"+ shapeid +")");
+			sql.append(" (name,projectid,priority,rank,keywordid,state) ");
+			sql.append(" values('name'," + projectid +",0,0,"+ shapeid +" ," + state +")");
 				
 			dataSource = Common.getDataSource(configDBModel);
 			int insertcount = new  JdbcTemplate(dataSource).update(sql.toString());

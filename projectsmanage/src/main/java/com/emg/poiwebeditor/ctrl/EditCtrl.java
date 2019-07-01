@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +22,6 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.emg.poiwebeditor.client.POIClient;
 import com.emg.poiwebeditor.client.PublicClient;
 import com.emg.poiwebeditor.client.TaskModelClient;
@@ -68,6 +68,10 @@ public class EditCtrl extends BaseCtrl {
 	private PublicClient publicClient;
 	@Autowired
 	private POIClient poiClient;
+	
+	private static final int BAIDU = 45;
+	private static final int TENGXUN = 46;
+	private static final int GAODE = 47;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String openLader(Model model, HttpSession session, HttpServletRequest request) {
@@ -110,7 +114,8 @@ public class EditCtrl extends BaseCtrl {
 	
 	@RequestMapping(params = "atn=submitedittask")
 	public ModelAndView submitEditTask(Model model, HttpServletRequest request, HttpSession session) {
-		logger.debug("START");
+		logger.debug("START submit");
+		logger.debug(new Date().getTime() + "");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		TaskModel task = new TaskModel();
 		ProjectModel project = new ProjectModel();
@@ -124,31 +129,28 @@ public class EditCtrl extends BaseCtrl {
 			String saveRelations = ParamUtils.getParameter(request, "relations");
 			String source = ParamUtils.getParameter(request, "source");
 			POIDo poi = null;
+			List<ModifiedlogDO> logs = new ArrayList<ModifiedlogDO>();
+			if (source != null && !source.isEmpty()) {
+				JSONArray temp = JSONArray.parseArray(source);
+				for(int i = 0; i < temp.size(); i++) {
+					ModifiedlogDO log = temp.getObject(i, ModifiedlogDO.class);
+					logs.add(log);
+				}
+			}
 			if (oid != -1) {
-				poi = this.getPOI(request);
+				poi = this.getPOI(request, logs);
 				poi.setConfirmUId(Long.valueOf(userid));
 				poi.setUid(Long.valueOf(userid));
 			}
 			
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			List<PoiMergeDO> relations = this.getRelation(taskid, saveRelations);
+			
 			Long u = new Long(userid);
 			if (poi != null) {
 				ret = poiClient.updatePOI(u, poi);
-				if (source != null) {
-					JSONArray temp = JSONArray.parseArray(source);
-					POIDo p = poiClient.selectPOIByOid(oid);
-					for(int i = 0; i < temp.size(); i++) {
-						JSONObject obj = (JSONObject)temp.get(i);
-						if(p.getVer() == null || p.getVer().isEmpty()) {
-							//1: 修改 2：新增
-							obj.put("flag", 2);
-						}else {
-							obj.put("flag", 1);
-						}
-					}
-					publicClient.updateModifiedlogs( temp.toJSONString());
-				}
+				publicClient.updateModifiedlogs( logs);
+				
 			}
 			if (relations != null) {
 				ret = publicClient.updateRelations(u,  relations);
@@ -192,7 +194,8 @@ public class EditCtrl extends BaseCtrl {
 		json.addObject("keywordid", keywordid);
 		json.addObject("result", ret);
 
-		logger.debug("END");
+		logger.debug("END submit");
+		logger.debug(new Date().getTime() + "");
 		return json;
 	}
 	
@@ -292,6 +295,29 @@ public class EditCtrl extends BaseCtrl {
 		try {
 			Long keywordid = ParamUtils.getLongParameter(request, "keywordid", -1);
 			referdatas = publicClient.selectReferdatasByKeywordid(keywordid);
+			for(ReferdataModel ref : referdatas) {
+				if(ref.getTel() == null || ref.getTel().isEmpty()) continue;
+				String tels[] = null;
+				//提前把字符串排好序，方便在界面上比较四家电话是否完全相同
+				if(ref.getSrcType() == BAIDU) tels = ref.getTel().split(",");
+				else if(ref.getSrcType() == TENGXUN) tels = ref.getTel().split("; ");
+				else if(ref.getSrcType() == GAODE) tels = ref.getTel().split(";");
+				if (tels == null) continue;
+				for (int i = 0; i < tels.length-1; i++) {
+					for(int j = i + 1; j < tels.length ; j++) {
+						if (tels[i].compareTo(tels[j]) > 0) {
+							String temp = tels[i];
+							tels[i]=tels[j];
+							tels[j] = temp;
+						}
+					}
+				}
+				StringBuffer tel = new StringBuffer();
+				for (int i = 0; i < tels.length; i++) {
+					tel.append(tels[i] + ";");
+				}
+				ref.setTel(tel.substring(0,tel.length() - 1));
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			referdatas = new ArrayList<ReferdataModel>();
@@ -331,7 +357,7 @@ public class EditCtrl extends BaseCtrl {
 		try {
 			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
-			POIDo  poi = this.getPOI(request);
+			POIDo  poi = this.getPOI(request, null);
 			poi.setConfirm(ConfirmEnum.confirm_ok);
 			poi.setConfirmUId(userid);
 			poi.setUid(userid);
@@ -357,7 +383,7 @@ public class EditCtrl extends BaseCtrl {
 		Long ret = -1L;
 		try {
 			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-			POIDo  poi = this.getPOI(request);
+			POIDo  poi = this.getPOI(request, null);
 			String geo = ParamUtils.getParameter(request, "geo");
 			poi.setGeo(geo);
 			poi.setConfirm(ConfirmEnum.confirm_ok);
@@ -386,7 +412,7 @@ public class EditCtrl extends BaseCtrl {
 	 * 根据前台传递过来的参数设置POI
 	 * @return
 	 */
-	private POIDo getPOI(HttpServletRequest request) throws Exception{
+	private POIDo getPOI(HttpServletRequest request, List<ModifiedlogDO> logs) throws Exception{
 		Long oid = ParamUtils.getLongParameter(request, "oid", -1);
 		
 		String namec = ParamUtils.getParameter(request, "namec");
@@ -401,17 +427,55 @@ public class EditCtrl extends BaseCtrl {
 		String remark = ParamUtils.getParameter(request, "remark");
 		String geo = ParamUtils.getParameter(request, "geo");
 		Long projectId = ParamUtils.getLongParameter(request, "projectId", 0);
-		
 		POIDo poi = new POIDo();
+		poi.setNamec(namec);
+		
 		logger.debug(JSON.toJSON(poi).toString());
 		POIDo savePoi = poiClient.selectPOIByOid(oid);
-		poi.setNamec(namec);
 		if (oid < 0) {
 			oid = poiClient.getPoiId();
 			poi.setGrade(GradeEnum.general);
 		}else {
 			poi.setGrade(savePoi.getGrade());
 		}
+		if (logs != null) {
+			boolean flag = false;
+			if(savePoi.getVer() == null || savePoi.getVer().isEmpty()) {
+				flag = true;
+			}
+			for (ModifiedlogDO log : logs) {
+				if(log.getOid() < 1) log.setOid(oid);
+				if("featcode".equals(log.getK())) {
+					log.setOldValue(savePoi.getFeatcode() + "");
+				}else if("sortcocde".equals(log.getK())) {
+					log.setOldValue(savePoi.getSortcode());
+				}else if("namec".equals(log.getK())) {
+					log.setOldValue(savePoi.getNamec());
+				}else if("address8".equals(log.getK())) {
+					Optional<TagDO> tags = savePoi.getPoitags().stream().filter(e -> "address8".equals(e.getK())).findFirst();
+					if (tags.isPresent()) {
+						TagDO t = tags.get();
+						log.setOldValue(t.getV());
+					}else {
+						log.setOldValue(null);
+					}
+					
+				}else if("tel".equals(log.getK())) {
+					Optional<TagDO> tags = savePoi.getPoitags().stream().filter(e ->"tel".equals(e.getK())).findFirst();
+					if (tags.isPresent()) {
+						TagDO t = tags.get();
+						log.setOldValue(t.getV());
+					}else {
+						log.setOldValue(null);
+					}
+					
+				}
+				// 1: 修改， 2： 新增
+				log.setFlag(flag ? 2 : 1);
+			}
+			
+		}
+		
 		poi.setId(oid);
 		poi.setSystemId(370);
 		poi.setConfirm(ConfirmEnum.ready_for_qc);
@@ -423,6 +487,7 @@ public class EditCtrl extends BaseCtrl {
 		poi.setSortcode(sortcode);
 		poi.setProjectid(projectId);
 		Set<TagDO> tags = poi.getPoitags();
+		TagDO telTag = null;
 		if (savePoi != null && savePoi.getPoitags() != null) {
 			Set<TagDO> saveTags = savePoi.getPoitags();
 			saveAddress(saveTags, tags,address4, "address4", "address4e", "address4p", oid);
@@ -463,15 +528,23 @@ public class EditCtrl extends BaseCtrl {
 						namese.setK(POIAttrnameEnum.namese.toString());
 						namese.setV(null);
 						tags.add(namese);
-					}else if ("tel".equals(tag.getK())) {
-						TagDO telTag = new TagDO();
-						telTag.setId(oid);
-						telTag.setK(POIAttrnameEnum.tel.toString());
-						telTag.setV(null);
-						tags.add(telTag);
 					}
+				}else if ("tel".equals(tag.getK())) {
+						telTag =tag;
 				}
 			}
+		}
+		if (telTag !=null) {
+			telTag.setId(oid);
+			telTag.setK(POIAttrnameEnum.tel.toString());
+			telTag.setV(tel);
+			tags.add(telTag);
+		}else if(telTag == null && tel != null && !tel.isEmpty()){
+			telTag = new TagDO();
+			telTag.setId(oid);
+			telTag.setK(POIAttrnameEnum.tel.toString());
+			telTag.setV(tel);
+			tags.add(telTag);
 		}
 		TagDO inputdatatype = new TagDO();
 		inputdatatype.setId(oid);

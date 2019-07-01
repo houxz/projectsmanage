@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.emg.poiwebeditor.common.RoleEnum;
 import com.emg.poiwebeditor.pojo.ChangePOIVO;
 import com.emg.poiwebeditor.pojo.KeywordModel;
+import com.emg.poiwebeditor.pojo.ModifiedlogDO;
 import com.emg.poiwebeditor.pojo.PoiMergeDO;
 import com.emg.poiwebeditor.pojo.ReferdataModel;
 
@@ -133,13 +134,12 @@ public class PublicClient {
 		return ret;
 	}
 	
-	public Long updateModifiedlogs( String logs) throws Exception {
+	public Long updateModifiedlogs( List<ModifiedlogDO> logs) throws Exception {
 
-		
-		// JSONObject json = (JSONObject) JSON.toJSON(logs);
+		JSONArray json= JSONArray.parseArray(JSON.toJSONString(logs));
 		HttpClientResult result = null;
 		long ret = -1l;
-			result = HttpClientUtils.doPostHttpClient(String.format(uploadModifiedlog, host, port, path), contentType,  logs);
+			result = HttpClientUtils.doPostHttpClient(String.format(uploadModifiedlog, host, port, path), contentType,  json.toString());
 		
 		if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error") && ret < 0) {
 			ret = 1l;
