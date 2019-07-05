@@ -117,24 +117,7 @@
 		return a.sequence - b.sequence;
 	}
 	
-	//地图上绘制参考数据图标
-// 	function addMakerOnEMGMap(map ) {
-// 		if (map) {
-// 			var img = new Image();
-// 			// img.src = 'http://m.emapgo.cn/demo/electricize/img/poi_center.png';
-// 			img.src = "resources/images/start.png";
-// 			if (shapegeo) {
-// 				// POINT (102.486719835069 24.9213802083333)
-// 				var geo = shapegeo.replace("POINT (","").replace(")", "").split(" ");
-// 				var marker = new emapgo.Marker(img		
-// 				)
-// 				.setLngLat(geo)
-// 				.addTo(map);
-// 			}
-			
-// 		}
-// 	}
-	
+
 		function addMakerOnEMGMap(map, isEmg ) {
 		if (map == null || dianpingGeo == null) return;
 		var img = new Image();
@@ -253,6 +236,7 @@
 				$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
 				$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val(poi.featcode);
 				$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val(poi.sortcode);
+				$("table#tbEdit>tbody td.tdValue[data-key='owner']>input:text").val(poi.owner);
 				dianpingGeo = poi.geo;
 				poi.poitags.forEach(function(tag, index) {
 					$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
@@ -303,7 +287,22 @@
 		var address6 = $("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val();
 		var address7 = $("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val();
 		var address8 = $("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val();
-		
+		var namep 	 = $("table#tbEdit>tbody td.tdValue[data-key='namep']>input:text").val();
+		var names 	 = $("table#tbEdit>tbody td.tdValue[data-key='names']>input:text").val();
+		var namee 	 = $("table#tbEdit>tbody td.tdValue[data-key='namee']>input:text").val();
+		var namesp 	 = $("table#tbEdit>tbody td.tdValue[data-key='namesp']>input:text").val();
+		var address1 = $("table#tbEdit>tbody td.tdValue[data-key='address1']>input:text").val();
+		var address1p= $("table#tbEdit>tbody td.tdValue[data-key='address1p']>input:text").val();
+		var address1e= $("table#tbEdit>tbody td.tdValue[data-key='address1e']>input:text").val();
+		var address2 = $("table#tbEdit>tbody td.tdValue[data-key='address2']>input:text").val();
+		var address2p= $("table#tbEdit>tbody td.tdValue[data-key='address2p']>input:text").val();
+		var address2e= $("table#tbEdit>tbody td.tdValue[data-key='address2e']>input:text").val();
+		var address3 = $("table#tbEdit>tbody td.tdValue[data-key='address3']>input:text").val();
+		var address3p= $("table#tbEdit>tbody td.tdValue[data-key='address3p']>input:text").val();
+		var address3e= $("table#tbEdit>tbody td.tdValue[data-key='address3e']>input:text").val();
+		var owner 	 = $("table#tbEdit>tbody td.tdValue[data-key='owner']>input:text").val();
+		var postalcode= $("table#tbEdit>tbody td.tdValue[data-key='postalcode']>input:text").val();
+		var projectId = $("#curProjectID").val();
 		$.webeditor.showMsgBox("info", "数据保存中...");
 		jQuery.post("./modify.web", {
 			"atn" : "submitmodifytask",
@@ -323,6 +322,22 @@
 			"address6" : address6,
 			"address7" : address7,
 			"address8" : address8,
+			"namep"	   : namep,
+			"names"    : names,
+			"namee"    : namee,
+			"namesp"   : namesp,
+			"address1" : address1,
+			"address1p": address1p,
+			"address1e": address1e,
+			"address2" : address2,
+			"address2p": address2p,
+			"address2e": address2e,
+			"address3" : address3,
+			"address3p": address3p,
+			"address3e": address3e,
+			"owner"	   : owner,
+			"projectId": projectId,
+			"postalcode": postalcode,
 			"dianpingGeo" : dianpingGeo,
 			"poigeo":poigeo
 		}, function(json) {
@@ -400,7 +415,22 @@
 		var address6 = $("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val();
 		var address7 = $("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val();
 		var address8 = $("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val();
-		
+		var namep 	 = $("table#tbEdit>tbody td.tdValue[data-key='namep']>input:text").val();
+		var names 	 = $("table#tbEdit>tbody td.tdValue[data-key='names']>input:text").val();
+		var namee 	 = $("table#tbEdit>tbody td.tdValue[data-key='namee']>input:text").val();
+		var namesp 	 = $("table#tbEdit>tbody td.tdValue[data-key='namesp']>input:text").val();
+		var address1 = $("table#tbEdit>tbody td.tdValue[data-key='address1']>input:text").val();
+		var address1p= $("table#tbEdit>tbody td.tdValue[data-key='address1p']>input:text").val();
+		var address1e= $("table#tbEdit>tbody td.tdValue[data-key='address1e']>input:text").val();
+		var address2 = $("table#tbEdit>tbody td.tdValue[data-key='address2']>input:text").val();
+		var address2p= $("table#tbEdit>tbody td.tdValue[data-key='address2p']>input:text").val();
+		var address2e= $("table#tbEdit>tbody td.tdValue[data-key='address2e']>input:text").val();
+		var address3 = $("table#tbEdit>tbody td.tdValue[data-key='address3']>input:text").val();
+		var address3p= $("table#tbEdit>tbody td.tdValue[data-key='address3p']>input:text").val();
+		var address3e= $("table#tbEdit>tbody td.tdValue[data-key='address3e']>input:text").val();
+		var owner 	 = $("table#tbEdit>tbody td.tdValue[data-key='owner']>input:text").val();
+		var postalcode= $("table#tbEdit>tbody td.tdValue[data-key='postalcode']>input:text").val();
+		var projectId = $("#curProjectID").val();
 		$.webeditor.showMsgBox("info", "数据保存中...");
 		jQuery.post("./modify.web", {
 			"atn" : "updatepoibyoid",
@@ -420,6 +450,22 @@
 			"address6" : address6,
 			"address7" : address7,
 			"address8" : address8,
+			"namep"	   : namep,
+			"names"    : names,
+			"namee"    : namee,
+			"namesp"   : namesp,
+			"address1" : address1,
+			"address1p": address1p,
+			"address1e": address1e,
+			"address2" : address2,
+			"address2p": address2p,
+			"address2e": address2e,
+			"address3" : address3,
+			"address3p": address3p,
+			"address3e": address3e,
+			"owner"	   : owner,
+			"projectId": projectId,
+			"postalcode": postalcode,
 			"dianpingGeo" : dianpingGeo,
 			"poigeo":poigeo
 		}, function(json) {
@@ -474,6 +520,7 @@
 						</table>
 					</div>
 					<div style="position: absolute; top: 205px; left: 0; right: 0; bottom: 60px;">
+					<div id="divpois" style="overflow-y: auto; width: 100%; height: 100%;">
 						<table id="tbEdit" class="table table-bordered table-condensed">
 							<thead>
 						    	<tr>
@@ -523,11 +570,72 @@
 									<td class="tdKey">八级地址</td>
 									<td class="tdValue" data-key="address8"><input class="form-control input-sm" type="text"></td>
 								</tr>
+								<tr>
+									<td class="tdKey">拼音名称</td>
+									<td class="tdValue" data-key="namep"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">简称</td>
+									<td class="tdValue" data-key="names"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">英文正式名称</td>
+									<td class="tdValue" data-key="namee"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">拼音简称</td>
+									<td class="tdValue" data-key="namesp"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">详细地址（省级）</td>
+									<td class="tdValue" data-key="address1"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">详细地址拼音（省级）</td>
+									<td class="tdValue" data-key="address1p"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">详细地址英文（省级）</td>
+									<td class="tdValue" data-key="address1e"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">详细地址（地级）</td>
+									<td class="tdValue" data-key="address2"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">详细地址拼音（地级）</td>
+									<td class="tdValue" data-key="address2p"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">详细地址英文（地级）</td>
+									<td class="tdValue" data-key="address2e"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">详细地址（区县级）</td>
+									<td class="tdValue" data-key="address3"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">详细地址拼音（区县级）</td>
+									<td class="tdValue" data-key="address3p"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">详细地址英文（区县级）</td>
+									<td class="tdValue" data-key="address3e"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">所属行政区域代码</td>
+									<td class="tdValue" data-key="owner"><input class="form-control input-sm" type="text"></td>
+								</tr>
+								<tr>
+									<td class="tdKey">邮政代码</td>
+									<td class="tdValue" data-key="postalcode"><input class="form-control input-sm" type="text"></td>
+								</tr>
 							</tbody>
 						</table>
 					</div>
+					</div>
 					<div style="position: absolute; left: 0; right: 0; bottom: 12px; height: 38px; text-align: center;">
-						<button class="btn btn-default">稍后修改</button>
+<!-- 						<button class="btn btn-default">稍后修改</button> -->
 						<button class="btn btn-default" onClick="updatePOI();">保存</button>
 						<button class="btn btn-default" onClick="submitEditTask();">提交</button>
 					</div>

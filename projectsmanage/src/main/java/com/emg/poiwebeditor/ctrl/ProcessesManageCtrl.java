@@ -553,13 +553,15 @@ public class ProcessesManageCtrl extends BaseCtrl {
 									
 									Long shapeid = task.getId();
 									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349, shapeid,3);
-									if (bSuccess)
+									if (bSuccess) {
 										taskcount++;
+										datasetModelDao.Updatekeywordstate(configDBModel, task.getId(), 2);
+									}
 								}
 							}else {//不可靠数据源
 								if ( ( task.getBdcount() >0 && task.getTxcount() >0) || ( task.getBdcount() >0 && task.getGdcount() >0) ||
 										(task.getTxcount() >0 && task.getGdcount() >0) ) {
-									//创新新任务
+									//创建新任务
 									Long shapeid = task.getId();
 									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349, shapeid,0);
 									if (bSuccess)
@@ -567,8 +569,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 								}else {//创建自动完成任务
 									Long shapeid = task.getId();
 									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349, shapeid,3);
-									if (bSuccess)
+									if (bSuccess) {
 										taskcount++;
+										datasetModelDao.Updatekeywordstate(configDBModel, task.getId(), 2);
+									}
 									
 								}
 							}

@@ -457,10 +457,10 @@ public class TaskBlockDetailModelDao {
 				sql.append(" tb_task_link_poi B ");
 				sql.append(" WHERE A.id = B.taskid AND A.state = 3 ");
 				if (timeFlag) {
-					sql.append("	AND ( A.operatetime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ");
+					sql.append("	AND ( A.starttime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ");
 				} else {
-					sql.append("	AND (( A.operatetime BETWEEN '" + String.format("%s " + "00:00:00", time) + "' AND '"
-							+ String.format("%s " + "08:29:59", time) + "' ) or ( A.operatetime BETWEEN '"
+					sql.append("	AND (( A.starttime BETWEEN '" + String.format("%s " + "00:00:00", time) + "' AND '"
+							+ String.format("%s " + "08:29:59", time) + "' ) or ( A.starttime BETWEEN '"
 							+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time)
 							+ "' )) ");
 				}

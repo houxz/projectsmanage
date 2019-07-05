@@ -133,8 +133,8 @@
 						<th data-field="id" data-width="60"
 							data-filter-control="input" data-filter-control-placeholder="">编号</th>
 							
-						<th data-field="projectid" data-width="160" 
-							data-filter-control="input" data-filter-control-placeholder="">项目id</th>
+						<th data-field="processid" data-width="160" 
+							data-filter-control="input" data-filter-control-placeholder="">项目编号</th>
 							
 						<th data-field="processname" data-width="160"
 							data-filter-control="input" data-filter-control-placeholder="">项目名称</th>

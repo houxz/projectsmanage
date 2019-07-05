@@ -4,7 +4,8 @@ public enum CapacityTaskStateEnum {
 	/**
 	 * 0：新任务
 	 */
-	NEW(0, "新任务"),
+//	NEW(0, "新任务"), 避免与项目管理网站冲突
+	NEW(10, "新任务"),
 	/**
 	 * 1, 执行中
 	 */

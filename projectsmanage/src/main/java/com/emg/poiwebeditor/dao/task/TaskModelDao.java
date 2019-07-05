@@ -938,7 +938,7 @@ System.out.println(sql.toString());
 		return list;
 	}
 	// add by lianhr end
-	
+	//将统计的时间修改为 starttime from lml
 	public List<Map<String, Object>> groupTasksByTime2(ConfigDBModel configDBModel, String[] times, String time) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		BasicDataSource dataSource = null;
@@ -966,19 +966,20 @@ System.out.println(sql.toString());
 			sql.append(" FROM ");
 			sql.append(configDBModel.getDbschema()).append(".");
 			sql.append(" tb_task ");
-			sql.append(" WHERE state = 3");
+			sql.append(" WHERE 1 = 1 ");
 			if (timeFlag) {
-				sql.append("	AND operatetime BETWEEN '" + startTime + "' AND '" + endTime + "' ");
+				sql.append("	AND starttime BETWEEN '" + startTime + "' AND '" + endTime + "' ");
 			} else {
-				sql.append("	AND ((operatetime BETWEEN '" + String.format("%s " + "00:00:00", time) + "' AND '"
-						+ String.format("%s " + "08:29:59", time) + "') or (operatetime BETWEEN '"
+				sql.append("	AND ((starttime BETWEEN '" + String.format("%s " + "00:00:00", time) + "' AND '"
+						+ String.format("%s " + "08:29:59", time) + "') or (starttime BETWEEN '"
 						+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time)
 						+ "')) ");
 			}
 			sql.append("	AND ( editid > 0 OR checkid > 0 ) ");
 			sql.append(" GROUP BY  projectid, editid, checkid");
 
-System.out.println(sql.toString());
+logger.debug(sql.toString());
+
 			
 			dataSource = Common.getDataSource(configDBModel);
 			list = new JdbcTemplate(dataSource).queryForList(sql.toString());

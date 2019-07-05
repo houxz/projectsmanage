@@ -281,7 +281,7 @@ System.out.println(sql);
 			}
 			sql.append(" tb_keywords LEFT JOIN tb_referdata on \r\n" + 
 					"tb_keywords.\"id\" = tb_referdata.ref_keyword_id ");
-			sql.append(" WHERE 1=1 ");
+			sql.append(" WHERE state != 3 ");//不要废弃的
 		
 			sql.append(" AND " + separator + "datasetid" + separator + " IN ( " + sdatasetid + " ) ");
 			
@@ -740,5 +740,46 @@ System.out.println(sql);
 		return bret;
 	}
 	
-	
+	public Boolean Updatekeywordstate(ConfigDBModel configDBModel,Long id,Integer state) {
+		BasicDataSource dataSource = null;
+		Boolean bret = false;
+		try {
+			if (configDBModel == null)
+				return false;
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			String fieldsname = "";
+			
+			
+			StringBuffer sql = new StringBuffer();
+			sql.append(" update  ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_keywords set state = "+ state +" where id = " + id.toString());
+		
+System.out.println(sql);
+
+			dataSource = Common.getDataSource(configDBModel);
+
+			int row = new JdbcTemplate(dataSource).update(sql.toString());
+			if (row > 0)
+				bret = true;
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return bret;
+	}
 }

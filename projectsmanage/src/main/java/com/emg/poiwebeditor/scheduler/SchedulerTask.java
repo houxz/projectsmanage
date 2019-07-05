@@ -4070,6 +4070,10 @@ public class SchedulerTask {
 		try {
 			Integer userid = task.getEditid();
 			Long taskid = task.getId();
+			if(taskid == 180600) {
+				int a = 0;
+				a+=1;
+			}
 			// 查询质检错误
 			// 获取任务关联的POI
 			TaskLinkPoiModel linkpoi = taskModelClient.selectTaskLinkPoiByTaskid(task.getId());
@@ -4220,6 +4224,7 @@ public class SchedulerTask {
 			CapacityTaskModelExample example = new CapacityTaskModelExample();
 			Criteria criteria = example.or();
 			criteria.andStateEqualTo(CapacityTaskStateEnum.NEW.getValue());
+			criteria.andProcesstypeEqualTo(10);//
 			example.setOrderByClause("id desc");
 			List<CapacityTaskModel> newCapacityTasks = capacityTaskModelDao.selectByExample(example);
 

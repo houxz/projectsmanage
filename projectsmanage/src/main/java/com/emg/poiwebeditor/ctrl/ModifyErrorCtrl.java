@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,57 +88,57 @@ public class ModifyErrorCtrl {
 		TaskModel task = new TaskModel();
 		ProjectModel project = new ProjectModel();
 		ProcessModel process = new ProcessModel();
-		List< ErrorModel> errorlist = new ArrayList<ErrorModel>();
+		List<ErrorModel> errorlist = new ArrayList<ErrorModel>();
 		Long keywordid = -1L;
-	
-		//查找第一个可作业的项目：存在可作业的任务 + 任务下可有web编辑器作业
+
+		// 查找第一个可作业的项目：存在可作业的任务 + 任务下可有web编辑器作业
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Boolean bFindTask = false;
-			//找到一个可作业的任务
+			// 找到一个可作业的任务
 			while (!bFindTask) {
 				if (curProjectId == null) {
 					task = getNextModifyTask(userid);
-					if( task != null && task.getId() != null) {
-						curProjectId= task.getProjectid();
+					if (task != null && task.getId() != null) {
+						curProjectId = task.getProjectid();
 						doneProjectList.add(curProjectId);
-						Boolean isAvaliable  = isTaskAvaliable(task);
-						if(isAvaliable ) {
+						Boolean isAvaliable = isTaskAvaliable(task);
+						if (isAvaliable) {
 							break;
-						}else{
+						} else {
 							continue;
 						}
-					}else {//第一次查询就没找到可作业任务
+					} else {// 第一次查询就没找到可作业任务
 						break;
-					}//if( task != null && task.getId() != null)else
-					
+					} // if( task != null && task.getId() != null)else
+
 				} // if( curProjectid == null)
-				else {//查询当前项目下的任务
-					task = getNextModifyTaskByProjectId(userid,curProjectId,curTaskId);//刷新会调用次所以必须提交的时候才记录curtaskid
-					if( task != null && task.getId() != null) {
-						Boolean isAvaliable  = isTaskAvaliable(task);
-						if(isAvaliable ) {
+				else {// 查询当前项目下的任务
+					task = getNextModifyTaskByProjectId(userid, curProjectId, curTaskId);// 刷新会调用次所以必须提交的时候才记录curtaskid
+					if (task != null && task.getId() != null) {
+						Boolean isAvaliable = isTaskAvaliable(task);
+						if (isAvaliable) {
 							break;
-						}else{
+						} else {
 							continue;
 						}
-					}else {//当前项目查询不到需要下一个项目了（但是有未处理跳过的项目）
+					} else {// 当前项目查询不到需要下一个项目了（但是有未处理跳过的项目）
 						task = getNextModifyTaskNotDoneProject(userid);
-						if( task != null && task.getId() != null) {
-							Boolean isAvaliable  = isTaskAvaliable(task);
-							if(isAvaliable ) {
+						if (task != null && task.getId() != null) {
+							Boolean isAvaliable = isTaskAvaliable(task);
+							if (isAvaliable) {
 								break;
-							}else{
+							} else {
 								continue;
 							}
-						}else {//项目都循环完了没找到任务
+						} else {// 项目都循环完了没找到任务
 							break;
 						}
-					}//if( task != null && task.getId() != null)else
+					} // if( task != null && task.getId() != null)else
 
 				} // if( curProjectid == null)else
 			}
-			
+
 			if (task != null && task.getId() != null) {
 				Long projectid = task.getProjectid();
 				if (projectid.compareTo(0L) > 0) {
@@ -150,18 +151,18 @@ public class ModifyErrorCtrl {
 				}
 				keywordid = task.getKeywordid();
 			}
-				
+
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-		
+
 		model.addAttribute("task", task);
 		model.addAttribute("project", project);
 		model.addAttribute("process", process);
 		model.addAttribute("keywordid", keywordid);
-		model.addAttribute("poiid",curPoiId);
-		model.addAttribute("errorlist",curErrorList);
-		
+		model.addAttribute("poiid", curPoiId);
+		model.addAttribute("errorlist", curErrorList);
+
 		logger.debug("OPENLADER OVER");
 		return "modify";
 	}
@@ -283,73 +284,73 @@ public class ModifyErrorCtrl {
 		return json;
 	}
 
-		// 提交任务
-		@RequestMapping(params = "atn=submitmodifytask")
-		public ModelAndView submitModifyTask(Model model, HttpServletRequest request, HttpSession session) {
-			logger.debug("START");
-			ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
-			TaskModel task = new TaskModel();
-			ProjectModel project = new ProjectModel();
-			ProcessModel process = new ProcessModel();
-			Long keywordid = -1L;
-			try {
-				Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-				POIDo poi = this.getPOI(request);
-				poi.setConfirmUId(Long.valueOf(userid));
-				poi.setUid(Long.valueOf(userid));
-				Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
-				Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-				curTaskId = taskid;
-				poiClient.updatePOIToDB(poi);
-				List<Long> errorids = new ArrayList<Long>();
-				Integer errorcount = curErrorList.size();
-				for(Integer i = 0 ;i < errorcount ; i++) {
-					errorids.add( curErrorList.get(i).getId() );
-				}
-				//先修改错误状态
-				if(errorModelDao.updateErrors(errorids).compareTo(0L) <= 0  ) {
-					json.addObject("resultMsg", "修改错误状态为解决失败");
-					json.addObject("result", 0);
-					return json;
-				}
-				if (taskModelClient.submitModifyTask(taskid, userid, 2).compareTo(0L) <= 0) {
-					json.addObject("resultMsg", "任务提交失败");
-					json.addObject("result", 0);
-					return json;
-				}
-
-				if (getnext) {
-					task = getModifyTask(userid);
-					if (task != null && task.getId() != null) {
-						Long projectid = task.getProjectid();
-						if (projectid.compareTo(0L) > 0) {
-							project = projectModelDao.selectByPrimaryKey(projectid);
-
-							Long processid = project.getProcessid();
-							if (processid.compareTo(0L) > 0) {
-								process = processModelDao.selectByPrimaryKey(processid);
-							}
-						}
-
-						keywordid = task.getKeywordid();
-					}
-				}
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+	// 提交任务
+	@RequestMapping(params = "atn=submitmodifytask")
+	public ModelAndView submitModifyTask(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		TaskModel task = new TaskModel();
+		ProjectModel project = new ProjectModel();
+		ProcessModel process = new ProcessModel();
+		Long keywordid = -1L;
+		try {
+			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			POIDo poi = this.getPOI(request);
+			poi.setConfirmUId(Long.valueOf(userid));
+			poi.setUid(Long.valueOf(userid));
+			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			curTaskId = taskid;
+			poiClient.updatePOIToDB(poi);
+			List<Long> errorids = new ArrayList<Long>();
+			Integer errorcount = curErrorList.size();
+			for (Integer i = 0; i < errorcount; i++) {
+				errorids.add(curErrorList.get(i).getId());
 			}
-			json.addObject("task", task);
-			json.addObject("project", project);
-			json.addObject("process", process);
-			json.addObject("keywordid", keywordid);
-			json.addObject("result", 1);
+			// 先修改错误状态
+			if (errorModelDao.updateErrors(errorids).compareTo(0L) <= 0) {
+				json.addObject("resultMsg", "修改错误状态为解决失败");
+				json.addObject("result", 0);
+				return json;
+			}
+			if (taskModelClient.submitModifyTask(taskid, userid, 2).compareTo(0L) <= 0) {
+				json.addObject("resultMsg", "任务提交失败");
+				json.addObject("result", 0);
+				return json;
+			}
 
-			model.addAttribute("poiid", curPoiId);
-			model.addAttribute("errorlist", curErrorList);
+			if (getnext) {
+				task = getModifyTask(userid);
+				if (task != null && task.getId() != null) {
+					Long projectid = task.getProjectid();
+					if (projectid.compareTo(0L) > 0) {
+						project = projectModelDao.selectByPrimaryKey(projectid);
 
-			logger.debug("END");
-			return json;
+						Long processid = project.getProcessid();
+						if (processid.compareTo(0L) > 0) {
+							process = processModelDao.selectByPrimaryKey(processid);
+						}
+					}
+
+					keywordid = task.getKeywordid();
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		}
-		
+		json.addObject("task", task);
+		json.addObject("project", project);
+		json.addObject("process", process);
+		json.addObject("keywordid", keywordid);
+		json.addObject("result", 1);
+
+		model.addAttribute("poiid", curPoiId);
+		model.addAttribute("errorlist", curErrorList);
+
+		logger.debug("END");
+		return json;
+	}
+
 	// 保存POI
 	@RequestMapping(params = "atn=updatepoibyoid")
 	public ModelAndView updateModifyTask(Model model, HttpServletRequest request, HttpSession session) {
@@ -369,15 +370,14 @@ public class ModifyErrorCtrl {
 			curTaskId = taskid;
 			poiClient.updatePOIToDB(poi);
 
-
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-		}	
+		}
 		json.addObject("result", 1);
 		logger.debug("END");
 		return json;
 	}
-	
+
 	// 获取错误
 	@RequestMapping(params = "atn=geterrorlistbyid")
 	public ModelAndView getErrorList(Model model, HttpServletRequest request, HttpSession session) {
@@ -390,7 +390,7 @@ public class ModifyErrorCtrl {
 		logger.debug("END");
 		return json;
 	}
-	
+
 	private TaskModel getNextModifyTaskByProjectId(Integer userid, Long projectid, Long taskid) {
 		TaskModel task = new TaskModel();
 		// 查询当前项目下，当前任务 为基准的下一个任务 (前提条件：任务是没有优先级，就是顺序往下拿的)
@@ -488,9 +488,9 @@ public class ModifyErrorCtrl {
 					} else if (check == CheckEnum.uncheck) {
 						// 未质检出 : 跳过任务
 						curTaskId = taskid;
-						ConfirmEnum confirm =  poi.getConfirm();
-						if( confirm == ConfirmEnum.no_confirm) {
-							//中途保存过POI
+						ConfirmEnum confirm = poi.getConfirm();
+						if (confirm == ConfirmEnum.no_confirm) {
+							// 中途保存过POI
 							curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
 							Integer errcount = curErrorList.size();
 							if (errcount > 0) {
@@ -501,7 +501,7 @@ public class ModifyErrorCtrl {
 								// 这是工具bug 或者流程 被人为修改
 								return false;
 							}
-						}else {
+						} else {
 							return false;// 继续找下个任务
 						}
 					} else if (check == CheckEnum.err) {
@@ -539,186 +539,411 @@ public class ModifyErrorCtrl {
 	private POIDo getPOI(HttpServletRequest request) throws Exception {
 		Long oid = ParamUtils.getLongParameter(request, "oid", -1);
 
-		String namec = ParamUtils.getParameter(request, "namec");
-		String tel = ParamUtils.getParameter(request, "tel");
+		String namec = checkString( ParamUtils.getParameter(request, "namec"));
+		String tel = checkString ( ParamUtils.getParameter(request, "tel") );
 		Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
-		String sortcode = ParamUtils.getParameter(request, "sortcode");
-		String address4 = ParamUtils.getParameter(request, "address4");
-		String address5 = ParamUtils.getParameter(request, "address5");
-		String address6 = ParamUtils.getParameter(request, "address6");
-		String address7 = ParamUtils.getParameter(request, "address7");
-		String address8 = ParamUtils.getParameter(request, "address8");
-//		String geo = ParamUtils.getParameter(request, "dianpingGeo");
+		String sortcode = checkString( ParamUtils.getParameter(request, "sortcode"));
+		String address4 = checkString( ParamUtils.getParameter(request, "address4"));
+		String address5 = checkString( ParamUtils.getParameter(request, "address5"));
+		String address6 = checkString( ParamUtils.getParameter(request, "address6"));
+		String address7 = checkString( ParamUtils.getParameter(request, "address7"));
+		String address8 = checkString( ParamUtils.getParameter(request, "address8"));
+		String webnamep = checkString( ParamUtils.getParameter(request, "namep"));
+		String names =    checkString( ParamUtils.getParameter(request, "names"));
+		String webnamee = checkString( ParamUtils.getParameter(request, "namee"));
+		String webnamesp = checkString( ParamUtils.getParameter(request, "namesp"));
+		String address1 =  checkString( ParamUtils.getParameter(request, "address1"));
+		String address1p = checkString( ParamUtils.getParameter(request, "address1p"));
+		String address1e = checkString( ParamUtils.getParameter(request, "address1e"));
+		String address2 =  checkString( ParamUtils.getParameter(request, "address2"));
+		String address2p = checkString( ParamUtils.getParameter(request, "address2p"));
+		String address2e = checkString( ParamUtils.getParameter(request, "address2e"));
+		String address3 =  checkString( ParamUtils.getParameter(request, "address3"));
+		String address3p = checkString( ParamUtils.getParameter(request, "address3p"));
+		String address3e = checkString( ParamUtils.getParameter(request, "address3e"));
+		Integer owner =  ParamUtils.getIntParameter(request, "owner", 0);
+		String postalcode = checkString( ParamUtils.getParameter(request, "postalcode"));
+		
+		//主表字段赋值null 不会清空字段
+		if(namec == null)
+			namec = "";
+		if(sortcode == null)
+			sortcode = "";
+		
+
 		String geo = ParamUtils.getParameter(request, "poigeo");
+		Long projectId = ParamUtils.getLongParameter(request, "projectId", 0);
 
 		POIDo poi = new POIDo();
-		logger.debug(JSON.toJSON(poi).toString());
-		
-		POIDo savePoi = poiClient.selectPOIByOid(oid);
 		poi.setNamec(namec);
+		logger.debug(JSON.toJSON(poi).toString());
+
+		POIDo savePoi = poiClient.selectPOIByOid(oid);
+
 		if (oid < 0) {
 			oid = poiClient.getPoiId();
 			poi.setGrade(GradeEnum.general);
-		}else {
+		} else {
 			poi.setGrade(savePoi.getGrade());
 		}
 		poi.setId(oid);
 		poi.setSystemId(370);
+		poi.setGeo(geo);
+		poi.setFeatcode(featcode);
+		poi.setSortcode(sortcode);
+		poi.setProjectid(projectId);
+		poi.setOwner( owner);
 		poi.setConfirm(ConfirmEnum.ready_for_qc);
 		poi.setAutoCheck(CheckEnum.uncheck);
 		poi.setManualCheck(CheckEnum.uncheck);
 		poi.setOpTypeEnum(OpTypeEnum.submit);
-		poi.setGeo(geo);
-		poi.setFeatcode(featcode);
-		poi.setSortcode(sortcode);
+	
 		
+	
 		Set<TagDO> tags = poi.getPoitags();
+		TagDO telTag = null;
+		TagDO tagnamep = null;
+		TagDO tagnames = null;
+		TagDO tagnamee = null;
+		TagDO tagnamesp = null;
+		TagDO tag1 = null;
+		TagDO tag1p = null;
+		TagDO tag1e = null;
+		TagDO tag2 = null;
+		TagDO tag2p = null;
+		TagDO tag2e = null;
+		TagDO tag3 = null;
+		TagDO tag3p = null;
+		TagDO tag3e = null;
+		TagDO tagpostalcode = null;
 		if (savePoi != null && savePoi.getPoitags() != null) {
 			Set<TagDO> saveTags = savePoi.getPoitags();
-			
+
+			saveAddress(saveTags, tags, address4, "address4", "address4e", "address4p", oid);
+			saveAddress(saveTags, tags, address5, "address5", "address5e", "address5p", oid);
+			saveAddress(saveTags, tags, address6, "address6", "address6e", "address6p", oid);
+			saveAddress(saveTags, tags, address7, "address7", "address7e", "address7p", oid);
+			saveAddress(saveTags, tags, address8, "address8", "address8e", "address8p", oid);
+
 			for (TagDO tag : saveTags) {
 				if (!savePoi.getNamec().equals(namec)) {
-					TagDO namep = new TagDO();
-					namep.setId(oid);
-					namep.setK(POIAttrnameEnum.namep.toString());
-					namep.setV(null);
-					tags.add(namep);
-					
-					TagDO namee = new TagDO();
-					namee.setId(oid);
-					namee.setK(POIAttrnameEnum.namee.toString());
-					namee.setV(null);
-					tags.add(namee);
-				}
-				
-				if ("address4".equals(tag.getK())) {
-					if (address4 == null || address4.isEmpty()) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag4e = new TagDO();
-						tag4e.setId(oid);
-						tag4e.setK(POIAttrnameEnum.address4e.toString());
-						tag4e.setV(null);
-						tags.add(tag4e);
-						TagDO tag4p = new TagDO();
-						tag4p.setId(oid);
-						tag4p.setK(POIAttrnameEnum.address4p.toString());
-						tag4p.setV(null);
-						tags.add(tag4p);
-						
+					if ("namep".equals(tag.getK())) {
+//						TagDO namep = new TagDO();
+//						namep.setId(oid);
+//						namep.setK(POIAttrnameEnum.namep.toString());
+//						namep.setV(null);
+//						tags.add(namep);
+					} else if ("namee".equals(tag.getK())) {
+//						TagDO namee = new TagDO();
+//						namee.setId(oid);
+//						namee.setK(POIAttrnameEnum.namee.toString());
+//						namee.setV(null);
+//						tags.add(namee);
+					} else if ("names".equals(tag.getK())) {
+//						TagDO namees = new TagDO();
+//						namees.setId(oid);
+//						namees.setK(POIAttrnameEnum.names.toString());
+//						namees.setV(null);
+//						tags.add(namees);
+					} else if ("namesp".equals(tag.getK())) {
+//						TagDO namesp = new TagDO();
+//						namesp.setId(oid);
+//						namesp.setK(POIAttrnameEnum.namesp.toString());
+//						namesp.setV(null);
+//						tags.add(namesp);
+					} else if ("namese".equals(tag.getK())) {
+//						TagDO namese = new TagDO();
+//						namese.setId(oid);
+//						namese.setK(POIAttrnameEnum.namese.toString());
+//						namese.setV(null);
+//						tags.add(namese);
 					}
-				}else if ("address5".equals(tag.getK())) {
-					if (address5 == null || address5.isEmpty()) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag5e = new TagDO();
-						tag5e.setId(oid);
-						tag5e.setK(POIAttrnameEnum.address5e.toString());
-						tag5e.setV(null);
-						tags.add(tag5e);
-						TagDO tag5p = new TagDO();
-						tag5p.setId(oid);
-						tag5p.setK(POIAttrnameEnum.address5p.toString());
-						tag5p.setV(null);
-						tags.add(tag5p);
-						
-					}
-				}else if ("address6".equals(tag.getK())) {
-					if (address6 == null || address6.isEmpty()) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag6e = new TagDO();
-						tag6e.setId(oid);
-						tag6e.setK(POIAttrnameEnum.address6e.toString());
-						tag6e.setV(null);
-						tags.add(tag6e);
-						TagDO tag6p = new TagDO();
-						tag6p.setId(oid);
-						tag6p.setK(POIAttrnameEnum.address6p.toString());
-						tag6p.setV(null);
-						tags.add(tag6p);
-						
-					}
-				}else if ("address7".equals(tag.getK())) {
-					if (address7 == null || address7.isEmpty()) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag7e = new TagDO();
-						tag7e.setId(oid);
-						tag7e.setK(POIAttrnameEnum.address7e.toString());
-						tag7e.setV(null);
-						tags.add(tag7e);
-						TagDO tag7p = new TagDO();
-						tag7p.setId(oid);
-						tag7p.setK(POIAttrnameEnum.address7p.toString());
-						tag7p.setV(null);
-						tags.add(tag7p);
-						
-					}
-				}else if ("address8".equals(tag.getK())) {
-					if (address8 != null && !address8.equals(tag.getV())) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag8e = new TagDO();
-						tag8e.setId(oid);
-						tag8e.setK(POIAttrnameEnum.address8e.toString());
-						tag8e.setV(null);
-						tags.add(tag8e);
-						TagDO tag8p = new TagDO();
-						tag8p.setId(oid);
-						tag8p.setK(POIAttrnameEnum.address8p.toString());
-						tag8p.setV(null);
-						tags.add(tag8p);
-						
-					}
+				} else if ("tel".equals(tag.getK())) {
+					telTag = tag;
+				} else if ("namep".equals(tag.getK())) {
+					tagnamep = tag;
+				} else if ("names".equals(tag.getK())) {
+					tagnames = tag;
+				} else if ("namee".equals(tag.getK())) {
+					tagnamee = tag;
+				} else if ("namesp".equals(tag.getK())) {
+					tagnamesp = tag;
+				} else if ("address1".equals(tag.getK())) {
+					tag1 = tag;
+				} else if ("address1p".equals(tag.getK())) {
+					tag1p = tag;
+				} else if ("address1e".equals(tag.getK())) {
+					tag1e = tag;
+				} else if ("address2".equals(tag.getK())) {
+					tag2 = tag;
+				} else if ("address2p".equals(tag.getK())) {
+					tag2p = tag;
+				} else if ("address2e".equals(tag.getK())) {
+					tag2e = tag;
+				} else if ("address3".equals(tag.getK())) {
+					tag3 = tag;
+				} else if ("address3p".equals(tag.getK())) {
+					tag3p = tag;
+				} else if ("address3e".equals(tag.getK())) {
+					tag3e = tag;
+				}  else if ("postalcode".equals(tag.getK())) {
+					tagpostalcode = tag;
 				}
 			}
+
+		} // for (TagDO tag : saveTags) {
+
+		if (telTag != null) {
+			telTag.setId(oid);
+			telTag.setK(POIAttrnameEnum.tel.toString());
+			telTag.setV(tel);
+			tags.add(telTag);
+		} else if (telTag == null && tel != null && !tel.isEmpty()) {
+			telTag = new TagDO();
+			telTag.setId(oid);
+			telTag.setK(POIAttrnameEnum.tel.toString());
+			telTag.setV(tel);
+			tags.add(telTag);
 		}
-		
-		
-		TagDO tag = new TagDO();
-		tag.setId(oid);
-		tag.setK(POIAttrnameEnum.tel.toString());
-		tag.setV(tel);
-		tags.add(tag);
-		
-		TagDO tag8 = new TagDO();
-		tag8.setId(oid);
-		tag8.setK(POIAttrnameEnum.address8.toString());
-		tag8.setV(address8);
-		tags.add(tag8);
-		 return poi;
+
+		if (tagnamep != null) {
+			tagnamep.setId(oid);
+			tagnamep.setK(POIAttrnameEnum.namep.toString());
+			tagnamep.setV(webnamep);
+			tags.add(tagnamep);
+		} else if (webnamep != null && !webnamep.isEmpty()) {
+			tagnamep = new TagDO();
+			tagnamep.setId(oid);
+			tagnamep.setK(POIAttrnameEnum.namep.toString());
+			tagnamep.setV(webnamep);
+			tags.add(tagnamep);
+		}
+
+		if (tagnames != null) {
+			tagnames.setId(oid);
+			tagnames.setK(POIAttrnameEnum.names.toString());
+			tagnames.setV(names);
+			tags.add(tagnames);
+		} else if (names != null && !names.isEmpty()) {
+			tagnames = new TagDO();
+			tagnames.setId(oid);
+			tagnames.setK(POIAttrnameEnum.names.toString());
+			tagnames.setV(names);
+			tags.add(tagnames);
+		}
+
+		if (tagnamee != null) {
+			tagnamee.setId(oid);
+			tagnamee.setK(POIAttrnameEnum.namee.toString());
+			tagnamee.setV(webnamee);
+			tags.add(tagnamee);
+		} else if (webnamee != null && !webnamee.isEmpty()) {
+			tagnamee = new TagDO();
+			tagnamee.setId(oid);
+			tagnamee.setK(POIAttrnameEnum.namee.toString());
+			tagnamee.setV(webnamee);
+			tags.add(tagnamee);
+		}
+
+		if (tagnamesp != null) {
+			tagnamesp.setId(oid);
+			tagnamesp.setK(POIAttrnameEnum.namesp.toString());
+			tagnamesp.setV(webnamesp);
+			tags.add(tagnamesp);
+		} else if (webnamep != null && webnamep.isEmpty()) {
+			tagnamesp = new TagDO();
+			tagnamesp.setId(oid);
+			tagnamesp.setK(POIAttrnameEnum.namesp.toString());
+			tagnamesp.setV(webnamesp);
+			tags.add(tagnamesp);
+		}
+
+		if (tag1 != null) {
+			tag1.setId(oid);
+			tag1.setK(POIAttrnameEnum.address1.toString());
+			tag1.setV(address1);
+			tags.add(tag1);
+		} else if (address1 != null && !address1.isEmpty()) {
+			tag1 = new TagDO();
+			tag1.setId(oid);
+			tag1.setK(POIAttrnameEnum.address1.toString());
+			tag1.setV(address1);
+			tags.add(tag1);
+		}
+
+		if (tag1p != null) {
+			tag1p.setId(oid);
+			tag1p.setK(POIAttrnameEnum.address1p.toString());
+			tag1p.setV(address1p);
+			tags.add(tag1p);
+		} else if (address1p != null && !address1p.isEmpty()) {
+			tag1p = new TagDO();
+			tag1p.setId(oid);
+			tag1p.setK(POIAttrnameEnum.address1p.toString());
+			tag1p.setV(address1p);
+			tags.add(tag1p);
+		}
+
+		if (tag1e != null) {
+			tag1e.setId(oid);
+			tag1e.setK(POIAttrnameEnum.address1e.toString());
+			tag1e.setV(address1e);
+			tags.add(tag1e);
+		} else if (address1e != null && !address1e.isEmpty()) {
+			tag1e = new TagDO();
+			tag1e.setId(oid);
+			tag1e.setK(POIAttrnameEnum.address1e.toString());
+			tag1e.setV(address1e);
+			tags.add(tag1e);
+		}
+
+		if (tag2 != null) {
+			tag2.setId(oid);
+			tag2.setK(POIAttrnameEnum.address2.toString());
+			tag2.setV(address2);
+			tags.add(tag2);
+		} else if (address2 != null && !address2.isEmpty()) {
+			tag2 = new TagDO();
+			tag2.setId(oid);
+			tag2.setK(POIAttrnameEnum.address2.toString());
+			tag2.setV(address2);
+			tags.add(tag2);
+		}
+
+		if (tag2p != null) {
+			tag2p.setId(oid);
+			tag2p.setK(POIAttrnameEnum.address2p.toString());
+			tag2p.setV(address2p);
+			tags.add(tag2p);
+		} else if (address2p != null && !address2p.isEmpty()) {
+			tag2p = new TagDO();
+			tag2p.setId(oid);
+			tag2p.setK(POIAttrnameEnum.address2p.toString());
+			tag2p.setV(address2p);
+			tags.add(tag2p);
+		}
+
+		if (tag2e != null) {
+			tag2e.setId(oid);
+			tag2e.setK(POIAttrnameEnum.address2e.toString());
+			tag2e.setV(address2e);
+			tags.add(tag2e);
+		} else if (address2e != null && !address2e.isEmpty()) {
+			tag2e = new TagDO();
+			tag2e.setId(oid);
+			tag2e.setK(POIAttrnameEnum.address2e.toString());
+			tag2e.setV(address2e);
+			tags.add(tag2e);
+		}
+
+		if (tag3 != null) {
+			tag3.setId(oid);
+			tag3.setK(POIAttrnameEnum.address3.toString());
+			tag3.setV(address3);
+			tags.add(tag3);
+		} else if (address3 != null && !address3.isEmpty()) {
+			tag3 = new TagDO();
+			tag3.setId(oid);
+			tag3.setK(POIAttrnameEnum.address3.toString());
+			tag3.setV(address3);
+			tags.add(tag3);
+		}
+
+		if (tag3p != null) {
+			tag3p.setId(oid);
+			tag3p.setK(POIAttrnameEnum.address3p.toString());
+			tag3p.setV(address3p);
+			tags.add(tag3p);
+		} else if (address3p != null && !address3p.isEmpty()) {
+			tag3p = new TagDO();
+			tag3p.setId(oid);
+			tag3p.setK(POIAttrnameEnum.address3p.toString());
+			tag3p.setV(address3p);
+			tags.add(tag3p);
+		}
+
+		if (tag3e != null) {
+			tag3e.setId(oid);
+			tag3e.setK(POIAttrnameEnum.address3e.toString());
+			tag3e.setV(address3e);
+			tags.add(tag3e);
+		} else if (address3e != null && !address3e.isEmpty()) {
+			tag3e = new TagDO();
+			tag3e.setId(oid);
+			tag3e.setK(POIAttrnameEnum.address3e.toString());
+			tag3e.setV(address3e);
+			tags.add(tag3e);
+		}
+
+		if (tagpostalcode != null) {
+			tagpostalcode.setId(oid);
+			tagpostalcode.setK(POIAttrnameEnum.postalcode.toString());
+			tagpostalcode.setV(postalcode);
+			tags.add(tagpostalcode);
+		} else if (postalcode != null && !postalcode.isEmpty()) {
+			tagpostalcode = new TagDO();
+			tagpostalcode.setId(oid);
+			tagpostalcode.setK(POIAttrnameEnum.postalcode.toString());
+			tagpostalcode.setV(postalcode);
+			tags.add(tagpostalcode);
+		}
+
+		return poi;
 	}
-	
+
 	/**
-	 * 根据前台传递过来的参数设置POI
-	 * 只保存POI
+	 * 根据前台传递过来的参数设置POI 只保存POI
+	 * 
 	 * @return
 	 */
 	private POIDo getSavePOI(HttpServletRequest request) throws Exception {
 		Long oid = ParamUtils.getLongParameter(request, "oid", -1);
 
-		String namec = ParamUtils.getParameter(request, "namec");
-		String tel = ParamUtils.getParameter(request, "tel");
+		String namec = checkString( ParamUtils.getParameter(request, "namec"));
+		String tel = checkString ( ParamUtils.getParameter(request, "tel") );
 		Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
-		String sortcode = ParamUtils.getParameter(request, "sortcode");
-		String address4 = ParamUtils.getParameter(request, "address4");
-		String address5 = ParamUtils.getParameter(request, "address5");
-		String address6 = ParamUtils.getParameter(request, "address6");
-		String address7 = ParamUtils.getParameter(request, "address7");
-		String address8 = ParamUtils.getParameter(request, "address8");
-//		String geo = ParamUtils.getParameter(request, "dianpingGeo");
+		String sortcode = checkString( ParamUtils.getParameter(request, "sortcode"));
+		String address4 = checkString( ParamUtils.getParameter(request, "address4"));
+		String address5 = checkString( ParamUtils.getParameter(request, "address5"));
+		String address6 = checkString( ParamUtils.getParameter(request, "address6"));
+		String address7 = checkString( ParamUtils.getParameter(request, "address7"));
+		String address8 = checkString( ParamUtils.getParameter(request, "address8"));
+		String webnamep = checkString( ParamUtils.getParameter(request, "namep"));
+		String names =    checkString( ParamUtils.getParameter(request, "names"));
+		String webnamee = checkString( ParamUtils.getParameter(request, "namee"));
+		String webnamesp = checkString( ParamUtils.getParameter(request, "namesp"));
+		String address1 =  checkString( ParamUtils.getParameter(request, "address1"));
+		String address1p = checkString( ParamUtils.getParameter(request, "address1p"));
+		String address1e = checkString( ParamUtils.getParameter(request, "address1e"));
+		String address2 =  checkString( ParamUtils.getParameter(request, "address2"));
+		String address2p = checkString( ParamUtils.getParameter(request, "address2p"));
+		String address2e = checkString( ParamUtils.getParameter(request, "address2e"));
+		String address3 =  checkString( ParamUtils.getParameter(request, "address3"));
+		String address3p = checkString( ParamUtils.getParameter(request, "address3p"));
+		String address3e = checkString( ParamUtils.getParameter(request, "address3e"));
+		Integer owner =  ParamUtils.getIntParameter(request, "owner", 0);
+		String postalcode = checkString( ParamUtils.getParameter(request, "postalcode"));
+		
+		//主表字段赋值null 不会清空字段
+		if(namec == null)
+			namec = "";
+		if(sortcode == null)
+			sortcode = "";
+		
+
 		String geo = ParamUtils.getParameter(request, "poigeo");
+		Long projectId = ParamUtils.getLongParameter(request, "projectId", 0);
 
 		POIDo poi = new POIDo();
-		logger.debug(JSON.toJSON(poi).toString());
-		
-		POIDo savePoi = poiClient.selectPOIByOid(oid);
 		poi.setNamec(namec);
+		logger.debug(JSON.toJSON(poi).toString());
+
+		POIDo savePoi = poiClient.selectPOIByOid(oid);
+
 		if (oid < 0) {
 			oid = poiClient.getPoiId();
 			poi.setGrade(GradeEnum.general);
-		}else {
+		} else {
 			poi.setGrade(savePoi.getGrade());
 		}
 		poi.setId(oid);
@@ -727,123 +952,299 @@ public class ModifyErrorCtrl {
 		poi.setFeatcode(featcode);
 		poi.setSortcode(sortcode);
 		poi.setConfirm(ConfirmEnum.no_confirm);
+		poi.setProjectid(projectId);
+		
+		poi.setOwner( owner);
 	
 		Set<TagDO> tags = poi.getPoitags();
+		TagDO telTag = null;
+		TagDO tagnamep = null;
+		TagDO tagnames = null;
+		TagDO tagnamee = null;
+		TagDO tagnamesp = null;
+		TagDO tag1 = null;
+		TagDO tag1p = null;
+		TagDO tag1e = null;
+		TagDO tag2 = null;
+		TagDO tag2p = null;
+		TagDO tag2e = null;
+		TagDO tag3 = null;
+		TagDO tag3p = null;
+		TagDO tag3e = null;
+		TagDO tagpostalcode = null;
 		if (savePoi != null && savePoi.getPoitags() != null) {
 			Set<TagDO> saveTags = savePoi.getPoitags();
-			
+
+			saveAddress(saveTags, tags, address4, "address4", "address4e", "address4p", oid);
+			saveAddress(saveTags, tags, address5, "address5", "address5e", "address5p", oid);
+			saveAddress(saveTags, tags, address6, "address6", "address6e", "address6p", oid);
+			saveAddress(saveTags, tags, address7, "address7", "address7e", "address7p", oid);
+			saveAddress(saveTags, tags, address8, "address8", "address8e", "address8p", oid);
+
 			for (TagDO tag : saveTags) {
 				if (!savePoi.getNamec().equals(namec)) {
-					TagDO namep = new TagDO();
-					namep.setId(oid);
-					namep.setK(POIAttrnameEnum.namep.toString());
-					namep.setV(null);
-					tags.add(namep);
-					
-					TagDO namee = new TagDO();
-					namee.setId(oid);
-					namee.setK(POIAttrnameEnum.namee.toString());
-					namee.setV(null);
-					tags.add(namee);
-				}
-				
-				if ("address4".equals(tag.getK())) {
-					if (address4 == null || address4.isEmpty()) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag4e = new TagDO();
-						tag4e.setId(oid);
-						tag4e.setK(POIAttrnameEnum.address4e.toString());
-						tag4e.setV(null);
-						tags.add(tag4e);
-						TagDO tag4p = new TagDO();
-						tag4p.setId(oid);
-						tag4p.setK(POIAttrnameEnum.address4p.toString());
-						tag4p.setV(null);
-						tags.add(tag4p);
-						
+					if ("namep".equals(tag.getK())) {
+//						TagDO namep = new TagDO();
+//						namep.setId(oid);
+//						namep.setK(POIAttrnameEnum.namep.toString());
+//						namep.setV(null);
+//						tags.add(namep);
+					} else if ("namee".equals(tag.getK())) {
+//						TagDO namee = new TagDO();
+//						namee.setId(oid);
+//						namee.setK(POIAttrnameEnum.namee.toString());
+//						namee.setV(null);
+//						tags.add(namee);
+					} else if ("names".equals(tag.getK())) {
+//						TagDO namees = new TagDO();
+//						namees.setId(oid);
+//						namees.setK(POIAttrnameEnum.names.toString());
+//						namees.setV(null);
+//						tags.add(namees);
+					} else if ("namesp".equals(tag.getK())) {
+//						TagDO namesp = new TagDO();
+//						namesp.setId(oid);
+//						namesp.setK(POIAttrnameEnum.namesp.toString());
+//						namesp.setV(null);
+//						tags.add(namesp);
+					} else if ("namese".equals(tag.getK())) {
+//						TagDO namese = new TagDO();
+//						namese.setId(oid);
+//						namese.setK(POIAttrnameEnum.namese.toString());
+//						namese.setV(null);
+//						tags.add(namese);
 					}
-				}else if ("address5".equals(tag.getK())) {
-					if (address5 == null || address5.isEmpty()) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag5e = new TagDO();
-						tag5e.setId(oid);
-						tag5e.setK(POIAttrnameEnum.address5e.toString());
-						tag5e.setV(null);
-						tags.add(tag5e);
-						TagDO tag5p = new TagDO();
-						tag5p.setId(oid);
-						tag5p.setK(POIAttrnameEnum.address5p.toString());
-						tag5p.setV(null);
-						tags.add(tag5p);
-						
-					}
-				}else if ("address6".equals(tag.getK())) {
-					if (address6 == null || address6.isEmpty()) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag6e = new TagDO();
-						tag6e.setId(oid);
-						tag6e.setK(POIAttrnameEnum.address6e.toString());
-						tag6e.setV(null);
-						tags.add(tag6e);
-						TagDO tag6p = new TagDO();
-						tag6p.setId(oid);
-						tag6p.setK(POIAttrnameEnum.address6p.toString());
-						tag6p.setV(null);
-						tags.add(tag6p);
-						
-					}
-				}else if ("address7".equals(tag.getK())) {
-					if (address7 == null || address7.isEmpty()) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag7e = new TagDO();
-						tag7e.setId(oid);
-						tag7e.setK(POIAttrnameEnum.address7e.toString());
-						tag7e.setV(null);
-						tags.add(tag7e);
-						TagDO tag7p = new TagDO();
-						tag7p.setId(oid);
-						tag7p.setK(POIAttrnameEnum.address7p.toString());
-						tag7p.setV(null);
-						tags.add(tag7p);
-						
-					}
-				}else if ("address8".equals(tag.getK())) {
-					if (address8 != null && !address8.equals(tag.getV())) {
-						tag.setV(null);
-						tags.add(tag);
-						TagDO tag8e = new TagDO();
-						tag8e.setId(oid);
-						tag8e.setK(POIAttrnameEnum.address8e.toString());
-						tag8e.setV(null);
-						tags.add(tag8e);
-						TagDO tag8p = new TagDO();
-						tag8p.setId(oid);
-						tag8p.setK(POIAttrnameEnum.address8p.toString());
-						tag8p.setV(null);
-						tags.add(tag8p);
-						
-					}
+				} else if ("tel".equals(tag.getK())) {
+					telTag = tag;
+				} else if ("namep".equals(tag.getK())) {
+					tagnamep = tag;
+				} else if ("names".equals(tag.getK())) {
+					tagnames = tag;
+				} else if ("namee".equals(tag.getK())) {
+					tagnamee = tag;
+				} else if ("namesp".equals(tag.getK())) {
+					tagnamesp = tag;
+				} else if ("address1".equals(tag.getK())) {
+					tag1 = tag;
+				} else if ("address1p".equals(tag.getK())) {
+					tag1p = tag;
+				} else if ("address1e".equals(tag.getK())) {
+					tag1e = tag;
+				} else if ("address2".equals(tag.getK())) {
+					tag2 = tag;
+				} else if ("address2p".equals(tag.getK())) {
+					tag2p = tag;
+				} else if ("address2e".equals(tag.getK())) {
+					tag2e = tag;
+				} else if ("address3".equals(tag.getK())) {
+					tag3 = tag;
+				} else if ("address3p".equals(tag.getK())) {
+					tag3p = tag;
+				} else if ("address3e".equals(tag.getK())) {
+					tag3e = tag;
+				}  else if ("postalcode".equals(tag.getK())) {
+					tagpostalcode = tag;
 				}
 			}
+
+		} // for (TagDO tag : saveTags) {
+
+		if (telTag != null) {
+			telTag.setId(oid);
+			telTag.setK(POIAttrnameEnum.tel.toString());
+			telTag.setV(tel);
+			tags.add(telTag);
+		} else if (telTag == null && tel != null && !tel.isEmpty()) {
+			telTag = new TagDO();
+			telTag.setId(oid);
+			telTag.setK(POIAttrnameEnum.tel.toString());
+			telTag.setV(tel);
+			tags.add(telTag);
 		}
-		
-		
-		TagDO tag = new TagDO();
-		tag.setId(oid);
-		tag.setK(POIAttrnameEnum.tel.toString());
-		tag.setV(tel);
-		tags.add(tag);
-		
-		TagDO tag8 = new TagDO();
-		tag8.setId(oid);
-		tag8.setK(POIAttrnameEnum.address8.toString());
-		tag8.setV(address8);
-		tags.add(tag8);
-		 return poi;
+
+		if (tagnamep != null) {
+			tagnamep.setId(oid);
+			tagnamep.setK(POIAttrnameEnum.namep.toString());
+			tagnamep.setV(webnamep);
+			tags.add(tagnamep);
+		} else if (webnamep != null && !webnamep.isEmpty()) {
+			tagnamep = new TagDO();
+			tagnamep.setId(oid);
+			tagnamep.setK(POIAttrnameEnum.namep.toString());
+			tagnamep.setV(webnamep);
+			tags.add(tagnamep);
+		}
+
+		if (tagnames != null) {
+			tagnames.setId(oid);
+			tagnames.setK(POIAttrnameEnum.names.toString());
+			tagnames.setV(names);
+			tags.add(tagnames);
+		} else if (names != null && !names.isEmpty()) {
+			tagnames = new TagDO();
+			tagnames.setId(oid);
+			tagnames.setK(POIAttrnameEnum.names.toString());
+			tagnames.setV(names);
+			tags.add(tagnames);
+		}
+
+		if (tagnamee != null) {
+			tagnamee.setId(oid);
+			tagnamee.setK(POIAttrnameEnum.namee.toString());
+			tagnamee.setV(webnamee);
+			tags.add(tagnamee);
+		} else if (webnamee != null && !webnamee.isEmpty()) {
+			tagnamee = new TagDO();
+			tagnamee.setId(oid);
+			tagnamee.setK(POIAttrnameEnum.namee.toString());
+			tagnamee.setV(webnamee);
+			tags.add(tagnamee);
+		}
+
+		if (tagnamesp != null) {
+			tagnamesp.setId(oid);
+			tagnamesp.setK(POIAttrnameEnum.namesp.toString());
+			tagnamesp.setV(webnamesp);
+			tags.add(tagnamesp);
+		} else if (webnamep != null && webnamep.isEmpty()) {
+			tagnamesp = new TagDO();
+			tagnamesp.setId(oid);
+			tagnamesp.setK(POIAttrnameEnum.namesp.toString());
+			tagnamesp.setV(webnamesp);
+			tags.add(tagnamesp);
+		}
+
+		if (tag1 != null) {
+			tag1.setId(oid);
+			tag1.setK(POIAttrnameEnum.address1.toString());
+			tag1.setV(address1);
+			tags.add(tag1);
+		} else if (address1 != null && !address1.isEmpty()) {
+			tag1 = new TagDO();
+			tag1.setId(oid);
+			tag1.setK(POIAttrnameEnum.address1.toString());
+			tag1.setV(address1);
+			tags.add(tag1);
+		}
+
+		if (tag1p != null) {
+			tag1p.setId(oid);
+			tag1p.setK(POIAttrnameEnum.address1p.toString());
+			tag1p.setV(address1p);
+			tags.add(tag1p);
+		} else if (address1p != null && !address1p.isEmpty()) {
+			tag1p = new TagDO();
+			tag1p.setId(oid);
+			tag1p.setK(POIAttrnameEnum.address1p.toString());
+			tag1p.setV(address1p);
+			tags.add(tag1p);
+		}
+
+		if (tag1e != null) {
+			tag1e.setId(oid);
+			tag1e.setK(POIAttrnameEnum.address1e.toString());
+			tag1e.setV(address1e);
+			tags.add(tag1e);
+		} else if (address1e != null && !address1e.isEmpty()) {
+			tag1e = new TagDO();
+			tag1e.setId(oid);
+			tag1e.setK(POIAttrnameEnum.address1e.toString());
+			tag1e.setV(address1e);
+			tags.add(tag1e);
+		}
+
+		if (tag2 != null) {
+			tag2.setId(oid);
+			tag2.setK(POIAttrnameEnum.address2.toString());
+			tag2.setV(address2);
+			tags.add(tag2);
+		} else if (address2 != null && !address2.isEmpty()) {
+			tag2 = new TagDO();
+			tag2.setId(oid);
+			tag2.setK(POIAttrnameEnum.address2.toString());
+			tag2.setV(address2);
+			tags.add(tag2);
+		}
+
+		if (tag2p != null) {
+			tag2p.setId(oid);
+			tag2p.setK(POIAttrnameEnum.address2p.toString());
+			tag2p.setV(address2p);
+			tags.add(tag2p);
+		} else if (address2p != null && !address2p.isEmpty()) {
+			tag2p = new TagDO();
+			tag2p.setId(oid);
+			tag2p.setK(POIAttrnameEnum.address2p.toString());
+			tag2p.setV(address2p);
+			tags.add(tag2p);
+		}
+
+		if (tag2e != null) {
+			tag2e.setId(oid);
+			tag2e.setK(POIAttrnameEnum.address2e.toString());
+			tag2e.setV(address2e);
+			tags.add(tag2e);
+		} else if (address2e != null && !address2e.isEmpty()) {
+			tag2e = new TagDO();
+			tag2e.setId(oid);
+			tag2e.setK(POIAttrnameEnum.address2e.toString());
+			tag2e.setV(address2e);
+			tags.add(tag2e);
+		}
+
+		if (tag3 != null) {
+			tag3.setId(oid);
+			tag3.setK(POIAttrnameEnum.address3.toString());
+			tag3.setV(address3);
+			tags.add(tag3);
+		} else if (address3 != null && !address3.isEmpty()) {
+			tag3 = new TagDO();
+			tag3.setId(oid);
+			tag3.setK(POIAttrnameEnum.address3.toString());
+			tag3.setV(address3);
+			tags.add(tag3);
+		}
+
+		if (tag3p != null) {
+			tag3p.setId(oid);
+			tag3p.setK(POIAttrnameEnum.address3p.toString());
+			tag3p.setV(address3p);
+			tags.add(tag3p);
+		} else if (address3p != null && !address3p.isEmpty()) {
+			tag3p = new TagDO();
+			tag3p.setId(oid);
+			tag3p.setK(POIAttrnameEnum.address3p.toString());
+			tag3p.setV(address3p);
+			tags.add(tag3p);
+		}
+
+		if (tag3e != null) {
+			tag3e.setId(oid);
+			tag3e.setK(POIAttrnameEnum.address3e.toString());
+			tag3e.setV(address3e);
+			tags.add(tag3e);
+		} else if (address3e != null && !address3e.isEmpty()) {
+			tag3e = new TagDO();
+			tag3e.setId(oid);
+			tag3e.setK(POIAttrnameEnum.address3e.toString());
+			tag3e.setV(address3e);
+			tags.add(tag3e);
+		}
+
+		if (tagpostalcode != null) {
+			tagpostalcode.setId(oid);
+			tagpostalcode.setK(POIAttrnameEnum.postalcode.toString());
+			tagpostalcode.setV(postalcode);
+			tags.add(tagpostalcode);
+		} else if (postalcode != null && !postalcode.isEmpty()) {
+			tagpostalcode = new TagDO();
+			tagpostalcode.setId(oid);
+			tagpostalcode.setK(POIAttrnameEnum.postalcode.toString());
+			tagpostalcode.setV(postalcode);
+			tags.add(tagpostalcode);
+		}
+
+		return poi;
 	}
 
 	private List<PoiMergeDO> getRelation(HttpServletRequest request, POIDo poi) throws Exception {
@@ -932,7 +1333,7 @@ public class ModifyErrorCtrl {
 					if (task != null && task.getId() != null) {
 						Boolean isAvaliable = isTaskAvaliable(task);
 						break;
-						
+
 					} else {// 当前项目查询不到需要下一个项目了（但是有未处理跳过的项目）
 						task = getNextModifyTaskNotDoneProject(userid);
 						if (task != null && task.getId() != null) {
@@ -950,5 +1351,93 @@ public class ModifyErrorCtrl {
 		}
 		return task;
 	}
+
+	/**
+	 * 保存address值，同时看数据库里相应的中英文是否为空，不为空则打isdel =t
+	 * 
+	 * @param saveTags
+	 * @param tags
+	 * @param address
+	 * @param addressKey
+	 * @param addresse
+	 * @param addressp
+	 * @param oid
+	 */
+	private void saveAddress(Set<TagDO> saveTags, Set<TagDO> tags, String address, String addressKey, String addresse,
+			String addressp, long oid) {
+		TagDO addresstag = this.getTag(saveTags, addressKey);
+		TagDO tag4e = this.getTag(saveTags, addresse);
+		TagDO tag4p = this.getTag(saveTags, addressp);
+		if (addresstag == null && address != null) {
+			TagDO tag4 = new TagDO();
+			tag4.setId(oid);
+			tag4.setK(addressKey);
+			tag4.setV(address);
+			tags.add(tag4);
+
+			if (tag4e != null) {
+				tag4e.setV(null);
+				tags.add(tag4e);
+			}
+
+			if (tag4p != null) {
+				tag4p.setV(null);
+				tags.add(tag4p);
+			}
+		} else if (addresstag != null && address == null) {
+			addresstag.setV(null);
+			tags.add(addresstag);
+			if (tag4e != null) {
+				tag4e.setV(null);
+				tags.add(tag4e);
+			}
+
+			if (tag4p != null) {
+				tag4p.setV(null);
+				tags.add(tag4p);
+			}
+		} else if (addresstag != null && address != null && !addresstag.getV().equals(address)) {
+			addresstag.setV(address);
+			tags.add(addresstag);
+			if (tag4e != null) {
+				tag4e.setV(null);
+				tags.add(tag4e);
+			}
+
+			if (tag4p != null) {
+				tag4p.setV(null);
+				tags.add(tag4p);
+			}
+		}
+	}
+
+	/**
+	 * 从tags中查找指定key的tag, 并且满足相应的条件
+	 * 
+	 * @param tags
+	 * @param key
+	 * @param compare
+	 * @return
+	 */
+	private TagDO getTag(Set<TagDO> tags, String key) {
+		if (tags == null || tags.isEmpty() || key == null)
+			return null;
+		for (TagDO tag : tags) {
+			if (key.equals(tag.getK())) {
+				// tag.setV(null);
+				return tag;
+			}
+		}
+		return null;
+	}
 	
+	/*
+	 * 不允许字符串为空字符串 -- null 
+	 * */
+	private String  checkString(String str) {
+	
+		if(StringUtils.isNotBlank(str))
+			return str;
+		return null;
+	}
 }
