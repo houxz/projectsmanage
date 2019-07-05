@@ -1431,7 +1431,7 @@ public class ModifyErrorCtrl {
 		return null;
 	}
 	
-	/*
+	/*20190705
 	 * 不允许字符串为空字符串 -- null 
 	 * */
 	private String  checkString(String str) {
