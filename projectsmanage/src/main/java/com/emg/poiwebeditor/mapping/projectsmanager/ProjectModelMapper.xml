@@ -468,9 +468,9 @@
 		createby, createtime,
 		area, p.`name`, p.`owner`,
 		overprogress, overstate, poitotckdisl, poitotckdisr, v.id as ida, v.configid, v.moduleid, v.`value`, c.`name` as config_name 
-		from projectmanager.tb_projects p
-		join process.tb_config_value v on p.processid = v.processid
-		join process.tb_config c on c.id = v.configid
+		from ${projectdbname}.tb_projects p
+		join ${processdbname}.tb_config_value v on p.processid = v.processid
+		join ${processdbname}.tb_config c on c.id = v.configid
 		WHERE p.overstate = #{state} and p.systemid = #{systemId}
 	</select>
 </mapper>

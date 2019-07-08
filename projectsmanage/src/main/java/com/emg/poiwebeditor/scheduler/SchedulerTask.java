@@ -112,6 +112,12 @@ public class SchedulerTask {
 	@Value("${scheduler.attachcapacity.enable}")
 	private String attachEnable;
 	
+	@Value("${project.projectdbname}")
+	private String projectdbname;
+	@Value("${project.processdbname}")
+	private String processdbname;
+	
+	
 	@Autowired
 	private CapacityTaskModelDao capacityTaskModelDao;
 
@@ -4088,7 +4094,7 @@ public class SchedulerTask {
 				Long poiid = linkpoi.getPoiId();
 				POIDo poi = new POIDo();
 				poi = poiClient.selectPOIByOid(poiid);
-				if (poi.getSystemId() == 370) {// web编辑作业的点
+				if (poi.getSystemId() == 370 || poi.getSystemId() ==  0 ) {// web编辑作业的点
 					CheckEnum check = poi.getAutoCheck();
 					if (check == CheckEnum.ok) {
 						// 质检OK 设置任务状态 3,6
@@ -4148,7 +4154,9 @@ public class SchedulerTask {
 		
 
 		example.setOrderByClause("priority desc, id");*/
-		List<ProjectModel> rows = projectModelDao.selectProjectWithConfig( ProjectState.START.getValue(),SystemType.poi_polymerize.getValue());
+//		List<ProjectModel> rows = projectModelDao.selectProjectWithConfig( projectdbname,ProjectState.START.getValue(), SystemType.poi_polymerize.getValue());
+		
+		List<ProjectModel> rows = projectModelDao.selectProjectWithConfig( projectdbname,processdbname,ProjectState.START.getValue(), SystemType.poi_polymerize.getValue());
 		// 2.0 遍历项目id,根据项目id ；变量所有的任务
 		//3.0 查看某任务状态
 		try {

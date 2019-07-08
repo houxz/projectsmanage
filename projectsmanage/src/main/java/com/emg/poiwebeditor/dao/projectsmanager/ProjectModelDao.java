@@ -34,5 +34,6 @@ public interface ProjectModelDao {
 	 * @param configName
 	 * @return
 	 */
-	List<ProjectModel> selectProjectWithConfig( @Param("state") int state, @Param("systemId") int systemId);
+	List<ProjectModel> selectProjectWithConfig( @Param("projectdbname") String projectdbname ,@Param("processdbname") String processdbname , @Param("state") int state , @Param("systemId") int systemId);
+//	List<ProjectModel> selectProjectWithConfig( @Param("projectdbname") String projectdbname , @Param("state") int state , @Param("systemId") int systemId);
 }

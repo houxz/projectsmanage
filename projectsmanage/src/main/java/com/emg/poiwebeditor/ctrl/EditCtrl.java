@@ -446,27 +446,23 @@ public class EditCtrl extends BaseCtrl {
 			for (ModifiedlogDO log : logs) {
 				if(log.getOid() < 1) log.setOid(oid);
 				if("featcode".equals(log.getK())) {
-					log.setOldValue(savePoi.getFeatcode() + "");
+					log.setOldValue(flag ? null : savePoi.getFeatcode() + "");
 				}else if("sortcocde".equals(log.getK())) {
-					log.setOldValue(savePoi.getSortcode());
+					log.setOldValue(flag ? null : savePoi.getSortcode());
 				}else if("namec".equals(log.getK())) {
-					log.setOldValue(savePoi.getNamec());
+					log.setOldValue(flag ? null : savePoi.getNamec());
 				}else if("address8".equals(log.getK())) {
 					Optional<TagDO> tags = savePoi.getPoitags().stream().filter(e -> "address8".equals(e.getK())).findFirst();
 					if (tags.isPresent()) {
 						TagDO t = tags.get();
-						log.setOldValue(t.getV());
-					}else {
-						log.setOldValue(null);
+						log.setOldValue(flag ? null : t.getV());
 					}
 					
 				}else if("tel".equals(log.getK())) {
 					Optional<TagDO> tags = savePoi.getPoitags().stream().filter(e ->"tel".equals(e.getK())).findFirst();
 					if (tags.isPresent()) {
 						TagDO t = tags.get();
-						log.setOldValue(t.getV());
-					}else {
-						log.setOldValue(null);
+						log.setOldValue(flag ? null : t.getV());
 					}
 					
 				}

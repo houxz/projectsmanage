@@ -1,6 +1,7 @@
 package com.emg.poiwebeditor.client;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -117,30 +118,19 @@ public class POIClient {
 	
 	public Long updatePOI(Long uId, POIDo poi) throws Exception {
 
-		ChangePOIVO changeVO = new ChangePOIVO();
-		changeVO.setRole(RoleEnum.edit);
-		List<POIDo> poiModify = new ArrayList<POIDo>();
-		if (poi != null) {
-			poiModify.add(poi);
-		}
-		
-		changeVO.setPoiModify(poiModify);
-		changeVO.setuId(uId);
-		
-		JSONObject json = (JSONObject) JSON.toJSON(changeVO);
 		HttpClientResult result = null;
 		long ret = -1l;
 		if (poi != null) {
+			logger.debug("4.2: " + new Date().getTime() + "");
 			JSONObject poiJson = (JSONObject) JSON.toJSON(poi);
+			logger.debug("4.3: " + new Date().getTime() + "");
 			result = HttpClientUtils.doPostHttpClient(String.format(updatePOIInfoUrl, host, port, path), contentType, poiJson.toString());
+			logger.debug("4.4: " + new Date().getTime() + "");
 			if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
 				String isstr = result.getJson().replace("\r\n", "");
-				
 				ret =  Long.parseLong(isstr);
 			}
-			
-		} 
-		
+		}
 		if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error") && ret < 0) {
 			ret = 1l;
 		} else if (result.getStatus().equals(HttpStatus.BAD_REQUEST) && result.getJson() != null) {

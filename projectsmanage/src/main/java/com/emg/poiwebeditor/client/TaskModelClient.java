@@ -4,6 +4,7 @@ import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang3.StringUtils;
@@ -76,7 +77,7 @@ public class TaskModelClient {
 		return sb.toString();
 	}
 	
-	private String getEditTaskSQL(List<Long> projectIDs, Integer userid) {
+	/*private String getEditTaskSQL(List<Long> projectIDs, Integer userid) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" with projectid(projectid) as (select * from unnest(array[" + StringUtils.join(projectIDs, ",") + "])), ");
 		sb.append("		sorttable(state, process, sortvalue) as (values(1,5,0)) ");
@@ -96,6 +97,33 @@ public class TaskModelClient {
 		sb.append("					limit 1 for update) ");
 		sb.append("			) as taskid ");
 		sb.append("			from projectid as p ");
+		sb.append("		) as b where taskid is not null limit 1 ");
+		sb.append(" ) as a(id) where tb_task.id = a.id returning tb_task.*; ");
+		return sb.toString();
+	}*/
+	
+	private String getEditTaskSQL(List<Long> projectIDs, Integer userid) {
+		StringBuilder sb = new StringBuilder();
+		//sb.append(" with projectid(projectid) as (select * from unnest(array[" + StringUtils.join(projectIDs, ",") + "])), ");
+		//sb.append("		sorttable(state, process, sortvalue) as (values(1,5,0)) ");
+		sb.append(" update tb_task ");
+		sb.append(" set starttime=now(),operatetime=now(),state=1,process=5,editid= " + userid);
+		sb.append(" from ( ");
+		sb.append("		select * from ( ");
+		sb.append("			select coalesce ( ");
+		sb.append("				( select id from tb_task ");
+		//sb.append("					join sorttable using(state, process) ");
+		//sb.append("					where editid=" + userid +" and projectid=p.projectid ");
+		sb.append("					where editid=" + userid +" and projectid in (" + StringUtils.join(projectIDs, ",") + ")");
+		//sb.append("					order by sortvalue ,id ");
+		sb.append("					and state = 1 and process = 5 ");
+		sb.append("					limit 1 for update), ");
+		sb.append("				( select id from tb_task ");
+		sb.append("					where (state=0 and process=0 ) and projectid in (" + StringUtils.join(projectIDs, ",") + ") and ( editid=0 or editid ISNULL) ");
+		// sb.append("					order by id ");
+		sb.append("					limit 1 for update) ");
+		sb.append("			) as taskid ");
+		// sb.append("			from projectid as p ");
 		sb.append("		) as b where taskid is not null limit 1 ");
 		sb.append(" ) as a(id) where tb_task.id = a.id returning tb_task.*; ");
 		return sb.toString();
@@ -334,7 +362,7 @@ public class TaskModelClient {
 	// 查询项目pid下的所有制作提交（2,5），改错提交(2,6)的任务
 		public List<TaskModel> selectTaskByProjectId(String projectid) throws Exception {
 			List<TaskModel> tasklist = new ArrayList<TaskModel>();
-			try {
+			try { 
 				StringBuilder sb = new StringBuilder();
 				sb.append("select * from tb_task where projectid in(" + projectid + ")");
 				sb.append(" and ( (state = 2 and process =5) or ( state = 2 and process =6) )");

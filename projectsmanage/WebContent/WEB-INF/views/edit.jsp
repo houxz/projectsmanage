@@ -1039,7 +1039,7 @@
 			}else {
 				obj.k = "geo";
 			}
-			obj.k = key == "name" ? "namec" :key; 
+			
 			source.push(obj);
 		}
 		
@@ -1057,13 +1057,13 @@
 			
 			if (parent.indexOf("tbbaidu") != -1) {
 				var valueArray = value.split(";");
-				getCode(baiduCode, valueArray, oldObj, $this);
+				getCode(baiduCode, valueArray,  $this);
 			}else if(parent.indexOf("tbtengxun") != -1) {
 				var valueArray = value.split(":");
-				getCode(tengxunCode, valueArray, oldObj, $this);
+				getCode(tengxunCode, valueArray,  $this);
 			}else if(parent.indexOf("tbgaode") != -1) {
 				var valueArray = value.split(";");
-				getCode(gaodeCode, valueArray, oldObj, $this);
+				getCode(gaodeCode, valueArray,  $this);
 			}else if(parent.indexOf("tbemg") != -1) {
 				//当选中为EMG的分类时要去库里查询当前编辑库中的featcode, sortcode
 				var v = $($this.parents("table")[0]).find("input[type=checkbox]").val();
@@ -1802,9 +1802,9 @@
 									<td class="tdKey">电话</td>
 									<!-- onchange="value=value.replace(/[^\0-9\-\;]/g,'')"  -->
 									<td class="tdValue" data-key="tel">
-										<input onkeyup="value=value.replace(/[^\0-9\-\;]/g,'')" 
-										onpaste="value=value.replace(/[^\0-9\-\;]/g,'')" 
-										onchange="valueChange(this)"
+										<input onkeyup="value=value.replace(/[^\d;-]/g,'')" 
+										onpaste="value=value.replace(/[^\d;-]/g,'')" 
+										onchange="value=value.replace(/[^\d;-]/g,'');valueChange(this)"
 										oncontextmenu = "return false;"
 										onblur = ""
 									class="form-control input-sm" type="text"></td>
