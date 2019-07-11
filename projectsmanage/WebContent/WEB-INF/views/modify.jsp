@@ -538,10 +538,10 @@
 									<td class="tdKey">名称</td>
 									<td class="tdValue" data-key="name"><textarea class="form-control input-sm"></textarea></td>
 								</tr>
-								<tr>
-									<td class="tdKey">电话</td>
-									<td class="tdValue" data-key="tel"><input class="form-control input-sm" type="text"></td>
-								</tr>
+<!-- 								<tr> -->
+<!-- 									<td class="tdKey">电话</td> -->
+<!-- 									<td class="tdValue" data-key="tel"><input class="form-control input-sm" type="text"></td> -->
+<!-- 								</tr> -->
 								<tr>
 									<td class="tdKey">类型</td>
 									<td class="tdValue" data-key="featcode"><input class="form-control input-sm" type="text"></td>
@@ -550,26 +550,26 @@
 									<td class="tdKey">系列</td>
 									<td class="tdValue" data-key="sortcode"><input class="form-control input-sm" type="text"></td>
 								</tr>
-								<tr>
-									<td class="tdKey">四级地址</td>
-									<td class="tdValue" data-key="address4"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">五级地址</td>
-									<td class="tdValue" data-key="address5"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">六级地址</td>
-									<td class="tdValue" data-key="address6"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">七级地址</td>
-									<td class="tdValue" data-key="address7"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">八级地址</td>
-									<td class="tdValue" data-key="address8"><input class="form-control input-sm" type="text"></td>
-								</tr>
+<!-- 								<tr> -->
+<!-- 									<td class="tdKey">四级地址</td> -->
+<!-- 									<td class="tdValue" data-key="address4"><input class="form-control input-sm" type="text"></td> -->
+<!-- 								</tr> -->
+<!-- 								<tr> -->
+<!-- 									<td class="tdKey">五级地址</td> -->
+<!-- 									<td class="tdValue" data-key="address5"><input class="form-control input-sm" type="text"></td> -->
+<!-- 								</tr> -->
+<!-- 								<tr> -->
+<!-- 									<td class="tdKey">六级地址</td> -->
+<!-- 									<td class="tdValue" data-key="address6"><input class="form-control input-sm" type="text"></td> -->
+<!-- 								</tr> -->
+<!-- 								<tr> -->
+<!-- 									<td class="tdKey">七级地址</td> -->
+<!-- 									<td class="tdValue" data-key="address7"><input class="form-control input-sm" type="text"></td> -->
+<!-- 								</tr> -->
+<!-- 								<tr> -->
+<!-- 									<td class="tdKey">八级地址</td> -->
+<!-- 									<td class="tdValue" data-key="address8"><input class="form-control input-sm" type="text"></td> -->
+<!-- 								</tr> -->
 								<tr>
 									<td class="tdKey">拼音名称</td>
 									<td class="tdValue" data-key="namep"><input class="form-control input-sm" type="text"></td>

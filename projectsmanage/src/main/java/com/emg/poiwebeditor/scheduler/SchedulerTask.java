@@ -4076,7 +4076,14 @@ public class SchedulerTask {
 		try {
 			Integer userid = task.getEditid();
 			Long taskid = task.getId();
-			if(taskid == 180600) {
+			if(taskid == 1549351  ||
+					taskid == 1549385  ||
+					taskid == 1549397  ||
+					taskid == 1549419  ||
+					taskid == 1549435  ||
+					taskid == 1549461  ||
+					taskid == 1549558  
+					) {
 				int a = 0;
 				a+=1;
 			}
@@ -4094,7 +4101,7 @@ public class SchedulerTask {
 				Long poiid = linkpoi.getPoiId();
 				POIDo poi = new POIDo();
 				poi = poiClient.selectPOIByOid(poiid);
-				if (poi.getSystemId() == 370 || poi.getSystemId() ==  0 ) {// web编辑作业的点
+				if (poi.getSystemId() == 370  ) {// web编辑作业的点
 					CheckEnum check = poi.getAutoCheck();
 					if (check == CheckEnum.ok) {
 						// 质检OK 设置任务状态 3,6
@@ -4182,11 +4189,7 @@ public class SchedulerTask {
 				
 			}
 			
-			//处理所有免检项目
-			if(uncheckProject != null && uncheckProject.length() > 0) {
-				logger.debug("免校正的项目ID为：" + uncheckProject);
-				poiClient.updateManucheck(uncheckProject.substring(0, uncheckProject.length() - 1));
-			}
+			
 			//处理所有改错项目
 			if(projectIds != null && projectIds.length() > 0) {
 				List<TaskModel> tasklist = taskModelClient.selectTaskByProjectId(projectIds.substring(0, projectIds.length() - 1));
@@ -4208,6 +4211,12 @@ public class SchedulerTask {
 				}
 			}
 			
+			
+			//处理所有免检项目
+			if(uncheckProject != null && uncheckProject.length() > 0) {
+				logger.debug("免校正的项目ID为：" + uncheckProject);
+				poiClient.updateManucheck(uncheckProject.substring(0, uncheckProject.length() - 1));
+			}
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

@@ -1,4 +1,4 @@
-package com.emg.poiwebeditor.ctrl;
+﻿package com.emg.poiwebeditor.ctrl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -540,14 +540,14 @@ public class ModifyErrorCtrl {
 		Long oid = ParamUtils.getLongParameter(request, "oid", -1);
 
 		String namec = checkString( ParamUtils.getParameter(request, "namec"));
-		String tel = checkString ( ParamUtils.getParameter(request, "tel") );
+//		String tel = checkString ( ParamUtils.getParameter(request, "tel") );
 		Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
 		String sortcode = checkString( ParamUtils.getParameter(request, "sortcode"));
-		String address4 = checkString( ParamUtils.getParameter(request, "address4"));
-		String address5 = checkString( ParamUtils.getParameter(request, "address5"));
-		String address6 = checkString( ParamUtils.getParameter(request, "address6"));
-		String address7 = checkString( ParamUtils.getParameter(request, "address7"));
-		String address8 = checkString( ParamUtils.getParameter(request, "address8"));
+//		String address4 = checkString( ParamUtils.getParameter(request, "address4"));
+//		String address5 = checkString( ParamUtils.getParameter(request, "address5"));
+//		String address6 = checkString( ParamUtils.getParameter(request, "address6"));
+//		String address7 = checkString( ParamUtils.getParameter(request, "address7"));
+//		String address8 = checkString( ParamUtils.getParameter(request, "address8"));
 		String webnamep = checkString( ParamUtils.getParameter(request, "namep"));
 		String names =    checkString( ParamUtils.getParameter(request, "names"));
 		String webnamee = checkString( ParamUtils.getParameter(request, "namee"));
@@ -619,11 +619,11 @@ public class ModifyErrorCtrl {
 		if (savePoi != null && savePoi.getPoitags() != null) {
 			Set<TagDO> saveTags = savePoi.getPoitags();
 
-			saveAddress(saveTags, tags, address4, "address4", "address4e", "address4p", oid);
-			saveAddress(saveTags, tags, address5, "address5", "address5e", "address5p", oid);
-			saveAddress(saveTags, tags, address6, "address6", "address6e", "address6p", oid);
-			saveAddress(saveTags, tags, address7, "address7", "address7e", "address7p", oid);
-			saveAddress(saveTags, tags, address8, "address8", "address8e", "address8p", oid);
+//			saveAddress(saveTags, tags, address4, "address4", "address4e", "address4p", oid);
+//			saveAddress(saveTags, tags, address5, "address5", "address5e", "address5p", oid);
+//			saveAddress(saveTags, tags, address6, "address6", "address6e", "address6p", oid);
+//			saveAddress(saveTags, tags, address7, "address7", "address7e", "address7p", oid);
+//			saveAddress(saveTags, tags, address8, "address8", "address8e", "address8p", oid);
 
 			for (TagDO tag : saveTags) {
 				if (!savePoi.getNamec().equals(namec)) {
@@ -693,18 +693,18 @@ public class ModifyErrorCtrl {
 
 		} // for (TagDO tag : saveTags) {
 
-		if (telTag != null) {
-			telTag.setId(oid);
-			telTag.setK(POIAttrnameEnum.tel.toString());
-			telTag.setV(tel);
-			tags.add(telTag);
-		} else if (telTag == null && tel != null && !tel.isEmpty()) {
-			telTag = new TagDO();
-			telTag.setId(oid);
-			telTag.setK(POIAttrnameEnum.tel.toString());
-			telTag.setV(tel);
-			tags.add(telTag);
-		}
+//		if (telTag != null) {
+//			telTag.setId(oid);
+//			telTag.setK(POIAttrnameEnum.tel.toString());
+//			telTag.setV(tel);
+//			tags.add(telTag);
+//		} else if (telTag == null && tel != null && !tel.isEmpty()) {
+//			telTag = new TagDO();
+//			telTag.setId(oid);
+//			telTag.setK(POIAttrnameEnum.tel.toString());
+//			telTag.setV(tel);
+//			tags.add(telTag);
+//		}
 
 		if (tagnamep != null) {
 			tagnamep.setId(oid);
@@ -750,7 +750,7 @@ public class ModifyErrorCtrl {
 			tagnamesp.setK(POIAttrnameEnum.namesp.toString());
 			tagnamesp.setV(webnamesp);
 			tags.add(tagnamesp);
-		} else if (webnamep != null && webnamep.isEmpty()) {
+		} else if (webnamesp != null && !webnamesp.isEmpty()) {
 			tagnamesp = new TagDO();
 			tagnamesp.setId(oid);
 			tagnamesp.setK(POIAttrnameEnum.namesp.toString());
@@ -900,14 +900,14 @@ public class ModifyErrorCtrl {
 		Long oid = ParamUtils.getLongParameter(request, "oid", -1);
 
 		String namec = checkString( ParamUtils.getParameter(request, "namec"));
-		String tel = checkString ( ParamUtils.getParameter(request, "tel") );
+//		String tel = checkString ( ParamUtils.getParameter(request, "tel") );
 		Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
 		String sortcode = checkString( ParamUtils.getParameter(request, "sortcode"));
-		String address4 = checkString( ParamUtils.getParameter(request, "address4"));
-		String address5 = checkString( ParamUtils.getParameter(request, "address5"));
-		String address6 = checkString( ParamUtils.getParameter(request, "address6"));
-		String address7 = checkString( ParamUtils.getParameter(request, "address7"));
-		String address8 = checkString( ParamUtils.getParameter(request, "address8"));
+//		String address4 = checkString( ParamUtils.getParameter(request, "address4"));
+//		String address5 = checkString( ParamUtils.getParameter(request, "address5"));
+//		String address6 = checkString( ParamUtils.getParameter(request, "address6"));
+//		String address7 = checkString( ParamUtils.getParameter(request, "address7"));
+//		String address8 = checkString( ParamUtils.getParameter(request, "address8"));
 		String webnamep = checkString( ParamUtils.getParameter(request, "namep"));
 		String names =    checkString( ParamUtils.getParameter(request, "names"));
 		String webnamee = checkString( ParamUtils.getParameter(request, "namee"));
@@ -951,7 +951,7 @@ public class ModifyErrorCtrl {
 		poi.setGeo(geo);
 		poi.setFeatcode(featcode);
 		poi.setSortcode(sortcode);
-		poi.setConfirm(ConfirmEnum.no_confirm);
+		poi.setConfirm(ConfirmEnum.confirm_ok);
 		poi.setProjectid(projectId);
 		
 		poi.setOwner( owner);
@@ -975,11 +975,11 @@ public class ModifyErrorCtrl {
 		if (savePoi != null && savePoi.getPoitags() != null) {
 			Set<TagDO> saveTags = savePoi.getPoitags();
 
-			saveAddress(saveTags, tags, address4, "address4", "address4e", "address4p", oid);
-			saveAddress(saveTags, tags, address5, "address5", "address5e", "address5p", oid);
-			saveAddress(saveTags, tags, address6, "address6", "address6e", "address6p", oid);
-			saveAddress(saveTags, tags, address7, "address7", "address7e", "address7p", oid);
-			saveAddress(saveTags, tags, address8, "address8", "address8e", "address8p", oid);
+//			saveAddress(saveTags, tags, address4, "address4", "address4e", "address4p", oid);
+//			saveAddress(saveTags, tags, address5, "address5", "address5e", "address5p", oid);
+//			saveAddress(saveTags, tags, address6, "address6", "address6e", "address6p", oid);
+//			saveAddress(saveTags, tags, address7, "address7", "address7e", "address7p", oid);
+//			saveAddress(saveTags, tags, address8, "address8", "address8e", "address8p", oid);
 
 			for (TagDO tag : saveTags) {
 				if (!savePoi.getNamec().equals(namec)) {
@@ -1015,7 +1015,7 @@ public class ModifyErrorCtrl {
 //						tags.add(namese);
 					}
 				} else if ("tel".equals(tag.getK())) {
-					telTag = tag;
+					//telTag = tag;
 				} else if ("namep".equals(tag.getK())) {
 					tagnamep = tag;
 				} else if ("names".equals(tag.getK())) {
@@ -1049,18 +1049,18 @@ public class ModifyErrorCtrl {
 
 		} // for (TagDO tag : saveTags) {
 
-		if (telTag != null) {
-			telTag.setId(oid);
-			telTag.setK(POIAttrnameEnum.tel.toString());
-			telTag.setV(tel);
-			tags.add(telTag);
-		} else if (telTag == null && tel != null && !tel.isEmpty()) {
-			telTag = new TagDO();
-			telTag.setId(oid);
-			telTag.setK(POIAttrnameEnum.tel.toString());
-			telTag.setV(tel);
-			tags.add(telTag);
-		}
+//		if (telTag != null) {
+//			telTag.setId(oid);
+//			telTag.setK(POIAttrnameEnum.tel.toString());
+//			telTag.setV(tel);
+//			tags.add(telTag);
+//		} else if (telTag == null && tel != null && !tel.isEmpty()) {
+//			telTag = new TagDO();
+//			telTag.setId(oid);
+//			telTag.setK(POIAttrnameEnum.tel.toString());
+//			telTag.setV(tel);
+//			tags.add(telTag);
+//		}
 
 		if (tagnamep != null) {
 			tagnamep.setId(oid);
@@ -1106,7 +1106,7 @@ public class ModifyErrorCtrl {
 			tagnamesp.setK(POIAttrnameEnum.namesp.toString());
 			tagnamesp.setV(webnamesp);
 			tags.add(tagnamesp);
-		} else if (webnamep != null && webnamep.isEmpty()) {
+		} else if (webnamesp != null && !webnamesp.isEmpty()) {
 			tagnamesp = new TagDO();
 			tagnamesp.setId(oid);
 			tagnamesp.setK(POIAttrnameEnum.namesp.toString());
