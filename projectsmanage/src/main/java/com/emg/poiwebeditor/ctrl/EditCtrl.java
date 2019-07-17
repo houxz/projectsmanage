@@ -416,14 +416,14 @@ public class EditCtrl extends BaseCtrl {
 		Long oid = ParamUtils.getLongParameter(request, "oid", -1);
 		
 		String namec = ParamUtils.getParameter(request, "namec");
-		String tel = ParamUtils.getParameter(request, "tel");
+		// String tel = ParamUtils.getParameter(request, "tel");
 		Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
 		String sortcode = ParamUtils.getParameter(request, "sortcode");
-		String address4 = ParamUtils.getParameter(request, "address4");
+		/*String address4 = ParamUtils.getParameter(request, "address4");
 		String address5 = ParamUtils.getParameter(request, "address5");
 		String address6 = ParamUtils.getParameter(request, "address6");
 		String address7 = ParamUtils.getParameter(request, "address7");
-		String address8 = ParamUtils.getParameter(request, "address8");
+		String address8 = ParamUtils.getParameter(request, "address8");*/
 		String remark = ParamUtils.getParameter(request, "remark");
 		String geo = ParamUtils.getParameter(request, "geo");
 		Long projectId = ParamUtils.getLongParameter(request, "projectId", 0);
@@ -447,11 +447,13 @@ public class EditCtrl extends BaseCtrl {
 				if(log.getOid() < 1) log.setOid(oid);
 				if("featcode".equals(log.getK())) {
 					log.setOldValue(flag ? null : savePoi.getFeatcode() + "");
-				}else if("sortcocde".equals(log.getK())) {
+				}else if("sortcode".equals(log.getK())) {
 					log.setOldValue(flag ? null : savePoi.getSortcode());
 				}else if("namec".equals(log.getK())) {
 					log.setOldValue(flag ? null : savePoi.getNamec());
-				}else if("address8".equals(log.getK())) {
+				}else if("geo".equals(log.getK())) {
+					log.setOldValue(flag ? null : savePoi.getGeo());
+				}/*else if("address8".equals(log.getK())) {
 					Optional<TagDO> tags = savePoi.getPoitags().stream().filter(e -> "address8".equals(e.getK())).findFirst();
 					if (tags.isPresent()) {
 						TagDO t = tags.get();
@@ -465,7 +467,7 @@ public class EditCtrl extends BaseCtrl {
 						log.setOldValue(flag ? null : t.getV());
 					}
 					
-				}
+				}*/
 				// 1: 修改， 2： 新增
 				log.setFlag(flag ? 2 : 1);
 			}
@@ -484,53 +486,55 @@ public class EditCtrl extends BaseCtrl {
 		poi.setProjectid(projectId);
 		Set<TagDO> tags = poi.getPoitags();
 		TagDO telTag = null;
+		TagDO remarkTag = null;
 		if (savePoi != null && savePoi.getPoitags() != null) {
 			Set<TagDO> saveTags = savePoi.getPoitags();
-			saveAddress(saveTags, tags,address4, "address4", "address4e", "address4p", oid);
+			/*saveAddress(saveTags, tags,address4, "address4", "address4e", "address4p", oid);
 			saveAddress(saveTags, tags,address5, "address5", "address5e", "address5p", oid);
 			saveAddress(saveTags, tags,address6, "address6", "address6e", "address6p", oid);
 			saveAddress(saveTags, tags,address7, "address7", "address7e", "address7p", oid);
-			saveAddress(saveTags, tags,address8, "address8", "address8e", "address8p", oid);
+			saveAddress(saveTags, tags,address8, "address8", "address8e", "address8p", oid);*/
 			
 			for (TagDO tag : saveTags) {
 				if (!savePoi.getNamec().equals(namec)) {
 					if ("namep".equals(tag.getK())) {
-						TagDO namep = new TagDO();
-						namep.setId(oid);
-						namep.setK(POIAttrnameEnum.namep.toString());
-						namep.setV(null);
-						tags.add(namep);
+						tag.setV(null);
+						tags.add(tag);
 					}else if("namee".equals(tag.getK())) {
-						TagDO namee = new TagDO();
-						namee.setId(oid);
-						namee.setK(POIAttrnameEnum.namee.toString());
-						namee.setV(null);
-						tags.add(namee);
+						tag.setV(null);
+						tags.add(tag);
 					}else if("names".equals(tag.getK())) {
-						TagDO namees = new TagDO();
-						namees.setId(oid);
-						namees.setK(POIAttrnameEnum.names.toString());
-						namees.setV(null);
-						tags.add(namees);
+						tag.setV(null);
+						tags.add(tag);
 					}else if("namesp".equals(tag.getK())) {
-						TagDO namesp = new TagDO();
-						namesp.setId(oid);
-						namesp.setK(POIAttrnameEnum.namesp.toString());
-						namesp.setV(null);
-						tags.add(namesp);
+						tag.setV(null);
+						tags.add(tag);
 					}else if ("namese".equals(tag.getK())) {
-						TagDO namese = new TagDO();
-						namese.setId(oid);
-						namese.setK(POIAttrnameEnum.namese.toString());
-						namese.setV(null);
-						tags.add(namese);
+						tag.setV(null);
+						tags.add(tag);
 					}
-				}else if ("tel".equals(tag.getK())) {
-						telTag =tag;
+				}else if ("remark".equals(tag.getK()) && remark != null) {
+					
+					SimpleDateFormat f   = new SimpleDateFormat("yyyyMMdd");   
+			        String date = f.format(new Date()); 
+			        tag.setV((tag.getV() == null ) ? date + "四方检索" : tag.getV() + ";" + date + "四方检索");
+					tags.add(tag);
+					remarkTag = tag;
 				}
+				/*else if ("tel".equals(tag.getK())) {
+						telTag =tag;
+				}*/
 			}
 		}
-		if (telTag !=null) {
+		if (remarkTag == null  && remark != null) {
+			SimpleDateFormat f   = new SimpleDateFormat("yyyyMMdd");   
+	        String date = f.format(new Date()); 
+			remarkTag = new TagDO();
+			remarkTag.setK(POIAttrnameEnum.remark.toString());
+			remarkTag.setV(date + "四方检索");
+			tags.add(remarkTag);
+		}
+		/*if (telTag !=null) {
 			telTag.setId(oid);
 			telTag.setK(POIAttrnameEnum.tel.toString());
 			telTag.setV(tel);
@@ -541,19 +545,13 @@ public class EditCtrl extends BaseCtrl {
 			telTag.setK(POIAttrnameEnum.tel.toString());
 			telTag.setV(tel);
 			tags.add(telTag);
-		}
+		}*/
 		TagDO inputdatatype = new TagDO();
 		inputdatatype.setId(oid);
 		inputdatatype.setK(POIAttrnameEnum.inputdatatype.toString());
 		inputdatatype.setV(4 + "");
 		tags.add(inputdatatype);
-		TagDO remarkTag = new TagDO();
-		remarkTag.setId(oid);
-		remarkTag.setK(POIAttrnameEnum.remark.toString());
-		SimpleDateFormat f   = new SimpleDateFormat("yyyyMMdd");   
-        String date = f.format(new Date()); 
-        remarkTag.setV((remark == null || remark.isEmpty()) ? date + "四方检索" : remark + ";" + date + "四方检索");
-		tags.add(remarkTag);
+		
 		TagDO dataset = new TagDO();
 		dataset.setId(oid);
 		dataset.setK(POIAttrnameEnum.dataset.toString());

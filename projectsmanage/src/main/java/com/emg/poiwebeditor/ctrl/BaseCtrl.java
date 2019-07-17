@@ -14,7 +14,7 @@ public class BaseCtrl {
 		SecurityContext sc = (SecurityContext) session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
 		if (sc != null) {
 			Authentication au = sc.getAuthentication();
-			String account = au.getName();
+			String account = au.getName();		
 			return account;
 		} else {
 			return "";

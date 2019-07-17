@@ -1,5 +1,8 @@
 package com.emg.poiwebeditor.ctrl;
 
+import java.util.Enumeration;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -40,6 +43,27 @@ public class LoginCtrl extends BaseCtrl {
 		logger.debug("START");
 		try {
 			String account = getLoginAccount(session);
+			
+			Object ob = session.getAttribute("username");
+			Object ob2 = session.getServletContext().getAttribute("username");
+			Object ob3 = request.getAttribute("username");
+			String s4 =  request.getParameter("username");
+			Map<String,String[]> m = request.getParameterMap();
+			int size = m.size();
+			for(int i = 0 ; i < size ; i++) {
+			
+			}
+			
+			String edittype = request.getParameter("edittype");
+			Enumeration<String>sn = request.getAttributeNames();
+			while( sn.hasMoreElements()) {
+			
+				String s = (String)sn.nextElement();
+				System.out.println(s);
+				String v = request.getParameter(s);
+				System.out.println(v);
+			}
+	
 			Integer userid = 0;
 			String realname = new String();
 			if(hasRole(request, RoleType.ROLE_SUPERADMIN.toString())) {

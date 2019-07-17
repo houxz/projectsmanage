@@ -75,9 +75,6 @@
 			
 			return false;
 		});
-	
-		
-		
 	});
 	
 	function checkRequest(formData,jqForm,options){

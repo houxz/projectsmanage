@@ -13,13 +13,19 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<link href="resources/jquery-ui-1.12.1.custom/jquery-ui.min.css" rel="stylesheet">
-<link href="resources/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+<link href="resources/jquery-ui-1.12.1.custom/jquery-ui.min.css"
+	rel="stylesheet">
+<link href="resources/bootstrap-3.3.7/css/bootstrap.min.css"
+	rel="stylesheet" />
 <link href="resources/css/css.css" rel="stylesheet" />
-<link href='http://static.emapgo.cn/webjs-sdk/css/emapgo-1.0.0.css' rel='stylesheet' />
+<link href='http://static.emapgo.cn/webjs-sdk/css/emapgo-1.0.0.css'
+	rel='stylesheet' />
 <link href="resources/js/leaflet/leaflet.css" rel="stylesheet" />
-<link rel="stylesheet" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">
-<link href="resources/leaflet.awesome-markers-2.0/leaflet.awesome-markers.css" rel="stylesheet">
+<link rel="stylesheet"
+	href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">
+<link
+	href="resources/leaflet.awesome-markers-2.0/leaflet.awesome-markers.css"
+	rel="stylesheet">
 
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
 <script src="resources/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
@@ -31,59 +37,67 @@
 <script src="resources/js/leaflet.ChineseTmsProviders.js"></script>
 <script src="resources/js/proj4-compressed.js"></script>
 <script src="resources/js/proj4leaflet.js"></script>
-<script src="resources/js/tileLayer.baidu.js" ></script >
-<script src="resources/leaflet.awesome-markers-2.0/leaflet.awesome-markers.min.js"></script>
-<script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.js"></script>
-   
+<script src="resources/js/tileLayer.baidu.js"></script>
+<script
+	src="resources/leaflet.awesome-markers-2.0/leaflet.awesome-markers.min.js"></script>
+<script
+	src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.js"></script>
 
-   
+
+
 <script type="text/javascript">
 	var $emgmap = null, $baidumap = null, $gaodemap = null, $tengxunmap = null;
 	var $emgmarker = null, $baidumarker = null, $gaodemarker = null, $tengxunmarker = null;
 	var srcType, srcInnerId, baiduSrcInnerId, baiduSrcType, gaodeSrcInnerId, gaodeSrcType, tengxunSrcInnerId, tengxunSrcInnerId, tengxunSrcType, emgSrcInnerId, emgSrcType, dianpingGeo;
 	var emgDel, baiduDel, tengxunDel, gaodeDel;
 	var keywordid = eval('(${keywordid})');
+	var poiid     = eval('(${poiid})');
+	var curerrorlist = null;//eval('(${errorlist})');
 	var zoom = 17;
 	var shapegeo;
 	var poigeo;
-
+	var drawmark = 0;
+	var $emgmarkerBase = null;
 
 	var loaderr = "<span class='red'>加载失败</span>";
-// 	var redMarker = L.AwesomeMarkers.icon({
-// 	    	icon: 'tag',
-// 	    	markerColor: 'blue',
-// 	    	iconColor:'white'
-// 	  	});
-// 	var editMarker = L.AwesomeMarkers.icon({
-//     	icon: 'edit',
-//     	markerColor: 'red',
-//     	iconColor:'white'
-//   	});
-// 	var referMarker = L.AwesomeMarkers.icon({
-//     	icon: 'eye-open',
-//     	markerColor: 'blue',
-//     	iconColor:'white'
-//   	});
-// 	var matchMarker = L.AwesomeMarkers.icon({
-//     	icon: 'tag',
-//     	markerColor: 'blue',
-//     	iconColor:'white'
-//   	});
-	
+
 	$(document).ready(function() {
 		$.webeditor.getHead();
 	
 		if (keywordid && keywordid > 0) {
  			loadKeyword(keywordid);
 			//改错不需要加载四方检索结果20190524
-//   		loadReferdatas(keywordid);
-			loadEditPOI( ${poiid});
+//			loadEditPOI( ${poiid});
+			loadEditPOI( poiid);
 			drawErrorList();
+			drawtimer();
 			
 		}else {
 			$.webeditor.showMsgLabel("alert", "没有获取到参考资料");
 		}
+		
+		//修改namec时清空如下字段的值
+		var namecdiv = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea");
+		namecdiv.bind('change',function(){
+
+			var namep 	 = $("table#tbEdit>tbody td.tdValue[data-key='namep']>input:text").val("");
+			var names 	 = $("table#tbEdit>tbody td.tdValue[data-key='names']>input:text").val("");
+			var namee 	 = $("table#tbEdit>tbody td.tdValue[data-key='namee']>input:text").val("");
+			var namesp 	 = $("table#tbEdit>tbody td.tdValue[data-key='namesp']>input:text").val("");
+		})
 	});
+	
+	
+	function drawtimer() {
+		setTimeout(function a() {
+			if(drawmark == 3){
+				addMakerOnEMGMap($emgmap,true);
+				drawmark = 0;
+			}else{
+				drawtimer();
+		}
+		}, 100);
+	}
 	
 	
 	function loadKeyword(keywordid) {
@@ -103,13 +117,15 @@
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='categoryName']").html(keyword.categoryName);						
 				shapegeo = keyword.geo;
 				//两个地方都绘制是因为jsp执行是线程级别，不能确定谁先执行完
-				addMakerOnEMGMap($emgmap,true);
+				//addMakerOnEMGMap($emgmap,true);
 			} else {
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='name']").html(loaderr);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='address']").html(loaderr);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='telephone']").html(loaderr);
 				$("table#tbKeyword>tbody tr td.tdValue[data-key='categoryName']").html(loaderr);
 			}
+			
+			drawmark |=2;
 		}, "json");
 	}
 	
@@ -117,18 +133,15 @@
 		return a.sequence - b.sequence;
 	}
 	
-
-		function addMakerOnEMGMap(map, isEmg ) {
+	function addMakerOnEMGMap(map, isEmg ) {
 		if (map == null || dianpingGeo == null) return;
 		var img = new Image();
 		// img.src = 'http://m.emapgo.cn/demo/electricize/img/poi_center.png';
 		img.src = "resources/images/start.png";
-		var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
-		if(isEmg) {
-				// POINT (102.486719835069 24.9213802083333)
-			
-			var marker = new emapgo.Marker(img		
-			)
+		var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");// POINT (102.486719835069 24.9213802083333)
+		console.log(geo);
+		if(isEmg) {	
+			var marker = new emapgo.Marker(img)
 			.setLngLat(geo)
 			.addTo(map);
 		}else{
@@ -138,8 +151,21 @@
 			});
 			L.marker([geo[1], geo[0]], {icon: myIcon}).addTo(map);
 		}
+		
+		
+// 		var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+// 		var img = new Image();
+// 		img.src = "resources/images/start.png";
+// 		if ($emgmarkerBase) {
+// 			$emgmarkerBase.setLngLat(geo);
+// 		} else {
+// 			$emgmarkerBase = new emapgo.Marker(img)
+// 				.setLngLat(geo)
+// 				.addTo($emgmap);
+// 			}
+		
+		
 	}
-	
 	
 	function drawEMGMap(lat, lng, zoom) {
 		try{
@@ -160,7 +186,7 @@
 				$emgmap.on('click', function(e) {
 					if (e && $emgmarker) {
 						$emgmarker.setLngLat([e.lngLat.lng,e.lngLat.lat]);
-						dianpingGeo = 'MULTIPOINT (' + e.lngLat.lng + " " + e.lngLat.lat + "," +  + e.lngLat.lng + " " + e.lngLat.lat +")";//?
+						//dianpingGeo = 'MULTIPOINT (' + e.lngLat.lng + " " + e.lngLat.lat + "," +  + e.lngLat.lng + " " + e.lngLat.lat +")";//?
 						poigeo = 'MULTIPOINT (' + e.lngLat.lng + " " + e.lngLat.lat + "," +  + e.lngLat.lng + " " + e.lngLat.lat +")";
 					}
 					console.log(e);
@@ -178,48 +204,79 @@
 				console.log(e);
 				});
 			}
+			
 		} catch(e) {
 			
 		}
+		drawmark |= 1;
 	}
 	
 	function loadErrorList(){
-		jQuery.post("./modify.web", {
-			"atn" : "geterrorlistbyid",
-			"keywordid" : keywordid
-		}, function(json) {
-			if (json && json.result == 1) {
-				var tbody = $("#errorlist tbody");
-				tbody.empty();
-				var html = new Array();
-				
-				var errorlist = json.errorlist;
-				var count = errorlist.length;
-				for(var i = 0 ;i < count ; i++){
-					html.push("<tr>");
-					html.push('<td class="tdKey">错误id</td>');
-					html.push('<td class="tdValue" data-key="id">'+errorlist[i].id+'</td>');
-					html.push("</tr>");
-					html.push("<tr>");
-					html.push('<td class="poiid">poiid</td>');
-					html.push('<td class="poiidValue" data-key="featureid">'+errorlist[i].featureid+'</td>');
-					html.push("</tr>");
-					html.push("<tr>");
-					html.push('<td class="remark">描述</td>');
-					html.push('<td class="remarkValue" data-key="remark">'+errorlist[i].errorremark+'</td>');
-					html.push("</tr>");
-				}
-				tbody.append(html.join(""));
-			}
+		var tbody = $("#errorlist tbody");
+		tbody.empty();
+		
+		if(curerrorlist != null ){
+			var html = new Array();
 			
-		}, "json");
+			var errorlist = curerrorlist;
+			if( errorlist != null){
+			var count = errorlist.length;
+			for(var i = 0 ;i < count ; i++){
+				html.push("<tr>");
+				html.push('<td class="tdKey">错误id</td>');
+				html.push('<td class="tdValue" data-key="id">'+errorlist[i].id+'</td>');
+				html.push("</tr>");
+				html.push("<tr>");
+				html.push('<td class="poiid">poiid</td>');
+				html.push('<td class="poiidValue" data-key="featureid">'+errorlist[i].featureid+'</td>');
+				html.push("</tr>");
+				html.push("<tr>");
+				html.push('<td class="remark">描述</td>');
+				html.push('<td class="remarkValue" data-key="remark">'+errorlist[i].errorremark+'</td>');
+				html.push("</tr>");
+			}
+			tbody.append(html.join(""));
+			}
+		}else{
+			jQuery.post("./modify.web", {
+				"atn" : "geterrorlistbyid",
+				"poiid" : poiid
+			}, function(json) {
+				if (json && json.result == 1) {
+					
+					var html = new Array();
+					
+					var errorlist = json.errorlist;
+					if( errorlist != null){
+					var count = errorlist.length;
+					for(var i = 0 ;i < count ; i++){
+						html.push("<tr>");
+						html.push('<td class="tdKey">错误id</td>');
+						html.push('<td class="tdValue" data-key="id">'+errorlist[i].id+'</td>');
+						html.push("</tr>");
+						html.push("<tr>");
+						html.push('<td class="poiid">poiid</td>');
+						html.push('<td class="poiidValue" data-key="featureid">'+errorlist[i].featureid+'</td>');
+						html.push("</tr>");
+						html.push("<tr>");
+						html.push('<td class="remark">描述</td>');
+						html.push('<td class="remarkValue" data-key="remark">'+errorlist[i].errorremark+'</td>');
+						html.push("</tr>");
+					}
+					tbody.append(html.join(""));
+					}
+				}else{
+					 
+					$("table#errorlist>tbody td.tdValue>input:text").val("加载错误失败");
+					$.webeditor.showConfirmBox("alert","加载错误失败");
+				}
+				
+			}, "json");
+		}// if(curerrorlist != null)
 	}
 	
 	function drawErrorList(){
-		
 		loadErrorList();
-	
-		
 	}
 	
 	function loadEditPOI(oid) {
@@ -237,7 +294,7 @@
 				$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val(poi.featcode);
 				$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val(poi.sortcode);
 				$("table#tbEdit>tbody td.tdValue[data-key='owner']>input:text").val(poi.owner);
-				dianpingGeo = poi.geo;
+				//dianpingGeo = poi.geo;
 				poi.poitags.forEach(function(tag, index) {
 					$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
 				});
@@ -251,7 +308,7 @@
 	 			var geo = poi.geo.replace("MULTIPOINT ((","").replace("),","").replace("(","").replace(")", "").split(" ");
 	 			poigeo = geo;
 	 			drawEMGMap(geo[1], geo[0], zoom);
-	 			addMakerOnEMGMap($emgmap,true);
+//	 			addMakerOnEMGMap($emgmap,true);
 				}
 			} else {
 				$("table#tbEdit>tbody td.tdValue>input:text").val("加载失败");
@@ -271,6 +328,7 @@
 	}
 	
 	function submitEditTask() {
+		drawmark = 0;
 		var oid = null;
 		try {
 			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
@@ -278,6 +336,9 @@
 			return;
 		}
 		if (!oid || oid <= 0) 	return;
+		
+		var errorids = getErrorIds();
+		
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
 		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
@@ -339,6 +400,7 @@
 			"projectId": projectId,
 			"postalcode": postalcode,
 			"dianpingGeo" : dianpingGeo,
+			"errorids": errorids,
 			"poigeo":poigeo
 		}, function(json) {
 			if (json && json.result == 1) {
@@ -346,13 +408,14 @@
 				if (task && task.id) {
 					var process = json.process;
 					var project = json.project;
-					var poiid = json.poiid;
+					poiid = json.poiid;
 					$("#curProcessID").text(process.id);
 					$("#curProcessName").text(process.name);
 					$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
 					$("#curTaskID").text(task.id);
 					$("#curProjectID").text(task.projectid);
 					keywordid = json.keywordid;
+					
 					if (keywordid && keywordid > 0) {
 						loadKeyword(keywordid);
 						loadEditPOI(poiid);
@@ -366,9 +429,14 @@
 				
 			} else {
 				console.log("submitEditTask error");
+				poiid= 0;
+				keywordid = 0;
 			}
+			drawtimer();
 		});
 			$.webeditor.showMsgBox("close");
+			
+		curerrorlist = null;
 	}
 	
 	function deletePOI(obj) {
@@ -477,217 +545,264 @@
 			$.webeditor.showMsgBox("close");
 		}, "json");
 	}
+	
+	function getErrorIds(){
+		var errorids ="";
+		var errs = $('#errorlist tbody >tr>td.tdValue');
+		for(var i = 0 ;i < errs.length;i++){
+			var iv = errs[i];
+			var id = errs[i].innerHTML;
+			if( i == 0)
+				errorids = id;
+			else
+			{
+				errorids +=",";
+				errorids +=id;
+			}
+		}
+		return errorids;
+	}
+	
 </script>
 </head>
 <body>
 	<div id="headdiv"></div>
 	<c:choose>
 		<c:when test="${task != null and task.id != null}">
-		<div class="containerdiv">
-			<div class="row-fluid fullHeight">
-<!-- 			暂时分三块：左中右 ： 资料，错误，地图  -->
-				<div class="col-md-2 fullHeight">
-					<div style="position: absolute; top: 3%; left: 0; right: 0; height: 200px;">
-						<table id="tbKeyword" class="table table-bordered table-condensed">
-							<thead>
-						    	<tr>
-						      		<th><span class="glyphicon glyphicon-eye-open"></span></th>
-						      		<th>参考数据</th>
-						    	</tr>
-						  	</thead>
-							<tbody>
-								<tr>
-									<td class="tdKey">名称</td>
-									<td class="tdValue" data-key="name">加载中...</td>
-									<td class="tbTool"><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
-								</tr>
-								<tr>
-									<td class="tdKey">地址</td>
-									<td class="tdValue" data-key="address">加载中...</td>
-									<td class="tbTool"><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
-								</tr>
-								<tr>
-									<td class="tdKey">电话</td>
-									<td class="tdValue" data-key="telephone">加载中...</td>
-									<td class="tbTool"><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
-								</tr>
-								<tr>
-									<td class="tdKey">分类</td>
-									<td class="tdValue" data-key="categoryName">加载中...</td>
-									<td class="tbTool"><span class="glyphicon glyphicon-share cursorable" onClick="textCopy(this);"></span></td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-					<div style="position: absolute; top: 205px; left: 0; right: 0; bottom: 60px;">
-					<div id="divpois" style="overflow-y: auto; width: 100%; height: 100%;">
-						<table id="tbEdit" class="table table-bordered table-condensed">
-							<thead>
-						    	<tr>
-						      		<th><span class="glyphicon glyphicon-edit"></span></th>
-						      		<th>当前编辑数据</th>
-						    	</tr>
-						  	</thead>
-							<tbody>
-								<tr>
-									<td class="tdKey">OID</td>
-									<td class="tdValue" data-key="oid"><input class="form-control input-sm" type="text" disabled></td>
-									<td class="tbTool"><span class="glyphicon glyphicon-remove cursorable" onClick="deletePOI(this);"></span></td>
-								</tr>
-								<tr>
-									<td class="tdKey">名称</td>
-									<td class="tdValue" data-key="name"><textarea class="form-control input-sm"></textarea></td>
-								</tr>
-<!-- 								<tr> -->
-<!-- 									<td class="tdKey">电话</td> -->
-<!-- 									<td class="tdValue" data-key="tel"><input class="form-control input-sm" type="text"></td> -->
-<!-- 								</tr> -->
-								<tr>
-									<td class="tdKey">类型</td>
-									<td class="tdValue" data-key="featcode"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">系列</td>
-									<td class="tdValue" data-key="sortcode"><input class="form-control input-sm" type="text"></td>
-								</tr>
-<!-- 								<tr> -->
-<!-- 									<td class="tdKey">四级地址</td> -->
-<!-- 									<td class="tdValue" data-key="address4"><input class="form-control input-sm" type="text"></td> -->
-<!-- 								</tr> -->
-<!-- 								<tr> -->
-<!-- 									<td class="tdKey">五级地址</td> -->
-<!-- 									<td class="tdValue" data-key="address5"><input class="form-control input-sm" type="text"></td> -->
-<!-- 								</tr> -->
-<!-- 								<tr> -->
-<!-- 									<td class="tdKey">六级地址</td> -->
-<!-- 									<td class="tdValue" data-key="address6"><input class="form-control input-sm" type="text"></td> -->
-<!-- 								</tr> -->
-<!-- 								<tr> -->
-<!-- 									<td class="tdKey">七级地址</td> -->
-<!-- 									<td class="tdValue" data-key="address7"><input class="form-control input-sm" type="text"></td> -->
-<!-- 								</tr> -->
-<!-- 								<tr> -->
-<!-- 									<td class="tdKey">八级地址</td> -->
-<!-- 									<td class="tdValue" data-key="address8"><input class="form-control input-sm" type="text"></td> -->
-<!-- 								</tr> -->
-								<tr>
-									<td class="tdKey">拼音名称</td>
-									<td class="tdValue" data-key="namep"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">简称</td>
-									<td class="tdValue" data-key="names"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">英文正式名称</td>
-									<td class="tdValue" data-key="namee"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">拼音简称</td>
-									<td class="tdValue" data-key="namesp"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">详细地址（省级）</td>
-									<td class="tdValue" data-key="address1"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">详细地址拼音（省级）</td>
-									<td class="tdValue" data-key="address1p"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">详细地址英文（省级）</td>
-									<td class="tdValue" data-key="address1e"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">详细地址（地级）</td>
-									<td class="tdValue" data-key="address2"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">详细地址拼音（地级）</td>
-									<td class="tdValue" data-key="address2p"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">详细地址英文（地级）</td>
-									<td class="tdValue" data-key="address2e"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">详细地址（区县级）</td>
-									<td class="tdValue" data-key="address3"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">详细地址拼音（区县级）</td>
-									<td class="tdValue" data-key="address3p"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">详细地址英文（区县级）</td>
-									<td class="tdValue" data-key="address3e"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">所属行政区域代码</td>
-									<td class="tdValue" data-key="owner"><input class="form-control input-sm" type="text"></td>
-								</tr>
-								<tr>
-									<td class="tdKey">邮政代码</td>
-									<td class="tdValue" data-key="postalcode"><input class="form-control input-sm" type="text"></td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-					</div>
-					<div style="position: absolute; left: 0; right: 0; bottom: 12px; height: 38px; text-align: center;">
-<!-- 						<button class="btn btn-default">稍后修改</button> -->
-						<button class="btn btn-default" onClick="updatePOI();">保存</button>
-						<button class="btn btn-default" onClick="submitEditTask();">提交</button>
-					</div>
-				</div>
-				<div class="col-md-2 fullHeight" >
-					<div style="position:absolute;top:25px;left:0:right:200px;height:250px">
-						<div class="errorpanel" style="position:absolute;top:0;left:0;width:290px;height:100%">
-							<table id="errorlist" class="table table-bordered table-condensed">
+			<div class="containerdiv">
+				<div class="row-fluid fullHeight">
+					<!-- 			暂时分三块：左中右 ： 资料，错误，地图  -->
+					<div class="col-md-2 fullHeight">
+						<div
+						style="position: absolute; top: 0; left: 0; right: 0; height: 95%;overflow-y: scroll;">
+							<table id="tbKeyword"
+								class="table table-bordered table-condensed">
 								<thead>
 									<tr>
 										<th><span class="glyphicon glyphicon-eye-open"></span></th>
-										<th>质检错误列表</th>
+										<th>参考数据</th>
 									</tr>
 								</thead>
+								<tbody>
+									<tr>
+										<td class="tdKey">名称</td>
+										<td class="tdValue" data-key="name">加载中...</td>
+										<td class="tbTool"><span
+											class="glyphicon glyphicon-share cursorable"
+											onClick="textCopy(this);"></span></td>
+									</tr>
+									<tr>
+										<td class="tdKey">地址</td>
+										<td class="tdValue" data-key="address">加载中...</td>
+										<td class="tbTool"><span
+											class="glyphicon glyphicon-share cursorable"
+											onClick="textCopy(this);"></span></td>
+									</tr>
+									<tr>
+										<td class="tdKey">电话</td>
+										<td class="tdValue" data-key="telephone">加载中...</td>
+										<td class="tbTool"><span
+											class="glyphicon glyphicon-share cursorable"
+											onClick="textCopy(this);"></span></td>
+									</tr>
+									<tr>
+										<td class="tdKey">分类</td>
+										<td class="tdValue" data-key="categoryName">加载中...</td>
+										<td class="tbTool"><span
+											class="glyphicon glyphicon-share cursorable"
+											onClick="textCopy(this);"></span></td>
+									</tr>
+								</tbody>
+							</table>
+<!-- 						</div> -->
+<!-- 						<div -->
+<!-- 							style="position: absolute; top: 26%; left: 0; right: 0; heigth: 150px;"> -->
+<!-- 							<div id="divpois" -->
+<!-- 								style="overflow-y: auto; width: 100%; height: 100%;"> -->
+								<table id="tbEdit" class="table table-bordered table-condensed">
+									<thead>
+										<tr>
+											<th><span class="glyphicon glyphicon-edit"></span></th>
+											<th>当前编辑数据</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td class="tdKey">OID</td>
+											<td class="tdValue" data-key="oid"><input
+												class="form-control input-sm" type="text" disabled></td>
+											<td class="tbTool"><span
+												class="glyphicon glyphicon-remove cursorable"
+												onClick="deletePOI(this);"></span></td>
+										</tr>
+										<tr>
+											<td class="tdKey">名称</td>
+											<td class="tdValue" data-key="name"><textarea
+													class="form-control input-sm"></textarea></td>
+										<tr>
+											<td class="tdKey">类型</td>
+											<td class="tdValue" data-key="featcode"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">系列</td>
+											<td class="tdValue" data-key="sortcode"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">拼音名称</td>
+											<td class="tdValue" data-key="namep"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">简称</td>
+											<td class="tdValue" data-key="names"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">英文正式名称</td>
+											<td class="tdValue" data-key="namee"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">拼音简称</td>
+											<td class="tdValue" data-key="namesp"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">详细地址（省级）</td>
+											<td class="tdValue" data-key="address1"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">详细地址拼音（省级）</td>
+											<td class="tdValue" data-key="address1p"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">详细地址英文（省级）</td>
+											<td class="tdValue" data-key="address1e"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">详细地址（地级）</td>
+											<td class="tdValue" data-key="address2"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">详细地址拼音（地级）</td>
+											<td class="tdValue" data-key="address2p"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">详细地址英文（地级）</td>
+											<td class="tdValue" data-key="address2e"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">详细地址（区县级）</td>
+											<td class="tdValue" data-key="address3"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">详细地址拼音（区县级）</td>
+											<td class="tdValue" data-key="address3p"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">详细地址英文（区县级）</td>
+											<td class="tdValue" data-key="address3e"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">所属行政区域代码</td>
+											<td class="tdValue" data-key="owner"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+										<tr>
+											<td class="tdKey">邮政代码</td>
+											<td class="tdValue" data-key="postalcode"><input
+												class="form-control input-sm" type="text"></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+<!-- 						</div> -->
+						<div
+							style="position: absolute; left: 0; right: 0; top: 96%; height: 5%; text-align: center;">
+						
+							<button class="btn btn-default" onClick="updatePOI();">保存</button>
+							<button class="btn btn-default" onClick="submitEditTask();">提交</button>
+						</div>
+<!-- 					</div> -->
+					</div>
+					<div class="col-md-2 fullHeight">
+						<div
+							style="position: absolute; top: 25px; left: 0:right:200px; height: 800px">
+							<!-- 				 <div class="errorpanel" style="position:absolute;top:0;left:0;width:290px;height:100%"> -->
+							<div class="errorpanel"
+								style="overflow-y: auto; width: 100%; height: 100%;">
+								<table id="errorlist"
+									class="table table-bordered table-condensed">
+									<thead>
+										<tr>
+											<th><span class="glyphicon glyphicon-eye-open"></span></th>
+											<th>质检错误列表</th>
+										</tr>
+									</thead>
 									<tbody>
 									</tbody>
 								</table>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-8 fullHeight">
+						<div
+							style="position: absolute; top: 0; left: 0; right: 0; height: 100%;">
+							<div class="mappanel"
+								style="position: absolute; top: 0; left: 0; width: 99.2%; height: 100%;">
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<strong>EMG地图</strong>
+									</div>
+									<div class="panel-body">
+										<div id="emgmap" style="height: 100%; z-index: 10;">加载中...</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
-				<div class="col-md-8 fullHeight">
-					<div style="position: absolute; top: 0; left: 0; right: 0; height: 100%;">
-				    	<div class="mappanel" style="position: absolute; top: 0; left: 0; width: 99.2%; height: 100%;">
-				    		<div class="panel panel-default">
-							    <div class="panel-heading"><strong>EMG地图</strong></div>
-							    <div class="panel-body">
-							    	<div id="emgmap" style="height: 100%; z-index: 10;">加载中...</div>
-							    </div>
-							</div>
-				    	</div>
-					</div>
-				</div>
 			</div>
-		</div>
 		</c:when>
 		<c:otherwise>
-			<div class="well" style="width: 30em; margin: auto; margin-top: 150px;">
-				<br>
-				<img src="/poiwebeditor/resources/images/hasnotask.png" class="center-block img-rounded">
+			<div class="well"
+				style="width: 30em; margin: auto; margin-top: 150px;">
+				<br> <img src="/poiwebeditor/resources/images/hasnotask.png"
+					class="center-block img-rounded">
 				<h2 class="text-center">没有任务了</h2>
 			</div>
 		</c:otherwise>
 	</c:choose>
 	<div class="footline">
-		<div><span>当前项目编号：</span><span id="curProcessID">${process.id}</span></div>
-		<div><span>当前项目：</span><span id="curProcessName">${process.name}</span></div>
-		<div><span>项目公有/私有：</span><span id="curProjectOwner">
-			<c:set var="owner" value="${project.owner == 1 ? '私有' : '公有' }"/>
-			<c:out value="${owner }"></c:out>
-		</span></div>
-		<div><span>当前任务编号：</span><span id="curTaskID">${task.id}</span></div>
-		<div><input type="hidden" id="curProjectID" value="${task.projectid}"></div>
+		<div>
+			<span>当前项目编号：</span><span id="curProcessID">${process.id}</span>
+		</div>
+		<div>
+			<span>当前项目：</span><span id="curProcessName">${process.name}</span>
+		</div>
+		<div>
+			<span>项目公有/私有：</span><span id="curProjectOwner"> <c:set
+					var="owner" value="${project.owner == 1 ? '私有' : '公有' }" /> <c:out
+					value="${owner }"></c:out>
+			</span>
+		</div>
+		<div>
+			<span>当前任务编号：</span><span id="curTaskID">${task.id}</span>
+		</div>
+		<div>
+			<input type="hidden" id="curProjectID" value="${task.projectid}">
+		</div>
 	</div>
 </body>
 </html>

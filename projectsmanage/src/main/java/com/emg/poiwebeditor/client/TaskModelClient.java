@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.emg.poiwebeditor.common.Common;
 import com.emg.poiwebeditor.common.DatabaseType;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
+import com.emg.poiwebeditor.pojo.SpotCheckTaskInfo;
 import com.emg.poiwebeditor.pojo.TaskLinkPoiModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
 
@@ -77,7 +78,7 @@ public class TaskModelClient {
 		return sb.toString();
 	}
 	
-	/*private String getEditTaskSQL(List<Long> projectIDs, Integer userid) {
+	private String getEditTaskSQL(List<Long> projectIDs, Integer userid) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" with projectid(projectid) as (select * from unnest(array[" + StringUtils.join(projectIDs, ",") + "])), ");
 		sb.append("		sorttable(state, process, sortvalue) as (values(1,5,0)) ");
@@ -100,9 +101,9 @@ public class TaskModelClient {
 		sb.append("		) as b where taskid is not null limit 1 ");
 		sb.append(" ) as a(id) where tb_task.id = a.id returning tb_task.*; ");
 		return sb.toString();
-	}*/
+	}
 	
-	private String getEditTaskSQL(List<Long> projectIDs, Integer userid) {
+	/*private String getEditTaskSQL(List<Long> projectIDs, Integer userid) {
 		StringBuilder sb = new StringBuilder();
 		//sb.append(" with projectid(projectid) as (select * from unnest(array[" + StringUtils.join(projectIDs, ",") + "])), ");
 		//sb.append("		sorttable(state, process, sortvalue) as (values(1,5,0)) ");
@@ -127,7 +128,7 @@ public class TaskModelClient {
 		sb.append("		) as b where taskid is not null limit 1 ");
 		sb.append(" ) as a(id) where tb_task.id = a.id returning tb_task.*; ");
 		return sb.toString();
-	}
+	}*/
 	
 	//获取批次的keyid集合
 	public Boolean InsertNewTask(ConfigDBModel configDBModel,Long projectid,Long shapeid,Integer state){
@@ -187,7 +188,7 @@ public class TaskModelClient {
 				+ "])), ");
 		sb.append("		sorttable(state, process, sortvalue) as (values(1,6,0)) ");
 		sb.append(" update tb_task ");
-		sb.append(" set starttime=now(),operatetime=now(),state=1,process=6,editid= " + userid);
+		sb.append(" set operatetime=now(),state=1,process=6,editid= " + userid);
 		sb.append(" from ( ");
 		sb.append("		select * from ( ");
 		sb.append("			select coalesce ( ");
@@ -406,7 +407,7 @@ public class TaskModelClient {
 				+ "])), ");
 		sb.append("		sorttable(state, process, sortvalue) as (values(1,6,0)) ");
 		sb.append(" update tb_task ");
-		sb.append(" set starttime=now(),operatetime=now(),state=1,process=6,editid= " + userid);
+		sb.append(" set operatetime=now(),state=1,process=6,editid= " + userid);
 		sb.append(" from ( ");
 		sb.append("		select * from ( ");
 		sb.append("			select coalesce ( ");
@@ -448,4 +449,29 @@ public class TaskModelClient {
 
 			return task;
 		}
+		
+		// 查询项目pid下的所有制作人制作的资料数
+		public List<SpotCheckTaskInfo> selectSpotCheckTaskByProjectId(Long projectid) throws Exception {
+			List<SpotCheckTaskInfo> tasklist = new ArrayList<SpotCheckTaskInfo>();
+			try {
+				StringBuilder sb = new StringBuilder();
+				sb.append("select 	editid,	sum( CASE WHEN editid > 0 THEN 1 ELSE 0 END ) AS editnum from tb_task where projectid=" + projectid);
+				sb.append(" and state = 3 GROUP BY  projectid, editid ");
+				String sql = sb.toString();
+				ArrayList<Object> arr = ExecuteSQLApiClientUtils.getList(String.format(getUrl, host, port, path, SELECT,
+						URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")), SpotCheckTaskInfo.class);
+System.out.println(sb.toString());
+				int count = arr.size();
+				for (int i = 0; i < count; i++) {
+					SpotCheckTaskInfo task = (SpotCheckTaskInfo) arr.get(i);
+					tasklist.add(task);
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw e;
+			}
+
+			return tasklist;
+		}
+		
 }

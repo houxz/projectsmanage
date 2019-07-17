@@ -106,7 +106,9 @@
 		<property name="children">
 			<set>
 				<ref bean="doneprocesses" />
+				<ref bean="checkprocessesmanage"/>
 			</set>
+			
 		</property>
 	</bean>
 	
@@ -114,6 +116,19 @@
 		<property name="code" value="1010" />
 		<property name="url" value="/poiwebeditor/doneprocesses.web" />
 		<property name="label" value="已完成项目" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_POIVIDEOEDIT</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
+	
+	<bean id="checkprocessesmanage" class="com.emg.poiwebeditor.auth.MenuAuthModel">
+		<property name="code" value="1011" />
+		<property name="url" value="/poiwebeditor/checkprocessesmanage.web" />
+		<property name="label" value="可抽检项目" />
 		<property name="roleSet">
 			<set>
 				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_POIVIDEOEDIT</value>

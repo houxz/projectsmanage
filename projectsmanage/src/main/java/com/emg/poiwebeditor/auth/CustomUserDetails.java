@@ -13,6 +13,7 @@ public class CustomUserDetails implements UserDetails {
 	private String username;
 	private String password;
 	private Boolean enabled;
+	private String  edittype;
 	private List<GrantedAuthority> authorities;
 
 	public void setAuthorities(List<GrantedAuthority> authorities) {
@@ -64,6 +65,14 @@ public class CustomUserDetails implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return this.enabled;
+	}
+	
+	public void setEdittype(String edittype) {
+		this.edittype = edittype;
+	}
+	
+	public String getEdittype() {
+		return this.edittype;
 	}
 
 }

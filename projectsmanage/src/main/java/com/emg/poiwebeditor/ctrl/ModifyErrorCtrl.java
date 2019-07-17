@@ -44,6 +44,7 @@ import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ProjectModelExample;
 import com.emg.poiwebeditor.pojo.ProjectsUserModel;
 import com.emg.poiwebeditor.pojo.ReferdataModel;
+import com.emg.poiwebeditor.pojo.STaskModel;
 import com.emg.poiwebeditor.pojo.TagDO;
 import com.emg.poiwebeditor.pojo.TaskLinkPoiModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
@@ -68,88 +69,33 @@ public class ModifyErrorCtrl {
 	@Autowired
 	private ErrorModelDao errorModelDao;
 
-	// 一轮中已经查询过的项目(可能由于某种原因没作业而跳过，后面需要再次查询是否可作业)
-	private List<Long> doneProjectList = new ArrayList<Long>();
-	// 一个项目中已经查询过的任务(可能由于某种原因没作业而跳过，后面需要再次查询是否可作业)
-	private List<Long> doneTaskidList;
-	// 当前作业的项目
-	private Long curProjectId;
-	// 当前查询的任务id
-	private Long curTaskId = 0L;
-	// 当前作业点poiid
-	private Long curPoiId;
-	private Long curKeyWordId;
-	List<ErrorModel> curErrorList = new ArrayList<ErrorModel>();
-
 	// byhxz20190522
 	@RequestMapping(method = RequestMethod.GET)
 	public String openLader(Model model, HttpSession session, HttpServletRequest request) {
 		logger.debug("OPENLADER");
+		
 		TaskModel task = new TaskModel();
+		STaskModel stask = new STaskModel();
 		ProjectModel project = new ProjectModel();
 		ProcessModel process = new ProcessModel();
-		List<ErrorModel> errorlist = new ArrayList<ErrorModel>();
 		Long keywordid = -1L;
-
-		// 查找第一个可作业的项目：存在可作业的任务 + 任务下可有web编辑器作业
+		Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 		try {
-			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-			Boolean bFindTask = false;
-			// 找到一个可作业的任务
-			while (!bFindTask) {
-				if (curProjectId == null) {
-					task = getNextModifyTask(userid);
-					if (task != null && task.getId() != null) {
-						curProjectId = task.getProjectid();
-						doneProjectList.add(curProjectId);
-						Boolean isAvaliable = isTaskAvaliable(task);
-						if (isAvaliable) {
-							break;
-						} else {
-							continue;
+			stask = getModifyTask(userid);
+			if (stask != null) {
+				task = stask.getTaskModel();
+				if (task != null && task.getId() != null) {
+					Long projectid = task.getProjectid();
+					if (projectid.compareTo(0L) > 0) {
+						project = projectModelDao.selectByPrimaryKey(projectid);
+
+						Long processid = project.getProcessid();
+						if (processid.compareTo(0L) > 0) {
+							process = processModelDao.selectByPrimaryKey(processid);
 						}
-					} else {// 第一次查询就没找到可作业任务
-						break;
-					} // if( task != null && task.getId() != null)else
-
-				} // if( curProjectid == null)
-				else {// 查询当前项目下的任务
-					task = getNextModifyTaskByProjectId(userid, curProjectId, curTaskId);// 刷新会调用次所以必须提交的时候才记录curtaskid
-					if (task != null && task.getId() != null) {
-						Boolean isAvaliable = isTaskAvaliable(task);
-						if (isAvaliable) {
-							break;
-						} else {
-							continue;
-						}
-					} else {// 当前项目查询不到需要下一个项目了（但是有未处理跳过的项目）
-						task = getNextModifyTaskNotDoneProject(userid);
-						if (task != null && task.getId() != null) {
-							Boolean isAvaliable = isTaskAvaliable(task);
-							if (isAvaliable) {
-								break;
-							} else {
-								continue;
-							}
-						} else {// 项目都循环完了没找到任务
-							break;
-						}
-					} // if( task != null && task.getId() != null)else
-
-				} // if( curProjectid == null)else
-			}
-
-			if (task != null && task.getId() != null) {
-				Long projectid = task.getProjectid();
-				if (projectid.compareTo(0L) > 0) {
-					project = projectModelDao.selectByPrimaryKey(projectid);
-
-					Long processid = project.getProcessid();
-					if (processid.compareTo(0L) > 0) {
-						process = processModelDao.selectByPrimaryKey(processid);
 					}
+					keywordid = task.getKeywordid();
 				}
-				keywordid = task.getKeywordid();
 			}
 
 		} catch (Exception e) {
@@ -160,8 +106,13 @@ public class ModifyErrorCtrl {
 		model.addAttribute("project", project);
 		model.addAttribute("process", process);
 		model.addAttribute("keywordid", keywordid);
-		model.addAttribute("poiid", curPoiId);
-		model.addAttribute("errorlist", curErrorList);
+		if( stask != null) {
+			model.addAttribute("poiid", stask.getPoiId());
+		//	model.addAttribute("errorlist", stask.getErrorList());
+		}else {
+			model.addAttribute("poiid", -1L);
+		//	model.addAttribute("errorlist", null);
+		}
 
 		logger.debug("OPENLADER OVER");
 		return "modify";
@@ -290,6 +241,7 @@ public class ModifyErrorCtrl {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		TaskModel task = new TaskModel();
+		STaskModel stask = new STaskModel();
 		ProjectModel project = new ProjectModel();
 		ProcessModel process = new ProcessModel();
 		Long keywordid = -1L;
@@ -300,12 +252,15 @@ public class ModifyErrorCtrl {
 			poi.setUid(Long.valueOf(userid));
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-			curTaskId = taskid;
+			String strerrorids = ParamUtils.getParameter(request, "errorids");
+//			curTaskId = taskid;
 			poiClient.updatePOIToDB(poi);
 			List<Long> errorids = new ArrayList<Long>();
-			Integer errorcount = curErrorList.size();
-			for (Integer i = 0; i < errorcount; i++) {
-				errorids.add(curErrorList.get(i).getId());
+//			Integer errorcount = curErrorList.size();
+			Integer length = strerrorids.split(",").length;
+			for (Integer i = 0; i < length; i++) {
+				String sid = strerrorids.split(",")[i];
+				errorids.add( Long.valueOf(sid) );
 			}
 			// 先修改错误状态
 			if (errorModelDao.updateErrors(errorids).compareTo(0L) <= 0) {
@@ -320,19 +275,22 @@ public class ModifyErrorCtrl {
 			}
 
 			if (getnext) {
-				task = getModifyTask(userid);
-				if (task != null && task.getId() != null) {
-					Long projectid = task.getProjectid();
-					if (projectid.compareTo(0L) > 0) {
-						project = projectModelDao.selectByPrimaryKey(projectid);
+				stask = getModifyTask(userid);
+				if (stask != null) {
+					task = stask.getTaskModel();
+					if (task != null && task.getId() != null) {
+						Long projectid = task.getProjectid();
+						if (projectid.compareTo(0L) > 0) {
+							project = projectModelDao.selectByPrimaryKey(projectid);
 
-						Long processid = project.getProcessid();
-						if (processid.compareTo(0L) > 0) {
-							process = processModelDao.selectByPrimaryKey(processid);
+							Long processid = project.getProcessid();
+							if (processid.compareTo(0L) > 0) {
+								process = processModelDao.selectByPrimaryKey(processid);
+							}
 						}
-					}
 
-					keywordid = task.getKeywordid();
+						keywordid = task.getKeywordid();
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -344,8 +302,13 @@ public class ModifyErrorCtrl {
 		json.addObject("keywordid", keywordid);
 		json.addObject("result", 1);
 
-		model.addAttribute("poiid", curPoiId);
-		model.addAttribute("errorlist", curErrorList);
+		if( stask != null) {
+			model.addAttribute("poiid", stask.getPoiId());
+			model.addAttribute("errorlist", stask.getErrorList());
+		}else {
+			model.addAttribute("poiid", -1L);
+			model.addAttribute("errorlist", null);
+		}
 
 		logger.debug("END");
 		return json;
@@ -367,7 +330,7 @@ public class ModifyErrorCtrl {
 			poi.setUid(Long.valueOf(userid));
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-			curTaskId = taskid;
+//			curTaskId = taskid;
 			poiClient.updatePOIToDB(poi);
 
 		} catch (Exception e) {
@@ -384,8 +347,19 @@ public class ModifyErrorCtrl {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 
-		json.addObject("errorlist", curErrorList);
-		json.addObject("result", 1);
+		List<ErrorModel> errorlist = new ArrayList<ErrorModel>();
+		Long poiid = ParamUtils.getLongParameter(request, "poiid", -1);
+		if(poiid > 0) {
+			errorlist = errorModelDao.selectErrorsbyPoiid( poiid);
+			if(errorlist.size() > 0)
+				json.addObject("result", 1);
+			else
+				json.addObject("result", 0);
+		}else {
+			json.addObject("result", 0);	
+		}
+		json.addObject("errorlist", errorlist);
+		
 
 		logger.debug("END");
 		return json;
@@ -406,7 +380,7 @@ public class ModifyErrorCtrl {
 	}
 
 	// 获取没有查询过的项目中可作业的任务
-	private TaskModel getNextModifyTaskNotDoneProject(Integer userid) {
+	private TaskModel getNextModifyTaskNotDoneProject(Integer userid,List<Long> doneProjectList) {
 		TaskModel task = new TaskModel();
 		try {
 			RoleType roleType = RoleType.ROLE_WORKER;
@@ -462,72 +436,72 @@ public class ModifyErrorCtrl {
 
 	// 任务是否可作业
 	private Boolean isTaskAvaliable(TaskModel task) {
-		try {
-			Integer userid = task.getEditid();
-			Long taskid = task.getId();
-			// 查询质检错误
-			// 获取任务关联的POI
-			TaskLinkPoiModel linkpoi = taskModelClient.selectTaskLinkPoiByTaskid(task.getId());
-			if (linkpoi == null) {
-				// 关联POI不存在，任务设置质检完成 ?
-				return false;// 继续找下个任务
-			} else {
-				curPoiId = linkpoi.getPoiId();
-				POIDo poi = new POIDo();
-				poi = poiClient.selectPOIByOid(curPoiId);
-				if (poi.getSystemId() == 370) {// web编辑作业的点
-					CheckEnum check = poi.getAutoCheck();
-					if (check == CheckEnum.ok) {
-						// 质检OK 设置任务状态 3,6
-						if (taskModelClient.submitModifyTask(taskid, userid, 3).compareTo(0L) <= 0) {
-							// json.addObject("resultMsg", "任务提交失败");
-						}
-						curTaskId = taskid;
-
-						return false;// 继续找下个任务
-					} else if (check == CheckEnum.uncheck) {
-						// 未质检出 : 跳过任务
-						curTaskId = taskid;
-						ConfirmEnum confirm = poi.getConfirm();
-						if (confirm == ConfirmEnum.no_confirm) {
-							// 中途保存过POI
-							curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
-							Integer errcount = curErrorList.size();
-							if (errcount > 0) {
-								// 存在待修改的质检错误
-								return true;// 找到作业任务
-							} else {
-								// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
-								// 这是工具bug 或者流程 被人为修改
-								return false;
-							}
-						} else {
-							return false;// 继续找下个任务
-						}
-					} else if (check == CheckEnum.err) {
-						// 质检出错误：加载错误改错
-						// 根据POI查询错误
-						curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
-						Integer errcount = curErrorList.size();
-						if (errcount > 0) {
-							// 存在待修改的质检错误
-
-							return true;// 找到作业任务
-						} else {
-							// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
-							// 这是工具bug 或者流程 被人为修改
-							return false;
-						}
-					}
-				} else {// 其他作业的点暂时不能处理：跳过任务
-					return false;
-				}
-
-			}
-		} // if( task!=null && task.getId() != null)
-		catch (Exception e) {
-			logger.debug(e.getMessage(), e);
-		}
+//		try {
+//			Integer userid = task.getEditid();
+//			Long taskid = task.getId();
+//			// 查询质检错误
+//			// 获取任务关联的POI
+//			TaskLinkPoiModel linkpoi = taskModelClient.selectTaskLinkPoiByTaskid(task.getId());
+//			if (linkpoi == null) {
+//				// 关联POI不存在，任务设置质检完成 ?
+//				return false;// 继续找下个任务
+//			} else {
+//				curPoiId = linkpoi.getPoiId();
+//				POIDo poi = new POIDo();
+//				poi = poiClient.selectPOIByOid(curPoiId);
+//				if (poi.getSystemId() == 370) {// web编辑作业的点
+//					CheckEnum check = poi.getAutoCheck();
+//					if (check == CheckEnum.ok) {
+//						// 质检OK 设置任务状态 3,6
+//						if (taskModelClient.submitModifyTask(taskid, userid, 3).compareTo(0L) <= 0) {
+//							// json.addObject("resultMsg", "任务提交失败");
+//						}
+//						curTaskId = taskid;
+//
+//						return false;// 继续找下个任务
+//					} else if (check == CheckEnum.uncheck) {
+//						// 未质检出 : 跳过任务
+//						curTaskId = taskid;
+//						ConfirmEnum confirm = poi.getConfirm();
+//						if (confirm == ConfirmEnum.confirm_ok) {
+//							// 中途保存过POI
+//							curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
+//							Integer errcount = curErrorList.size();
+//							if (errcount > 0) {
+//								// 存在待修改的质检错误
+//								return true;// 找到作业任务
+//							} else {
+//								// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
+//								// 这是工具bug 或者流程 被人为修改
+//								return false;
+//							}
+//						} else {
+//							return false;// 继续找下个任务
+//						}
+//					} else if (check == CheckEnum.err) {
+//						// 质检出错误：加载错误改错
+//						// 根据POI查询错误
+//						curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
+//						Integer errcount = curErrorList.size();
+//						if (errcount > 0) {
+//							// 存在待修改的质检错误
+//
+//							return true;// 找到作业任务
+//						} else {
+//							// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
+//							// 这是工具bug 或者流程 被人为修改
+//							return false;
+//						}
+//					}
+//				} else {// 其他作业的点暂时不能处理：跳过任务
+//					return false;
+//				}
+//
+//			}
+//		} //if (linkpoi == null) {
+//		catch (Exception e) {
+//			logger.debug(e.getMessage(), e);
+//		}
 		return false;
 	}
 
@@ -628,35 +602,35 @@ public class ModifyErrorCtrl {
 			for (TagDO tag : saveTags) {
 				if (!savePoi.getNamec().equals(namec)) {
 					if ("namep".equals(tag.getK())) {
-//						TagDO namep = new TagDO();
-//						namep.setId(oid);
-//						namep.setK(POIAttrnameEnum.namep.toString());
-//						namep.setV(null);
-//						tags.add(namep);
+						TagDO namep = new TagDO();
+						namep.setId(oid);
+						namep.setK(POIAttrnameEnum.namep.toString());
+						namep.setV(null);
+						tags.add(namep);
 					} else if ("namee".equals(tag.getK())) {
-//						TagDO namee = new TagDO();
-//						namee.setId(oid);
-//						namee.setK(POIAttrnameEnum.namee.toString());
-//						namee.setV(null);
-//						tags.add(namee);
+						TagDO namee = new TagDO();
+						namee.setId(oid);
+						namee.setK(POIAttrnameEnum.namee.toString());
+						namee.setV(null);
+						tags.add(namee);
 					} else if ("names".equals(tag.getK())) {
-//						TagDO namees = new TagDO();
-//						namees.setId(oid);
-//						namees.setK(POIAttrnameEnum.names.toString());
-//						namees.setV(null);
-//						tags.add(namees);
+						TagDO namees = new TagDO();
+						namees.setId(oid);
+						namees.setK(POIAttrnameEnum.names.toString());
+						namees.setV(null);
+						tags.add(namees);
 					} else if ("namesp".equals(tag.getK())) {
-//						TagDO namesp = new TagDO();
-//						namesp.setId(oid);
-//						namesp.setK(POIAttrnameEnum.namesp.toString());
-//						namesp.setV(null);
-//						tags.add(namesp);
+						TagDO namesp = new TagDO();
+						namesp.setId(oid);
+						namesp.setK(POIAttrnameEnum.namesp.toString());
+						namesp.setV(null);
+						tags.add(namesp);
 					} else if ("namese".equals(tag.getK())) {
-//						TagDO namese = new TagDO();
-//						namese.setId(oid);
-//						namese.setK(POIAttrnameEnum.namese.toString());
-//						namese.setV(null);
-//						tags.add(namese);
+						TagDO namese = new TagDO();
+						namese.setId(oid);
+						namese.setK(POIAttrnameEnum.namese.toString());
+						namese.setV(null);
+						tags.add(namese);
 					}
 				} else if ("tel".equals(tag.getK())) {
 					telTag = tag;
@@ -984,35 +958,35 @@ public class ModifyErrorCtrl {
 			for (TagDO tag : saveTags) {
 				if (!savePoi.getNamec().equals(namec)) {
 					if ("namep".equals(tag.getK())) {
-//						TagDO namep = new TagDO();
-//						namep.setId(oid);
-//						namep.setK(POIAttrnameEnum.namep.toString());
-//						namep.setV(null);
-//						tags.add(namep);
+						TagDO namep = new TagDO();
+						namep.setId(oid);
+						namep.setK(POIAttrnameEnum.namep.toString());
+						namep.setV(null);
+						tags.add(namep);
 					} else if ("namee".equals(tag.getK())) {
-//						TagDO namee = new TagDO();
-//						namee.setId(oid);
-//						namee.setK(POIAttrnameEnum.namee.toString());
-//						namee.setV(null);
-//						tags.add(namee);
+						TagDO namee = new TagDO();
+						namee.setId(oid);
+						namee.setK(POIAttrnameEnum.namee.toString());
+						namee.setV(null);
+						tags.add(namee);
 					} else if ("names".equals(tag.getK())) {
-//						TagDO namees = new TagDO();
-//						namees.setId(oid);
-//						namees.setK(POIAttrnameEnum.names.toString());
-//						namees.setV(null);
-//						tags.add(namees);
+						TagDO namees = new TagDO();
+						namees.setId(oid);
+						namees.setK(POIAttrnameEnum.names.toString());
+						namees.setV(null);
+						tags.add(namees);
 					} else if ("namesp".equals(tag.getK())) {
-//						TagDO namesp = new TagDO();
-//						namesp.setId(oid);
-//						namesp.setK(POIAttrnameEnum.namesp.toString());
-//						namesp.setV(null);
-//						tags.add(namesp);
+						TagDO namesp = new TagDO();
+						namesp.setId(oid);
+						namesp.setK(POIAttrnameEnum.namesp.toString());
+						namesp.setV(null);
+						tags.add(namesp);
 					} else if ("namese".equals(tag.getK())) {
-//						TagDO namese = new TagDO();
-//						namese.setId(oid);
-//						namese.setK(POIAttrnameEnum.namese.toString());
-//						namese.setV(null);
-//						tags.add(namese);
+						TagDO namese = new TagDO();
+						namese.setId(oid);
+						namese.setK(POIAttrnameEnum.namese.toString());
+						namese.setV(null);
+						tags.add(namese);
 					}
 				} else if ("tel".equals(tag.getK())) {
 					//telTag = tag;
@@ -1247,83 +1221,105 @@ public class ModifyErrorCtrl {
 		return poi;
 	}
 
-	private List<PoiMergeDO> getRelation(HttpServletRequest request, POIDo poi) throws Exception {
-		Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-		if (poi == null || poi.getId() < 0)
-			return null;
-
-		String qid = ParamUtils.getParameter(request, "qid");
-		Long errorType = ParamUtils.getLongParameter(request, "errorType", 0);
-		String srcType = ParamUtils.getParameter(request, "srcType");
-		String srcInnerId = ParamUtils.getParameter(request, "srcInnerId");
-		String baiduSrcInnerId = ParamUtils.getParameter(request, "baiduSrcInnerId");
-		String emgSrcInnerId = ParamUtils.getParameter(request, "emgSrcInnerId");
-		String gaodeSrcInnerId = ParamUtils.getParameter(request, "gaodeSrcInnerId");
-		String tengxunSrcInnerId = ParamUtils.getParameter(request, "tengxunSrcInnerId");
-		int emgSrcType = ParamUtils.getIntParameter(request, "emgSrcType", 0);
-		int baiduSrcType = ParamUtils.getIntParameter(request, "baiduSrcType", 0);
-		int gaodeSrcType = ParamUtils.getIntParameter(request, "gaodeSrcType", 0);
-		int tengxunSrcType = ParamUtils.getIntParameter(request, "tengxunSrcType", 0);
-
-		List<PoiMergeDO> relations = new ArrayList<PoiMergeDO>();
-		PoiMergeDO tengxunRelation = new PoiMergeDO();
-		tengxunRelation.setTaskId(taskid);
-		tengxunRelation.setSrcInnerId(tengxunSrcInnerId);
-		tengxunRelation.setSrcType(tengxunSrcType);
-		tengxunRelation.setOid(poi.getId());
-		tengxunRelation.setQid(qid);
-		tengxunRelation.setErrorType(errorType);
-		relations.add(tengxunRelation);
-
-		PoiMergeDO baiduRelation = new PoiMergeDO();
-		baiduRelation.setTaskId(taskid);
-		baiduRelation.setSrcInnerId(baiduSrcInnerId);
-		baiduRelation.setSrcType(baiduSrcType);
-		baiduRelation.setOid(poi.getId());
-		baiduRelation.setQid(qid);
-		baiduRelation.setErrorType(baiduSrcType);
-		relations.add(baiduRelation);
-
-		PoiMergeDO gaodeRelation = new PoiMergeDO();
-		gaodeRelation.setTaskId(taskid);
-		gaodeRelation.setSrcInnerId(gaodeSrcInnerId);
-		gaodeRelation.setSrcType(gaodeSrcType);
-		gaodeRelation.setOid(poi.getId());
-		gaodeRelation.setQid(qid);
-		gaodeRelation.setErrorType(gaodeSrcType);
-		relations.add(gaodeRelation);
-		if (srcType != null) {
-			// 如果srctype=null则说明该资料不是来自于点评，需要保存的关系的，emg-baidu,emg-gaode, emg-tengxun
-			PoiMergeDO dianpingRelation = new PoiMergeDO();
-			dianpingRelation.setTaskId(taskid);
-			dianpingRelation.setSrcInnerId(srcInnerId);
-			dianpingRelation.setSrcType(Integer.parseInt(srcType));
-			dianpingRelation.setOid(poi.getId());
-			dianpingRelation.setQid(qid);
-			dianpingRelation.setErrorType(errorType);
-			relations.add(dianpingRelation);
-		}
-		return relations;
-	}
-
-	private TaskModel getModifyTask(Integer userid) {
+	private STaskModel getModifyTask(Integer userid) {
+		STaskModel stask = new STaskModel();
 		TaskModel task = new TaskModel();
+		//--------
+		// 当前作业的项目
+		Long curProjectId = -1L;
+		// 当前查询的任务id
+		Long curTaskId = 0L;
+		// 当前作业点poiid
+		Long curPoiId = -1L;
+		// 一轮中已经查询过的项目(可能由于某种原因没作业而跳过，后面需要再次查询是否可作业)
+		List<Long> doneProjectList = new ArrayList<Long>();
+		List<ErrorModel> curErrorList = new ArrayList<ErrorModel>();
+//		ProjectModel project = new ProjectModel();
+//		ProcessModel process = new ProcessModel();
+//		List<ErrorModel> errorlist = new ArrayList<ErrorModel>();
+//		Long keywordid = -1L;
+		Boolean bFindTask = false;
+		// 查找第一个可作业的项目：存在可作业的任务 + 任务下可有web编辑器作业
 		try {
-			Boolean bFindTask = false;
+			Integer querycount = 1000;//最大查找次数
 			// 找到一个可作业的任务
-			while (!bFindTask) {
-				if (curProjectId == null) {
+			while (!bFindTask && querycount > 0) {
+				querycount--;
+				if (curProjectId == -1L) {
 					task = getNextModifyTask(userid);
 					if (task != null && task.getId() != null) {
 						curProjectId = task.getProjectid();
 						doneProjectList.add(curProjectId);
-						Boolean isAvaliable = isTaskAvaliable(task);
-						if (isAvaliable) {
-							break;
+						// Boolean isAvaliable = isTaskAvaliable(task);
+						// --------------------------------------
+						curTaskId = task.getId();
+						// 查询质检错误
+						// 获取任务关联的POI
+						TaskLinkPoiModel linkpoi = taskModelClient.selectTaskLinkPoiByTaskid(curTaskId);
+						if (linkpoi == null) {
+							// 关联POI不存在，任务设置质检完成 ?
+							continue;// 继续找下个任务
 						} else {
-							continue;
-						}
+							curPoiId = linkpoi.getPoiId();
+							POIDo poi = new POIDo();
+							poi = poiClient.selectPOIByOid(curPoiId);
+							if (poi.getSystemId() == 370) {// web编辑作业的点
+								CheckEnum check = poi.getAutoCheck();
+								if (check == CheckEnum.ok) {
+									// 质检OK 设置任务状态 3,6
+									if (taskModelClient.submitModifyTask(curTaskId, userid, 3).compareTo(0L) <= 0) {
+										// json.addObject("resultMsg", "任务提交失败");
+									}
+									continue;// 继续找下个任务
+								} else if (check == CheckEnum.uncheck) {// 改错保存 或者 还未质检
+									ConfirmEnum confirm = poi.getConfirm();
+									if (confirm == ConfirmEnum.confirm_ok) {
+										// 中途保存过POI
+										curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
+										Integer errcount = curErrorList.size();
+										if (errcount > 0) {
+											// 存在待修改的质检错误
+											stask.setTaskMode(task);
+											stask.setErrorList(curErrorList);
+											stask.setPoiId(curPoiId);
+											
+											bFindTask = true;
+											break;// 找到作业任务
+										} else {
+											// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
+											// 这是工具bug 或者流程 被人为修改
+											continue;// 继续找下个任务
+										}
+									} else {// 未质检出 : 跳过任务
+										continue;// 继续找下个任务
+									}
+								} else if (check == CheckEnum.err) {
+									// 质检出错误：加载错误改错
+									// 根据POI查询错误
+									curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
+									Integer errcount = curErrorList.size();
+									if (errcount > 0) {
+										// 存在待修改的质检错误
+										stask.setTaskMode(task);
+										stask.setErrorList(curErrorList);
+										stask.setPoiId(curPoiId);
+										bFindTask = true;
+										break;// 找到作业任务
+									} else {
+										// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
+										// 这是工具bug 或者流程 被人为修改
+										continue;// 继续找下个任务
+									}
+								}
+							} else {// 其他作业的点暂时不能处理：跳过任务
+								continue;// 继续找下个任务
+							}
+						} // if (linkpoi == null) {
+						// -----------------------------------------
 					} else {// 第一次查询就没找到可作业任务
+						int a = 0; 
+						a = 1+1;
+						a += 2;
 						break;
 					} // if( task != null && task.getId() != null)else
 
@@ -1331,14 +1327,141 @@ public class ModifyErrorCtrl {
 				else {// 查询当前项目下的任务
 					task = getNextModifyTaskByProjectId(userid, curProjectId, curTaskId);// 刷新会调用次所以必须提交的时候才记录curtaskid
 					if (task != null && task.getId() != null) {
-						Boolean isAvaliable = isTaskAvaliable(task);
-						break;
-
-					} else {// 当前项目查询不到需要下一个项目了（但是有未处理跳过的项目）
-						task = getNextModifyTaskNotDoneProject(userid);
+						//---------------------
+						curTaskId = task.getId();
+						// 查询质检错误
+						// 获取任务关联的POI
+						TaskLinkPoiModel linkpoi = taskModelClient.selectTaskLinkPoiByTaskid(curTaskId);
+						if (linkpoi == null) {
+							// 关联POI不存在，任务设置质检完成 ?
+							continue;// 继续找下个任务
+						} else {
+							curPoiId = linkpoi.getPoiId();
+							POIDo poi = new POIDo();
+							poi = poiClient.selectPOIByOid(curPoiId);
+							if (poi.getSystemId() == 370) {// web编辑作业的点
+								CheckEnum check = poi.getAutoCheck();
+								if (check == CheckEnum.ok) {
+									// 质检OK 设置任务状态 3,6
+									if (taskModelClient.submitModifyTask(curTaskId, userid, 3).compareTo(0L) <= 0) {
+										// json.addObject("resultMsg", "任务提交失败");
+									}
+									continue;// 继续找下个任务
+								} else if (check == CheckEnum.uncheck) {// 改错保存 或者 还未质检
+									ConfirmEnum confirm = poi.getConfirm();
+									if (confirm == ConfirmEnum.confirm_ok) {
+										// 中途保存过POI
+										curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
+										Integer errcount = curErrorList.size();
+										if (errcount > 0) {
+											// 存在待修改的质检错误
+											stask.setTaskMode(task);
+											stask.setErrorList(curErrorList);
+											stask.setPoiId(curPoiId);
+											bFindTask = true;
+											break;// 找到作业任务
+										} else {
+											// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
+											// 这是工具bug 或者流程 被人为修改
+											continue;// 继续找下个任务
+										}
+									} else {// 未质检出 : 跳过任务
+										continue;// 继续找下个任务
+									}
+								} else if (check == CheckEnum.err) {
+									// 质检出错误：加载错误改错
+									// 根据POI查询错误
+									curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
+									Integer errcount = curErrorList.size();
+									if (errcount > 0) {
+										// 存在待修改的质检错误
+										stask.setTaskMode(task);
+										stask.setErrorList(curErrorList);
+										stask.setPoiId(curPoiId);
+										bFindTask = true;
+										break;// 找到作业任务
+									} else {
+										// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
+										// 这是工具bug 或者流程 被人为修改
+										continue;// 继续找下个任务
+									}
+								}
+							} else {// 其他作业的点暂时不能处理：跳过任务
+								continue;// 继续找下个任务
+							}
+						} // if (linkpoi == null) {
+						
+						//-----------------------
+					} else {// 当前项目查询不到，需要下一个项目了（但是有未处理跳过的项目）
+						task = getNextModifyTaskNotDoneProject(userid,doneProjectList);
 						if (task != null && task.getId() != null) {
-							Boolean isAvaliable = isTaskAvaliable(task);
-							break;
+							curProjectId = task.getProjectid();
+							doneProjectList.add(curProjectId);
+							//---------------------
+							curTaskId = task.getId();
+							// 查询质检错误
+							// 获取任务关联的POI
+							TaskLinkPoiModel linkpoi = taskModelClient.selectTaskLinkPoiByTaskid(curTaskId);
+							if (linkpoi == null) {
+								// 关联POI不存在，任务设置质检完成 ?
+								continue;// 继续找下个任务
+							} else {
+								curPoiId = linkpoi.getPoiId();
+								POIDo poi = new POIDo();
+								poi = poiClient.selectPOIByOid(curPoiId);
+								if (poi.getSystemId() == 370) {// web编辑作业的点
+									CheckEnum check = poi.getAutoCheck();
+									if (check == CheckEnum.ok) {
+										// 质检OK 设置任务状态 3,6
+										if (taskModelClient.submitModifyTask(curTaskId, userid, 3).compareTo(0L) <= 0) {
+											// json.addObject("resultMsg", "任务提交失败");
+										}
+										continue;// 继续找下个任务
+									} else if (check == CheckEnum.uncheck) {// 改错保存 或者 还未质检
+										ConfirmEnum confirm = poi.getConfirm();
+										if (confirm == ConfirmEnum.confirm_ok) {
+											// 中途保存过POI
+											curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
+											Integer errcount = curErrorList.size();
+											if (errcount > 0) {
+												// 存在待修改的质检错误
+												stask.setTaskMode(task);
+												stask.setErrorList(curErrorList);
+												stask.setPoiId(curPoiId);
+												bFindTask = true;
+												break;// 找到作业任务
+											} else {
+												// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
+												// 这是工具bug 或者流程 被人为修改
+												continue;// 继续找下个任务
+											}
+										} else {// 未质检出 : 跳过任务
+											continue;// 继续找下个任务
+										}
+									} else if (check == CheckEnum.err) {
+										// 质检出错误：加载错误改错
+										// 根据POI查询错误
+										curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
+										Integer errcount = curErrorList.size();
+										if (errcount > 0) {
+											// 存在待修改的质检错误
+											stask.setTaskMode(task);
+											stask.setErrorList(curErrorList);
+											stask.setPoiId(curPoiId);
+											bFindTask = true;
+											break;// 找到作业任务
+										} else {
+											// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
+											// 这是工具bug 或者流程 被人为修改
+											continue;// 继续找下个任务
+										}
+									}
+								} else {// 其他作业的点暂时不能处理：跳过任务
+									continue;// 继续找下个任务
+								}
+							} // if (linkpoi == null) {
+							
+							//-----------------------
 						} else {// 项目都循环完了没找到任务
 							break;
 						}
@@ -1349,7 +1472,11 @@ public class ModifyErrorCtrl {
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-		return task;
+		//-----------
+		if( bFindTask == false)
+			return null;
+		else
+			return stask;
 	}
 
 	/**

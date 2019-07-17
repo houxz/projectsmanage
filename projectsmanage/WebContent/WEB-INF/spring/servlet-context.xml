@@ -30,13 +30,12 @@
 	缓存功能开启，只有一个启用 -->
 	
 	<context:property-placeholder location="WEB-INF/spring/version.properties" ignore-unresolvable="true"/>
-<!-- 	<context:property-placeholder location="WEB-INF/spring/scheduler.properties" ignore-unresolvable="true"/> -->
-
 
 	<context:property-placeholder location="WEB-INF/spring/scheduler_yiyi.properties" ignore-unresolvable="true"/>
-<!-- 	<context:property-placeholder location="WEB-INF/spring/webapi.properties" ignore-unresolvable="true"/> -->
-	<context:property-placeholder location="WEB-INF/spring/webapi_yiyi.properties" ignore-unresolvable="true"/>
+<!-- 	<context:property-placeholder location="WEB-INF/spring/scheduler_yy.properties" ignore-unresolvable="true"/> -->
 	
+
+	<context:property-placeholder location="WEB-INF/spring/webapi_yiyi.properties" ignore-unresolvable="true"/>
 <!-- 	<context:property-placeholder location="WEB-INF/spring/webapi_yy.properties" ignore-unresolvable="true"/> -->
 	
 	<beans:bean id="transactionManager"
