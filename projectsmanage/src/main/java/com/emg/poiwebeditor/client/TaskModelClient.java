@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.emg.poiwebeditor.common.Common;
 import com.emg.poiwebeditor.common.DatabaseType;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
+import com.emg.poiwebeditor.pojo.SpotCheckProjectInfo;
 import com.emg.poiwebeditor.pojo.SpotCheckTaskInfo;
 import com.emg.poiwebeditor.pojo.TaskLinkPoiModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
@@ -473,5 +474,30 @@ System.out.println(sb.toString());
 
 			return tasklist;
 		}
+		
+	// 查询项目pid下的所有制作人制作的资料数
+	public List<SpotCheckProjectInfo> selectSpotCheckProjectInfo(Long projectid, Integer editid) throws Exception {
+		List<SpotCheckProjectInfo> tasklist = new ArrayList<SpotCheckProjectInfo>();
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append("select * from 	 tb_spotcheckprojectinfo  where projectid= "+ projectid);
+			sb.append(" and editid =" + editid);
+			sb.append(" order by  id ");
+			String sql = sb.toString();
+			ArrayList<Object> arr = ExecuteSQLApiClientUtils.getList(String.format(getUrl, host, port, path, SELECT,
+					URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")), SpotCheckProjectInfo.class);
+			System.out.println(sb.toString());
+			int count = arr.size();
+			for (int i = 0; i < count; i++) {
+				SpotCheckProjectInfo task = (SpotCheckProjectInfo) arr.get(i);
+				tasklist.add(task);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+
+		return tasklist;
+	}
 		
 }

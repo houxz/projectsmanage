@@ -656,6 +656,19 @@
 	
 	function getDataset() {
 		$("#datasetsDlg").bootstrapDialog({
+			queryParams : function(params) {
+				if (params.filter != undefined) {
+					var filterObj = eval('(' + params.filter + ')');
+					if (filterObj.state != undefined) {
+						filterObj["state"] = filterObj.state;
+						delete filterObj.state;
+						params.filter = JSON.stringify(filterObj);
+					}
+				}
+				params["type"] = $("#config_1_5").val();
+				params["processType"] = $("#config_processprotype").val();
+				return params;
+			},
 			onLoadSuccess : function(data) {
 				$(this.self).bootstrapTable("load", data.rows);
 				
