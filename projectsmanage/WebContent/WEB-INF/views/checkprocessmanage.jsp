@@ -47,19 +47,28 @@
 			onClickRow:function(row){
 				//查询id对应的任务
 				var processid = row.id;
-				jQuery.post("./checkprocessesmanage.web",{
-					"atn":'geteditworkbyprocessid',
-					"proccessid":processid
-				},function(json){
-					var result = json.result;
-					if(result == 1){
-						
-						var tasklist = json.spotchecktaskinfo;
-						drawspotchecktask(tasklist);
-						
-						
+				$("#spotcheckeditid").bootstrapTable('destroy');
+				$('[data-toggle="processes2"]').bootstrapTable({
+						locale : 'zh-CN',
+						queryParams : function(params) {
+							if (params.filter != undefined) {
+								var filterObj = eval('(' + params.filter + ')');
+								if (filterObj.state != undefined) {
+									filterObj["state"] = filterObj.state;
+									delete filterObj.state;
+									params.filter = JSON.stringify(filterObj);
+								}
+							}
+							params["processid"] = processid;
+							return params;
+						},
+						onLoadSuccess : function(data) {
+						$("[data-toggle='tooltip']").tooltip();
 					}
-				},"json");
+				})
+
+				
+			
 			}//onClickRow:function(row)
 		});
 		
@@ -76,12 +85,6 @@
 		
 	});
 	
-	var source = null;
-	var matchByIDAndIndex = new Map();
-	var autoRefreshProcess = false;
-	var curprocessid = $("table#spotcheckeditid>tbody td.tdValue[data-key='processid']>input:text").val();
-	var cureditid = $("table#spotcheckeditid>tbody td.tdValue[data-key='name']>input:text").val();
-	
 	function drawspotchecktask(tasklist){
 		var tbody = $("#spotcheckeditid tbody");
 		tbody.empty();
@@ -92,18 +95,6 @@
 		var html = new Array();
 		for(var i = 0 ;i < count ; i++){
 			var taskinfo = tasklist[i];
-// 			$("table#spotcheckeditid>tbody td.tdValue[data-key='processid']>input:text").val(taskinfo.processid);
-// 			$("table#spotcheckeditid>tbody td.tdValue[data-key='editid']>input:text").val(taskinfo.editid);
-// 			$("table#spotcheckeditid>tbody td.tdValue[data-key='name']>input:text").val(taskinfo.username);
-// 			$("table#spotcheckeditid>tbody td.tdValue[data-key='editnum']>input:text").val(taskinfo.editnum);
-
-
-// <td class="tdValue" data-key="processid"><input class="form-control input-sm" type="text"></td>
-// <td class="tdValue" data-key="editid"><input class="form-control input-sm" type="text"></td>
-// <td class="tdValue" data-key="name"><input class="form-control input-sm" type="text"></td>
-// <td class="tdValue" data-key="editnum"><input class="form-control input-sm" type="text"></td>
-// <td class="tdValue" data-key="percent"><input class="form-control input-sm" type="text"></td>
-// <td class="btn btn-default"  style="margin-bottom:3px;" onclick="getspotchecktaskinfo(this)">查看</td>
 		
 			html.push("<tr>");
 			html.push('<td class="tdValue" data-key="processid">'+taskinfo.processid+'</td>');
@@ -126,13 +117,27 @@
 		return html.join("");
 	}
 	
-	function getspotchecktaskinfo( e ) {
-		 var tdparent = e.parentElement;
-		 var tds = tdparent.children 
-		 var processid = tds[0].innerText;
-		 var editid = tds[1].innerText;
-		 var username =tds[2].innerText;
-	 
+	function operationFormat(value, row, index) {
+		var html = new Array();
+		html.push('<div class="btn btn-default"  style="margin-bottom:3px;" onclick="getspotchecktaskinfo('
+						+ row.processid
+						+ ','
+						+ row.editid
+						+ ',\''
+						+ row.username
+						+ '\''
+						+ ');">查看</div>');
+		
+		return html.join('');
+	}
+	
+	function percentFormat(value, row, index) {
+		var html = new Array();
+		html.push('<div><input type="text"></div>');
+		return html.join('');
+	}
+	
+	function getspotchecktaskinfo( processid,editid,username ) { 
 		 $("#datasetsDlg").bootstrapDialog({
 				queryParams : function(params) {
 					if (params.filter != undefined) {
@@ -188,91 +193,129 @@
 				]
 			});
 	}
-
+	
+	function createproject(){
+		var tbodytrs = $("#spotcheckeditid tbody>tr");
+		var array = new Array();
+		var iscancreate = true;
+		for( var i = 0 ;i <tbodytrs.length;i++){
+			var obj = new Object();
+			obj.processid =	tbodytrs[i].children[0].innerText;
+			obj.editid    = tbodytrs[i].children[1].innerText;
+			obj.username  = tbodytrs[i].children[2].innerText;
+			obj.editnum   = tbodytrs[i].children[3].innerText;
+			obj.percent   = tbodytrs[i].children[4].firstChild.firstChild.value;
+			if(obj.percent <=0 || obj.percent>=100){
+				iscancreate = false;
+				break;
+			}
+			array.push(obj);
+			var a = 0;
+			a = 1+11;
+		}
+		if( iscancreate){
+			jQuery.post("./checkprocessesmanage.web", {
+				"atn" : "createspotchecktask",
+				"spotchekcinfos" : JSON.stringify(array)
+			}, function(json) {
+				if (json && json.result > 0) {
+					
+					
+					$.webeditor.showMsgLabel("success", "抽查任务创建成功");
+				} else {
+					$.webeditor.showMsgLabel("alert", "抽查任务创建失败");
+				}
+				$.webeditor.showMsgBox("close");
+			}, "json");
+		}else{
+			
+		}
+		
+	}
+	
 
 </script>
 
 </head>
 <body>
 	<div class="container-fluid">
-	<div class="row">
-	<div class="col-md-4">
-		<div id="headdiv"></div>
-		<div class="row" style="padding-top: 120px;padding-left:20px">
-			<table id="processeslist" data-unique-id="id"
-				data-url="./checkprocessesmanage.web?atn=pages"
-				data-side-pagination="server" data-filter-control="true"
-				data-pagination="true" data-toggle="processes" data-height="714"
-				data-page-list="[5, 10, 20, 100]" data-page-size="5"
-				data-search-on-enter-key='true' data-align='center'>
-				<thead>
-					<tr>
-						<th data-field="id" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="120">项目编号
-						</th>
-						<th data-field="name" data-filter-control="input"
-							data-filter-control-placeholder="" data-width="160">项目名称</th>
-					</tr>
-				</thead>
-			</table>
-		</div>
-		<div id="footdiv"></div>
-		</div>	
-		
-<!-- 		<div class="col-md-1"></div> -->
-		
-		<div class="col-md-7">
-		<div id="headdiv"></div>
-		<div class="row" style="padding-top: 120px ;padding-left:20px">
+		<div class="row">
+			<div class="col-md-4">
+				<div id="headdiv"></div>
+				<div class="row" style="padding-top: 120px; padding-left: 20px">
+					<table id="processeslist" data-unique-id="id"
+						data-url="./checkprocessesmanage.web?atn=pages"
+						data-side-pagination="server" data-filter-control="true"
+						data-pagination="true" data-toggle="processes" data-height="714"
+						data-page-list="[5, 10, 20, 100]" data-page-size="5"
+						data-search-on-enter-key='true' data-align='center'>
+						<thead>
+							<tr>
+								<th data-field="id" data-filter-control="input"
+									data-filter-control-placeholder="" data-width="120">项目编号</th>
+								<th data-field="name" data-filter-control="input"
+									data-filter-control-placeholder="" data-width="160">项目名称</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<div id="footdiv"></div>
+			</div>
 
-									<table id="spotcheckeditid" class="table table-bordered table-condensed">
-									<thead>
-										<tr>
-											<th><span class="glyphicon glyphicon-edit"></span></th>
-											<th>抽检数据</th>
-										</tr>
-										<tr>
-										<th class="tdKey">项目编号</th>
-										<th class="tdKey">人员ID</th>
-										<th class="tdKey">人员</th>
-										<th class="tdKey">修改资料数</th>
-										<th class="tdKey">抽检比例</th>
-										<th class="tdKey">抽检信息</th>
-										</tr>
-									</thead>
-									<tbody>
-<!-- 										<tr> -->
-<!-- 											<td class="tdValue" data-key="processid"><input class="form-control input-sm" type="text"></td> -->
-<!-- 											<td class="tdValue" data-key="editid"><input class="form-control input-sm" type="text"></td> -->
-<!-- 											<td class="tdValue" data-key="name"><input class="form-control input-sm" type="text"></td> -->
-<!-- 											<td class="tdValue" data-key="editnum"><input class="form-control input-sm" type="text"></td> -->
-<!-- 											<td class="tdValue" data-key="percent"><input class="form-control input-sm" type="text"></td> -->
-<!-- 											<td class="btn btn-default"  style="margin-bottom:3px;" onclick="getspotchecktaskinfo(this)">查看</td> -->
+			<!-- 		<div class="col-md-1"></div> -->
 
-<!-- 										</tr> -->
-									</tbody>
-								</table>
+			<div class="col-md-7">
+				<div id="headdiv"></div>
+				<div class="row" style="padding-top: 120px; padding-left: 20px">
+					<table id="spotcheckeditid" data-unique-id="id"
+						data-url="./checkprocessesmanage.web?atn=pages2"
+						data-side-pagination="server" data-filter-control="true"
+						data-pagination="true" data-toggle="processes2" data-height="714"
+						data-page-list="[5, 10, 20, 100]" data-page-size="5"
+						data-search-on-enter-key='true' data-align='center'>
+						<thead>
+<!-- 							<tr> -->
+<!-- 								<th><span class="glyphicon glyphicon-edit"></span></th> -->
+<!-- 								<th>抽检数据</th> -->
+<!-- 							</tr> -->
+							<tr>
+								<th data-field="processid">项目编号</th>
+								<th data-field="editid">人员ID</th>
+								<th data-field="username">人员</th>
+								<th data-field="editnum">修改资料数</th>
+								<th data-formatter="percentFormat" data-width="70" >抽检比例</th>
+								<th data-formatter="operationFormat" data-width="70">抽检信息</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
 
+				</div>
+				<div id="footdiv"></div>
+				<div
+							style="position: absolute; left: 0; right: 0; bottom: 0px; height: 5px; text-align: right;">
+							<button class="btn btn-default" onClick="createproject();">创建抽检项目</button>
+							
+				</div>
+			</div>
 		</div>
-		<div id="footdiv"></div>
-		</div>
-	</div>
 	</div>
 
 	<div id="datasetsDlg" style="display: none;">
-		<table id="datasetslist" class="table-condensed"
-			data-unique-id="id" data-value-band="config_2_25"
+		<table id="datasetslist" class="table-condensed" data-unique-id="id"
+			data-value-band="config_2_25"
 			data-url="./checkprocessesmanage.web?atn=getdatasets"
-			data-toggle="datasets"
-			data-height="520">
+			data-toggle="datasets" data-height="520">
 			<thead>
 				<tr>
-					<th data-field="id"  data-width="50">编号</th>
-						
+					<th data-field="id" data-width="50">编号</th>
+
 					<th data-field="processid" data-width="50">被抽查项目编号</th>
-					<th data-field="username" data-formatter="nameFormat"  data-width="50">被抽查人员</th>
+					<th data-field="username" data-formatter="nameFormat"
+						data-width="50">被抽查人员</th>
 					<th data-field="newprocessid" data-width="60">新生成的项目编号</th>
-						
+
 					<th data-field="percent" data-width="50">抽查比例</th>
 				</tr>
 			</thead>

@@ -1,8 +1,12 @@
 package com.emg.poiwebeditor.ctrl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -18,22 +22,36 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.poiwebeditor.client.TaskModelClient;
+import com.emg.poiwebeditor.common.CommonConstants;
 import com.emg.poiwebeditor.common.ParamUtils;
+import com.emg.poiwebeditor.common.ProcessConfigEnum;
+import com.emg.poiwebeditor.common.ProcessConfigModuleEnum;
 import com.emg.poiwebeditor.common.ProcessState;
 import com.emg.poiwebeditor.common.ProcessType;
+import com.emg.poiwebeditor.common.RoleType;
+import com.emg.poiwebeditor.common.SystemType;
+import com.emg.poiwebeditor.dao.process.ProcessConfigValueModelDao;
 import com.emg.poiwebeditor.dao.process.ProcessModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
+import com.emg.poiwebeditor.pojo.ConfigDBModel;
 import com.emg.poiwebeditor.pojo.EmployeeModel;
+import com.emg.poiwebeditor.pojo.ProcessConfigModel;
+import com.emg.poiwebeditor.pojo.ProcessConfigValueModel;
 import com.emg.poiwebeditor.pojo.ProcessModel;
 import com.emg.poiwebeditor.pojo.ProcessModelExample;
 import com.emg.poiwebeditor.pojo.ProcessModelExample.Criteria;
 import com.emg.poiwebeditor.service.EmapgoAccountService;
+import com.emg.poiwebeditor.service.ProcessConfigModelService;
 import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ProjectModelExample;
+import com.emg.poiwebeditor.pojo.ProjectsUserModel;
+import com.emg.poiwebeditor.pojo.SpotCheckInfo;
 import com.emg.poiwebeditor.pojo.SpotCheckProjectInfo;
 import com.emg.poiwebeditor.pojo.SpotCheckTaskInfo;
 import com.emg.poiwebeditor.pojo.TaskModel;
+import com.emg.poiwebeditor.pojo.keywordModelForTask;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Controller
@@ -49,6 +67,10 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 	private TaskModelClient taskModelClient;
 	@Autowired
 	private EmapgoAccountService emapgoAccountService;
+	@Autowired
+	private ProcessConfigModelService processConfigModelService;
+	@Autowired
+	private ProcessConfigValueModelDao processConfigValueModelDao;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
@@ -118,15 +140,15 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 		logger.debug("checkProcessesManageCtrl-pages end.");
 		return json;
 	}
-	
+		
 	@SuppressWarnings("unchecked")
-	@RequestMapping(params = "atn=geteditworkbyprocessid")
+	@RequestMapping(params = "atn=pages2")
 	public ModelAndView getWorksByProccessid(Model model,HttpServletRequest request,HttpSession session) {
 		logger.debug("getworksbyprocessid");
 		Integer ret =0;
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
-			Long processid = ParamUtils.getLongParameter(request, "proccessid", -1);
+			Long processid = ParamUtils.getLongParameter(request, "processid", -1);
 			if( processid > 0) {
 				ProjectModel project = new ProjectModel();
 				
@@ -136,6 +158,7 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 				List<ProjectModel> _projects = new ArrayList<ProjectModel>();
 				_projects=projectModelDao.selectByExample(example);
 				int projectsize = _projects.size();
+				int count = 0;
 				if( projectsize == 1) {
 					Long projectid = _projects.get(0).getId();
 					List<SpotCheckTaskInfo> tasklist = taskModelClient.selectSpotCheckTaskByProjectId( projectid );
@@ -143,7 +166,7 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 					if(tasklist != null && tasklist.size() > 0) {
 						List<Integer> userIDInRows = new ArrayList<Integer>();
 						List<EmployeeModel> userInRows = new ArrayList<EmployeeModel>();
-						int count = tasklist.size();
+						count = tasklist.size();
 						int i = 0;
 						for( i = 0 ; i < count ; i++) {
 							Integer editid = tasklist.get(i).getEditid();
@@ -172,7 +195,8 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 					
 					
 					
-					json.addObject("spotchecktaskinfo",tasklist);
+					json.addObject("rows",tasklist);
+					json.addObject("total", count);
 					json.addObject("processid", processid);
 					ret = 1;
 					
@@ -258,4 +282,205 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 		return json;
 		
 	}
+	
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(params = "atn=createspotchecktask")
+	public ModelAndView getSpotCheckProjectInfo2(Model model,HttpServletRequest request,HttpSession session) {
+		logger.debug("getworksbyprocessid");
+		Integer ret =0;
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			Long processid =  -1L;
+			int editid =	 -1;
+			
+			Integer uid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
+			String username = (String) session.getAttribute(CommonConstants.SESSION_USER_NAME);
+			
+			String spotchekcinfos = ParamUtils.getParameter(request, "spotchekcinfos");
+			JSONArray jsonarray = JSONArray.fromObject(spotchekcinfos);		
+			SpotCheckInfo[] spotlist = (SpotCheckInfo[])JSONArray.toArray(jsonarray,SpotCheckInfo.class );
+			Integer length = spotlist.length;
+			for( int i = 0 ;i < length ; i++) {
+				processid = spotlist[i].getProcessid();
+				break;
+			}
+			
+			if( processid > 0 ) {
+				ProjectModel project = new ProjectModel();
+				
+				ProjectModelExample example = new ProjectModelExample();
+				com.emg.poiwebeditor.pojo.ProjectModelExample.Criteria criteria = example.or();
+				criteria.andProcessidEqualTo(processid);
+				List<ProjectModel> _projects = new ArrayList<ProjectModel>();
+				_projects=projectModelDao.selectByExample(example);
+				int projectsize = _projects.size();
+				if( projectsize == 1) {
+					Long projectid = _projects.get(0).getId();
+					String projectname = _projects.get(0).getName();			
+					for(int j = 0 ;j < length ; j++) {
+						editid = spotlist[j].getEditid();
+						
+						List<TaskModel> tasklist = taskModelClient.selectSpotCheckProjectInfo2(projectid, editid );
+						
+						List<SpotCheckProjectInfo> pinfolist = taskModelClient.selectSpotCheckProjectInfo( projectid,editid );
+						int pinfocount = pinfolist.size();
+						
+						// editid 新建抽检的项目名称
+						int index = pinfocount + 1;
+						String newprojectname = projectname  +"_抽检_" + spotlist[j].getUsername() +"_"  + index; 
+						spotlist[j].setNewprojectname(newprojectname);
+						//spotlist[j].setNewprojectid( createProject(newprojectname) );
+						createProject(newprojectname,spotlist[j],uid, username);
+						
+						//抽检理论是创建任务的个数
+						Integer newtaskcount = spotlist[j].getEditnum() * spotlist[j].getPercent() / 100;
+						//实际可抽检的任务数
+						Integer newtaskcount2 =tasklist.size();
+						
+						Long[] taskids = new Long[newtaskcount2];
+						for(int m = 0 ; m < newtaskcount2;m++)
+							taskids[m] = tasklist.get(m).getId();
+						Long[]spotchecktaskids= getRandomFromArray(taskids , newtaskcount);
+						Integer newctcount = 0;
+						for( int n = 0 ; n < spotchecktaskids.length;n++) {
+							boolean bret =	taskModelClient.createspotchecktask(spotchecktaskids[n], spotlist[j].getNewprojectid() );
+							if( bret) {
+								newctcount++;
+							}
+						}
+						//更新项目信息
+						ProjectModel pro = new ProjectModel();
+						pro.setId(spotlist[j].getNewprojectid());
+						pro.setTasknum(newctcount);
+						pro.setOverstate(1);
+						projectModelDao.updateByPrimaryKeySelective(pro);
+						
+						//更新状态
+						ProcessModel process = new ProcessModel();
+						process.setId(spotlist[j].getNewprocessid());
+						process.setState(1);
+						processModelDao.updateByPrimaryKeySelective(process);
+						
+						//更新任务信息
+						taskModelClient.insertSpotcheckprojectinfo(projectid, editid,spotlist[j].getPercent(),spotlist[j].getNewprojectid());
+					}
+					
+					
+					
+					ret = 1;
+					
+				}else {
+					logger.debug("select project by processid" + processid.toString() + " get project count:"+projectsize + " error");
+					
+				}
+				
+			}
+		}catch(Exception e) {
+			
+		}
+		json.addObject("result", ret);
+		return json;
+		
+	}
+	
+	public Long createProject(String newprojectname,SpotCheckInfo pinfo,Integer uid, String username) {
+		Long newProcessID = -1L;
+		Long newprojectid = -1l;
+		Integer type = ProcessType.POIPOLYMERIZE.getValue();
+		Integer priority = 0;
+		Integer systemid  = SystemType.poi_polymerize.getValue();
+	
+		
+		ProcessModel newProcess = new ProcessModel();
+		newProcess.setName(newprojectname);
+		newProcess.setType(type);
+		newProcess.setPriority(priority);
+		newProcess.setState(0);
+		newProcess.setUserid(uid);
+		newProcess.setUsername(username);
+		newProcess.setProgress("0,0,0,0");
+		if (processModelDao.insertSelective(newProcess) <= 0) {
+		//	json.addObject("resultMsg", "新建项目失败");
+			return newprojectid;
+		}
+		newProcessID = newProcess.getId();
+		List<ProcessConfigValueModel> configValues = new ArrayList<ProcessConfigValueModel>();
+		
+		//************************************
+		
+		ProjectModel newpro = new ProjectModel();
+		newpro.setProcessid(newProcessID);
+		newpro.setName(newprojectname);
+		newpro.setSystemid(systemid);
+		newpro.setProtype(type);
+		newpro.setPdifficulty(0);
+		newpro.setTasknum(-1);
+		newpro.setOverstate(0);
+		newpro.setCreateby(uid);
+		newpro.setPriority(priority);
+		newpro.setOwner(1);//私有
+		
+		if (projectModelDao.insert(newpro) > 0) {
+			newprojectid = newpro.getId();
+		}
+		if (newprojectid > 0) {
+			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUID.getValue(), newprojectid.toString()));
+			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newprojectname ));
+		}
+		// TODO: 新增项目类型需要指定其他配置项
+		List<ProcessConfigModel> processConfigs = processConfigModelService.selectAllProcessConfigModels(type);
+		for (ProcessConfigModel processConfig : processConfigs) {
+			Integer moduleid = processConfig.getModuleid();
+			Integer configid = processConfig.getId();
+			String defaultValue = processConfig.getDefaultValue() == null ? new String() : processConfig.getDefaultValue().toString();
+
+			// 这是前边代码特殊处理的部分配置
+			if ((moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUID.getValue())) ||
+					(moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue())) ||
+					(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUID.getValue())) ||
+					(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue())) ||
+					(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BANGDINGZILIAO.getValue())) ||
+					(moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANMOSHI.getValue())) ||
+					(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJILEIXING.getValue())))
+					continue;
+
+			configValues.add(new ProcessConfigValueModel(newProcessID, moduleid, configid, defaultValue));
+		}
+		Integer ret = -1;
+		if (processConfigValueModelDao.deleteByProcessID(newProcessID) >= 0) {
+			ret = processConfigValueModelDao.insert(configValues);
+		}
+		pinfo.setNewprojectid(newprojectid);
+		pinfo.setNewprocessid(newProcessID);
+		return newprojectid;
+	}
+	
+	public Long[] getRandomFromArray(Long[] array , Integer count) {
+		Long[] a = array;
+		Long[] result = new Long[count];
+		boolean r[] = new boolean[array.length];
+		Random random = new Random();
+		int m = count;
+		if( m> a.length || m < 0)
+			return a;
+		
+		int n =0 ;
+		while(true) {
+			int temp = random.nextInt(a.length);
+			if( !r[temp]) {
+				if( n == m)
+					break;
+				n++;
+				result[n-1] = a[temp];
+				r[temp] = true;
+			}
+		}
+		
+		return result;
+	}
+
+
+	
+	
 }

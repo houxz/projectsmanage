@@ -499,5 +499,101 @@ System.out.println(sb.toString());
 
 		return tasklist;
 	}
-		
+	
+	public List<TaskModel> selectSpotCheckProjectInfo2(Long projectid, Integer editid) throws Exception {
+		List<TaskModel> tasklist = new ArrayList<TaskModel>();
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append("select id from tb_task  where projectid= "+ projectid);
+			sb.append(" and editid =" + editid);
+			sb.append(" and state = 3 and (select count(1) as num from tb_spotchecktask_link_task where tb_task.id = tb_spotchecktask_link_task.oldtaskid) = 0 " );
+			String sql = sb.toString();
+			ArrayList<Object> arr = ExecuteSQLApiClientUtils.getList(String.format(getUrl, host, port, path, SELECT,
+					URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")), TaskModel.class);
+			System.out.println(sb.toString());
+			int count = arr.size();
+			for (int i = 0; i < count; i++) {
+				TaskModel task = (TaskModel) arr.get(i);
+				tasklist.add(task);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+
+		return tasklist;
+	}
+	
+	public boolean createspotchecktask(Long taskid, Long newprojectid) throws Exception {
+		boolean bret = false;
+		try {
+			
+			TaskModel task = null;
+			//insert into tb_task(keywordid, tasktype,projectid)  values( (select keywordid	from tb_task where id = 1549634),17002,1);
+			StringBuilder sb = new StringBuilder();
+			sb.append("insert into tb_task(keywordid, tasktype,projectid)  values( (select keywordid from tb_task where id = "+ taskid);
+			sb.append(" ),17002," + newprojectid);
+			sb.append(" ) returning tb_task.*" );
+			String sql = sb.toString();
+			System.out.println(sb.toString());
+			
+			task = (TaskModel) ExecuteSQLApiClientUtils.postModel(String.format(postUrl, host, port, path, SELECT),
+					contentType, "sql=" + sql, TaskModel.class);
+			
+			
+			if(task != null) {
+				StringBuilder sb2 = new StringBuilder();
+				//数据问题： 有一个oid 写多次情况
+				sb2.append("insert into tb_task_link_poi(poiid,taskid)values( (select distinct poiid from tb_task_link_poi where taskid="+taskid);
+				sb2.append(" )," + task.getId());
+				sb2.append(")");
+				System.out.println(sb2.toString());
+				
+				Long ret = ExecuteSQLApiClientUtils.update( String.format(getUrl, host,port,path,UPDATE,
+						URLEncoder.encode(URLEncoder.encode(sb2.toString(), "utf-8"),"utf-8")));
+				if (ret > 0) {
+					StringBuilder sb3 = new StringBuilder();
+					sb3.append("insert into tb_spotchecktask_link_task (oldtaskid,newtaskid)values(" + taskid);
+					sb3.append("," + task.getId());
+					sb3.append(" )");
+
+					System.out.println(sb3.toString());
+					ret = ExecuteSQLApiClientUtils.update( String.format(getUrl, host,port,path,UPDATE,
+							URLEncoder.encode(URLEncoder.encode(sb3.toString(), "utf-8"),"utf-8")));
+					bret = true;
+				}
+
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+
+		return bret;
+	}
+	
+	public boolean insertSpotcheckprojectinfo(Long projectid,Integer editid,Integer percent, Long newprojectid) throws Exception {
+		boolean bret = false;
+		try {
+			TaskModel task = null;
+			//insert into tb_task(keywordid, tasktype,projectid)  values( (select keywordid	from tb_task where id = 1549634),17002,1);
+			StringBuilder sb = new StringBuilder();
+			sb.append("insert into tb_spotcheckprojectinfo(projectid, editid,percent,newprojectid) values(  "+ projectid);
+			sb.append("," + editid);
+			sb.append("," + percent);
+			sb.append("," + newprojectid);
+			sb.append(" ) " );
+			String sql = sb.toString();
+			Long ret = ExecuteSQLApiClientUtils.update( String.format(getUrl, host,port,path,UPDATE,
+					URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"),"utf-8")));
+				
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+
+		return bret;
+	}
+	
 }
