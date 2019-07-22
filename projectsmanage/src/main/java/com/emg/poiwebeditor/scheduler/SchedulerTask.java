@@ -4076,14 +4076,7 @@ public class SchedulerTask {
 		try {
 			Integer userid = task.getEditid();
 			Long taskid = task.getId();
-			if(taskid == 1549351  ||
-					taskid == 1549385  ||
-					taskid == 1549397  ||
-					taskid == 1549419  ||
-					taskid == 1549435  ||
-					taskid == 1549461  ||
-					taskid == 1549558  
-					) {
+			if(taskid == 180600) {
 				int a = 0;
 				a+=1;
 			}
@@ -4210,8 +4203,6 @@ public class SchedulerTask {
 					}
 				}
 			}
-			
-			
 			//处理所有免检项目
 			if(uncheckProject != null && uncheckProject.length() > 0) {
 				logger.debug("免校正的项目ID为：" + uncheckProject);
@@ -4659,5 +4650,40 @@ public class SchedulerTask {
 		}
 	}
 	
+	@Scheduled(cron = "${scheduler.attachcapacity.updateuser.dotime}")
+	public void loadMakeTask() {
+		if (!attachEnable.equalsIgnoreCase("true"))
+			return;
+		logger.debug("start update username.");
+		AttachCapacityModelExample example = new AttachCapacityModelExample();
+		AttachCapacityModelExample.Criteria criteria = example.or();
+		criteria.andCountDate(getDateString(new Date()));
+		List<AttachMakeCapacityModel> makes = attachCapacityDao.selectAttachCapacity(example);
+		List<EmployeeModel> users = emapgoAccountService.getAllEmployees();
+		if (makes != null && users != null) {
+			for(AttachMakeCapacityModel make : makes) {
+				for(EmployeeModel user : users) {
+					if(make.getUserid() == user.getId()) {
+						make.setUsername(user.getRealname());
+					}
+				}
+			}
+			attachCapacityDao.updateUserName(makes);
+		}
+		
+		List<AttachCheckCapacityModel> checks = attachCheckCapacityDao.selectcheckAttachCapacity(example);
+		
+		if (checks != null && users != null) {
+			for(AttachCheckCapacityModel check : checks) {
+				for(EmployeeModel user : users) {
+					if(check.getUserid() == user.getId()) {
+						check.setUsername(user.getRealname());
+					}
+				}
+			}
+			attachCheckCapacityDao.updateUserName(checks);
+		}
+		
+	}
 
 }

@@ -5,6 +5,9 @@ public class TaskLinkPoiModel {
 	private Long  taskid;
 	private Long  poiid;
 	
+	private String updatetime;
+	private int pstate;
+	
 	public  Long  getId() {
 		return id;
 	}
@@ -27,5 +30,21 @@ public class TaskLinkPoiModel {
 	
 	public void setPoiId(Long poiid) {
 		this.poiid = poiid;
+	}
+
+	public String getUpdatetime() {
+		return updatetime;
+	}
+
+	public void setUpdatetime(String updatetime) {
+		this.updatetime = updatetime;
+	}
+
+	public int getPstate() {
+		return pstate;
+	}
+
+	public void setPstate(int pstate) {
+		this.pstate = pstate;
 	}
 }

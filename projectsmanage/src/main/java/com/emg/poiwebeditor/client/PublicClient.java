@@ -39,6 +39,7 @@ public class PublicClient {
 	private final static String updateKeyword = "http://%s:%s/%s/keyword/update";
 	private final static String updatePOIRelationUrl = "http://%s:%s/%s/poiMerge/upload";
 	private final static String getRelationByKeword =  "http://%s:%s/%s/poiMerge/%s/%s";
+	private final static String getRelationByOid =  "http://%s:%s/%s/poiMerge/oid/%s";
 	private final static String uploadModifiedlog =  "http://%s:%s/%s/modifiedlog/upload";
 	
 	public KeywordModel selectKeywordsByID(Long keywordid) throws Exception {
@@ -161,6 +162,38 @@ public class PublicClient {
 		List<PoiMergeDO> relations = new ArrayList<PoiMergeDO>();
 		try {
 			HttpClientResult result = HttpClientUtils.doGet(String.format(getRelationByKeword, host, port, path, srcInnerId, srcType));
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			
+			Object json = JSONArray.parse(result.getJson());
+			if (json instanceof JSONArray) {
+				JSONArray data = (JSONArray) json;
+				if (data != null && data.size() > 0) {
+					for (Integer i = 0, len = data.size(); i < len; i++) {
+						PoiMergeDO referdata = new PoiMergeDO();
+						referdata = JSON.parseObject(data.getJSONObject(i).toJSONString(), PoiMergeDO.class);
+						relations.add(referdata);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return relations;
+	}
+	
+	/**
+	 * 根据keyword去查询relation,如果有存在的relation则根据找到的关系中的oid,再去查找跟该relation相关的relation
+	 * @param oid
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PoiMergeDO> selectPOIRelation(long oid) throws Exception {
+		List<PoiMergeDO> relations = new ArrayList<PoiMergeDO>();
+		try {
+			HttpClientResult result = HttpClientUtils.doGet(String.format(getRelationByOid, host, port, path, oid));
 			if (!result.getStatus().equals(HttpStatus.OK))
 				return null;
 			

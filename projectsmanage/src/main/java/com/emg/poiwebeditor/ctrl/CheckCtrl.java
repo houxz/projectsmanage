@@ -46,14 +46,15 @@ import com.emg.poiwebeditor.pojo.ProjectModelExample;
 import com.emg.poiwebeditor.pojo.ProjectsUserModel;
 import com.emg.poiwebeditor.pojo.ReferdataModel;
 import com.emg.poiwebeditor.pojo.TagDO;
+import com.emg.poiwebeditor.pojo.TaskLinkPoiModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
 
 
 @Controller
-@RequestMapping("/edit.web")
-public class EditCtrl extends BaseCtrl {
+@RequestMapping("/check.web")
+public class CheckCtrl extends BaseCtrl {
 
-	private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
+	private static final Logger logger = LoggerFactory.getLogger(CheckCtrl.class);
 	
 	@Autowired
 	private ProjectModelDao projectModelDao;
@@ -108,13 +109,12 @@ public class EditCtrl extends BaseCtrl {
 		model.addAttribute("keywordid", keywordid);
 		
 		logger.debug("OPENLADER OVER");
-		return "edit";
+		return "check";
 	}
 	
 	@RequestMapping(params = "atn=submitedittask")
 	public ModelAndView submitEditTask(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START submit");
-		// logger.debug(new Date().getTime() + "");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		TaskModel task = new TaskModel();
 		ProjectModel project = new ProjectModel();
@@ -129,7 +129,6 @@ public class EditCtrl extends BaseCtrl {
 			String source = ParamUtils.getParameter(request, "source");
 			POIDo poi = null;
 			List<ModifiedlogDO> logs = new ArrayList<ModifiedlogDO>();
-			//logger.debug("1: " + new Date().getTime() + "");
 			if (source != null && !source.isEmpty()) {
 				JSONArray temp = JSONArray.parseArray(source);
 				for(int i = 0; i < temp.size(); i++) {
@@ -147,11 +146,15 @@ public class EditCtrl extends BaseCtrl {
 			Long u = new Long(userid);
 			if (poi != null) {
 				ret = poiClient.updatePOI(u, poi);
+				logger.debug("4.1: " + new Date().getTime() + "");
 				publicClient.updateModifiedlogs( logs);
-				taskModelClient.InsertNewPOITask(taskid, oid);
+				
 			}
 			if (relations != null) {
 				ret = publicClient.updateRelations(u,  relations);
+			}
+			if (oid != -1) {
+				taskModelClient.InsertNewPOITask(taskid, oid);
 			}
 			
 			if (taskModelClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
@@ -187,7 +190,6 @@ public class EditCtrl extends BaseCtrl {
 		json.addObject("result", ret);
 
 		logger.debug("END submit");
-		logger.debug(new Date().getTime() + "");
 		return json;
 	}
 	
@@ -203,7 +205,7 @@ public class EditCtrl extends BaseCtrl {
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-			taskModelClient.updateModifyTask(taskid, userid, 5, 5);
+			taskModelClient.updateModifyTask(taskid, userid, 5, 7);
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			
 			if (getnext) {
@@ -257,15 +259,39 @@ public class EditCtrl extends BaseCtrl {
 		return json;
 	}
 	
+	@RequestMapping(params = "atn=getrelatedpoi")
+	public ModelAndView getRelatedPoi(Model model, HttpServletRequest request, HttpSession session) {
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		POIDo poi = new POIDo();
+		try {
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			if (taskid != -1) {
+				TaskLinkPoiModel link = taskModelClient.selectTaskPoi(taskid);
+				if (link == null || link.getPoiId() == -1) return null;
+				long oid = link.getPoiId();
+				poi = poiClient.selectPOIByOid(oid);
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			poi = new POIDo();
+		}
+		json.addObject("poi", poi);
+		json.addObject("count", 1);
+		json.addObject("result", 1);
+
+		return json;
+	}
+	
+	
 	@RequestMapping(params = "atn=getRelationByOid")
 	public ModelAndView getRelationByOid(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		List<PoiMergeDO> relations = null;
 		try {
-			String srcInnerId = ParamUtils.getParameter(request, "srcInnerId");
-			int srcType = ParamUtils.getIntParameter(request, "srcType", 0);
-			relations = publicClient.selectPOIRelation(srcInnerId, srcType);
+			long oid = ParamUtils.getLongParameter(request, "oid", -1l);
+			relations = publicClient.selectPOIRelation(oid);
 			if (relations == null) relations = new ArrayList<PoiMergeDO>();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -408,14 +434,8 @@ public class EditCtrl extends BaseCtrl {
 		Long oid = ParamUtils.getLongParameter(request, "oid", -1);
 		
 		String namec = ParamUtils.getParameter(request, "namec");
-		// String tel = ParamUtils.getParameter(request, "tel");
 		Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
 		String sortcode = ParamUtils.getParameter(request, "sortcode");
-		/*String address4 = ParamUtils.getParameter(request, "address4");
-		String address5 = ParamUtils.getParameter(request, "address5");
-		String address6 = ParamUtils.getParameter(request, "address6");
-		String address7 = ParamUtils.getParameter(request, "address7");
-		String address8 = ParamUtils.getParameter(request, "address8");*/
 		String remark = ParamUtils.getParameter(request, "remark");
 		String geo = ParamUtils.getParameter(request, "geo");
 		Long projectId = ParamUtils.getLongParameter(request, "projectId", 0);
@@ -445,21 +465,7 @@ public class EditCtrl extends BaseCtrl {
 					log.setOldValue(flag ? null : savePoi.getNamec());
 				}else if("geo".equals(log.getK())) {
 					log.setOldValue(flag ? null : savePoi.getGeo());
-				}/*else if("address8".equals(log.getK())) {
-					Optional<TagDO> tags = savePoi.getPoitags().stream().filter(e -> "address8".equals(e.getK())).findFirst();
-					if (tags.isPresent()) {
-						TagDO t = tags.get();
-						log.setOldValue(flag ? null : t.getV());
-					}
-					
-				}else if("tel".equals(log.getK())) {
-					Optional<TagDO> tags = savePoi.getPoitags().stream().filter(e ->"tel".equals(e.getK())).findFirst();
-					if (tags.isPresent()) {
-						TagDO t = tags.get();
-						log.setOldValue(flag ? null : t.getV());
-					}
-					
-				}*/
+				}
 				// 1: 修改， 2： 新增
 				log.setFlag(flag ? 2 : 1);
 			}
@@ -481,11 +487,6 @@ public class EditCtrl extends BaseCtrl {
 		TagDO remarkTag = null;
 		if (savePoi != null && savePoi.getPoitags() != null) {
 			Set<TagDO> saveTags = savePoi.getPoitags();
-			/*saveAddress(saveTags, tags,address4, "address4", "address4e", "address4p", oid);
-			saveAddress(saveTags, tags,address5, "address5", "address5e", "address5p", oid);
-			saveAddress(saveTags, tags,address6, "address6", "address6e", "address6p", oid);
-			saveAddress(saveTags, tags,address7, "address7", "address7e", "address7p", oid);
-			saveAddress(saveTags, tags,address8, "address8", "address8e", "address8p", oid);*/
 			
 			for (TagDO tag : saveTags) {
 				if (!savePoi.getNamec().equals(namec)) {
@@ -513,9 +514,6 @@ public class EditCtrl extends BaseCtrl {
 					tags.add(tag);
 					remarkTag = tag;
 				}
-				/*else if ("tel".equals(tag.getK())) {
-						telTag =tag;
-				}*/
 			}
 		}
 		if (remarkTag == null  && remark != null) {
@@ -526,18 +524,6 @@ public class EditCtrl extends BaseCtrl {
 			remarkTag.setV(date + "四方检索");
 			tags.add(remarkTag);
 		}
-		/*if (telTag !=null) {
-			telTag.setId(oid);
-			telTag.setK(POIAttrnameEnum.tel.toString());
-			telTag.setV(tel);
-			tags.add(telTag);
-		}else if(telTag == null && tel != null && !tel.isEmpty()){
-			telTag = new TagDO();
-			telTag.setId(oid);
-			telTag.setK(POIAttrnameEnum.tel.toString());
-			telTag.setV(tel);
-			tags.add(telTag);
-		}*/
 		TagDO inputdatatype = new TagDO();
 		inputdatatype.setId(oid);
 		inputdatatype.setK(POIAttrnameEnum.inputdatatype.toString());
@@ -637,64 +623,6 @@ public class EditCtrl extends BaseCtrl {
 		// for ()
 	}
 	
-	/*private List<PoiMergeDO> getRelation(HttpServletRequest request, POIDo poi) throws Exception{
-		Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-		if  (poi == null || poi.getId() < 0) return null;
-		
-		String qid = ParamUtils.getParameter(request, "qid");
-		Long errorType = ParamUtils.getLongParameter(request, "errorType", 0);
-		String srcType = ParamUtils.getParameter(request, "srcType");
-		String srcInnerId = ParamUtils.getParameter(request, "srcInnerId");
-		String baiduSrcInnerId = ParamUtils.getParameter(request, "baiduSrcInnerId");
-		String emgSrcInnerId = ParamUtils.getParameter(request, "emgSrcInnerId");
-		String gaodeSrcInnerId = ParamUtils.getParameter(request, "gaodeSrcInnerId");
-		String tengxunSrcInnerId = ParamUtils.getParameter(request, "tengxunSrcInnerId");
-		int emgSrcType = ParamUtils.getIntParameter(request, "emgSrcType", 0);
-		int baiduSrcType = ParamUtils.getIntParameter(request, "baiduSrcType", 0);
-		int gaodeSrcType = ParamUtils.getIntParameter(request, "gaodeSrcType", 0);
-		int tengxunSrcType = ParamUtils.getIntParameter(request, "tengxunSrcType", 0);
-		
-		List<PoiMergeDO> relations = new ArrayList<PoiMergeDO>();
-		PoiMergeDO tengxunRelation = new PoiMergeDO();
-		tengxunRelation.setTaskId(taskid);
-		tengxunRelation.setSrcInnerId(tengxunSrcInnerId);
-		tengxunRelation.setSrcType(tengxunSrcType);
-		tengxunRelation.setOid(poi.getId());
-		tengxunRelation.setQid(qid);
-		tengxunRelation.setErrorType(errorType);
-		relations.add(tengxunRelation);
-		
-		PoiMergeDO baiduRelation = new PoiMergeDO();
-		baiduRelation.setTaskId(taskid);
-		baiduRelation.setSrcInnerId(baiduSrcInnerId);
-		baiduRelation.setSrcType(baiduSrcType);
-		baiduRelation.setOid(poi.getId());
-		baiduRelation.setQid(qid);
-		baiduRelation.setErrorType(baiduSrcType);
-		relations.add(baiduRelation);
-		
-		PoiMergeDO gaodeRelation = new PoiMergeDO();
-		gaodeRelation.setTaskId(taskid);
-		gaodeRelation.setSrcInnerId(gaodeSrcInnerId);
-		gaodeRelation.setSrcType(gaodeSrcType);
-		gaodeRelation.setOid(poi.getId());
-		gaodeRelation.setQid(qid);
-		gaodeRelation.setErrorType(gaodeSrcType);
-		relations.add(gaodeRelation);
-		if(srcType != null) {
-			//如果srctype=null则说明该资料不是来自于点评，需要保存的关系的，emg-baidu,emg-gaode, emg-tengxun
-			PoiMergeDO dianpingRelation = new PoiMergeDO();
-			dianpingRelation.setTaskId(taskid);
-			dianpingRelation.setSrcInnerId(srcInnerId);
-			dianpingRelation.setSrcType(Integer.parseInt(srcType));
-			dianpingRelation.setOid(poi.getId());
-			dianpingRelation.setQid(qid);
-			dianpingRelation.setErrorType(errorType);
-			relations.add(dianpingRelation);
-		}
-		return relations;
-	}
-	*/
 	
 	private List<PoiMergeDO> getRelation(long taskid, String str) {
 		// Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
@@ -756,7 +684,7 @@ public class EditCtrl extends BaseCtrl {
 					_myProjectIDs.add(myProject.getId());
 				}
 				
-				task = taskModelClient.selectMyNextEditTask(_myProjectIDs, userid);
+				task = taskModelClient.selectNextCheckTask(_myProjectIDs, userid);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -765,56 +693,6 @@ public class EditCtrl extends BaseCtrl {
 		return task;
 	}
 	
-	/*private TaskModel getNextEditTask(Integer userid) {
-		logger.debug("8: " + new Date().getTime() + "");
-		TaskModel task = new TaskModel();
-		try {
-			RoleType roleType = RoleType.ROLE_WORKER;
-			SystemType systemType = SystemType.poi_polymerize;
-			
-			List<ProjectModel> myProjects = new ArrayList<ProjectModel>();
-			
-			ProjectsUserModel record = new ProjectsUserModel();
-			record.setUserid(userid);
-			record.setRoleid(roleType.getValue());
-			
-			List<ProjectsUserModel> projectsUserModels = projectsUserModelDao.queryProjectUsers(record);
-			List<Long> myProjectIDs = new ArrayList<Long>();
-			myProjectIDs.add(-1L);
-			for (ProjectsUserModel projectsUserModel : projectsUserModels) {
-				myProjectIDs.add(Long.valueOf(projectsUserModel.getPid()));
-			}
-
-			ProjectModelExample example = new ProjectModelExample();
-			example.or()
-				.andSystemidEqualTo(systemType.getValue())
-				.andOverstateEqualTo(1)
-				.andOwnerEqualTo(1)
-				.andIdIn(myProjectIDs);
-			example.setOrderByClause("priority DESC, id");
-			myProjects.addAll(projectModelDao.selectByExample(example));
-			
-			example.clear();
-			example.or()
-				.andSystemidEqualTo(systemType.getValue())
-				.andOverstateEqualTo(1)
-				.andOwnerEqualTo(0);
-			example.setOrderByClause("priority DESC, id");
-			myProjects.addAll(projectModelDao.selectByExample(example));
-			myProjects = projectModelDao.selectPorjectWithUser(1, systemType.getValue(), userid, roleType.getValue());
-			if (myProjects != null && !myProjects.isEmpty()) {
-				List<Long> _myProjectIDs = new ArrayList<Long>();
-				for (ProjectModel myProject : myProjects) {
-					_myProjectIDs.add(myProject.getId());
-				}
-				task = taskModelClient.selectMyNextEditTask(_myProjectIDs, userid);
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-		logger.debug("8.1: " + new Date().getTime() + "");
-		return task;
-	}*/
 	/**
 	 * keyword 打错误标识，并把根据getnext值决定是滞获取下一任务
 	 * @param model
@@ -870,6 +748,23 @@ public class EditCtrl extends BaseCtrl {
 		json.addObject("project", project);
 		json.addObject("process", process);
 		json.addObject("keywordid", keywordid);
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=markusererror")
+	public ModelAndView markUserError(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			taskModelClient.updateCheckTaskState(taskid);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		
 		json.addObject("result", 1);
 
 		logger.debug("END");

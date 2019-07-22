@@ -13,6 +13,7 @@
 				<ref bean="modify" />
 				<ref bean="processesmanage" />
 				<ref bean="uploadfielddata" />
+				<ref bean="check" />
 <!-- 				<ref bean="worktasks" /> -->
 <!-- 				<ref bean="tasksmanage" /> -->
 <!-- 				<ref bean="projectsprocess" /> -->
@@ -145,6 +146,19 @@
 		<property name="roleSet">
 			<set>
 				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_POIVIDEOEDIT</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
+	
+	<bean id="check" class="com.emg.poiwebeditor.auth.MenuAuthModel">
+		<property name="code" value="1030" />
+		<property name="url" value="/poiwebeditor/check.web" />
+		<property name="label" value="抽检" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_CHECKER</value>
 			</set>
 		</property>
 		<property name="enabled" value="true" />

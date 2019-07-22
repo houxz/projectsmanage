@@ -964,8 +964,6 @@ public class ErrorModelDao {
 			
 			String f3 = String.format(selectErrUrl, host, port, path, s );
 			
-System.out.println(sql);
-			
 	//		HttpClientResult result = HttpClientUtils.doGet(String.format(selectErrUrl, host, port, path,sql));
 	//byhxz20190521 json解析有问题，好像是updatetime 默认是YYYY-MM-DD hh-mm-ss 但是查询结果待有毫秒
 	//暂时不用 select * 查询了 ，待稍后解决后再用

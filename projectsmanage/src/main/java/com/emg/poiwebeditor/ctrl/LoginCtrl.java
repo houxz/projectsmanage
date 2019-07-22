@@ -40,8 +40,6 @@ public class LoginCtrl extends BaseCtrl {
 		logger.debug("START");
 		try {
 			String account = getLoginAccount(session);
-			
-	
 			Integer userid = 0;
 			String realname = new String();
 			if(hasRole(request, RoleType.ROLE_SUPERADMIN.toString())) {
@@ -71,6 +69,7 @@ public class LoginCtrl extends BaseCtrl {
 				userid = user.getId();
 				realname = user.getRealname();
 				taskModelClient.updateTaskState(userid, 1, 5);
+				taskModelClient.updateCheckTaskState(userid, 1, 7);
 			}
 			
 			session.setAttribute(CommonConstants.SESSION_USER_ACC, account);
