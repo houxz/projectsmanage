@@ -128,7 +128,7 @@
 	<bean id="checkprocessesmanage" class="com.emg.poiwebeditor.auth.MenuAuthModel">
 		<property name="code" value="1011" />
 		<property name="url" value="/poiwebeditor/checkprocessesmanage.web" />
-		<property name="label" value="可抽检项目" />
+		<property name="label" value="项目抽检" />
 		<property name="roleSet">
 			<set>
 				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_POIVIDEOEDIT</value>

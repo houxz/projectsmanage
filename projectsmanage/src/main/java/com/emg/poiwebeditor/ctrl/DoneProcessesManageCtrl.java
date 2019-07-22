@@ -75,6 +75,7 @@ public class DoneProcessesManageCtrl extends BaseCtrl {
 			ProcessModelExample example = new ProcessModelExample();
 			Criteria criteria = example.or();
 			criteria.andStateEqualTo(ProcessState.COMPLETE.getValue());
+			criteria.andTypeEqualTo(ProcessType.POIPOLYMERIZE.getValue());
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {

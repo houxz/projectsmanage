@@ -112,4 +112,22 @@ public class ExecuteSQLApiClientUtils {
 		}
 		return list;
 	}
+	
+	public static Integer queryCount(String httpurl) throws Exception {
+		HttpClientResult result = HttpClientUtils.doGet(httpurl);
+		if (!result.getStatus().equals(HttpStatus.OK))
+			return null;
+		
+		JSONObject json = JSONObject.parseObject(result.getJson());
+		if (json.containsKey("data")) {
+			Object data = json.get("data");
+			if (data instanceof JSONArray) {
+				JSONArray jsonArray = (JSONArray) data;
+				JSONObject jsoncount = jsonArray.getJSONObject(0);
+				return jsoncount.getInteger("count");
+			} else
+				return null;
+		} else 
+			return null;
+	}
 }

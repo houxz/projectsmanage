@@ -199,20 +199,28 @@
 		var array = new Array();
 		var iscancreate = true;
 		for( var i = 0 ;i <tbodytrs.length;i++){
+			if(tbodytrs[i].children[4].firstChild.firstChild.value == "")
+				continue;
+			
 			var obj = new Object();
 			obj.processid =	tbodytrs[i].children[0].innerText;
 			obj.editid    = tbodytrs[i].children[1].innerText;
 			obj.username  = tbodytrs[i].children[2].innerText;
 			obj.editnum   = tbodytrs[i].children[3].innerText;
 			obj.percent   = tbodytrs[i].children[4].firstChild.firstChild.value;
-			if(obj.percent <=0 || obj.percent>=100){
+			if(obj.percent <0 || obj.percent>100){
 				iscancreate = false;
 				break;
 			}
 			array.push(obj);
-			var a = 0;
-			a = 1+11;
+			
 		}
+		
+		if(array.length ==0){
+			$.webeditor.showMsgLabel("alert","请填写抽检比例!");
+			return;
+		}
+		
 		if( iscancreate){
 			jQuery.post("./checkprocessesmanage.web", {
 				"atn" : "createspotchecktask",
@@ -220,7 +228,11 @@
 			}, function(json) {
 				if (json && json.result > 0) {
 					
-					
+					for( var i = 0 ;i <tbodytrs.length;i++){
+						if(tbodytrs[i].children[4].firstChild.firstChild.value == "")
+							continue;
+						 tbodytrs[i].children[4].firstChild.firstChild.value ="";	
+					}
 					$.webeditor.showMsgLabel("success", "抽查任务创建成功");
 				} else {
 					$.webeditor.showMsgLabel("alert", "抽查任务创建失败");
@@ -228,7 +240,7 @@
 				$.webeditor.showMsgBox("close");
 			}, "json");
 		}else{
-			
+			$.webeditor.showMsgLabel("alert","填写抽检比例不对!");
 		}
 		
 	}
@@ -269,15 +281,11 @@
 				<div class="row" style="padding-top: 120px; padding-left: 20px">
 					<table id="spotcheckeditid" data-unique-id="id"
 						data-url="./checkprocessesmanage.web?atn=pages2"
-						data-side-pagination="server" data-filter-control="true"
+						data-side-pagination="server" data-filter-control="false"
 						data-pagination="true" data-toggle="processes2" data-height="714"
 						data-page-list="[5, 10, 20, 100]" data-page-size="5"
 						data-search-on-enter-key='true' data-align='center'>
 						<thead>
-<!-- 							<tr> -->
-<!-- 								<th><span class="glyphicon glyphicon-edit"></span></th> -->
-<!-- 								<th>抽检数据</th> -->
-<!-- 							</tr> -->
 							<tr>
 								<th data-field="processid">项目编号</th>
 								<th data-field="editid">人员ID</th>

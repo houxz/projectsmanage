@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.emg.poiwebeditor.common.Common;
 import com.emg.poiwebeditor.common.DatabaseType;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
@@ -98,7 +99,7 @@ public class TaskModelClient {
 		sb.append("					order by id ");
 		sb.append("					limit 1 for update) ");
 		sb.append("			) as taskid ");
-		sb.append("			from projectid as p ");
+		// sb.append("			from projectid as p ");
 		sb.append("		) as b where taskid is not null limit 1 ");
 		sb.append(" ) as a(id) where tb_task.id = a.id returning tb_task.*; ");
 		return sb.toString();
@@ -452,12 +453,14 @@ public class TaskModelClient {
 		}
 		
 		// 查询项目pid下的所有制作人制作的资料数
-		public List<SpotCheckTaskInfo> selectSpotCheckTaskByProjectId(Long projectid) throws Exception {
+		public List<SpotCheckTaskInfo> selectSpotCheckTaskByProjectId(Long projectid ,Integer limit,Integer offset) throws Exception {
 			List<SpotCheckTaskInfo> tasklist = new ArrayList<SpotCheckTaskInfo>();
 			try {
 				StringBuilder sb = new StringBuilder();
 				sb.append("select 	editid,	sum( CASE WHEN editid > 0 THEN 1 ELSE 0 END ) AS editnum from tb_task where projectid=" + projectid);
-				sb.append(" and state = 3 GROUP BY  projectid, editid ");
+				sb.append(" and state = 3  GROUP BY  projectid, editid limit " + limit);
+				sb.append(" offset "+ offset);
+			
 				String sql = sb.toString();
 				ArrayList<Object> arr = ExecuteSQLApiClientUtils.getList(String.format(getUrl, host, port, path, SELECT,
 						URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")), SpotCheckTaskInfo.class);
@@ -473,6 +476,27 @@ System.out.println(sb.toString());
 			}
 
 			return tasklist;
+		}
+		
+		public Integer selectSpotCheckTaskCountByProjectId(Long projectid ) throws Exception {
+			Integer count = 0;
+			try {
+				StringBuilder sb = new StringBuilder();
+				sb.append("select count(1) from ( select 	count( editid)  from tb_task where projectid=" + projectid);
+				sb.append(" and state = 3  GROUP BY  projectid, editid ) as t1 " );
+		
+				String sql = sb.toString();
+				System.out.println(sb.toString());
+				
+				count  = ExecuteSQLApiClientUtils.queryCount(String.format(getUrl, host, port, path, SELECT,
+						URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")));
+
+				
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw e;
+			}
+			return count;
 		}
 		
 	// 查询项目pid下的所有制作人制作的资料数

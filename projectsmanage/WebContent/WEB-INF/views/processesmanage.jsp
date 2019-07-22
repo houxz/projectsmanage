@@ -482,7 +482,7 @@
 							case "6":
 							case 10://byhxz 人工确认项目
 							case "10":
-								if( (!config_2_25 || config_2_25.length <=0) && processid == null ){
+								if( (!config_2_25 || config_2_25.length <=0) && processid == 0 ){
 									$.webeditor.showMsgLabel("alert","请关联资料");
 									return ;
 								} 
@@ -656,19 +656,6 @@
 	
 	function getDataset() {
 		$("#datasetsDlg").bootstrapDialog({
-			queryParams : function(params) {
-				if (params.filter != undefined) {
-					var filterObj = eval('(' + params.filter + ')');
-					if (filterObj.state != undefined) {
-						filterObj["state"] = filterObj.state;
-						delete filterObj.state;
-						params.filter = JSON.stringify(filterObj);
-					}
-				}
-				params["type"] = $("#config_1_5").val();
-				params["processType"] = $("#config_processprotype").val();
-				return params;
-			},
 			onLoadSuccess : function(data) {
 				$(this.self).bootstrapTable("load", data.rows);
 				
@@ -915,8 +902,8 @@
 				<tr>
 					<td class="configKey">公有私有</td>
 					<td class="configValue"><select class="form-control" id="config_2_19">
-							<option value="0">公有</option>
 							<option value="1">私有</option>
+							<option value="0">公有</option>
 					</select></td>
 				</tr>
 				<tr>

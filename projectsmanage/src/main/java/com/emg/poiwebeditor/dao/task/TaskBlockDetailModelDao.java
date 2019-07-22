@@ -428,7 +428,6 @@ public class TaskBlockDetailModelDao {
 			return list;
 		}
 		// add by lianhr end
-		
 		public List<Map<String, Object>> group1ByTime(ConfigDBModel configDBModel, String[] times, String time) {
 			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 			BasicDataSource dataSource = null;
@@ -455,7 +454,8 @@ public class TaskBlockDetailModelDao {
 				sql.append(" tb_task A,");
 				sql.append(configDBModel.getDbschema()).append(".");
 				sql.append(" tb_task_link_poi B ");
-				sql.append(" WHERE A.id = B.taskid AND A.state = 3 ");
+				//sql.append(" WHERE A.id = B.taskid AND A.state = 3 ");
+				sql.append(" WHERE A.id = B.taskid   ");
 				if (timeFlag) {
 					sql.append("	AND ( A.starttime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ");
 				} else {

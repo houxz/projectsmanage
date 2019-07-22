@@ -92,8 +92,8 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 			ProcessModelExample example = new ProcessModelExample();
 			Criteria criteria = example.or();
 			criteria.andTypeEqualTo(ProcessType.POIPOLYMERIZE.getValue());
-			criteria.andStateNotEqualTo(ProcessState.COMPLETE.getValue());
-		//	criteria.andStateEqualTo(ProcessState.COMPLETE.getValue());
+		//	criteria.andStateNotEqualTo(ProcessState.COMPLETE.getValue());
+			criteria.andStateEqualTo(ProcessState.COMPLETE.getValue());
 			//hxz 根据id , 项目名称，用户，优先级，项目状态 过滤项目时触发以下代码
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
@@ -148,6 +148,11 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 		Integer ret =0;
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
+			
+			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
+			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
+			String filter = ParamUtils.getParameter(request, "filter", "");
+			
 			Long processid = ParamUtils.getLongParameter(request, "processid", -1);
 			if( processid > 0) {
 				ProjectModel project = new ProjectModel();
@@ -159,10 +164,11 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 				_projects=projectModelDao.selectByExample(example);
 				int projectsize = _projects.size();
 				int count = 0;
+				int totalcount = 0;
 				if( projectsize == 1) {
 					Long projectid = _projects.get(0).getId();
-					List<SpotCheckTaskInfo> tasklist = taskModelClient.selectSpotCheckTaskByProjectId( projectid );
-					
+					List<SpotCheckTaskInfo> tasklist = taskModelClient.selectSpotCheckTaskByProjectId( projectid ,limit,offset);
+					totalcount = taskModelClient.selectSpotCheckTaskCountByProjectId(projectid);
 					if(tasklist != null && tasklist.size() > 0) {
 						List<Integer> userIDInRows = new ArrayList<Integer>();
 						List<EmployeeModel> userInRows = new ArrayList<EmployeeModel>();
@@ -196,7 +202,7 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 					
 					
 					json.addObject("rows",tasklist);
-					json.addObject("total", count);
+					json.addObject("total", totalcount);
 					json.addObject("processid", processid);
 					ret = 1;
 					
@@ -282,7 +288,6 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 		return json;
 		
 	}
-	
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=createspotchecktask")
@@ -445,6 +450,13 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 					(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJILEIXING.getValue())))
 					continue;
 
+			if(configid == 19) {
+				//默认1私有
+				defaultValue = "1";
+			}else if(configid == 23) {
+				//默认面校正 1
+				defaultValue = "1";
+			}
 			configValues.add(new ProcessConfigValueModel(newProcessID, moduleid, configid, defaultValue));
 		}
 		Integer ret = -1;
