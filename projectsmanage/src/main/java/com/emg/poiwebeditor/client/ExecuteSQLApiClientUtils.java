@@ -82,6 +82,27 @@ public class ExecuteSQLApiClientUtils {
 		return list;
 	}
 	
+	public static ArrayList<Object> postList(String httpUrl, String contentType, String params, Class<?> modelClass) throws Exception {
+		ArrayList<Object> list = new ArrayList<Object>();
+		HttpClientResult result = HttpClientUtils.doPost(httpUrl, contentType, params);
+		if (!result.getStatus().equals(HttpStatus.OK))
+			return null;
+		
+		JSONObject json = JSONObject.parseObject(result.getJson());
+		if (json.containsKey("data")) {
+			Object data = json.get("data");
+			if (data instanceof JSONArray) {
+				JSONArray jsonArray = (JSONArray) data;
+				for (Integer i = 0, len = jsonArray.size(); i < len; i++) {
+					Object o = modelClass.newInstance();
+					o = JSON.parseObject(jsonArray.get(i).toString(), modelClass);
+					list.add(o);
+				}
+			}
+		}
+		return list;
+	}
+	
 	public static Long update(String httpurl) throws Exception {
 		Long ret = -1L;
 		HttpClientResult result = HttpClientUtils.doGet(httpurl);

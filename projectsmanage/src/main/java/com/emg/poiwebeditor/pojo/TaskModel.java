@@ -1,6 +1,13 @@
 package com.emg.poiwebeditor.pojo;
 
-public class TaskModel {
+import java.io.Serializable;
+
+public class TaskModel implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private Long id;
 	
 	private String name;

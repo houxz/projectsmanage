@@ -21,6 +21,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.emg.poiwebeditor.cache.ProductTask;
 import com.emg.poiwebeditor.client.POIClient;
 import com.emg.poiwebeditor.client.PublicClient;
 import com.emg.poiwebeditor.client.TaskModelClient;
@@ -68,6 +69,9 @@ public class EditCtrl extends BaseCtrl {
 	@Autowired
 	private POIClient poiClient;
 	
+	@Autowired
+	private ProductTask productTask;
+	
 	private static final int BAIDU = 45;
 	private static final int TENGXUN = 46;
 	private static final int GAODE = 47;
@@ -83,7 +87,8 @@ public class EditCtrl extends BaseCtrl {
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			// taskModelClient.updateTaskState(userid, 5, 5);
-			task = getNextEditTask(userid);
+			// task = getNextEditTask(userid);
+			task = productTask.popUserTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
 			if (task != null  && task.getId() != null) {
 				Long projectid = task.getProjectid();
 				if (projectid.compareTo(0L) > 0) {
@@ -159,9 +164,11 @@ public class EditCtrl extends BaseCtrl {
 				json.addObject("result", 0);
 				return json;
 			}
-			
+			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_MAKING);
 			if (getnext) {
-				task = getNextEditTask(userid);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
+				// task = getNextEditTask(userid);
+				logger.debug("9: " + new Date().getTime() + "");
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {
@@ -205,9 +212,10 @@ public class EditCtrl extends BaseCtrl {
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 			taskModelClient.updateModifyTask(taskid, userid, 5, 5);
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
-			
+			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_MAKING);
 			if (getnext) {
-				task = getNextEditTask(userid);
+				// task = getNextEditTask(userid);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {
@@ -368,7 +376,7 @@ public class EditCtrl extends BaseCtrl {
 		logger.debug("END");
 		return json;
 	}
-	@RequestMapping(params = "atn=updatepoibyoid")
+	/*@RequestMapping(params = "atn=updatepoibyoid")
 	public ModelAndView updatePOIByOid(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
@@ -388,6 +396,28 @@ public class EditCtrl extends BaseCtrl {
 			if (poi != null) {
 				ret = poiClient.updatePOI(userid, poi);
 			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			ret = -1l;
+			json.addObject("error", e.getMessage());
+		}
+		json.addObject("result", ret);
+
+		logger.debug("END");
+		return json;
+	}*/
+	
+	@RequestMapping(params = "atn=updatepoibyoid")
+	public ModelAndView updatePOIByOid(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		Long ret = -1L;
+		try {
+			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			
+			ret = poiClient.getPoiId();
+				
 			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -424,8 +454,8 @@ public class EditCtrl extends BaseCtrl {
 		
 		logger.debug(JSON.toJSON(poi).toString());
 		POIDo savePoi = poiClient.selectPOIByOid(oid);
-		if (oid < 0) {
-			oid = poiClient.getPoiId();
+		if (savePoi == null ) {
+			// oid = poiClient.getPoiId();
 			poi.setGrade(GradeEnum.general);
 		}else {
 			poi.setGrade(savePoi.getGrade());
@@ -846,9 +876,10 @@ public class EditCtrl extends BaseCtrl {
 				json.addObject("result", 0);
 				return json;
 			}
-			
+			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_MAKING);
 			if (getnext) {
-				task = getNextEditTask(userid);
+				// task = getNextEditTask(userid);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {

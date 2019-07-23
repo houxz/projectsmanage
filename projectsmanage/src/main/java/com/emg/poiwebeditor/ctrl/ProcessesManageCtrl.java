@@ -934,7 +934,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Integer limit = ParamUtils.getIntParameter(request, "limit", -1);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", -1);
 			String filter = ParamUtils.getParameter(request, "filter", "");
-			
+			String datasetids = ParamUtils.getParameter(request, "datasetids","");
 			ProcessType processType = ProcessType.POIPOLYMERIZE;
 
 			Map<String, Object> filterPara = null;
@@ -969,14 +969,17 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZILIAOKU, processType);
 			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-//   不需要通用查询byhxz20190517
-//			datasetModels = datasetModelDao.selectDatasets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), record, limit, offset);
-//			count = datasetModelDao.countErrorSets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), record, limit, offset);
-	
-			//只需查询能创建任务的dataset
-			datasetModels = datasetModelDao.selectOkDatasets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), limit, offset);
-			count = datasetModelDao.countOKDataSets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)));
-			
+            if(datasetids != null && datasetids != "") {
+            	
+    		
+    			datasetModels = datasetModelDao.selectDatasetsByDatasetids(configDBModel, datasetids);
+    			count = datasetModels.size();
+
+            }else {
+            	//只需查询能创建任务的dataset
+            	datasetModels = datasetModelDao.selectOkDatasets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), limit, offset);
+            	count = datasetModelDao.countOKDataSets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)));
+            }
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

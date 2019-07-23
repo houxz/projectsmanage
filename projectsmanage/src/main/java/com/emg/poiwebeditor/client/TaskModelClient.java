@@ -87,6 +87,101 @@ public class TaskModelClient {
 		return task;
 	}
 	
+	/**
+	 * 获取用户已经占用的任务，即task.editid = userid
+	 * @param projectIDs
+	 * @param userid
+	 * @param num
+	 * @return
+	 * @throws Exception
+	 */
+	public List selectUserTask(List<Long> projectIDs, Integer userid, long num) throws Exception {
+		List tasks =  null;
+		try {
+			
+			StringBuffer sql2 = new StringBuffer();
+			/*sql1.append("with projectid(projectid) as (select * from unnest(array[" + StringUtils.join(projectIDs, ",") + "])) ");
+			sql1.append("update tb_task set starttime=now(),operatetime=now(),state=1,process=5,editid=  ").append(userid);
+			sql1.append("from ( ");
+			sql1.append("	select t.id from tb_task t ");
+			sql1.append("	join projectid p on p.projectid = t.projectid ");
+			sql1.append("	where editid = ").append(userid).append(" and state = 1 and process = 5  and tasktype = 17001 ");
+			sql1.append("limit ").append(num);
+			sql1.append(") as b(id) ");
+			sql1.append("where tb_task.id = b.id returning tb_task.*");*/
+			
+			
+			sql2.append(" with");
+			sql2.append(" sorttable(projectid, sortvalue) as (values"); //(762,0), (824, 1), (883, 2), (763, 3), (761, 4))  ");
+			for (int i = 0; i < projectIDs.size(); i++) {
+				sql2.append("(").append(projectIDs.get(i)).append(",").append(i).append(")").append(",");
+			}
+			sql2.deleteCharAt(sql2.length() - 1);
+			sql2.append(")");
+			sql2.append(" update tb_task set starttime=now(),operatetime=now(),state=1,process=5,editid=  ").append(userid);
+			sql2.append(" from ( ");
+			sql2.append(" select id from tb_task t ");
+			sql2.append(" join sorttable p on p.projectid = t.projectid ");
+			sql2.append(" where (state=0 and process=0 ) and t.projectid=p.projectid and ( editid=0 or editid ISNULL) order by p.sortvalue, t.id limit ").append(num).append(" ) as b(id) where tb_task.id = b.id returning tb_task.* ");
+
+			logger.debug(sql2.toString());
+			tasks =  ExecuteSQLApiClientUtils.postList(String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sql2.toString(), TaskModel.class);
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return tasks;
+	}
+	
+	/**
+	 * 获取初始状态的任务，即task原状态为state=0, process=0，占用后任务状态为1，5
+	 * @param projectIDs
+	 * @param userid
+	 * @param num
+	 * @return
+	 * @throws Exception
+	 */
+	public List selectUserInitTask(List<Long> projectIDs, Integer userid, long num) throws Exception {
+		List tasks =  null;
+		try {
+			StringBuffer sql2 = new StringBuffer();
+			/*sql2.append(" with projectid(projectid) as (select * from unnest(array["+ StringUtils.join(projectIDs, ",") +"]))");
+			sql2.append(" update tb_task set starttime=now(),operatetime=now(),state=1,process=5,editid= ").append(userid);
+			sql2.append(" from (");
+			sql2.append(" select id from tb_task t");
+			sql2.append(" join projectid p on p.projectid = t.projectid ");
+			sql2.append(" where (state=0 and process=0 ) and t.projectid=p.projectid and ( editid=0 or editid ISNULL) and tasktype = 17001");
+			sql2.append("  limit ").append(num );
+			sql2.append(" ) as b(id)");
+			sql2.append(" where tb_task.id = b.id returning tb_task.*");*/
+			
+			
+			sql2.append(" with");
+			sql2.append(" sorttable(projectid, sortvalue) as (values"); //(762,0), (824, 1), (883, 2), (763, 3), (761, 4))  ");
+			for (int i = 0; i < projectIDs.size(); i++) {
+				sql2.append("(").append(projectIDs.get(i)).append(",").append(i).append(")").append(",");
+			}
+			sql2.deleteCharAt(sql2.length() - 1);
+			sql2.append(")");
+			sql2.append(" update tb_task set starttime=now(),operatetime=now(),state=1,process=5,editid=  ").append(userid);
+			sql2.append(" from ( ");
+			sql2.append(" select id from tb_task t ");
+			sql2.append(" join sorttable p on p.projectid = t.projectid ");
+			sql2.append(" where (state=0 and process=0 ) and t.projectid=p.projectid and ( editid=0 or editid ISNULL) order by p.sortvalue, t.id limit ");
+			sql2.append(num).append(" ) as b(id) where tb_task.id = b.id returning tb_task.* ");
+
+			
+			
+			tasks =  ExecuteSQLApiClientUtils.postList(String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sql2.toString(), TaskModel.class);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return tasks;
+	}
 	
 	
 	public Long submitEditTask(Long taskid, Integer editid) throws Exception {
@@ -101,12 +196,33 @@ public class TaskModelClient {
 		return ret;
 	}
 	
+	public Long submitCheckTask(Long taskid, Integer editid) throws Exception {
+		Long ret = -1L;
+		try {
+			String sql = submitCheckTaskSQL(taskid, editid);
+			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE, URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		return ret;
+	}
+	
 	private String submitEditTaskSQL(Long taskid, Integer editid) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("UPDATE tb_task");
 		sb.append(" SET endtime=now(),operatetime=now(),state = 2");
 		sb.append(" WHERE id = " + taskid);
 		sb.append(" AND editid = " + editid);
+		return sb.toString();
+	}
+	
+	private String submitCheckTaskSQL(Long taskid, Integer editid) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("UPDATE tb_task");
+		sb.append(" SET endtime=now(),operatetime=now(),state = 2");
+		sb.append(" WHERE id = " + taskid);
+		sb.append(" AND checkid = " + editid);
 		return sb.toString();
 	}
 	
@@ -125,7 +241,7 @@ public class TaskModelClient {
 		sb.append("					order by sortvalue ,id ");
 		sb.append("					limit 1 for update), ");
 		sb.append("				( select id from tb_task ");
-		sb.append("					where (state=0 and process=0 ) and projectid=p.projectid and ( editid=0 or editid ISNULL) ");
+		sb.append("					where (state=0 and process=0 ) and projectid=p.projectid and ( editid=0 or editid ISNULL) and tasktype=17001");
 		sb.append("					order by id ");
 		sb.append("					limit 1 for update) ");
 		sb.append("			) as taskid ");
@@ -140,13 +256,13 @@ public class TaskModelClient {
 		sb.append(" with projectid(projectid) as (select * from unnest(array[" + StringUtils.join(projectIDs, ",") + "])), ");
 		sb.append("		sorttable(state, process, sortvalue) as (values(1,7,0)) ");
 		sb.append(" update tb_task ");
-		sb.append(" set starttime=now(),operatetime=now(),state=1,process=7,editid= " + userid);
+		sb.append(" set starttime=now(),operatetime=now(),state=1,process=7,checkid= " + userid);
 		sb.append(" from ( ");
 		sb.append("		select * from ( ");
 		sb.append("			select coalesce ( ");
 		sb.append("				( select id from tb_task ");
 		sb.append("					join sorttable using(state, process) ");
-		sb.append("					where editid=" + userid +" and projectid=p.projectid and tasktype=17002");
+		sb.append("					where checkid=" + userid +" and projectid=p.projectid and tasktype=17002");
 		sb.append("					order by sortvalue ,id ");
 		sb.append("					limit 1 for update), ");
 		sb.append("				( select id from tb_task ");
@@ -160,6 +276,30 @@ public class TaskModelClient {
 		return sb.toString();
 	}
 	
+	private String getEditTaskSQL(List<Long> projectIDs, Integer userid, long number) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(" with projectid(projectid) as (select * from unnest(array[" + StringUtils.join(projectIDs, ",") + "])), ");
+		sb.append("		sorttable(state, process, sortvalue) as (values(1,5,0)) ");
+		sb.append(" update tb_task ");
+		sb.append(" set starttime=now(),operatetime=now(),state=1,process=5,editid= " + userid);
+		sb.append(" from ( ");
+		sb.append("		select * from ( ");
+		sb.append("			select coalesce ( ");
+		sb.append("				( select id from tb_task ");
+		sb.append("					join sorttable using(state, process) ");
+		sb.append("					where editid=" + userid +" and projectid=p.projectid ");
+		sb.append("					order by sortvalue ,id ");
+		sb.append("					limit ").append(number).append(" for update), ");
+		sb.append("				( select id from tb_task ");
+		sb.append("					where (state=0 and process=0 ) and projectid=p.projectid and ( editid=0 or editid ISNULL) ");
+		sb.append("					order by id ");
+		sb.append("					limit ").append(number).append(" for update) ");
+		sb.append("			) as taskid ");
+		sb.append("			from projectid as p ");
+		sb.append("		) as b where taskid is not null limit ").append(number);
+		sb.append(" ) as a(id) where tb_task.id = a.id returning tb_task.*; ");
+		return sb.toString();
+	}
 	
 	/*private String getEditTaskSQL(List<Long> projectIDs, Integer userid) {
 		StringBuilder sb = new StringBuilder();
@@ -407,7 +547,31 @@ public class TaskModelClient {
 		}
 		return ret;
 	}
-
+	/**
+	 * 把消息队列中占用任务恢复回去,把任务状态改成0，0
+	 * @param taskid
+	 * @param editid
+	 * @param state
+	 * @param process
+	 * @return
+	 * @throws Exception
+	 */
+	public Long initTaskState(Integer editid, Integer state, Integer process) throws Exception {
+		Long ret = -1L;
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append("UPDATE tb_task");
+			sb.append(" SET operatetime=null,state = 0");
+			sb.append(",process = 0, editid = 0, starttime = null");
+			sb.append(" WHERE state = ").append(state).append(" and process = ").append(process).append(" and  editid = " + editid);
+			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE,
+					URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		return ret;
+	}
 	// byhxz
 	private String updateModifyTaskSQL(Long taskid, Integer editid, Integer state, Integer process) {
 		StringBuilder sb = new StringBuilder();

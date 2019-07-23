@@ -91,7 +91,7 @@ public class DatasetModelDao {
 			if (offset.compareTo(0) > 0) {
 				sql.append(" OFFSET " + offset);
 			}
-System.out.println(sql.toString());
+
 			dataSource = Common.getDataSource(configDBModel);
 			datasets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<DatasetModel>(DatasetModel.class));
 
@@ -140,7 +140,7 @@ System.out.println(sql.toString());
 			if (offset.compareTo(0) > 0) {
 				sql.append(" OFFSET " + offset);
 			}
-System.out.println(sql);
+
 			dataSource = Common.getDataSource(configDBModel);
 			datasets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<DatasetModel>(DatasetModel.class));
 
@@ -781,5 +781,40 @@ System.out.println(sql);
 			}
 		}
 		return bret;
+	}
+	
+	public List<DatasetModel> selectDatasetsByDatasetids(ConfigDBModel configDBModel, String datasetids) {
+		List<DatasetModel> datasets = new ArrayList<DatasetModel>();
+		BasicDataSource dataSource = null;
+		try {
+			Integer dbtype = configDBModel.getDbtype();
+			String separator = Common.getDatabaseSeparator(dbtype);
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT *");
+			sql.append(" FROM ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_dataset ");
+			sql.append(" WHERE id in ( " + datasetids);
+			sql.append(" )ORDER BY id desc ");
+			
+
+			dataSource = Common.getDataSource(configDBModel);
+			datasets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<DatasetModel>(DatasetModel.class));
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			datasets = new ArrayList<DatasetModel>();
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return datasets;
 	}
 }

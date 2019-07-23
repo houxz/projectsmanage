@@ -4146,16 +4146,7 @@ public class SchedulerTask {
 		logger.debug("####scanfModifyTask()##start#####");
 		
 		// 1.0 获取所有开启的项目	
-		
-		/*ProjectModelExample example = new ProjectModelExample();
-		com.emg.poiwebeditor.pojo.ProjectModelExample.Criteria criteria = example.or();
-		criteria.andOverstateEqualTo(ProjectState.START.getValue());
-		criteria.andSystemidEqualTo(SystemType.poi_polymerize.getValue());
-		
-
-		example.setOrderByClause("priority desc, id");*/
-//		List<ProjectModel> rows = projectModelDao.selectProjectWithConfig( projectdbname,ProjectState.START.getValue(), SystemType.poi_polymerize.getValue());
-		
+	
 		List<ProjectModel> rows = projectModelDao.selectProjectWithConfig( projectdbname,processdbname,ProjectState.START.getValue(), SystemType.poi_polymerize.getValue());
 		// 2.0 遍历项目id,根据项目id ；变量所有的任务
 		//3.0 查看某任务状态

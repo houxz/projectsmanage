@@ -42,6 +42,8 @@ public class PublicClient {
 	private final static String getRelationByOid =  "http://%s:%s/%s/poiMerge/oid/%s";
 	private final static String uploadModifiedlog =  "http://%s:%s/%s/modifiedlog/upload";
 	
+	private final static String loadModifiedlog =  "http://%s:%s/%s/modifiedlog/load/%s";
+	
 	public KeywordModel selectKeywordsByID(Long keywordid) throws Exception {
 		KeywordModel keyword = new KeywordModel();
 		try {
@@ -214,6 +216,38 @@ public class PublicClient {
 		}
 		
 		return relations;
+	}
+	
+	/**
+	 * 根据keyword去查询relation,如果有存在的relation则根据找到的关系中的oid,再去查找跟该relation相关的relation
+	 * @param oid
+	 * @return
+	 * @throws Exception
+	 */
+	public List<ModifiedlogDO> loadModifiedLog(long keywordid) throws Exception {
+		List<ModifiedlogDO> logs = new ArrayList<ModifiedlogDO>();
+		try {
+			HttpClientResult result = HttpClientUtils.doGet(String.format(loadModifiedlog, host, port, path, keywordid));
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			
+			Object json = JSONArray.parse(result.getJson());
+			if (json instanceof JSONArray) {
+				JSONArray data = (JSONArray) json;
+				if (data != null && data.size() > 0) {
+					for (Integer i = 0, len = data.size(); i < len; i++) {
+						ModifiedlogDO logitem = new ModifiedlogDO();
+						logitem = JSON.parseObject(data.getJSONObject(i).toJSONString(), ModifiedlogDO.class);
+						logs.add(logitem);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return logs;
 	}
 	
 }

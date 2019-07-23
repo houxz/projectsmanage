@@ -84,7 +84,7 @@ public class CheckCtrl extends BaseCtrl {
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			// taskModelClient.updateTaskState(userid, 5, 5);
-			task = getNextEditTask(userid);
+			task = getNextCheckTask(userid);
 			if (task != null  && task.getId() != null) {
 				Long projectid = task.getProjectid();
 				if (projectid.compareTo(0L) > 0) {
@@ -112,8 +112,8 @@ public class CheckCtrl extends BaseCtrl {
 		return "check";
 	}
 	
-	@RequestMapping(params = "atn=submitedittask")
-	public ModelAndView submitEditTask(Model model, HttpServletRequest request, HttpSession session) {
+	@RequestMapping(params = "atn=submitchecktask")
+	public ModelAndView submitCheckTask(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START submit");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		TaskModel task = new TaskModel();
@@ -136,35 +136,32 @@ public class CheckCtrl extends BaseCtrl {
 					logs.add(log);
 				}
 			}
+			Long u = new Long(userid);
 			if (oid != -1) {
-				poi = this.getPOI(request, logs);
-				poi.setConfirmUId(Long.valueOf(userid));
-				poi.setUid(Long.valueOf(userid));
+				poi = this.getPOI(request, logs, false);
+				if (poi != null) {
+					poi.setConfirmUId(Long.valueOf(userid));
+					poi.setUid(Long.valueOf(userid));
+					ret = poiClient.updatePOI(u, poi);
+					publicClient.updateModifiedlogs( logs);
+				}
+				
 			}
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			List<PoiMergeDO> relations = this.getRelation(taskid, saveRelations);
-			Long u = new Long(userid);
-			if (poi != null) {
-				ret = poiClient.updatePOI(u, poi);
-				logger.debug("4.1: " + new Date().getTime() + "");
-				publicClient.updateModifiedlogs( logs);
-				
-			}
+			
 			if (relations != null) {
 				ret = publicClient.updateRelations(u,  relations);
 			}
-			if (oid != -1) {
-				taskModelClient.InsertNewPOITask(taskid, oid);
-			}
 			
-			if (taskModelClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
+			if (taskModelClient.submitCheckTask(taskid, userid).compareTo(0L) <= 0) {
 				json.addObject("resultMsg", "任务提交失败");
 				json.addObject("result", 0);
 				return json;
 			}
 			
 			if (getnext) {
-				task = getNextEditTask(userid);
+				task = getNextCheckTask(userid);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {
@@ -209,7 +206,7 @@ public class CheckCtrl extends BaseCtrl {
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			
 			if (getnext) {
-				task = getNextEditTask(userid);
+				task = getNextCheckTask(userid);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {
@@ -252,6 +249,26 @@ public class CheckCtrl extends BaseCtrl {
 			keyword = new KeywordModel();
 		}
 		json.addObject("rows", keyword);
+		json.addObject("count", 1);
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=getmodifiedlog")
+	public ModelAndView getModifiedLogs(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<ModifiedlogDO> logs = new ArrayList<ModifiedlogDO>();
+		try {
+			Long keywordid = ParamUtils.getLongParameter(request, "keywordid", -1);
+			logs = publicClient.loadModifiedLog(keywordid);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			logs = new ArrayList<ModifiedlogDO>();
+		}
+		json.addObject("modifiedlogs", logs);
 		json.addObject("count", 1);
 		json.addObject("result", 1);
 
@@ -375,7 +392,7 @@ public class CheckCtrl extends BaseCtrl {
 		try {
 			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
-			POIDo  poi = this.getPOI(request, null);
+			POIDo  poi = this.getPOI(request, null, true);
 			poi.setConfirm(ConfirmEnum.confirm_ok);
 			poi.setConfirmUId(userid);
 			poi.setUid(userid);
@@ -394,14 +411,14 @@ public class CheckCtrl extends BaseCtrl {
 		logger.debug("END");
 		return json;
 	}
-	@RequestMapping(params = "atn=updatepoibyoid")
+	/*@RequestMapping(params = "atn=updatepoibyoid")
 	public ModelAndView updatePOIByOid(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Long ret = -1L;
 		try {
 			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-			POIDo  poi = this.getPOI(request, null);
+			POIDo  poi = this.getPOI(request, null, false);
 			String geo = ParamUtils.getParameter(request, "geo");
 			poi.setGeo(geo);
 			poi.setConfirm(ConfirmEnum.confirm_ok);
@@ -424,13 +441,54 @@ public class CheckCtrl extends BaseCtrl {
 
 		logger.debug("END");
 		return json;
+	}*/
+	
+	@RequestMapping(params = "atn=updatepoibyoid")
+	public ModelAndView updatePOIByOid(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		Long ret = -1L;
+		try {
+			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			
+			ret = poiClient.getPoiId();
+				
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			ret = -1l;
+			json.addObject("error", e.getMessage());
+		}
+		json.addObject("result", ret);
+
+		logger.debug("END");
+		return json;
 	}
 	
 	/**
-	 * 根据前台传递过来的参数设置POI
+	 * 比较提交的POI数据，是否和原来一样
 	 * @return
 	 */
-	private POIDo getPOI(HttpServletRequest request, List<ModifiedlogDO> logs) throws Exception{
+	private boolean isSamePoi(POIDo original, POIDo goal) {
+		if (original == null || goal == null) return false;
+		if(!original.getId().equals(goal.getId())) return false;
+		if(!original.getNamec().equals(goal.getNamec())) return false;
+		if(!original.getFeatcode().equals(goal.getFeatcode())) return false;
+		if(!original.getSortcode().equals(goal.getSortcode())) return false;
+		if(!original.getGeo().equals(goal.getGeo())) return false;
+		
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @param request
+	 * @param logs
+	 * @param isDelete 只有在删除标识为true时，则不用管是不和以前属性值一样
+	 * @return
+	 * @throws Exception
+	 */
+	private POIDo getPOI(HttpServletRequest request, List<ModifiedlogDO> logs, boolean isDelete) throws Exception{
 		Long oid = ParamUtils.getLongParameter(request, "oid", -1);
 		
 		String namec = ParamUtils.getParameter(request, "namec");
@@ -441,6 +499,15 @@ public class CheckCtrl extends BaseCtrl {
 		Long projectId = ParamUtils.getLongParameter(request, "projectId", 0);
 		POIDo poi = new POIDo();
 		poi.setNamec(namec);
+		poi.setSystemId(370);
+		poi.setConfirm(ConfirmEnum.ready_for_qc);
+		poi.setAutoCheck(CheckEnum.uncheck);
+		poi.setManualCheck(CheckEnum.uncheck);
+		poi.setOpTypeEnum(OpTypeEnum.submit);
+		poi.setGeo(geo);
+		poi.setFeatcode(featcode);
+		poi.setSortcode(sortcode);
+		poi.setProjectid(projectId);
 		
 		logger.debug(JSON.toJSON(poi).toString());
 		POIDo savePoi = poiClient.selectPOIByOid(oid);
@@ -450,6 +517,12 @@ public class CheckCtrl extends BaseCtrl {
 		}else {
 			poi.setGrade(savePoi.getGrade());
 		}
+		poi.setId(oid);
+		boolean isSame = this.isSamePoi(poi, savePoi);
+		if(isSame && !isDelete) {
+			return null;
+		}
+		
 		if (logs != null) {
 			boolean flag = false;
 			if(savePoi.getVer() == null || savePoi.getVer().isEmpty()) {
@@ -472,16 +545,8 @@ public class CheckCtrl extends BaseCtrl {
 			
 		}
 		
-		poi.setId(oid);
-		poi.setSystemId(370);
-		poi.setConfirm(ConfirmEnum.ready_for_qc);
-		poi.setAutoCheck(CheckEnum.uncheck);
-		poi.setManualCheck(CheckEnum.uncheck);
-		poi.setOpTypeEnum(OpTypeEnum.submit);
-		poi.setGeo(geo);
-		poi.setFeatcode(featcode);
-		poi.setSortcode(sortcode);
-		poi.setProjectid(projectId);
+		
+		
 		Set<TagDO> tags = poi.getPoitags();
 		TagDO telTag = null;
 		TagDO remarkTag = null;
@@ -641,7 +706,7 @@ public class CheckCtrl extends BaseCtrl {
 		}
 		return relations;
 	}
-	private TaskModel getNextEditTask(Integer userid) {
+	private TaskModel getNextCheckTask(Integer userid) {
 		logger.debug("8: " + new Date().getTime() + "");
 		TaskModel task = new TaskModel();
 		try {
@@ -726,7 +791,7 @@ public class CheckCtrl extends BaseCtrl {
 			}
 			
 			if (getnext) {
-				task = getNextEditTask(userid);
+				task = getNextCheckTask(userid);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {

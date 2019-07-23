@@ -15,6 +15,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.emg.poiwebeditor.cache.ProductTask;
+import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.CommonConstants;
 import com.emg.poiwebeditor.dao.projectsmanager.LogModelDao;
 import com.emg.poiwebeditor.pojo.LogModel;
@@ -26,7 +28,13 @@ public class LogoutCtrl extends BaseCtrl {
 	private static final Logger logger = LoggerFactory.getLogger(LogoutCtrl.class);
 	
 	@Autowired
+	private ProductTask productTask;
+	
+	@Autowired
 	private LogModelDao logModelDao;
+	
+	@Autowired
+	private TaskModelClient taskModelClient;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String logout(Model model, HttpSession session, HttpServletRequest request, HttpServletResponse response) {
@@ -45,7 +53,12 @@ public class LogoutCtrl extends BaseCtrl {
 			
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			if (auth != null) {
+				productTask.removeUserTask(userid, ProductTask.TYPE_QUENE, ProductTask.STATE_1, ProductTask.PROCESS_5);
+				productTask.removeCurrentUserTask(userid, ProductTask.TYPE_MAKING);
+				Thread.sleep(500);
+				taskModelClient.updateTaskState(userid, 1, 5);
 				new SecurityContextLogoutHandler().logout(request, response, auth);
+				
 			}
 			
 			return "redirect:login.jsp?logout=1";
@@ -112,6 +125,7 @@ public class LogoutCtrl extends BaseCtrl {
 				log.setSessionid(session.getId());
 				log.setIp(getRemortIP(request));
 				logModelDao.log(log);
+				
 			}
 		}catch(Exception e) {}
 	}

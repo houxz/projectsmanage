@@ -82,15 +82,25 @@
 		$.webeditor.getHead();
 		
 		if (keywordid && keywordid > 0) {
-			console.log("开始加载数据: " + Date.now());
+			//console.log("开始加载数据: " + Date.now());
 			$.when( 
+				loadKeyword(keywordid)
+			).done(function() {
+				$.when(loadReferdatas(keywordid)
+				).done(function() {
+					if (keyword) {
+						loadRelation(keyword.srcInnerId, keyword.srcType);
+					}
+				});
+			});
+			/* $.when( 
 				loadKeyword(keywordid),loadReferdatas(keywordid)
 			).done(function() {
 				if (keyword) {
 					loadRelation(keyword.srcInnerId, keyword.srcType);
 				}
-			});
-			console.log("结束加载数据: " + Date.now());
+			}); */
+			//console.log("结束加载数据: " + Date.now());
 			
 		}else {
 			$.webeditor.showMsgLabel("alert", "没有获取到参考资料");
@@ -381,7 +391,7 @@
 			if (mark.length >= 2) break;
 		}
 		if (2 == mark.length) {
-			changeColor(mark, "green");
+			changeColor(mark, "#66FF00");
 		}else if(3 == mark.length) {
 			changeColor(mark, "cyan");
 		}else if(4 == mark.length) {
@@ -457,7 +467,7 @@
 		
 		for (var z = 0; z< telMarks.length; z++) {
 			if (telMarks[z].array.length == 2) {
-				changeColor(telMarks[z].array, "green");
+				changeColor(telMarks[z].array, "#66FF00");
 			}else if (telMarks[z].array.length == 3) {
 				changeColor(telMarks[z].array, "cyan");
 			} else if (telMarks[z].array.length == 4) {
@@ -551,8 +561,8 @@
 	} */
 	
 	function initArray() {
-		console.log("开始初始化颜色开始");
-		console.log(Date.now());
+		//console.log("开始初始化颜色开始");
+		//console.log(Date.now());
 		originalCheckRelation = [];
 		currentCheckRelation = [];
 		var tbtables = [ "tbbaidu", "tbtengxun", "tbgaode"];
@@ -594,8 +604,8 @@
 			changeName(markName[0].innerText, datasource, "namec");
 		}
 		
-		console.log("结束初始化颜色");
-		console.log(Date.now());
+		//console.log("结束初始化颜色");
+		//console.log(Date.now());
 	}
 	
 	function getTel(tempTel) {
@@ -612,8 +622,8 @@
 	
 	
 	function loadKeyword(keywordid) {
-		console.log("加载keyword开始");
-		console.log(Date.now());
+		//console.log("加载keyword开始");
+		//console.log(Date.now());
 		var dtd = $.Deferred(); 
 		jQuery.post("./edit.web", {
 			"atn" : "getkeywordbyid",
@@ -666,15 +676,15 @@
 			}
 			dtd.resolve();
 		}, "json");
-		console.log("加载keyword结束");
-		console.log(Date.now());
+		//console.log("加载keyword结束");
+		// console.log(Date.now());
 		return dtd;
 	}
 	
 	function loadRelation(srcInnerId, srcType) {
 		var dtd = $.Deferred(); 
-		console.log("加载relation开始");
-		console.log(Date.now());
+		//console.log("加载relation开始");
+		//console.log(Date.now());
 		jQuery.post("./edit.web", {
 			"atn" : "getRelationByOid",
 			"srcInnerId" : srcInnerId,
@@ -754,8 +764,8 @@
 			
 			dtd.resolve();
 		}, "json");
-		console.log(Date.now());
-		console.log("加载relation结束");
+		//console.log(Date.now());
+		//console.log("加载relation结束");
 		return dtd;
 	}
 	
@@ -765,17 +775,15 @@
 	
 	
 	function drawEMGMap(lat, lng, zoom) {
-		console.log("开始绘制EMG地图: " + Date.now());
+		//console.log("开始绘制EMG地图: " + Date.now());
 		var geo = null;
-		if(dianpingGeo != null ){
+		if(keyword != null && keyword.geo != null ){
 			geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
-		}else {
-			geo = [lng, lat];
 		}
 		try{
 			if ($emgmap != null && geo != null) {
 				$emgmap.setCenter(geo);
-			} else  {
+			} else if($emgmap == null && geo != null) {
 				$("#emgmap").empty();
 				$emgmap = new emapgo.Map({
 			        container : 'emgmap',
@@ -795,7 +803,7 @@
 					console.log(e);
 					});
 			}
-			if(keyword != null && keyword.geo != null && dianpingGeo != null) {
+			if(keyword != null && keyword.geo != null ) {
 				var img = new Image();
 				img.src = "resources/images/start.png";
 				if ($emgmarkerBase) {
@@ -813,16 +821,13 @@
 				$emgmarker = new emapgo.Marker()
 					.setLngLat([lng, lat ])
 					.addTo($emgmap);
-				$emgmarker.on('click', function(e) {
-					console.log("in the maker");
-					console.log(e);
-				});
+				
 			}
 			
 		} catch(e) {
 			
 		}
-		console.log("结束绘制EMG地图: " + Date.now());
+		//console.log("结束绘制EMG地图: " + Date.now());
 	}
 	
 	 //double x = double.Parse(lat1) - 0.0065, y = double.Parse(lon1) - 0.006;
@@ -832,7 +837,7 @@
     //lon = (z * Math.Sin(theta)).ToString();
 	
 	function drawBaiDuMap(lat, lng, zoom) {
-		console.log("开始绘制百度地图: " + Date.now());
+		//console.log("开始绘制百度地图: " + Date.now());
 		var geo = null;
 		try{
 			$("#baidumap").empty();
@@ -865,21 +870,21 @@
 	        });
 		} catch(e) {
 		}
-		console.log("结束绘制百度地图: " + Date.now());
+		//console.log("结束绘制百度地图: " + Date.now());
 	}
 	
 	function drawGaoDeMap(lat, lng, zoom) {
-		console.log("开始绘制高德地图: " + Date.now());
+		//console.log("开始绘制高德地图: " + Date.now());
 		var geo = null;
-		if(dianpingGeo != null ){
+		if(keyword != null && keyword.geo != null ){
 			geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
-		}else {
-			geo = [lng, lat];
 		}
+		console.log("高德地图keyword geo: " + geo);
+		console.log("高德地图keyword geo: " + lng+ "," + lat);
 		try{
-			if ($gaodemap) {
+			if ($gaodemap != null && geo != null) {
 				$gaodemap.setCenter(geo);
-			} else {
+			} else if ($gaodemap == null && geo != null){
 				$("#gaodemap").empty();
 				$gaodemap = new mapboxgl.Map({
 					container: 'gaodemap',
@@ -940,11 +945,11 @@
 		} catch(e) {
 			
 		}
-		console.log("结束绘制高德地图: " + Date.now());
+		//console.log("结束绘制高德地图: " + Date.now());
 	}
 	
 	function drawTengXunMap(lat, lng, zoom) {
-		console.log("开始绘制腾讯地图: " + Date.now());
+		//console.log("开始绘制腾讯地图: " + Date.now());
 		var geo = null;
 		if(dianpingGeo != null ){
 			geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
@@ -1006,7 +1011,7 @@
 		} catch(e) {
 			
 		}
-		console.log("结束绘制腾讯地图: " + Date.now());
+		//console.log("结束绘制腾讯地图: " + Date.now());
 	}
 	
 	function loadEditPOI(oid) {
@@ -1359,8 +1364,8 @@
 	
 	function loadReferdatas(keywordid) {
 		var dtd = $.Deferred();
-		console.log("加载referdata开始");
-		console.log(Date.now());
+		//console.log("加载referdata开始");
+		//console.log(Date.now());
 		jQuery.post("./edit.web", {
 			"atn" : "getreferdatabykeywordid",
 			"keywordid" : keywordid
@@ -1392,6 +1397,9 @@
 						emgSrcType = emgrefers[0].srcType;
 					} else {
 						$("#emgmap").html("无数据");
+						$emgmap = null;
+						$emgmarker = null;
+						$emgmarkerBase = null;
 						if (keyword && keyword.geo) {
 							var geo = keyword.geo.replace("POINT (","").replace(")", "").split(" ");
 							drawEMGMap(geo[1], geo[0], zoom);
@@ -1415,6 +1423,9 @@
 						drawReferdatas("tbgaode", gaoderefers);
 					} else {
 						$("#gaodemap").html("无数据");
+						$gaodemap = null;
+						$gaodemarkerBase = null;
+						$gaodemarker = null;
 						$("table#tbgaode>tbody").html("<tr><td>无数据</td></tr>");
 					}
 					
@@ -1423,6 +1434,9 @@
 						drawTengXunMap(tengxunrefers[0].srcLat, tengxunrefers[0].srcLon, zoom);
 						drawReferdatas("tbtengxun", tengxunrefers);
 					} else {
+						$tengxunmap = null;
+						$tengxunmarker = null;
+						$tengxunmarkerBase = null;
 						$("#tengxunmap").html("无数据");
 						$("table#tbtengxun>tbody").html("<tr><td>无数据</td></tr>");
 					}
@@ -1432,8 +1446,8 @@
 			}
 			dtd.resolve();
 		}, "json");
-		console.log("加载referdata结束");
-		console.log(Date.now());
+		//console.log("加载referdata结束");
+		//console.log(Date.now());
 		return dtd;
 	}
 	
@@ -1474,14 +1488,23 @@
 							keywordid = json.keywordid;
 							initKeywordColor();
 							if (keywordid && keywordid > 0) {
-								
 								$.when( 
+										loadKeyword(keywordid)
+									).done(function() {
+										$.when(loadReferdatas(keywordid)
+										).done(function() {
+											if (keyword) {
+												loadRelation(keyword.srcInnerId, keyword.srcType);
+											}
+										});
+									});
+								/* $.when( 
 									loadKeyword(keywordid),loadReferdatas(keywordid)
 								).done(function() {
 									if (keyword) {
 										loadRelation(keyword.srcInnerId, keyword.srcType);
 									}
-								});
+								}); */
 							}
 						} else {
 							
@@ -1719,13 +1742,23 @@
 			keywordid = json.keywordid;
 			if (keywordid && keywordid > 0) {
 				
-				$.when( 
+				/* $.when( 
 					loadKeyword(keywordid),loadReferdatas(keywordid)
 				).done(function() {
 					if (keyword) {
 						loadRelation(keyword.srcInnerId, keyword.srcType);
 					}
-				});
+				}); */
+				$.when( 
+						loadKeyword(keywordid)
+					).done(function() {
+						$.when(loadReferdatas(keywordid)
+						).done(function() {
+							if (keyword) {
+								loadRelation(keyword.srcInnerId, keyword.srcType);
+							}
+						});
+					});
 			}
 		} 
 	}
@@ -1772,6 +1805,39 @@
 		} catch(e) {
 			return;
 		}
+		if (oid > 0) {
+			$.webeditor.showMsgLabel("alert", "当前已有oid,无需再重新获取oid");
+			return;
+		}
+		
+		$.webeditor.showMsgBox("info", "获取oid");
+		jQuery.post("./edit.web", {
+			"atn" : "updatepoibyoid",
+			
+		}, function(json) {
+			if (json && json.result > 0) {
+				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(json.result);
+				$.webeditor.showMsgLabel("success", "获取OID成功");
+			} else {
+				
+				if(json.error != null && json.error.length > 0) {
+					$.webeditor.showMsgLabel("alert", json.error);
+				}else {
+					$.webeditor.showMsgLabel("alert", "获取OID失败");
+				}
+				
+			}
+			$.webeditor.showMsgBox("close");
+		}, "json");
+	}
+	
+	/* function updatePOI() {
+		var oid = null;
+		try {
+			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+		} catch(e) {
+			return;
+		}
 		var projectId = $("#curProjectID").val();
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		// var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
@@ -1783,7 +1849,7 @@
 		var address7 = $("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val();
 		var address8 = $("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val(); */
 		//var remark = $("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val();
-		var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val();
+		/* var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val();
 		if(namec == null || namec.trim() == "" || featcode == null || featcode.trim() == "" || geo == null || geo.trim() == "") {
 			$.webeditor.showMsgLabel("alert", "名称、分类、坐标不能为空");
 			return;
@@ -1800,7 +1866,7 @@
 			"address5" : address5,
 			"address6" : address6,
 			"address7" : address7,
-			"address8" : address8, */
+			"address8" : address8, 
 			"geo" : geo,
 			// "remark": remark,
 			"projectId": projectId
@@ -1819,7 +1885,7 @@
 			}
 			$.webeditor.showMsgBox("close");
 		}, "json");
-	}
+	} */
 	
 	function valueChange(obj) {
 		var $this = $(obj);
@@ -1866,13 +1932,23 @@
 					keywordid = json.keywordid;
 					initKeywordColor();
 					if (keywordid && keywordid > 0) {
-						$.when( 
+						/* $.when( 
 							loadKeyword(keywordid),loadReferdatas(keywordid)
 						).done(function() {
 							if (keyword) {
 								loadRelation(keyword.srcInnerId, keyword.srcType);
 							}
-						});
+						}); */
+						$.when( 
+								loadKeyword(keywordid)
+							).done(function() {
+								$.when(loadReferdatas(keywordid)
+								).done(function() {
+									if (keyword) {
+										loadRelation(keyword.srcInnerId, keyword.srcType);
+									}
+								});
+							});
 					}
 				}
 			}
@@ -2012,7 +2088,7 @@
 							
 							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="getNextTask();">稍后修改</button>
 							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="keywordError();">资料错误</button>
-							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="updatePOI();">保存</button>
+							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="updatePOI();">新增</button>
 							<button id="submitTask" class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="submitEditTask();">提交</button>
 							
 						</div>

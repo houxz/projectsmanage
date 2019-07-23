@@ -656,6 +656,11 @@
 	
 	function getDataset() {
 		$("#datasetsDlg").bootstrapDialog({
+			queryParams:function(params) {
+				var datasetids =$("#config_2_25").val();
+				params["datasetids"]= datasetids;
+				return params;
+			},
 			onLoadSuccess : function(data) {
 				$(this.self).bootstrapTable("load", data.rows);
 				
