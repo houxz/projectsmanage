@@ -202,8 +202,8 @@ public class TaskModelClient {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append(" tb_task  ");
-			sql.append(" (name,projectid,priority,rank,keywordid,state) ");
-			sql.append(" values('name'," + projectid +",0,0,"+ shapeid +" ," + state +")");
+			sql.append(" (name,projectid,priority,rank,keywordid,state,tasktype) ");
+			sql.append(" values('name'," + projectid +",0,0,"+ shapeid +" ," + state +","+"17001"+")");
 				
 			dataSource = Common.getDataSource(configDBModel);
 			int insertcount = new  JdbcTemplate(dataSource).update(sql.toString());
@@ -338,7 +338,7 @@ public class TaskModelClient {
 		sb.append("UPDATE tb_task");
 		sb.append(" SET endtime=now(),operatetime=now(),state = " + state);
 		sb.append(" WHERE id = " + taskid);
-		sb.append(" AND editid = " + editid);
+		//sb.append(" AND editid = " + editid);
 		return sb.toString();
 	}
 
@@ -415,17 +415,17 @@ public class TaskModelClient {
 		sb.append(" SET operatetime=now(),state = " + state);
 		sb.append(",process =" + process);
 		sb.append(" WHERE id = " + taskid);
-		sb.append(" AND editid = " + editid);
+	//	sb.append(" AND editid = " + editid);
 		return sb.toString();
 	}
 
-	// 查询项目pid下的所有制作提交（2,5），改错提交(2,6)的任务
+	// 查询项目pid下的所有制作提交（2,5），改错提交(2,6)的任务(2,7)
 	public List<TaskModel> selectTaskByProjectId(Long projectid) throws Exception {
 		List<TaskModel> tasklist = new ArrayList<TaskModel>();
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append("select * from tb_task where projectid=" + projectid);
-			sb.append(" and ( (state = 2 and process =5) or ( state = 2 and process =6) )");
+			sb.append(" and ( (state = 2 and process =5) or ( state = 2 and process =6) ) or ( state = 2 and process =7) )");
 			String sql = sb.toString();
 //				tasklist = (List<TaskModel>) ExecuteSQLApiClientUtils.postModel(String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sql, TaskModel.class);
 			ArrayList<Object> arr = ExecuteSQLApiClientUtils.getList(String.format(getUrl, host, port, path, SELECT,
@@ -444,13 +444,13 @@ public class TaskModelClient {
 		return tasklist;
 	}
 	
-	// 查询项目pid下的所有制作提交（2,5），改错提交(2,6)的任务
+	// 查询项目pid下的所有制作提交（2,5），改错提交(2,6) 的任务(2,7)
 		public List<TaskModel> selectTaskByProjectId(String projectid) throws Exception {
 			List<TaskModel> tasklist = new ArrayList<TaskModel>();
 			try { 
 				StringBuilder sb = new StringBuilder();
 				sb.append("select * from tb_task where projectid in(" + projectid + ")");
-				sb.append(" and ( (state = 2 and process =5) or ( state = 2 and process =6) )");
+				sb.append(" and ( (state = 2 and process =5) or ( state = 2 and process =6) or ( state = 2 and process =7) )");
 				String sql = sb.toString();
 //					tasklist = (List<TaskModel>) ExecuteSQLApiClientUtils.postModel(String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sql, TaskModel.class);
 				ArrayList<Object> arr = ExecuteSQLApiClientUtils.getList(String.format(getUrl, host, port, path, SELECT,
@@ -607,7 +607,7 @@ System.out.println(sb.toString());
 			return count;
 		}
 		
-	// 查询项目pid下的所有制作人制作的资料数
+	// 
 	public List<SpotCheckProjectInfo> selectSpotCheckProjectInfo(Long projectid, Integer editid) throws Exception {
 		List<SpotCheckProjectInfo> tasklist = new ArrayList<SpotCheckProjectInfo>();
 		try {
@@ -728,4 +728,157 @@ System.out.println(sb.toString());
 		return bret;
 	}
 	
+	// 抽检产能查询
+	public List<SpotCheckProjectInfo> selectSpotCheckProjectInfo2(Integer limit,Integer offset) throws Exception {
+		List<SpotCheckProjectInfo> tasklist = new ArrayList<SpotCheckProjectInfo>();
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append(" SELECT\r\n" + 
+					"	tt.id,tt.projectid,tt.editid,t.errorcount\r\n" + 
+					"FROM\r\n" + 
+					"	tb_spotcheckprojectinfo AS tt\r\n" + 
+					"JOIN (\r\n" + 
+					"	SELECT\r\n" + 
+					"		t2.editid,\r\n" + 
+					"		t2.projectid,\r\n" + 
+					"		\"count\" (t2.editid) as errorcount\r\n" + 
+					"	FROM\r\n" + 
+					"		(\r\n" + 
+					"			--错误和任务关联 id, projectid 都是抽检任务的 newtaskid\r\n" + 
+					"			SELECT\r\n" + 
+					"				tb_task. ID\r\n" + 
+					"			FROM\r\n" + 
+					"				tb_task\r\n" + 
+					"			JOIN tb_task_link_error ON tb_task. ID = tb_task_link_error.taskid\r\n" + 
+					"		) AS t1\r\n" + 
+					"	JOIN (\r\n" + 
+					"		--任务和抽检任务关联 包含 id oldtaskid\r\n" + 
+					"		SELECT\r\n" + 
+					"			tb_task. ID AS taskid,\r\n" + 
+					"			tb_task.editid,\r\n" + 
+					"			tb_task.projectid,\r\n" + 
+					"			tb_spotchecktask_link_task.newtaskid\r\n" + 
+					"		FROM\r\n" + 
+					"			tb_task\r\n" + 
+					"		JOIN tb_spotchecktask_link_task ON tb_task. ID = tb_spotchecktask_link_task.oldtaskid\r\n" + 
+					"	) AS t2 ON t1. ID = t2.newtaskid\r\n" + 
+					"	GROUP BY\r\n" + 
+					"		t2.editid,\r\n" + 
+					"		t2.projectid\r\n" + 
+					") AS T ON (T .projectid = tt.projectid\r\n" + 
+					"AND  T .editid = tt.editid )  \r\n" + 
+					"ORDER BY\r\n" + 
+					"	tt. ID  ");
+			sb.append("	limit "+ limit);
+			sb.append(" offset " + offset );
+			String sql = sb.toString();
+			ArrayList<Object> arr = ExecuteSQLApiClientUtils.getList(String.format(getUrl, host, port, path, SELECT,
+					URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")), SpotCheckProjectInfo.class);
+			System.out.println(sb.toString());
+			int count = arr.size();
+			for (int i = 0; i < count; i++) {
+				SpotCheckProjectInfo task = (SpotCheckProjectInfo) arr.get(i);
+				tasklist.add(task);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+
+		return tasklist;
+	}
+	
+	public Integer selectSpotCheckTaskCount2() throws Exception {
+		Integer count = 0;
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append(" select \"count\"(*) from (\r\n" + 
+					"SELECT\r\n" + 
+					" DISTINCT tt.editid,tt.projectid  \r\n" + 
+					"FROM\r\n" + 
+					"	tb_spotcheckprojectinfo AS tt\r\n" + 
+					"JOIN (\r\n" + 
+					"	SELECT\r\n" + 
+					"		t2.editid,\r\n" + 
+					"		t2.projectid,\r\n" + 
+					"		\"count\" (t2.editid) as errorcount\r\n" + 
+					"	FROM\r\n" + 
+					"		(\r\n" + 
+					"			--错误和任务关联 id, projectid 都是抽检任务的 newtaskid\r\n" + 
+					"			SELECT\r\n" + 
+					"				tb_task. ID\r\n" + 
+					"			FROM\r\n" + 
+					"				tb_task\r\n" + 
+					"			JOIN tb_task_link_error ON tb_task. ID = tb_task_link_error.taskid\r\n" + 
+					"		) AS t1\r\n" + 
+					"	JOIN (\r\n" + 
+					"		--任务和抽检任务关联 包含 id oldtaskid\r\n" + 
+					"		SELECT\r\n" + 
+					"			tb_task. ID AS taskid,\r\n" + 
+					"			tb_task.editid,\r\n" + 
+					"			tb_task.projectid,\r\n" + 
+					"			tb_spotchecktask_link_task.newtaskid\r\n" + 
+					"		FROM\r\n" + 
+					"			tb_task\r\n" + 
+					"		JOIN tb_spotchecktask_link_task ON tb_task. ID = tb_spotchecktask_link_task.oldtaskid\r\n" + 
+					"	) AS t2 ON t1. ID = t2.newtaskid\r\n" + 
+					"	GROUP BY\r\n" + 
+					"		t2.editid,\r\n" + 
+					"		t2.projectid\r\n" + 
+					") AS T ON (T .projectid = tt.projectid\r\n" + 
+					"AND  T .editid = tt.editid )\r\n" + 
+					")  as tmptb ");
+			
+	
+			String sql = sb.toString();
+			System.out.println(sb.toString());
+			
+			count  = ExecuteSQLApiClientUtils.queryCount(String.format(getUrl, host, port, path, SELECT,
+					URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")));
+
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		return count;
+	}
+	
+	// 查询项目pid下的所有任务
+	public Integer selectTaskTotalCountByProjectId(String projectid) throws Exception {
+		Integer count = 0;
+		try { 
+				StringBuilder sb = new StringBuilder();
+				sb.append("select count(1) from tb_task where projectid in(" + projectid + ")");
+		
+				String sql = sb.toString();		
+				count = ExecuteSQLApiClientUtils.queryCount( String.format(getUrl, host, port, path, SELECT,
+							URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")));
+
+		} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw e;
+		}
+
+		return count;
+	}
+	
+	// 查询项目pid下的所有任务
+	public Integer selectTaskDoneCountByProjectId(String projectid) throws Exception {
+		Integer count = 0;
+		try { 
+				StringBuilder sb = new StringBuilder();
+				sb.append("select count(1) from tb_task where state = 3 and projectid in(" + projectid + ")");
+		
+				String sql = sb.toString();		
+				count = ExecuteSQLApiClientUtils.queryCount( String.format(getUrl, host, port, path, SELECT,
+							URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")));
+
+		} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw e;
+		}
+
+		return count;
+	}
 }

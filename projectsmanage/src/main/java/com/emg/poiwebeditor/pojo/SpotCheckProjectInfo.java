@@ -9,6 +9,8 @@ public class SpotCheckProjectInfo {
 	private Long  newprojectid;
 	private Long  newprocessid;
 	private String username;
+	private String processname;
+	private Integer errorcount;
 	
 	public void setId(Long id) {
 		this.id = id;
@@ -66,7 +68,7 @@ public class SpotCheckProjectInfo {
 		return newprocessid;
 	}
 	
-	public void setUsernmae(String username) {
+	public void setUsername(String username) {
 		this.username  = username;
 	}
 	
@@ -74,4 +76,19 @@ public class SpotCheckProjectInfo {
 		return username;
 	}
 	
+	public void setProcessname(String processname) {
+		this.processname = processname;
+	}
+	
+	public String getProcessname() {
+		return processname;
+	}
+	
+	public void setErrorcount(Integer errorcount) {
+		this.errorcount = errorcount;
+	}
+	
+	public Integer getErrorcount() {
+		return this.errorcount;
+	}
 }

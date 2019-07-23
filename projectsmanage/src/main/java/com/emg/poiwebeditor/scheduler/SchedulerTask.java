@@ -4173,6 +4173,8 @@ public class SchedulerTask {
 				if (configs != null) {
 					for (ConfigValueModel config : configs) {
 						// 如果为免校正的项目则给当前项目下的所有poi 打manucheck 为ok的标签
+						if(config.getValue() ==null)
+							continue;
 						if ("免校正".equals(config.getName()) && config.getValue().equals("1")) {
 							uncheckProject.append(projectid).append(",");
 						}
@@ -4189,8 +4191,14 @@ public class SchedulerTask {
 				Integer taskcount = tasklist.size();
 				for( int indextask = 0 ; indextask < taskcount ; indextask++) {
 					TaskModel task = tasklist.get(indextask);
+					if(task.getProjectid().equals(928L)) {
+						int a = 0;
+						a +=1;
+					}
 					if(  (task.getState() == 2 && task.getProcess() == 5) ||
-						 (task.getState() == 2 && task.getProcess() == 6)	) {
+						 (task.getState() == 2 && task.getProcess() == 6)	||
+						 (task.getState() == 2 && task.getProcess() == 7)
+							) {
 							Integer ret = isTaskAvaliable(task);
 							if( ret == 1 || ret == 2 || ret ==3 || ret ==4 ) {
 								//处理方案待定
@@ -4683,6 +4691,59 @@ public class SchedulerTask {
 			}
 			attachCheckCapacityDao.updateUserName(checks);
 		}
+		
+	}
+	
+	/*
+	 * 定时扫描任务库 ,更新进度
+	 * */
+	@Scheduled(cron = "${schedulerpoi.updateprojectprogress.dotime}")
+	public void updateProjectProgress() {
+		logger.debug("####scanfModifyTask()##start#####");
+		
+		// 1.0 获取所有开启的项目	
+		
+		List<ProjectModel> rows = projectModelDao.selectProjectWithConfig( projectdbname,processdbname,ProjectState.START.getValue(), SystemType.poi_polymerize.getValue());
+		// 2.0 遍历项目id,根据项目id ；变量所有的任务
+		//3.0 查看某任务状态
+		try {
+			Integer projectcount = rows.size();
+			logger.debug("本次扫描项目数:" + projectcount);
+			//用来存储所有免校正的项目ID
+			StringBuilder uncheckProject = new StringBuilder();
+			StringBuilder projectIds = new StringBuilder();
+			for( ProjectModel project : rows) {
+				Long projectid = project.getId();
+				logger.debug("本次扫描项目:" + project.getProcessid() );
+				Integer totalcount =	taskModelClient.selectTaskTotalCountByProjectId( projectid.toString());
+				if(totalcount.equals(0))
+					continue;
+				Integer count  = taskModelClient.selectTaskDoneCountByProjectId(projectid.toString());
+				ProcessModel pm = new ProcessModel();
+				pm.setId( project.getProcessid());
+				Integer percent = count *100/ totalcount ;
+				if( percent.equals(0) && count >0)
+					percent = 1;
+				pm.setProgress( String.format("%d,0,0,0", percent) );
+				if( percent.equals(100)) {
+					pm.setState(3);
+					pm.setStagestate(3);
+					
+					ProjectModel pjm = new ProjectModel();
+					pjm.setId(projectid);
+					pjm.setOverstate(4);
+					projectModelDao.updateByPrimaryKeySelective(pjm);
+				}
+				processModelDao.updateByPrimaryKeySelective(pm);
+			}
+
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		logger.debug("####updateProjectProgress()##end#####\"");
 		
 	}
 

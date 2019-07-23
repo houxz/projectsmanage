@@ -94,6 +94,7 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 			criteria.andTypeEqualTo(ProcessType.POIPOLYMERIZE.getValue());
 		//	criteria.andStateNotEqualTo(ProcessState.COMPLETE.getValue());
 			criteria.andStateEqualTo(ProcessState.COMPLETE.getValue());
+			criteria.andNameNotLike("%_抽检_%");
 			//hxz 根据id , 项目名称，用户，优先级，项目状态 过滤项目时触发以下代码
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
@@ -261,7 +262,7 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 						for( int i = 0 ;i < pinfocount ;i++) {
 							SpotCheckProjectInfo spotinfo =	pinfolist.get(i);
 							spotinfo.setProcessid(processid);
-							spotinfo.setUsernmae(username);
+							spotinfo.setUsername(username);
 							for(int j = 0 ;j < cnt;j++) {
 								Long tmpid = _projects2.get(j).getId();
 								if( tmpid.compareTo( spotinfo.getNewprojectid() ) ==0 ) {
