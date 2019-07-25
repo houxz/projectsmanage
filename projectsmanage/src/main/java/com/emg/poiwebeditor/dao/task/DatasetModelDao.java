@@ -568,6 +568,10 @@ System.out.println(sql);
 			int row = new JdbcTemplate(dataSource).update(sql.toString());
 			if (row == 1)
 				bret = true;
+			else {
+				int a = 0;
+				a +=1;
+			}
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

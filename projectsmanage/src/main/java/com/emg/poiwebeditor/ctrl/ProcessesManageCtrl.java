@@ -60,6 +60,8 @@ import com.emg.poiwebeditor.pojo.ProcessModelExample;
 import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ProjectModelExample;
 import com.emg.poiwebeditor.pojo.ProjectsUserModel;
+import com.emg.poiwebeditor.pojo.TaskModel;
+import com.emg.poiwebeditor.pojo.Taskinfos;
 import com.emg.poiwebeditor.pojo.UserRoleModel;
 import com.emg.poiwebeditor.pojo.keywordModelForTask;
 import com.emg.poiwebeditor.pojo.ProcessModelExample.Criteria;
@@ -86,20 +88,23 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 	@Autowired
 	private EmapgoAccountService emapgoAccountService;
-	
+
 	@Autowired
 	private ProjectModelDao projectModelDao;
-	
+
 	@Autowired
 	private UserRoleModelDao userRoleModelDao;
-	
+
 	@Autowired
 	private ProjectsUserModelDao projectsUserModelDao;
-	
+
+	@Autowired
+	private TaskModelClient taskModelDao_API;
+
 	private ItemSetModelDao itemSetModelDao = new ItemSetModelDao();
-	
+
 	private DatasetModelDao datasetModelDao = new DatasetModelDao();
-	
+
 	private TaskModelClient taskModelDao = new TaskModelClient();
 
 	@RequestMapping()
@@ -109,7 +114,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		model.addAttribute("processStates", ProcessState.undoneToJsonStr());
 		model.addAttribute("processTypes", ProcessType.toJsonStr());
 		model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
-		
+
 		return "processesmanage";
 	}
 
@@ -128,7 +133,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Criteria criteria = example.or();
 			criteria.andTypeEqualTo(ProcessType.POIPOLYMERIZE.getValue());
 			criteria.andStateNotEqualTo(ProcessState.COMPLETE.getValue());
-			//hxz 根据id , 项目名称，用户，优先级，项目状态 过滤项目时触发以下代码
+			// hxz 根据id , 项目名称，用户，优先级，项目状态 过滤项目时触发以下代码
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {
@@ -185,8 +190,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		try {
 			newProcessID = ParamUtils.getLongParameter(request, "processid", -1L);
 			String newProcessName = ParamUtils.getParameter(request, "newProcessName");
-			//页面不再提供类型的输入了 byhxz20190517
-			//Integer type = ParamUtils.getIntParameter(request, "type", 0);
+			// 页面不再提供类型的输入了 byhxz20190517
+			// Integer type = ParamUtils.getIntParameter(request, "type", 0);
 			Integer type = ProcessType.POIPOLYMERIZE.getValue();
 			Integer priority = ParamUtils.getIntParameter(request, "priority", 0);
 			Integer uid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
@@ -194,14 +199,14 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Integer owner = ParamUtils.getIntParameter(request, "config_2_19", 0) == 1 ? 1 : 0;
 			String strWorkers = ParamUtils.getParameter(request, "config_2_18");
 			String strCheckers = ParamUtils.getParameter(request, "config_2_21");
-			//绑定资料datasetid字符串  "133,132,131"
+			// 绑定资料datasetid字符串 "133,132,131"
 			String strDatasets = ParamUtils.getParameter(request, "config_2_25");
-			//add by lianhr begin 2019/02/14
+			// add by lianhr begin 2019/02/14
 			String strBatch = ParamUtils.getParameter(request, "strbatch");
 			String strModel = ParamUtils.getParameter(request, "config_1_29");
-			//add by lianhr end
+			// add by lianhr end
 			Integer processEditType = ParamUtils.getIntParameter(request, "config_2_30", 1);
-			//是否为可靠信号源
+			// 是否为可靠信号源
 			Integer isAvaliableData = ParamUtils.getIntParameter(request, "config_2_31", 1);
 
 			Boolean isNewProcess = newProcessID.equals(0L);
@@ -216,7 +221,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				json.addObject("resultMsg", "保存失败，项目名称不能为空");
 				return json;
 			}
-			
+
 			try {
 				JSONObject.fromObject(strWorkers);
 			} catch (Exception e) {
@@ -235,27 +240,31 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				} catch (Exception e2) {
 					logger.error(e2.getMessage(), e2);
 				}
-				
+
 			}
-			
+
 			Long projectid332 = -1L, projectid349 = -1L;
 			if (!isNewProcess) {
-				ProcessConfigValueModel processConfig332 = processConfigValueModelDao.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.ZHIJIANXIANGMUID.getValue());
-				if (processConfig332 != null && processConfig332.getValue() != null && !processConfig332.getValue().isEmpty()) {
+				ProcessConfigValueModel processConfig332 = processConfigValueModelDao
+						.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.ZHIJIANXIANGMUID.getValue());
+				if (processConfig332 != null && processConfig332.getValue() != null
+						&& !processConfig332.getValue().isEmpty()) {
 					projectid332 = Long.valueOf(processConfig332.getValue());
 				}
-				
-				ProcessConfigValueModel processConfig349 = processConfigValueModelDao.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.BIANJIXIANGMUID.getValue());
-				if (processConfig349 != null && processConfig349.getValue() != null && !processConfig349.getValue().isEmpty()) {
+
+				ProcessConfigValueModel processConfig349 = processConfigValueModelDao
+						.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.BIANJIXIANGMUID.getValue());
+				if (processConfig349 != null && processConfig349.getValue() != null
+						&& !processConfig349.getValue().isEmpty()) {
 					projectid349 = Long.valueOf(processConfig349.getValue());
 				}
 			}
-			
+
 			// TODO: 新增项目类型需要指定systemid
 			String suffix = new String();
 			Integer systemid = -1;
 
-		//新增人工确认项目byhxz
+			// 新增人工确认项目byhxz
 			if (type.equals(ProcessType.POIPOLYMERIZE.getValue())) {
 				suffix = "";
 				systemid = SystemType.poi_polymerize.getValue();
@@ -265,10 +274,10 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				json.addObject("resultMsg", "未知的项目类型：" + type);
 				return json;
 			}
-			
-			//==========================
-			
-			//新建/更新流程
+
+			// ==========================
+
+			// 新建/更新流程
 			if (isNewProcess) {
 				ProcessModel newProcess = new ProcessModel();
 				newProcess.setName(newProcessName);
@@ -296,20 +305,17 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 			List<ProcessConfigValueModel> configValues = new ArrayList<ProcessConfigValueModel>();
 
-			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJILEIXING.getValue(), processEditType.toString()));
-			
+			configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(),
+					ProcessConfigEnum.BIANJILEIXING.getValue(), processEditType.toString()));
 
 			// TODO: 新增项目类型需要确定是否有改错过程
 			if (isNewProcess) {
-				if (type.equals(ProcessType.ERROR.getValue()) ||
-					type.equals(ProcessType.NRFC.getValue()) ||
-					type.equals(ProcessType.ATTACH.getValue()) ||
-					type.equals(ProcessType.POIEDIT.getValue()) ||
-					type.equals(ProcessType.GEN.getValue()) ||
-					type.equals(ProcessType.AREA.getValue()) ||
-					type.equals(ProcessType.ATTACHWITHDATA.getValue())||
-					type.equals(ProcessType.POIPOLYMERIZE.getValue())	//byhxz
-					) {
+				if (type.equals(ProcessType.ERROR.getValue()) || type.equals(ProcessType.NRFC.getValue())
+						|| type.equals(ProcessType.ATTACH.getValue()) || type.equals(ProcessType.POIEDIT.getValue())
+						|| type.equals(ProcessType.GEN.getValue()) || type.equals(ProcessType.AREA.getValue())
+						|| type.equals(ProcessType.ATTACHWITHDATA.getValue())
+						|| type.equals(ProcessType.POIPOLYMERIZE.getValue()) // byhxz
+				) {
 					ProjectModel newpro = new ProjectModel();
 					newpro.setProcessid(newProcessID);
 					newpro.setName(newProcessName + suffix);
@@ -326,22 +332,24 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						projectid349 = newpro.getId();
 					}
 					if (projectid349 > 0) {
-						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUID.getValue(), projectid349.toString()));
-						configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newProcessName + suffix));
+						configValues.add(new ProcessConfigValueModel(newProcessID,
+								ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(),
+								ProcessConfigEnum.BIANJIXIANGMUID.getValue(), projectid349.toString()));
+						configValues.add(new ProcessConfigValueModel(newProcessID,
+								ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(),
+								ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newProcessName + suffix));
 					}
 				}
 			} else {
-				if (type.equals(ProcessType.ERROR.getValue()) ||
-					type.equals(ProcessType.NRFC.getValue()) ||
-					type.equals(ProcessType.ATTACH.getValue()) ||
-					type.equals(ProcessType.POIEDIT.getValue()) ||
-					type.equals(ProcessType.GEN.getValue()) ||
-					type.equals(ProcessType.AREA.getValue()) ||
-					type.equals(ProcessType.ATTACHWITHDATA.getValue())||
-					type.equals(ProcessType.POIPOLYMERIZE.getValue())
-						) {
-					configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newProcessName + suffix));
-	
+				if (type.equals(ProcessType.ERROR.getValue()) || type.equals(ProcessType.NRFC.getValue())
+						|| type.equals(ProcessType.ATTACH.getValue()) || type.equals(ProcessType.POIEDIT.getValue())
+						|| type.equals(ProcessType.GEN.getValue()) || type.equals(ProcessType.AREA.getValue())
+						|| type.equals(ProcessType.ATTACHWITHDATA.getValue())
+						|| type.equals(ProcessType.POIPOLYMERIZE.getValue())) {
+					configValues.add(
+							new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(),
+									ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newProcessName + suffix));
+
 					ProjectModel pro = new ProjectModel();
 					pro.setId(projectid349);
 					pro.setName(newProcessName + suffix);
@@ -355,18 +363,18 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			// 改错人员
 			if (strWorkers != null && !strWorkers.isEmpty()) {
 				List<EmployeeModel> workers = new ArrayList<EmployeeModel>();
-				Map<String, Object> jsonWorkers = (Map<String, Object>)JSONObject.fromObject(strWorkers);
+				Map<String, Object> jsonWorkers = (Map<String, Object>) JSONObject.fromObject(strWorkers);
 				for (String jsonWorker : jsonWorkers.keySet()) {
 					EmployeeModel worker = new EmployeeModel();
 					worker.setId(Integer.valueOf(jsonWorker));
 					workers.add(worker);
 				}
-				
+
 				if (projectid332.compareTo(0L) > 0) {
 					ProjectsUserModel record = new ProjectsUserModel();
 					record.setPid(projectid332.toString());
 					record.setRoleid(RoleType.ROLE_WORKER.getValue());
-					if (projectsUserModelDao.delete(record ) >= 0) {
+					if (projectsUserModelDao.delete(record) >= 0) {
 						for (EmployeeModel worker : workers) {
 							ProjectsUserModel ur = new ProjectsUserModel();
 							ur.setPid(projectid332.toString());
@@ -380,12 +388,12 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						}
 					}
 				}
-				
+
 				if (projectid349.compareTo(0L) > 0) {
 					ProjectsUserModel record = new ProjectsUserModel();
 					record.setPid(projectid349.toString());
 					record.setRoleid(RoleType.ROLE_WORKER.getValue());
-					if (projectsUserModelDao.delete(record ) >= 0) {
+					if (projectsUserModelDao.delete(record) >= 0) {
 						for (EmployeeModel worker : workers) {
 							ProjectsUserModel ur = new ProjectsUserModel();
 							ur.setPid(projectid349.toString());
@@ -400,7 +408,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					}
 				}
 			}
-			//更新校正人员
+			// 更新校正人员
 			if (strCheckers != null && !strCheckers.isEmpty()) {
 				List<EmployeeModel> checkers = new ArrayList<EmployeeModel>();
 				for (String strChecker : strCheckers.split(",")) {
@@ -408,12 +416,12 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					checker.setId(Integer.valueOf(strChecker));
 					checkers.add(checker);
 				}
-				
+
 				if (projectid332.compareTo(0L) > 0) {
 					ProjectsUserModel record = new ProjectsUserModel();
 					record.setPid(projectid332.toString());
 					record.setRoleid(RoleType.ROLE_CHECKER.getValue());
-					if (projectsUserModelDao.delete(record ) >= 0) {
+					if (projectsUserModelDao.delete(record) >= 0) {
 						for (EmployeeModel checker : checkers) {
 							ProjectsUserModel ur = new ProjectsUserModel();
 							ur.setPid(projectid332.toString());
@@ -427,12 +435,12 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						}
 					}
 				}
-				
+
 				if (projectid349.compareTo(0L) > 0) {
 					ProjectsUserModel record = new ProjectsUserModel();
 					record.setPid(projectid349.toString());
 					record.setRoleid(RoleType.ROLE_CHECKER.getValue());
-					if (projectsUserModelDao.delete(record ) >= 0) {
+					if (projectsUserModelDao.delete(record) >= 0) {
 						for (EmployeeModel checker : checkers) {
 							ProjectsUserModel ur = new ProjectsUserModel();
 							ur.setPid(projectid349.toString());
@@ -447,16 +455,21 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					}
 				}
 			}
-			
+
 			// TODO: 新增项目类型需要确定是否资料相关
 			if (strDatasets != null && !strDatasets.isEmpty()) {
-				configValues.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(), ProcessConfigEnum.BANGDINGZILIAO.getValue(), strDatasets));
+				configValues
+						.add(new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(),
+								ProcessConfigEnum.BANGDINGZILIAO.getValue(), strDatasets));
 //				if (!isNewProcess && type.equals(ProcessType.POIEDIT.getValue())) {
 				if (!isNewProcess && type.equals(ProcessType.POIPOLYMERIZE.getValue())) {
-					ProcessConfigValueModel processConfigValueModels = processConfigValueModelDao.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.BANGDINGZILIAO.getValue());
-					if (processConfigValueModels != null && processConfigValueModels.getValue() != null && !processConfigValueModels.getValue().isEmpty()) {
+					ProcessConfigValueModel processConfigValueModels = processConfigValueModelDao
+							.selectByProcessIDAndConfigID(newProcessID, ProcessConfigEnum.BANGDINGZILIAO.getValue());
+					if (processConfigValueModels != null && processConfigValueModels.getValue() != null
+							&& !processConfigValueModels.getValue().isEmpty()) {
 						ArrayList<String> newDatasets = new ArrayList<String>(Arrays.asList(strDatasets.split(",")));
-						ArrayList<String> oldDatasets = new ArrayList<String>(Arrays.asList(processConfigValueModels.getValue().split(",")));
+						ArrayList<String> oldDatasets = new ArrayList<String>(
+								Arrays.asList(processConfigValueModels.getValue().split(",")));
 						newDatasets.removeAll(oldDatasets);
 						if (newDatasets != null && !newDatasets.isEmpty()) {
 							ProcessModel process = new ProcessModel();
@@ -478,29 +491,45 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			for (ProcessConfigModel processConfig : processConfigs) {
 				Integer moduleid = processConfig.getModuleid();
 				Integer configid = processConfig.getId();
-				String defaultValue = processConfig.getDefaultValue() == null ? new String() : processConfig.getDefaultValue().toString();
+				String defaultValue = processConfig.getDefaultValue() == null ? new String()
+						: processConfig.getDefaultValue().toString();
 
 				// 这是前边代码特殊处理的部分配置
-				if ((moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUID.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUID.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BANGDINGZILIAO.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANMOSHI.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJILEIXING.getValue())))
+				if ((moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue())
+						&& configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUID.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.ZHIJIANXIANGMUMINGCHENG.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.BIANJIXIANGMUID.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.BANGDINGZILIAO.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.ZHIJIANMOSHI.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.BIANJILEIXING.getValue())))
 					continue;
-				
+
 				// 这是不能修改的默认配置，这些配置项保留创建任务之初的时候的配置，不再根据系统配置的修改而变动了
-				if (!isNewProcess &&
-						((moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANRENWUKU.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZHIJIANQIDONGLEIXING.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIRENWUKU.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.CUOWUGESHU.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.CUOWUJULI.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.CUOWUKU.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJIQIDONGLEIXING.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.ZILIAOKU.getValue())) ||
-						(moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue()) && configid.equals(ProcessConfigEnum.BIANJISHUJUKU.getValue()))))
+				if (!isNewProcess && ((moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue())
+						&& configid.equals(ProcessConfigEnum.ZHIJIANRENWUKU.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.ZHIJIANQIDONGLEIXING.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.BIANJIRENWUKU.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.CUOWUGESHU.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.CUOWUJULI.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.CUOWUKU.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.BIANJIQIDONGLEIXING.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.ZILIAOKU.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.BIANJISHUJUKU.getValue()))))
 					continue;
 
 				Enumeration<String> paramNames = request.getParameterNames();
@@ -513,11 +542,11 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 				configValues.add(new ProcessConfigValueModel(newProcessID, moduleid, configid, defaultValue));
 			}
-			
+
 			if (processConfigValueModelDao.deleteByProcessID(newProcessID) >= 0) {
 				ret = processConfigValueModelDao.insert(configValues);
 			}
-			
+
 			if (isNewProcess) {
 				ProcessType processType = ProcessType.POIPOLYMERIZE;
 				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZILIAOKU,
@@ -525,101 +554,109 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				ConfigDBModel configDBModel = configDBModelDao
 						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
 
-				//"133,132,131"
-				List<keywordModelForTask> keyids = datasetModelDao.selectKeyidsbyDataset(configDBModel, 0, 0,  strDatasets);
+				// "133,132,131"
+				List<keywordModelForTask> keyids = datasetModelDao.selectKeyidsbyDataset(configDBModel, 0, 0,
+						strDatasets);
 				int shapeCount = keyids.size();
 				int taskcount = 0;
 				if (shapeCount > 0) {
-					ProcessConfigModel configtask = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU,
-							processType);
-					ConfigDBModel configDBModelForTask = configDBModelDao.selectByPrimaryKey( Integer.valueOf(configtask.getDefaultValue()));
+					ProcessConfigModel configtask = processConfigModelService
+							.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
+					ConfigDBModel configDBModelForTask = configDBModelDao
+							.selectByPrimaryKey(Integer.valueOf(configtask.getDefaultValue()));
 					for (int indexShape = 0; indexShape < shapeCount; indexShape++) {
 						keywordModelForTask task = keyids.get(indexShape);
-						if(task.getEmapcount() >0) {//创建新任务
+						if (task.getEmapcount() > 0) {// 创建新任务
 							Long shapeid = task.getId();
-							Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349, shapeid,0);
+							Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349, shapeid,
+									0);
 							if (bSuccess)
 								taskcount++;
-						}else {
-							if( isAvaliableData == 1) {//可靠数据源
-								//其他三家存在一家 即可
-								if(task.getBdcount() > 0 || task.getTxcount() > 0 || task.getGdcount() > 0) {
-									//创建新任务
+						} else {
+							if (isAvaliableData == 1) {// 可靠数据源
+								// 其他三家存在一家 即可
+								if (task.getBdcount() > 0 || task.getTxcount() > 0 || task.getGdcount() > 0) {
+									// 创建新任务
 									Long shapeid = task.getId();
-									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349, shapeid,0);
+									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349,
+											shapeid, 0);
 									if (bSuccess)
 										taskcount++;
-								}else {//  创建自动完成任务
-									
+								} else {// 创建自动完成任务
+
 									Long shapeid = task.getId();
-									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349, shapeid,3);
+									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349,
+											shapeid, 3);
 									if (bSuccess) {
 										taskcount++;
 										datasetModelDao.Updatekeywordstate(configDBModel, task.getId(), 2);
 									}
 								}
-							}else {//不可靠数据源
-								if ( ( task.getBdcount() >0 && task.getTxcount() >0) || ( task.getBdcount() >0 && task.getGdcount() >0) ||
-										(task.getTxcount() >0 && task.getGdcount() >0) ) {
-									//创建新任务
+							} else {// 不可靠数据源
+								if ((task.getBdcount() > 0 && task.getTxcount() > 0)
+										|| (task.getBdcount() > 0 && task.getGdcount() > 0)
+										|| (task.getTxcount() > 0 && task.getGdcount() > 0)) {
+									// 创建新任务
 									Long shapeid = task.getId();
-									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349, shapeid,0);
+									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349,
+											shapeid, 0);
 									if (bSuccess)
 										taskcount++;
-								}else {//创建自动完成任务
+								} else {// 创建自动完成任务
 									Long shapeid = task.getId();
-									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349, shapeid,3);
+									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349,
+											shapeid, 3);
 									if (bSuccess) {
 										taskcount++;
 										datasetModelDao.Updatekeywordstate(configDBModel, task.getId(), 2);
 									}
-									
+
 								}
 							}
 						}
-						
+
 					}
 				}
-				//创建的任务数等于资料数
+				// 创建的任务数等于资料数
 				if (shapeCount == taskcount) {
 					ProjectModel pro = new ProjectModel();
 					pro.setId(projectid349);
 					pro.setTasknum(taskcount);
 					pro.setOverstate(1);
 					projectModelDao.updateByPrimaryKeySelective(pro);
-					
-					//更新状态
+
+					// 更新状态
 					ProcessModel process = new ProcessModel();
 					process.setId(newProcessID);
 					process.setState(1);
 					processModelDao.updateByPrimaryKeySelective(process);
-					
-					//更新资料状态 任务创建完成
-					datasetModelDao.updateDataSetStatebyDataset(configDBModel, strDatasets,3,3);
-					
+
+					// 更新资料状态 任务创建完成
+					datasetModelDao.updateDataSetStatebyDataset(configDBModel, strDatasets, 3, 3);
+
 				} else {
-					//更新资料状态任务创建 异常
-					datasetModelDao.updateDataSetStatebyDataset(configDBModel, strDatasets,2,3);
+					// 更新资料状态任务创建 异常
+					datasetModelDao.updateDataSetStatebyDataset(configDBModel, strDatasets, 2, 3);
 					System.out.println("有资料未创建任务");
 				}
 			}
 
-			//=================================================================
-			
+			// =================================================================
+
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			json.addObject("result", -1);
 			json.addObject("option", e.getMessage());
 			return json;
 		}
-		
+
 		json.addObject("result", ret);
 		json.addObject("pid", newProcessID);
 
 		logger.debug("ProcessesManageCtrl-createNewProcess end.");
 		return json;
 	}
-	
+
 	@RequestMapping(params = "atn=getRNByProcessID")
 	public ModelAndView getRowNumByProcessID(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("ProcessesManageCtrl-getRowNumByProcessID start.");
@@ -643,7 +680,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		logger.debug("ProcessesManageCtrl-changeState start.");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Integer ret = -1;
-		//hxz项目管理操作中的 暂停按钮触发这里
+		// hxz项目管理操作中的 暂停按钮触发这里
 		try {
 			Long processid = ParamUtils.getLongParameter(request, "processid", -1);
 			Integer state = ParamUtils.getIntParameter(request, "state", -1);
@@ -653,11 +690,11 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			record.setState(state);
 			if (processModelDao.updateByPrimaryKeySelective(record) > 0) {
 				ProjectModel project = new ProjectModel();
-				//add by lianhr begin 2018/01/17
-				if(state.equals(ProcessState.COMPLETE.getValue())) {
+				// add by lianhr begin 2018/01/17
+				if (state.equals(ProcessState.COMPLETE.getValue())) {
 					state = ProjectState.COMPLETE.getValue();
 				}
-				//add by lianhr end
+				// add by lianhr end
 				project.setOverstate(state);
 				ProjectModelExample example = new ProjectModelExample();
 				com.emg.poiwebeditor.pojo.ProjectModelExample.Criteria criteria = example.or();
@@ -749,25 +786,25 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					}
 				}
 			}
-			
+
 			UserRoleModel record = new UserRoleModel();
 			record.setRoleid(RoleType.ROLE_WORKER.getValue());
-			List<UserRoleModel> userRoleModels = userRoleModelDao.query(record );
-			
+			List<UserRoleModel> userRoleModels = userRoleModelDao.query(record);
+
 			List<Integer> ids = new ArrayList<Integer>();
 			for (UserRoleModel userRoleModel : userRoleModels) {
 				Integer id = userRoleModel.getUserid();
 				ids.add(id);
 			}
-			
+
 			record.setRoleid(RoleType.ROLE_CHECKER.getValue());
 			userRoleModels.clear();
-			userRoleModels = userRoleModelDao.query(record );
+			userRoleModels = userRoleModelDao.query(record);
 			for (UserRoleModel userRoleModel : userRoleModels) {
 				Integer id = userRoleModel.getUserid();
 				ids.add(id);
 			}
-			
+
 			if (employeeModel.getId() != null) {
 				if (ids.contains(employeeModel.getId())) {
 					ids.clear();
@@ -781,7 +818,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			}
 
 			if (ids.size() > 0)
-				workersandcheckers = emapgoAccountService.getEmployeesByIDSAndRealname(ids, employeeModel.getRealname());
+				workersandcheckers = emapgoAccountService.getEmployeesByIDSAndRealname(ids,
+						employeeModel.getRealname());
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -793,7 +831,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		logger.debug("ProcessesManageCtrl-getWorkersAndCheckers end.");
 		return json;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=getworkers")
 	public ModelAndView getWorkers(Model model, HttpServletRequest request, HttpSession session) {
@@ -821,17 +859,17 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					}
 				}
 			}
-			
+
 			UserRoleModel record = new UserRoleModel();
 			record.setRoleid(RoleType.ROLE_WORKER.getValue());
-			List<UserRoleModel> userRoleModels = userRoleModelDao.query(record );
-			
+			List<UserRoleModel> userRoleModels = userRoleModelDao.query(record);
+
 			List<Integer> ids = new ArrayList<Integer>();
 			for (UserRoleModel userRoleModel : userRoleModels) {
 				Integer id = userRoleModel.getUserid();
 				ids.add(id);
 			}
-			
+
 			if (employeeModel.getId() != null) {
 				if (ids.contains(employeeModel.getId())) {
 					ids.clear();
@@ -857,7 +895,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		logger.debug("END");
 		return json;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=getcheckers")
 	public ModelAndView getCheckers(Model model, HttpServletRequest request, HttpSession session) {
@@ -885,17 +923,17 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					}
 				}
 			}
-			
+
 			UserRoleModel record = new UserRoleModel();
 			record.setRoleid(RoleType.ROLE_CHECKER.getValue());
-			List<UserRoleModel> userRoleModels = userRoleModelDao.query(record );
-			
+			List<UserRoleModel> userRoleModels = userRoleModelDao.query(record);
+
 			List<Integer> ids = new ArrayList<Integer>();
 			for (UserRoleModel userRoleModel : userRoleModels) {
 				Integer id = userRoleModel.getUserid();
 				ids.add(id);
 			}
-			
+
 			if (employeeModel.getId() != null) {
 				if (ids.contains(employeeModel.getId())) {
 					ids.clear();
@@ -921,8 +959,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		logger.debug("END");
 		return json;
 	}
-	
-	//创建任务的时候绑定资料面板获取数据
+
+	// 创建任务的时候绑定资料面板获取数据
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "atn=getdatasets")
 	public ModelAndView getDatasets(Model model, HttpServletRequest request, HttpSession session) {
@@ -934,12 +972,12 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Integer limit = ParamUtils.getIntParameter(request, "limit", -1);
 			Integer offset = ParamUtils.getIntParameter(request, "offset", -1);
 			String filter = ParamUtils.getParameter(request, "filter", "");
-			String datasetids = ParamUtils.getParameter(request, "datasetids","");
+			String datasetids = ParamUtils.getParameter(request, "datasetids", "");
 			ProcessType processType = ProcessType.POIPOLYMERIZE;
 
 			Map<String, Object> filterPara = null;
 			DatasetModel record = new DatasetModel();
-			
+
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 				for (String key : filterPara.keySet()) {
@@ -967,19 +1005,22 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				}
 			}
 
-			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZILIAOKU, processType);
-			ConfigDBModel configDBModel = configDBModelDao.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
-            if(datasetids != null && datasetids != "") {
-            	
-    		
-    			datasetModels = datasetModelDao.selectDatasetsByDatasetids(configDBModel, datasetids);
-    			count = datasetModels.size();
+			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZILIAOKU,
+					processType);
+			ConfigDBModel configDBModel = configDBModelDao
+					.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+			if (datasetids != null && datasetids != "") {
 
-            }else {
-            	//只需查询能创建任务的dataset
-            	datasetModels = datasetModelDao.selectOkDatasets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)), limit, offset);
-            	count = datasetModelDao.countOKDataSets(configDBModel, new ArrayList<Integer>(getDataTypesByProcessType(processType)));
-            }
+				datasetModels = datasetModelDao.selectDatasetsByDatasetids(configDBModel, datasetids);
+				count = datasetModels.size();
+
+			} else {
+				// 只需查询能创建任务的dataset
+				datasetModels = datasetModelDao.selectOkDatasets(configDBModel,
+						new ArrayList<Integer>(getDataTypesByProcessType(processType)), limit, offset);
+				count = datasetModelDao.countOKDataSets(configDBModel,
+						new ArrayList<Integer>(getDataTypesByProcessType(processType)));
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -991,12 +1032,93 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		return json;
 	}
 
+	// 获取未完成的任务信息
+	@SuppressWarnings("unchecked")
+	@RequestMapping(params = "atn=gettaskinfo")
+	public ModelAndView getUnDoneTaskInfo(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<TaskModel> taskModels = new ArrayList<TaskModel>();
+		List<Taskinfos> taskinfos = new ArrayList<Taskinfos>();
+		Integer count = 0;
+//		try {
+//			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
+//			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
+//			Long processid = ParamUtils.getLongParameter(request, "processid", -1L);
+//			if (processid > 0) {
+//				Long projectid = 0L;
+//				ProjectModel pro = new ProjectModel();
+//				pro.setProcessid(processid);
+//
+//				ProjectModelExample example = new ProjectModelExample();
+//				com.emg.poiwebeditor.pojo.ProjectModelExample.Criteria criteria = example.or();
+//				criteria.andProcessidEqualTo(processid);
+//
+//				List<ProjectModel> prolist = projectModelDao.selectByExample(example);
+//				if (prolist.size() == 1) {
+//					projectid = prolist.get(0).getId();
+//					taskModels = taskModelDao_API.selectUndoneTaskByProjectId(projectid, limit, offset);
+//					count = taskModelDao_API.selectUndoneTaskCountByProjectId(projectid);
+//					List<Integer> userIDInRows = new ArrayList<Integer>();
+//					List<EmployeeModel> userInRows = new ArrayList<EmployeeModel>();
+//					int size = taskModels.size();
+//					for (TaskModel tm : taskModels) {
+//						if (tm.getEditid() > 0)
+//							userIDInRows.add(tm.getEditid());
+//						if (tm.getCheckid() > 0)
+//							userIDInRows.add(tm.getCheckid());
+//					}
+//					if (userIDInRows.size() > 0)
+//						userInRows = emapgoAccountService.getEmployeeByIDS(userIDInRows);
+//
+//					for (TaskModel tm : taskModels) {
+//						Taskinfos tinfo = new Taskinfos();
+//						tinfo.setId(tm.getId());
+//						tinfo.setProcess(tm.getProcess());
+//						tinfo.setState(tm.getState());
+//						tinfo.setProcessid(processid);
+//						if (tm.getEditid() > 0) {
+//							for (EmployeeModel employee : userInRows) {
+//								if (employee.getId().equals(tm.getEditid())) {
+//									tinfo.setEditname(employee.getRealname());
+//									break;
+//								}
+//							}
+//						}
+//						if (tm.getCheckid() > 0) {
+//							for (EmployeeModel employee : userInRows) {
+//								if (employee.getId().equals(tm.getCheckid())) {
+//									tinfo.setCheckname(employee.getRealname());
+//									break;
+//								}
+//							}
+//						}
+//						taskinfos.add(tinfo);
+//					}
+//					
+//				}
+//			}
+//		} catch (Exception e) {
+//			logger.error(e.getMessage(), e);
+//		}
+		Taskinfos t = new Taskinfos();
+		t.setId(1L);
+	  
+		taskinfos.add(t);
+		json.addObject("rows", taskinfos);
+		json.addObject("total", 100);
+		json.addObject("result", 1);
+		
+		logger.debug("END");
+		return json;
+	}
+
 	private Set<Integer> getDataTypesByProcessType(ProcessType processType) {
 		Set<Integer> set = new HashSet<Integer>();
 		switch (processType) {
 		case POIPOLYMERIZE:
 			set.add(36);
-			set.add(37);//上传的资料清单类型
+			set.add(37);// 上传的资料清单类型
 			break;
 		case POIEDIT:
 			set.add(14);

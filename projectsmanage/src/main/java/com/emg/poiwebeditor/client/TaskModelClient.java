@@ -608,7 +608,7 @@ public class TaskModelClient {
 		return tasklist;
 	}
 	
-	// 查询项目pid下的所有制作提交（2,5），改错提交(2,6) 的任务(2,7)
+		// 查询项目pid下的所有制作提交（2,5），改错提交(2,6) 的任务(2,7)
 		public List<TaskModel> selectTaskByProjectId(String projectid) throws Exception {
 			List<TaskModel> tasklist = new ArrayList<TaskModel>();
 			try { 
@@ -736,7 +736,6 @@ public class TaskModelClient {
 				String sql = sb.toString();
 				ArrayList<Object> arr = ExecuteSQLApiClientUtils.getList(String.format(getUrl, host, port, path, SELECT,
 						URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")), SpotCheckTaskInfo.class);
-System.out.println(sb.toString());
 				int count = arr.size();
 				for (int i = 0; i < count; i++) {
 					SpotCheckTaskInfo task = (SpotCheckTaskInfo) arr.get(i);
@@ -820,12 +819,12 @@ System.out.println(sb.toString());
 		return tasklist;
 	}
 	
+	//创建抽检任务
 	public boolean createspotchecktask(Long taskid, Long newprojectid) throws Exception {
 		boolean bret = false;
 		try {
 			
 			TaskModel task = null;
-			//insert into tb_task(keywordid, tasktype,projectid)  values( (select keywordid	from tb_task where id = 1549634),17002,1);
 			StringBuilder sb = new StringBuilder();
 			sb.append("insert into tb_task(keywordid, tasktype,projectid)  values( (select keywordid from tb_task where id = "+ taskid);
 			sb.append(" ),17002," + newprojectid);
@@ -872,17 +871,16 @@ System.out.println(sb.toString());
 	public boolean insertSpotcheckprojectinfo(Long projectid,Integer editid,Integer percent, Long newprojectid) throws Exception {
 		boolean bret = false;
 		try {
-			TaskModel task = null;
-			//insert into tb_task(keywordid, tasktype,projectid)  values( (select keywordid	from tb_task where id = 1549634),17002,1);
 			StringBuilder sb = new StringBuilder();
 			sb.append("insert into tb_spotcheckprojectinfo(projectid, editid,percent,newprojectid) values(  "+ projectid);
 			sb.append("," + editid);
 			sb.append("," + percent);
 			sb.append("," + newprojectid);
 			sb.append(" ) " );
-			String sql = sb.toString();
 			Long ret = ExecuteSQLApiClientUtils.update( String.format(getUrl, host,port,path,UPDATE,
 					URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"),"utf-8")));
+			if(ret > 0L)
+				bret = true;
 				
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -1045,4 +1043,52 @@ System.out.println(sb.toString());
 
 		return count;
 	}
+	
+	// 查询项目pid下的所有 未完成的任务
+	public List<TaskModel> selectUndoneTaskByProjectId(Long projectid,Integer limit, Integer offset) throws Exception {
+		List<TaskModel> tasklist = new ArrayList<TaskModel>();
+		try { 
+				StringBuilder sb = new StringBuilder();
+				sb.append("select * from tb_task where projectid =" + projectid );
+				sb.append(" and not( (state = 3 and process =5) or ( state = 3 and process =6) or ( state = 3 and process =7) )");
+				sb.append(" order by id limit " + limit);
+				sb.append(" offset "+ offset);
+				String sql = sb.toString();
+
+				ArrayList<Object> arr = ExecuteSQLApiClientUtils.getList(String.format(getUrl, host, port, path, SELECT,
+							URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")), TaskModel.class);
+
+				int count = arr.size();
+				for (int i = 0; i < count; i++) {
+					TaskModel task = (TaskModel) arr.get(i);
+					tasklist.add(task);
+				}
+			} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+					throw e;
+			}
+
+			return tasklist;
+		}
+	
+	public Integer selectUndoneTaskCountByProjectId(Long projectid) throws Exception {
+		Integer count = 0;
+		try { 
+				StringBuilder sb = new StringBuilder();
+				sb.append("select count(1) from tb_task where projectid =" + projectid );
+				sb.append(" and not( (state = 3 and process =5) or ( state = 3 and process =6) or ( state = 3 and process =7) )");
+			
+				String sql = sb.toString();
+
+				count = ExecuteSQLApiClientUtils.queryCount(String.format(getUrl, host, port, path, SELECT,
+							URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")));
+
+			} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+					throw e;
+			}
+
+			return count;
+		}
+	
 }

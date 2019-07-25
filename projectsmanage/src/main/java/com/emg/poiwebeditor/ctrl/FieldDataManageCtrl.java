@@ -427,7 +427,7 @@ public class FieldDataManageCtrl extends BaseCtrl {
 		if (row == null)
 			return null;
 		KeywordModel kmodel = new KeywordModel();
-
+		boolean bfind =false;
 		int firstcelindex = row.getFirstCellNum();
 		int lastcelindex = row.getLastCellNum();
 
@@ -464,6 +464,12 @@ public class FieldDataManageCtrl extends BaseCtrl {
 				kmodel.setDistrict(svalue);
 			} else if (strfieldname.equals("名称")) {
 				kmodel.setName(svalue);
+				if(svalue == "丽景湾酒店") {
+					bfind = true;
+				}
+				if( svalue.equals("丽景湾酒店")) {
+					bfind = true;
+				}
 			} else if (strfieldname.equals("地址")) {
 				kmodel.setAddress(svalue);
 			} else if (strfieldname.equals("电话")) {
@@ -502,7 +508,7 @@ public class FieldDataManageCtrl extends BaseCtrl {
 			}
 
 		}
-
+//if(!bfind) return null;
 		return kmodel;
 	}
 }

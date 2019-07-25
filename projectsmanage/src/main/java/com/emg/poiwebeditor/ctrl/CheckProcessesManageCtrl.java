@@ -482,11 +482,11 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 		while(true) {
 			int temp = random.nextInt(a.length);
 			if( !r[temp]) {
-				if( n == m)
-					break;
 				n++;
 				result[n-1] = a[temp];
 				r[temp] = true;
+				if( n == m)
+					break;
 			}
 		}
 		
