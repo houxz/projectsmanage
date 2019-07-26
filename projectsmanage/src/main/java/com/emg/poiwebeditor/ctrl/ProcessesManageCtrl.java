@@ -1045,6 +1045,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 //			Integer limit = ParamUtils.getIntParameter(request, "limit", 10);
 //			Integer offset = ParamUtils.getIntParameter(request, "offset", 0);
 //			Long processid = ParamUtils.getLongParameter(request, "processid", -1L);
+//			Taskinfos tinfo = null;
 //			if (processid > 0) {
 //				Long projectid = 0L;
 //				ProjectModel pro = new ProjectModel();
@@ -1058,7 +1059,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 //				if (prolist.size() == 1) {
 //					projectid = prolist.get(0).getId();
 //					taskModels = taskModelDao_API.selectUndoneTaskByProjectId(projectid, limit, offset);
-//					count = taskModelDao_API.selectUndoneTaskCountByProjectId(projectid);
+//					count = 1000;//taskModelDao_API.selectUndoneTaskCountByProjectId(projectid);
 //					List<Integer> userIDInRows = new ArrayList<Integer>();
 //					List<EmployeeModel> userInRows = new ArrayList<EmployeeModel>();
 //					int size = taskModels.size();
@@ -1070,9 +1071,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 //					}
 //					if (userIDInRows.size() > 0)
 //						userInRows = emapgoAccountService.getEmployeeByIDS(userIDInRows);
-//
+
 //					for (TaskModel tm : taskModels) {
-//						Taskinfos tinfo = new Taskinfos();
+//						tinfo = new Taskinfos();
 //						tinfo.setId(tm.getId());
 //						tinfo.setProcess(tm.getProcess());
 //						tinfo.setState(tm.getState());
@@ -1095,16 +1096,24 @@ public class ProcessesManageCtrl extends BaseCtrl {
 //						}
 //						taskinfos.add(tinfo);
 //					}
+//					tinfo = new Taskinfos();
+//					tinfo.setId(1L);
+//					taskinfos.add(tinfo);
 //					
 //				}
 //			}
+//			json.addObject("rows", taskinfos);
 //		} catch (Exception e) {
 //			logger.error(e.getMessage(), e);
 //		}
 		Taskinfos t = new Taskinfos();
-		t.setId(1L);
-	  
+		t.setId(22L);
 		taskinfos.add(t);
+		
+		t = new Taskinfos();
+		t.setId(23L);
+		taskinfos.add(t);
+		
 		json.addObject("rows", taskinfos);
 		json.addObject("total", 100);
 		json.addObject("result", 1);

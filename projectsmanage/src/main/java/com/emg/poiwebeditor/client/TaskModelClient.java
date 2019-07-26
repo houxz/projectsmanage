@@ -640,6 +640,8 @@ public class TaskModelClient {
 			String sql = getModifyTaskSQLByProjectsAndUserId(projectIDs, userid);
 			task = (TaskModel) ExecuteSQLApiClientUtils.postModel(String.format(postUrl, host, port, path, SELECT),
 					contentType, "sql=" + sql, TaskModel.class);
+			
+			//如果为空再获取抽检的
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw e;
@@ -668,7 +670,20 @@ public class TaskModelClient {
 		sb.append("					where (state=0 and process=6 ) and projectid=p.projectid and ( editid= " + userid
 				+ " or editid ISNULL) ");
 		sb.append("					order by id ");
+		sb.append("					limit 1 for update), ");
+		
+		sb.append("				( select id from tb_task ");
+		sb.append("					join sorttable using(state, process) ");
+		sb.append("					where checkid=" + userid + " and projectid=p.projectid ");
+		sb.append("					order by sortvalue ,id ");
+		sb.append("					limit 1 for update), ");
+		sb.append("				( select id from tb_task ");
+		sb.append("					where (state=0 and process=6 ) and projectid=p.projectid and ( checkid= " + userid
+				+ " or checkid ISNULL) ");
+		sb.append("					order by id ");
 		sb.append("					limit 1 for update) ");
+		
+		
 		sb.append("			) as taskid ");
 		sb.append("			from projectid as p ");
 		sb.append("		) as b where taskid is not null limit 1 ");

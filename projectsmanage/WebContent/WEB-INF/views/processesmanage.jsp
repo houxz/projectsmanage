@@ -837,8 +837,17 @@
 				return params;
 			},
 			onLoadSuccess : function(data) {
-				$(this.self).bootstrapTable("load", data.rows);
+// 				$(this.self).bootstrapTable("load", data.rows);
+				$("[data-toggle='tabt']").tooltip();
 			}
+
+// $('[data-toggle="processes"]').bootstrapTable({
+// 			locale : 'zh-CN',
+// 			onLoadSuccess : function(data) {
+// 				$("[data-toggle='tooltip']").tooltip();
+// 			},
+
+
 		}, {
 			width : document.documentElement.clientWidth * 0.8,
 			title : "未完成任务信息",
@@ -863,6 +872,7 @@
 					text : "关闭",
 					"class" : "btn btn-default",
 					click : function() {
+						$("#taskinfolist").bootstrapTable('destroy');
 						$(this).dialog("close");
 					}
 				}
@@ -1098,7 +1108,7 @@
 			data-url="./processesmanage.web?atn=gettaskinfo"
 			data-side-pagination="server"
 			data-pagination="true"
-		   	data-toggle="table"
+		   	data-toggle="tabt"
 			data-height="520" data-page-list="[10, 20, 100]" data-page-size="10"
 			>
 			<thead>

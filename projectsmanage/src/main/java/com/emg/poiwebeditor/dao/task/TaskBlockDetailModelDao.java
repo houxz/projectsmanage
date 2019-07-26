@@ -445,7 +445,7 @@ public class TaskBlockDetailModelDao {
 
 				StringBuffer sql = new StringBuffer();
 				sql.append(" SELECT");
-				sql.append("	A.projectid,");
+				sql.append("	A.projectid,A.tasktype, ");
 				sql.append("	array_to_string(ARRAY(SELECT unnest(array_agg(B.poiid))),',') AS featureid,");
 				sql.append("	A.editid,");
 				sql.append("	A.checkid");
@@ -465,7 +465,7 @@ public class TaskBlockDetailModelDao {
 							+ "' )) ");
 				}
 				//sql.append(" GROUP BY A.tasktype,	A.projectid,	A.blockid,		A.editid,	A.checkid ");
-				sql.append(" GROUP BY 	A.projectid,		A.editid,	A.checkid ");
+				sql.append(" AND NOT ( A.editid = 0 and A.checkid = 0)  GROUP BY 	A.projectid,		A.editid,	A.checkid,A.tasktype ");
 
 				//TODO:
 				logger.debug("001 : group15102ByTime: " + sql.toString());

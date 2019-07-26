@@ -958,7 +958,7 @@ System.out.println(sql.toString());
 
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT");
-			sql.append("	projectid,");
+			sql.append("	projectid,tasktype,");
 			sql.append("	editid,");
 			sql.append("	sum( CASE WHEN editid > 0 THEN 1 ELSE 0 END ) AS editnum,");
 			sql.append("	checkid,");
@@ -976,7 +976,7 @@ System.out.println(sql.toString());
 						+ "')) ");
 			}
 			sql.append("	AND ( editid > 0 OR checkid > 0 ) ");
-			sql.append(" GROUP BY  projectid, editid, checkid");
+			sql.append(" GROUP BY  projectid, editid, checkid,tasktype");
 
 logger.debug(sql.toString());
 
