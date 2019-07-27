@@ -22,9 +22,9 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.emg.poiwebeditor.cache.ProductTask;
+import com.emg.poiwebeditor.client.EditTaskClient;
 import com.emg.poiwebeditor.client.POIClient;
 import com.emg.poiwebeditor.client.PublicClient;
-import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.CheckEnum;
 import com.emg.poiwebeditor.common.CommonConstants;
 import com.emg.poiwebeditor.common.ConfirmEnum;
@@ -32,8 +32,8 @@ import com.emg.poiwebeditor.common.GradeEnum;
 import com.emg.poiwebeditor.common.OpTypeEnum;
 import com.emg.poiwebeditor.common.POIAttrnameEnum;
 import com.emg.poiwebeditor.common.ParamUtils;
-import com.emg.poiwebeditor.common.RoleType;
 import com.emg.poiwebeditor.common.SystemType;
+import com.emg.poiwebeditor.common.TypeEnum;
 import com.emg.poiwebeditor.dao.process.ProcessModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectsUserModelDao;
@@ -43,8 +43,6 @@ import com.emg.poiwebeditor.pojo.POIDo;
 import com.emg.poiwebeditor.pojo.PoiMergeDO;
 import com.emg.poiwebeditor.pojo.ProcessModel;
 import com.emg.poiwebeditor.pojo.ProjectModel;
-import com.emg.poiwebeditor.pojo.ProjectModelExample;
-import com.emg.poiwebeditor.pojo.ProjectsUserModel;
 import com.emg.poiwebeditor.pojo.ReferdataModel;
 import com.emg.poiwebeditor.pojo.TagDO;
 import com.emg.poiwebeditor.pojo.TaskModel;
@@ -63,7 +61,7 @@ public class EditCtrl extends BaseCtrl {
 	@Autowired
 	private ProcessModelDao processModelDao;
 	@Autowired
-	private TaskModelClient taskModelClient;
+	private EditTaskClient taskClient;
 	@Autowired
 	private PublicClient publicClient;
 	@Autowired
@@ -88,7 +86,8 @@ public class EditCtrl extends BaseCtrl {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			// taskModelClient.updateTaskState(userid, 5, 5);
 			// task = getNextEditTask(userid);
-			task = productTask.popUserTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
+			// task = productTask.popUserEditTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
+			task = productTask.popUserTask(userid, ProductTask.TYPE_EDIT_QUENE, ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using, 0);
 			if (task != null  && task.getId() != null) {
 				Long projectid = task.getProjectid();
 				if (projectid.compareTo(0L) > 0) {
@@ -153,20 +152,22 @@ public class EditCtrl extends BaseCtrl {
 			if (poi != null) {
 				ret = poiClient.updatePOI(u, poi);
 				publicClient.updateModifiedlogs( logs);
-				taskModelClient.InsertNewPOITask(taskid, oid);
+				taskClient.InsertNewPOITask(taskid, oid);
 			}
 			if (relations != null) {
 				ret = publicClient.updateRelations(u,  relations);
 			}
 			
-			if (taskModelClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
+			//if (taskClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
+			if (taskClient.submitTask(taskid, userid, TypeEnum.edit_submit).compareTo(0L) <= 0) {
 				json.addObject("resultMsg", "任务提交失败");
 				json.addObject("result", 0);
 				return json;
 			}
-			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_MAKING);
+			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
 			if (getnext) {
-				task = productTask.popUserTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_EDIT_QUENE, ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using, 0);
+				// task = productTask.popUserEditTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
 				// task = getNextEditTask(userid);
 				logger.debug("9: " + new Date().getTime() + "");
 				if (task != null  && task.getId() != null) {
@@ -210,12 +211,14 @@ public class EditCtrl extends BaseCtrl {
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-			taskModelClient.updateModifyTask(taskid, userid, 5, 5);
+			// taskClient.updateModifyTask(taskid, userid, 5, 5);
+			taskClient.updateUsedTask(taskid, TypeEnum.edit_used);
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
-			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_MAKING);
+			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
 			if (getnext) {
 				// task = getNextEditTask(userid);
-				task = productTask.popUserTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
+				// task = productTask.popUserEditTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_EDIT_QUENE, ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using, 0);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {
@@ -454,7 +457,7 @@ public class EditCtrl extends BaseCtrl {
 		
 		logger.debug(JSON.toJSON(poi).toString());
 		POIDo savePoi = poiClient.selectPOIByOid(oid);
-		if (savePoi == null ) {
+		if (savePoi == null || savePoi.getId() == -1) {
 			// oid = poiClient.getPoiId();
 			poi.setGrade(GradeEnum.general);
 		}else {
@@ -743,7 +746,7 @@ public class EditCtrl extends BaseCtrl {
 		}
 		return relations;
 	}
-	private TaskModel getNextEditTask(Integer userid) {
+	/*private TaskModel getNextEditTask(Integer userid) {
 		logger.debug("8: " + new Date().getTime() + "");
 		TaskModel task = new TaskModel();
 		try {
@@ -786,14 +789,14 @@ public class EditCtrl extends BaseCtrl {
 					_myProjectIDs.add(myProject.getId());
 				}
 				
-				task = taskModelClient.selectMyNextEditTask(_myProjectIDs, userid);
+				task = taskClient.selectMyNextEditTask(_myProjectIDs, userid);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 		logger.debug("8.1: " + new Date().getTime() + "");
 		return task;
-	}
+	}*/
 	
 	/*private TaskModel getNextEditTask(Integer userid) {
 		logger.debug("8: " + new Date().getTime() + "");
@@ -871,15 +874,17 @@ public class EditCtrl extends BaseCtrl {
 			keyword.setId(keywordId);
 			keyword.setState(1);
 			publicClient.updateKeyword(keyword);
-			if (taskModelClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
+			//if (taskClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
+			if (taskClient.submitTask(taskid, userid, TypeEnum.edit_submit).compareTo(0L) <= 0) {
 				json.addObject("resultMsg", "任务提交失败");
 				json.addObject("result", 0);
 				return json;
 			}
-			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_MAKING);
+			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
 			if (getnext) {
 				// task = getNextEditTask(userid);
-				task = productTask.popUserTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
+				// task = productTask.popUserEditTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_EDIT_QUENE, ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using, 0);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {

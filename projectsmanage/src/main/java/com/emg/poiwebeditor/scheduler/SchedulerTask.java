@@ -4070,6 +4070,7 @@ public class SchedulerTask {
 	 *  4：任务下POI质检出错误，任务自动设置为待改错 0,6
 	 *  5: POI编辑库状态为err,但是错误库没有找到待修改的错误 数据异常
 	 *  6：POI被其他系统占用
+	 *  7：POI已经被发布过了
 	 *  
 	 */
 	private Integer isTaskAvaliable(TaskModel task) {
@@ -4127,6 +4128,12 @@ public class SchedulerTask {
 						}
 					}
 				} else {// 其他作业的点暂时不能处理：跳过任务
+					//分两种情况：1 被发布了 2 被其他系统占了
+					Integer state = task.getState();
+					if(state == 2) {//强制刷任务状态
+						taskModelClient.submitModifyTask(taskid, userid, 3);
+						return 7;
+					}
 					return 6;
 				}
 

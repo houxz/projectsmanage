@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>制作</title>
+<title>抽检</title>
 <meta charset="UTF-8" />
 <meta name="robots" content="none">
 <meta http-equiv="Pragma" content="no-cache">
@@ -81,6 +81,7 @@
 	$(document).ready(function() {
 		$.webeditor.getHead();
 		
+		
 		if (keywordid && keywordid > 0) {
 			/* loadKeyword(keywordid);
 			loadReferdatas(keywordid);
@@ -124,9 +125,12 @@
 		$.when( 
 				loadKeyword(keywordid)
 			).done(function() {
-				loadReferdatas(keywordid);
+				$.when(loadReferdatas(keywordid)
+				).done(function() {
+					loadRelatedPoi($("#curTaskID").html());
+				});
 		});
-		loadRelatedPoi($("#curTaskID").html());
+		isMarkError();
 		loadModifiedLogs(keywordid);
 	}
 	
@@ -515,7 +519,7 @@
 		}, function(json) {
 			$("table#tbEdit>tbody td.tdValue>input:text").val("");
 			if (json && json.result == 1 && json.poi != null) {
-				$("#markError").removeAttr("disabled");
+				
 				poi = json.poi;
 				systemOid = poi.id;				
 				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(poi.id);
@@ -1153,7 +1157,7 @@
 	//标识资料错误
 	function keywordError(){
 		var isLoadNextTask = $("table#tbEdit>tbody td.tdKey[data-key='isLoadNextTask']>input:checkbox").prop("checked");
-	
+		$.webeditor.showConfirmBox("alert","确实要标记当前资料错误？", function(){			
 			$.webeditor.showMsgBox("info", "数据保存中...");
 			jQuery.post("./check.web", {
 				"atn" : "keywordError",
@@ -1199,6 +1203,7 @@
 				}
 				$.webeditor.showMsgBox("close");
 			}, "json");
+		});
 	
 	}
 	
@@ -1214,6 +1219,8 @@
 		var isLoadNextTask = $("table#tbEdit>tbody td.tdKey[data-key='isLoadNextTask']>input:checkbox").prop("checked");
 		// 在抽检页面如果点被删除了，且没有新增点的话，那么不维护relation,不维护modifylog,直接获取下一个任务
 		if (oid == -1) {
+			$.webeditor.showConfirmBox("alert","确实要提交当前资料？", function(){
+		
 			jQuery.post("./check.web", {
 				"atn" : "submitchecktask",
 				"taskid" : $("#curTaskID").html(),
@@ -1234,6 +1241,7 @@
 						$.webeditor.showMsgLabel("alert", "提交失败");
 					}
 				}
+			});
 			});
 			return;
 		}
@@ -1303,17 +1311,18 @@
 		}
 		console.log("3: " + Date.now()); */
 		// 在库里保存了关系，现在取消掉，需要删除relation,且没有新增POI点，即oid为-1
-		if (databaseSaveRelation != null && relations != null && oid !="") {
-			for (var i = 0; i < databaseSaveRelation.length; i++) {
+		// currentCheckRelation
+		if (currentCheckRelation != null && relations != null && oid !="") {
+			for (var i = 0; i < currentCheckRelation.length; i++) {
 				var flag = false;			
 				for (var j = 0; j < relations.length; j++) {
-					if (relations[j].srcType == databaseSaveRelation[i].srcType && relations[j].srcInnerId == databaseSaveRelation[i].srcInnerId ) {
+					if (relations[j].srcType == currentCheckRelation[i].srcType && relations[j].srcInnerId == currentCheckRelation[i].srcInnerId ) {
 						flag = true;
 					}
 				}
 				if (!flag) {
-					databaseSaveRelation[i].del = true;
-					relations.push(databaseSaveRelation[i]);
+					currentCheckRelation[i].del = true;
+					relations.push(currentCheckRelation[i]);
 				}
 			}
 		}
@@ -1371,6 +1380,7 @@
 				}, "json");
 			});
 		}else { */
+			$.webeditor.showConfirmBox("alert","确实要提交当前资料？", function(){
 			jQuery.post("./check.web", {
 				"atn" : "submitchecktask",
 				"taskid" : $("#curTaskID").html(),
@@ -1402,6 +1412,7 @@
 				}
 			});
 		// }
+		});
 		
 		
 		$.webeditor.showMsgBox("close");
@@ -1572,17 +1583,40 @@
 	}
 	
 	function markError() {
+		$.webeditor.showConfirmBox("alert","确实要标记错误？", function(){
+	
+			jQuery.post("./check.web", {
+				"atn" : "markusererror",
+				"taskid" : $("#curTaskID").html(),
+			}, function(json) {
+				if (json && json.result == 1) {
+					$("#markError").attr("disabled", true);
+				}else {
+					$.webeditor.showMsgLabel("标记错误失败");
+				}
+			});
+		});
+		
+	}
+	
+	function isMarkError() {
 		jQuery.post("./check.web", {
-			"atn" : "markusererror",
+			"atn" : "ismarkerror",
 			"taskid" : $("#curTaskID").html(),
 		}, function(json) {
-			if (json && json.result == 1) {
-				$("#markError").attr("disabled", true);
+			if (json && json.result > 0) {
+					$('#markError').attr("disabled", "disabled");
+				
 			}else {
-				$.webeditor.showMsgLabel("标记错误失败");
+				$('#markError').removeAttr("disabled");
+			
+				//$.webeditor.showMsgLabel("查询标记错误失败");
 			}
 		});
+		
 	}
+	
+	
 </script>
 </head>
 <body>
@@ -1667,15 +1701,17 @@
 								</tr>
 							</tbody>
 						</table>
-						<div sytle="margin-bottom: 2px">
-							<button  id="markError" class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="markError();">标记错误</button>
-						</div>
+						
 						<div >
 							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="getNextTask();">稍后修改</button>
 							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="keywordError();">资料错误</button>
-							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="updatePOI();">保存</button>
+							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="updatePOI();">新增</button>
 							<button id="submitTask" class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="submitEditTask();">提交</button>
 							
+						</div>
+						<div style="margin-top:10px">
+						
+								<button  id="markError" class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="markError();">标记错误</button>
 						</div>
 					</div>
 				</div>

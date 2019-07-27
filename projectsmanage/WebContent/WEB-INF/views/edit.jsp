@@ -49,6 +49,7 @@
 	var dianpingGeo;
 	var keywordid = eval('(${keywordid})');
 	var keyword = null;
+	var systemPoi = null;
 	var systemOid = -1; // 当前编辑器左侧有OID
 	// databaseSaveRelation: 用来存储数据库中保存着的relation 关系, originalCheckRelation: 数据库中存在emg和点评的关系，但该点在现在EMG中没有，单独记录，用来做提示框条件， currentCheckRelation： 数据库中有，且已经被选中的
 	var databaseSaveRelation = [], originalCheckRelation = [], currentCheckRelation = [];
@@ -705,8 +706,9 @@
 									// 当为EMG数据时，srcinnerid则为oid
 									$(this).prop("checked", true);
 									// loadEditPOI(srcInnerId);
+									var emgFeatcode = $($(this).parents("table")[0]).find("td.tdValue[data-key='class']");
 									$.when( 
-											loadEditPOI(srcInnerId)
+											loadEditPOI(srcInnerId, emgFeatcode)
 									).done(function() {
 										source = [];
 										initArray();
@@ -744,8 +746,9 @@
 					flags[i] = true;
 					if (i == 0 ) {
 						var srcInnerId = $("#" + tbtables[i] + " input:checkbox")[0].value.split(",")[1];
+						var emgFeatcode = $($($("#" + tbtables[i] + " input:checkbox")[0]).parents("table")[0]).find("td.tdValue[data-key='class']");
 						$.when( 
-								loadEditPOI(srcInnerId)
+								loadEditPOI(srcInnerId, emgFeatcode)
 						).done(function() {
 							source = [];	
 							initArray();
@@ -1014,7 +1017,7 @@
 		//console.log("结束绘制腾讯地图: " + Date.now());
 	}
 	
-	function loadEditPOI(oid) {
+	function loadEditPOI(oid, emgFeatcode) {
 		if (!oid || oid <= 0) 	return;
 		var dtd = $.Deferred(); 
 		systemOid = oid;
@@ -1024,12 +1027,17 @@
 		}, function(json) {
 			$("table#tbEdit>tbody td.tdValue>input:text").val("");
 			if (json && json.result == 1 && json.poi != null) {
+				systemPoi = json.poi;
 				var poi = json.poi;
 				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(poi.id);
 				$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
 				$("#featcode").val(poi.featcode);
 				$("#sortcode").val(poi.sortcode);
 				$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val(poi.geo);
+				if (emgFeatcode != null) {
+					var featcode = getfeatcodename(poi.featcode);
+					emgFeatcode.text(featcode);
+				}
 				poi.poitags.forEach(function(tag, index) {
 					$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
 				});
@@ -1049,7 +1057,9 @@
 			emgSrcType = 0;
 			
 		}else if (ck.checked == true && srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
-			loadEditPOI(srcInnerId);
+			// loadEditPOI(srcInnerId);
+			var emgFeatcode = $($(ck).parents("table")[0]).find("td.tdValue[data-key='class']");
+			loadEditPOI(srcInnerId, emgFeatcode);
 			$emgmarker.setLngLat([lng, lat ]);
 			$emgmap.setCenter([lng, lat]);
 			emgSrcInnerId = srcInnerId;
@@ -1074,7 +1084,7 @@
 	
 	}
 	
-	/* function textCopy(obj) {
+	function textCopy(obj) {
 		var $this = $(obj);
 		var value = $this.parent().prev().html();
 		var key = $this.parent().prev().data("key");
@@ -1172,9 +1182,9 @@
 			
 		}
 		
-	} */
+	} 
 	
-	function textCopy(obj) {
+	/* function textCopy(obj) {
 		var $this = $(obj);
 		var value = $this.parent().prev().html();
 		var key = $this.parent().prev().data("key");
@@ -1245,7 +1255,7 @@
 			$emgmarker.setLngLat(geo);
 		}
 		
-	}
+	} */
 	//function getCode(objCodes, values, oldObj, ele) {
 	function getCode(objCodes, values,  ele) {
 		if (objCodes == null || values == null) return;
@@ -1593,7 +1603,6 @@
 				
 			}
 		}
-		console.log("3: " + Date.now());
 		// 在库里保存了关系，现在取消掉，需要删除relation,且没有新增POI点，即oid为-1
 		if (currentCheckRelation != null && (relations == null || relations.length == 0) && oid !="") {
 			for (var i = 0; i < currentCheckRelation.length; i++) {
@@ -2028,6 +2037,7 @@
 										onblur = ""
 									class="form-control input-sm" type="text"></td>
 								</tr> -->
+								<!-- <tr style="display: none;"> -->
 								<tr>
 									<td class="tdKey">类型</td>
 									<td class="tdValue" data-key="featcode">
@@ -2039,7 +2049,8 @@
 									
 									</td>
 								</tr>
-								<tr>
+								<!-- <tr style="display: none;" > -->
+								<tr  >
 									<td class="tdKey">系列</td>
 									<td class="tdValue" data-key="sortcode">
 										<!-- <input class="form-control input-sm" type="text"> -->

@@ -21,9 +21,10 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.emg.poiwebeditor.cache.ProductTask;
+import com.emg.poiwebeditor.client.CheckTaskClient;
 import com.emg.poiwebeditor.client.POIClient;
 import com.emg.poiwebeditor.client.PublicClient;
-import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.CheckEnum;
 import com.emg.poiwebeditor.common.CommonConstants;
 import com.emg.poiwebeditor.common.ConfirmEnum;
@@ -31,8 +32,8 @@ import com.emg.poiwebeditor.common.GradeEnum;
 import com.emg.poiwebeditor.common.OpTypeEnum;
 import com.emg.poiwebeditor.common.POIAttrnameEnum;
 import com.emg.poiwebeditor.common.ParamUtils;
-import com.emg.poiwebeditor.common.RoleType;
 import com.emg.poiwebeditor.common.SystemType;
+import com.emg.poiwebeditor.common.TypeEnum;
 import com.emg.poiwebeditor.dao.process.ProcessModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectsUserModelDao;
@@ -42,8 +43,6 @@ import com.emg.poiwebeditor.pojo.POIDo;
 import com.emg.poiwebeditor.pojo.PoiMergeDO;
 import com.emg.poiwebeditor.pojo.ProcessModel;
 import com.emg.poiwebeditor.pojo.ProjectModel;
-import com.emg.poiwebeditor.pojo.ProjectModelExample;
-import com.emg.poiwebeditor.pojo.ProjectsUserModel;
 import com.emg.poiwebeditor.pojo.ReferdataModel;
 import com.emg.poiwebeditor.pojo.TagDO;
 import com.emg.poiwebeditor.pojo.TaskLinkPoiModel;
@@ -63,11 +62,14 @@ public class CheckCtrl extends BaseCtrl {
 	@Autowired
 	private ProcessModelDao processModelDao;
 	@Autowired
-	private TaskModelClient taskModelClient;
+	private CheckTaskClient taskClient;
 	@Autowired
 	private PublicClient publicClient;
 	@Autowired
 	private POIClient poiClient;
+	
+	@Autowired
+	private ProductTask productTask;
 	
 	private static final int BAIDU = 45;
 	private static final int TENGXUN = 46;
@@ -80,11 +82,12 @@ public class CheckCtrl extends BaseCtrl {
 		ProjectModel project = new ProjectModel();
 		ProcessModel process = new ProcessModel();
 		Long keywordid = -1L;
-		
+		long errorId = -1l;
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			// taskModelClient.updateTaskState(userid, 5, 5);
-			task = getNextCheckTask(userid);
+			// task = getNextCheckTask(userid);
+			task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using, 0);
 			if (task != null  && task.getId() != null) {
 				Long projectid = task.getProjectid();
 				if (projectid.compareTo(0L) > 0) {
@@ -95,14 +98,14 @@ public class CheckCtrl extends BaseCtrl {
 						process = processModelDao.selectByPrimaryKey(processid);
 					}
 				}
-				
+				// errorId = taskClient.isMarkError(task.getId());
 				keywordid = task.getKeywordid();
 			}
 			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-		
+		// model.addAttribute("errorid", errorId);
 		model.addAttribute("task", task);
 		model.addAttribute("project", project);
 		model.addAttribute("process", process);
@@ -144,6 +147,11 @@ public class CheckCtrl extends BaseCtrl {
 					poi.setUid(Long.valueOf(userid));
 					ret = poiClient.updatePOI(u, poi);
 					publicClient.updateModifiedlogs( logs);
+					TaskLinkPoiModel link = taskClient.selectTaskPoi(taskid);
+					if (link != null && link.getPoiId() != null && !link.getPoiId().equals(oid)) {
+						taskClient.updateLinkPoiTask(taskid, oid);
+					}
+					
 				}
 				
 			}
@@ -154,14 +162,15 @@ public class CheckCtrl extends BaseCtrl {
 				ret = publicClient.updateRelations(u,  relations);
 			}
 			
-			if (taskModelClient.submitCheckTask(taskid, userid).compareTo(0L) <= 0) {
+			if (taskClient.submitTask(taskid, userid, TypeEnum.check_submit).compareTo(0L) <= 0) {
 				json.addObject("resultMsg", "任务提交失败");
 				json.addObject("result", 0);
 				return json;
 			}
-			
+			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
 			if (getnext) {
-				task = getNextCheckTask(userid);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using, 0);
+				// task = getNextCheckTask(userid);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {
@@ -202,11 +211,13 @@ public class CheckCtrl extends BaseCtrl {
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-			taskModelClient.updateModifyTask(taskid, userid, 5, 7);
+			// taskClient.updateModifyTask(taskid, userid, 5, 7);
+			taskClient.updateUsedTask(taskid, TypeEnum.check_used);
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
-			
+			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
 			if (getnext) {
-				task = getNextCheckTask(userid);
+				// task = getNextCheckTask(userid);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using, 0);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {
@@ -283,7 +294,7 @@ public class CheckCtrl extends BaseCtrl {
 		try {
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 			if (taskid != -1) {
-				TaskLinkPoiModel link = taskModelClient.selectTaskPoi(taskid);
+				TaskLinkPoiModel link = taskClient.selectTaskPoi(taskid);
 				if (link == null || link.getPoiId() == -1) return null;
 				long oid = link.getPoiId();
 				poi = poiClient.selectPOIByOid(oid);
@@ -471,11 +482,11 @@ public class CheckCtrl extends BaseCtrl {
 	 */
 	private boolean isSamePoi(POIDo original, POIDo goal) {
 		if (original == null || goal == null) return false;
-		if(!original.getId().equals(goal.getId())) return false;
-		if(!original.getNamec().equals(goal.getNamec())) return false;
-		if(!original.getFeatcode().equals(goal.getFeatcode())) return false;
-		if(!original.getSortcode().equals(goal.getSortcode())) return false;
-		if(!original.getGeo().equals(goal.getGeo())) return false;
+		if(original.getId() != null && !original.getId().equals(goal.getId())) return false;
+		if(original.getNamec() !=null && original.getNamec().equals(goal.getNamec())) return false;
+		if(original.getFeatcode() != null && !original.getFeatcode().equals(goal.getFeatcode())) return false;
+		if(original.getSortcode() != null && !original.getSortcode().equals(goal.getSortcode())) return false;
+		if(original.getGeo() != null && !original.getGeo().equals(goal.getGeo())) return false;
 		
 		return true;
 	}
@@ -511,17 +522,20 @@ public class CheckCtrl extends BaseCtrl {
 		
 		logger.debug(JSON.toJSON(poi).toString());
 		POIDo savePoi = poiClient.selectPOIByOid(oid);
-		if (oid < 0) {
-			oid = poiClient.getPoiId();
+		if (savePoi == null || savePoi.getId() == -1) {
+			// oid = poiClient.getPoiId();
 			poi.setGrade(GradeEnum.general);
 		}else {
 			poi.setGrade(savePoi.getGrade());
 		}
 		poi.setId(oid);
-		boolean isSame = this.isSamePoi(poi, savePoi);
-		if(isSame && !isDelete) {
-			return null;
+		if (!isDelete) {
+			boolean isSame = this.isSamePoi(poi, savePoi);
+			if(isSame && !isDelete) {
+				return null;
+			}
 		}
+		
 		
 		if (logs != null) {
 			boolean flag = false;
@@ -706,57 +720,7 @@ public class CheckCtrl extends BaseCtrl {
 		}
 		return relations;
 	}
-	private TaskModel getNextCheckTask(Integer userid) {
-		logger.debug("8: " + new Date().getTime() + "");
-		TaskModel task = new TaskModel();
-		try {
-			RoleType roleType = RoleType.ROLE_WORKER;
-			SystemType systemType = SystemType.poi_polymerize;
-			
-			List<ProjectModel> myProjects = new ArrayList<ProjectModel>();
-			
-			ProjectsUserModel record = new ProjectsUserModel();
-			record.setUserid(userid);
-			record.setRoleid(roleType.getValue());
-			
-			List<ProjectsUserModel> projectsUserModels = projectsUserModelDao.queryProjectUsers(record);
-			List<Long> myProjectIDs = new ArrayList<Long>();
-			myProjectIDs.add(-1L);
-			for (ProjectsUserModel projectsUserModel : projectsUserModels) {
-				myProjectIDs.add(Long.valueOf(projectsUserModel.getPid()));
-			}
-
-			ProjectModelExample example = new ProjectModelExample();
-			example.or()
-				.andSystemidEqualTo(systemType.getValue())
-				.andOverstateEqualTo(1)
-				.andOwnerEqualTo(1)
-				.andIdIn(myProjectIDs);
-			example.setOrderByClause("priority DESC, id");
-			myProjects.addAll(projectModelDao.selectByExample(example));
-			
-			example.clear();
-			example.or()
-				.andSystemidEqualTo(systemType.getValue())
-				.andOverstateEqualTo(1)
-				.andOwnerEqualTo(0);
-			example.setOrderByClause("priority DESC, id");
-			myProjects.addAll(projectModelDao.selectByExample(example));
-			
-			if (myProjects != null && !myProjects.isEmpty()) {
-				List<Long> _myProjectIDs = new ArrayList<Long>();
-				for (ProjectModel myProject : myProjects) {
-					_myProjectIDs.add(myProject.getId());
-				}
-				
-				task = taskModelClient.selectNextCheckTask(_myProjectIDs, userid);
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-		logger.debug("8.1: " + new Date().getTime() + "");
-		return task;
-	}
+	
 	
 	/**
 	 * keyword 打错误标识，并把根据getnext值决定是滞获取下一任务
@@ -784,14 +748,16 @@ public class CheckCtrl extends BaseCtrl {
 			keyword.setId(keywordId);
 			keyword.setState(1);
 			publicClient.updateKeyword(keyword);
-			if (taskModelClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
+			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
+			if (taskClient.submitTask(taskid, userid, TypeEnum.check_submit).compareTo(0L) <= 0) {
 				json.addObject("resultMsg", "任务提交失败");
 				json.addObject("result", 0);
 				return json;
 			}
 			
 			if (getnext) {
-				task = getNextCheckTask(userid);
+				// task = getNextCheckTask(userid);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using, 0);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {
@@ -825,12 +791,30 @@ public class CheckCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		try {
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-			taskModelClient.updateCheckTaskState(taskid);
+			taskClient.updateCheckTaskState(taskid);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 		
 		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=ismarkerror")
+	public ModelAndView isMarkError(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		long id = -1l;
+		try {
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			id = taskClient.isMarkError(taskid);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		
+		json.addObject("result", id);
 
 		logger.debug("END");
 		return json;

@@ -957,27 +957,53 @@ System.out.println(sql.toString());
 			}
 
 			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT");
-			sql.append("	projectid,tasktype,");
-			sql.append("	editid,");
-			sql.append("	sum( CASE WHEN editid > 0 THEN 1 ELSE 0 END ) AS editnum,");
-			sql.append("	checkid,");
-			sql.append("	sum( CASE WHEN checkid > 0 THEN 1 ELSE 0 END ) AS checknum ");
-			sql.append(" FROM ");
+//			sql.append(" SELECT");
+//			sql.append("	projectid,tasktype,");
+//			sql.append("	editid,");
+//			sql.append("	sum( CASE WHEN editid > 0 THEN 1 ELSE 0 END ) AS editnum,");
+//			sql.append("	checkid,");
+//			sql.append("	sum( CASE WHEN checkid > 0 THEN 1 ELSE 0 END ) AS checknum ");
+//			sql.append(" FROM ");
+//			sql.append(configDBModel.getDbschema()).append(".");
+//			sql.append(" tb_task ");
+//			sql.append(" WHERE 1 = 1 ");
+//			if (timeFlag) {
+//				sql.append("	AND starttime BETWEEN '" + startTime + "' AND '" + endTime + "' ");
+//			} else {
+//				sql.append("	AND ((starttime BETWEEN '" + String.format("%s " + "00:00:00", time) + "' AND '"
+//						+ String.format("%s " + "08:29:59", time) + "') or (starttime BETWEEN '"
+//						+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time)
+//						+ "')) ");
+//			}
+//			sql.append("	AND ( editid > 0 OR checkid > 0 ) ");
+//			sql.append(" GROUP BY  projectid, editid, checkid,tasktype");
+
+			sql.append("(SELECT	projectid,tasktype,	editid, null as checkid,sum( CASE WHEN editid > 0 THEN 1 ELSE 0 END ) AS editnum,	null as checknum FROM "); 
 			sql.append(configDBModel.getDbschema()).append(".");
-			sql.append(" tb_task ");
-			sql.append(" WHERE 1 = 1 ");
+			sql.append("tb_task  WHERE tasktype = 17001  ");
 			if (timeFlag) {
-				sql.append("	AND starttime BETWEEN '" + startTime + "' AND '" + endTime + "' ");
+					sql.append(" AND starttime BETWEEN'" + startTime + "' AND '" + endTime + "' ");
+			} else {
+					sql.append("	AND ((starttime BETWEEN '" + String.format("%s " + "00:00:00", time) + "' AND '"
+					+ String.format("%s " + "08:29:59", time) + "') or (starttime BETWEEN '"
+					+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time)
+					+ "')) ");
+			}
+			sql.append(" GROUP BY  projectid, tasktype ,editid)" );
+			sql.append(" UNION "); 
+			sql.append("(SELECT	projectid,tasktype, null as editid,checkid,null as editnum,sum( CASE WHEN checkid > 0 THEN 1 ELSE 0 END ) AS checknum FROM "); 
+			sql.append(configDBModel.getDbschema()).append(".");
+			sql.append(	"tb_task  WHERE tasktype = 17002 "); 
+			if (timeFlag) {
+				sql.append(" AND starttime BETWEEN'" + startTime + "' AND '" + endTime + "' ");
 			} else {
 				sql.append("	AND ((starttime BETWEEN '" + String.format("%s " + "00:00:00", time) + "' AND '"
-						+ String.format("%s " + "08:29:59", time) + "') or (starttime BETWEEN '"
-						+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time)
-						+ "')) ");
+				+ String.format("%s " + "08:29:59", time) + "') or (starttime BETWEEN '"
+				+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time)
+				+ "')) ");
 			}
-			sql.append("	AND ( editid > 0 OR checkid > 0 ) ");
-			sql.append(" GROUP BY  projectid, editid, checkid,tasktype");
-
+			sql.append(	"GROUP BY  projectid, tasktype , checkid) ");
+			
 logger.debug(sql.toString());
 
 			

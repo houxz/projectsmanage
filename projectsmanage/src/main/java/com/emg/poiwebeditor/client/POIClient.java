@@ -121,11 +121,8 @@ public class POIClient {
 		HttpClientResult result = null;
 		long ret = -1l;
 		if (poi != null) {
-			logger.debug("4.2: " + new Date().getTime() + "");
 			JSONObject poiJson = (JSONObject) JSON.toJSON(poi);
-			logger.debug("4.3: " + new Date().getTime() + "");
 			result = HttpClientUtils.doPostHttpClient(String.format(updatePOIInfoUrl, host, port, path), contentType, poiJson.toString());
-			logger.debug("4.4: " + new Date().getTime() + "");
 			if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
 				String isstr = result.getJson().replace("\r\n", "");
 				ret =  Long.parseLong(isstr);

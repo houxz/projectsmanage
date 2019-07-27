@@ -1,9 +1,7 @@
 package com.emg.poiwebeditor.cache;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -13,12 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import com.emg.poiwebeditor.client.TaskModelClient;
+import com.emg.poiwebeditor.client.TaskClient;
 import com.emg.poiwebeditor.common.RoleType;
 import com.emg.poiwebeditor.common.SystemType;
+import com.emg.poiwebeditor.common.TypeEnum;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.poiwebeditor.pojo.ProjectModel;
@@ -26,16 +24,8 @@ import com.emg.poiwebeditor.pojo.ProjectModelExample;
 import com.emg.poiwebeditor.pojo.ProjectsUserModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
 
-/**
- * 定时获取任务
- * 1. 任务采用消息队列listopration, key: type_userid,例：task_1146, 现在type有：task(制作), check（抽检）
- * 2. 当任务在获取之后，一刷新时会自动获取下一任务，但可能当前任务并没有处理完，为了解决这种问题，加了一种机制，拿出来的当前正在处理的任务，单独缓存以String, object的形式进行缓存，
- * 		以防止作业人员频繁刷新， 其中当前制作中的任务key：type_userid_current， 例：task_1146_current， 当提交里把该缓存清掉
- * @author Administrator
- *
- */
-@Component
-public class ProductTask {
+@Service
+public  class ProductTask {
 	private static final Logger logger = LoggerFactory.getLogger(ProductTask.class);
 	@Autowired
     private RedisTemplate<String, Object> redisTemplate;
@@ -44,11 +34,16 @@ public class ProductTask {
 	@Autowired
 	private ProjectModelDao projectModelDao;
 	@Autowired
-	private TaskModelClient taskModelClient;
+	private TaskClient taskClient;
 	//制作任务缓存的消息队列 type
-	public static final String TYPE_QUENE = "001task";
+	public static final String TYPE_EDIT_QUENE = "001task";
 	//制作中缓存的当前任务type
-	public static final String TYPE_MAKING = "002task";
+	public static final String TYPE_EDIT_MAKING = "002task";
+	
+	//制作任务缓存的消息队列 type
+		public static final String TYPE_CHECK_QUENE = "001check";
+		//制作中缓存的当前任务type
+		public static final String TYPE_CHECK_MAKING = "002check";
 	
 	public static final int STATE_1 = 1;
 	
@@ -65,52 +60,21 @@ public class ProductTask {
 	private ValueOperations<String, TaskModel> valueOperations;
 	
 	// 默认在队列里缓存30个
-	private static final int userTaskCache = 20;
+	public static final int userTaskCache = 20;
 	
-    public void sendMessage(String channel, Serializable message) {
-        redisTemplate.convertAndSend(channel, message);
-    }
-    
-
-    
-    /**
-     * 获取所有缓存着的队列ID
-     * @return
-     */
-    @Scheduled(cron = "${scheduler.gettask.dotime}")
-    public List<Long> getAllUserId() {
-    	Set<String> keys = redisTemplate.keys("task*");
-    	
-    	for (String key : keys) {
-    		// 人员的任务缓存模式key为001task_userid, 每个人都对应着一个消息队列
-    		if (key.indexOf("_") < 0 || key.indexOf("001") < 0) continue;
-    		String u = key.split("_")[1];
-    		int userid = Integer.parseInt(u);
-    		if (userid <1) continue;
-    		
-    		long length = listOps.size(key);
-    		if (length < userTaskCache) {
-    			List<TaskModel> tasks = this.getUserTask_init(userid, userTaskCache - length);
-    			listOps.leftPushAll(key, tasks);
-    			/*for(long i =  userTaskCache - length; i < userTaskCache; i++) {
-    			TaskModel task = this.getNextEditTask(userid);
-				listOps.leftPush(key, task);
-    			}*/
-    			
-    		}
-    		
-    	}
-    	return null;
-    }
-    
+	
+	 
+   
     
     
     /**
-     * 首次登陆时加载用户的20个任务
+     *  首次登陆时加载用户的20个任务，（1） 先看缓存里面有没有，如果有，够不够限定任务数，目前设置为20，如果不够则加载够20， （2）如果缓存里面没有则先去加载用户占用的任务，加载之后如果不足20个，再去加载初始状态的任务，加载满20个任务
      * @param user
      * @param type
+     * @param typeInit 拿用户初始状态
+     * @param typeUsing 用户占用状态
      */
-    public void loadUserTask(int user, String type) {
+    public void loadUserTask(int user, String type, TypeEnum typeInit, TypeEnum typeUsing) {
     	
     	String key = type + "_" + user;
     	if (redisTemplate.hasKey(key)) {
@@ -120,39 +84,48 @@ public class ProductTask {
     		
     		long length = listOps.size(key);
     		if (length < userTaskCache) {
-    			List<TaskModel> tasks = this.getUserTask_init(userid, userTaskCache - length);
-    			listOps.leftPushAll(key, tasks);
+    			List<TaskModel> tasks = this.getUserTask_init(userid, userTaskCache - length, typeInit, typeUsing);
+    			if(tasks != null && !tasks.isEmpty())listOps.leftPushAll(key, tasks);
     			    			
     		}
     	}else {
-    		List<TaskModel> tasks = this.getUserTask(user, userTaskCache);
-    		if (tasks != null && tasks.size() > 0)      	listOps.leftPushAll(key, tasks);
-        	if (tasks.size() < userTaskCache) {
-        		List<TaskModel> tasks2 = this.getUserTask_init(user, userTaskCache);
-        		listOps.leftPushAll(key, tasks2);
+    		List<TaskModel> tasks = this.getUserTask(user, userTaskCache, typeUsing);
+    		if(tasks != null && !tasks.isEmpty())      	listOps.leftPushAll(key, tasks);
+        	if (tasks != null && tasks.size() < userTaskCache) {
+        		List<TaskModel> tasks2 = this.getUserTask_init(user, userTaskCache - tasks.size(), typeInit, typeUsing);
+        		if(tasks2 != null && !tasks2.isEmpty()) listOps.leftPushAll(key, tasks2);
+        	}else if(tasks == null) {
+        		List<TaskModel> tasks2 = this.getUserTask_init(user, userTaskCache, typeInit, typeUsing);
+        		if(tasks2 != null && !tasks2.isEmpty()) listOps.leftPushAll(key, tasks2);
         	}
     	}
 		
     }
     
     /**
-     * 获取需要执行的下一个任务， 先从缓存的当前正在执行的任务里面拿，如果没有，再从消息队列里面拿
+     *  获取需要执行的下一个任务， 先从缓存的当前正在执行的任务里面拿，如果没有，再从消息队列里面拿
      * @param user
-     * @param type消息队列的type
-     * @param 制作中的type
+     * @param type 消息队列的标识
+     * @param typemaking 缓存里面当前任务的标识
+     * @param typeInit 初始状态的任务
+     * @param typeUsed 已经占用状态的任务
      * @return
      */
-    public TaskModel popUserTask(int user, String type, String typemaking) {
+    public TaskModel popUserTask(int user, String type, String typemaking, TypeEnum typeInit, TypeEnum typeUsed, int index) {
+    	//用来缓解递归调用太多次，当此人消息队列中做完了，又在重新分配新任务的时候，及时获取到新分配的任务
+    	if (index > 1) return null;
     	String key = typemaking + "_" + user + "_current";
-    	if (redisTemplate.hasKey(key)) {
+    	if (redisTemplate.hasKey(key) && valueOperations.size(key) > 0) {
     		return valueOperations.get(key);
     	}else {
     		String k2  = type + "_" + user;
         	TaskModel task = listOps.rightPop(k2);
-        	valueOperations.set(key, task);
-        	if (listOps.size(k2) < 3) {
-        		this.loadUserTask(user, type);
+        	
+        	if (listOps.size(k2) < 3 || task == null) {
+        		this.loadUserTask(user, type, typeInit, typeUsed);
         	}
+        	if (task == null) task = this.popUserTask(user, type, typemaking, typeInit, typeUsed, ++index);
+        	valueOperations.set(key, task);
         	return task;
     	}
     	
@@ -165,11 +138,11 @@ public class ProductTask {
      * @param type
      * @return
      */
-    public void removeUserTask(int user, String type, int state, int process) throws Exception{
+    public void removeUserTask(int user, String type, TypeEnum typeEnum) throws Exception{
     	String key = type + "_" + user;
     	redisTemplate.delete(key);
     	
-    	taskModelClient.initTaskState(user, state, process);
+    	taskClient.initTaskState(user, typeEnum);
     }
     
     /**
@@ -190,12 +163,12 @@ public class ProductTask {
      * @param num
      * @return
      */
-    private List<TaskModel> getUserTask(Integer userid, long num) {
+    private List<TaskModel> getUserTask(Integer userid, long num, TypeEnum type) {
     	List<TaskModel> tasks = null;
 		try {
 			List<Long> _myProjectIDs = this.getProjectIds(userid);
 			if (_myProjectIDs != null && !_myProjectIDs.isEmpty()) {
-				tasks = taskModelClient.selectUserTask(_myProjectIDs, userid, num);
+				tasks = taskClient.selectUserTask(_myProjectIDs, userid, num, type);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -209,12 +182,12 @@ public class ProductTask {
      * @param num
      * @return
      */
-    private List<TaskModel> getUserTask_init(Integer userid, long num) {
+    private List<TaskModel> getUserTask_init(Integer userid, long num, TypeEnum init, TypeEnum using) {
     	List<TaskModel> tasks = null;
 		try {
 			List<Long> _myProjectIDs = this.getProjectIds(userid);
 			if (_myProjectIDs != null && !_myProjectIDs.isEmpty()) {
-				tasks = taskModelClient.selectUserInitTask(_myProjectIDs, userid, num);
+				tasks = taskClient.selectUserInitTask(_myProjectIDs, userid, num,init, using);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -222,7 +195,7 @@ public class ProductTask {
 		return tasks;
 	}
     
-    private List<Long> getProjectIds(int userid) {
+    public List<Long> getProjectIds(int userid) {
     	List<Long> _myProjectIDs = new ArrayList<Long>();
     	try {
 			RoleType roleType = RoleType.ROLE_WORKER;

@@ -195,6 +195,7 @@
 	}
 	
 	function createproject(){
+		showtip();
 		var tbodytrs = $("#spotcheckeditid tbody>tr");
 		var array = new Array();
 		var iscancreate = true;
@@ -246,6 +247,37 @@
 	}
 	
 
+	showLoading = function(){
+	　　　　$('#loadingModal').modal({backdrop: 'static', keyboard: false});
+	　　}
+	　　hideLoading = function(){
+	　　　　$('#loadingModal').modal('hide');
+	　　}
+
+	function showtip(){
+		 $.ajax({
+	            url: 'checkprocessesmanage.web&&' + 'run_task/',
+	            data: {},
+	            beforeSend:function () {
+	                showLoading()
+	            },
+	            complete:function(){
+	                hideLoading()
+	            },
+	            success: function (res) {
+	                console.log(res.data)
+	         		 var _html = ' ';
+	                var list = res.data;
+	                var tpl = $('#task_list_tpl').html();
+	                for (var i = 0, len = list.length; i < len; i++) {
+	                    var item = list[i];
+	                    _html += renderTpl(tpl, item)
+	                }
+	                $('.ranger-box2 tbody').html(_html);
+	            }
+	        })
+	}
+	
 </script>
 
 </head>
@@ -329,5 +361,15 @@
 			</thead>
 		</table>
 	</div>
+	
+	<div class="modal fade" id="loadingModal" backdrop="static" keyboard="false">
+　　<div style="width: 200px;height:20px; z-index: 20000; position: absolute; text-align: center; left: 50%; top: 50%;margin-left:-100px;margin-top:-10px">
+　　　　<div class="progress progress-striped active" style="margin-bottom: 0;">
+        ![loadding](https://imgconvert.csdnimg.cn/aHR0cHM6Ly9tYWdpY2JveC5iay50ZW5jZW50LmNvbS9zdGF0aWNfYXBpL3YzL2NvbXBvbmVudHMvbG9hZGluZzEvaW1hZ2VzL2xvYWRpbmdfMl8yNHgyNC5naWY) 数据加载中,请稍候...
+　　　　</div>
+　　</div>
+</div>
+
+	
 </body>
 </html>

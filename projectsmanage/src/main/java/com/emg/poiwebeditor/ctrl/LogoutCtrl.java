@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.emg.poiwebeditor.cache.ProductTask;
-import com.emg.poiwebeditor.client.TaskModelClient;
+import com.emg.poiwebeditor.client.TaskClient;
 import com.emg.poiwebeditor.common.CommonConstants;
+import com.emg.poiwebeditor.common.TypeEnum;
 import com.emg.poiwebeditor.dao.projectsmanager.LogModelDao;
 import com.emg.poiwebeditor.pojo.LogModel;
 
@@ -34,7 +35,7 @@ public class LogoutCtrl extends BaseCtrl {
 	private LogModelDao logModelDao;
 	
 	@Autowired
-	private TaskModelClient taskModelClient;
+	private TaskClient taskClient;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String logout(Model model, HttpSession session, HttpServletRequest request, HttpServletResponse response) {
@@ -53,10 +54,17 @@ public class LogoutCtrl extends BaseCtrl {
 			
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			if (auth != null) {
-				productTask.removeUserTask(userid, ProductTask.TYPE_QUENE, ProductTask.STATE_1, ProductTask.PROCESS_5);
-				productTask.removeCurrentUserTask(userid, ProductTask.TYPE_MAKING);
+				//把占用的制作任务恢复到初始状态
+				productTask.removeUserTask(userid, ProductTask.TYPE_EDIT_QUENE, TypeEnum.edit_using);
+				productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				//把占用的校正任务恢复为初始状态
+				productTask.removeUserTask(userid, ProductTask.TYPE_CHECK_QUENE, TypeEnum.check_using);
+				productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
 				Thread.sleep(500);
-				taskModelClient.updateTaskState(userid, 1, 5);
+				// taskClient.updateTaskState(userid, 1, 5);
+				//把稍后修改的置为初始状态
+				taskClient.updateTaskState(userid, TypeEnum.edit_using, TypeEnum.edit_used);
+				taskClient.updateTaskState(userid, TypeEnum.check_using, TypeEnum.check_used);
 				new SecurityContextLogoutHandler().logout(request, response, auth);
 				
 			}

@@ -43,13 +43,6 @@
 		
 		$('[data-toggle="processes"]').bootstrapTable({
 			locale : 'zh-CN',
-//		 	单击单元格时
-			onClickCell(field,value,row, $element){
-				if(field != "progress")
-					return;
-				var processid = row.id;
-				showTaskinfo(processid);
-			},
 			onLoadSuccess : function(data) {
 				$("[data-toggle='tooltip']").tooltip();
 			},
@@ -78,10 +71,6 @@
 	var processStates = eval('(${processStates})');
 	var processTypes = eval('(${processTypes})');
 	var priorityLevels = eval('(${priorityLevels})');
-	
-
-
-	
 	
 	function checkboxFormat(value, row, index) {
 		var workers = $("#" + this.valueBand).val();
@@ -829,89 +818,6 @@
         return fmt;  
     }
 	//add by lianhr end
-	
-	function showTaskinfo(processid) {
-		$("#taskinfoDlg").bootstrapDialog({
-			queryParams:function(params) {
-				params["processid"]= processid;
-				return params;
-			},
-			onLoadSuccess : function(data) {
-// 				$(this.self).bootstrapTable("load", data.rows);
-				$("[data-toggle='tabt']").tooltip();
-			}
-
-// $('[data-toggle="processes"]').bootstrapTable({
-// 			locale : 'zh-CN',
-// 			onLoadSuccess : function(data) {
-// 				$("[data-toggle='tooltip']").tooltip();
-// 			},
-
-
-		}, {
-			width : document.documentElement.clientWidth * 0.8,
-			title : "未完成任务信息",
-			buttons : [
-				{
-					text : "<",
-					title : "上一条",
-					class : "btn btn-default",
-					click : function() {
-						$(this).find("table").bootstrapTable("gotoLast");
-					}
-				},
-				{
-					text : ">",
-					title : "下一条",
-					class : "btn btn-default",
-					click : function() {
-						$(this).find("table").bootstrapTable("nextPage");
-					}
-				},
-				{
-					text : "关闭",
-					"class" : "btn btn-default",
-					click : function() {
-						$("#taskinfolist").bootstrapTable('destroy');
-						$(this).dialog("close");
-					}
-				}
-			]
-		});
-	}
-	
-	function taskState(value, row, index){
-		var state = row.state;
-		var process = row.process;
-		if( state == 0 && process == 0){
-			return "新任务";
-		}else if(state == 1 && process == 5){
-			return "制作中";
-		}else if(state ==2 && process == 5){
-			return "待质检";
-		}else if(state ==5 && process == 5){
-			return "制作跳过";
-		} else if(state = 0 && process == 6){
-			return "待改错";
-		}else if(state == 1 && process == 6){
-			return "改错中";
-		}else if(state == 2 && process == 6){
-			return "待质检";
-		}else if(state == 0 && process == 7){
-			return "抽检待作业";
-		}
-		else if(state == 1 && process == 7){
-			return "抽检中";
-		}else if(state ==2 && process == 7){
-			return "待质检";
-		}else{
-			var ret = state;
-			ret +=",";
-			ret += process;
-			return ret;
-		}
-	}
-	
 </script>
 
 </head>
@@ -1098,26 +1004,6 @@
 						
 					<th data-field="batchid" data-width="180"
 						data-filter-control="input" data-filter-control-placeholder="">批次号</th>
-				</tr>
-			</thead>
-		</table>
-	</div>
-	<div id="taskinfoDlg" style="display: none;">
-		<table id="taskinfolist" class="table-condensed"
-			data-unique-id="id2" 
-			data-url="./processesmanage.web?atn=gettaskinfo"
-			data-side-pagination="server"
-			data-pagination="true"
-		   	data-toggle="tabt"
-			data-height="520" data-page-list="[10, 20, 100]" data-page-size="10"
-			>
-			<thead>
-				<tr>
-					<th data-field="id"  data-width="150">编号</th>
-					<th data-field="taskstate" data-formatter = "taskState" data-width="160" >状态</th>
-					<th data-field="editname"  data-width="160">制作人</th>
-					<th data-field="checkname" data-width="160">抽检人</th>
-					<th data-field="processid" data-width="160">项目编号</th>
 				</tr>
 			</thead>
 		</table>

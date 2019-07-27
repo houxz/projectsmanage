@@ -13,9 +13,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.emg.poiwebeditor.cache.ProductTask;
-import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.CommonConstants;
 import com.emg.poiwebeditor.common.RoleType;
+import com.emg.poiwebeditor.common.TypeEnum;
 import com.emg.poiwebeditor.dao.projectsmanager.LogModelDao;
 import com.emg.poiwebeditor.pojo.EmployeeModel;
 import com.emg.poiwebeditor.pojo.LogModel;
@@ -71,7 +71,8 @@ public class LoginCtrl extends BaseCtrl {
 				userid = user.getId();
 				realname = user.getRealname();
 				
-				productTask.loadUserTask(userid, ProductTask.TYPE_QUENE);
+				productTask.loadUserTask(userid, ProductTask.TYPE_EDIT_QUENE, TypeEnum.edit_init, TypeEnum.edit_using);
+				productTask.loadUserTask(userid, ProductTask.TYPE_CHECK_QUENE, TypeEnum.check_init, TypeEnum.check_using);
 			}
 			
 			session.setAttribute(CommonConstants.SESSION_USER_ACC, account);
