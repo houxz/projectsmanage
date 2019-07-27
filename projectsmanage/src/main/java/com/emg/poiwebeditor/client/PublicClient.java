@@ -1,8 +1,10 @@
 package com.emg.poiwebeditor.client;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +20,7 @@ import com.emg.poiwebeditor.pojo.KeywordModel;
 import com.emg.poiwebeditor.pojo.ModifiedlogDO;
 import com.emg.poiwebeditor.pojo.PoiMergeDO;
 import com.emg.poiwebeditor.pojo.ReferdataModel;
+import com.emg.poiwebeditor.pojo.TaskModel;
 
 @Service
 public class PublicClient {
@@ -64,6 +67,33 @@ public class PublicClient {
 		}
 		
 		return keyword;
+	}
+	
+	public List<KeywordModel> selectKeywordsByIDs(List<Long> keywordids) throws Exception {
+		List<KeywordModel> keywordlist = new ArrayList< KeywordModel>();
+		try {
+			HttpClientResult result = HttpClientUtils.doGet(String.format(selectKeywordsByIDUrl, host, port, path, StringUtils.join(keywordids, ",")));
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			
+			Object json = JSONArray.parse(result.getJson());
+			if (json instanceof JSONArray) {
+				JSONArray array = (JSONArray)json;
+				if (array.size() <1) return keywordlist;
+				for(int i = 0 ;i < array.size(); i++) {
+					JSONObject data = ((JSONArray) json).getJSONObject(i);
+					KeywordModel keyword = JSON.parseObject(data.toJSONString(), KeywordModel.class);
+					keywordlist.add(keyword);
+				}
+			}
+			
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return keywordlist;
 	}
 	
 	public List<ReferdataModel> selectReferdatasByKeywordid(Long keywordid) throws Exception {
@@ -155,7 +185,7 @@ public class PublicClient {
 	}
 	
 	/**
-	 * 根据keyword去查询relation,如果有存在的relation则根据找到的关系中的oid,再去查找跟该relation相关的relation
+	 * 锟斤拷锟斤拷keyword去锟斤拷询relation,锟斤拷锟斤拷写锟斤拷诘锟絩elation锟斤拷锟斤拷锟斤拷业锟斤拷墓锟较碉拷械锟給id,锟斤拷去锟斤拷锟揭革拷锟斤拷relation锟斤拷氐锟絩elation
 	 * @param oid
 	 * @return
 	 * @throws Exception
@@ -187,7 +217,7 @@ public class PublicClient {
 	}
 	
 	/**
-	 * 根据keyword去查询relation,如果有存在的relation则根据找到的关系中的oid,再去查找跟该relation相关的relation
+	 * 锟斤拷锟斤拷keyword去锟斤拷询relation,锟斤拷锟斤拷写锟斤拷诘锟絩elation锟斤拷锟斤拷锟斤拷业锟斤拷墓锟较碉拷械锟給id,锟斤拷去锟斤拷锟揭革拷锟斤拷relation锟斤拷氐锟絩elation
 	 * @param oid
 	 * @return
 	 * @throws Exception
@@ -219,7 +249,7 @@ public class PublicClient {
 	}
 	
 	/**
-	 * 根据keyword去查询relation,如果有存在的relation则根据找到的关系中的oid,再去查找跟该relation相关的relation
+	 * 锟斤拷锟斤拷keyword去锟斤拷询relation,锟斤拷锟斤拷写锟斤拷诘锟絩elation锟斤拷锟斤拷锟斤拷业锟斤拷墓锟较碉拷械锟給id,锟斤拷去锟斤拷锟揭革拷锟斤拷relation锟斤拷氐锟絩elation
 	 * @param oid
 	 * @return
 	 * @throws Exception

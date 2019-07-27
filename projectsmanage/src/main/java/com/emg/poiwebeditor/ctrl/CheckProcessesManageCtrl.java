@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.emg.poiwebeditor.client.PublicClient;
 import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.CommonConstants;
 import com.emg.poiwebeditor.common.ParamUtils;
@@ -35,6 +36,7 @@ import com.emg.poiwebeditor.dao.process.ProcessModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
 import com.emg.poiwebeditor.pojo.EmployeeModel;
+import com.emg.poiwebeditor.pojo.KeywordModel;
 import com.emg.poiwebeditor.pojo.ProcessConfigModel;
 import com.emg.poiwebeditor.pojo.ProcessConfigValueModel;
 import com.emg.poiwebeditor.pojo.ProcessModel;
@@ -71,6 +73,8 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 	private ProcessConfigModelService processConfigModelService;
 	@Autowired
 	private ProcessConfigValueModelDao processConfigValueModelDao;
+	@Autowired
+	private PublicClient publicClient;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
@@ -327,8 +331,23 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 					for(int j = 0 ;j < length ; j++) {
 						editid = spotlist[j].getEditid();
 						
-						List<TaskModel> tasklist = taskModelClient.selectSpotCheckProjectInfo2(projectid, editid );
+						List<TaskModel> tasklist2 = taskModelClient.selectSpotCheckProjectInfo2(projectid, editid );
+						List<Long> keywordids = new ArrayList<Long>();
+						for(TaskModel tm:tasklist2)
+							keywordids.add(tm.getKeywordid());
+						List<KeywordModel> keylist = publicClient.selectKeywordsByIDs(keywordids);
 						
+						List<TaskModel> tasklist = new ArrayList<TaskModel>();
+						for(TaskModel tm:tasklist2) {
+							for( KeywordModel km :keylist) {
+								if(km.getId().equals(tm.getKeywordid())) {
+									Integer state = km.getState();
+									if( state.equals(0))
+										tasklist.add(tm);
+									break;
+								}
+							}
+						}
 						List<SpotCheckProjectInfo> pinfolist = taskModelClient.selectSpotCheckProjectInfo( projectid,editid );
 						int pinfocount = pinfolist.size();
 						

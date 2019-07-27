@@ -866,7 +866,7 @@ public class TaskModelClient {
 		List<TaskModel> tasklist = new ArrayList<TaskModel>();
 		try {
 			StringBuilder sb = new StringBuilder();
-			sb.append("select id from tb_task  where projectid= "+ projectid);
+			sb.append("select id,keywordid from tb_task  where projectid= "+ projectid);
 			sb.append(" and editid =" + editid);
 			sb.append(" and state = 3 and (select count(1) as num from tb_spotchecktask_link_task where tb_task.id = tb_spotchecktask_link_task.oldtaskid) = 0 " );
 			String sql = sb.toString();
