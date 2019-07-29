@@ -37,6 +37,7 @@ import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
 import com.emg.poiwebeditor.pojo.EmployeeModel;
 import com.emg.poiwebeditor.pojo.KeywordModel;
+import com.emg.poiwebeditor.pojo.PoiMergeDO;
 import com.emg.poiwebeditor.pojo.ProcessConfigModel;
 import com.emg.poiwebeditor.pojo.ProcessConfigValueModel;
 import com.emg.poiwebeditor.pojo.ProcessModel;
@@ -201,11 +202,8 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 								}
 							}
 						}
-						
 					}
-					
-					
-					
+
 					json.addObject("rows",tasklist);
 					json.addObject("total", totalcount);
 					json.addObject("processid", processid);
@@ -369,8 +367,27 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 						Long[]spotchecktaskids= getRandomFromArray(taskids , newtaskcount);
 						Integer newctcount = 0;
 						for( int n = 0 ; n < spotchecktaskids.length;n++) {
-							boolean bret =	taskModelClient.createspotchecktask(spotchecktaskids[n], spotlist[j].getNewprojectid() );
-							if( bret) {
+							TaskModel task = 	taskModelClient.createspotchecktask(spotchecktaskids[n], spotlist[j].getNewprojectid() );
+							if( task != null) {
+								Long taskid = task.getId();
+								KeywordModel keyw = publicClient.selectKeywordsByID(task.getKeywordid());
+								Long featureid = 0L;
+								if( keyw != null) {
+									Integer srctype = keyw.getSrcType();
+									String  srcinnerid = keyw.getSrcInnerId();
+									List<PoiMergeDO>  relationlist =  publicClient.selectPOIRelation(srcinnerid,srctype);
+									int resize = relationlist.size();
+									for( PoiMergeDO pm : relationlist) {
+										int srctypetmp = pm.getSrcType();
+										String srcinneridtmp = pm.getSrcInnerId();
+										if(srctype.equals( srctypetmp) && srcinneridtmp.equals( srcinnerid )) {
+											featureid = pm.getOid();
+											break;
+										}
+									}											
+								}//if( keyw != null) {
+								taskModelClient.updatetasklinkpoi(taskid,featureid);
+								
 								newctcount++;
 							}
 						}

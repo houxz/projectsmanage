@@ -887,11 +887,10 @@ public class TaskModelClient {
 	}
 	
 	//创建抽检任务
-	public boolean createspotchecktask(Long taskid, Long newprojectid) throws Exception {
+	public TaskModel createspotchecktask(Long taskid, Long newprojectid) throws Exception {
 		boolean bret = false;
+		TaskModel task = null;
 		try {
-			
-			TaskModel task = null;
 			StringBuilder sb = new StringBuilder();
 			sb.append("insert into tb_task(keywordid, tasktype,projectid)  values( (select keywordid from tb_task where id = "+ taskid);
 			sb.append(" ),17002," + newprojectid);
@@ -904,16 +903,17 @@ public class TaskModelClient {
 			
 			
 			if(task != null) {
-				StringBuilder sb2 = new StringBuilder();
-				//数据问题： 有一个oid 写多次情况
-				sb2.append("insert into tb_task_link_poi(poiid,taskid)values( (select distinct poiid from tb_task_link_poi where taskid="+taskid);
-				sb2.append(" )," + task.getId());
-				sb2.append(")");
-				System.out.println(sb2.toString());
-				
-				Long ret = ExecuteSQLApiClientUtils.update( String.format(getUrl, host,port,path,UPDATE,
-						URLEncoder.encode(URLEncoder.encode(sb2.toString(), "utf-8"),"utf-8")));
-				if (ret > 0) {
+//				StringBuilder sb2 = new StringBuilder();
+//				//数据问题： 有一个oid 写多次情况
+//				sb2.append("insert into tb_task_link_poi(poiid,taskid)values( (select distinct poiid from tb_task_link_poi where taskid="+taskid);
+//				sb2.append(" )," + task.getId());
+//				sb2.append(")");
+//				System.out.println(sb2.toString());
+//				
+//				Long ret = ExecuteSQLApiClientUtils.update( String.format(getUrl, host,port,path,UPDATE,
+//						URLEncoder.encode(URLEncoder.encode(sb2.toString(), "utf-8"),"utf-8")));
+//				if (ret > 0) {
+					Long ret = 0L;
 					StringBuilder sb3 = new StringBuilder();
 					sb3.append("insert into tb_spotchecktask_link_task (oldtaskid,newtaskid)values(" + taskid);
 					sb3.append("," + task.getId());
@@ -923,10 +923,34 @@ public class TaskModelClient {
 					ret = ExecuteSQLApiClientUtils.update( String.format(getUrl, host,port,path,UPDATE,
 							URLEncoder.encode(URLEncoder.encode(sb3.toString(), "utf-8"),"utf-8")));
 					bret = true;
-				}
+//				}
 
 			}
 			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+
+		return task;
+	}
+	
+	public boolean updatetasklinkpoi(Long taskid, Long poiid) throws Exception {
+		boolean bret = false;
+		try {
+			
+				StringBuilder sb2 = new StringBuilder();
+				//数据问题： 有一个oid 写多次情况
+				sb2.append("insert into tb_task_link_poi(poiid,taskid)values("+poiid);
+				sb2.append(" ," + taskid);
+				sb2.append(")");
+				System.out.println(sb2.toString());
+				
+				Long ret = ExecuteSQLApiClientUtils.update( String.format(getUrl, host,port,path,UPDATE,
+						URLEncoder.encode(URLEncoder.encode(sb2.toString(), "utf-8"),"utf-8")));
+	
+			    if( ret > 0)
+			    	bret = true;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw e;
