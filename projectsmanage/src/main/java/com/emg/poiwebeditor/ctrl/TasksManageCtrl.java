@@ -66,8 +66,18 @@ public class TasksManageCtrl extends BaseCtrl {
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START");
-		model.addAttribute("processTypes", ProcessType.toJsonStr());
-		model.addAttribute("taskTypes", TaskTypeEnum.toJsonStr());	
+//		model.addAttribute("processTypes", ProcessType.toJsonStr());
+//		model.addAttribute("taskTypes", TaskTypeEnum.toJsonStr());	
+		
+		String strprocesstype = String.format("{\"%d\":\"%s\"}",ProcessType.POIPOLYMERIZE.getValue(), ProcessType.POIPOLYMERIZE.getDes() );// (ProcessType.POIPOLYMERIZE).toJsonStr();
+		String strtasktype = String.format("{\"%d\":\"%s\",\"%d\":\"%s\"}",TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), TaskTypeEnum.POIPOLYMERIZE_EDIT.getDes(),
+				TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), TaskTypeEnum.POIPOLYMERIZE_CHECK.getDes()); // TaskTypeEnum.POIPOLYMERIZE.toJsonStr();
+	
+//		String strprocesstype = String.format("{\"%d\":\"%s\"}",ProcessType.POIPOLYMERIZE.getValue(), ProcessType.POIPOLYMERIZE.getDes() );
+//		String strtasktype = String.format("{\"%d\":\"%s\"}",TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), TaskTypeEnum.POIPOLYMERIZE_EDIT.getDes()); 
+		
+		model.addAttribute("processTypes", strprocesstype);
+		model.addAttribute("taskTypes", strtasktype);
 		model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
 		model.addAttribute("processStates", ProcessState.toJsonStr());
 		return "tasksmanage";
@@ -84,7 +94,7 @@ public class TasksManageCtrl extends BaseCtrl {
 			String filter = ParamUtils.getParameter(request, "filter", "");
 
 			TaskModel record = new TaskModel();
-			ProcessType processType = ProcessType.ATTACH;
+			ProcessType processType =  ProcessType.POIPOLYMERIZE;// ProcessType.ATTACH;
 
 			Map<String, Object> filterPara = null;
 			List<Long> projectids = null;
@@ -96,7 +106,7 @@ public class TasksManageCtrl extends BaseCtrl {
 			List<StateMap> stateMaps = new ArrayList<StateMap>();
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
-				processType = ProcessType.valueOf(Integer.valueOf(filterPara.get("processtype").toString()));
+//				processType = ProcessType.valueOf(Integer.valueOf(filterPara.get("processtype").toString()));
 				for (String key : filterPara.keySet()) {
 					switch (key) {
 					case "processid":
@@ -398,6 +408,7 @@ public class TasksManageCtrl extends BaseCtrl {
 	}
 
 	private List<StateMap> getStateMap(ProcessType processType, String stateDes) {
+System.out.println("============getStateMap()=====================");		
 		List<StateMap> stateMaps = new ArrayList<StateMap>();
 		try {
 			switch (processType) {
@@ -617,6 +628,41 @@ public class TasksManageCtrl extends BaseCtrl {
 					break;
 				}
 				break;
+			case POIPOLYMERIZE:
+				switch (stateDes) {
+				case "未制作":
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					break;
+				case "制作中":
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					break;
+				case "完成":
+					
+					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(3, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(3, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					stateMaps.add(new StateMap(3, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					break;
+				case "待质检":
+					
+					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(2, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(2, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					
+					break;
+				case "待改错":
+					stateMaps.add(new StateMap(0, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					break;
+				case "改错中":
+					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					break;
+				case "抽检中":
+					stateMaps.add(new StateMap(1, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					break;
+				}
+				break;
 			default:
 				logger.error("Unknow process type: " + processType.toString());
 				break;
@@ -629,10 +675,44 @@ public class TasksManageCtrl extends BaseCtrl {
 	private String getStateDes(TaskModel task) {
 		Integer state = task.getState();
 		Integer process = task.getProcess();
-		TaskTypeEnum tasktype = TaskTypeEnum.UNKNOWN;
+		TaskTypeEnum tasktype =  TaskTypeEnum.UNKNOWN;
+		Integer ttype = task.getTasktype();
 		Integer checkid = task.getCheckid();
 		
-		if (tasktype.equals(TaskTypeEnum.QC_JIUGONGGE) || tasktype.equals(TaskTypeEnum.QC_QUANYU)) {
+		if( ttype.equals( TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue()) || ttype.equals( TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue())) {
+			if(state.equals(0) && process.equals(0)) {
+				return "未制作";
+			}else if(state.equals(1) && process.equals(5)) {
+				return "制作中";
+			}else if(state.equals(2) && process.equals(5)) {
+				return "待质检";
+			}else if(state.equals(3) && process.equals(5)) {
+				return "完成";
+			}else if(state.equals(4) && process.equals(5)) {
+				return "制作异常";
+			}else if(state.equals(5) && process.equals(5)) {
+				return "制作跳过";
+			}else if(state.equals(0) && process.equals(6)) {
+				return "待改错";
+			}else if(state.equals(1) && process.equals(6)) {
+				return "改错中";
+			}else if(state.equals(2) && process.equals(6)) {
+				return "待质检";
+			}else if(state.equals(3) && process.equals(6)) {
+				return "完成";
+			}else if(state.equals(4) && process.equals(6)) {
+				return "改错异常";
+			}else if(state.equals(1) && process.equals(7)) {
+				return "抽检中";
+			}else if(state.equals(2) && process.equals(7)) {
+				return "待质检";
+			}else if(state.equals(3) && process.equals(7)) {
+				return "完成";
+			}else if(state.equals(4) && process.equals(7)) {
+				return "抽检异常";
+			}
+		}
+		else if (tasktype.equals(TaskTypeEnum.QC_JIUGONGGE) || tasktype.equals(TaskTypeEnum.QC_QUANYU)) {
 			//add by lianhr begin 2019/02/22
 			switch (state) {
 			case 12:

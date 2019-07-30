@@ -12,6 +12,7 @@
 				<ref bean="edit" />
 				<ref bean="modify" />
 				<ref bean="processesmanage" />
+				<ref bean="tasksmanage"/>
 				<ref bean="uploadfielddata" />
 				<ref bean="check" />
 				<ref bean="capacity" />
@@ -206,6 +207,21 @@
 <!-- 		<property name="enabled" value="true" /> -->
 <!-- 		<property name="isshow" value="true" /> -->
 <!-- 	</bean> -->
+
+	<bean id="tasksmanage" class="com.emg.poiwebeditor.auth.MenuAuthModel">
+		<property name="code" value="1015" />
+		<property name="url" value="/poiwebeditor/tasksmanage.web" />
+		<property name="label" value="任务列表" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_POIVIDEOEDIT</value>
+				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_WORKER</value>
+				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_CHECKER</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
 	
 	<bean id="capacity" class="com.emg.poiwebeditor.auth.MenuAuthModel">
 		<property name="code" value="1400" />

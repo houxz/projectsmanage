@@ -39,7 +39,9 @@
 	var priorityLevels = eval('(${priorityLevels})');
 	var processStates = eval('(${processStates})');
 	
-	var stateDeses = {"未制作":"未制作", "制作中":"制作中", "制作完成":"制作完成", "校正错误修改中":"校正错误修改中", "待质检":"待质检","质检异常":"质检异常","质检中":"质检中", "质检完成":"质检完成", "未校正":"未校正", "校正中":"校正中", "校正完成":"校正完成", "完成":"完成", "预发布完成":"预发布完成", "悬挂点创建中":"悬挂点创建中"};
+// 	var stateDeses = {"未制作":"未制作", "制作中":"制作中", "制作完成":"制作完成", "校正错误修改中":"校正错误修改中", "待质检":"待质检","质检异常":"质检异常","质检中":"质检中", "质检完成":"质检完成", "未校正":"未校正", "校正中":"校正中", "校正完成":"校正完成", "完成":"完成", "预发布完成":"预发布完成", "悬挂点创建中":"悬挂点创建中"};
+	
+	var stateDeses = {"未制作":"未制作", "制作中":"制作中", "待改错":"待改错","改错中":"改错中", "待质检":"待质检","抽检中":"抽检中", "完成":"完成"};
 	
 	function changePriority(processtype, taskid) {
 		var priority = $("#priority_" + taskid).val();
@@ -93,14 +95,15 @@
 	$(document).ready(function() {
 		$.webeditor.getHead();
 
-		$.webeditor.showMsgBox("info", "数据加载中，请稍候...");
+ 		$.webeditor.showMsgBox("info", "数据加载中，请稍候...");
+		$("#qctaskslist").bootstrapTable('destroy');
 		$('[data-toggle="qctasks"]').bootstrapTable({
 			locale : 'zh-CN',
 			onSearch : function (text) {
-				$.webeditor.showMsgBox("info", "数据加载中，请稍候...");
+ 				$.webeditor.showMsgBox("info", "数据加载中，请稍候...");
 			},
 			onPageChange :function (number, size) {
-				$.webeditor.showMsgBox("info", "数据加载中，请稍候...");
+ 				$.webeditor.showMsgBox("info", "数据加载中，请稍候...");
 			},
 			onLoadSuccess : function (data) {
 				$.webeditor.showMsgBox("close");
@@ -135,49 +138,49 @@
 							data-filter-control="input" data-filter-control-placeholder="">
 							项目编号</th>
 						
-						<th data-field="processname" data-width="120"
+						<th data-field="processname" data-width="220"
 							data-filter-control="input" data-filter-control-placeholder="">
 							项目名称</th>
 							
-						<th data-field="processstate" data-formatter="processStateFormat" 
-							data-filter-control="select" data-filter-data="var:processStates">
-							项目状态</th>
+<!-- 						<th data-field="processstate" data-formatter="processStateFormat"  -->
+<!-- 							data-filter-control="select" data-filter-data="var:processStates"> -->
+<!-- 							项目状态</th> -->
 						
-						<c:choose>
-							<c:when test="${not empty param.process}">
-								<th data-field="processtype" data-width="100" data-formatter="processTypeFormat" 
-									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="${param.process}">
-									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-							</c:when>
-							<c:otherwise>
-								<th data-field="processtype" data-width="100" data-formatter="processTypeFormat" 
-									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="<%= ProcessType.ATTACH.getValue() %>">
-									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-							</c:otherwise>
-						</c:choose>
+<%-- 						<c:choose> --%>
+<%-- 							<c:when test="${not empty param.process}"> --%>
+<!-- 								<th data-field="processtype" data-width="100" data-formatter="processTypeFormat"  -->
+<%-- 									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="${param.process}"> --%>
+<!-- 									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th> -->
+<%-- 							</c:when> --%>
+<%-- 							<c:otherwise> --%>
+<!-- 								<th data-field="processtype" data-width="100" data-formatter="processTypeFormat"  -->
+<%-- 									data-filter-control="select" data-filter-data="var:processTypes" data-filter-default-value="<%= ProcessType.POIPOLYMERIZE.getValue() %>"> --%>
+<!-- 									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th> -->
+<%-- 							</c:otherwise> --%>
+<%-- 						</c:choose> --%>
 						
 						<th data-field="id" data-width="70"
 							data-filter-control="input" data-filter-control-placeholder="">
 							任务编号</th>
 
-						<th data-field="name"
-							data-filter-control="input" data-filter-control-placeholder="">
-							任务名称</th>
-						<th data-field="tasktype" data-formatter="taskTypeFormat" 
-							data-filter-control="select" data-filter-data="var:taskTypes">
-							任务类型</th>
-						<th data-field="priority" data-formatter="priFormat"
-							data-filter-control="select" data-width="95"
-							data-filter-data="var:priorityLevels">优先级</th>
+<!-- 						<th data-field="name" -->
+<!-- 							data-filter-control="input" data-filter-control-placeholder=""> -->
+<!-- 							任务名称</th> -->
+<!-- 						<th data-field="tasktype" data-formatter="taskTypeFormat"  -->
+<!-- 							data-filter-control="select" data-filter-data="var:taskTypes"> -->
+<!-- 							任务类型</th> -->
+<!-- 						<th data-field="priority" data-formatter="priFormat" -->
+<!-- 							data-filter-control="select" data-width="95" -->
+<!-- 							data-filter-data="var:priorityLevels">优先级</th> -->
 							
-						<th data-field="batchid" data-width="100"
-							data-filter-control="input"  data-filter-control-placeholder="">
-							批次号</th>
+<!-- 						<th data-field="batchid" data-width="100" -->
+<!-- 							data-filter-control="input"  data-filter-control-placeholder=""> -->
+<!-- 							批次号</th> -->
 							
 						<!-- <th data-field="state">state</th>
 						<th data-field="process">process</th> -->
 						
-						<th data-field="statedes"
+						<th data-field="statedes" data-width="120"
 							data-filter-control="select" data-filter-data="var:stateDeses">
 							任务状态</th>
 						
@@ -187,16 +190,16 @@
 						
 						<th data-field="checkname" data-width="70"
 							data-filter-control="input" data-filter-control-placeholder="">
-							校正人</th>
+							抽检人</th>
 							
-						<th data-field="fielddatarest">
-							剩余<br>资料数</th>
+<!-- 						<th data-field="fielddatarest"> -->
+<!-- 							剩余<br>资料数</th> -->
 							
-						<th data-field="errorrest">
-							剩余<br>错误数</th>
+<!-- 						<th data-field="errorrest"> -->
+<!-- 							剩余<br>错误数</th> -->
 						
-						<th data-field="fielddatatotal">
-							总数<br>资料数</th>
+<!-- 						<th data-field="fielddatatotal"> -->
+<!-- 							总数<br>资料数</th> -->
 					</tr>
 				</thead>
 			</table>

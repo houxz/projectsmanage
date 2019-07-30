@@ -72,17 +72,6 @@
 			}//onClickRow:function(row)
 		});
 		
-		$('[data-toggle="processes2"]').bootstrapTable({
-			locale : 'zh-CN',
-			onLoadSuccess : function(data) {
-				$("[data-toggle='tooltip']").tooltip();
-			},
-			onClickRow:function(row){
-				alert("bbb");
-			}
-		});
-		
-		
 	});
 	
 	function drawspotchecktask(tasklist){
@@ -195,7 +184,6 @@
 	}
 	
 	function createproject(){
-//		showtip();
 		var tbodytrs = $("#spotcheckeditid tbody>tr");
 		var array = new Array();
 		var iscancreate = true;
@@ -227,10 +215,7 @@
 				"atn" : "createspotchecktask",
 				"spotchekcinfos" : JSON.stringify(array),
 				 beforeSend:function () {
-		                showLoading()
-		            },
-		            complete:function(){
-// 		                hideLoading()
+		                showLoading();
 		            }
 			}, function(json) {
 				if (json && json.result > 0) {
@@ -246,18 +231,8 @@
 				}
 				$.webeditor.showMsgBox("close");
 				
-// 				{
-// 					 console.log(json)
-// 	         		 var _html = ' ';
-// 	                var list = res.data;
-// 	                var tpl = $('#task_list_tpl').html();
-// 	                for (var i = 0, len = list.length; i < len; i++) {
-// 	                    var item = list[i];
-// 	                    _html += renderTpl(tpl, item)
-// 	                }
-// 	                $('.ranger-box2 tbody').html(_html);
-// 				}
-hideLoading();
+
+			    hideLoading();
 				
 				
 			}, "json");
@@ -271,34 +246,11 @@ hideLoading();
 	showLoading = function(){
 	　　　　$('#loadingModal').modal({backdrop: 'static', keyboard: false});
 	　　}
-	　　hideLoading = function(){
+	hideLoading = function(){
 	　　　　$('#loadingModal').modal('hide');
 	　　}
 
-	function showtip(){
-		 $.ajax({
-	            url: 'checkprocessesmanage.web&&' + 'run_task/',
-	            data: {},
-	            beforeSend:function () {
-	                showLoading()
-	            },
-	            complete:function(){
-	                hideLoading()
-	            },
-	            success: function (res) {
-	                console.log(res.data)
-	         		 var _html = ' ';
-	                var list = res.data;
-	                var tpl = $('#task_list_tpl').html();
-	                for (var i = 0, len = list.length; i < len; i++) {
-	                    var item = list[i];
-	                    _html += renderTpl(tpl, item)
-	                }
-	                $('.ranger-box2 tbody').html(_html);
-	            }
-	        })
-	}
-	
+
 </script>
 
 </head>
@@ -385,12 +337,8 @@ hideLoading();
 	
 	<div class="modal fade" id="loadingModal" backdrop="static" keyboard="false">
 　　<div style="width: 200px;height:200px; z-index: 20000; position: absolute; text-align: center; left: 50%; top: 50%;margin-left:-100px;margin-top:-10px">
-<!-- 　　　　<div class="progress progress-striped active" style="margin-bottom: 0;"> -->
-<!--         ![loadding](https://imgconvert.csdnimg.cn/aHR0cHM6Ly9tYWdpY2JveC5iay50ZW5jZW50LmNvbS9zdGF0aWNfYXBpL3YzL2NvbXBvbmVudHMvbG9hZGluZzEvaW1hZ2VzL2xvYWRpbmdfMl8yNHgyNC5naWY) 数据加载中,请稍候... -->
-<!-- 　　　　</div> -->
-
 		<div class="progress progress-striped active" style="margin-bottom: 0;">
-   			<image src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9tYWdpY2JveC5iay50ZW5jZW50LmNvbS9zdGF0aWNfYXBpL3YzL2NvbXBvbmVudHMvbG9hZGluZzEvaW1hZ2VzL2xvYWRpbmdfMl8yNHgyNC5naWY"></image>
+   			<image src="resources/images/createspotchecktaskprogress.gif"></image>
    			创建任务中,请稍候...
 　　　　</div>
 　　</div>

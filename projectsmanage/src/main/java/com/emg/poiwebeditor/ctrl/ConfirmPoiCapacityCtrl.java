@@ -77,6 +77,9 @@ public class ConfirmPoiCapacityCtrl extends BaseCtrl{
 					case "id":
 						criteria.andIdEqualTo(Long.valueOf(filterPara.get(key).toString()));
 						break;
+					case "processid":
+						criteria.andProcessidEqualTo(Long.valueOf(filterPara.get(key).toString()));
+						break;
 					case "tasktype":
 						criteria.andTasktypeEqualTo(Integer.valueOf(filterPara.get(key).toString()));
 						break;

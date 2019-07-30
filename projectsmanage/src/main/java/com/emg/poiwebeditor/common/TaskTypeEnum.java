@@ -115,7 +115,10 @@ public enum TaskTypeEnum {
 	/**
 	 * 20, "POI人工聚合项目"
 	 */
-	POIPOLYMERIZE(20, "POI人工聚合任务");
+	POIPOLYMERIZE(20, "POI人工聚合任务"),
+	POIPOLYMERIZE_EDIT(17001,"POI人工聚合制作任务"),
+    POIPOLYMERIZE_CHECK(17002,"POI人工聚合抽检任务");
+   
 
 	private Integer value;
 	private String des;
