@@ -166,17 +166,17 @@
 <body>
 
 <div class="container" >
-	<div id='uploadid'></div>
-	<div class='row' style='padding-top:20px'>
-	<div>上传资料</div>
-	<form id='uploadform' name='uploadfile' action="./fielddatamanage.web?atn=springUpload" method='post' enctype='multipart/form-data'>
-	<input id='fp' type='file' name='uploadfile' />
-	<br/>
-	<input  type="submit" value='上传'/>
-	</form>
-	<progress max="100" value="0" id="pg"></progress>
-	</div>
-	<div id='loadmsg'></div>
+<!-- 	<div id='uploadid'></div> -->
+<!-- 	<div class='row' style='padding-top:20px'> -->
+<!-- 	<div>上传资料</div> -->
+<!-- 	<form id='uploadform' name='uploadfile' action="./fielddatamanage.web?atn=springUpload" method='post' enctype='multipart/form-data'> -->
+<!-- 	<input id='fp' type='file' name='uploadfile' /> -->
+<!-- 	<br/> -->
+<!-- 	<input  type="submit" value='上传'/> -->
+<!-- 	</form> -->
+<!-- 	<progress max="100" value="0" id="pg"></progress> -->
+<!-- 	</div> -->
+<!-- 	<div id='loadmsg'></div> -->
 	
 	<div id="headdiv"></div>
     <div class="row" style="padding-top:60px">
