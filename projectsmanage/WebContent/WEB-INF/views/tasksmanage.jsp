@@ -41,7 +41,7 @@
 	
 // 	var stateDeses = {"未制作":"未制作", "制作中":"制作中", "制作完成":"制作完成", "校正错误修改中":"校正错误修改中", "待质检":"待质检","质检异常":"质检异常","质检中":"质检中", "质检完成":"质检完成", "未校正":"未校正", "校正中":"校正中", "校正完成":"校正完成", "完成":"完成", "预发布完成":"预发布完成", "悬挂点创建中":"悬挂点创建中"};
 	
-	var stateDeses = {"未制作":"未制作", "制作中":"制作中", "待改错":"待改错","改错中":"改错中", "待质检":"待质检","抽检中":"抽检中", "完成":"完成"};
+	var stateDeses = {"未制作":"未制作", "制作中":"制作中", "待改错":"待改错","改错中":"改错中", "待质检":"待质检","抽检中":"抽检中", "完成":"完成","自动完成":"自动完成"};
 	
 	function changePriority(processtype, taskid) {
 		var priority = $("#priority_" + taskid).val();
@@ -96,7 +96,7 @@
 		$.webeditor.getHead();
 
  		$.webeditor.showMsgBox("info", "数据加载中，请稍候...");
-		$("#qctaskslist").bootstrapTable('destroy');
+// 		$("#qctaskslist").bootstrapTable('destroy');
 		$('[data-toggle="qctasks"]').bootstrapTable({
 			locale : 'zh-CN',
 			onSearch : function (text) {

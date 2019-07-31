@@ -2,16 +2,15 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt'%>
 
-<!-- 处理上传 -0->
 <%@ page import="java.io.*,java.util.*,javax.servlet.*,javax.servlet.http.*" %>
 <%@ page import="java.rmi.ServerException"%>
-<!-- 处理上传 -1->
+
 
 <!DOCTYPE html>
 <html>
 <head>
 <title>资料管理</title>
-<meta charset="UTF-8">
+<meta charset ="UTF-8">
 
 <!-- <meta name="robots" content="none"> -->
 <!-- <meta http-equiv="Pragma" content="no-cache"> -->
@@ -70,6 +69,8 @@
 		
 		$('#uploadform').submit( function(){
 			$(this).ajaxSubmit(options);
+			
+			$("#pg").show();
 			
 			uploadtimer();
 			
@@ -160,6 +161,42 @@
 		}, 1000);
 	}
 	
+	function uploaddataset(){
+		$("#pg").hide();
+		 $("#uploadDlg").bootstrapDialog({
+				queryParams : function(params) {
+// 					if (params.filter != undefined) {
+// 						var filterObj = eval('(' + params.filter + ')');
+// 						if (filterObj.state != undefined) {
+// 							filterObj["state"] = filterObj.state;
+// 							delete filterObj.state;
+// 							params.filter = JSON.stringify(filterObj);
+// 						}
+// 					}
+// 					params["processid"] = processid;
+// 					params["editid"] = editid;
+// 					params["username"]=username;
+					return params;
+				}
+// 				onLoadSuccess : function(data) {
+// 					$(this.self).bootstrapTable("load", data.rows);
+					
+// 				}
+			}, {
+				width : document.documentElement.clientWidth * 0.3,
+				height: document.documentElement.clientHeight * 0.3,
+				title : "上传资料",
+				buttons : [
+					{
+						text : "关闭",
+						"class" : "btn btn-default",
+						click : function() {
+							$(this).dialog("close");
+						}
+					}
+				]
+			});
+	}
 	
 </script>
 
@@ -179,8 +216,9 @@
 <!-- 	<div id='loadmsg'></div> -->
 	
 	<div id="headdiv"></div>
-    <div class="row" style="padding-top:60px">
+    <div class="row" style="padding-top:20px">
     	<table id="fielddatalist" data-unique-id="id"
+    		data-query-params="queryParams" data-content-type="application/x-www-form-urlencoded;charset=UTF-8"
     		data-url="./fielddatamanage.web?atn=pages"
     		data-side-pagination="server" data-filter-control="true"
     		data-pagination="true" data-toggle="fielddata" data-height="714"
@@ -201,8 +239,27 @@
     	</table>
     </div>
     <div id="footdiv"></div>
-   
-  
+ 
+ 	 <div
+		style="position: absolute; left: 0; right: 400px; bottom: 150px; height: 5px;  text-align: right;">
+	    <button class="btn btn-default" onClick="uploaddataset();"> 上传资料  </button>				
+	</div>
+    
+   	<div id="uploadDlg" style="display: none;">
+		<div id='uploadid'></div>
+		<div class='row' style='padding-left:20px; padding-top:30px'>
+		<form id='uploadform' name='uploadfile' action="./fielddatamanage.web?atn=springUpload" method='post' enctype='multipart/form-data'>
+		<input id='fp' type='file' name='uploadfile' />
+		<br/>
+		<progress max="100" value="0" id="pg"></progress>
+		<br/><br/>
+		<input  type="submit" value='上传'  style="width:20%" />
+		</form>
+		
+		</div>
+		<div id='loadmsg'></div>
+	</div>
+
 </div>
 
 </body>

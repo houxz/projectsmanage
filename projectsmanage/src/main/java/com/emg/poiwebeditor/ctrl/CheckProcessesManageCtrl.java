@@ -330,10 +330,32 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 						editid = spotlist[j].getEditid();
 						
 						List<TaskModel> tasklist2 = taskModelClient.selectSpotCheckProjectInfo2(projectid, editid );
-						List<Long> keywordids = new ArrayList<Long>();
-						for(TaskModel tm:tasklist2)
+//						List<Long> keywordids = new ArrayList<Long>();
+						List< List<Long>> klist = new ArrayList<List<Long>>();
+						int listcount = 1000;
+						List<Long> keywordids = null;
+						for(TaskModel tm:tasklist2){
+							if(listcount == 1000)
+								keywordids = new ArrayList<Long>();
 							keywordids.add(tm.getKeywordid());
-						List<KeywordModel> keylist = publicClient.selectKeywordsByIDs(keywordids);
+							listcount--;
+							if(listcount == 0) {
+								listcount = 1000;
+								klist.add(keywordids);
+							}
+							//if(keywordids.size() > 1000)break;
+						}
+						if(listcount > 0) {
+							klist.add(keywordids);
+						}
+//						List<KeywordModel> keylist = publicClient.selectKeywordsByIDs(keywordids);
+						List<KeywordModel> keylist = new ArrayList<KeywordModel>();
+						for(List<Long> kewordids : klist) {
+							List<KeywordModel> k1 = publicClient.selectKeywordsByIDs(kewordids);
+							int sz = k1.size();
+							for(KeywordModel k : k1)
+								keylist.add(k);
+						}
 						
 						List<TaskModel> tasklist = new ArrayList<TaskModel>();
 						for(TaskModel tm:tasklist2) {

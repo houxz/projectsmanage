@@ -75,7 +75,7 @@ public class PublicClient {
 			HttpClientResult result = HttpClientUtils.doGet(String.format(selectKeywordsByIDUrl, host, port, path, StringUtils.join(keywordids, ",")));
 			if (!result.getStatus().equals(HttpStatus.OK))
 				return null;
-			
+
 			Object json = JSONArray.parse(result.getJson());
 			if (json instanceof JSONArray) {
 				JSONArray array = (JSONArray)json;

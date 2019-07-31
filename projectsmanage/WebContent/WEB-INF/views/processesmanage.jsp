@@ -994,6 +994,9 @@
 					<th data-field="name" data-filter-control="input"
 						data-formatter="nameFormat" data-filter-control-placeholder="">名称</th>
 						
+					 <th data-field="datasource" data-filter-control="input" 
+    				 data-filter-control-placeholder=""	 data-width="80">数据源</th>
+						
 					<th data-field="recordcount" data-width="60">资料数</th>
 						
 					<th data-field="path" data-filter-control-placeholder=""

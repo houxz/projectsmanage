@@ -644,15 +644,23 @@ System.out.println("============getStateMap()=====================");
 					stateMaps.add(new StateMap(3, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
 					stateMaps.add(new StateMap(3, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
 					break;
+				case "自动完成":
+					stateMaps.add(new StateMap(3, 0, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(3, 0, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(3, 0, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					stateMaps.add(new StateMap(3, 0, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					break;
 				case "待质检":
 					
 					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
 					stateMaps.add(new StateMap(2, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(2, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
 					stateMaps.add(new StateMap(2, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
 					
 					break;
 				case "待改错":
 					stateMaps.add(new StateMap(0, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(0, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
 					break;
 				case "改错中":
 					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
@@ -710,6 +718,8 @@ System.out.println("============getStateMap()=====================");
 				return "完成";
 			}else if(state.equals(4) && process.equals(7)) {
 				return "抽检异常";
+			}else if(state.equals(3) && process.equals(0)) {
+				return "自动完成";
 			}
 		}
 		else if (tasktype.equals(TaskTypeEnum.QC_JIUGONGGE) || tasktype.equals(TaskTypeEnum.QC_QUANYU)) {
