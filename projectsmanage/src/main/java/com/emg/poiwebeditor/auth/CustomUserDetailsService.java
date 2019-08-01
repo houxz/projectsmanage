@@ -51,6 +51,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 	@Override
 	public CustomUserDetails loadUserByUsername(String username) {
 
+		//判断是否重复登陆
 		if (sessionService.isDuplicateLogin(username)) {
 			throw new SessionAuthenticationException(new String());
 		}

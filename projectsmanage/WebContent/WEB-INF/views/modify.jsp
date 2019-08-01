@@ -38,6 +38,9 @@
 <script src="resources/js/proj4-compressed.js"></script>
 <script src="resources/js/proj4leaflet.js"></script>
 <script src="resources/js/tileLayer.baidu.js"></script>
+<script src='resources/dtree/dtree.js'></script>
+<script src='resources/js/featcodeget.js'></script>
+<script src="resources/js/featcoderegex.js"></script>
 <script
 	src="resources/leaflet.awesome-markers-2.0/leaflet.awesome-markers.min.js"></script>
 <script
@@ -563,6 +566,158 @@
 		return errorids;
 	}
 	
+	function setFeatcode(){
+		var band2 = $("#featcodePOI").data("band2");
+		if (!band2) return;
+		
+		var nulStr = "";
+		var name = d.aNodes[d.selectedNode].name;
+		var featcode = getfeatcodebyname(name);
+		if (band2 < 0) {
+			$('#featcode').val(featcode);
+			$('#featcodename').val(name);
+			
+			$('#sortcode').val(nulStr);
+			$('#sortcodename').val(nulStr);
+		} else {
+			$("tr.trIndex" + band2 + ":eq(3) td input").val(featcode);
+			$("tr.trIndex" + band2 + ":eq(4) td input").val(name);
+			
+			$("tr.trIndex" + band2 + ":eq(5) td input").val(nulStr);
+			$("tr.trIndex" + band2 + ":eq(6) td input").val(nulStr);
+		}
+		
+		$("#featcodePOI").dialog("close");
+		
+		var sortcodes = getsortcode(featcode);
+		if (sortcodes && sortcodes.length > 0) {
+			$('#sortcode').removeAttr("disabled");
+		} else {
+			$('#sortcode').attr("disabled", "disabled");
+		}
+	}
+
+	function setSortcode(){
+		var band2 = $("#sortcodePOI").data("band2");
+		if (!band2) return;
+		
+		var sname = "";
+		var ssort = "";
+		var sorts = $("#sortcodePOI tbody>tr>td>div>label>input");
+		for( var i = 0 ;i < sorts.length;i++){
+			if(sorts[i].checked == true){
+				var s1 = sorts[i].name;
+				var s2 = sorts[i].value;
+				if( sname == ""){
+					sname = s1;
+					ssort = s2;
+				}
+				else{
+					sname +=";";
+					sname +=s1;
+					ssort +=";";
+					ssort +=s2;
+				}
+			}
+		}
+		
+		if (band2 < 0) {
+			$('#sortcode').val(ssort);
+			$('#sortcodename').val(sname);
+		} else {
+			$("tr.trIndex" + band2 + ":eq(5) td input").val(ssort);
+			$("tr.trIndex" + band2 + ":eq(6) td input").val(sname);
+		}
+		
+		$("#sortcodePOI").dialog("close");
+	}
+	
+	function dlgFeatcodePOIConfig(band2) {
+		$("#featcodePOI").data("band2", band2);
+		$("#featcodePOI").dialog({
+			modal : true,
+			closeOnEscape : false,
+			resizable : false,
+			width : 320,
+			heigth: 500,
+			position: { at: "right" },
+			title : "设置featecode",
+			open : function(event, ui) {
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			close : function() {
+			},
+			buttons : [ {
+				text : "确定",
+				'class' : "btn btn-default",
+				click : setFeatcode
+			}, {
+				text : "取消",
+				'class' : "btn btn-default",
+				click : function() {
+					$(this).dialog("close");
+				}
+			} ]
+		});
+	}
+	
+	function drawsortcheck(featcode){
+		var sortcodes = getsortcode(featcode);
+		var tbody = $("#sortcodePOI tbody");
+		tbody.empty();
+		var html = new Array();
+		var len = sortcodes.length;
+		if (len > 0) {
+			for(var i = 0 ; i < len; i++){
+				var sortcodename = sortcodes[i][0];
+				var sortcode = sortcodes[i][1];
+				html.push('<tr><td><div class="checkbox" style="margin-top: 2px; margin-bottom: 2px;"><label><input type="checkbox" name="'+sortcodename+'" value="'+sortcode+'">'+ sortcodename+'</label></div></td></tr>');
+			}
+		} else {
+			html.push('无数据');
+		}
+		tbody.append(html.join(""));
+	}
+	
+	function dlgSortcodeConfig(band2) {
+		$("#sortcodePOI").data("band2", band2);
+		
+		if (band2 < 0) {
+			var featcode=  $('#featcode').val();	
+			drawsortcheck(featcode);
+		} else {
+			var featcode=  $("tr.trIndex" + band2 + ":eq(3) td input").val();
+			drawsortcheck(featcode);
+		}
+		
+		$("#sortcodePOI").dialog({
+			modal : true,
+			closeOnEscape : false,
+			resizable : false,
+			width : 320,
+			heigth: 500,
+			overflow: scroll,
+			position: { at: "right" },
+			title : "设置sortcode",
+			open : function(event, ui) {
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			close : function() {
+			},
+			buttons : [ {
+				text : "确定",
+				'class' : "btn btn-default",
+				click : setSortcode
+			}, {
+				text : "取消",
+				'class' : "btn btn-default",
+				click : function() {
+					$(this).dialog("close");
+				}
+			} ]
+		});
+	}
+	
 </script>
 </head>
 <body>
@@ -641,13 +796,33 @@
 													class="form-control input-sm"></textarea></td>
 										<tr>
 											<td class="tdKey">类型</td>
-											<td class="tdValue" data-key="featcode"><input
-												class="form-control input-sm" type="text"></td>
+											<td class="tdValue" data-key="featcode">
+<!-- 											<input	class="form-control input-sm" type="text"></td> -->
+											<div class="input-group">
+											<input id="featcode" onchange="valueChange(this)" class="form-control input-sm" type="text">
+											<span class="input-group-addon" style="cursor: pointer;" onClick="dlgFeatcodePOIConfig(-1);" title="选择类型代码">选择</span>
+											</div>
+										</tr>
+										<tr>
+											<td class="tdKey">类型中文</td>
+											<td class='tdValue'><input type="text" 
+											class="form-control input-sm" id="featcodename"  disabled="disabled"
+											placeholder="类型代码中文"></td>
 										</tr>
 										<tr>
 											<td class="tdKey">系列</td>
-											<td class="tdValue" data-key="sortcode"><input
-												class="form-control input-sm" type="text"></td>
+											<td class="tdValue" data-key="sortcode">
+<!-- 											<input	class="form-control input-sm" type="text"></td> -->
+											<div class="input-group">
+											<input type="text" onchange="valueChange(this)" class="form-control" id="sortcode" placeholder="请输入系列代码">
+											<span class="input-group-addon" style="cursor: pointer;" onClick="dlgSortcodeConfig(-1);" title="选择系列代码">选择</span>
+										</div>
+										</tr>
+										<tr>
+											<td class="tdKey">系列中文</td>
+											<td class='tdValue'><input type="text" 
+											class="form-control input-sm" id="sortcodename"  disabled="disabled"
+											placeholder="类型代码中文"></td>
 										</tr>
 										<tr>
 											<td class="tdKey">拼音名称</td>
@@ -784,6 +959,26 @@
 			</div>
 		</c:otherwise>
 	</c:choose>
+	
+	<div id="featcodePOI" style="display: none;">
+		<div class="dtree" style="height: 400px;">
+			<p><a href="javascript: d.openAll();">全部展开</a> | <a href="javascript: d.closeAll();">全部折叠</a></p>
+			<script type="text/javascript">
+				var d = featcodetree();
+				document.write(d);
+			</script>
+		</div>
+	</div>
+	
+	<div id="sortcodePOI" style="display: none;">
+		<div class="sortcheck" style="height: 400px;">
+			<table>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
 	<div class="footline">
 		<div>
 			<span>当前项目编号：</span><span id="curProcessID">${process.id}</span>

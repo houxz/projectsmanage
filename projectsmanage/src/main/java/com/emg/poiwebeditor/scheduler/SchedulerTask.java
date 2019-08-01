@@ -4077,7 +4077,7 @@ public class SchedulerTask {
 		try {
 			Integer userid = task.getEditid();
 			Long taskid = task.getId();
-			if(taskid == 180600) {
+			if(taskid.equals(2097256L) || taskid.equals(2097257L)  || taskid.equals(2097633L) ) {
 				int a = 0;
 				a+=1;
 			}
@@ -4189,9 +4189,10 @@ public class SchedulerTask {
 				Integer taskcount = tasklist.size();
 				for( int indextask = 0 ; indextask < taskcount ; indextask++) {
 					TaskModel task = tasklist.get(indextask);
-					if(task.getProjectid().equals(928L)) {
+					if(!task.getProjectid().equals(1001570L)) {
 						int a = 0;
 						a +=1;
+						//continue;
 					}
 					if(  (task.getState() == 2 && task.getProcess() == 5) ||
 						 (task.getState() == 2 && task.getProcess() == 6)	||

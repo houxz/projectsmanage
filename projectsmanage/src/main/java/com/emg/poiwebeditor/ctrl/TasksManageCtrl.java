@@ -669,6 +669,17 @@ System.out.println("============getStateMap()=====================");
 				case "抽检中":
 					stateMaps.add(new StateMap(1, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
 					break;
+				case "任务跳过":
+					stateMaps.add(new StateMap(5, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(5, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					break;
+					
+				case "任务异常":
+					stateMaps.add(new StateMap(4, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(4, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(4, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					stateMaps.add(new StateMap(4, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					break;
 				}
 				break;
 			default:
@@ -718,6 +729,8 @@ System.out.println("============getStateMap()=====================");
 				return "完成";
 			}else if(state.equals(4) && process.equals(7)) {
 				return "抽检异常";
+			}else if(state.equals(5) && process.equals(7)) {
+				return "抽检跳过";
 			}else if(state.equals(3) && process.equals(0)) {
 				return "自动完成";
 			}
