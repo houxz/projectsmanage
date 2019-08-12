@@ -198,6 +198,10 @@
 			});
 	}
 	
+	function queryParams(params) {
+		return params;
+	}
+	
 </script>
 
 <body>
@@ -214,11 +218,12 @@
 <!-- 	<progress max="100" value="0" id="pg"></progress> -->
 <!-- 	</div> -->
 <!-- 	<div id='loadmsg'></div> -->
+<!-- data-query-params="queryParams" data-content-type="application/x-www-form-urlencoded;charset=UTF-8" -->
 	
 	<div id="headdiv"></div>
     <div class="row" style="padding-top:20px">
     	<table id="fielddatalist" data-unique-id="id"
-    		data-query-params="queryParams" data-content-type="application/x-www-form-urlencoded;charset=UTF-8"
+    		data-query-params="queryParams" 
     		data-url="./fielddatamanage.web?atn=pages"
     		data-side-pagination="server" data-filter-control="true"
     		data-pagination="true" data-toggle="fielddata" data-height="714"

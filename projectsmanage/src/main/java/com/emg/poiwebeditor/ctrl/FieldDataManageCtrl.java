@@ -69,7 +69,7 @@ public class FieldDataManageCtrl extends BaseCtrl {
 	public String openLander() {
 		logger.debug("FieldDataManageCtrl::openLander()");
 
-		return "fielddatamanage";
+		return  "fielddatamanage";
 	}
 
 	@SuppressWarnings("unchecked")

@@ -2,6 +2,7 @@ package com.emg.poiwebeditor.cache;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -61,11 +62,6 @@ public  class ProductTask {
 	
 	// 默认在队列里缓存30个
 	public static final int userTaskCache = 20;
-	
-	
-	 
-   
-    
     
     /**
      *  首次登陆时加载用户的20个任务，（1） 先看缓存里面有没有，如果有，够不够限定任务数，目前设置为20，如果不够则加载够20， （2）如果缓存里面没有则先去加载用户占用的任务，加载之后如果不足20个，再去加载初始状态的任务，加载满20个任务
@@ -130,6 +126,20 @@ public  class ProductTask {
     	}
     	
     	
+    }
+    
+   /**
+    *  获取当前正在执行的任务
+    * @param user
+    * @param typemaking
+    * @return
+    */
+    public TaskModel popCurrentTask(int user, String typemaking) {
+    	String key = typemaking + "_" + user + "_current";
+    	if (redisTemplate.hasKey(key) && valueOperations.size(key) > 0) {
+    		return valueOperations.get(key);
+    	}
+    	return null;
     }
     
     /**
@@ -243,5 +253,58 @@ public  class ProductTask {
 		}
     	return _myProjectIDs;
     }
+    
+    /**
+     * 删除缓存里面所有消息队列
+     */
+    public void removeUserTask() throws Exception{
+    	
+    	Set<String> keys = redisTemplate.keys("*001task_*");
+    	if(keys != null) { 
+	    	for (String key : keys) {
+	    		String userid = key.split("_")[1];
+	    		if (userid == null || userid.isEmpty()) continue;
+	    		int uid = Integer.parseInt(userid);
+	    		this.removeUserTask(uid, ProductTask.TYPE_EDIT_QUENE, TypeEnum.edit_using);
+	    		taskClient.updateTaskState(uid, TypeEnum.edit_using, TypeEnum.edit_used);
+	    	}
+    	}
+    	
+    	Set<String> checkKeys = redisTemplate.keys("*001check_*");
+    	if(checkKeys != null) {
+	    	for (String key : checkKeys) {
+	    		String userid = key.split("_")[1];
+	    		if (userid == null || userid.isEmpty()) continue;
+	    		int uid = Integer.parseInt(userid);
+	    		this.removeUserTask(uid, ProductTask.TYPE_CHECK_QUENE, TypeEnum.check_using);
+	    		taskClient.updateTaskState(uid, TypeEnum.check_using, TypeEnum.check_used);
+	    	}
+    	}
+    	
+    	Set<String> checkCurrentKeys = redisTemplate.keys("*002check_*");
+    	if(checkCurrentKeys != null) {
+	    	for (String key : checkCurrentKeys) {
+	    		String userid = key.split("_")[1];
+	    		if (userid == null || userid.isEmpty()) continue;
+	    		int uid = Integer.parseInt(userid);
+	    		//this.removeCurrentUserTask(uid, ProductTask.TYPE_EDIT_MAKING);
+	    		this.removeCurrentUserTask(uid, ProductTask.TYPE_CHECK_MAKING);
+	    		taskClient.updateTaskState(uid, TypeEnum.check_using, TypeEnum.check_used);
+	    	}
+    	}
+    	
+    	Set<String> editCurrentKeys = redisTemplate.keys("*002task_*");
+    	if(editCurrentKeys != null) {
+	    	for (String key : editCurrentKeys) {
+	    		String userid = key.split("_")[1];
+	    		if (userid == null || userid.isEmpty()) continue;
+	    		int uid = Integer.parseInt(userid);
+	    		this.removeCurrentUserTask(uid, ProductTask.TYPE_EDIT_MAKING);
+	    		taskClient.updateTaskState(uid, TypeEnum.edit_using, TypeEnum.edit_used);
+	    	}
+    	}
+    }
+    
+    
 
 }

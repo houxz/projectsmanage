@@ -20,7 +20,9 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.emg.poiwebeditor.cache.ProductTask;
 import com.emg.poiwebeditor.client.POIClient;
+import com.emg.poiwebeditor.client.TaskClient;
 import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.CapacityTaskStateEnum;
 import com.emg.poiwebeditor.common.CheckEnum;
@@ -33,6 +35,7 @@ import com.emg.poiwebeditor.common.ProjectState;
 import com.emg.poiwebeditor.common.RoleType;
 import com.emg.poiwebeditor.common.SystemType;
 import com.emg.poiwebeditor.common.TaskTypeEnum;
+import com.emg.poiwebeditor.common.TypeEnum;
 import com.emg.poiwebeditor.dao.attach.AttachCapacityModelDao;
 import com.emg.poiwebeditor.dao.attach.AttachCheckCapacityModelDao;
 import com.emg.poiwebeditor.dao.process.ConfigDBModelDao;
@@ -43,6 +46,7 @@ import com.emg.poiwebeditor.dao.projectsmanager.CapacityModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.CapacityTaskModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ConfirmPoiCapacityModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.FeatureFinishedModelDao;
+import com.emg.poiwebeditor.dao.projectsmanager.LogModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
 import com.emg.poiwebeditor.dao.task.ErrorModelDao;
 import com.emg.poiwebeditor.dao.task.TaskBlockDetailModelDao;
@@ -181,6 +185,12 @@ public class SchedulerTask {
 
 	@Autowired
 	private ConfirmPoiCapacityModelDao  confirmpoicapacitymodeldao;
+	
+	@Autowired
+	private ProductTask productTask;
+	
+	@Autowired
+	private TaskClient taskClient;
 	
 
 	/**
@@ -4868,6 +4878,25 @@ public class SchedulerTask {
 		}
 		
 		logger.debug("####updateProjectProgress()##end#####\"");
+		
+	}
+	
+	/*
+	 * 定时扫描任务库 ,更新进度
+	 * */
+	@Scheduled(cron = "${scheduler.clearcache.dotime}")
+	public void clearCache() {
+		logger.debug("####clear cache##start#####");
+		
+		try {
+			productTask.removeUserTask();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e.getMessage());
+		}
+		
+		logger.debug("####clearcache##end#####\"");
 		
 	}
 

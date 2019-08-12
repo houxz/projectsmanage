@@ -61,6 +61,7 @@
 	var poigeo;
 	var drawmark = 0;
 	var $emgmarkerBase = null;
+	var source = [];
 
 	var loaderr = "<span class='red'>加载失败</span>";
 
@@ -87,7 +88,26 @@
 			var names 	 = $("table#tbEdit>tbody td.tdValue[data-key='names']>input:text").val("");
 			var namee 	 = $("table#tbEdit>tbody td.tdValue[data-key='namee']>input:text").val("");
 			var namesp 	 = $("table#tbEdit>tbody td.tdValue[data-key='namesp']>input:text").val("");
-		})
+		});
+		
+		$('#featcode').change(function(){
+			setfeatcodename();
+			
+			$('#sortcode').val("");
+			$('#sortcodename').val("");
+			
+			var featcode = $('#featcode').val();
+			var sortcodes = getsortcode(featcode);
+			if (sortcodes && sortcodes.length > 0) {
+				$('#sortcode').removeAttr("disabled");
+			} else {
+				$('#sortcode').attr("disabled", "disabled");
+			}
+		});
+		
+		$('#sortcode').change(function(){
+			setsortcodename();
+		});
 	});
 	
 	
@@ -294,8 +314,12 @@
 				var poi = json.poi;
 				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(poi.id);
 				$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
-				$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val(poi.featcode);
-				$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val(poi.sortcode);
+// 				$("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val(poi.featcode);
+// 				$("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val(poi.sortcode);
+				$("#featcode").val(poi.featcode);
+				$("#sortcode").val(poi.sortcode);
+				setfeatcodename();
+				setsortcodename();
 				$("table#tbEdit>tbody td.tdValue[data-key='owner']>input:text").val(poi.owner);
 				//dianpingGeo = poi.geo;
 				poi.poitags.forEach(function(tag, index) {
@@ -344,8 +368,10 @@
 		
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
-		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
-		var sortcode = $("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val();
+// 		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
+// 		var sortcode = $("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val();
+		var featcode = $("#featcode").val();
+		var sortcode = $("#sortcode").val();
 		var address4 = $("table#tbEdit>tbody td.tdValue[data-key='address4']>input:text").val();
 		var address5 = $("table#tbEdit>tbody td.tdValue[data-key='address5']>input:text").val();
 		var address6 = $("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val();
@@ -479,8 +505,10 @@
 	
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
-		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
-		var sortcode = $("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val();
+// 		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
+// 		var sortcode = $("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val();
+		var featcode = $("#featcode").val();
+		var sortcode = $("#sortcode").val();
 		var address4 = $("table#tbEdit>tbody td.tdValue[data-key='address4']>input:text").val();
 		var address5 = $("table#tbEdit>tbody td.tdValue[data-key='address5']>input:text").val();
 		var address6 = $("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val();
@@ -718,6 +746,36 @@
 		});
 	}
 	
+	function setfeatcodename(){
+		$('#featcodename').val("");
+		var featcode = $('#featcode').val();
+		var featcodename = getfeatcodename(featcode);
+		$('#featcodename').val(featcodename);
+	}
+	
+	function setsortcodename(){
+		$('#sortcodename').val("");
+		var sortcode = $('#sortcode').val();
+		var sortcodename = getsortcodename(sortcode);
+		$('#sortcodename').val(sortcodename);
+	}
+	
+	function valueChange(obj) {
+// 		var $this = $(obj);
+// 		var key = $this.parent().data("key");
+		
+// 		if (source != null && source.length > 0) {
+// 			var flag = false;
+// 			var ktemp = key == "name" ? "namec" : key;
+// 			for (var i = source.length - 1; i > -1; i--) {
+				
+// 				if(source[i].k == ktemp ) {
+// 					oldObj = source.splice(i,1);
+// 				}
+// 			}
+// 		}
+	}
+	
 </script>
 </head>
 <body>
@@ -814,7 +872,7 @@
 											<td class="tdValue" data-key="sortcode">
 <!-- 											<input	class="form-control input-sm" type="text"></td> -->
 											<div class="input-group">
-											<input type="text" onchange="valueChange(this)" class="form-control" id="sortcode" placeholder="请输入系列代码">
+											<input type="text" onchange="valueChange(this)" class="form-control" id="sortcode" >
 											<span class="input-group-addon" style="cursor: pointer;" onClick="dlgSortcodeConfig(-1);" title="选择系列代码">选择</span>
 										</div>
 										</tr>

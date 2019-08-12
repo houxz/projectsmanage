@@ -1234,10 +1234,6 @@ public class ModifyErrorCtrl {
 		// 一轮中已经查询过的项目(可能由于某种原因没作业而跳过，后面需要再次查询是否可作业)
 		List<Long> doneProjectList = new ArrayList<Long>();
 		List<ErrorModel> curErrorList = new ArrayList<ErrorModel>();
-//		ProjectModel project = new ProjectModel();
-//		ProcessModel process = new ProcessModel();
-//		List<ErrorModel> errorlist = new ArrayList<ErrorModel>();
-//		Long keywordid = -1L;
 		Boolean bFindTask = false;
 		// 查找第一个可作业的项目：存在可作业的任务 + 任务下可有web编辑器作业
 		try {
@@ -1250,8 +1246,6 @@ public class ModifyErrorCtrl {
 					if (task != null && task.getId() != null) {
 						curProjectId = task.getProjectid();
 						doneProjectList.add(curProjectId);
-						// Boolean isAvaliable = isTaskAvaliable(task);
-						// --------------------------------------
 						curTaskId = task.getId();
 						// 查询质检错误
 						// 获取任务关联的POI

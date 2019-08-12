@@ -88,7 +88,14 @@ public class EditCtrl extends BaseCtrl {
 			// task = getNextEditTask(userid);
 			// task = productTask.popUserEditTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
 			task = productTask.popUserTask(userid, ProductTask.TYPE_EDIT_QUENE, ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using, 0);
+			
 			if (task != null  && task.getId() != null) {
+				TaskModel taskdb = taskClient.getTaskByID(task.getId());
+				if (taskdb == null || (taskdb.getState() == 2 && taskdb.getProcess() == 5)) {
+					TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+					if (temptask != null && taskdb != null && taskdb.getId() == temptask.getId()) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+					throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+				}
 				Long projectid = task.getProjectid();
 				if (projectid.compareTo(0L) > 0) {
 					project = projectModelDao.selectByPrimaryKey(projectid);
@@ -133,6 +140,14 @@ public class EditCtrl extends BaseCtrl {
 			String source = ParamUtils.getParameter(request, "source");
 			POIDo poi = null;
 			List<ModifiedlogDO> logs = new ArrayList<ModifiedlogDO>();
+			logger.debug( "submit poi:" + oid + ", taskid:" + taskid);
+			//在提交任务的时候，判断是否一个任务被提交了多次
+			TaskModel taskdb = taskClient.getTaskByID(taskid);
+			if (taskdb == null || (taskdb.getState() == 2 && taskdb.getProcess() == 5)) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId() == temptask.getId()) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				throw new Exception("当前任务已经被提交过");
+			}
 			//logger.debug("1: " + new Date().getTime() + "");
 			if (source != null && !source.isEmpty()) {
 				JSONArray temp = JSONArray.parseArray(source);
@@ -151,8 +166,8 @@ public class EditCtrl extends BaseCtrl {
 			Long u = new Long(userid);
 			if (poi != null) {
 				ret = poiClient.updatePOI(u, poi);
-				publicClient.updateModifiedlogs( logs);
-				taskClient.InsertNewPOITask(taskid, oid);
+				
+				
 			}
 			if (relations != null) {
 				ret = publicClient.updateRelations(u,  relations);
@@ -182,6 +197,11 @@ public class EditCtrl extends BaseCtrl {
 					
 					keywordid = task.getKeywordid();
 				}
+			}
+			if (poi != null) {
+				//当所有关系、数据都保存成功之后再往linkpoi里面写数据
+				taskClient.InsertNewPOITask(taskid, oid);
+				publicClient.updateModifiedlogs( logs);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -870,6 +890,13 @@ public class EditCtrl extends BaseCtrl {
 			
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			Long u = new Long(userid);
+			//在提交任务的时候，判断是否一个任务被提交了多次
+			TaskModel taskdb = taskClient.getTaskByID(taskid);
+			if (taskdb == null || (taskdb.getState() == 2 && taskdb.getProcess() == 5)) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId() == temptask.getId()) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				throw new Exception("当前任务已经被标记过");
+			}
 			KeywordModel keyword = new KeywordModel();
 			keyword.setId(keywordId);
 			keyword.setState(1);

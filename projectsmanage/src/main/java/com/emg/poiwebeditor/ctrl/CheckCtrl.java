@@ -89,6 +89,12 @@ public class CheckCtrl extends BaseCtrl {
 			// task = getNextCheckTask(userid);
 			task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using, 0);
 			if (task != null  && task.getId() != null) {
+				TaskModel taskdb = taskClient.getTaskByID(task.getId());
+				if (taskdb == null || (taskdb.getState() == 2 && taskdb.getProcess() == 7)) {
+					TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_CHECK_MAKING);
+					if (temptask != null && taskdb != null && taskdb.getId() == temptask.getId()) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
+					throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+				}
 				Long projectid = task.getProjectid();
 				if (projectid.compareTo(0L) > 0) {
 					project = projectModelDao.selectByPrimaryKey(projectid);
@@ -131,6 +137,12 @@ public class CheckCtrl extends BaseCtrl {
 			String saveRelations = ParamUtils.getParameter(request, "relations");
 			String source = ParamUtils.getParameter(request, "source");
 			POIDo poi = null;
+			TaskModel taskdb = taskClient.getTaskByID(taskid);
+			if (taskdb == null || (taskdb.getState() == 2 && taskdb.getProcess() == 7)) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_CHECK_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId() == temptask.getId()) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
+				throw new Exception("当前任务已经被标记过");
+			}
 			List<ModifiedlogDO> logs = new ArrayList<ModifiedlogDO>();
 			if (source != null && !source.isEmpty()) {
 				JSONArray temp = JSONArray.parseArray(source);
@@ -141,16 +153,13 @@ public class CheckCtrl extends BaseCtrl {
 			}
 			Long u = new Long(userid);
 			if (oid != -1) {
+				
 				poi = this.getPOI(request, logs, false);
 				if (poi != null) {
 					poi.setConfirmUId(Long.valueOf(userid));
 					poi.setUid(Long.valueOf(userid));
 					ret = poiClient.updatePOI(u, poi);
 					publicClient.updateModifiedlogs( logs);
-					TaskLinkPoiModel link = taskClient.selectTaskPoi(taskid);
-					if (link != null && link.getPoiId() != null && !link.getPoiId().equals(oid)) {
-						taskClient.updateLinkPoiTask(taskid, oid);
-					}
 					
 				}
 				
@@ -182,6 +191,14 @@ public class CheckCtrl extends BaseCtrl {
 					}
 					
 					keywordid = task.getKeywordid();
+				}
+			}
+			if (oid != -1) {
+				TaskLinkPoiModel link = taskClient.selectTaskPoi(taskid);
+				if (link != null ) {
+					taskClient.updateLinkPoiTask(taskid, oid);
+				}else if(link == null) {
+					taskClient.InsertNewPOITask(taskid, oid);
 				}
 			}
 		} catch (Exception e) {
@@ -483,7 +500,7 @@ public class CheckCtrl extends BaseCtrl {
 	private boolean isSamePoi(POIDo original, POIDo goal) {
 		if (original == null || goal == null) return false;
 		if(original.getId() != null && !original.getId().equals(goal.getId())) return false;
-		if(original.getNamec() !=null && original.getNamec().equals(goal.getNamec())) return false;
+		if(original.getNamec() !=null && !original.getNamec().equals(goal.getNamec())) return false;
 		if(original.getFeatcode() != null && !original.getFeatcode().equals(goal.getFeatcode())) return false;
 		if(original.getSortcode() != null && !original.getSortcode().equals(goal.getSortcode())) return false;
 		if(original.getGeo() != null && !original.getGeo().equals(goal.getGeo())) return false;
@@ -741,7 +758,12 @@ public class CheckCtrl extends BaseCtrl {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long keywordId = ParamUtils.getLongParameter(request, "keywordid", -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-			
+			TaskModel taskdb = taskClient.getTaskByID(taskid);
+			if (taskdb == null || (taskdb.getState() == 2 && taskdb.getProcess() == 7)) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_CHECK_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId() == temptask.getId()) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
+				throw new Exception("当前任务已经被标记过");
+			}
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			Long u = new Long(userid);
 			KeywordModel keyword = new KeywordModel();

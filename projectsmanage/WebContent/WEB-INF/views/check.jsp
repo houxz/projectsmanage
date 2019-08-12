@@ -48,7 +48,7 @@
 	var dianpingGeo;
 	var keywordid = eval('(${keywordid})');
 	// var taskid = eval('${task.id}');
-	var keyword = null, poi = null;
+	var keyword = null, poi = null, systemPoi = null;
 	var systemOid = -1; // 当前编辑器左侧有OID
 	// databaseSaveRelation: 用来存储数据库中保存着的relation 关系, originalCheckRelation: 数据库中存在emg和点评的关系，但该点在现在EMG中没有，单独记录，用来做提示框条件， currentCheckRelation： 数据库中有，且已经被选中的
 	var databaseSaveRelation = [], originalCheckRelation = [], currentCheckRelation = [];
@@ -511,7 +511,7 @@
 		return dtd;
 	}
 	
-	function loadRelatedPoi(taskid) {
+	function loadRelatedPoi(taskid, emgFeatcode) {
 		var dtd = $.Deferred(); 
 		jQuery.post("./check.web", {
 			"atn" : "getrelatedpoi",
@@ -521,15 +521,19 @@
 			if (json && json.result == 1 && json.poi != null) {
 				
 				poi = json.poi;
-				systemOid = poi.id;				
-				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(poi.id);
-				$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
-				$("#featcode").val(poi.featcode);
-				$("#sortcode").val(poi.sortcode);
-				$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val(poi.geo);
-				poi.poitags.forEach(function(tag, index) {
-					$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
-				});
+				systemOid = poi.id;		
+				if (!poi.del) {
+					$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(poi.id);
+					$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
+					$("#featcode").val(poi.featcode);
+					$("#sortcode").val(poi.sortcode);
+					
+					$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val(poi.geo);
+					poi.poitags.forEach(function(tag, index) {
+						$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
+					});
+				}
+				
 				loadRelation(poi.id);
 			} else {
 				$("table#tbEdit>tbody td.tdValue>input:text").val("加载失败");
@@ -579,6 +583,11 @@
 								if (keyword.srcInnerId == databaseSaveRelation[j].srcInnerId && keyword.srcType == databaseSaveRelation[j].srcType && srcInnerId == databaseSaveRelation[j].oid) {
 									// 当为EMG数据时，srcinnerid则为oid
 									$(this).prop("checked", true);
+									var emgFeatcode = $($(this).parents("table")[0]).find("td.tdValue[data-key='class']");
+									if (emgFeatcode != null) {
+										var featcode = getfeatcodename(poi.featcode);
+										emgFeatcode.text(featcode);
+									}
 									// loadEditPOI(srcInnerId);
 									flags[i] = true;
 									currentCheckRelation.push(databaseSaveRelation[j]);
@@ -863,7 +872,7 @@
 		// console.log("结束绘制腾讯地图: " + Date.now());
 	}
 	
-	function loadEditPOI(oid) {
+	function loadEditPOI(oid, emgFeatcode) {
 		if (!oid || oid <= 0) 	return;
 		var dtd = $.Deferred(); 
 		systemOid = oid;
@@ -878,6 +887,10 @@
 				$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
 				$("#featcode").val(poi.featcode);
 				$("#sortcode").val(poi.sortcode);
+				if (emgFeatcode != null) {
+					var featcode = getfeatcodename(poi.featcode);
+					emgFeatcode.text(featcode);
+				}
 				$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val(poi.geo);
 				poi.poitags.forEach(function(tag, index) {
 					$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
@@ -898,7 +911,9 @@
 			emgSrcType = 0;
 			
 		}else if (ck.checked == true && srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
-			loadEditPOI(srcInnerId);
+			// loadEditPOI(srcInnerId);
+			var emgFeatcode = $($(ck).parents("table")[0]).find("td.tdValue[data-key='class']");
+			loadEditPOI(srcInnerId, emgFeatcode);
 			$emgmarker.setLngLat([lng, lat ]);
 			$emgmap.setCenter([lng, lat]);
 			emgSrcInnerId = srcInnerId;
@@ -1218,7 +1233,7 @@
 		}
 		var isLoadNextTask = $("table#tbEdit>tbody td.tdKey[data-key='isLoadNextTask']>input:checkbox").prop("checked");
 		// 在抽检页面如果点被删除了，且没有新增点的话，那么不维护relation,不维护modifylog,直接获取下一个任务
-		if (oid == -1) {
+		if (oid == -1 && poi.del) {
 			$.webeditor.showConfirmBox("alert","确实要提交当前资料？", function(){
 		
 			jQuery.post("./check.web", {
@@ -1482,6 +1497,7 @@
 				"projectId": projectId
 			}, function(json) {
 				if (json && json.result > 0) {
+					if (oid == poi.id) poi.del = true;
 					$("table#tbEdit>tbody td.tdValue>input:text").val("");
 					$.webeditor.showMsgLabel("success", "POI删除成功");
 				} else {

@@ -2037,8 +2037,8 @@
 										onblur = ""
 									class="form-control input-sm" type="text"></td>
 								</tr> -->
-								<!-- <tr style="display: none;"> -->
-								<tr>
+								<tr style="display: none;">
+								<!-- <tr> -->
 									<td class="tdKey">类型</td>
 									<td class="tdValue" data-key="featcode">
 									<!-- <input id="featcode" class="form-control input-sm" type="text"> -->
@@ -2049,8 +2049,8 @@
 									
 									</td>
 								</tr>
-								<!-- <tr style="display: none;" > -->
-								<tr  >
+								<tr style="display: none;" >
+								<!-- <tr  > -->
 									<td class="tdKey">系列</td>
 									<td class="tdValue" data-key="sortcode">
 										<!-- <input class="form-control input-sm" type="text"> -->

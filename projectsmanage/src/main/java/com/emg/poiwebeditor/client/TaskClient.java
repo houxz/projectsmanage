@@ -76,7 +76,7 @@ public  class TaskClient {
 			sql2.append(" (state=").append(type.getState()).append(" and ").append("process=").append(type.getProcess()).append(")");
 			sql2.append(" and ").append(type.getUserColumn()).append("=").append(userid);
 			
-			sql2.append(" and tasktype=").append(type.getTaskType()).append(" order by p.sortvalue, t.id limit ").append(num).append(" ) as b(id) where tb_task.id = b.id returning tb_task.* ");
+			sql2.append(" and tasktype=").append(type.getTaskType()).append(" order by p.sortvalue, t.id limit ").append(num).append("  for update ) as b(id) where tb_task.id = b.id returning tb_task.* ");
 
 			logger.debug(sql2.toString());
 			tasks =  ExecuteSQLApiClientUtils.postList(String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sql2.toString(), TaskModel.class);
@@ -123,7 +123,7 @@ public  class TaskClient {
 			sql2.append(" (state=").append(type.getState()).append(" and ").append("process=").append(type.getProcess()).append(")");
 			sql2.append(" and (").append(type.getUserColumn()).append("=0").append(" or ").append(type.getUserColumn()).append(" ISNULL )");
 			sql2.append(" and tasktype=").append(type.getTaskType()).append("  order by p.sortvalue, t.id limit ");
-			sql2.append(num).append(" ) as b(id) where tb_task.id = b.id returning tb_task.* ");
+			sql2.append(num).append("  for update ) as b(id) where tb_task.id = b.id returning tb_task.* ");
 
 			logger.debug(sql2.toString());
 			
@@ -218,8 +218,8 @@ public  class TaskClient {
 			Long ret = -1L;
 			try {
 				StringBuilder sb = new StringBuilder();
-				sb.append("update task.tb_task_link_poi set oid=").append(oid);
-				sb.append(" where taskid = ").append(taskid);
+				sb.append("update task.tb_task_link_poi set poiid=").append(oid);
+				sb.append(", updatetime = now() where taskid = ").append(taskid);
 				
 				ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE, URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
 			} catch (Exception e) {
@@ -364,5 +364,31 @@ public  class TaskClient {
 			throw e;
 		}
 		return ret;
+	}
+	
+	/**
+	 * 获取用户已经占用的任务，即task.editid = userid
+	 * @param projectIDs
+	 * @param userid
+	 * @param num
+	 * @return
+	 * @throws Exception
+	 */
+	public TaskModel getTaskByID(long taskid) throws Exception {
+		TaskModel task =  null;
+		try {
+			
+			StringBuffer sql2 = new StringBuffer();
+			
+			sql2.append("select * from tb_task where id=").append(taskid);
+			logger.debug(sql2.toString());
+			task = (TaskModel) ExecuteSQLApiClientUtils.postModel(String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sql2.toString(), TaskModel.class);
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return task;
 	}
 }
