@@ -104,6 +104,7 @@ public class TasksManageCtrl extends BaseCtrl {
 			List<Integer> checkUserids = new ArrayList<Integer>();
 			ProjectModelExample example = new ProjectModelExample();
 			List<StateMap> stateMaps = new ArrayList<StateMap>();
+			
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 //				processType = ProcessType.valueOf(Integer.valueOf(filterPara.get("processtype").toString()));
@@ -164,7 +165,7 @@ public class TasksManageCtrl extends BaseCtrl {
 							}
 							example.clear();
 							example.or().andProcessidIn(processids);
-							_projects = projectModelDao.selectByExample(example);
+							projects = projectModelDao.selectByExample(example);
 							if (projects.isEmpty()) {
 								projects.addAll(_projects);
 							} else {
@@ -229,6 +230,21 @@ public class TasksManageCtrl extends BaseCtrl {
 						break;
 					}
 				}
+			}else {
+				
+				ProcessModelExample _example = new ProcessModelExample();
+				_example.or().andStateNotEqualTo(4);//废弃不显示
+				List<ProcessModel> processes = processModelDao.selectByExample(_example);
+				if (processes != null && processes.size() > 0) {
+					List<Long> processids = new ArrayList<Long>();
+					for (ProcessModel processModel : processes) {
+						processids.add(processModel.getId());
+					}
+					example.clear();
+					example.or().andProcessidIn(processids);
+					projects = projectModelDao.selectByExample(example);
+				}
+				
 			}
 
 			if (projects != null && !projects.isEmpty()) {

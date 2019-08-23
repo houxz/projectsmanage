@@ -16,10 +16,14 @@
 
 	<!-- 启用缓存注解功能，这个是必须的，否则注解不会生效，另外，该注解一定要声明在spring主配置文件中才会生效 -->
 	<cache:annotation-driven cache-manager="cacheManager" />
-	
+<!-- 	redis-jdbc  redis-jdbc-yiyi 是相同的 -->
 	<context:property-placeholder
-		location="WEB-INF/spring/redis-jdbc.properties"
+		location="WEB-INF/spring/redis-jdbc-yiyi.properties"
 		ignore-unresolvable="true" />
+
+<!-- 		<context:property-placeholder -->
+<!-- 		location="WEB-INF/spring/redis-jdbc-yy.properties" -->
+<!-- 		ignore-unresolvable="true" /> -->
 
 	<!-- redis 相关配置 -->
 	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">

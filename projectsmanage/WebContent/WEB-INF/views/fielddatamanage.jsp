@@ -165,23 +165,8 @@
 		$("#pg").hide();
 		 $("#uploadDlg").bootstrapDialog({
 				queryParams : function(params) {
-// 					if (params.filter != undefined) {
-// 						var filterObj = eval('(' + params.filter + ')');
-// 						if (filterObj.state != undefined) {
-// 							filterObj["state"] = filterObj.state;
-// 							delete filterObj.state;
-// 							params.filter = JSON.stringify(filterObj);
-// 						}
-// 					}
-// 					params["processid"] = processid;
-// 					params["editid"] = editid;
-// 					params["username"]=username;
 					return params;
 				}
-// 				onLoadSuccess : function(data) {
-// 					$(this.self).bootstrapTable("load", data.rows);
-					
-// 				}
 			}, {
 				width : document.documentElement.clientWidth * 0.3,
 				height: document.documentElement.clientHeight * 0.3,
@@ -207,23 +192,10 @@
 <body>
 
 <div class="container" >
-<!-- 	<div id='uploadid'></div> -->
-<!-- 	<div class='row' style='padding-top:20px'> -->
-<!-- 	<div>上传资料</div> -->
-<!-- 	<form id='uploadform' name='uploadfile' action="./fielddatamanage.web?atn=springUpload" method='post' enctype='multipart/form-data'> -->
-<!-- 	<input id='fp' type='file' name='uploadfile' /> -->
-<!-- 	<br/> -->
-<!-- 	<input  type="submit" value='上传'/> -->
-<!-- 	</form> -->
-<!-- 	<progress max="100" value="0" id="pg"></progress> -->
-<!-- 	</div> -->
-<!-- 	<div id='loadmsg'></div> -->
-<!-- data-query-params="queryParams" data-content-type="application/x-www-form-urlencoded;charset=UTF-8" -->
-	
 	<div id="headdiv"></div>
     <div class="row" style="padding-top:20px">
     	<table id="fielddatalist" data-unique-id="id"
-    		data-query-params="queryParams" 
+    		data-query-params="queryParams" data-content-type="application/x-www-form-urlencoded;charset=UTF-8"
     		data-url="./fielddatamanage.web?atn=pages"
     		data-side-pagination="server" data-filter-control="true"
     		data-pagination="true" data-toggle="fielddata" data-height="714"
