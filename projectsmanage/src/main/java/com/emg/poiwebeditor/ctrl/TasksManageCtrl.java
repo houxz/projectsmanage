@@ -105,6 +105,20 @@ public class TasksManageCtrl extends BaseCtrl {
 			ProjectModelExample example = new ProjectModelExample();
 			List<StateMap> stateMaps = new ArrayList<StateMap>();
 			
+			//不显示废弃的项目
+			ProcessModelExample _example0 = new ProcessModelExample();
+			_example0.or().andStateNotEqualTo(4);//废弃不显示
+			List<ProcessModel> processes0 = processModelDao.selectByExample(_example0);
+			if (processes0 != null && processes0.size() > 0) {
+				List<Long> processids = new ArrayList<Long>();
+				for (ProcessModel processModel : processes0) {
+					processids.add(processModel.getId());
+				}
+				example.clear();
+				example.or().andProcessidIn(processids);
+				projects = projectModelDao.selectByExample(example);
+			}
+			
 			if (filter.length() > 0) {
 				filterPara = (Map<String, Object>) JSONObject.fromObject(filter);
 //				processType = ProcessType.valueOf(Integer.valueOf(filterPara.get("processtype").toString()));
@@ -112,25 +126,42 @@ public class TasksManageCtrl extends BaseCtrl {
 					switch (key) {
 					case "processid":
 						Long processid = Long.valueOf(filterPara.get(key).toString());
-						example.clear();
-						example.or().andProcessidEqualTo(processid);
-						_projects = projectModelDao.selectByExample(example);
-						if (projects.isEmpty()) {
-							projects.addAll(_projects);
-						} else {
-							projects.retainAll(_projects);
-							if (projects.isEmpty()) {
-								json.addObject("rows", new ArrayList<TaskModel>());
-								json.addObject("total", 0);
-								json.addObject("result", 1);
-								return json;
+						boolean isvalid = false;
+						for( ProcessModel m:processes0) {
+							if( processid.equals( m.getId() )) {
+								isvalid = true;
+								break;
 							}
 						}
+						if( isvalid ) {
+							example.clear();
+							example.or().andProcessidEqualTo(processid);
+							_projects = projectModelDao.selectByExample(example);
+							if (projects.isEmpty()) {
+								projects.addAll(_projects);
+							} else {
+								projects.retainAll(_projects);
+								if (projects.isEmpty()) {
+									json.addObject("rows", new ArrayList<TaskModel>());
+									json.addObject("total", 0);
+									json.addObject("result", 1);
+									return json;
+								}
+							}
+						}
+						else {
+							json.addObject("rows", new ArrayList<TaskModel>());
+							json.addObject("total", 0);
+							json.addObject("result", 1);
+							return json;
+						}
+						
 						break;
 					case "processname":
 						String processname = filterPara.get(key).toString();
 						ProcessModelExample _example = new ProcessModelExample();
 						_example.or().andNameLike("%" + processname + "%");
+						_example.or().andStateNotEqualTo(4);
 						List<ProcessModel> processes = processModelDao.selectByExample(_example);
 						if (processes != null && processes.size() > 0) {
 							List<Long> processids = new ArrayList<Long>();
@@ -157,6 +188,7 @@ public class TasksManageCtrl extends BaseCtrl {
 						Integer processstate = Integer.valueOf(filterPara.get(key).toString());
 						ProcessModelExample __example = new ProcessModelExample();
 						__example.or().andStateEqualTo(processstate);
+						__example.or().andStateNotEqualTo(4);
 						List<ProcessModel> _processes = processModelDao.selectByExample(__example);
 						if (_processes != null && _processes.size() > 0) {
 							List<Long> processids = new ArrayList<Long>();
@@ -232,12 +264,12 @@ public class TasksManageCtrl extends BaseCtrl {
 				}
 			}else {
 				
-				ProcessModelExample _example = new ProcessModelExample();
-				_example.or().andStateNotEqualTo(4);//废弃不显示
-				List<ProcessModel> processes = processModelDao.selectByExample(_example);
-				if (processes != null && processes.size() > 0) {
+//				ProcessModelExample _example = new ProcessModelExample();
+//				_example.or().andStateNotEqualTo(4);//废弃不显示
+//				List<ProcessModel> processes = processModelDao.selectByExample(_example);
+				if (processes0 != null && processes0.size() > 0) {
 					List<Long> processids = new ArrayList<Long>();
-					for (ProcessModel processModel : processes) {
+					for (ProcessModel processModel : processes0) {
 						processids.add(processModel.getId());
 					}
 					example.clear();
