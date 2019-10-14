@@ -260,7 +260,11 @@ public  class TaskClient {
 			sb.append("UPDATE tb_task");
 			sb.append(" SET operatetime=now(),state = " ).append(type.getState());
 			sb.append(",process =" ).append(type.getProcess());
-			sb.append(" WHERE state = ").append(typeUsed.getState()).append(" and process = ").append(typeUsed.getProcess()).append(" and  ").append(typeUsed.getUserColumn()).append("=").append(editid);
+			sb.append(" WHERE state = ").append(typeUsed.getState()).append(" and process = ").append(typeUsed.getProcess());
+			if (editid > 0) {
+				sb.append(" and  ").append(typeUsed.getUserColumn()).append("=").append(editid);
+			}
+			
 			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE,
 					URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
 		} catch (Exception e) {
@@ -288,7 +292,11 @@ public  class TaskClient {
 			sb.append(" SET operatetime=null,state = 0");
 			sb.append(",process = 0,  starttime = null, ");
 			sb.append(type.getUserColumn()).append("=0 ");
-			sb.append(" WHERE state = ").append(type.getState()).append(" and process = ").append(type.getProcess()).append(" and  ").append(type.getUserColumn()).append(" = " + editid);
+			sb.append(" WHERE state = ").append(type.getState()).append(" and process = ").append(type.getProcess());
+			if (editid > 0) {
+				sb.append(" and  ").append(type.getUserColumn()).append(" = " + editid);
+			}
+			
 			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE,
 					URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
 		} catch (Exception e) {

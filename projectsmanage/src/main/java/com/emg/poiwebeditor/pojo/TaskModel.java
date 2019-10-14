@@ -47,6 +47,8 @@ public class TaskModel implements Serializable{
 	private String editname;
 	
 	private String checkname;
+	
+	
 
 	public Long getId() {
 		return id;

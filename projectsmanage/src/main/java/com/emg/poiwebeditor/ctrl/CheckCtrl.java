@@ -90,10 +90,13 @@ public class CheckCtrl extends BaseCtrl {
 			task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using, 0);
 			if (task != null  && task.getId() != null) {
 				TaskModel taskdb = taskClient.getTaskByID(task.getId());
-				if (taskdb == null || (taskdb.getState() == 2 && taskdb.getProcess() == 7)) {
+				/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 7)) {
 					TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_CHECK_MAKING);
-					if (temptask != null && taskdb != null && taskdb.getId() == temptask.getId()) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
+					if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
 					throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+				}*/
+				if (!productTask.canEdit(taskdb, userid)) {
+					throw new Exception("当前任务已经提交或者不允许编辑，刷新页面获取下一个");
 				}
 				Long projectid = task.getProjectid();
 				if (projectid.compareTo(0L) > 0) {
@@ -138,10 +141,13 @@ public class CheckCtrl extends BaseCtrl {
 			String source = ParamUtils.getParameter(request, "source");
 			POIDo poi = null;
 			TaskModel taskdb = taskClient.getTaskByID(taskid);
-			if (taskdb == null || (taskdb.getState() == 2 && taskdb.getProcess() == 7)) {
+			/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 7)) {
 				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_CHECK_MAKING);
-				if (temptask != null && taskdb != null && taskdb.getId() == temptask.getId()) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
-				throw new Exception("当前任务已经被标记过");
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
+				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+			}*/
+			if (!productTask.canEdit(taskdb, userid)) {
+				throw new Exception("当前任务已经提交或者不允许编辑，刷新页面获取下一个");
 			}
 			List<ModifiedlogDO> logs = new ArrayList<ModifiedlogDO>();
 			if (source != null && !source.isEmpty()) {
@@ -228,6 +234,15 @@ public class CheckCtrl extends BaseCtrl {
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			TaskModel taskdb = taskClient.getTaskByID(taskid);
+			/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 7)) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_CHECK_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
+				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+			}*/
+			if (!productTask.canEdit(taskdb, userid)) {
+				throw new Exception("当前任务已经提交或者不允许编辑，刷新页面获取下一个");
+			}
 			// taskClient.updateModifyTask(taskid, userid, 5, 7);
 			taskClient.updateUsedTask(taskid, TypeEnum.check_used);
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
@@ -418,12 +433,22 @@ public class CheckCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Long ret = -1L;
 		try {
-			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			TaskModel taskdb = taskClient.getTaskByID(taskid);
+			/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 7)) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_CHECK_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
+				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+			}*/
+			if (!productTask.canEdit(taskdb, userid)) {
+				throw new Exception("当前任务已经提交或者不允许编辑，刷新页面获取下一个");
+			}
 			POIDo  poi = this.getPOI(request, null, true);
 			poi.setConfirm(ConfirmEnum.confirm_ok);
-			poi.setConfirmUId(userid);
-			poi.setUid(userid);
+			poi.setConfirmUId((long)userid);
+			poi.setUid((long)userid);
 			poi.setId(oid);
 			poi.setSystemId(SystemType.poi_polymerize.getValue());
 			logger.debug(JSON.toJSON(poi).toString());
@@ -759,10 +784,13 @@ public class CheckCtrl extends BaseCtrl {
 			Long keywordId = ParamUtils.getLongParameter(request, "keywordid", -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 			TaskModel taskdb = taskClient.getTaskByID(taskid);
-			if (taskdb == null || (taskdb.getState() == 2 && taskdb.getProcess() == 7)) {
+			/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 7)) {
 				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_CHECK_MAKING);
-				if (temptask != null && taskdb != null && taskdb.getId() == temptask.getId()) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
-				throw new Exception("当前任务已经被标记过");
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
+				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+			}*/
+			if (!productTask.canEdit(taskdb, userid)) {
+				throw new Exception("当前任务已经提交或者不允许编辑，刷新页面获取下一个");
 			}
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			Long u = new Long(userid);

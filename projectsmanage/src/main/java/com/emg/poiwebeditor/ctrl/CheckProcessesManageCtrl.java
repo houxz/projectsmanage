@@ -332,15 +332,15 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 						List<TaskModel> tasklist2 = taskModelClient.selectSpotCheckProjectInfo2(projectid, editid );
 //						List<Long> keywordids = new ArrayList<Long>();
 						List< List<Long>> klist = new ArrayList<List<Long>>();
-						int listcount = 1000;
+						int listcount = 500;// 1000;
 						List<Long> keywordids = null;
 						for(TaskModel tm:tasklist2){
-							if(listcount == 1000)
+							if(listcount == 500)
 								keywordids = new ArrayList<Long>();
 							keywordids.add(tm.getKeywordid());
 							listcount--;
 							if(listcount == 0) {
-								listcount = 1000;
+								listcount = 500;
 								klist.add(keywordids);
 							}
 							//if(keywordids.size() > 1000)break;

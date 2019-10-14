@@ -41,6 +41,8 @@ public class PublicClient {
 	private final static String selectReferdatasByKeywordidUrl = "http://%s:%s/%s/referdata/loadbykeyword/%s";
 	private final static String updateKeyword = "http://%s:%s/%s/keyword/update";
 	private final static String updatePOIRelationUrl = "http://%s:%s/%s/poiMerge/upload";
+	//当资料错误时，已经聚合成功的relation,poi点被删除后，当import!= null ,需要更新importtime为当前时间
+	private final static String updateimporttime = "http://%s:%s/%s/poiMerge/updateimporttime";
 	private final static String getRelationByKeword =  "http://%s:%s/%s/poiMerge/%s/%s";
 	private final static String getRelationByOid =  "http://%s:%s/%s/poiMerge/oid/%s";
 	private final static String uploadModifiedlog =  "http://%s:%s/%s/modifiedlog/upload";
@@ -75,7 +77,7 @@ public class PublicClient {
 			HttpClientResult result = HttpClientUtils.doGet(String.format(selectKeywordsByIDUrl, host, port, path, StringUtils.join(keywordids, ",")));
 			if (!result.getStatus().equals(HttpStatus.OK))
 				return null;
-
+			
 			Object json = JSONArray.parse(result.getJson());
 			if (json instanceof JSONArray) {
 				JSONArray array = (JSONArray)json;
@@ -143,6 +145,27 @@ public class PublicClient {
 		}
 	}
 	
+	public Long updateImportTime(PoiMergeDO relation) throws Exception {
+		List<ReferdataModel> referdatas = new ArrayList<ReferdataModel>();
+		HttpClientResult result = null;
+		if(relation != null) {
+			JSONObject json = (JSONObject) JSON.toJSON(relation);
+			result = HttpClientUtils.doPost(String.format(updateimporttime, host, port, path), contentType, json.toString());
+			if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
+				String isstr = result.getJson().replace("\r\n", "");
+				
+				return Long.parseLong(isstr);
+			}
+			
+		} 
+		// if (relations == null)
+		if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
+			return Long.valueOf(1);
+		} else {
+			return -1L;
+		}
+	}
+	
 	public Long updateRelations(Long uId, List<PoiMergeDO> relations) throws Exception {
 
 		ChangePOIVO changeVO = new ChangePOIVO();
@@ -185,7 +208,7 @@ public class PublicClient {
 	}
 	
 	/**
-	 * 锟斤拷锟斤拷keyword去锟斤拷询relation,锟斤拷锟斤拷写锟斤拷诘锟絩elation锟斤拷锟斤拷锟斤拷业锟斤拷墓锟较碉拷械锟給id,锟斤拷去锟斤拷锟揭革拷锟斤拷relation锟斤拷氐锟絩elation
+	 * 根据keyword去查询relation,如果有存在的relation则根据找到的关系中的oid,再去查找跟该relation相关的relation
 	 * @param oid
 	 * @return
 	 * @throws Exception
@@ -217,7 +240,7 @@ public class PublicClient {
 	}
 	
 	/**
-	 * 锟斤拷锟斤拷keyword去锟斤拷询relation,锟斤拷锟斤拷写锟斤拷诘锟絩elation锟斤拷锟斤拷锟斤拷业锟斤拷墓锟较碉拷械锟給id,锟斤拷去锟斤拷锟揭革拷锟斤拷relation锟斤拷氐锟絩elation
+	 * 根据keyword去查询relation,如果有存在的relation则根据找到的关系中的oid,再去查找跟该relation相关的relation
 	 * @param oid
 	 * @return
 	 * @throws Exception
@@ -249,7 +272,7 @@ public class PublicClient {
 	}
 	
 	/**
-	 * 锟斤拷锟斤拷keyword去锟斤拷询relation,锟斤拷锟斤拷写锟斤拷诘锟絩elation锟斤拷锟斤拷锟斤拷业锟斤拷墓锟较碉拷械锟給id,锟斤拷去锟斤拷锟揭革拷锟斤拷relation锟斤拷氐锟絩elation
+	 * 根据keyword去查询relation,如果有存在的relation则根据找到的关系中的oid,再去查找跟该relation相关的relation
 	 * @param oid
 	 * @return
 	 * @throws Exception

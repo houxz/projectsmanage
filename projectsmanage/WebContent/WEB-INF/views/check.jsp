@@ -25,8 +25,8 @@
 <script src="resources/jquery/jquery-3.2.1.min.js"></script>
 <script src="resources/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 <script src="resources/js/webeditor.js"></script>
-<script src="resources/js/enumJS.js"></script>
-<script src="resources/js/common.js"></script>
+<script src="resources/js/enumJS.js?v=<%=System.currentTimeMillis() %>"></script>
+<script src="resources/js/common.js?v=<%=System.currentTimeMillis() %>"></script>
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src='http://static.emapgo.cn/webjs-sdk/js/emapgo-1.0.0.js'></script>
 <script src="resources/js/leaflet/leaflet.js"></script>
@@ -39,8 +39,8 @@
 <script src="resources/mapbox/mapbox-gl.js" ></script >
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=C1D7k5in8hXWy6njGuPbDXKEksGzUro1"></script>
 <script src='resources/dtree/dtree.js'></script>
-<script src='resources/js/featcodeget.js'></script>
-<script src="resources/js/featcoderegex.js"></script>
+<script src='resources/js/featcodeget.js?v=<%=System.currentTimeMillis() %>'></script>
+<script src="resources/js/featcoderegex.js?v=<%=System.currentTimeMillis() %>"></script>
 <script type="text/javascript">
 	var $emgmap = null, $baidumap = null, $gaodemap = null, $tengxunmap = null;
 	var $emgmarker = null, $baidumarker = null, $gaodemarker = null, $tengxunmarker = null;
@@ -54,7 +54,7 @@
 	var databaseSaveRelation = [], originalCheckRelation = [], currentCheckRelation = [];
 	var source = [];
 	var zoom = 17;
-	
+	var delFeatcoe = true;
 	var loaderr = "<span class='red'>加载失败</span>";
 	var redMarker = L.AwesomeMarkers.icon({
 	    	icon: 'tag',
@@ -80,7 +80,12 @@
 	
 	$(document).ready(function() {
 		$.webeditor.getHead();
-		
+		console.log("hello check " + Date.now());
+		 $(document).keydown(function (event){
+			 if (event.altKey &&  event.keyCode==78) {   
+				 submitEditTask();
+             }
+		 });
 		
 		if (keywordid && keywordid > 0) {
 			/* loadKeyword(keywordid);
@@ -215,6 +220,8 @@
 	}
 	
 	function dlgFeatcodePOIConfig(band2) {
+		if($(ele).attr("disabled")) return;
+		delFeatcoe = false;
 		$("#featcodePOI").data("band2", band2);
 		$("#featcodePOI").dialog({
 			modal : true,
@@ -262,6 +269,7 @@
 	}
 	
 	function dlgSortcodeConfig(band2) {
+		if($(ele).attr("disabled")) return;
 		$("#sortcodePOI").data("band2", band2);
 		
 		if (band2 < 0) {
@@ -527,7 +535,8 @@
 					$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
 					$("#featcode").val(poi.featcode);
 					$("#sortcode").val(poi.sortcode);
-					
+					setfeatcodename();
+					setsortcodename();
 					$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val(poi.geo);
 					poi.poitags.forEach(function(tag, index) {
 						$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
@@ -887,6 +896,8 @@
 				$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
 				$("#featcode").val(poi.featcode);
 				$("#sortcode").val(poi.sortcode);
+				setfeatcodename();
+				setsortcodename();
 				if (emgFeatcode != null) {
 					var featcode = getfeatcodename(poi.featcode);
 					emgFeatcode.text(featcode);
@@ -1395,7 +1406,7 @@
 				}, "json");
 			});
 		}else { */
-			$.webeditor.showConfirmBox("alert","确实要提交当前资料？", function(){
+			//$.webeditor.showConfirmBox("alert","确实要提交当前资料？", function(){
 			jQuery.post("./check.web", {
 				"atn" : "submitchecktask",
 				"taskid" : $("#curTaskID").html(),
@@ -1427,7 +1438,7 @@
 				}
 			});
 		// }
-		});
+		//});
 		
 		
 		$.webeditor.showMsgBox("close");
@@ -1436,7 +1447,7 @@
 	
 	function initTask(task, json) {
 		console.log("接收到返回数据开始初始化控件: " + Date.now());
-	
+		delFeatcoe = true;
 		if (task && task.id) {
 			var process = json.process;
 			var project = json.project;
@@ -1450,6 +1461,8 @@
 			// $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
 			$("#featcode").val("");
 			$("#sortcode").val("");
+			$("#featcodename").val("");
+			$("#sortcodename").val("");
 			$("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val("");
 			$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("");
 			
@@ -1494,6 +1507,7 @@
 			jQuery.post("./check.web", {
 				"atn" : "deletepoibyoid",
 				"oid" : oid,
+				"taskid" : $("#curTaskID").html(),
 				"projectId": projectId
 			}, function(json) {
 				if (json && json.result > 0) {
@@ -1693,6 +1707,12 @@
 									</td>
 								</tr>
 								<tr>
+											<td class="tdKey">类型中文</td>
+											<td class='tdValue'><input type="text" 
+											class="form-control input-sm" id="featcodename"  disabled="disabled"
+											placeholder="类型代码中文"></td>
+										</tr>
+								<tr>
 									<td class="tdKey">系列</td>
 									<td class="tdValue" data-key="sortcode">
 										<!-- <input class="form-control input-sm" type="text"> -->
@@ -1702,6 +1722,12 @@
 										</div>
 									</td>
 								</tr>
+								<tr>
+											<td class="tdKey">系列中文</td>
+											<td class='tdValue'><input type="text" 
+											class="form-control input-sm" id="sortcodename"  disabled="disabled"
+											placeholder="类型代码中文"></td>
+										</tr>
 								<tr>
 									<td class="tdKey">坐标</td>
 									<td class="tdValue" data-key="geo"><input class="form-control input-sm" type="text"></td>

@@ -21,6 +21,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.emg.poiwebeditor.cache.ProductTask;
 import com.emg.poiwebeditor.client.EditTaskClient;
 import com.emg.poiwebeditor.client.POIClient;
@@ -91,10 +92,20 @@ public class EditCtrl extends BaseCtrl {
 			
 			if (task != null  && task.getId() != null) {
 				TaskModel taskdb = taskClient.getTaskByID(task.getId());
-				if (taskdb == null || (taskdb.getState() == 2 && taskdb.getProcess() == 5)) {
+				/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 5)) {
 					TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
-					if (temptask != null && taskdb != null && taskdb.getId() == temptask.getId()) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+					if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
 					throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+				}else if(taskdb != null && taskdb.getEditid() != userid ) {
+					TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+					if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+					JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+					logger.error("当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+					throw new Exception("当前任务存在冲突，不允许编辑，刷新页面获取下一个");
+				}*/
+				if (!productTask.canEdit(taskdb, userid)) {
+					JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+					throw new Exception( "当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
 				}
 				Long projectid = task.getProjectid();
 				if (projectid.compareTo(0L) > 0) {
@@ -111,6 +122,7 @@ public class EditCtrl extends BaseCtrl {
 			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			
 		}
 		
 		model.addAttribute("task", task);
@@ -143,10 +155,20 @@ public class EditCtrl extends BaseCtrl {
 			logger.debug( "submit poi:" + oid + ", taskid:" + taskid);
 			//在提交任务的时候，判断是否一个任务被提交了多次
 			TaskModel taskdb = taskClient.getTaskByID(taskid);
-			if (taskdb == null || (taskdb.getState() == 2 && taskdb.getProcess() == 5)) {
+			/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3)  && taskdb.getProcess() == 5)) {
 				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
-				if (temptask != null && taskdb != null && taskdb.getId() == temptask.getId()) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
-				throw new Exception("当前任务已经被提交过");
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+			}else if(taskdb != null && taskdb.getEditid() != userid ) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+				logger.error("当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+				throw new Exception("当前任务存在冲突，不允许编辑，刷新页面获取下一个");
+			}*/
+			if (!productTask.canEdit(taskdb, userid)) {
+				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+				throw new Exception( "当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
 			}
 			//logger.debug("1: " + new Date().getTime() + "");
 			if (source != null && !source.isEmpty()) {
@@ -205,8 +227,9 @@ public class EditCtrl extends BaseCtrl {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			ret = -1l;
 			json.addObject("error", e.getMessage());
+			ret = -1;
+			
 		}
 		json.addObject("task", task);
 		json.addObject("project", project);
@@ -231,6 +254,22 @@ public class EditCtrl extends BaseCtrl {
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			TaskModel taskdb = taskClient.getTaskByID(taskid);
+			/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 5)) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+			}else if(taskdb != null && taskdb.getEditid() != userid ) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+				logger.error("当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+				throw new Exception("当前任务存在冲突，不允许编辑，刷新页面获取下一个");
+			}*/
+			if (!productTask.canEdit(taskdb, userid)) {
+				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+				throw new Exception( "当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+			}
 			// taskClient.updateModifyTask(taskid, userid, 5, 5);
 			taskClient.updateUsedTask(taskid, TypeEnum.edit_used);
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
@@ -256,6 +295,8 @@ public class EditCtrl extends BaseCtrl {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			json.addObject("error", e.getMessage());
+			ret = -1;
 			
 		}
 		json.addObject("task", task);
@@ -318,7 +359,9 @@ public class EditCtrl extends BaseCtrl {
 		try {
 			Long keywordid = ParamUtils.getLongParameter(request, "keywordid", -1);
 			referdatas = publicClient.selectReferdatasByKeywordid(keywordid);
-			for(ReferdataModel ref : referdatas) {
+			
+			
+			/*for(ReferdataModel ref : referdatas) {
 				if(ref.getTel() == null || ref.getTel().isEmpty()) continue;
 				String tels[] = null;
 				//提前把字符串排好序，方便在界面上比较四家电话是否完全相同
@@ -340,7 +383,7 @@ public class EditCtrl extends BaseCtrl {
 					tel.append(tels[i] + ";");
 				}
 				ref.setTel(tel.substring(0,tel.length() - 1));
-			}
+			}*/
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			referdatas = new ArrayList<ReferdataModel>();
@@ -378,12 +421,29 @@ public class EditCtrl extends BaseCtrl {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 		Long ret = -1L;
 		try {
-			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			TaskModel taskdb = taskClient.getTaskByID(taskid);
+			/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 5)) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+			}else if(taskdb != null && taskdb.getEditid() != userid ) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+				logger.error("当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+				throw new Exception("当前任务存在冲突，不允许编辑，刷新页面获取下一个");
+			}*/
+			if (!productTask.canEdit(taskdb, userid)) {
+				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+				throw new Exception( "当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+			}
 			POIDo  poi = this.getPOI(request, null);
 			poi.setConfirm(ConfirmEnum.confirm_ok);
-			poi.setConfirmUId(userid);
-			poi.setUid(userid);
+			poi.setConfirmUId((long)userid);
+			poi.setUid((long)userid);
 			poi.setId(oid);
 			poi.setSystemId(SystemType.poi_polymerize.getValue());
 			logger.debug(JSON.toJSON(poi).toString());
@@ -392,7 +452,9 @@ public class EditCtrl extends BaseCtrl {
 			ret = poiClient.deletePOIByOid(poi);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			ret = -1L;
+			json.addObject("error", e.getMessage());
+			ret = -1l;
+			
 		}
 		json.addObject("result", ret);
 
@@ -463,7 +525,7 @@ public class EditCtrl extends BaseCtrl {
 		String namec = ParamUtils.getParameter(request, "namec");
 		// String tel = ParamUtils.getParameter(request, "tel");
 		Long featcode = ParamUtils.getLongParameter(request, "featcode", 0);
-		String sortcode = ParamUtils.getParameter(request, "sortcode");
+		String sortcode = ParamUtils.getParameter(request, "sortcode", "");
 		/*String address4 = ParamUtils.getParameter(request, "address4");
 		String address5 = ParamUtils.getParameter(request, "address5");
 		String address6 = ParamUtils.getParameter(request, "address6");
@@ -883,24 +945,43 @@ public class EditCtrl extends BaseCtrl {
 		ProjectModel project = new ProjectModel();
 		ProcessModel process = new ProcessModel();
 		Long keywordid = -1L;
+		int ret = 1;
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long keywordId = ParamUtils.getLongParameter(request, "keywordid", -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-			
+			String saveRelations = ParamUtils.getParameter(request, "relation");
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			Long u = new Long(userid);
 			//在提交任务的时候，判断是否一个任务被提交了多次
 			TaskModel taskdb = taskClient.getTaskByID(taskid);
-			if (taskdb == null || (taskdb.getState() == 2 && taskdb.getProcess() == 5)) {
+			/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 5)) {
 				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
-				if (temptask != null && taskdb != null && taskdb.getId() == temptask.getId()) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
-				throw new Exception("当前任务已经被标记过");
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+			}else if(taskdb != null && taskdb.getEditid() != userid ) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+				logger.error("当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+				throw new Exception("当前任务存在冲突，不允许编辑，刷新页面获取下一个");
+			}*/
+			if (!productTask.canEdit(taskdb, userid)) {
+				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+				throw new Exception( "当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
 			}
 			KeywordModel keyword = new KeywordModel();
 			keyword.setId(keywordId);
 			keyword.setState(1);
+			
 			publicClient.updateKeyword(keyword);
+			if (saveRelations != null && !saveRelations.isEmpty()) {
+				PoiMergeDO relation = JSONObject.parseObject(saveRelations, PoiMergeDO.class);
+				if (relation != null) {
+					publicClient.updateImportTime(relation);
+				}
+			}
+			
 			//if (taskClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
 			if (taskClient.submitTask(taskid, userid, TypeEnum.edit_submit).compareTo(0L) <= 0) {
 				json.addObject("resultMsg", "任务提交失败");
@@ -928,12 +1009,14 @@ public class EditCtrl extends BaseCtrl {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			json.addObject("error", e.getMessage());
+			ret = -1;
 		}
 		json.addObject("task", task);
 		json.addObject("project", project);
 		json.addObject("process", process);
 		json.addObject("keywordid", keywordid);
-		json.addObject("result", 1);
+		json.addObject("result", ret);
 
 		logger.debug("END");
 		return json;

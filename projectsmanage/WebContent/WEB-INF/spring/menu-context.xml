@@ -139,7 +139,6 @@
 	
 	<bean id="uploadfielddata" class="com.emg.poiwebeditor.auth.MenuAuthModel">
 		<property name="code" value="1020" />
-<!-- 		<property name="url" value="/poiwebeditor/fielddatamanage.web" /> -->
 		<property name="url" value="/poiwebeditor/fielddatamanage.web" />
 		<property name="label" value="资料管理" />
 		<property name="roleSet">

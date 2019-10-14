@@ -161,11 +161,16 @@
 		var img = new Image();
 		// img.src = 'http://m.emapgo.cn/demo/electricize/img/poi_center.png';
 		img.src = "resources/images/start.png";
-		var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");// POINT (102.486719835069 24.9213802083333)
+		var geo;
+		if( dianpingGeo.indexOf("MULTIPOINT")<=-1)
+			geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");// POINT (102.486719835069 24.9213802083333)
+		else
+			geo = dianpingGeo.replace("MULTIPOINT ((","").replace("),","").replace("(","").replace(")", "").replace(")", "").split(" ");
+		    
 		console.log(geo);
 		if(isEmg) {	
 			var marker = new emapgo.Marker(img)
-			.setLngLat(geo)
+			.setLngLat([geo[0],geo[1]])
 			.addTo(map);
 		}else{
 			var myIcon = L.icon({
@@ -173,20 +178,7 @@
 			    iconSize: [31, 40]
 			});
 			L.marker([geo[1], geo[0]], {icon: myIcon}).addTo(map);
-		}
-		
-		
-// 		var geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
-// 		var img = new Image();
-// 		img.src = "resources/images/start.png";
-// 		if ($emgmarkerBase) {
-// 			$emgmarkerBase.setLngLat(geo);
-// 		} else {
-// 			$emgmarkerBase = new emapgo.Marker(img)
-// 				.setLngLat(geo)
-// 				.addTo($emgmap);
-// 			}
-		
+		}	
 		
 	}
 	
@@ -442,7 +434,7 @@
 					$("#curProcessName").text(process.name);
 					$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
 					$("#curTaskID").text(task.id);
-					$("#curProjectID").text(task.projectid);
+					$("#curProjectID").val(task.projectid);
 					keywordid = json.keywordid;
 					
 					if (keywordid && keywordid > 0) {

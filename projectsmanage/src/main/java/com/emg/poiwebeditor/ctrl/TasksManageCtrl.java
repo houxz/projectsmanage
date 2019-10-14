@@ -262,21 +262,6 @@ public class TasksManageCtrl extends BaseCtrl {
 						break;
 					}
 				}
-			}else {
-				
-//				ProcessModelExample _example = new ProcessModelExample();
-//				_example.or().andStateNotEqualTo(4);//废弃不显示
-//				List<ProcessModel> processes = processModelDao.selectByExample(_example);
-				if (processes0 != null && processes0.size() > 0) {
-					List<Long> processids = new ArrayList<Long>();
-					for (ProcessModel processModel : processes0) {
-						processids.add(processModel.getId());
-					}
-					example.clear();
-					example.or().andProcessidIn(processids);
-					projects = projectModelDao.selectByExample(example);
-				}
-				
 			}
 
 			if (projects != null && !projects.isEmpty()) {
@@ -456,7 +441,6 @@ public class TasksManageCtrl extends BaseCtrl {
 	}
 
 	private List<StateMap> getStateMap(ProcessType processType, String stateDes) {
-System.out.println("============getStateMap()=====================");		
 		List<StateMap> stateMaps = new ArrayList<StateMap>();
 		try {
 			switch (processType) {

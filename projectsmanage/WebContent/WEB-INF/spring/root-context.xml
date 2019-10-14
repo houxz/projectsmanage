@@ -9,11 +9,11 @@
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	 <import resource="redis-context.xml" />
 	<!-- DB 配置 开始 -->
-	<context:property-placeholder location="WEB-INF/spring/db41.101.properties" ignore-unresolvable="true"/>
-	<context:property-placeholder location="WEB-INF/spring/webapi_yiyi.properties" ignore-unresolvable="true"/>
+<!-- 	<context:property-placeholder location="WEB-INF/spring/db41.101.properties" ignore-unresolvable="true"/> -->
+<!-- 	<context:property-placeholder location="WEB-INF/spring/webapi_yiyi.properties" ignore-unresolvable="true"/> -->
 	
-<!-- 	<context:property-placeholder location="WEB-INF/spring/db42.24.properties" ignore-unresolvable="true"/> -->
-<!-- 	<context:property-placeholder location="WEB-INF/spring/webapi_yy.properties" ignore-unresolvable="true"/>  -->
+	<context:property-placeholder location="WEB-INF/spring/db42.24.properties" ignore-unresolvable="true"/>
+	<context:property-placeholder location="WEB-INF/spring/webapi_yy.properties" ignore-unresolvable="true"/> 
 
 	<!-- MySql 配置 -->
 	<bean id="dataSourceMySqlForAccount" class="org.apache.commons.dbcp.BasicDataSource"

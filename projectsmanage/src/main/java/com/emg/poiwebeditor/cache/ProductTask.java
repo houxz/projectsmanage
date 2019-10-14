@@ -14,6 +14,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.emg.poiwebeditor.client.TaskClient;
 import com.emg.poiwebeditor.common.RoleType;
 import com.emg.poiwebeditor.common.SystemType;
@@ -24,6 +26,7 @@ import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ProjectModelExample;
 import com.emg.poiwebeditor.pojo.ProjectsUserModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
+import com.emg.poiwebeditor.tool.FileTool;
 
 @Service
 public  class ProductTask {
@@ -70,7 +73,7 @@ public  class ProductTask {
      * @param typeInit 拿用户初始状态
      * @param typeUsing 用户占用状态
      */
-    public void loadUserTask(int user, String type, TypeEnum typeInit, TypeEnum typeUsing) {
+    public void loadUserTask(int user, String type, String typemaking, TypeEnum typeInit, TypeEnum typeUsing) {
     	
     	String key = type + "_" + user;
     	if (redisTemplate.hasKey(key)) {
@@ -78,22 +81,54 @@ public  class ProductTask {
     		int userid = Integer.parseInt(u);
     		if (userid <1) return;
     		
+    		
+    			// 如果已经存在此消息队列，则先删除些队列，再去加载新的任务，为了避免在消息队列里面去除
+    		redisTemplate.delete(key);
     		long length = listOps.size(key);
     		if (length < userTaskCache) {
-    			List<TaskModel> tasks = this.getUserTask_init(userid, userTaskCache - length, typeInit, typeUsing);
+    			/*List<TaskModel> tasks = this.getUserTask_init(userid, userTaskCache - length, typeInit, typeUsing);
+    			if(tasks != null && !tasks.isEmpty())listOps.leftPushAll(key, tasks);*/
+    			List<TaskModel> tasks = this.getUserTask(user, userTaskCache-length, typeUsing);
+    			for (int i = tasks.size() - 1; i >=0 ; i--) {
+        			String k = typemaking + "_" + user + "_current";
+        	    	if (redisTemplate.hasKey(k) && valueOperations.size(k) > 0) {
+        	    		TaskModel current = valueOperations.get(k);
+    	    			if (tasks.get(i).getId().equals(current.getId())) {
+    	    				tasks.remove(i);
+    	    				break;
+        				}
+        			}
+        		}
+        		
     			if(tasks != null && !tasks.isEmpty())listOps.leftPushAll(key, tasks);
-    			    			
+    			length = listOps.size(key);
+    			if (length < userTaskCache) {
+    				tasks = this.getUserTask_init(userid, userTaskCache - length, typeInit, typeUsing);
+    				if(tasks != null && !tasks.isEmpty())listOps.leftPushAll(key, tasks);
+    			}  			
     		}
     	}else {
     		List<TaskModel> tasks = this.getUserTask(user, userTaskCache, typeUsing);
+    		if(tasks == null) return;
+    		for (int i = tasks.size() - 1; i >=0 ; i--) {
+    			String k = typemaking + "_" + user + "_current";
+    	    	if (redisTemplate.hasKey(k) && valueOperations.size(k) > 0) {
+    	    		TaskModel current = valueOperations.get(k);
+	    			if (tasks.get(i).getId().equals(current.getId())) {
+	    				tasks.remove(i);
+	    				break;
+    				}
+    			}
+    		}
+    		
     		if(tasks != null && !tasks.isEmpty())      	listOps.leftPushAll(key, tasks);
         	if (tasks != null && tasks.size() < userTaskCache) {
         		List<TaskModel> tasks2 = this.getUserTask_init(user, userTaskCache - tasks.size(), typeInit, typeUsing);
         		if(tasks2 != null && !tasks2.isEmpty()) listOps.leftPushAll(key, tasks2);
-        	}else if(tasks == null) {
+        	}/*else if(tasks == null) {
         		List<TaskModel> tasks2 = this.getUserTask_init(user, userTaskCache, typeInit, typeUsing);
         		if(tasks2 != null && !tasks2.isEmpty()) listOps.leftPushAll(key, tasks2);
-        	}
+        	}*/
     	}
 		
     }
@@ -117,15 +152,41 @@ public  class ProductTask {
     		String k2  = type + "_" + user;
         	TaskModel task = listOps.rightPop(k2);
         	
-        	if (listOps.size(k2) < 3 || task == null) {
-        		this.loadUserTask(user, type, typeInit, typeUsed);
+        	if ( task == null) {
+        		this.loadUserTask(user, type,typemaking, typeInit, typeUsed);
         	}
         	if (task == null) task = this.popUserTask(user, type, typemaking, typeInit, typeUsed, ++index);
         	valueOperations.set(key, task);
+        	if (listOps.size(k2) < 3 ) {
+        		/*LoadTask thread = new LoadTask(user, type,typemaking, typeInit, typeUsed);
+        		thread.start();*/
+        		loadUserTask(user, type,typemaking, typeInit, typeUsed);
+        	}
         	return task;
     	}
     	
     	
+    }
+    
+    /**
+     * 加载任务
+     * @author Administrator
+     *
+     */
+    class LoadTask extends Thread {
+    	int user; String type; String typemaking; TypeEnum typeInit; TypeEnum typeUsed;
+    	public LoadTask(int user, String type, String typemaking, TypeEnum typeInit, TypeEnum typeUsed) {
+    		this.user = user;
+    		this.type = type;
+    		this.typemaking = typemaking;
+    		this.typeInit = typeInit;
+    		this.typeUsed = typeUsed;
+    	}
+    	
+    	public void run() {
+    		logger.debug("load user: " + user + " tasks");
+    		loadUserTask(user, type,typemaking, typeInit, typeUsed);
+    	}
     }
     
    /**
@@ -174,7 +235,7 @@ public  class ProductTask {
      * @return
      */
     private List<TaskModel> getUserTask(Integer userid, long num, TypeEnum type) {
-    	List<TaskModel> tasks = null;
+    	List<TaskModel> tasks = new ArrayList<TaskModel>();
 		try {
 			List<Long> _myProjectIDs = this.getProjectIds(userid);
 			if (_myProjectIDs != null && !_myProjectIDs.isEmpty()) {
@@ -193,7 +254,7 @@ public  class ProductTask {
      * @return
      */
     private List<TaskModel> getUserTask_init(Integer userid, long num, TypeEnum init, TypeEnum using) {
-    	List<TaskModel> tasks = null;
+    	List<TaskModel> tasks = new ArrayList<TaskModel>();
 		try {
 			List<Long> _myProjectIDs = this.getProjectIds(userid);
 			if (_myProjectIDs != null && !_myProjectIDs.isEmpty()) {
@@ -305,6 +366,27 @@ public  class ProductTask {
     	}
     }
     
-    
+    /**
+	 * 用来校正当前任务是否可以编辑
+	 * @param taskdb 
+	 * @param userid
+	 * @return
+	 */
+	public boolean canEdit(TaskModel taskdb, int userid) throws Exception {
+		if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3)  && taskdb.getProcess() == 5)) {
+			TaskModel temptask = this.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+			if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) this.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+			return false;
+		}else if(taskdb != null  && taskdb.getEditid() != userid ) {
+			TaskModel temptask = this.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+			if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) this.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+			JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+			String file = "/errortask.txt";
+			
+			// logger.error("当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+			return false;
+		}
+		return true;
+	}
 
 }
