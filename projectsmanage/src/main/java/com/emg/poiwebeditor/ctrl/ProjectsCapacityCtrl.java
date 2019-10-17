@@ -20,6 +20,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import com.emg.poiwebeditor.common.CommonConstants;
 import com.emg.poiwebeditor.common.IsWorkTimeEnum;
 import com.emg.poiwebeditor.common.ParamUtils;
+import com.emg.poiwebeditor.common.PoiProjectType;
 import com.emg.poiwebeditor.common.ResultModel;
 import com.emg.poiwebeditor.common.RoleType;
 import com.emg.poiwebeditor.common.TaskTypeEnum;
@@ -57,6 +58,7 @@ public class ProjectsCapacityCtrl extends BaseCtrl {
 		sb.append("}");
 		model.addAttribute("poiTaskTypes", sb.toString());
 		model.addAttribute("isWorkTimes", IsWorkTimeEnum.toJsonStr());
+		model.addAttribute("poiprojectTypes",PoiProjectType.toJsonStr() );
 		return "capacity";
 	}
 

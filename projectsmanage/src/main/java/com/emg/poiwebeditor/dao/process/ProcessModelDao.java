@@ -9,6 +9,8 @@ import com.emg.poiwebeditor.pojo.ProcessModelExample;
 public interface ProcessModelDao {
     int countByExample(ProcessModelExample example);
 
+    int countViewByExample(ProcessModelExample example);
+    
     int deleteByExample(ProcessModelExample example);
 
     int deleteByPrimaryKey(Long id);
@@ -18,8 +20,12 @@ public interface ProcessModelDao {
     int insertSelective(ProcessModel record);
 
     List<ProcessModel> selectByExample(ProcessModelExample example);
+    
+    List<ProcessModel> selectViewByExample(ProcessModelExample example);
 
     ProcessModel selectByPrimaryKey(Long id);
+    
+    ProcessModel selectViewByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") ProcessModel record, @Param("example") ProcessModelExample example);
 

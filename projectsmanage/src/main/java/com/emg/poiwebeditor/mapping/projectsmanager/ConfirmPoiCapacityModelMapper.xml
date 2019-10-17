@@ -79,7 +79,7 @@
   <sql id="Base_Column_List" >
     id, processid, processname, projectid, userid, username, roleid, time, iswork, 
     modifypoi, createpoi, deletepoi, existdeletepoi,   
-    fielddatacount, createtime
+    fielddatacount, createtime,poiprojecttype
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.emg.poiwebeditor.pojo.CapacityModelExample" >
     select
@@ -121,12 +121,13 @@
     insert into tb_projects_poiconfirmcapacity (id, processid, 
       processname, projectid, userid, 
       username, roleid, time, iswork, 
-      modifypoi,fielddatacount, createtime
+      modifypoi,fielddatacount, createtime,poiprojecttype
       )
     values (#{id,jdbcType=BIGINT}, #{processid,jdbcType=BIGINT}, 
       #{processname,jdbcType=VARCHAR}, #{projectid,jdbcType=BIGINT}, #{userid,jdbcType=INTEGER}, 
       #{username,jdbcType=VARCHAR}, #{roleid,jdbcType=INTEGER}, #{time,jdbcType=VARCHAR}, #{iswork,jdbcType=INTEGER},
-      #{modifypoi,jdbcType=BIGINT}, #{fielddatacount,jdbcType=BIGINT}, #{createtime,jdbcType=TIMESTAMP}
+      #{modifypoi,jdbcType=BIGINT}, #{fielddatacount,jdbcType=BIGINT}, #{createtime,jdbcType=TIMESTAMP},
+      #{poiprojecttype,jdbcType=INTEGER}
       )
   </insert>
   

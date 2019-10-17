@@ -83,6 +83,11 @@
 		username, createtime,
 		time
 	</sql>
+	<sql id="BaseView_Column_List">
+		id, type, name, priority, state, stage, stagestate, progress, userid,
+		username, createtime,
+		time,poiprojecttype
+	</sql>
 	<select id="selectByExample" resultMap="BaseResultMap"
 		parameterType="com.emg.poiwebeditor.pojo.ProcessModelExample">
 		select
@@ -104,11 +109,41 @@
 			offset ${offset}
 		</if>
 	</select>
+	
+	<select id="selectViewByExample" resultMap="BaseResultMap"
+		parameterType="com.emg.poiwebeditor.pojo.ProcessModelExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="BaseView_Column_List" />
+		from tb_processview
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="limit != null">
+			limit ${limit}
+		</if>
+		<if test="offset != null">
+			offset ${offset}
+		</if>
+	</select>
+	
 	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
 		parameterType="java.lang.Long">
 		select
 		<include refid="Base_Column_List" />
 		from tb_process
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	<select id="selectViewByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="BaseView_Column_List" />
+		from tb_processview
 		where id = #{id,jdbcType=BIGINT}
 	</select>
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
@@ -217,6 +252,13 @@
 	<select id="countByExample" parameterType="com.emg.poiwebeditor.pojo.ProcessModelExample"
 		resultType="java.lang.Integer">
 		select count(*) from tb_process
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<select id="countViewByExample" parameterType="com.emg.poiwebeditor.pojo.ProcessModelExample"
+		resultType="java.lang.Integer">
+		select count(*) from tb_processview
 		<if test="_parameter != null">
 			<include refid="Example_Where_Clause" />
 		</if>

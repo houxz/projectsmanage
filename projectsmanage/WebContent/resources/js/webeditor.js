@@ -139,20 +139,21 @@ jQuery.webeditor = {
 					$("#comm_confirmbox").remove();
 				},
 				buttons : [{
+					text : "取消",
+					class : "btn btn-default",
+					click : function() {
+						$(this).dialog("close");
+					}
+				},{
 					text : "确定",
 					class : "btn btn-default",
 					click : function() {
 						if(callback) callback.call();;
 						$(this).dialog("close");
 					}
-				},{
-					text : "取消",
-					class : "btn btn-default",
-					click : function() {
-						$(this).dialog("close");
-					}
 				}]
 			});
+		$($('#comm_confirmbox').siblings(".ui-dialog-buttonpane").find('button:eq(1)')).focus();
 	},
 	showMsgLabel : function(type, msg, w, h) {
 		var speed = 300;

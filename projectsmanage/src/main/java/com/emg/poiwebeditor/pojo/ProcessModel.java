@@ -24,8 +24,12 @@ public class ProcessModel {
     private String createtime;
 
     private String time;
+    //poi点面项目类型 是20191015才加的
+    //之前生成的项目都没有，存储在配置表
+    //需要的时候需要单独查
+    private Integer poiprojecttype;
 
-    public Long getId() {
+	public Long getId() {
         return id;
     }
 
@@ -120,4 +124,12 @@ public class ProcessModel {
     public void setTime(String time) {
         this.time = time;
     }
+
+	public Integer getPoiprojecttype() {
+		return poiprojecttype;
+	}
+
+	public void setPoiprojecttype(Integer poiprojecttype) {
+		this.poiprojecttype = poiprojecttype;
+	}
 }

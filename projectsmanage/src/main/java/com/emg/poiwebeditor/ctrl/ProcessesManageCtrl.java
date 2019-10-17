@@ -32,6 +32,7 @@ import com.emg.poiwebeditor.common.ItemSetUnit;
 import com.emg.poiwebeditor.common.ModelEnum;
 import com.emg.poiwebeditor.common.OwnerStatus;
 import com.emg.poiwebeditor.common.ParamUtils;
+import com.emg.poiwebeditor.common.PoiProjectType;
 import com.emg.poiwebeditor.common.PriorityLevel;
 import com.emg.poiwebeditor.common.ProcessConfigEnum;
 import com.emg.poiwebeditor.common.ProcessConfigModuleEnum;
@@ -41,6 +42,7 @@ import com.emg.poiwebeditor.common.ProjectState;
 import com.emg.poiwebeditor.common.RoleType;
 import com.emg.poiwebeditor.common.SystemType;
 import com.emg.poiwebeditor.dao.process.ConfigDBModelDao;
+import com.emg.poiwebeditor.dao.process.ConfigValueModelDao;
 import com.emg.poiwebeditor.dao.process.ProcessConfigValueModelDao;
 import com.emg.poiwebeditor.dao.process.ProcessModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
@@ -49,6 +51,7 @@ import com.emg.poiwebeditor.dao.projectsmanager.UserRoleModelDao;
 import com.emg.poiwebeditor.dao.task.DatasetModelDao;
 import com.emg.poiwebeditor.dao.task.ItemSetModelDao;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
+import com.emg.poiwebeditor.pojo.ConfigValueModel;
 import com.emg.poiwebeditor.pojo.DatasetModel;
 import com.emg.poiwebeditor.pojo.EmployeeModel;
 import com.emg.poiwebeditor.pojo.ItemAreaModel;
@@ -100,6 +103,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 
 	@Autowired
 	private TaskModelClient taskModelDao_API;
+	
+	@Autowired
+	private ConfigValueModelDao  configValueModelDao;
 
 	private ItemSetModelDao itemSetModelDao = new ItemSetModelDao();
 
@@ -114,6 +120,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 		model.addAttribute("processStates", ProcessState.undoneToJsonStr());
 		model.addAttribute("processTypes", ProcessType.toJsonStr());
 		model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
+		model.addAttribute("poiprojectTypes",PoiProjectType.toJsonStr() );
 
 		return "processesmanage";
 	}
@@ -157,6 +164,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					case "username":
 						criteria.andUsernameLike("%" + filterPara.get(key).toString() + "%");
 						break;
+					case "poiprojecttype":
+						criteria.addPoiProjectType(Integer.valueOf( filterPara.get(key).toString() ) );
+						break;
 					default:
 						logger.error("未处理的筛选项：" + key);
 						break;
@@ -170,9 +180,16 @@ public class ProcessesManageCtrl extends BaseCtrl {
 				example.setOffset(offset);
 			example.setOrderByClause("priority desc, id");
 
-			List<ProcessModel> rows = processModelDao.selectByExample(example);
-			int count = processModelDao.countByExample(example);
-
+			List<ProcessModel> rows = processModelDao.selectViewByExample(example);
+			int count = processModelDao.countViewByExample(example);
+			//设置之前没有没有这个字段时的 值
+			for(ProcessModel pm : rows) {
+				if( null == pm.getPoiprojecttype() )
+					pm.setPoiprojecttype(0);
+			}
+			
+			
+			
 			json.addObject("rows", rows);
 			json.addObject("total", count);
 			json.addObject("result", 1);
@@ -200,6 +217,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Integer priority = ParamUtils.getIntParameter(request, "priority", 0);
 			Integer uid = (Integer) session.getAttribute(CommonConstants.SESSION_USER_ID);
 			String username = (String) session.getAttribute(CommonConstants.SESSION_USER_NAME);
+			//共有私有
 			Integer owner = ParamUtils.getIntParameter(request, "config_2_19", 0) == 1 ? 1 : 0;
 			String strWorkers = ParamUtils.getParameter(request, "config_2_18");
 			String strCheckers = ParamUtils.getParameter(request, "config_2_21");
@@ -212,7 +230,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Integer processEditType = ParamUtils.getIntParameter(request, "config_2_30", 1);
 			// 是否为可靠信号源
 			Integer isAvaliableData = ParamUtils.getIntParameter(request, "config_2_31", 1);
-
+			// poi点状项目 or poi 面状项目
+			Integer poiprojecttype = ParamUtils.getIntParameter(request, "config_2_32", 0) == 1 ? 1 : 0;
 			Boolean isNewProcess = newProcessID.equals(0L);
 
 			if (newProcessID.compareTo(0L) < 0) {
@@ -335,6 +354,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					if (projectModelDao.insert(newpro) > 0) {
 						projectid349 = newpro.getId();
 					}
+					//项目id 大于0 
 					if (projectid349 > 0) {
 						configValues.add(new ProcessConfigValueModel(newProcessID,
 								ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(),
@@ -342,6 +362,12 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						configValues.add(new ProcessConfigValueModel(newProcessID,
 								ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(),
 								ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newProcessName + suffix));
+						
+						//将poi的项目类型保存到 process 中
+						 configValues.add(new ProcessConfigValueModel(newProcessID,
+								 ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(),
+								 ProcessConfigEnum.POIPROJECTTYPE.getValue(), poiprojecttype.toString() ));
+						 
 					}
 				}
 			} else {
@@ -563,6 +589,14 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						strDatasets);
 				int shapeCount = keyids.size();
 				int taskcount = 0;
+				
+				Integer tasktype = 0;
+				//点状poi项目
+				if( poiprojecttype.equals(0) )
+					tasktype = 17001;
+				else if( poiprojecttype.equals(1))//面状poi项目
+					tasktype = 17003;
+				
 				if (shapeCount > 0) {
 					ProcessConfigModel configtask = processConfigModelService
 							.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
@@ -573,7 +607,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						if (task.getEmapcount() > 0) {// 创建新任务
 							Long shapeid = task.getId();
 							Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349, shapeid,
-									0);
+									0,tasktype);
 							if (bSuccess)
 								taskcount++;
 						} else {
@@ -583,14 +617,14 @@ public class ProcessesManageCtrl extends BaseCtrl {
 									// 创建新任务
 									Long shapeid = task.getId();
 									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349,
-											shapeid, 0);
+											shapeid, 0,tasktype);
 									if (bSuccess)
 										taskcount++;
 								} else {// 创建自动完成任务
 
 									Long shapeid = task.getId();
 									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349,
-											shapeid, 3);
+											shapeid, 3,tasktype);
 									if (bSuccess) {
 										taskcount++;
 										datasetModelDao.Updatekeywordstate(configDBModel, task.getId(), 2);
@@ -603,13 +637,13 @@ public class ProcessesManageCtrl extends BaseCtrl {
 									// 创建新任务
 									Long shapeid = task.getId();
 									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349,
-											shapeid, 0);
+											shapeid, 0,tasktype);
 									if (bSuccess)
 										taskcount++;
 								} else {// 创建自动完成任务
 									Long shapeid = task.getId();
 									Boolean bSuccess = taskModelDao.InsertNewTask(configDBModelForTask, projectid349,
-											shapeid, 3);
+											shapeid, 3,tasktype);
 									if (bSuccess) {
 										taskcount++;
 										datasetModelDao.Updatekeywordstate(configDBModel, task.getId(), 2);

@@ -71,9 +71,6 @@ public class EditCtrl extends BaseCtrl {
 	@Autowired
 	private ProductTask productTask;
 	
-	private static final int BAIDU = 45;
-	private static final int TENGXUN = 46;
-	private static final int GAODE = 47;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String openLader(Model model, HttpSession session, HttpServletRequest request) {
@@ -537,7 +534,6 @@ public class EditCtrl extends BaseCtrl {
 		POIDo poi = new POIDo();
 		poi.setNamec(namec);
 		
-		logger.debug(JSON.toJSON(poi).toString());
 		POIDo savePoi = poiClient.selectPOIByOid(oid);
 		if (savePoi == null || savePoi.getId() == -1) {
 			// oid = poiClient.getPoiId();

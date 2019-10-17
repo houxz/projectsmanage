@@ -48,7 +48,7 @@ public class TaskModel implements Serializable{
 	
 	private String checkname;
 	
-	
+	private Integer poiprojecttype;
 
 	public Long getId() {
 		return id;
@@ -208,6 +208,14 @@ public class TaskModel implements Serializable{
 
 	public void setTasktype(Integer tasktype) {
 		this.tasktype = tasktype;
+	}
+
+	public Integer getPoiprojecttype() {
+		return poiprojecttype;
+	}
+
+	public void setPoiprojecttype(Integer poiprojecttype) {
+		this.poiprojecttype = poiprojecttype;
 	}
 	
 

@@ -11,6 +11,7 @@ public class SpotCheckProjectInfo {
 	private String username;
 	private String processname;
 	private Integer errorcount;
+	private Integer poiprojecttype;
 	
 	public void setId(Long id) {
 		this.id = id;
@@ -90,5 +91,13 @@ public class SpotCheckProjectInfo {
 	
 	public Integer getErrorcount() {
 		return this.errorcount;
+	}
+
+	public Integer getPoiprojecttype() {
+		return poiprojecttype;
+	}
+
+	public void setPoiprojecttype(Integer poiprojecttype) {
+		this.poiprojecttype = poiprojecttype;
 	}
 }

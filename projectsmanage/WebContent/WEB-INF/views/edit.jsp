@@ -38,7 +38,7 @@
 <script src="resources/leaflet.awesome-markers-2.0/leaflet.awesome-markers.min.js"></script>
 <script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.js"></script>
 <script src="resources/mapbox/mapbox-gl.js" ></script >
-<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=C1D7k5in8hXWy6njGuPbDXKEksGzUro1"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=5cdca260d2849731aa5d0607a945b1f8"></script>
 <script src='resources/dtree/dtree.js'></script>
 <script src='resources/js/featcodeget.js?v=<%=System.currentTimeMillis() %>'></script>
 <script src="resources/js/featcoderegex.js?v=<%=System.currentTimeMillis() %>"></script>
@@ -56,8 +56,9 @@
 	var databaseSaveRelation = [], originalCheckRelation = [], currentCheckRelation = [];
 	var source = [];
 	var zoom = 17;
+	var submitflag = 0;
 	var brandcode = [2040105,2070201,2070301,2060308,2040203,2080501,2080701,2080702,2080703,2100105,2100201,2110201,2110202,2110205];
-	
+	var notEditCode = [2080101,2080102,2080103,2010101,2010102,2010103,2010104,2010105,2010106, 2010108];
 	var loaderr = "<span class='red'>加载失败</span>";
 	var redMarker = L.AwesomeMarkers.icon({
 	    	icon: 'tag',
@@ -83,6 +84,7 @@
 	
 	$(document).ready(function() {
 		$.webeditor.getHead();
+		
 		console.log("hello edit: 111 " + Date.now());
 		if (keywordid && keywordid > 0) {
 			//console.log("开始加载数据: " + Date.now());
@@ -799,7 +801,13 @@
 		//console.log("开始绘制EMG地图: " + Date.now());
 		var geo = null;
 		if(dianpingGeo != null ){
-			geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+			if (dianpingGeo.indexOf("MULTIPOIN") >= 0) {
+				var t = dianpingGeo.split(", (")[1];
+				geo = t.substring(0, t.length-3).split(" ");
+				// geo = dianpingGeo.replace("MULTIPOIN (","").replace(")", "").split(" ");
+			}else {
+				geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+			}
 		}else {
 			geo = [lng, lat];
 		}
@@ -868,7 +876,14 @@
 			var convertor = new BMap.Convertor();
 			var pointArr = [];
 			if(keyword != null && keyword.geo != null) {
-				geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+				if (dianpingGeo.indexOf("MULTIPOIN") >= 0) {
+					var t = dianpingGeo.split(", (")[1];
+					geo = t.substring(0, t.length-3).split(" ");
+					// geo = dianpingGeo.replace("MULTIPOIN (","").replace(")", "").split(" ");
+				}else {
+					geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+				}
+				
 				pointArr.push(new BMap.Point(geo[0], geo[1]));
 			}
 			/* geo = [lng, lat];
@@ -901,7 +916,13 @@
 		//console.log("开始绘制高德地图: " + Date.now());
 		var geo = null;
 		if(dianpingGeo != null ){
-			geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+			if (dianpingGeo.indexOf("MULTIPOIN") >= 0) {
+				var t = dianpingGeo.split(", (")[1];
+				geo = t.substring(0, t.length-3).split(" ");
+				// geo = dianpingGeo.replace("MULTIPOIN (","").replace(")", "").split(" ");
+			}else {
+				geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+			}
 		}else {
 			geo = [lng, lat];
 		}
@@ -978,7 +999,13 @@
 		//console.log("开始绘制腾讯地图: " + Date.now());
 		var geo = null;
 		if(dianpingGeo != null ){
-			geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+			if (dianpingGeo.indexOf("MULTIPOIN") >= 0) {
+				var t = dianpingGeo.split(", (")[1];
+				geo = t.substring(0, t.length-3).split(" ");
+				// geo = dianpingGeo.replace("MULTIPOIN (","").replace(")", "").split(" ");
+			}else {
+				geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+			}
 		}else {
 			geo = [lng, lat];
 		}
@@ -1399,8 +1426,8 @@
 		    	html.push("<td class='tdValue' data-key='geo'>MULTIPOINT (" + referdata.srcLon + " " + referdata.srcLat + "," +   referdata.srcLon + " " + referdata.srcLat +")</td>");
 		    }
 		    
-		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
-		    
+		   //  html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
+		    html.push("</tr>");
 		    /* html.push("<tr class='trEnd'><td class='tdKey'>地址</td>");
 		    html.push("<td class='tdValue' data-key='address'>" + referdata.address + "</td>");
 		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
@@ -1448,11 +1475,56 @@
 						$emgmap = null;
 						$emgmarker = null;
 						$emgmarkerBase = null;
+						$("table#tbemg>tbody").html("<tr><td>无数据</td></tr>");
 						if (keyword && keyword.geo) {
-							var geo = keyword.geo.replace("POINT (","").replace(")", "").split(" ");
-							drawEMGMap(geo[1], geo[0], zoom);
-							$("table#tbemg>tbody").html("<tr><td>无数据</td></tr>");
-						}
+							var geo = null;
+							drawEMGMap(null,null, zoom);
+							
+						}/* else { 
+						// if (keyword == null || keyword.geo == null){
+						
+							// 如果EMG没有数据，且参考资料没有坐标，则采用高德，百度，腾讯的顺序
+							var othergeo = null;
+							if ( $("#tbgaode input:checkbox") && $("#tbgaode input:checked").length > 0){
+								var ele = $("#tbgaode input:checked");
+							
+								// var ele = $($($("#tbgaode input:checked")[0]).parents("table")[0]).find("td.tdValue[data-key='class']");	
+								for (var i = 0; i < ele.length; i++) {
+									var g = $($(ele[i]).parents("table")[0]).find("td.tdValue[data-key='geo']");	
+									othergeo = g.text();
+									if (othergeo != null && othergeo.trim() != "")break;
+								}
+								
+							}
+							
+							if ((othergeo == null || othergeo.trim() == "") && $("#tbbaidu input:checkbox") && $("#tbbaidu input:checked").length > 0) {
+								// var ele = $($($("#tbgaode input:checked")[0]).parents("table")[0]).find("td.tdValue[data-key='class']");		
+								var ele = $("#tbbaidu input:checked");
+								for (var i = 0; i < ele.length; i++) {
+									var g = $($(ele[i]).parents("table")[0]).find("td.tdValue[data-key='geo']");	
+									othergeo = g.text();
+									if (othergeo != null && othergeo.trim() != "")break;
+								}
+							}
+							
+							if ((othergeo == null || othergeo.trim() == "") && $("#tbtengxun input:checkbox") && $("#tbtengxun input:checked").length > 0) {
+								// var ele = $($($("#tbgaode input:checked")[0]).parents("table")[0]).find("td.tdValue[data-key='class']");
+								var ele = $("#tbtengxun input:checked");
+								for (var i = 0; i < ele.length; i++) {
+									var g = $($(ele[i]).parents("table")[0]).find("td.tdValue[data-key='geo']");	
+									othergeo = g.text();
+									if (othergeo != null && othergeo.trim() != "")break;
+								}
+							}
+							 if (othergeo != null && othergeo.indexOf("MULTIPOIN") >= 0) {
+									var t = dianpingGeo.split(", (")[1];
+									geo = t.substring(0, t.length-3).split(" ");
+									// geo = dianpingGeo.replace("MULTIPOIN (","").replace(")", "").split(" ");
+								}else if (othergeo != null && othergeo.trim() != "") {
+									geo = dianpingGeo.replace("POINT (","").replace(")", "").split(" ");
+								}
+								drawEMGMap(geo[1], geo[0], zoom); 
+						} */
 						
 					}
 					
@@ -1535,7 +1607,7 @@
 			$.webeditor.showMsgBox("info", "数据保存中...");
 			jQuery.post("./edit.web", {
 				"atn" : "keywordError",
-				"taskid" : $("#curTaskID").html(),
+				"taskid" : $("#curTaskID").text(),
 				"getnext" : isLoadNextTask,
 				"relation": JSON.stringify(saveRelation),
 				"keywordid": keyword.id
@@ -1549,7 +1621,7 @@
 						$("#curProcessName").text(process.name);
 						$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
 						$("#curTaskID").text(task.id);
-						$("#curProjectID").text(task.projectid);
+						$("#curProjectID").val(task.projectid);
 						$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
 						$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
 						//$("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
@@ -1615,6 +1687,16 @@
 			return;
 		}
 		
+		var tempfeatcode = $("#featcode").val();
+		if (isCanSubmit(tempfeatcode, notEditCode)) {
+			$.webeditor.showMsgLabel("alert", "当前POI点的类型不允许操作");
+			return;
+		}
+		if (submitflag == 1) {
+			$.webeditor.showCheckBox("alert", "当前任务已经提交过，请刷新页面获取下一任务");
+			return;
+		}
+		submitflag = submitflag + 1;
 		var tables = ["tbemg", "tbbaidu", "tbtengxun", "tbgaode"];
 		var relations = [];
 		var emgChecked = false;
@@ -1769,6 +1851,7 @@
 		var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val();
 		var isLoadNextTask = $("table#tbEdit>tbody td.tdKey[data-key='isLoadNextTask']>input:checkbox").prop("checked");
 		if((namec == null || namec.trim() == "" || featcode == null || featcode.trim() == "" || geo == null || geo.trim() == "") && oid != -1) {
+			submitflag = 0;
 			$.webeditor.showMsgLabel("alert", "名称、分类、坐标不能为空");
 			if (featcode == null || featcode.trim() == "" ){
 				$("#featcode").removeAttr("disabled");
@@ -1785,7 +1868,7 @@
 				
 				jQuery.post("./edit.web", {
 					"atn" : "submitedittask",
-					"taskid" : $("#curTaskID").html(),
+					"taskid" : $("#curTaskID").text(),
 					"getnext" : isLoadNextTask,
 					"relations": JSON.stringify(relations),
 					"namec": namec,
@@ -1825,7 +1908,7 @@
 			//$.webeditor.showConfirmBox("alert","确实要提交当前资料？", function(){
 				jQuery.post("./edit.web", {
 					"atn" : "submitedittask",
-					"taskid" : $("#curTaskID").html(),
+					"taskid" : $("#curTaskID").text(),
 					"getnext" : isLoadNextTask,
 					"relations": JSON.stringify(relations),
 					"namec": namec,
@@ -1871,13 +1954,15 @@
 		console.log("接收到返回数据开始初始化控件: " + Date.now());
 		delFeatcoe = true;
 		if (task && task.id) {
+			submitflag = 0;
+		
 			var process = json.process;
 			var project = json.project;
 			$("#curProcessID").text(process.id);
 			$("#curProcessName").text(process.name);
 			$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
 			$("#curTaskID").text(task.id);
-			$("#curProjectID").text(task.projectid);
+			$("#curProjectID").val(task.projectid);
 			$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
 			$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
 			// $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
@@ -1930,6 +2015,19 @@
 		}
 	}
 	
+	// 当为指定的对象类型代码时不能进行提交， 修改，删除
+	function isCanSubmit(featcode, canEditFeatcode) {
+		if (featcode == null || featcode < 0) return true;
+		var flag = false;
+		for (var i = 0; i < canEditFeatcode.length; i++) {
+			if (featcode == canEditFeatcode[i]) {
+				flag = true;
+				break;
+			}
+		}
+		return flag;
+	}
+	
 	function deletePOI(obj) {
 		var oid = null;
 		try {
@@ -1939,13 +2037,18 @@
 		}
 		source = [];
 		if (!oid || oid <= 0) 	return;
+		var tempfeatcode = $("#featcode").val();
+		if (isCanSubmit(tempfeatcode, notEditCode)) {
+			$.webeditor.showMsgLabel("alert", "当前POI点的类型不允许操作");
+			return;
+		}
 		var projectId = $("#curProjectID").val();
 		$.webeditor.showConfirmBox("alert","确定要删除这个POI吗？", function(){
 			$.webeditor.showMsgBox("info", "数据保存中...");
 			jQuery.post("./edit.web", {
 				"atn" : "deletepoibyoid",
 				"oid" : oid,
-				"taskid" : $("#curTaskID").html(),
+				"taskid" : $("#curTaskID").text(),
 				"projectId": projectId
 			}, function(json) {
 				if (json && json.result > 0) {
@@ -2069,7 +2172,7 @@
 	function getNextTask() {
 		jQuery.post("./edit.web", {
 			"atn" : "getNextTask",
-			"taskid" : $("#curTaskID").html(),
+			"taskid" : $("#curTaskID").text(),
 			"getnext" : true,
 		}, function(json) {
 			if (json && json.result == 1) {
@@ -2081,7 +2184,7 @@
 					$("#curProcessName").text(process.name);
 					$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
 					$("#curTaskID").text(task.id);
-					$("#curProjectID").text(task.projectid);
+					$("#curProjectID").val(task.projectid);
 					$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
 					$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
 					// $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");

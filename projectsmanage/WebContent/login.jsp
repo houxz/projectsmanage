@@ -12,7 +12,12 @@
 <meta name="robots" content="nofollow" />
 
 <link href="resources/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
-
+<script type="text/javascript">
+	var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
+	if (userAgent.indexOf("Chrome") < 0){
+		alert("您当前使用的不是谷歌浏览器，如果继续使用将影响您的产能和绩效，请谨慎操作，更换成谷歌浏览器");
+	}
+</script>
 </head>
 <body onload="document.f.username.focus();">
 	<div class="container">

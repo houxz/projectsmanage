@@ -258,7 +258,6 @@ public class ModifyErrorCtrl {
 			if( ret <1 ) {
 				throw new Exception("poi 提交失败 " + poi.getId() );
 			}
-
 			List<Long> errorids = new ArrayList<Long>();
 //			Integer errorcount = curErrorList.size();
 			Integer length = strerrorids.split(",").length;
@@ -272,6 +271,11 @@ public class ModifyErrorCtrl {
 				json.addObject("result", 0);
 				return json;
 			}
+			/*if (taskModelClient.submitModifyTask(taskid, userid, 2).compareTo(0L) <= 0) {
+				json.addObject("resultMsg", "任务提交失败");
+				json.addObject("result", 0);
+				return json;
+			}*/
 			if (taskModelClient.submitModifyTask(taskid, userid, 2).compareTo(0L) <= 0) {
 				if (taskModelClient.submitModifyTask(taskid, userid, 2).compareTo(0L) <= 0) {
 					json.addObject("resultMsg", "任务提交失败");
@@ -279,6 +283,7 @@ public class ModifyErrorCtrl {
 					return json;
 				}
 			}
+
 
 			if (getnext) {
 				stask = getModifyTask(userid);
@@ -554,11 +559,9 @@ public class ModifyErrorCtrl {
 		String geo = ParamUtils.getParameter(request, "poigeo");
 		Long projectId = ParamUtils.getLongParameter(request, "projectId", 0);
 
-		System.out.println("\r\n submit pid:" + projectId);
-		
 		POIDo poi = new POIDo();
 		poi.setNamec(namec);
-//		logger.debug(JSON.toJSON(poi).toString());
+		logger.debug(JSON.toJSON(poi).toString());
 
 		POIDo savePoi = poiClient.selectPOIByOid(oid);
 

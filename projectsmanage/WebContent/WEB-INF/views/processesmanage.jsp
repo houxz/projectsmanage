@@ -71,6 +71,7 @@
 	var processStates = eval('(${processStates})');
 	var processTypes = eval('(${processTypes})');
 	var priorityLevels = eval('(${priorityLevels})');
+	var poiprojecTypes = eval('(${poiprojectTypes})');
 	
 	function checkboxFormat(value, row, index) {
 		var workers = $("#" + this.valueBand).val();
@@ -135,22 +136,12 @@
 						+ ' <span style="margin:0 6px;color: black;">'
 						+ parseFloat(values[0]).toFixed(3) + '&#8453;</span>' + ' </div>');
 		html.push('</div></div>');
-// 		html.push('<div style="width: 50%;float: left;" data-toggle="tooltip" data-placement="top" title="错误修改进度：'
-// 						+ parseFloat(values[1]).toFixed(3) + '&#8453;">');
-// 		html.push('<div class="progress');
-// 		if (values[1] > 0 && values[1] < 100 && row.state == 1)
-// 			html.push(' progress-striped active');
-// 		html.push('"style="margin-bottom: 3px;">');
-// 		html.push('<div class="progress-bar progress-bar-warning" role="progressbar"'
-// 						+ ' aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
-// 						+ (parseFloat(values[1]).toFixed(3) > 100 ? 100 : parseFloat(values[1]).toFixed(3))
-// 						+ '%;background-color: '
-// 						+ colors[1]
-// 						+ ';">'
-// 						+ ' <span style="margin:0 6px;color: black;">'
-// 						+ parseFloat(values[1]).toFixed(3) + '&#8453;</span>' + ' </div>');
-// 		html.push('</div></div></div>');
+
 		return html.join('');
+	}
+	
+	function poiprojecttypeFormat(value, row, index) {
+		return poiprojecTypes[row.poiprojecttype];
 	}
 
 	function priFormat(value, row, index) {
@@ -316,6 +307,7 @@
 		
 		$("#config_2_18").val("");
 		$("#config_2_18 span").text(0);
+// 		共有私有项目
 		$("#config_2_19").prop('selectedIndex', 0);
 		$("#config_2_21").val("");
 		$("#config_2_21 span").text(0);
@@ -329,6 +321,8 @@
 		$("#config_1_29").prop('selectedIndex', 0);
 		//add by lianhr end
 		$("#config_2_30").prop('selectedIndex', 0);
+// 		点状poi项目 or 面状POI项目
+		$("#config_2_32").prop('selectedIndex',0);
 	}
 
 	function getConfig(processid, processname, priority, processtype, state) {
@@ -425,6 +419,7 @@
 							var config_2_30 = $("#config_2_30").val();
 							
 							var config_2_31 = $("#config_2_31").val();
+							var config_2_32 = $("#config_2_32").val();
 
 							if (!newProcessName || newProcessName.length <= 0) {
 								$.webeditor.showMsgLabel("alert", "项目名不能为空");
@@ -553,7 +548,8 @@
 									"config_1_29" : config_1_29,
 									//add by lianhr end
 									"config_2_30" : config_2_30,
-									"config_2_31" : config_2_31
+									"config_2_31" : config_2_31,
+									"config_2_32" : config_2_32
 								},
 								function(json) {
 									if (json.result > 0) {
@@ -783,6 +779,7 @@
 		$("#config_2_22").removeAttr("disabled");
 		$("#config_2_26").removeAttr("disabled");
 		$("#config_2_30").removeAttr("disabled");
+		$("#config_2_32").removeAttr("disabled");
 	}
 	
 	function disableByProcessType(selectValue) {
@@ -844,6 +841,9 @@
 							data-filter-control-placeholder="" data-width="160">项目名称</th>
 						<th data-field="username" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="90">创建者</th>
+						<th data-field="poiprojecttype" data-formatter="poiprojecttypeFormat"
+							data-filter-control="select" data-width="90"
+							data-filter-data="var:poiprojecTypes" >POI项目类型</th>
 						<th data-field="priority" data-formatter="priFormat"
 							data-filter-control="select" data-width="120"
 							data-filter-data="var:priorityLevels">优先级</th>
@@ -878,6 +878,13 @@
 						<input type="text"
 						style="display:none" id="config_processstatus"
 						></td>
+				</tr>
+				<tr>
+					<td class="configKey">poi项目类型</td>
+					<td class="configValue"><select class="form-control" id="config_2_32">
+							<option value="0">点状POI项目</option>
+							<option value="1">面状POI项目</option>
+					</select></td>
 				</tr>
 				<tr>
 					<td class="configKey">项目优先级</td>

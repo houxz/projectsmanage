@@ -39,6 +39,7 @@
 	var roleTypes = {5:"制作",6:"校正"};
 	var poiTaskTypes = eval('(${poiTaskTypes})');
 	var isWorkTimes = eval('(${isWorkTimes})');
+	var poiprojecTypes = eval('(${poiprojectTypes})');
 	
 	$(document).ready(function() {
 		$.webeditor.getHead();
@@ -72,6 +73,10 @@
 			html.push(row.errorcount);
 		}
 		return html.join('');
+	}
+	
+	function poiprojecttypeFormat(value, row, index) {
+		return poiprojecTypes[row.poiprojecttype];
 	}
 	
 	function queryParams(params) {
@@ -138,6 +143,10 @@
 							
 						<th data-field="processname" data-width="160"
 							data-filter-control="input" data-filter-control-placeholder="">项目名称</th>
+							
+						<th data-field="poiprojecttype" data-formatter="poiprojecttypeFormat"
+							data-filter-control="select" data-width="90"
+							data-filter-data="var:poiprojecTypes" >POI项目类型</th>
 							
 						<th data-field="username" data-width="80"
 							data-filter-control="input" data-filter-control-placeholder="">人员</th>

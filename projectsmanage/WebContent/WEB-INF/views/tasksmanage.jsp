@@ -38,6 +38,7 @@
 	var taskTypes = eval('(${taskTypes})');
 	var priorityLevels = eval('(${priorityLevels})');
 	var processStates = eval('(${processStates})');
+	var poiprojecTypes = eval('(${poiprojectTypes})');
 	
 // 	var stateDeses = {"未制作":"未制作", "制作中":"制作中", "制作完成":"制作完成", "校正错误修改中":"校正错误修改中", "待质检":"待质检","质检异常":"质检异常","质检中":"质检中", "质检完成":"质检完成", "未校正":"未校正", "校正中":"校正中", "校正完成":"校正完成", "完成":"完成", "预发布完成":"预发布完成", "悬挂点创建中":"悬挂点创建中"};
 	
@@ -91,6 +92,10 @@
 		html.push(value);
 		return html.join("");
 	}
+	
+	function poiprojecttypeFormat(value, row, index) {
+		return poiprojecTypes[row.poiprojecttype];
+	}
 
 	$(document).ready(function() {
 		$.webeditor.getHead();
@@ -141,6 +146,10 @@
 						<th data-field="processname" data-width="220"
 							data-filter-control="input" data-filter-control-placeholder="">
 							项目名称</th>
+							
+						<th data-field="poiprojecttype" data-formatter="poiprojecttypeFormat"
+							data-filter-control="select" data-width="90"
+							data-filter-data="var:poiprojecTypes" >POI项目类型</th>
 							
 <!-- 						<th data-field="processstate" data-formatter="processStateFormat"  -->
 <!-- 							data-filter-control="select" data-filter-data="var:processStates"> -->

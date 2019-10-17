@@ -42,6 +42,8 @@ public class CapacityModel {
 	private Long fielddatacount = 0L;
 
 	private Date createtime;
+	
+	private Integer poiprojecttype;
 
 	public Long getId() {
 		return id;
@@ -203,5 +205,13 @@ public class CapacityModel {
 
 	public void setCreatetime(Date createtime) {
 		this.createtime = createtime;
+	}
+
+	public Integer getPoiprojecttype() {
+		return poiprojecttype;
+	}
+
+	public void setPoiprojecttype(Integer poiprojecttype) {
+		this.poiprojecttype = poiprojecttype;
 	}
 }

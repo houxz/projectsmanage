@@ -63,9 +63,8 @@
 	var itemsetSysTypes = eval('(${itemsetSysTypes})');
 	var itemsetTypes = eval('(${itemsetTypes})');
 	var itemsetUnits = eval('(${itemsetUnits})');
-	//add by lianhr begin 2019/02/19
 	var itemmodels = eval('(${itemmodels})');
-	//add by lianhr end
+	var poiprojecTypes = eval('(${poiprojectTypes})');
 	
 	function ajaxRequest(params){
 		$.ajax({
@@ -459,6 +458,10 @@
 		html.push('<input type="checkbox" value="' + row.id + '">' + row.id
 				+ '');
 		return html.join('');
+	}
+	
+	function poiprojecttypeFormat(value, row, index) {
+		return poiprojecTypes[row.poiprojecttype];
 	}
 
 	function queryParams(params) {
@@ -999,9 +1002,12 @@
 						</th>
 						<th data-field="name" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="160">项目名称</th>
-						<th data-field="type" data-formatter="processTypesFormat"
-							data-filter-control="select" data-width="170"
-							data-filter-data="var:processTypes">项目类型</th>
+<!-- 						<th data-field="type" data-formatter="processTypesFormat" -->
+<!-- 							data-filter-control="select" data-width="170" -->
+<!-- 							data-filter-data="var:processTypes">项目类型</th> -->
+						<th data-field="poiprojecttype" data-formatter="poiprojecttypeFormat"
+							data-filter-control="select" data-width="90"
+							data-filter-data="var:poiprojecTypes" >POI项目类型</th>
 						<th data-field="username" data-filter-control="input"
 							data-filter-control-placeholder="" data-width="90">创建者</th>
 						<th data-field="priority" data-formatter="priFormat"

@@ -4301,8 +4301,8 @@ public class SchedulerTask {
 										Long editnum = (Long) taskGroup.get("editnum");
 										Integer checkid = (Integer) taskGroup.get("checkid");
 										Long checknum = (Long) taskGroup.get("checknum");
-										
-										if(taskType.equals(17001)) {
+										//poi 点状项目制作任务 ，poi 面状项目制作任务 
+										if(taskType.equals(17001) || taskType.equals(17003)) {
 											CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, editid);
 											ConfirmPoiCapacityModel editCapacityModel = new ConfirmPoiCapacityModel();
 											if(uniqRecords.containsKey(editUniqRecord)) {
@@ -4315,10 +4315,14 @@ public class SchedulerTask {
 	
 											if (project != null) {
 												Long processid = project.getProcessid();
-												ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+												ProcessModel process = processModelDao.selectViewByPrimaryKey(processid);
 												if (process != null) {
 													editCapacityModel.setProcessid(processid);
 													editCapacityModel.setProcessname(process.getName());
+													if( null == process.getPoiprojecttype())
+														editCapacityModel.setPoiprojecttype(0);
+													else
+														editCapacityModel.setPoiprojecttype(process.getPoiprojecttype());
 													
 												}
 											}
@@ -4346,7 +4350,7 @@ public class SchedulerTask {
 											
 											uniqRecords.put(editUniqRecord, editCapacityModel);
 										
-										}else if(taskType.equals(17002)) {
+										}else if(taskType.equals(17002) || taskType.equals(17004)) {
 											
 											CapacityUniq checkUniqRecord = new CapacityUniq(taskType, projectid, checkid);
 											
@@ -4360,11 +4364,15 @@ public class SchedulerTask {
 											checkCapacityModel.setProjectid(projectid);
 											if (project != null) {
 												Long processid = project.getProcessid();
-												ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+												ProcessModel process = processModelDao.selectViewByPrimaryKey(processid);
 												if (process != null) {
 													
 													checkCapacityModel.setProcessid(processid);
 													checkCapacityModel.setProcessname(process.getName());
+													if( null == process.getPoiprojecttype())
+														checkCapacityModel.setPoiprojecttype(0);
+													else
+														checkCapacityModel.setPoiprojecttype(process.getPoiprojecttype());
 												}
 											}
 											
@@ -4404,7 +4412,7 @@ public class SchedulerTask {
 										Integer checkid = (Integer) taskBlockDetailGroup.get("checkid");
 										Long projectid = (Long) taskBlockDetailGroup.get("projectid");
 										//TODO:
-										if( taskType.equals(17001)) {
+										if( taskType.equals(17001) || taskType.equals(17003)) {
 											logger.debug("002 : group15102ByTime: editid:" + editid + " featureIds:" + featureid);
 											if (projectid.compareTo(0L) <= 0)
 												continue;
@@ -4424,10 +4432,14 @@ public class SchedulerTask {
 										
 											if (project != null) {
 												Long processid = project.getProcessid();
-												ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+												ProcessModel process = processModelDao.selectViewByPrimaryKey(processid);
 												if (process != null) {
 													editCapacityModel.setProcessid(processid);
 													editCapacityModel.setProcessname(process.getName());
+													if( null == process.getPoiprojecttype())
+														editCapacityModel.setPoiprojecttype(0);
+													else
+														editCapacityModel.setPoiprojecttype(process.getPoiprojecttype());
 													
 												}
 											}
@@ -4451,7 +4463,7 @@ public class SchedulerTask {
 											uniqRecords.put(editUniqRecord, editCapacityModel);
 										
 										}
-										else if( taskType.equals(17002)) {
+										else if( taskType.equals(17002) || taskType.equals(17004) ) {
 											logger.debug("002 : group15102ByTime: checkid:" + checkid + " featureIds:" + featureid);
 											
 											if (projectid.compareTo(0L) <= 0)
@@ -4470,11 +4482,15 @@ public class SchedulerTask {
 											checkCapacityModel.setProjectid(projectid);
 											if (project != null) {
 												Long processid = project.getProcessid();
-												ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+												ProcessModel process = processModelDao.selectViewByPrimaryKey(processid);
 												if (process != null) {
 													
 													checkCapacityModel.setProcessid(processid);
 													checkCapacityModel.setProcessname(process.getName());
+													if( null == process.getPoiprojecttype())
+														checkCapacityModel.setPoiprojecttype(0);
+													else
+														checkCapacityModel.setPoiprojecttype(process.getPoiprojecttype());
 												}
 											}
 											
@@ -4549,7 +4565,7 @@ public class SchedulerTask {
 										Integer checkid = (Integer) taskGroup.get("checkid");
 										Long checknum = (Long) taskGroup.get("checknum");
 										
-										if(taskType.equals(17001)) {
+										if(taskType.equals(17001) || taskType.equals(17003)) {
 											CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, editid);
 											
 											ConfirmPoiCapacityModel editCapacityModel = new ConfirmPoiCapacityModel();
@@ -4563,10 +4579,15 @@ public class SchedulerTask {
 											
 											if (project != null) {
 												Long processid = project.getProcessid();
-												ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+												ProcessModel process = processModelDao.selectViewByPrimaryKey(processid);
 												if (process != null) {
 													editCapacityModel.setProcessid(processid);
 													editCapacityModel.setProcessname(process.getName());
+													
+													if( null == process.getPoiprojecttype())
+														editCapacityModel.setPoiprojecttype(0);
+													else
+														editCapacityModel.setPoiprojecttype(process.getPoiprojecttype());
 													
 												}
 											}
@@ -4593,7 +4614,7 @@ public class SchedulerTask {
 											
 											uniqRecords.put(editUniqRecord, editCapacityModel);
 										
-										}else if(taskType.equals(17002)) {
+										}else if(taskType.equals(17002) || taskType.equals(17004) ) {
 											
 											CapacityUniq checkUniqRecord = new CapacityUniq(taskType, projectid, checkid);
 											
@@ -4607,11 +4628,16 @@ public class SchedulerTask {
 											checkCapacityModel.setProjectid(projectid);
 											if (project != null) {
 												Long processid = project.getProcessid();
-												ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+												ProcessModel process = processModelDao.selectViewByPrimaryKey(processid);
 												if (process != null) {
 													
 													checkCapacityModel.setProcessid(processid);
 													checkCapacityModel.setProcessname(process.getName());
+													
+													if( null == process.getPoiprojecttype())
+														checkCapacityModel.setPoiprojecttype(0);
+													else
+														checkCapacityModel.setPoiprojecttype(process.getPoiprojecttype());
 												}
 											}
 										
@@ -4649,7 +4675,7 @@ public class SchedulerTask {
 										if (projectid.compareTo(0L) <= 0)
 											continue;
 										
-										if( taskType.equals(17001)) {
+										if( taskType.equals(17001) || taskType.equals(17003) ) {
 											logger.debug("002 : group15102ByTime: editid:" + editid + " featureIds:" + featureid);
 											CapacityUniq editUniqRecord = new CapacityUniq(taskType, projectid, editid);
 											
@@ -4665,10 +4691,15 @@ public class SchedulerTask {
 											
 											if (project != null) {
 												Long processid = project.getProcessid();
-												ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+												ProcessModel process = processModelDao.selectViewByPrimaryKey(processid);
 												if (process != null) {
 													editCapacityModel.setProcessid(processid);
 													editCapacityModel.setProcessname(process.getName());
+													
+													if( null == process.getPoiprojecttype())
+														editCapacityModel.setPoiprojecttype(0);
+													else
+														editCapacityModel.setPoiprojecttype(process.getPoiprojecttype());
 													
 												}
 											}
@@ -4695,7 +4726,7 @@ public class SchedulerTask {
 											uniqRecords.put(editUniqRecord, editCapacityModel);
 											
 										}
-										else if(taskType.equals(17002)) {
+										else if(taskType.equals(17002) || taskType.equals(17004) ) {
 											logger.debug("002 : group15102ByTime: checkid:" + editid + " featureIds:" + featureid);
 											
 											CapacityUniq checkUniqRecord = new CapacityUniq(taskType, projectid, checkid);
@@ -4711,11 +4742,16 @@ public class SchedulerTask {
 											checkCapacityModel.setProjectid(projectid);
 											if (project != null) {
 												Long processid = project.getProcessid();
-												ProcessModel process = processModelDao.selectByPrimaryKey(processid);
+												ProcessModel process = processModelDao.selectViewByPrimaryKey(processid);
 												if (process != null) {
 													
 													checkCapacityModel.setProcessid(processid);
 													checkCapacityModel.setProcessname(process.getName());
+													
+													if( null == process.getPoiprojecttype())
+														checkCapacityModel.setPoiprojecttype(0);
+													else
+														checkCapacityModel.setPoiprojecttype(process.getPoiprojecttype());
 												}
 											}
 											
@@ -4881,7 +4917,7 @@ public class SchedulerTask {
 	}
 	
 	/*
-	 * 定时扫描任务库 ,更新进度
+	 * 定时扫描任务库 ,更新进度， 凌晨的时候把1，5->0,0    5,5->0,0
 	 * */
 	@Scheduled(cron = "${scheduler.clearcache.dotime}")
 	public void clearCache() {
@@ -4890,11 +4926,11 @@ public class SchedulerTask {
 		try {
 			//删除缓存里面的任务
 			productTask.removeUserTask();
-			taskClient.initTaskState(-1, TypeEnum.edit_using);
-			taskClient.initTaskState(-1, TypeEnum.check_using);
+			taskClient.initTaskState_clear(-1, TypeEnum.edit_using);
+			taskClient.initTaskState_clear(-1, TypeEnum.check_using);
 			//删除稍后修改的任务，制作和抽检
-			taskClient.initTaskState(-1,  TypeEnum.edit_used);
-			taskClient.initTaskState(-1,   TypeEnum.check_used);
+			taskClient.initTaskState_clear(-1,  TypeEnum.edit_used);
+			taskClient.initTaskState_clear(-1,   TypeEnum.check_used);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

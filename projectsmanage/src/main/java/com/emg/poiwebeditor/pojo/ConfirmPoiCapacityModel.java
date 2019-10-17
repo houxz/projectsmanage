@@ -42,6 +42,16 @@ public class ConfirmPoiCapacityModel {
 	private Long fielddatacount = 0L;
 
 	private Date createtime;
+	
+	private Integer poiprojecttype;
+
+	public Integer getPoiprojecttype() {
+		return poiprojecttype;
+	}
+
+	public void setPoiprojecttype(Integer poiprojecttype) {
+		this.poiprojecttype = poiprojecttype;
+	}
 
 	public Long getId() {
 		return id;

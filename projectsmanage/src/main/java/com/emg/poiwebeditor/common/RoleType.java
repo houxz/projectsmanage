@@ -39,8 +39,15 @@ public enum RoleType {
 	/**
 	 * 7, "导出人员"
 	 */
-	ROLE_EXPORT(7, "导出人员");
+	ROLE_EXPORT(7, "导出人员"),
 
+	/**
+	 * 8,"可被抽检人员"
+	 * 这个值四方确认系统暂时没用到，
+	 * 在测试项目库中其他系统用到了，
+	 * 这里需要添加，否则会报错
+	 */
+	ROLE_SPOTCHECK(8,"可被抽检");
 	private Integer value;
 	private String des;
 

@@ -858,6 +858,18 @@ public class ProcessModelExample {
             addCriterion("time not between", value1, value2, "time");
             return (Criteria) this;
         }
+        //由于poiprojecttype这个字段是后加的，之前的项目没有
+        //通过其进行筛选时 之前的需要变换下
+        public Criteria addPoiProjectType(Integer value) {
+           if( value.equals(0)) {
+        	   addCriterion("(poiprojecttype = 0 or poiprojecttype is null )");
+           }
+           else if(value.equals(1)) {
+        	   addCriterion("poiprojecttype = 1");
+           }
+           return (Criteria) this;
+        }
+        
     }
 
     public static class Criteria extends GeneratedCriteria {

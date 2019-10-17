@@ -444,28 +444,6 @@ public class TaskBlockDetailModelDao {
 				}
 
 				StringBuffer sql = new StringBuffer();
-//				sql.append(" SELECT");
-//				sql.append("	A.projectid,A.tasktype, ");
-//				sql.append("	array_to_string(ARRAY(SELECT unnest(array_agg(B.poiid))),',') AS featureid,");
-//				sql.append("	A.editid,");
-//				sql.append("	A.checkid");
-//				sql.append(" FROM ");
-//				sql.append(configDBModel.getDbschema()).append(".");
-//				sql.append(" tb_task A,");
-//				sql.append(configDBModel.getDbschema()).append(".");
-//				sql.append(" tb_task_link_poi B ");
-//				//sql.append(" WHERE A.id = B.taskid AND A.state = 3 ");
-//				sql.append(" WHERE A.id = B.taskid   ");
-//				if (timeFlag) {
-//					sql.append("	AND ( A.starttime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ");
-//				} else {
-//					sql.append("	AND (( A.starttime BETWEEN '" + String.format("%s " + "00:00:00", time) + "' AND '"
-//							+ String.format("%s " + "08:29:59", time) + "' ) or ( A.starttime BETWEEN '"
-//							+ String.format("%s " + "17:30:00", time) + "' AND '" + String.format("%s " + "23:59:59", time)
-//							+ "' )) ");
-//				}
-//				//sql.append(" GROUP BY A.tasktype,	A.projectid,	A.blockid,		A.editid,	A.checkid ");
-//				sql.append(" AND NOT ( A.editid = 0 and A.checkid = 0)  GROUP BY 	A.projectid,		A.editid,	A.checkid,A.tasktype ");
 
 				sql.append(" (SELECT");
 				sql.append("	A.projectid,A.tasktype, ");
@@ -477,7 +455,7 @@ public class TaskBlockDetailModelDao {
 				sql.append(" tb_task A,");
 				sql.append(configDBModel.getDbschema()).append(".");
 				sql.append(" tb_task_link_poi B ");
-				sql.append(" WHERE A.id = B.taskid  and tasktype = 17001  ");
+				sql.append(" WHERE A.id = B.taskid  and ( tasktype = 17001 or tasktype = 17003) ");
 				if (timeFlag) {
 					sql.append("	AND ( A.starttime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ");
 				} else {
@@ -500,7 +478,7 @@ public class TaskBlockDetailModelDao {
 				sql.append(" tb_task A,");
 				sql.append(configDBModel.getDbschema()).append(".");
 				sql.append(" tb_task_link_poi B ");
-				sql.append(" WHERE A.id = B.taskid  and tasktype = 17002  ");
+				sql.append(" WHERE A.id = B.taskid  and (tasktype = 17002 or tasktype = 17004)  ");
 				if (timeFlag) {
 					sql.append("	AND ( A.starttime BETWEEN '" + startTime + "' AND '" + endTime + "' ) ");
 				} else {

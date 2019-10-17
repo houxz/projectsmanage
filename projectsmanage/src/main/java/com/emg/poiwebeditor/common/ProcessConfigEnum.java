@@ -120,8 +120,13 @@ public enum ProcessConfigEnum {
 	/**
 	 * 30, "编辑类型"
 	 */
-	BIANJILEIXING(30, "编辑类型");
-
+	BIANJILEIXING(30, "编辑类型"),
+	/**
+	 * 
+	 * 32
+	 */
+	POIPROJECTTYPE(32,"poi项目类型");
+	
 	private Integer value;
 	private String des;
 	

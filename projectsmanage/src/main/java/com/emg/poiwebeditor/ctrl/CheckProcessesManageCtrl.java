@@ -25,16 +25,19 @@ import com.emg.poiwebeditor.client.PublicClient;
 import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.CommonConstants;
 import com.emg.poiwebeditor.common.ParamUtils;
+import com.emg.poiwebeditor.common.PoiProjectType;
 import com.emg.poiwebeditor.common.ProcessConfigEnum;
 import com.emg.poiwebeditor.common.ProcessConfigModuleEnum;
 import com.emg.poiwebeditor.common.ProcessState;
 import com.emg.poiwebeditor.common.ProcessType;
 import com.emg.poiwebeditor.common.RoleType;
 import com.emg.poiwebeditor.common.SystemType;
+import com.emg.poiwebeditor.dao.process.ConfigValueModelDao;
 import com.emg.poiwebeditor.dao.process.ProcessConfigValueModelDao;
 import com.emg.poiwebeditor.dao.process.ProcessModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
+import com.emg.poiwebeditor.pojo.ConfigValueModel;
 import com.emg.poiwebeditor.pojo.EmployeeModel;
 import com.emg.poiwebeditor.pojo.KeywordModel;
 import com.emg.poiwebeditor.pojo.PoiMergeDO;
@@ -76,10 +79,14 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 	private ProcessConfigValueModelDao processConfigValueModelDao;
 	@Autowired
 	private PublicClient publicClient;
+	@Autowired
+	private ConfigValueModelDao    configValueModelDao;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("openlader()");
+		model.addAttribute("poiprojectTypes",PoiProjectType.toJsonStr() );
+		
 		return "checkprocessmanage";
 	}
 	
@@ -120,6 +127,9 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 					case "username":
 						criteria.andUsernameLike("%" + filterPara.get(key).toString() + "%");
 						break;
+					case "poiprojecttype":
+						criteria.addPoiProjectType(Integer.valueOf( filterPara.get(key).toString() ) );
+						break;
 					default:
 						logger.error("未处理的筛选项：" + key);
 						break;
@@ -133,9 +143,17 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 				example.setOffset(offset);
 			example.setOrderByClause("priority desc, id");
 
-			List<ProcessModel> rows = processModelDao.selectByExample(example);
-			int count = processModelDao.countByExample(example);
+//			List<ProcessModel> rows = processModelDao.selectByExample(example);
+//			int count = processModelDao.countByExample(example);
 
+			List<ProcessModel> rows = processModelDao.selectViewByExample(example);
+			int count = processModelDao.countViewByExample(example);
+			//设置之前没有没有这个字段时的 值
+			for(ProcessModel pm : rows) {
+				if( null == pm.getPoiprojecttype() )
+					pm.setPoiprojecttype(0);
+			}
+			
 			json.addObject("rows", rows);
 			json.addObject("total", count);
 			json.addObject("result", 1);
@@ -315,6 +333,22 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 			}
 			
 			if( processid > 0 ) {
+				
+				ConfigValueModel configmodel = new  ConfigValueModel();
+				configmodel.setConfigId(32);
+				configmodel.setProcessId(processid);
+				List< ConfigValueModel> configlist =	configValueModelDao.selectConfigs(configmodel);
+				Integer tasktype = 17002;
+				for( ConfigValueModel cm :configlist) {
+					//32：poi项目类型
+					if( cm.getConfigId().equals(32)) {
+						//1：poi面状项目 0：poi点状项目
+						if( cm.getValue().equals("1"))
+							tasktype = 17004;
+				       break;
+					}
+				}
+				
 				ProjectModel project = new ProjectModel();
 				
 				ProjectModelExample example = new ProjectModelExample();
@@ -389,7 +423,7 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 						Long[]spotchecktaskids= getRandomFromArray(taskids , newtaskcount);
 						Integer newctcount = 0;
 						for( int n = 0 ; n < spotchecktaskids.length;n++) {
-							TaskModel task = 	taskModelClient.createspotchecktask(spotchecktaskids[n], spotlist[j].getNewprojectid() );
+							TaskModel task = 	taskModelClient.createspotchecktask(spotchecktaskids[n], spotlist[j].getNewprojectid(),tasktype );
 							if( task != null) {
 								Long taskid = task.getId();
 								KeywordModel keyw = publicClient.selectKeywordsByID(task.getKeywordid());

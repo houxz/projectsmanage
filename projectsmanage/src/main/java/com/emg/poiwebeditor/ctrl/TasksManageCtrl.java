@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.emg.poiwebeditor.common.ParamUtils;
+import com.emg.poiwebeditor.common.PoiProjectType;
 import com.emg.poiwebeditor.common.PriorityLevel;
 import com.emg.poiwebeditor.common.ProcessConfigEnum;
 import com.emg.poiwebeditor.common.ProcessState;
@@ -34,6 +35,7 @@ import com.emg.poiwebeditor.pojo.ProcessModelExample;
 import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ProjectModelExample;
 import com.emg.poiwebeditor.pojo.TaskModel;
+import com.emg.poiwebeditor.pojo.ProcessModelExample.Criteria;
 import com.emg.poiwebeditor.service.EmapgoAccountService;
 import com.emg.poiwebeditor.service.ProcessConfigModelService;
 
@@ -66,20 +68,26 @@ public class TasksManageCtrl extends BaseCtrl {
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START");
-//		model.addAttribute("processTypes", ProcessType.toJsonStr());
-//		model.addAttribute("taskTypes", TaskTypeEnum.toJsonStr());	
-		
-		String strprocesstype = String.format("{\"%d\":\"%s\"}",ProcessType.POIPOLYMERIZE.getValue(), ProcessType.POIPOLYMERIZE.getDes() );// (ProcessType.POIPOLYMERIZE).toJsonStr();
-		String strtasktype = String.format("{\"%d\":\"%s\",\"%d\":\"%s\"}",TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), TaskTypeEnum.POIPOLYMERIZE_EDIT.getDes(),
-				TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), TaskTypeEnum.POIPOLYMERIZE_CHECK.getDes()); // TaskTypeEnum.POIPOLYMERIZE.toJsonStr();
 	
-//		String strprocesstype = String.format("{\"%d\":\"%s\"}",ProcessType.POIPOLYMERIZE.getValue(), ProcessType.POIPOLYMERIZE.getDes() );
-//		String strtasktype = String.format("{\"%d\":\"%s\"}",TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), TaskTypeEnum.POIPOLYMERIZE_EDIT.getDes()); 
+		
+		String strprocesstype = String.format("{\"%d\":\"%s\"}",ProcessType.POIPOLYMERIZE.getValue(), ProcessType.POIPOLYMERIZE.getDes() );
+//		String strtasktype = String.format("{\"%d\":\"%s\",\"%d\":\"%s\"}",TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), TaskTypeEnum.POIPOLYMERIZE_EDIT.getDes(),
+//				TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), TaskTypeEnum.POIPOLYMERIZE_CHECK.getDes());
+//	
+		
+		String strtasktype = String.format("{\"%d\":\"%s\",\"%d\":\"%s\",\"%d\":\"%s\",\"%d\":\"%s\"}",
+				TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), TaskTypeEnum.POIPOLYMERIZE_EDIT.getDes(),
+				TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), TaskTypeEnum.POIPOLYMERIZE_CHECK.getDes(),
+				TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), TaskTypeEnum.POIPOLYMERIZE_EDIT2.getDes(),
+				TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), TaskTypeEnum.POIPOLYMERIZE_CHECK2.getDes()
+				);
+	
 		
 		model.addAttribute("processTypes", strprocesstype);
 		model.addAttribute("taskTypes", strtasktype);
 		model.addAttribute("priorityLevels", PriorityLevel.toJsonStr());
 		model.addAttribute("processStates", ProcessState.toJsonStr());
+		model.addAttribute("poiprojectTypes",PoiProjectType.toJsonStr() );
 		return "tasksmanage";
 	}
 
@@ -211,6 +219,41 @@ public class TasksManageCtrl extends BaseCtrl {
 							}
 						}
 						break;
+					case "poiprojecttype":
+						Integer poiprojecttype = Integer.valueOf(filterPara.get(key).toString());
+						ProcessModelExample __example1 = new ProcessModelExample();
+//						__example1.or().addPoiProjectType(poiprojecttype);
+//						__example1.or().andStateNotEqualTo(4);
+						
+						Criteria criteria = __example1.or();
+						criteria.andStateNotEqualTo(4);
+						criteria.addPoiProjectType(poiprojecttype);
+						
+						
+				
+						
+						List<ProcessModel> _processes1 = processModelDao.selectViewByExample(__example1);
+						if (_processes1 != null && _processes1.size() > 0) {
+							List<Long> processids = new ArrayList<Long>();
+							for (ProcessModel processModel : _processes1 ) {
+								processids.add(processModel.getId());
+							}
+							example.clear();
+							example.or().andProcessidIn(processids);
+							projects = projectModelDao.selectByExample(example);
+//							if (projects.isEmpty()) {
+//								projects.addAll(_projects);
+//							} else {
+//								projects.retainAll(_projects);
+//								if (projects.isEmpty()) {
+//									json.addObject("rows", new ArrayList<TaskModel>());
+//									json.addObject("total", 0);
+//									json.addObject("result", 1);
+//									return json;
+//								}
+//							}
+						}
+						break;
 					case "id":
 						record.setId(Long.valueOf(filterPara.get(key).toString()));
 						break;
@@ -262,6 +305,21 @@ public class TasksManageCtrl extends BaseCtrl {
 						break;
 					}
 				}
+			}else {
+				
+//				ProcessModelExample _example = new ProcessModelExample();
+//				_example.or().andStateNotEqualTo(4);//废弃不显示
+//				List<ProcessModel> processes = processModelDao.selectByExample(_example);
+//				if (processes0 != null && processes0.size() > 0) {
+//					List<Long> processids = new ArrayList<Long>();
+//					for (ProcessModel processModel : processes0) {
+//						processids.add(processModel.getId());
+//					}
+//					example.clear();
+//					example.or().andProcessidIn(processids);
+//					projects = projectModelDao.selectByExample(example);
+//				}
+				
 			}
 
 			if (projects != null && !projects.isEmpty()) {
@@ -335,7 +393,8 @@ public class TasksManageCtrl extends BaseCtrl {
 							}
 							ProcessModelExample __example = new ProcessModelExample();
 							__example.or().andIdIn(processesIDInRows);
-							processesInRows = processModelDao.selectByExample(__example );
+							//processesInRows = processModelDao.selectByExample(__example );
+							processesInRows = processModelDao.selectViewByExample(__example );
 						}
 					}
 					
@@ -361,6 +420,10 @@ public class TasksManageCtrl extends BaseCtrl {
 									if (processesInRow.getId().equals(projectsInRow.getProcessid())) {
 										row.setProcessid(processesInRow.getId());
 										row.setProcessname(processesInRow.getName());
+										if( null == processesInRow.getPoiprojecttype())
+											row.setPoiprojecttype(0);
+										else
+											row.setPoiprojecttype(processesInRow.getPoiprojecttype() );
 										break;
 									}
 								}
@@ -665,9 +728,13 @@ public class TasksManageCtrl extends BaseCtrl {
 				case "未制作":
 					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
 					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(0, 0, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
 					break;
 				case "制作中":
 					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(1, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
 					break;
 				case "完成":
 					
@@ -675,12 +742,22 @@ public class TasksManageCtrl extends BaseCtrl {
 					stateMaps.add(new StateMap(3, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
 					stateMaps.add(new StateMap(3, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
 					stateMaps.add(new StateMap(3, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					
+					stateMaps.add(new StateMap(3, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(3, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(3, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
+					stateMaps.add(new StateMap(3, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
 					break;
 				case "自动完成":
 					stateMaps.add(new StateMap(3, 0, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
 					stateMaps.add(new StateMap(3, 0, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
 					stateMaps.add(new StateMap(3, 0, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
 					stateMaps.add(new StateMap(3, 0, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					
+					stateMaps.add(new StateMap(3, 0, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(3, 0, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(3, 0, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
+					stateMaps.add(new StateMap(3, 0, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
 					break;
 				case "待质检":
 					
@@ -689,21 +766,39 @@ public class TasksManageCtrl extends BaseCtrl {
 					stateMaps.add(new StateMap(2, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
 					stateMaps.add(new StateMap(2, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
 					
+					stateMaps.add(new StateMap(2, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(2, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(2, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
+					stateMaps.add(new StateMap(2, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
+					
+					
 					break;
 				case "待改错":
 					stateMaps.add(new StateMap(0, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
 					stateMaps.add(new StateMap(0, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					
+					stateMaps.add(new StateMap(0, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(0, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
+					
 					break;
 				case "改错中":
 					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
 					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					
+					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(1, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
 					break;
 				case "抽检中":
 					stateMaps.add(new StateMap(1, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					
+					stateMaps.add(new StateMap(1, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
 					break;
 				case "任务跳过":
 					stateMaps.add(new StateMap(5, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
 					stateMaps.add(new StateMap(5, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					
+					stateMaps.add(new StateMap(5, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(5, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
 					break;
 					
 				case "任务异常":
@@ -711,6 +806,11 @@ public class TasksManageCtrl extends BaseCtrl {
 					stateMaps.add(new StateMap(4, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
 					stateMaps.add(new StateMap(4, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
 					stateMaps.add(new StateMap(4, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					
+					stateMaps.add(new StateMap(4, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(4, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(4, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
+					stateMaps.add(new StateMap(4, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
 					break;
 				}
 				break;
@@ -730,7 +830,9 @@ public class TasksManageCtrl extends BaseCtrl {
 		Integer ttype = task.getTasktype();
 		Integer checkid = task.getCheckid();
 		
-		if( ttype.equals( TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue()) || ttype.equals( TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue())) {
+		if( ttype.equals( TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue()) || ttype.equals( TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue())
+		||  ttype.equals( TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue()) || ttype.equals( TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue())		
+				) {
 			if(state.equals(0) && process.equals(0)) {
 				return "未制作";
 			}else if(state.equals(1) && process.equals(5)) {

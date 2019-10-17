@@ -382,8 +382,8 @@ public class TaskModelClient {
 		return sb.toString();
 	}*/
 	
-	//获取批次的keyid集合
-	public Boolean InsertNewTask(ConfigDBModel configDBModel,Long projectid,Long shapeid,Integer state){
+	//新建Poi制作任务
+	public Boolean InsertNewTask(ConfigDBModel configDBModel,Long projectid,Long shapeid,Integer state,Integer tasktype){
 		BasicDataSource dataSource = null;
 		try {
 			if ( configDBModel == null)
@@ -397,7 +397,8 @@ public class TaskModelClient {
 			}
 			sql.append(" tb_task  ");
 			sql.append(" (name,projectid,priority,rank,keywordid,state,tasktype) ");
-			sql.append(" values('name'," + projectid +",0,0,"+ shapeid +" ," + state +","+"17001"+")");
+//			sql.append(" values('name'," + projectid +",0,0,"+ shapeid +" ," + state +","+"17001"+")");
+			sql.append(" values('name'," + projectid +",0,0,"+ shapeid +" ," + state +","+ tasktype +")");
 				
 			dataSource = Common.getDataSource(configDBModel);
 			int insertcount = new  JdbcTemplate(dataSource).update(sql.toString());
@@ -593,31 +594,6 @@ public class TaskModelClient {
 			sb.append(" SET operatetime=now(),state = " + state);
 			sb.append(",process =" + process);
 			sb.append(" WHERE state = 5 and process = 7 and  editid = " + editid);
-			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE,
-					URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw e;
-		}
-		return ret;
-	}
-	/**
-	 * 把消息队列中占用任务恢复回去,把任务状态改成0，0
-	 * @param taskid
-	 * @param editid
-	 * @param state
-	 * @param process
-	 * @return
-	 * @throws Exception
-	 */
-	public Long initTaskState(Integer editid, Integer state, Integer process) throws Exception {
-		Long ret = -1L;
-		try {
-			StringBuilder sb = new StringBuilder();
-			sb.append("UPDATE tb_task");
-			sb.append(" SET operatetime=null,state = 0");
-			sb.append(",process = 0, editid = 0, starttime = null");
-			sb.append(" WHERE state = ").append(state).append(" and process = ").append(process).append(" and  editid = " + editid);
 			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE,
 					URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
 		} catch (Exception e) {
@@ -887,13 +863,15 @@ public class TaskModelClient {
 	}
 	
 	//创建抽检任务
-	public TaskModel createspotchecktask(Long taskid, Long newprojectid) throws Exception {
+	public TaskModel createspotchecktask(Long taskid, Long newprojectid,Integer tasktype) throws Exception {
 		boolean bret = false;
 		TaskModel task = null;
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append("insert into tb_task(keywordid, tasktype,projectid)  values( (select keywordid from tb_task where id = "+ taskid);
-			sb.append(" ),17002," + newprojectid);
+			//sb.append(" ),17002," + newprojectid);
+			sb.append(" )," + tasktype+ "," + newprojectid);
+			
 			sb.append(" ) returning tb_task.*" );
 			String sql = sb.toString();
 			System.out.println(sb.toString());

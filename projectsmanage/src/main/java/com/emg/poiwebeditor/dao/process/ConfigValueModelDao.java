@@ -8,4 +8,6 @@ public interface ConfigValueModelDao {
 
     List<ConfigValueModel> selectConfigsById(ConfigValueModel model);
     
+    List<ConfigValueModel> selectConfigs(ConfigValueModel model);
+    
 }

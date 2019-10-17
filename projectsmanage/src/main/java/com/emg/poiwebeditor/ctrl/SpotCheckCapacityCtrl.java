@@ -18,8 +18,11 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import com.emg.poiwebeditor.client.TaskModelClient;
 import com.emg.poiwebeditor.common.IsWorkTimeEnum;
 import com.emg.poiwebeditor.common.ParamUtils;
+import com.emg.poiwebeditor.common.PoiProjectType;
 import com.emg.poiwebeditor.common.TaskTypeEnum;
+import com.emg.poiwebeditor.dao.process.ConfigValueModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
+import com.emg.poiwebeditor.pojo.ConfigValueModel;
 import com.emg.poiwebeditor.pojo.EmployeeModel;
 import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ProjectModelExample;
@@ -39,11 +42,14 @@ public class SpotCheckCapacityCtrl extends BaseCtrl{
 	private ProjectModelDao projectModelDao;
 	@Autowired
 	private EmapgoAccountService emapgoAccountService;
+	@Autowired
+	private ConfigValueModelDao    configValueModelDao;
 	
 	@RequestMapping()
 	public String openLader(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("SpotCheckCapacityCtrl-openLader start.");
 		
+		model.addAttribute("poiprojectTypes",PoiProjectType.toJsonStr() );
 		return "spotcheckcapacity";
 	}
 	
@@ -124,10 +130,27 @@ public class SpotCheckCapacityCtrl extends BaseCtrl{
 							String name = projectmodel.getName();
 							taskinfo.setProcessname(name);
 							taskinfo.setProcessid(projectmodel.getProcessid());
+							
+							ConfigValueModel configmodel = new  ConfigValueModel();
+							configmodel.setConfigId(32);
+							configmodel.setProcessId(projectmodel.getProcessid());
+							List< ConfigValueModel> configlist =	configValueModelDao.selectConfigs(configmodel);
+							boolean bfind = false;
+							for( ConfigValueModel cm:configlist) {
+								if(null ==	cm.getValue())
+									taskinfo.setPoiprojecttype(0);
+								else
+									taskinfo.setPoiprojecttype( Integer.valueOf(cm.getValue()));
+								bfind = true;
+							}
+							if( !bfind)
+								taskinfo.setPoiprojecttype(0);
+							
 							break;
 						}
 					}
 				}
+				
 				json.addObject("rows",tasklist);
 				json.addObject("total", totalcount);	
 				ret = 1;

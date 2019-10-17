@@ -22,6 +22,7 @@ import com.emg.poiwebeditor.common.ItemSetType;
 import com.emg.poiwebeditor.common.ItemSetUnit;
 import com.emg.poiwebeditor.common.ModelEnum;
 import com.emg.poiwebeditor.common.ParamUtils;
+import com.emg.poiwebeditor.common.PoiProjectType;
 import com.emg.poiwebeditor.common.PriorityLevel;
 import com.emg.poiwebeditor.common.ProcessState;
 import com.emg.poiwebeditor.common.ProcessType;
@@ -56,8 +57,9 @@ public class DoneProcessesManageCtrl extends BaseCtrl {
 		model.addAttribute("itemsetUnits", ItemSetUnit.toJsonStr());
 		//add by lianhr begin 2019/02/19
 		model.addAttribute("itemmodels", ModelEnum.toJsonStr());
-		//add by lianhr end
-
+	
+		model.addAttribute("poiprojectTypes",PoiProjectType.toJsonStr() );
+		
 		return "doneprocessesmanage";
 	}
 	
@@ -95,6 +97,9 @@ public class DoneProcessesManageCtrl extends BaseCtrl {
 					case "username":
 						criteria.andUsernameLike("%" + filterPara.get(key).toString() + "%");
 						break;
+					case "poiprojecttype":
+						criteria.addPoiProjectType(Integer.valueOf( filterPara.get(key).toString() ) );
+						break;
 					default:
 						logger.error("未处理的筛选项：" + key);
 						break;
@@ -108,8 +113,16 @@ public class DoneProcessesManageCtrl extends BaseCtrl {
 				example.setOffset(offset);
 			example.setOrderByClause("priority desc, id");
 
-			List<ProcessModel> rows = processModelDao.selectByExample(example);
-			int count = processModelDao.countByExample(example);
+//			List<ProcessModel> rows = processModelDao.selectByExample(example);
+//			int count = processModelDao.countByExample(example);
+			
+			List<ProcessModel> rows = processModelDao.selectViewByExample(example);
+			int count = processModelDao.countViewByExample(example);
+			//设置之前没有没有这个字段时的 值
+			for(ProcessModel pm : rows) {
+				if( null == pm.getPoiprojecttype() )
+					pm.setPoiprojecttype(0);
+			}
 
 			json.addObject("rows", rows);
 			json.addObject("total", count);

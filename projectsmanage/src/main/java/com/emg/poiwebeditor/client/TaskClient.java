@@ -162,7 +162,7 @@ public  class TaskClient {
 	}
 	
 	//获取批次的keyid集合
-	public Boolean InsertNewTask(ConfigDBModel configDBModel,Long projectid,Long shapeid,Integer state){
+	/*public Boolean InsertNewTask(ConfigDBModel configDBModel,Long projectid,Long shapeid,Integer state){
 		BasicDataSource dataSource = null;
 		try {
 			if ( configDBModel == null)
@@ -197,7 +197,7 @@ public  class TaskClient {
 			}
 		}
 		return false;
-	}
+	}*/
 	//每次提交的时候向tb_link_poi中插入一条数据
 	public Long InsertNewPOITask(Long taskid, Long oid) throws Exception{
 		Long ret = -1L;
@@ -253,7 +253,7 @@ public  class TaskClient {
 	 * @return
 	 * @throws Exception
 	 */
-	public Long updateTaskState(Integer editid, TypeEnum type, TypeEnum typeUsed) throws Exception {
+	public Long updateTaskState_clear(Integer editid, TypeEnum type, TypeEnum typeUsed) throws Exception {
 		Long ret = -1L;
 		try {
 			StringBuilder sb = new StringBuilder();
@@ -264,7 +264,37 @@ public  class TaskClient {
 			if (editid > 0) {
 				sb.append(" and  ").append(typeUsed.getUserColumn()).append("=").append(editid);
 			}
-			
+			logger.warn("updateTaskState_clear:" + sb.toString());
+			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE,
+					URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		return ret;
+	}
+	
+	/**
+	 * 把稍后修改的状态，改回初始状态（5，5-->1, 5,   5,7-->1, 7）
+	 * @param editid
+	 * @param type 原始状态
+	 * @param typeUsed 被占用状态
+	 * @return
+	 * @throws Exception
+	 */
+	public Long updateTaskState_logout(Integer editid, TypeEnum type, TypeEnum typeUsed) throws Exception {
+		Long ret = -1L;
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append("UPDATE tb_task");
+			sb.append(" SET operatetime=now(),state = " ).append(type.getState());
+			sb.append(",process =" ).append(type.getProcess());
+			sb.append(" WHERE state = ").append(typeUsed.getState()).append(" and process = ").append(typeUsed.getProcess());
+			sb.append(" and  ").append(typeUsed.getUserColumn()).append("=").append(editid);
+			if (editid < 1) {
+				throw new Exception("当前退出的用户id不能为空");
+			}
+			logger.warn("updateTaskState_logout" + sb.toString());
 			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE,
 					URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
 		} catch (Exception e) {
@@ -284,19 +314,52 @@ public  class TaskClient {
 	 * @return
 	 * @throws Exception
 	 */
-	public Long initTaskState(Integer editid, TypeEnum type) throws Exception {
+	public Long initTaskState_logout(Integer editid, TypeEnum type) throws Exception {
 		Long ret = -1L;
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append("UPDATE tb_task");
-			sb.append(" SET operatetime=null,state = 0");
+			sb.append(" SET operatetime='2088-01-01 00:00',state = 0");
+			sb.append(",process = 0,  starttime = null, ");
+			sb.append(type.getUserColumn()).append("=0 ");
+			sb.append(" WHERE state = ").append(type.getState()).append(" and process = ").append(type.getProcess());
+			
+			sb.append(" and  ").append(type.getUserColumn()).append(" = " + editid);
+			if (editid < 0) {
+				throw new Exception("initTaskState_logout:" + sb.toString());
+			}
+			logger.warn("initTaskState_logout: " + sb.toString());
+			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE,
+					URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		return ret;
+	}
+	
+	/**
+	 * 把消息队列中占用任务恢复回去,把任务状态改成0，0
+	 * @param taskid
+	 * @param editid
+	 * @param state
+	 * @param process
+	 * @return
+	 * @throws Exception
+	 */
+	public Long initTaskState_clear(Integer editid, TypeEnum type) throws Exception {
+		Long ret = -1L;
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append("UPDATE tb_task");
+			sb.append(" SET operatetime='2099-01-01 00:00',state = 0");
 			sb.append(",process = 0,  starttime = null, ");
 			sb.append(type.getUserColumn()).append("=0 ");
 			sb.append(" WHERE state = ").append(type.getState()).append(" and process = ").append(type.getProcess());
 			if (editid > 0) {
 				sb.append(" and  ").append(type.getUserColumn()).append(" = " + editid);
 			}
-			
+			logger.warn("initTaskState_clear: " + sb.toString());
 			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE,
 					URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
 		} catch (Exception e) {

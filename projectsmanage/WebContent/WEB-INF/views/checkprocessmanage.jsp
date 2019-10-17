@@ -74,6 +74,8 @@
 		
 	});
 	
+	var poiprojecTypes = eval('(${poiprojectTypes})');
+	
 	function drawspotchecktask(tasklist){
 		var tbody = $("#spotcheckeditid tbody");
 		tbody.empty();
@@ -124,6 +126,10 @@
 		var html = new Array();
 		html.push('<div><input type="text"></div>');
 		return html.join('');
+	}
+	
+	function poiprojecttypeFormat(value, row, index) {
+		return poiprojecTypes[row.poiprojecttype];
 	}
 	
 	function getspotchecktaskinfo( processid,editid,username ) { 
@@ -269,9 +275,12 @@
 						<thead>
 							<tr>
 								<th data-field="id" data-filter-control="input"
-									data-filter-control-placeholder="" data-width="120">项目编号</th>
+									data-filter-control-placeholder="" data-width="60">项目编号</th>
 								<th data-field="name" data-filter-control="input"
 									data-filter-control-placeholder="" data-width="160">项目名称</th>
+								<th data-field="poiprojecttype" data-formatter="poiprojecttypeFormat"
+									data-filter-control="select" data-width="120"
+									data-filter-data="var:poiprojecTypes" >POI项目类型</th>
 							</tr>
 						</thead>
 					</table>

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.emg.poiwebeditor.pojo.ProcessModelExample.Criteria;
+
 public class CapacityModelExample {
     protected String orderByClause;
 
@@ -1303,6 +1305,12 @@ public class CapacityModelExample {
         public Criteria andCreatetimeNotBetween(Date value1, Date value2) {
             addCriterion("createtime not between", value1, value2, "createtime");
             return (Criteria) this;
+        }
+        
+       //由于poiprojecttype这个字段是后加的，之前的项目没有 全部默认为0 了
+        public Criteria addPoiProjectType(Integer value) {
+        	addCriterion("poiprojecttype = ",value,"poiprojecttype");
+           return (Criteria) this;
         }
     }
 

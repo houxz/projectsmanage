@@ -61,6 +61,7 @@
 		</where>
 	</select>
 	
+
 	<select id="selectValueByConfig" resultMap="BaseResultMap"
 		parameterType="com.emg.poiwebeditor.pojo.ConfigValueModel">
 		select

@@ -53,18 +53,23 @@ public class LogoutCtrl extends BaseCtrl {
 			logModelDao.log(log);
 			
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			if (auth != null) {
-				//把占用的制作任务恢复到初始状态
-				productTask.removeUserTask(userid, ProductTask.TYPE_EDIT_QUENE, TypeEnum.edit_using);
-				productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
-				//把占用的校正任务恢复为初始状态
-				productTask.removeUserTask(userid, ProductTask.TYPE_CHECK_QUENE, TypeEnum.check_using);
-				productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
-				Thread.sleep(500);
-				// taskClient.updateTaskState(userid, 1, 5);
-				//把稍后修改的置为初始状态
-				taskClient.updateTaskState(userid, TypeEnum.edit_using, TypeEnum.edit_used);
-				taskClient.updateTaskState(userid, TypeEnum.check_using, TypeEnum.check_used);
+			if (auth != null ) {
+				if (userid > 0) {
+					productTask.removeUserTask(userid, ProductTask.TYPE_EDIT_QUENE, TypeEnum.edit_using);
+					productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+					
+					productTask.removeUserTask(userid, ProductTask.TYPE_CHECK_QUENE, TypeEnum.check_using);
+					productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
+					Thread.sleep(500);
+					// taskClient.updateTaskState(userid, 1, 5);
+					//
+					taskClient.initTaskState_logout(userid, TypeEnum.edit_using);
+					taskClient.initTaskState_logout(userid, TypeEnum.check_using);
+					taskClient.updateTaskState_logout(userid, TypeEnum.edit_using, TypeEnum.edit_used);
+					taskClient.updateTaskState_logout(userid, TypeEnum.check_using, TypeEnum.check_used);
+					logger.warn("logout user is :" + userid);
+				}
+				
 				new SecurityContextLogoutHandler().logout(request, response, auth);
 				
 			}

@@ -6,6 +6,8 @@ textarea {
 	resize: vertical;
 }
 
+
+
 .fullHeight {
 	height: 100%;
 }
@@ -338,6 +340,7 @@ tr.trIndex {
 tr.trEnd {
 	border-bottom: 3px solid #c1c1c1;
 }
+/*
 tb.tdIndex {
 	width: 25px;
 }
@@ -348,6 +351,35 @@ td.tbTool {
 	width: 28px;
 	background-color: white;
 }
+td.tdValue {
+	width: 42px;
+}
+*/
+
+tb.tdIndex {
+	width: 7%;
+	background-color: white;
+}
+td.tdKey {
+	width: 13%;
+}
+td.tbTool {
+	width: 9%;
+	background-color: white;
+}
+td.tdValue {
+	width: 71%;
+	word-wrap:break-word;
+	word-break:break-all;
+}
+
+table.tableWith {
+	width: 100%;
+	margin: 0;
+	
+}
+
+
 
 .red {
 	color: red;

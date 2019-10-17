@@ -18,6 +18,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import com.emg.poiwebeditor.common.CommonConstants;
 import com.emg.poiwebeditor.common.IsWorkTimeEnum;
 import com.emg.poiwebeditor.common.ParamUtils;
+import com.emg.poiwebeditor.common.PoiProjectType;
 import com.emg.poiwebeditor.common.RoleType;
 import com.emg.poiwebeditor.common.TaskTypeEnum;
 import com.emg.poiwebeditor.dao.projectsmanager.CapacityModelDao;
@@ -47,6 +48,8 @@ public class ConfirmPoiCapacityCtrl extends BaseCtrl{
 		sb.append("}");
 		model.addAttribute("poiTaskTypes", sb.toString());
 		model.addAttribute("isWorkTimes", IsWorkTimeEnum.toJsonStr());
+		
+		model.addAttribute("poiprojectTypes",PoiProjectType.toJsonStr() );
 		
 		return "confirmpoicapacity";
 	}
@@ -97,6 +100,9 @@ public class ConfirmPoiCapacityCtrl extends BaseCtrl{
 						break;
 					case "time":
 						criteria.andTimeEqualTo(filterPara.get(key).toString());
+						break;
+					case "poiprojecttype":
+						criteria.addPoiProjectType(Integer.valueOf( filterPara.get(key).toString() ) );
 						break;
 					default:
 						break;
