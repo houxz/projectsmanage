@@ -125,8 +125,11 @@ public enum ProcessConfigEnum {
 	 * 
 	 * 32
 	 */
-	POIPROJECTTYPE(32,"poi项目类型");
-	
+	POIPROJECTTYPE(32,"poi项目类型"),
+	/**
+	 * 33
+	 */
+	POIPROJECTFEATCODE(33,"poi项目featcode");
 	private Integer value;
 	private String des;
 	

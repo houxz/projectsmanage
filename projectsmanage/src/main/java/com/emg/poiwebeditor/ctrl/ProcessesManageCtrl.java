@@ -232,6 +232,9 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			Integer isAvaliableData = ParamUtils.getIntParameter(request, "config_2_31", 1);
 			// poi点状项目 or poi 面状项目
 			Integer poiprojecttype = ParamUtils.getIntParameter(request, "config_2_32", 0) == 1 ? 1 : 0;
+			//填写的featcode
+			String featcodes = ParamUtils.getParameter(request, "featcodes");
+			
 			Boolean isNewProcess = newProcessID.equals(0L);
 
 			if (newProcessID.compareTo(0L) < 0) {
@@ -367,7 +370,12 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						 configValues.add(new ProcessConfigValueModel(newProcessID,
 								 ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(),
 								 ProcessConfigEnum.POIPROJECTTYPE.getValue(), poiprojecttype.toString() ));
-						 
+						if( featcodes != null && !featcodes.isEmpty()) {
+							//非空才写次字段
+							configValues.add(new ProcessConfigValueModel(newProcessID,
+									 ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(),
+									 ProcessConfigEnum.POIPROJECTFEATCODE.getValue(), featcodes ));
+						}
 					}
 				}
 			} else {
@@ -538,7 +546,12 @@ public class ProcessesManageCtrl extends BaseCtrl {
 						|| (moduleid.equals(ProcessConfigModuleEnum.ZHIJIANPEIZHI.getValue())
 								&& configid.equals(ProcessConfigEnum.ZHIJIANMOSHI.getValue()))
 						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
-								&& configid.equals(ProcessConfigEnum.BIANJILEIXING.getValue())))
+								&& configid.equals(ProcessConfigEnum.BIANJILEIXING.getValue())) 
+						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.POIPROJECTTYPE.getValue()))
+						|| (moduleid.equals(ProcessConfigModuleEnum.GAICUOPEIZHI.getValue())
+								&& configid.equals(ProcessConfigEnum.POIPROJECTFEATCODE.getValue()))
+						)
 					continue;
 
 				// 这是不能修改的默认配置，这些配置项保留创建任务之初的时候的配置，不再根据系统配置的修改而变动了

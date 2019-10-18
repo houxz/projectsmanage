@@ -31,10 +31,16 @@
 <script src="resources/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="resources/bootstrap-table-1.11.1/bootstrap-table.min.js"></script>
 <script src="resources/js/bootstrapDialog.js"></script>
+<script src='resources/dtree_check/js/dtree.js'></script>
+<script src='resources/js/featcodeget_check.js'></script>
+<script src="resources/js/featcoderegex.js"></script>
+
 <script
 	src="resources/bootstrap-table-1.11.1/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 <script
 	src="resources/bootstrap-table-1.11.1/locale/bootstrap-table-zh-CN.js"></script>
+
+
 
 <script type="text/javascript">
 	$(document).ready(function() {
@@ -323,6 +329,8 @@
 		$("#config_2_30").prop('selectedIndex', 0);
 // 		点状poi项目 or 面状POI项目
 		$("#config_2_32").prop('selectedIndex',0);
+//      poi项目featcode
+		$("#featcode").val("");
 	}
 
 	function getConfig(processid, processname, priority, processtype, state) {
@@ -420,6 +428,7 @@
 							
 							var config_2_31 = $("#config_2_31").val();
 							var config_2_32 = $("#config_2_32").val();
+							var featcodes   = $("#featcode").val();
 
 							if (!newProcessName || newProcessName.length <= 0) {
 								$.webeditor.showMsgLabel("alert", "项目名不能为空");
@@ -549,7 +558,8 @@
 									//add by lianhr end
 									"config_2_30" : config_2_30,
 									"config_2_31" : config_2_31,
-									"config_2_32" : config_2_32
+									"config_2_32" : config_2_32,
+									"featcodes"   : featcodes
 								},
 								function(json) {
 									if (json.result > 0) {
@@ -815,6 +825,79 @@
         return fmt;  
     }
 	//add by lianhr end
+	
+	function dlgFeatcodePOIConfig(band2) {
+		var config_2_32 = $("#config_2_32").val();
+		if( config_2_32 == 0){
+			//poi点状项目类型
+			return;
+		}
+		$("#featcodePOI").data("band2", band2);
+		$("#featcodePOI").dialog({
+			modal : true,
+			closeOnEscape : false,
+			resizable : false,
+			width : 320,
+			heigth: 500,
+			position: { at: "right" },
+			title : "设置featecode",
+			open : function(event, ui) {
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			close : function() {
+			},
+			buttons : [ {
+				text : "确定",
+				'class' : "btn btn-default",
+				click : setFeatcode
+			}, {
+				text : "取消",
+				'class' : "btn btn-default",
+				click : function() {
+					$(this).dialog("close");
+				}
+			} ]
+		});
+	}
+	
+
+
+	function setFeatcode(){
+		var band2 = $("#featcodePOI").data("band2");
+		if (!band2) return;
+		var featcodes;
+		var index = 0;
+		var obj = document.all.authority;
+		for( i = 0 ; i < obj.length; i++){
+			if( obj[i].checked ){
+				var name = obj[i].value;
+				if( name == 'p')//父节点
+					continue;
+				var featcode = getfeatcodebyname(name);
+				if( index != 0){
+					featcodes += ';';
+					featcodes += featcode;
+				}
+				else
+					featcodes = featcode;
+				index++;
+			}
+		}
+		
+		if (band2 < 0) {
+			$('#featcode').val(featcodes);
+
+		} else {
+			$("tr.trIndex" + band2 + ":eq(3) td input").val(featcodes);
+		}
+		$("#featcodePOI").dialog("close");
+	
+	}
+	
+	function poiprojectChange(obj){
+		$('#featcode').val('');
+	}
+	
 </script>
 
 </head>
@@ -881,10 +964,18 @@
 				</tr>
 				<tr>
 					<td class="configKey">poi项目类型</td>
-					<td class="configValue"><select class="form-control" id="config_2_32">
+					<td class="configValue"><select class="form-control" id="config_2_32" onchange="poiprojectChange(this)">
 							<option value="0">点状POI项目</option>
 							<option value="1">面状POI项目</option>
 					</select></td>
+				</tr>
+				<tr>
+					<td class="configKey">featcode</td>
+					<td class="configValue" data-key="featcode" >
+					<div class="input-group">
+					<input id="featcode" onchange="valueChange(this)" class="form-control input-sm" type="text" disabled>
+					<span class="input-group-addon" style="cursor: pointer;" onClick="dlgFeatcodePOIConfig(-1);" title="选择类型代码" disabled>选择</span>
+					</div>
 				</tr>
 				<tr>
 					<td class="configKey">项目优先级</td>
@@ -1017,6 +1108,15 @@
 				</tr>
 			</thead>
 		</table>
+	</div>
+	<div id="featcodePOI" style="display: none;">
+		<div class="dtree" style="height: 400px;">
+			<p><a href="javascript: d.openAll();">全部展开</a> | <a href="javascript: d.closeAll();">全部折叠</a></p>
+			<script type="text/javascript">
+				var d = featcodetreecheck();
+				document.write(d);
+			</script>
+		</div>
 	</div>
 </body>
 </html>

@@ -1417,11 +1417,11 @@
 		    html.push("<td class='tdValue' data-key='class'>" + referdata.orgCategoryName + "</td>");
 		    html.push("<td class='tbTool'><span class='glyphicon glyphicon-share cursorable' onClick='textCopy(this);'></span></td></tr>");
 		    
-		    html.push("<tr><td class='tdKey'>坐标</td>");
+		    html.push("<tr style='display:none'><td class='tdKey'>坐标</td>");
 		    if(referdata.srcType == 45) {
 		    	// 百度坐标需要特殊处理
 		    	var baidugeo = coordtransform.bd09togcj02(referdata.srcLon, referdata.srcLat);
-		    	html.push("<td class='tdValue' data-key='geo'>MULTIPOINT (" + baidugeo[0] + " " + baidugeo[1] + "," +  baidugeo[0]  + " " + baidugeo[1] +")</td>");
+		    	html.push("<td class='tdValue'  data-key='geo'>MULTIPOINT (" + baidugeo[0] + " " + baidugeo[1] + "," +  baidugeo[0]  + " " + baidugeo[1] +")</td>");
 		    } else {
 		    	html.push("<td class='tdValue' data-key='geo'>MULTIPOINT (" + referdata.srcLon + " " + referdata.srcLat + "," +   referdata.srcLon + " " + referdata.srcLat +")</td>");
 		    }
