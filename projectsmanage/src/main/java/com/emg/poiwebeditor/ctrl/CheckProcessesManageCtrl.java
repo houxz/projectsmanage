@@ -550,6 +550,20 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 				//默认面校正 1
 				defaultValue = "1";
 			}
+			
+			if(  (moduleid == 2 && configid == ProcessConfigEnum.POIPROJECTTYPE.getValue())//抽检项目的的 poi 项目类型拷贝 原项目
+					|| (moduleid == 2 && configid == ProcessConfigEnum.POIPROJECTFEATCODE.getValue()) //抽检项目的的 featcode
+					) {
+				ConfigValueModel configmodel = new  ConfigValueModel();
+				configmodel.setConfigId(configid);
+				configmodel.setProcessId(pinfo.getProcessid() );
+				List< ConfigValueModel> configlist =	configValueModelDao.selectConfigs(configmodel);
+				
+				for( ConfigValueModel cm:configlist) {
+					if( cm.getConfigId().equals(configid))
+						defaultValue = cm.getValue();
+				}
+			}
 			configValues.add(new ProcessConfigValueModel(newProcessID, moduleid, configid, defaultValue));
 		}
 		Integer ret = -1;

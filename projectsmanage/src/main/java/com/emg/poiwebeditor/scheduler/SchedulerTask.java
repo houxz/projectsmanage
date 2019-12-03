@@ -4026,6 +4026,9 @@ public class SchedulerTask {
 	public void scanfModifyTask() {
 		logger.debug("####scanfModifyTask()##start#####");
 		
+		if(  1 > 0)
+			return ;
+		
 		// 1.0 获取所有开启的项目	
 		
 		ProjectModelExample example = new ProjectModelExample();
@@ -4161,7 +4164,8 @@ public class SchedulerTask {
 	@Scheduled(cron = "${scheduler.modifytask.dotime}")
 	public void updateTaskState() {
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               		logger.debug("####scanfModifyTask()##start#####");
-		
+		if( 1> 0)
+			return;
 		// 1.0 获取所有开启的项目	
 	
 		List<ProjectModel> rows = projectModelDao.selectProjectWithConfig( projectdbname,processdbname,ProjectState.START.getValue(), SystemType.poi_polymerize.getValue());
@@ -4869,6 +4873,9 @@ public class SchedulerTask {
 	@Scheduled(cron = "${schedulerpoi.updateprojectprogress.dotime}")
 	public void updateProjectProgress() {
 		logger.debug("####scanfModifyTask()##start#####");
+		
+		if(1>0)
+			return ;
 		
 		// 1.0 获取所有开启的项目	
 		

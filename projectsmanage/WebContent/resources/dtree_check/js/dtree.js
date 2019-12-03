@@ -13,31 +13,38 @@
 //==================================================
 //luzhilin 
 //==================================================
-//�޸���ʷ��
-//1��2006-05-11 ��dtree�޸ĳɿ���ѡ���Ȩ������
-//   ��nameת���<input type='checkbox'>
+//修改历史
+//1、 2006-05-11 将dtree 修改成可以选择的权限树
+//   将name 转变成 <input type='checkbox'>
 //
 //==================================================
 // Node object
 function Node(id, pid, cname, cvalue, cshow, cchecked, cdisabled, url, title, target, icon, iconOpen, open) {
+	//当前节点ID
 	this.id = id;
+	//当前节点的父节点ID,根节点的值为-1
 	this.pid = pid;
-	//chechbox������
+	//chechbox 名字
 	this.cname = cname;
-	//chechbox��ֵ
+	//chechbox 值
 	this.cvalue = cvalue;
-	//chechbox����ʾ
+	//chechbox 描述(显示到节点)
 	this.cshow = cshow;
-	//chechbox�Ƿ�ѡ�У�Ĭ���ǲ�ѡ
+	//chechbox 是否选中  默认 不选中
 	this.cchecked = cchecked||false;
-	//chechbox�Ƿ���ã�Ĭ���ǿ���
+	//chechbox 是否可用   默认可用
 	this.cdisabled = cdisabled||false;
-	//�ڵ����ӣ�Ĭ����������
+	//节点链接 默认是虚链接
 	this.url = url||'#';
+	//鼠标移至改节点时节点显示的标题提示
 	this.title = title;
+	//节点链接打开的目标frame
 	this.target = target;
+	//节点显示的图标,无设置则使用默认图标
 	this.icon = icon;
+	//打开改节点后显示的图标，无设置则使用默认图标
 	this.iconOpen = iconOpen;
+	
 	this._io = open || false;
 	this._is = false;
 	this._ls = false;
@@ -59,21 +66,22 @@ function dTree(objName) {
 		closeSameLevel	: false,
 		inOrder					: false
 	}
+	//节点用的图标
 	this.icon = {
-		root				: 'resources/dtree_check/img/base.gif',
-		folder			: 'resources/dtree_check/img/folder.gif',
+		root		: 'resources/dtree_check/img/base.gif',
+		folder		: 'resources/dtree_check/img/folder.gif',
 		folderOpen	: 'resources/dtree_check/img/folderopen.gif',
-		node				: 'resources/dtree_check/img/page.gif',
-		empty				: 'resources/dtree_check/img/empty.gif',
-		line				: 'resources/dtree_check/img/line.gif',
-		join				: 'resources/dtree_check/img/join.gif',
+		node		: 'resources/dtree_check/img/page.gif',
+		empty		: 'resources/dtree_check/img/empty.gif',
+		line		: 'resources/dtree_check/img/line.gif',
+		join		: 'resources/dtree_check/img/join.gif',
 		joinBottom	: 'resources/dtree_check/img/joinbottom.gif',
-		plus				: 'resources/dtree_check/img/plus.gif',
+		plus		: 'resources/dtree_check/img/plus.gif',
 		plusBottom	: 'resources/dtree_check/img/plusbottom.gif',
-		minus				: 'resources/dtree_check/img/minus.gif',
+		minus		: 'resources/dtree_check/img/minus.gif',
 		minusBottom	: 'resources/dtree_check/img/minusbottom.gif',
-		nlPlus			: 'resources/dtree_check/img/nolines_plus.gif',
-		nlMinus			: 'resources/dtree_check/img/nolines_minus.gif'
+		nlPlus		: 'resources/dtree_check/img/nolines_plus.gif',
+		nlMinus		: 'resources/dtree_check/img/nolines_minus.gif'
 	};
 	this.obj = objName;
 	this.aNodes = [];
@@ -84,12 +92,12 @@ function dTree(objName) {
 	this.completed = false;
 };
 
-// Adds a new node to the node array
+// Adds a new node to the node array 节点数组添加新节点
 dTree.prototype.add = function(id, pid, cname, cvalue, cshow, cchecked, cdisabled, url, title, target, icon, iconOpen, open) {
 	this.aNodes[this.aNodes.length] = new Node(id, pid, cname, cvalue, cshow, cchecked, cdisabled, url, title, target, icon, iconOpen, open);
 };
 
-// Open/close all nodes
+// Open/close all nodes  可在数被创建以前或者以后调用
 dTree.prototype.openAll = function() {
 	this.oAll(false);
 };
@@ -160,22 +168,27 @@ dTree.prototype.node = function(node, nodeId) {
 	else if ((!this.config.folderLinks || !node.url) && node._hc && node.pid != this.root.id)
 		str += '<a href="javascript: ' + this.obj + '.o(' + nodeId + ');" class="node">';
 	//===============================================
-	//2009-07-11 ��ԭ���ӵĽڵ��޸�Ϊ checkbox
+	//2009-07-11 将原链接的节点修改为  checkbox
 	//===============================================
 	//str += node.name;
 	if(node.pid == this.root.id){
 		str += node.cname;
 	}else{
-		/**��װcheckbox��ʼ*/
+		/**组装 checkbox 开始
+		 * desc: csshow
+		 * name: cname
+		 * id: cname_id
+		 * 
+		 * */
 		checkboxSyntax = "<input type='checkbox' desc='" + node.cshow + "' name='" + node.cname + "' id='" + node.cname + "_" + node.id + "' value='" + node.cvalue + "' onClick='javascript: " + this.obj + ".checkNode(" + node.id+","+node.pid+","+node._hc + ",this.checked);' ";
-		//�Ƿ�ѡ��
+		//是否被选中
 		if(node.cchecked)
 			checkboxSyntax += " checked ";
-		//�Ƿ����
+		//是否可用
 		if(node.cdisabled)
 			checkboxSyntax += " disabled ";			
 		checkboxSyntax += ">" + node.cshow;
-		/**��װcheckbox����*/
+		/** 组装 checkbox 结束 */
 				
 		str += checkboxSyntax;
 	}
@@ -226,25 +239,24 @@ dTree.prototype.getSelected = function() {
 
 //===============================
 // luzhilin 2006-05-11
-//
-//���ã�ѡ�нڵ����
-//������nobj node����
-//      cobj checkbox����
+//作用：选中节点对象
+//参数：nobj node对象
+//	cobj  checkbox对象
 //===============================
 dTree.prototype.checkNode = function(id,pid,_hc,checked) {
-	//1���ݹ�ѡ���ڵ����������Ҷ�ڵ㻹���м�ڵ㣩
-	//�ж�ͬ�������ޱ�ѡ�еģ������ѡ�еľͲ����Է�ѡ
+	//1 递归选父节点对象（无论是叶节点还是中间节点）
+	//判断同级中有无被选中的，如果有选中的就不可以反选
 	if(!this.isHaveBNode(id,pid)){
 		if(checked){
-			//ѡ�о�һֱѡ�����ڵ�
+			//选中就一直选到根节点
 			this.checkPNodeRecursion(pid,checked);
 		}else{
-			//ȥ��ѡ�н����丸�ڵ�ȥ��ѡ��
+			//去掉选中仅将其父节点去掉选中
 			this.checkPNode(pid,checked);
 		}
 	}	
 	
-	//2��������м��㣬���ж��ӣ��ݹ�ѡ�ӽڵ����		
+	//2 如果是中间节点，具有儿子，递归选子节点对象	
 	if(_hc)		
 		this.checkSNodeRecursion(id,checked);
 	
@@ -253,15 +265,17 @@ dTree.prototype.checkNode = function(id,pid,_hc,checked) {
 //===============================
 // luzhilin 2006-05-11
 //
-//���ã��ж�ͬ�������ޱ�ѡ�е�
-//������id �ڵ�id
-//      pid �ڵ�ĸ��ڵ�id
+//作用：判断同级中有无被选中的
+//参数：id 节点id
+//      pid  节点的父节点id
 //===============================
 dTree.prototype.isHaveBNode = function(id,pid) {	
 	var isChecked = false
 	for (var n=0; n<this.aNodes.length; n++) {
-		// ���ǽڵ���������ͬ���ڵ��ֵܽڵ�
-		if (this.aNodes[n].pid!=-1&&this.aNodes[n].id!=id&&this.aNodes[n].pid == pid) {			
+		//不是节点自身、具有同父节点兄弟节点
+		if (this.aNodes[n].pid!=-1 //父节点不是根节点
+				&&this.aNodes[n].id!=id //不是节点自身
+				&&this.aNodes[n].pid == pid) {			
 			if(eval("document.all."+ this.aNodes[n].cname + "_" + this.aNodes[n].id + ".checked"))
 				isChecked = true;			
 		}
@@ -273,9 +287,9 @@ dTree.prototype.isHaveBNode = function(id,pid) {
 //===============================
 // luzhilin 2006-05-11
 //
-//���ã��ݹ�ѡ�и��ڵ����
-//������pid �ڵ�ĸ��ڵ�id
-//      ischecked �Ƿ�ѡ��
+//作用：递归选中父节点对象
+//参数：pid 节点的父节点id
+//      ischecked 是否被选中
 //===============================
 dTree.prototype.checkPNodeRecursion = function(pid,ischecked) {	
 	for (var n=0; n<this.aNodes.length; n++) {
@@ -290,9 +304,9 @@ dTree.prototype.checkPNodeRecursion = function(pid,ischecked) {
 //===============================
 // luzhilin 2006-05-11
 //
-//���ã��ݹ�ѡ���ӽڵ����
-//������id �ڵ�id
-//      ischecked �Ƿ�ѡ��
+//作用：递归选中子节点对象
+//参数：id 节点id
+//      ischecked 是否被选中
 //===============================
 dTree.prototype.checkSNodeRecursion = function(id,ischecked) {	
 	for (var n=0; n<this.aNodes.length; n++) {
@@ -306,9 +320,10 @@ dTree.prototype.checkSNodeRecursion = function(id,ischecked) {
 //===============================
 // luzhilin 2006-05-11
 //
-//���ã���ѡ�и��ڵ����
-//������pid �ڵ�ĸ��ڵ�id
-//      ischecked �Ƿ�ѡ��
+//作用：仅选中父节点对象
+//参数：pid 节点的父节点
+// 		ischecked 是否被选中
+//   
 //===============================
 dTree.prototype.checkPNode = function(pid,ischecked) {	
 	for (var n=0; n<this.aNodes.length; n++) {

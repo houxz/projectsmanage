@@ -330,9 +330,10 @@
 // 		点状poi项目 or 面状POI项目
 		$("#config_2_32").prop('selectedIndex',0);
 //      poi项目featcode
-		$("#featcode").val("");
+//		$("#featcode").val("");
+		$("#config_2_33").val("");
 	}
-
+//获取项目的配置信息
 	function getConfig(processid, processname, priority, processtype, state) {
 		loadDefaultConfig();
 		if (processid > 0) {
@@ -428,7 +429,8 @@
 							
 							var config_2_31 = $("#config_2_31").val();
 							var config_2_32 = $("#config_2_32").val();
-							var featcodes   = $("#featcode").val();
+							//var featcodes   = $("#featcode").val();
+							var config_2_33 = $("#config_2_33").val();
 
 							if (!newProcessName || newProcessName.length <= 0) {
 								$.webeditor.showMsgLabel("alert", "项目名不能为空");
@@ -559,7 +561,8 @@
 									"config_2_30" : config_2_30,
 									"config_2_31" : config_2_31,
 									"config_2_32" : config_2_32,
-									"featcodes"   : featcodes
+									//"featcodes"   : featcodes
+									"config_2_33" : config_2_33
 								},
 								function(json) {
 									if (json.result > 0) {
@@ -885,7 +888,7 @@
 		}
 		
 		if (band2 < 0) {
-			$('#featcode').val(featcodes);
+			$('#config_2_33').val(featcodes);
 
 		} else {
 			$("tr.trIndex" + band2 + ":eq(3) td input").val(featcodes);
@@ -895,7 +898,7 @@
 	}
 	
 	function poiprojectChange(obj){
-		$('#featcode').val('');
+		$('#config_2_33').val('');
 	}
 	
 </script>
@@ -971,9 +974,9 @@
 				</tr>
 				<tr>
 					<td class="configKey">featcode</td>
-					<td class="configValue" data-key="featcode" >
+					<td class="configValue" data-key="config_2_33" >
 					<div class="input-group">
-					<input id="featcode" onchange="valueChange(this)" class="form-control input-sm" type="text" disabled>
+					<input id="config_2_33" onchange="valueChange(this)" class="form-control input-sm" type="text" disabled>
 					<span class="input-group-addon" style="cursor: pointer;" onClick="dlgFeatcodePOIConfig(-1);" title="选择类型代码" disabled>选择</span>
 					</div>
 				</tr>

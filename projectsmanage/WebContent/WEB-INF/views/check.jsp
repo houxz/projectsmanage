@@ -41,6 +41,7 @@
 <script src='resources/dtree/dtree.js'></script>
 <script src='resources/js/featcodeget.js?v=<%=System.currentTimeMillis() %>'></script>
 <script src="resources/js/featcoderegex.js?v=<%=System.currentTimeMillis() %>"></script>
+<script src="resources/js/coordtransform.js?v=<%=System.currentTimeMillis() %>"></script>
 <script type="text/javascript">
 	var $emgmap = null, $baidumap = null, $gaodemap = null, $tengxunmap = null;
 	var $emgmarker = null, $baidumarker = null, $gaodemarker = null, $tengxunmarker = null;
@@ -733,7 +734,8 @@
 				}
 				pointArr.push(new BMap.Point(geo[0], geo[1]));
 			}
-			geo = [lng, lat];
+			// geo = [lng, lat];
+			geo = coordtransform.bd09togcj02(lng, lat);
 	        pointArr.push(new BMap.Point(geo[0], geo[1]));
 	        
 	        convertor.translate(pointArr, 3, 5, function(data){
@@ -1281,7 +1283,7 @@
 						$("#curProcessName").text(process.name);
 						$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
 						$("#curTaskID").text(task.id);
-						$("#curProjectID").text(task.projectid);
+						$("#curProjectID").val(task.projectid);
 						$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
 						$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
 						$("#featcode").val("");
@@ -1443,7 +1445,7 @@
 			$.webeditor.showCheckBox("alert", "与EMG的关系在数据库中已经存在，但EMG检索未查询到该记录，请连接开发人员查明此问题");
 			return;
 		}  */
-		var projectId = $("#curProjectID").text();
+		var projectId = $("#curProjectID").val();
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		
 		var featcode =$("#featcode").val();
@@ -1543,7 +1545,7 @@
 			$("#curProcessName").text(process.name);
 			$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
 			$("#curTaskID").text(task.id);
-			$("#curProjectID").text(task.projectid);
+			$("#curProjectID").val(task.projectid);
 			$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
 			$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
 			// $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
@@ -1579,7 +1581,7 @@
 		}
 		source = [];
 		if (!oid || oid <= 0) 	return;
-		var projectId = $("#curProjectID").text();
+		var projectId = $("#curProjectID").val();
 		$.webeditor.showConfirmBox("alert","确定要删除这个POI吗？", function(){
 			$.webeditor.showMsgBox("info", "数据保存中...");
 			jQuery.post("./check.web", {
@@ -1663,7 +1665,7 @@
 					$("#curProcessName").text(process.name);
 					$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
 					$("#curTaskID").text(task.id);
-					$("#curProjectID").text(task.projectid);
+					$("#curProjectID").val(task.projectid);
 					$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
 					$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
 					// $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");

@@ -66,6 +66,9 @@
 		AND (moduleid != 2 OR configid != 16)
 		AND (moduleid != 2 OR configid != 17)
 		AND (moduleid != 2 OR configid != 24)
+		AND (moduleid != 2 OR configid != 27)
+		AND (moduleid != 2 OR configid != 32)
+		AND (moduleid != 2 OR configid != 33)
 	</delete>
 	<insert id="insert" parameterType="java.util.List">
 		insert into tb_config_value (`processid`, `moduleid`, `configid`, `value`)

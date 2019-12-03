@@ -233,7 +233,7 @@ public class ProcessesManageCtrl extends BaseCtrl {
 			// poi点状项目 or poi 面状项目
 			Integer poiprojecttype = ParamUtils.getIntParameter(request, "config_2_32", 0) == 1 ? 1 : 0;
 			//填写的featcode
-			String featcodes = ParamUtils.getParameter(request, "featcodes");
+			String featcodes = ParamUtils.getParameter(request, "config_2_33");
 			
 			Boolean isNewProcess = newProcessID.equals(0L);
 
@@ -387,7 +387,8 @@ public class ProcessesManageCtrl extends BaseCtrl {
 					configValues.add(
 							new ProcessConfigValueModel(newProcessID, ProcessConfigModuleEnum.GAICUOPEIZHI.getValue(),
 									ProcessConfigEnum.BIANJIXIANGMUMINGCHENG.getValue(), newProcessName + suffix));
-
+					
+					
 					ProjectModel pro = new ProjectModel();
 					pro.setId(projectid349);
 					pro.setName(newProcessName + suffix);

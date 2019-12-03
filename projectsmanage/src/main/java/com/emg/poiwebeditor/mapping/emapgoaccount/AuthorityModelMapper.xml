@@ -14,13 +14,22 @@
 		<result column="rolename" property="rolename" jdbcType="VARCHAR" />
 	</resultMap>
 
-	<select id="getAuthorityByUsername" resultMap="BaseResultMap" parameterType="java.lang.String">
-		SELECT e.id, e.realname, e.username, e.password, e.department, e.enabled, e.isshow, r.type as roletype, r.remark as roleremark, r.rolename
+<!-- 	<select id="getAuthorityByUsername" resultMap="BaseResultMap" parameterType="java.lang.String"> -->
+<!-- 		SELECT e.id, e.realname, e.username, e.password, e.department, e.enabled, e.isshow, r.roletype as roletype, r.remark as roleremark, r.rolename -->
+<!-- 		FROM -->
+<!-- 		TB_EMPLOYEE e -->
+<!-- 		LEFT JOIN TB_EMPLOYEE_ROLES er ON er.eid = e.id -->
+<!-- 		LEFT JOIN TB_ROLES r ON r.enabled =1 and er.rid = r.id -->
+<!-- 		where e.username = #{username,jdbcType=VARCHAR} -->
+<!-- 		LIMIT 1 -->
+<!-- 	</select> -->
+
+<select id="getAuthorityByUsername" resultMap="BaseResultMap" parameterType="java.lang.String">
+		SELECT e.id, e.realname, e.username, e.password, e.department, e.enabled, e.isshow
 		FROM
 		TB_EMPLOYEE e
-		LEFT JOIN TB_EMPLOYEE_ROLES er ON er.eid = e.id
-		LEFT JOIN TB_ROLES r ON r.enabled =1 and er.rid = r.id
 		where e.username = #{username,jdbcType=VARCHAR}
 		LIMIT 1
 	</select>
+	
 </mapper>
