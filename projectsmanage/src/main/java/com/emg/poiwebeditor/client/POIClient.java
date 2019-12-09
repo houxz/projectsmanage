@@ -1,5 +1,6 @@
 package com.emg.poiwebeditor.client;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,16 @@ public class POIClient {
 	
 	private final static String updateManucheck =  "http://%s:%s/%s/poi/manucheck/project/%s";
 	
+	private final static String selectAdminGeojsonByAdaid =  "http://%s:%s/%s/admin/adaids/%s";
+	private final static String selectBuiltupareaGeojsonByOwner =  "http://%s:%s/%s/builtuparea/owners/%s";
+	private final static String selectPOIGeojsonByBoundUrl = "http://%s:%s/%s/poigeojson/bound?bound=%s"; //&minzoom=%s&namec=%s&colums=%s
+	private final static String selectPOIGeojsonByOidUrl = "http://%s:%s/%s/poigeojson/ids/%s";
+	private final static String selectPoiByDistance =  "http://%s:%s/%s/poi/load/distance/%s/%s/%s";
+	
+	private final static String selectWayByDistance = "http://%s:%s/%s/way/distance/%s/all";
+	private final static String selectBackgroundByDistance = "http://%s:%s/%s/background/distance/%s/all";
+	
+	private final static String selectDataByBox = "http://%s:%s/%s/poi/box/%s/%s/%s";
 	private String contentType = "application/json";
 	
 	public POIDo selectPOIByOid(Long oid) throws Exception {
@@ -48,8 +59,9 @@ public class POIClient {
 			HttpClientResult result = HttpClientUtils.doGet(String.format(selectPOIByOidUrl, host, port, path, oid));
 			if (!result.getStatus().equals(HttpStatus.OK))
 				return null;
-			
+		
 			Object json = JSONArray.parse(result.getJson());
+			
 			if (json instanceof JSONArray) {
 				JSONArray data = (JSONArray) json;
 				if (data != null && data.size() > 0) {
@@ -62,6 +74,32 @@ public class POIClient {
 		}
 		
 		return poi;
+	}
+	
+	public List<POIDo> selectPOIByOids(String oid) throws Exception {
+		List<POIDo> pois = new ArrayList<POIDo>();
+		try {
+			HttpClientResult result = HttpClientUtils.doGet(String.format(selectPOIByOidUrl, host, port, path, oid));
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			
+			Object json = JSONArray.parse(result.getJson());
+			if (json instanceof JSONArray) {
+				JSONArray data = (JSONArray) json;
+				if (data != null && data.size() > 0) {
+					for (Integer i = 0, len = data.size(); i < len; i++) {
+						POIDo poi = new POIDo();
+						poi = JSON.parseObject(data.getJSONObject(i).toJSONString(), POIDo.class);
+						pois.add(poi);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return pois;
 	}
 	
 	/**
@@ -181,5 +219,197 @@ public class POIClient {
 		} else {
 			return -1L;
 		}
+	}
+	
+	public String selectAdminGeojsonByAdaid(String adaid) throws Exception {
+		try {
+			String url = String.format(selectAdminGeojsonByAdaid, host, port, path, adaid);
+			HttpClientResult result = HttpClientUtils.doGet(url);
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			return result.getJson();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+	}
+	
+	public String selectBuiltupareaGeojsonByOwner(String owner) throws Exception {
+		try {
+			String url = String.format(selectBuiltupareaGeojsonByOwner, host, port, path, owner);
+			HttpClientResult result = HttpClientUtils.doGet(url);
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			return result.getJson();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+	}
+	public String selectPOIGeojsonByBound(String bound, String minzoom, String namec) throws Exception {
+		try {
+			String url = String.format(selectPOIGeojsonByBoundUrl, host, port, path, bound);
+			if (minzoom != null) {
+				url += "&minzoom=" + minzoom;
+			}
+			if (namec != null) {
+				namec = URLEncoder.encode(namec, "utf-8");
+				url += "&namec=" + namec;
+			}
+			
+			HttpClientResult result = HttpClientUtils.doGet(url);
+			if (!result.getStatus().equals(HttpStatus.OK)) {
+				logger.error(result.getStatus().name()+"---"+url);
+				return null;
+			}
+			return result.getJson();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+	}
+	
+	public String selectPOIGeojsonById(String ids) throws Exception {
+		try {
+			String url = String.format(selectPOIGeojsonByOidUrl, host, port, path, ids);
+			
+			HttpClientResult result = HttpClientUtils.doGet(url);
+			if (!result.getStatus().equals(HttpStatus.OK)) {
+				logger.error(result.getStatus().name()+"---"+url);
+				return null;
+			}
+			return result.getJson();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+	}
+	
+	/**
+	 * 查询relation
+	 * @param oid
+	 * @return
+	 * @throws Exception
+	 */
+	public List<POIDo> selectPoiByDistance(Long distance, String location, String featcodes) throws Exception {
+		List<POIDo> pois = new ArrayList<POIDo>();
+		try {
+			HttpClientResult result = HttpClientUtils.doGet(String.format(selectPoiByDistance, host, port, path, distance, URLEncoder.encode(location, "UTF-8"), featcodes));
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			
+			Object json = JSONArray.parse(result.getJson());
+			if (json instanceof JSONArray) {
+				JSONArray data = (JSONArray) json;
+				if (data != null && data.size() > 0) {
+					for (Integer i = 0, len = data.size(); i < len; i++) {
+						POIDo poi = new POIDo();
+						poi = JSON.parseObject(data.getJSONObject(i).toJSONString(), POIDo.class);
+						pois.add(poi);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return pois;
+	}
+	
+	/**
+	 * 查询relation
+	 * @param oid
+	 * @return
+	 * @throws Exception
+	 */
+	public List<String> selectWayByDistance( String location) throws Exception {
+		List<String> pois = new ArrayList<String>();
+		try {
+			HttpClientResult result = HttpClientUtils.doGet(String.format(selectWayByDistance, host, port, path,  URLEncoder.encode(location, "UTF-8")));
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			
+			Object json = JSONArray.parse(result.getJson());
+			if (json instanceof JSONArray) {
+				JSONArray data = (JSONArray) json;
+				if (data != null && data.size() > 0) {
+					for (Integer i = 0, len = data.size(); i < len; i++) {
+						
+						String geo = data.getString(i);
+						pois.add(geo);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return pois;
+	}
+	
+	/**
+	 * 查询relation
+	 * @param oid
+	 * @return
+	 * @throws Exception
+	 */
+	public List<String> selectBackgroundByDistance(String location) throws Exception {
+		List<String> pois = new ArrayList<String>();
+		try {
+			HttpClientResult result = HttpClientUtils.doGet(String.format(selectBackgroundByDistance, host, port, path,  URLEncoder.encode(location, "UTF-8")));
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			
+			Object json = JSONArray.parse(result.getJson());
+			if (json instanceof JSONArray) {
+				JSONArray data = (JSONArray) json;
+				if (data != null && data.size() > 0) {
+					for (Integer i = 0, len = data.size(); i < len; i++) {
+						
+						String geo = data.getString(i);
+						pois.add(geo);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return pois;
+	}
+	
+	/**
+	 * 查询relation
+	 * @param oid
+	 * @return
+	 * @throws Exception
+	 */
+	public List<POIDo> selectDataByBox( String location, String featcode, String exceptOids) throws Exception {
+		List<POIDo> pois = new ArrayList<POIDo>();
+		try {
+			HttpClientResult result = HttpClientUtils.doGet(String.format(selectDataByBox, host, port, path,  URLEncoder.encode(location, "UTF-8"), featcode, exceptOids));
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			
+			Object json = JSONArray.parse(result.getJson());
+			if (json instanceof JSONArray) {
+				JSONArray data = (JSONArray) json;
+				if (data != null && data.size() > 0) {
+					for (Integer i = 0, len = data.size(); i < len; i++) {
+						POIDo poi = new POIDo();
+						poi = JSON.parseObject(data.getJSONObject(i).toJSONString(), POIDo.class);
+						pois.add(poi);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return pois;
 	}
 }

@@ -4026,8 +4026,8 @@ public class SchedulerTask {
 	public void scanfModifyTask() {
 		logger.debug("####scanfModifyTask()##start#####");
 		
-		if(  1 > 0)
-			return ;
+//		if(  1 > 0)
+//			return ;
 		
 		// 1.0 获取所有开启的项目	
 		
@@ -4096,61 +4096,99 @@ public class SchedulerTask {
 			}
 			// 查询质检错误
 			// 获取任务关联的POI
-			TaskLinkPoiModel linkpoi = taskModelClient.selectTaskLinkPoiByTaskid(task.getId());
-			if (linkpoi == null || linkpoi.getId() ==null ) {
+			ArrayList<TaskLinkPoiModel> poilist = taskModelClient.selectTaskLinkPoisByTaskid(task.getId());
+			
+			int taskstate = -1;
+			int taskprocess=-1;
+			// 0000 ：从右到左 
+			//第一位表示是否存在 1:不存在   1：存在 0
+			//第二位表示表示质检是否ok   ok 1  不错 0
+			//第三位表示是否没质检  没质检 1 ，质检 0
+			//第4位表示质检是否错误  错误 1 不 ok 0
+			//第5位表示是否异常   1 异常  0不异常
+			//第6位被其他系统占用，是否要强刷  1 是  0 否
+			int flag = 0;
+			for (TaskLinkPoiModel linkpoi : poilist) {
+				if (linkpoi == null || linkpoi.getId() ==null ) {
+					// 任务下没有POI点
+					flag |=1;
+				}else {
+					Long poiid = linkpoi.getPoiId();
+					POIDo poi = new POIDo();
+					poi = poiClient.selectPOIByOid(poiid);
+					if (poi.getSystemId() == 370  ) {// web编辑作业的点
+						CheckEnum check = poi.getAutoCheck();
+						if (check == CheckEnum.ok) {
+							// 质检OK 设置任务状态 3,6
+							flag |=2;
+						} else if (check == CheckEnum.uncheck) {
+							// 未质检出 : 跳过任务
+							flag |= 4;
+						} else if (check == CheckEnum.err) {
+							// 质检出错误：加载错误改错
+							// 根据POI查询错误
+							List<ErrorModel> curErrorList = new ArrayList<ErrorModel>();
+							curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
+							Integer errcount = curErrorList.size();
+							if (errcount > 0) {
+								// 存在待修改的质检错误
+								flag |= 8;
+							} else {
+								// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
+								// 这是工具bug 或者流程 被人为修改
+								flag |= 16;
+							}
+						}
+					} else {// 其他作业的点暂时不能处理：跳过任务
+						//分两种情况：1 被发布了 2 被其他系统占了
+						Integer state = task.getState();
+						if(state == 2) {//强制刷任务状态
+							flag |= 32;
+						}
+					}
+				}
+				
+			}
+			
+			//存在异常就要处理
+			//存在未质检就要等待
+			//存在错误就要改错
+			//
+	
+			if( (flag & 16 ) == 16)   {//  异常 
+				// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
+				// 这是工具bug 或者流程 被人为修改
+				if (taskModelClient.updateModifyTask(taskid, userid, 4, 6).compareTo(0L) <= 0) {
+					logger.debug("修改任务状态失败4,6");
+				}
+				return 5;
+			}else if(  (flag&4)==4 ) { // 未质检 
+				return 3;// 继续找下个任务
+			}else if( (flag & 8 ) == 8) {//质检错误
+				// 存在待修改的质检错误
+				if (taskModelClient.updateModifyTask(taskid, userid, 0, 6).compareTo(0L) <= 0) {
+					logger.debug("修改任务状态失败0,6");
+				}
+				return 4;// 找到作业任务
+				
+			}else if( (flag & 2 ) == 2) {//质检OK
+				// 质检OK 设置任务状态 3,6
+				if (taskModelClient.submitModifyTask(taskid, userid, 3).compareTo(0L) <= 0) {
+					// json.addObject("resultMsg", "任务提交失败");
+				}
+				return 2;// 继续找下个任务
+			}else if( (flag & 32 ) == 32) {//其他系统占用
+				taskModelClient.submitModifyTask(taskid, userid, 3);
+				return 7;
+			}else if( (flag & 1 ) == 1) {// 任务下不存在点
 				// 关联POI不存在，任务设置质检完成 ?
 				if (taskModelClient.submitModifyTask(taskid, userid, 3) <= 0) {
 					// 修改状态失败
 					logger.debug("修改任务状态失败3,6");
 				}
 				return 1;// 继续找下个任务
-			} else {
-				Long poiid = linkpoi.getPoiId();
-				POIDo poi = new POIDo();
-				poi = poiClient.selectPOIByOid(poiid);
-				if (poi.getSystemId() == 370  ) {// web编辑作业的点
-					CheckEnum check = poi.getAutoCheck();
-					if (check == CheckEnum.ok) {
-						// 质检OK 设置任务状态 3,6
-						if (taskModelClient.submitModifyTask(taskid, userid, 3).compareTo(0L) <= 0) {
-							// json.addObject("resultMsg", "任务提交失败");
-						}
-						return 2;// 继续找下个任务
-					} else if (check == CheckEnum.uncheck) {
-						// 未质检出 : 跳过任务
-						return 3;// 继续找下个任务
-					} else if (check == CheckEnum.err) {
-						// 质检出错误：加载错误改错
-						// 根据POI查询错误
-						List<ErrorModel> curErrorList = new ArrayList<ErrorModel>();
-						curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
-						Integer errcount = curErrorList.size();
-						if (errcount > 0) {
-							// 存在待修改的质检错误
-							if (taskModelClient.updateModifyTask(taskid, userid, 0, 6).compareTo(0L) <= 0) {
-								logger.debug("修改任务状态失败0,6");
-							}
-							return 4;// 找到作业任务
-						} else {
-							// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
-							// 这是工具bug 或者流程 被人为修改
-							if (taskModelClient.updateModifyTask(taskid, userid, 4, 6).compareTo(0L) <= 0) {
-								logger.debug("修改任务状态失败4,6");
-							}
-							return 5;
-						}
-					}
-				} else {// 其他作业的点暂时不能处理：跳过任务
-					//分两种情况：1 被发布了 2 被其他系统占了
-					Integer state = task.getState();
-					if(state == 2) {//强制刷任务状态
-						taskModelClient.submitModifyTask(taskid, userid, 3);
-						return 7;
-					}
-					return 6;
-				}
-
 			}
+			
 		} // if( task!=null && task.getId() != null)
 		catch (Exception e) {
 			logger.debug(e.getMessage(), e);
@@ -4164,8 +4202,8 @@ public class SchedulerTask {
 	@Scheduled(cron = "${scheduler.modifytask.dotime}")
 	public void updateTaskState() {
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               		logger.debug("####scanfModifyTask()##start#####");
-		if( 1> 0)
-			return;
+//		if( 1> 0)
+//			return;
 		// 1.0 获取所有开启的项目	
 	
 		List<ProjectModel> rows = projectModelDao.selectProjectWithConfig( projectdbname,processdbname,ProjectState.START.getValue(), SystemType.poi_polymerize.getValue());
@@ -4223,6 +4261,10 @@ public class SchedulerTask {
 					}
 				}
 			}
+			//for test
+			if( 1> 0)
+				return;
+			
 			//处理所有免检项目
 			if(uncheckProject != null && uncheckProject.length() > 0) {
 				logger.debug("免校正的项目ID为：" + uncheckProject);

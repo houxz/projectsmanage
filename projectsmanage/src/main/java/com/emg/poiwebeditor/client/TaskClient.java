@@ -204,7 +204,7 @@ public  class TaskClient {
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append("insert into task.tb_task_link_poi(poiid, updatetime, taskid) values(");
-			sb.append(oid).append(",").append("now()").append(",").append(taskid).append(")");
+			sb.append(oid).append(",").append("now()").append(",").append(taskid).append(") on conflict(poiid, taskid) do update set updatetime=now()");
 			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE, URLEncoder.encode(URLEncoder.encode(sb.toString(), "utf-8"), "utf-8")));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

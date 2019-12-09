@@ -71,8 +71,8 @@ public class LoginCtrl extends BaseCtrl {
 				userid = user.getId();
 				realname = user.getRealname();
 				
-				productTask.loadUserTask(userid, ProductTask.TYPE_EDIT_QUENE,ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using);
-				productTask.loadUserTask(userid, ProductTask.TYPE_CHECK_QUENE,ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using);
+				//productTask.loadUserTask(userid, ProductTask.TYPE_EDIT_QUENE,ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using);
+				// productTask.loadUserTask(userid, ProductTask.TYPE_CHECK_QUENE,ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using);
 			}
 			
 			session.setAttribute(CommonConstants.SESSION_USER_ACC, account);

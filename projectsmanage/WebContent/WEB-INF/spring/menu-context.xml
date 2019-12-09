@@ -20,6 +20,8 @@
 				<ref bean="systemsets" />
 				<ref bean="sse" />
 				<ref bean="socket" />
+				<ref bean="polygonedit" />
+				<ref bean="polygoncheck" />
 			</set>
 		</property>
 	</bean>
@@ -354,6 +356,32 @@
 		</property>
 		<property name="enabled" value="true" />
 		<property name="isshow" value="false" />
+	</bean>
+	
+	<bean id="polygonedit" class="com.emg.poiwebeditor.auth.MenuAuthModel">
+		<property name="code" value="1040" />
+		<property name="url" value="/poiwebeditor/polygonedit.web" />
+		<property name="label" value="面状点制作" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_WORKER</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
+	</bean>
+	
+	<bean id="polygoncheck" class="com.emg.poiwebeditor.auth.MenuAuthModel">
+		<property name="code" value="1050" />
+		<property name="url" value="/poiwebeditor/polygoncheck.web" />
+		<property name="label" value="面状点抽检" />
+		<property name="roleSet">
+			<set>
+				<value type="com.emg.poiwebeditor.common.RoleType">ROLE_CHECKER</value>
+			</set>
+		</property>
+		<property name="enabled" value="true" />
+		<property name="isshow" value="true" />
 	</bean>
 	<!-- END -->
 </beans>

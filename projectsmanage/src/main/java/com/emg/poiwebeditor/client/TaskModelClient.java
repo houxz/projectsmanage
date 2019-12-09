@@ -480,7 +480,7 @@ public class TaskModelClient {
 		return task;
 	}
 
-	// byhxz 20190520
+	// byhxz 20190520 20191203之前每个任务只有一个点，之后增加面状任务一个任务下有多个点，此函数需要扩充
 	public TaskLinkPoiModel selectTaskLinkPoiByTaskid(Long taskid) {
 		TaskLinkPoiModel linkpoi = null;
 		try {
@@ -1159,5 +1159,45 @@ public class TaskModelClient {
 
 			return count;
 		}
+	//20191203 一个任务下有多个poi点
+	public ArrayList<TaskLinkPoiModel> selectTaskLinkPoisByTaskid(Long taskid) {
+		ArrayList<TaskLinkPoiModel> linkpoilist = new ArrayList<TaskLinkPoiModel>() ;
+		try {
+			ArrayList<Object> list;
+			String sql = "select * from tb_task_link_poi where taskid= " + taskid;
+					
+			list =  ExecuteSQLApiClientUtils.postList(
+					String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sql,
+					TaskLinkPoiModel.class);
+			for (Object object : list) {
+				linkpoilist.add((TaskLinkPoiModel)object);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return linkpoilist;
+	}
 	
+	public Long InsertTaskLog(Long taskid, String log,String model) throws Exception {
+		Long ret = -1L;
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append("insert into tb_task_log(taskid,log,model) values(" + taskid);
+			sb.append(",'");
+			sb.append(log);
+			sb.append("'");
+			sb.append(",'");
+			sb.append(model);
+			sb.append("')");
+			String sql ;
+			sql = sb.toString();
+			System.out.println( sql );
+					
+			ret = ExecuteSQLApiClientUtils.update(String.format(getUrl, host, port, path, UPDATE, URLEncoder.encode(URLEncoder.encode(sql, "utf-8"), "utf-8")));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		return ret;
+	}
 }

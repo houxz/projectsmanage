@@ -581,6 +581,22 @@
 		return dtd;
 	}
 	
+	function getGEO(point) {
+		var geo = null;
+		if (point.indexOf("MULTIPOINT ((") >= 0) {
+		var t = point.split(", (")[1];
+		geo = t.substring(0, t.length-3).split(" ");
+			// geo = dianpingGeo.replace("MULTIPOIN (","").replace(")", "").split(" ");
+		}else if (point.indexOf("MULTIPOINT (") >= 0) {
+			var t = point.split(",")[1];
+			geo = t.substring(0, t.length-1).split(" ");
+				// geo = dianpingGeo.replace("MULTIPOIN (","").replace(")", "").split(" ");
+		}else {
+			geo = point.replace("POINT (","").replace(")", "").split(" ");
+		}
+		return geo;
+	}
+	
 	function loadRelation(oid) {
 		var dtd = $.Deferred(); 
 		//console.log("加载relation开始");
@@ -605,6 +621,7 @@
 									// 当为EMG数据时，srcinnerid则为oid
 									$(this).prop("checked", true);
 									var emgFeatcode = $($(this).parents("table")[0]).find("td.tdValue[data-key='class']");
+									
 									if (emgFeatcode != null) {
 										var featcode = getfeatcodename(poi.featcode);
 										emgFeatcode.text(featcode);
@@ -612,11 +629,24 @@
 									// loadEditPOI(srcInnerId);
 									flags[i] = true;
 									currentCheckRelation.push(databaseSaveRelation[j]);
+									
 								} 
 							} else {
 								if (srcInnerId == databaseSaveRelation[j].srcInnerId && srcType == databaseSaveRelation[j].srcType && systemOid == databaseSaveRelation[j].oid) {
 									$(this).prop("checked", true);
-									
+									var geo = getGEO($($($(this).parents("table")[0]).find("td.tdValue[data-key='geo']")).text());
+									switch(i){
+									case 1:
+										drawBaiDuMap(geo[1],geo[0], zoom);
+										break;
+									case 2:
+										$tengxunmarker.setLngLat(geo);
+										
+										break;
+									case 3:
+										$gaodemarker.setLngLat(geo);
+										break;
+									}
 									flags[i] = true;
 									currentCheckRelation.push(databaseSaveRelation[j]);
 								}

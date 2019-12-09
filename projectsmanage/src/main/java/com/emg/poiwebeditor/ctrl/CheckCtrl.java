@@ -85,17 +85,11 @@ public class CheckCtrl extends BaseCtrl {
 		long errorId = -1l;
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-			// taskModelClient.updateTaskState(userid, 5, 5);
-			// task = getNextCheckTask(userid);
+			productTask.loadUserTask(userid, ProductTask.TYPE_CHECK_QUENE,ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using);
 			task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using, 0);
 			if (task != null  && task.getId() != null) {
 				TaskModel taskdb = taskClient.getTaskByID(task.getId());
-				/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 7)) {
-					TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_CHECK_MAKING);
-					if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
-					throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
-				}*/
-				if (!productTask.canEdit(taskdb, userid)) {
+				if (!productTask.canEdit(taskdb, userid, ProductTask.TYPE_CHECK_MAKING)) {
 					throw new Exception("当前任务已经提交或者不允许编辑，刷新页面获取下一个");
 				}
 				Long projectid = task.getProjectid();
@@ -146,7 +140,7 @@ public class CheckCtrl extends BaseCtrl {
 				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
 				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
 			}*/
-			if (!productTask.canEdit(taskdb, userid)) {
+			if (!productTask.canEdit(taskdb, userid, ProductTask.TYPE_CHECK_MAKING)) {
 				throw new Exception("当前任务已经提交或者不允许编辑，刷新页面获取下一个");
 			}
 			List<ModifiedlogDO> logs = new ArrayList<ModifiedlogDO>();
@@ -240,7 +234,7 @@ public class CheckCtrl extends BaseCtrl {
 				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
 				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
 			}*/
-			if (!productTask.canEdit(taskdb, userid)) {
+			if (!productTask.canEdit(taskdb, userid, ProductTask.TYPE_CHECK_MAKING)) {
 				throw new Exception("当前任务已经提交或者不允许编辑，刷新页面获取下一个");
 			}
 			// taskClient.updateModifyTask(taskid, userid, 5, 7);
@@ -442,7 +436,7 @@ public class CheckCtrl extends BaseCtrl {
 				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
 				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
 			}*/
-			if (!productTask.canEdit(taskdb, userid)) {
+			if (!productTask.canEdit(taskdb, userid, ProductTask.TYPE_CHECK_MAKING)) {
 				throw new Exception("当前任务已经提交或者不允许编辑，刷新页面获取下一个");
 			}
 			POIDo  poi = this.getPOI(request, null, true);
@@ -789,7 +783,7 @@ public class CheckCtrl extends BaseCtrl {
 				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
 				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
 			}*/
-			if (!productTask.canEdit(taskdb, userid)) {
+			if (!productTask.canEdit(taskdb, userid, ProductTask.TYPE_CHECK_MAKING)) {
 				throw new Exception("当前任务已经提交或者不允许编辑，刷新页面获取下一个");
 			}
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");

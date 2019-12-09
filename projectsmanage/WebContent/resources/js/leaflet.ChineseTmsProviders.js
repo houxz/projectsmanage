@@ -19,16 +19,18 @@ L.TileLayer.ChinaProvider = L.TileLayer.extend({
 L.TileLayer.ChinaProvider.providers = {
 	EMG: {
 		Normal: {
-			Map: "http://tiles.emapgo.cn/data/emg.china-streets/{z}/{x}/{y}.pbf",
+			//MapPBF: "http://tiles.emapgo.cn/data/emg.china-streets/{z}/{x}/{y}.pbf",
+			Map: "http://111.203.245.100:10007/data/buffer/{z}/{x}/{y}.png"
 		},
 		Subdomains: ['a', 'b', 'c']
 	},
 	
 	BaiDu: {
 		Normal: {
-			Map: "http://online1.map.bdimg.com/onlinelabel/?qt=tile&x={x}&y={y}&z={z}",
+			//Map: "http://online1.map.bdimg.com/onlinelabel/?qt=tile&x={x}&y={y}&z={z}",
+			Map: "http://online{s}.map.bdimg.com/tile/?qt=tile&x={x}&y={y}&z={z}&styles=pl&udt=20150518",
         },
-        Subdomains: ['a', 'b', 'c']
+        Subdomains: [0,1,2]
 	},
 	
 	TengXun: {
@@ -54,18 +56,31 @@ L.TileLayer.ChinaProvider.providers = {
         Subdomains: ['0', '1', '2', '3', '4', '5', '6', '7'],
         key: "174705aebfe31b79b3587279e211cb9a"
     },
-
     GaoDe: {
-        Normal: {
+        NormalWebrd7: {
+            Map: 'http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}'
+        },
+        NormalWebrd8: {
             Map: 'http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}'
         },
         Satellite: {
             Map: 'http://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',
             Annotion: 'http://webst0{s}.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}'
         },
+        NormalWebst7: {
+            Map: 'http://webst0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}'
+        },
+        NormalWebst8: {
+            Map: 'http://webst0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}'
+        },
+        NormalWprd7: {
+            Map: 'http://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}'
+        },
+        NormalWprd8: {
+            Map: 'http://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}'
+        },      
         Subdomains: ["1", "2", "3", "4"]
     },
-
     Google: {
         Normal: {
             Map: "http://www.google.cn/maps/vt?lyrs=m@189&gl=cn&x={x}&y={y}&z={z}"
@@ -95,7 +110,6 @@ L.TileLayer.ChinaProvider.providers = {
         },
         Subdomains: ['a', 'b', 'c']
     }
-
 };
 
 L.tileLayer.chinaProvider = function(type, options) {

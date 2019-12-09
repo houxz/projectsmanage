@@ -55,7 +55,12 @@
 	var emgDel, baiduDel, tengxunDel, gaodeDel;
 	var keywordid = eval('(${keywordid})');
 	var poiid     = eval('(${poiid})');
-	var curerrorlist = null;//eval('(${errorlist})');
+ //	var curerrorlist = null;//eval('(${errorlist})');
+	var curerrorlist = eval('${errorlist}');
+	
+// 	var curerrorlist1 = eval('[com.emg.poiwebeditor.pojo.ErrorMode, emg.poiwebeditor.pojo.ErrorModel]');
+
+	
 	var zoom = 17;
 	var shapegeo;
 	var poigeo;
@@ -73,7 +78,8 @@
 			//改错不需要加载四方检索结果20190524
 //			loadEditPOI( ${poiid});
 			loadEditPOI( poiid);
-			drawErrorList();
+			//drawErrorList();
+			drawErrorList2(poiid);
 			drawtimer();
 			
 		}else {
@@ -290,8 +296,115 @@
 		}// if(curerrorlist != null)
 	}
 	
+	
+	function loadErrorList2(poiid){
+		var tbody = $("#errorlist tbody");
+		tbody.empty();
+		
+		var  oid = poiid;
+		if(curerrorlist != null ){
+			var html = new Array();
+			
+			var errorlist = curerrorlist;
+			if( errorlist != null){
+			var count = errorlist.length;
+			for(var i = 0 ;i < count ; i++){
+				var fid = errorlist[i].featureid;
+				if( fid == oid ){
+					html.push("<tr bgcolor='#00CFFF'> onclick='selectError()'");
+					html.push('<td class="tdKey">错误id</td>');
+					html.push('<td class="tdValue" data-key="id">'+errorlist[i].id+'</td>');
+					html.push("</tr>");
+					html.push("<tr bgcolor='#00CFFF'>");
+					html.push('<td class="poiid">poiid</td>');
+					html.push('<td class="poiidValue" data-key="featureid">'+errorlist[i].featureid+'</td>');
+					html.push("</tr>");
+					html.push("<tr bgcolor='#00CFFF'>");
+					html.push('<td class="remark">描述</td>');
+					html.push('<td class="remarkValue" data-key="remark">'+errorlist[i].errorremark+'</td>');
+					html.push("</tr>");
+				}else{
+					html.push("<tr onclick='selectError(this)' >");
+					html.push('<td class="tdKey">错误id</td>');
+					html.push('<td class="tdValue" data-key="id">'+errorlist[i].id+'</td>');
+					html.push("</tr>");
+					html.push("<tr onclick='selectError(this)'>");
+					html.push('<td class="poiid" >poiid</td>');
+					html.push('<td class="poiidValue" data-key="featureid">'+errorlist[i].featureid+'</td>');
+					html.push("</tr>");
+					html.push("<tr onclick='selectError(this)'>");
+					html.push('<td class="remark" >描述</td>');
+					html.push('<td class="remarkValue" data-key="remark">'+errorlist[i].errorremark+'</td>');
+					html.push("</tr>");	
+				}
+				
+			}
+			tbody.append(html.join(""));
+			}
+		}else{
+			jQuery.post("./modify.web", {
+				"atn" : "geterrorlistbyid",
+				"poiid" : poiid
+			}, function(json) {
+				if (json && json.result == 1) {
+					
+					var html = new Array();
+					
+					var errorlist = json.errorlist;
+					if( errorlist != null){
+					var count = errorlist.length;
+					for(var i = 0 ;i < count ; i++){
+						html.push("<tr>");
+						html.push('<td class="tdKey">错误id</td>');
+						html.push('<td class="tdValue" data-key="id">'+errorlist[i].id+'</td>');
+						html.push("</tr>");
+						html.push("<tr>");
+						html.push('<td class="poiid">poiid</td>');
+						html.push('<td class="poiidValue" data-key="featureid">'+errorlist[i].featureid+'</td>');
+						html.push("</tr>");
+						html.push("<tr>");
+						html.push('<td class="remark">描述</td>');
+						html.push('<td class="remarkValue" data-key="remark">'+errorlist[i].errorremark+'</td>');
+						html.push("</tr>");
+					}
+					tbody.append(html.join(""));
+					}
+				}else{
+					 
+					$("table#errorlist>tbody td.tdValue>input:text").val("加载错误失败");
+					$.webeditor.showConfirmBox("alert","加载错误失败");
+				}
+				
+			}, "json");
+		}// if(curerrorlist != null)
+	}
+	//切换其他POI错误
+	//保存当前poi
+	function selectError(e){
+		autoSavePOI();
+		var key = $(e).children()[0].innerText;
+		var value = $(e).children()[1].innerText;
+		if( key == "错误id"){
+			key = $(e).next().children()[0].innerText;
+			value = $(e).next().children()[1].innerText;
+		}else if(key == "描述"){
+			key = $(e).prev().children()[0].innerText;
+			value = $(e).prev().children()[1].innerText;
+		}
+		if(key == "poiid"){
+			var poiid = value;
+			loadEditPOI( poiid);
+			drawErrorList2(poiid);
+			drawtimer();
+		}
+	}
+	
 	function drawErrorList(){
 		loadErrorList();
+	}
+	
+	function drawErrorList2(poiid){
+		loadErrorList2(poiid);
 	}
 	
 	function loadEditPOI(oid) {
@@ -460,31 +573,95 @@
 		curerrorlist = null;
 	}
 	
-	function deletePOI(obj) {
-		var oid = null;
-		try {
-			oid = $(obj).parent().prev().children()[0].value;
-		} catch(e) {
-			return;
+	//保存当前poi点
+	//修改所有错误点的状态
+	function submitEditTask2(){
+		autoSavePOI();
+		var oidArray = new Array();
+		var errorlist = curerrorlist;
+		if( errorlist != null){
+			var count = errorlist.length;
+			for(var i = 0 ;i < count ; i++){
+				var fid = errorlist[i].featureid;	
+				if( fid > 0 && oidArray.indexOf(fid)<0 )
+					oidArray.push(fid);
+				
+			}
 		}
-		if (!oid || oid <= 0) 	return;
+		var errorids = getErrorIds();
 		
-		$.webeditor.showConfirmBox("alert","确定要删除这个POI吗？", function(){
-			$.webeditor.showMsgBox("info", "数据保存中...");
-			jQuery.post("./edit.web", {
-				"atn" : "deletepoibyoid",
-				"oid" : oid
-			}, function(json) {
-				if (json && json.result > 0) {
-					$("table#tbEdit>tbody td.tdValue>input:text").val("");
-					$.webeditor.showMsgLabel("success", "POI删除成功");
+		var projectId = $("#curProjectID").val();
+		$.webeditor.showMsgBox("info", "数据保存中...");
+		jQuery.post("./modify.web", {
+			"atn" : "submitmodifytask2",
+			"taskid" : $("#curTaskID").html(),
+			"getnext" : true,
+			"projectId": projectId,
+			"errorids": errorids,
+			"oid": oidArray.join(",")
+			
+		}, function(json) {
+			if (json && json.result == 1) {
+				var task = json.task;
+				if (task && task.id) {
+					var process = json.process;
+					var project = json.project;
+					poiid = json.poiid;
+					$("#curProcessID").text(process.id);
+					$("#curProcessName").text(process.name);
+					$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
+					$("#curTaskID").text(task.id);
+					$("#curProjectID").val(task.projectid);
+					keywordid = json.keywordid;
+					
+					if (keywordid && keywordid > 0) {
+						loadKeyword(keywordid);
+						loadEditPOI(poiid);
+						//drawErrorList();
+						drawErrorList2(poiid);
+					}
 				} else {
-					$.webeditor.showMsgLabel("alert", "POI删除失败");
+					$.webeditor.showMsgBox("close");
+					$.webeditor.showConfirmBox("info","没有任务了");
+					window.location.reload();
 				}
-				$.webeditor.showMsgBox("close");
-			}, "json");
+				
+			} else {
+				console.log("submitEditTask error");
+				poiid= 0;
+				keywordid = 0;
+			}
+			drawtimer();
 		});
+		$.webeditor.showMsgBox("close");
+		curerrorlist = null;
 	}
+	
+// 	function deletePOI(obj) {
+// 		var oid = null;
+// 		try {
+// 			oid = $(obj).parent().prev().children()[0].value;
+// 		} catch(e) {
+// 			return;
+// 		}
+// 		if (!oid || oid <= 0) 	return;
+		
+// 		$.webeditor.showConfirmBox("alert","确定要删除这个POI吗？", function(){
+// 			$.webeditor.showMsgBox("info", "数据保存中...");
+// 			jQuery.post("./edit.web", {
+// 				"atn" : "deletepoibyoid",
+// 				"oid" : oid
+// 			}, function(json) {
+// 				if (json && json.result > 0) {
+// 					$("table#tbEdit>tbody td.tdValue>input:text").val("");
+// 					$.webeditor.showMsgLabel("success", "POI删除成功");
+// 				} else {
+// 					$.webeditor.showMsgLabel("alert", "POI删除失败");
+// 				}
+// 				$.webeditor.showMsgBox("close");
+// 			}, "json");
+// 		});
+// 	}
 	
 	function updatePOI() {
 		var oid = null;
@@ -566,6 +743,86 @@
 				$.webeditor.showMsgLabel("alert", "保存失败");
 			}
 			$.webeditor.showMsgBox("close");
+		}, "json");
+	}
+	
+	function autoSavePOI() {
+		var oid = null;
+		try {
+			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+		} catch(e) {
+			return;
+		}
+		if (!oid || oid <= 0) 	return;
+	
+		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
+		var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
+// 		var featcode = $("table#tbEdit>tbody td.tdValue[data-key='featcode']>input:text").val();
+// 		var sortcode = $("table#tbEdit>tbody td.tdValue[data-key='sortcode']>input:text").val();
+		var featcode = $("#featcode").val();
+		var sortcode = $("#sortcode").val();
+		var address4 = $("table#tbEdit>tbody td.tdValue[data-key='address4']>input:text").val();
+		var address5 = $("table#tbEdit>tbody td.tdValue[data-key='address5']>input:text").val();
+		var address6 = $("table#tbEdit>tbody td.tdValue[data-key='address6']>input:text").val();
+		var address7 = $("table#tbEdit>tbody td.tdValue[data-key='address7']>input:text").val();
+		var address8 = $("table#tbEdit>tbody td.tdValue[data-key='address8']>input:text").val();
+		var namep 	 = $("table#tbEdit>tbody td.tdValue[data-key='namep']>input:text").val();
+		var names 	 = $("table#tbEdit>tbody td.tdValue[data-key='names']>input:text").val();
+		var namee 	 = $("table#tbEdit>tbody td.tdValue[data-key='namee']>input:text").val();
+		var namesp 	 = $("table#tbEdit>tbody td.tdValue[data-key='namesp']>input:text").val();
+		var address1 = $("table#tbEdit>tbody td.tdValue[data-key='address1']>input:text").val();
+		var address1p= $("table#tbEdit>tbody td.tdValue[data-key='address1p']>input:text").val();
+		var address1e= $("table#tbEdit>tbody td.tdValue[data-key='address1e']>input:text").val();
+		var address2 = $("table#tbEdit>tbody td.tdValue[data-key='address2']>input:text").val();
+		var address2p= $("table#tbEdit>tbody td.tdValue[data-key='address2p']>input:text").val();
+		var address2e= $("table#tbEdit>tbody td.tdValue[data-key='address2e']>input:text").val();
+		var address3 = $("table#tbEdit>tbody td.tdValue[data-key='address3']>input:text").val();
+		var address3p= $("table#tbEdit>tbody td.tdValue[data-key='address3p']>input:text").val();
+		var address3e= $("table#tbEdit>tbody td.tdValue[data-key='address3e']>input:text").val();
+		var owner 	 = $("table#tbEdit>tbody td.tdValue[data-key='owner']>input:text").val();
+		var postalcode= $("table#tbEdit>tbody td.tdValue[data-key='postalcode']>input:text").val();
+		var projectId = $("#curProjectID").val();
+		jQuery.post("./modify.web", {
+			"atn" : "updatepoibyoid",
+			"taskid" : $("#curTaskID").html(),
+			"getnext" : false,
+			"srcType":srcType,
+			"srcInnerId": srcInnerId,
+			"emgSrcInnerId": emgSrcInnerId,
+			"emgSrcType": emgSrcType,
+			"namec": namec,
+			"oid": oid,
+			"tel": tel,
+			"featcode" : featcode,
+			"sortcode" : sortcode,
+			"address4" : address4,
+			"address5" : address5,
+			"address6" : address6,
+			"address7" : address7,
+			"address8" : address8,
+			"namep"	   : namep,
+			"names"    : names,
+			"namee"    : namee,
+			"namesp"   : namesp,
+			"address1" : address1,
+			"address1p": address1p,
+			"address1e": address1e,
+			"address2" : address2,
+			"address2p": address2p,
+			"address2e": address2e,
+			"address3" : address3,
+			"address3p": address3p,
+			"address3e": address3e,
+			"owner"	   : owner,
+			"projectId": projectId,
+			"postalcode": postalcode,
+			"dianpingGeo" : dianpingGeo,
+			"poigeo":poigeo
+		}, function(json) {
+			if (json && json.result > 0) {
+			} else {
+				$.webeditor.showMsgLabel("alert", "上个点保存失败,请重新作业后保存");
+			}
 		}, "json");
 	}
 	
@@ -957,7 +1214,7 @@
 							style="position: absolute; left: 0; right: 0; top: 96%; height: 5%; text-align: center;">
 						
 							<button class="btn btn-default" onClick="updatePOI();">保存</button>
-							<button class="btn btn-default" onClick="submitEditTask();">提交</button>
+							<button class="btn btn-default" onClick="submitEditTask2();">提交</button>
 						</div>
 <!-- 					</div> -->
 					</div>

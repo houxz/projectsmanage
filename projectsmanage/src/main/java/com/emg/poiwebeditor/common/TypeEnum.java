@@ -30,7 +30,25 @@ public enum TypeEnum {
 	check_init(0,0,"checkid", 17002),
 	check_using(1,7,"checkid", 17002),
 	check_submit(2, 7, "checkid", 17002),
-	check_used(5,7,"checkid", 17002);
+	check_used(5,7,"checkid", 17002),
+	
+	/**
+	 * 面状POI制作
+	 */
+	polygon_edit_init(0,0,"editid", 17003),
+	polygon_edit_using(1,5,"editid", 17003),
+	polygon_edit_submit(2, 5, "editid", 17003),
+	polygon_edit_used(5,5,"editid", 17003),
+	polygon_edit_making(6,5,"editid", 17003),
+	
+	/**
+	 * 面状POI抽检
+	 */
+	polygon_check_init(0,0,"checkid", 17004),
+	polygon_check_using(1,7,"checkid", 17004),
+	polygon_check_submit(2, 7, "checkid", 17004),
+	polygon_check_used(5,7,"checkid", 17004),
+	polygon_check_making(6,7,"editid", 17004);
 	
 	private int state;
 	private int process;

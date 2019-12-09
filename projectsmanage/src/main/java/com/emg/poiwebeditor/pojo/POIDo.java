@@ -14,7 +14,7 @@ public class POIDo extends AttachDO {
 	private CheckEnum manualCheck = null;
 	private ConfirmEnum confirm = null;*/
 	
-	private Integer newFeatCode;
+	private Integer newFeatCode = 0;
 	private String newSortCode;
 	
 	private long systemId;

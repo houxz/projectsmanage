@@ -82,98 +82,7 @@ public class ModifyCtrl {
 	private Long         curKeyWordId;
 	List< ErrorModel> 	 curErrorList = new ArrayList<ErrorModel>();
 	
-//	@RequestMapping(method = RequestMethod.GET)
-//	public String openLader(Model model, HttpSession session, HttpServletRequest request) {
-//		logger.debug("OPENLADER");
-//		TaskModel task = new TaskModel();
-//		ProjectModel project = new ProjectModel();
-//		ProcessModel process = new ProcessModel();
-//		List< ErrorModel> errorlist = new ArrayList<ErrorModel>();
-//		Long keywordid = -1L;
-//		Long poiid = -1L;
-//		
-//		try {
-//			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-//			Boolean bFind = false;
-//			while( !bFind) {
-//				task = getNextModifyTask(userid);
-//				
-//				if( task!=null && task.getId() != null) {
-//					//查询质检错误
-//					//获取任务关联的POI
-//					TaskLinkPoiModel linkpoi = taskModelClient.selectTaskLinkPoiByTaskid(task.getId());
-//					if( linkpoi == null) {
-//						//关联POI不存在，任务设置质检完成 ?
-//					}else {
-//						poiid = linkpoi.getPoiId();
-//						//根据POI查询错误
-//						errorlist  = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId() );
-//						Integer errcount = errorlist.size();
-//						if(errcount > 0) {
-//							//存在待修改的质检错误
-//							bFind = true;
-//							
-//						}else {
-//							//任务关联的POI没有错误:
-//							//查询失败
-//							//未质检出来
-//							//质检OK
-//							POIDo poi = new POIDo();
-//							try {
-//								poi = poiClient.selectPOIByOid(poiid);
-//								if (poi.getSystemId() == 370) {//web编辑作业的点
-//									CheckEnum check = poi.getAutoCheck();
-//									if (check == CheckEnum.ok) {
-//										// 质检OK
-//									} else if (check == CheckEnum.uncheck) {
-//										// 未质检出
-//									} else if (check == CheckEnum.err) {
-//										//质检出错误但是没查到：1）瞬间时差 2）查询有问题
-//									}
-//								}else {//其他作业的点暂时不能处理
-//									
-//									
-//								}
-//							}catch(Exception e) {
-//								logger.debug(e.getMessage(),e);
-//							}
-//							
-//						}
-//					}
-//				}
-//				
-//				if (task != null  && task.getId() != null) {
-//					Long projectid = task.getProjectid();
-//					if (projectid.compareTo(0L) > 0) {
-//						project = projectModelDao.selectByPrimaryKey(projectid);
-//						
-//						Long processid = project.getProcessid();
-//						if (processid.compareTo(0L) > 0) {
-//							process = processModelDao.selectByPrimaryKey(processid);
-//						}
-//					}
-//					
-//					keywordid = task.getKeywordid();
-//				}
-//				break;
-//			}
-//			
-//			
-//		} catch (Exception e) {
-//			logger.error(e.getMessage(), e);
-//		}
-//		
-//		model.addAttribute("task", task);
-//		model.addAttribute("project", project);
-//		model.addAttribute("process", process);
-//		model.addAttribute("keywordid", keywordid);
-//		model.addAttribute("poiid",poiid);
-//		model.addAttribute("errorlist",errorlist);
-//		
-//		logger.debug("OPENLADER OVER");
-//		return "modify";
-//	}
-	
+
 	//byhxz20190522
 	@RequestMapping(method = RequestMethod.GET)
 	public String openLader(Model model, HttpSession session, HttpServletRequest request) {
@@ -184,7 +93,7 @@ public class ModifyCtrl {
 		List< ErrorModel> errorlist = new ArrayList<ErrorModel>();
 		Long keywordid = -1L;
 	
-		//查找第一个课作业的项目：存在可作业的任务 + 任务下可有web编辑器作业
+		//查找第一个可作业的项目：存在可作业的任务 + 任务下可有web编辑器作业
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Boolean bFindTask = false;

@@ -1,0 +1,95 @@
+@charset "UTF-8";
+html, body, #emgmap, #baidumap {
+	height: 100%;
+	padding: 0;
+	margin: 0;
+	z-index: 0;
+}
+
+#wrap1 {
+	position: absolute;
+	top: 20px;
+	left: 60px;
+	z-index: 1;
+}
+
+.containermap {
+	position: absolute;
+	top: 52px;
+	bottom: 32px;
+	left: 200px;
+	right: 0px;
+}
+
+.geojsonMakerOptions_pink {
+	/* radius:8; 
+	
+	*/
+	/* fillColor:blue; */
+	color:#000000;
+	font-size: 9px;
+	background-image: url(../images/pink_emg.png) ;
+	background-repeat: no-repeat;
+	background-position: center bottom;
+	width:fit-content;
+	width:-webkit-fit-content;
+	width:-moz-fit-content;
+	text-align: right;
+	/* background-color:yellow; */
+}
+
+.geojsonMakerOptions_red {
+	/* radius:8; 
+	
+	*/
+	/* fillColor:blue; */
+	color:#000000;
+	weight:1;
+	font-size: 10px;
+	background-image: url(../images/red.png) ; 
+	background-repeat: no-repeat;
+	background-position: 65% ;
+	width:fit-content;
+	width:-webkit-fit-content;
+	width:-moz-fit-content;
+	/* background-color:yellow; */
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+}
+
+.selecta {
+	font-weight: bold;
+}
+
+.myicon {
+	opacity:0.4;
+}
+

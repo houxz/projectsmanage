@@ -19,7 +19,7 @@ L.tileLayer.baidu = function (option) {
     var subdomains = '0123456789';
     switch (option.layer) {
         case "vec":
-        default:
+        default:              
             layer = L.tileLayer('http://online{s}.map.bdimg.com/onlinelabel/?qt=tile&x={x}&y={y}&z={z}&scaler=1&p=1', {
                 name:option.name,subdomains: subdomains, tms: true
             });
@@ -37,7 +37,7 @@ L.tileLayer.baidu = function (option) {
 
         case "custom":
             layer = L.tileLayer('http://api{s}.map.bdimg.com/customimage/tile?&x={x}&y={y}&z={z}&scale=1', {
-                name: option.name, subdomains: "012", tms: true
+                name: option.name, subdomains: "012", tms: true, crs: L.CRS.Baidu
             });
             break;
 

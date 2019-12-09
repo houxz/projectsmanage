@@ -11052,9 +11052,18 @@ var GridLayer = Layer.extend({
 	},
 
 	_removeAllTiles: function () {
-		for (var key in this._tiles) {
+		 if(!this.options.unlimited){
+
+		        for (var key in this._tiles) {
+
+		            this._removeTile(key);
+
+		        }
+
+		    }
+		/*for (var key in this._tiles) {
 			this._removeTile(key);
-		}
+		}*/
 	},
 
 	_invalidateAll: function () {
@@ -11224,11 +11233,11 @@ var GridLayer = Layer.extend({
 	},
 
 	_getTiledPixelBounds: function (center) {
-		var map = this._map,
-		    mapZoom = map._animatingZoom ? Math.max(map._animateToZoom, map.getZoom()) : map.getZoom(),
-		    scale = map.getZoomScale(mapZoom, this._tileZoom),
-		    pixelCenter = map.project(center, this._tileZoom).floor(),
-		    halfSize = map.getSize().divideBy(scale * 2);
+		var map = this._map;
+		 var    mapZoom = map._animatingZoom ? Math.max(map._animateToZoom, map.getZoom()) : map.getZoom();
+	    var scale = map.getZoomScale(mapZoom, this._tileZoom),
+	    pixelCenter = map.project(center, this._tileZoom).floor(),
+	    halfSize = map.getSize().divideBy(scale * 2);
 
 		return new Bounds(pixelCenter.subtract(halfSize), pixelCenter.add(halfSize));
 	},
@@ -11592,7 +11601,8 @@ var TileLayer = GridLayer.extend({
 		// Whether the crossOrigin attribute will be added to the tiles.
 		// If a String is provided, all tiles will have their crossOrigin attribute set to the String provided. This is needed if you want to access tile pixel data.
 		// Refer to [CORS Settings](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_settings_attributes) for valid String values.
-		crossOrigin: false
+		crossOrigin: false, 
+		unlimited: false
 	},
 
 	initialize: function (url, options) {
@@ -11722,11 +11732,12 @@ var TileLayer = GridLayer.extend({
 	},
 
 	_getZoomForUrl: function () {
+		
 		var zoom = this._tileZoom,
 		maxZoom = this.options.maxZoom,
 		zoomReverse = this.options.zoomReverse,
 		zoomOffset = this.options.zoomOffset;
-
+		
 		if (zoomReverse) {
 			zoom = maxZoom - zoom;
 		}

@@ -45,9 +45,19 @@ public  class ProductTask {
 	public static final String TYPE_EDIT_MAKING = "002task";
 	
 	//制作任务缓存的消息队列 type
-		public static final String TYPE_CHECK_QUENE = "001check";
-		//制作中缓存的当前任务type
-		public static final String TYPE_CHECK_MAKING = "002check";
+	public static final String TYPE_CHECK_QUENE = "001check";
+	//制作中缓存的当前任务type
+	public static final String TYPE_CHECK_MAKING = "002check";
+	
+	//制作任务缓存的消息队列 type
+	public static final String TYPE_POLYGONEDIT_QUENE = "011task";
+	//制作中缓存的当前任务type
+	public static final String TYPE_POLYGONEDIT_MAKING = "012task";
+	
+	//制作任务缓存的消息队列 type
+	public static final String TYPE_POLYGONCHECK_QUENE = "011check";
+	//制作中缓存的当前任务type
+	public static final String TYPE_POLYGONCHECK_MAKING = "012check";
 	
 	public static final int STATE_1 = 1;
 	
@@ -80,14 +90,10 @@ public  class ProductTask {
     		String u = key.split("_")[1];
     		int userid = Integer.parseInt(u);
     		if (userid <1) return;
-    		
-    		
     			// 如果已经存在此消息队列，则先删除些队列，再去加载新的任务，为了避免在消息队列里面去除
     		redisTemplate.delete(key);
     		long length = listOps.size(key);
     		if (length < userTaskCache) {
-    			/*List<TaskModel> tasks = this.getUserTask_init(userid, userTaskCache - length, typeInit, typeUsing);
-    			if(tasks != null && !tasks.isEmpty())listOps.leftPushAll(key, tasks);*/
     			List<TaskModel> tasks = this.getUserTask(user, userTaskCache-length, typeUsing);
     			for (int i = tasks.size() - 1; i >=0 ; i--) {
         			String k = typemaking + "_" + user + "_current";
@@ -125,10 +131,7 @@ public  class ProductTask {
         	if (tasks != null && tasks.size() < userTaskCache) {
         		List<TaskModel> tasks2 = this.getUserTask_init(user, userTaskCache - tasks.size(), typeInit, typeUsing);
         		if(tasks2 != null && !tasks2.isEmpty()) listOps.leftPushAll(key, tasks2);
-        	}/*else if(tasks == null) {
-        		List<TaskModel> tasks2 = this.getUserTask_init(user, userTaskCache, typeInit, typeUsing);
-        		if(tasks2 != null && !tasks2.isEmpty()) listOps.leftPushAll(key, tasks2);
-        	}*/
+        	}
     	}
 		
     }
@@ -315,103 +318,59 @@ public  class ProductTask {
     	return _myProjectIDs;
     }
     
-   /* *//**
-     * 删除缓存里面所有消息队列
-     *//*
-    public void removeUserTask() throws Exception{
-    	
-    	Set<String> keys = redisTemplate.keys("*001task_*");
+    /**
+     * 清除消息队列
+     * @param queueKey
+     * @param type
+     * @param typeState
+     * @throws Exception
+     */
+    private void clearQueue(String queueKey, String type, TypeEnum typeState) throws Exception{
+    	Set<String> keys = redisTemplate.keys(queueKey);
     	if(keys != null) { 
 	    	for (String key : keys) {
 	    		String userid = key.split("_")[1];
 	    		if (userid == null || userid.isEmpty()) continue;
 	    		int uid = Integer.parseInt(userid);
-	    		this.removeUserTask(uid, ProductTask.TYPE_EDIT_QUENE, TypeEnum.edit_using);
-	    		taskClient.updateTaskState_clear(uid, TypeEnum.edit_using, TypeEnum.edit_used);
+	    		this.removeUserTask(uid, type, typeState);
 	    	}
     	}
-    	
-    	Set<String> checkKeys = redisTemplate.keys("*001check_*");
-    	if(checkKeys != null) {
-	    	for (String key : checkKeys) {
-	    		String userid = key.split("_")[1];
-	    		if (userid == null || userid.isEmpty()) continue;
-	    		int uid = Integer.parseInt(userid);
-	    		this.removeUserTask(uid, ProductTask.TYPE_CHECK_QUENE, TypeEnum.check_using);
-	    		taskClient.updateTaskState_clear(uid, TypeEnum.check_using, TypeEnum.check_used);
-	    	}
-    	}
-    	
-    	Set<String> checkCurrentKeys = redisTemplate.keys("*002check_*");
-    	if(checkCurrentKeys != null) {
-	    	for (String key : checkCurrentKeys) {
-	    		String userid = key.split("_")[1];
-	    		if (userid == null || userid.isEmpty()) continue;
-	    		int uid = Integer.parseInt(userid);
-	    		//this.removeCurrentUserTask(uid, ProductTask.TYPE_EDIT_MAKING);
-	    		this.removeCurrentUserTask(uid, ProductTask.TYPE_CHECK_MAKING);
-	    		taskClient.updateTaskState_clear(uid, TypeEnum.check_using, TypeEnum.check_used);
-	    	}
-    	}
-    	
-    	Set<String> editCurrentKeys = redisTemplate.keys("*002task_*");
+    }
+    
+    /**
+     * 删除当前正在制作中的任务
+     * @param queueKey
+     * @param type
+     * @throws Exception
+     */
+    private void clearCurrentQueue(String queueKey, String type) throws Exception{
+    	Set<String> editCurrentKeys = redisTemplate.keys(queueKey);
     	if(editCurrentKeys != null) {
 	    	for (String key : editCurrentKeys) {
 	    		String userid = key.split("_")[1];
 	    		if (userid == null || userid.isEmpty()) continue;
 	    		int uid = Integer.parseInt(userid);
-	    		this.removeCurrentUserTask(uid, ProductTask.TYPE_EDIT_MAKING);
-	    		taskClient.updateTaskState_clear(uid, TypeEnum.edit_using, TypeEnum.edit_used);
+	    		this.removeCurrentUserTask(uid, type);
 	    	}
     	}
     }
-    */
+    
     
     /**
      * 删除缓存里面所有消息队列
      */
     public void removeUserTask() throws Exception{
+    	// 点状POI
+    	this.clearQueue("*001task_*", ProductTask.TYPE_EDIT_QUENE, TypeEnum.edit_using);
+    	this.clearQueue("*001check_*", ProductTask.TYPE_CHECK_QUENE, TypeEnum.check_using);
+    	this.clearCurrentQueue("*002check_*", ProductTask.TYPE_CHECK_MAKING);
+    	this.clearCurrentQueue("*002task_*", ProductTask.TYPE_EDIT_MAKING);
     	
-    	Set<String> keys = redisTemplate.keys("*001task_*");
-    	if(keys != null) { 
-	    	for (String key : keys) {
-	    		String userid = key.split("_")[1];
-	    		if (userid == null || userid.isEmpty()) continue;
-	    		int uid = Integer.parseInt(userid);
-	    		this.removeUserTask(uid, ProductTask.TYPE_EDIT_QUENE, TypeEnum.edit_using);
-	    	}
-    	}
-    	
-    	Set<String> checkKeys = redisTemplate.keys("*001check_*");
-    	if(checkKeys != null) {
-	    	for (String key : checkKeys) {
-	    		String userid = key.split("_")[1];
-	    		if (userid == null || userid.isEmpty()) continue;
-	    		int uid = Integer.parseInt(userid);
-	    		this.removeUserTask(uid, ProductTask.TYPE_CHECK_QUENE, TypeEnum.check_using);
-	    	}
-    	}
-    	
-    	Set<String> checkCurrentKeys = redisTemplate.keys("*002check_*");
-    	if(checkCurrentKeys != null) {
-	    	for (String key : checkCurrentKeys) {
-	    		String userid = key.split("_")[1];
-	    		if (userid == null || userid.isEmpty()) continue;
-	    		int uid = Integer.parseInt(userid);
-	    		//this.removeCurrentUserTask(uid, ProductTask.TYPE_EDIT_MAKING);
-	    		this.removeCurrentUserTask(uid, ProductTask.TYPE_CHECK_MAKING);
-	    	}
-    	}
-    	
-    	Set<String> editCurrentKeys = redisTemplate.keys("*002task_*");
-    	if(editCurrentKeys != null) {
-	    	for (String key : editCurrentKeys) {
-	    		String userid = key.split("_")[1];
-	    		if (userid == null || userid.isEmpty()) continue;
-	    		int uid = Integer.parseInt(userid);
-	    		this.removeCurrentUserTask(uid, ProductTask.TYPE_EDIT_MAKING);
-	    	}
-    	}
+    	//面状POI
+    	this.clearQueue("*011task_*", ProductTask.TYPE_POLYGONEDIT_QUENE, TypeEnum.polygon_edit_using);
+    	this.clearQueue("*011check_*", ProductTask.TYPE_POLYGONCHECK_QUENE, TypeEnum.polygon_check_using);
+    	this.clearCurrentQueue("*012check_*", ProductTask.TYPE_POLYGONCHECK_MAKING);
+    	this.clearCurrentQueue("*012task_*", ProductTask.TYPE_POLYGONEDIT_MAKING);
     }
     
     /**
@@ -420,26 +379,18 @@ public  class ProductTask {
 	 * @param userid
 	 * @return
 	 */
-	public boolean canEdit(TaskModel taskdb, int userid) throws Exception {
+	public boolean canEdit(TaskModel taskdb, int userid, String type) throws Exception {
 		if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3)  && taskdb.getProcess() == 5)) {
-			TaskModel temptask = this.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
-			if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) this.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+			TaskModel temptask = this.popCurrentTask(userid, type);
+			if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) this.removeCurrentUserTask(userid, type);
 			return false;
 		}else if(taskdb != null  && taskdb.getProcess() == 5 && taskdb.getEditid() != userid) {
-			TaskModel temptask = this.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
-			if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) this.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
-			/*JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
-			String file = "/errortask.txt";*/
-			
-			// logger.error("当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+			TaskModel temptask = this.popCurrentTask(userid, type);
+			if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) this.removeCurrentUserTask(userid, type);
 			return false;
 		}else if(taskdb != null && taskdb.getProcess() == 7 && taskdb.getCheckid() != userid ) {
-			TaskModel temptask = this.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
-			if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) this.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
-			/*JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
-			String file = "/errortask.txt";*/
-			
-			// logger.error("当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+			TaskModel temptask = this.popCurrentTask(userid,type);
+			if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) this.removeCurrentUserTask(userid, type);
 			return false;
 		}
 		return true;
