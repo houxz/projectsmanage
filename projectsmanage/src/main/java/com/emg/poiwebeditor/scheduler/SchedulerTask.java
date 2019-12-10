@@ -4159,8 +4159,12 @@ public class SchedulerTask {
 				// 没找到质检错误：1）质检没写入 2） 查询失败 3）错误被其他途径修改了状态
 				// 这是工具bug 或者流程 被人为修改
 				if (taskModelClient.updateModifyTask(taskid, userid, 4, 6).compareTo(0L) <= 0) {
+					
 					logger.debug("修改任务状态失败4,6");
 				}
+				String log;
+				log= "任务关联的错误不存在或者状态已经被修改";
+				taskModelClient.InsertTaskLog(taskid, log, logger.getName());
 				return 5;
 			}else if(  (flag&4)==4 ) { // 未质检 
 				return 3;// 继续找下个任务
