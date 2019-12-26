@@ -270,15 +270,29 @@ public class FieldDataManageCtrl extends BaseCtrl {
 										kmodellist.add(kmodel);
 										
 										if(kmodel.getGeo() != null) {
-											//计算整个dataset的envelope
+											//计算整个dataset的envelope  MULTIPOINT(126.63585 45.76099,126.63585 45.76099)
 											String sgeo = kmodel.getGeo();
+											
 											int indexzk = sgeo.indexOf('(');
 											int indexyk = sgeo.indexOf(')');
-											int indexkg = sgeo.indexOf(' ');
-											String sx = sgeo.substring(indexzk+1, indexkg);
-											String sy = sgeo.substring(indexkg,indexyk);
-											Double x = Double.parseDouble(sx);
-											Double y = Double.parseDouble(sy);
+//											int indexkg = sgeo.indexOf(' ');
+											String ss = sgeo.substring(indexzk+1, indexyk);
+											ss = ss.replace(',', ' ');
+											String[] xy = ss.split(" ");
+//											String sx = sgeo.substring(indexzk+1, indexkg);
+//											String sy = sgeo.substring(indexkg,indexyk);
+											Double x = Double.parseDouble(xy[0]);
+											Double y = Double.parseDouble(xy[1]);
+											if( x < xmin)
+												xmin = x;
+											if( x > xmax)
+												xmax = x;
+											if( y<ymin)
+												ymin = y;
+											if( y>ymax)
+												ymax=y;
+											x = Double.parseDouble(xy[2]);
+											y = Double.parseDouble(xy[3]);
 											if( x < xmin)
 												xmin = x;
 											if( x > xmax)
@@ -476,9 +490,10 @@ public class FieldDataManageCtrl extends BaseCtrl {
 
 			} else if (strfieldname.equals("经纬度")) {
 				//POINT(114.448479817708 36.6204405381944)
+				//MULTIPOINT(126.59285 45.7038,126.59285 45.7038)
 				if( svalue != null) {
-					String sgeo = svalue.replace(',', ' ');
-					kmodel.setGeo("POINT("+sgeo+")");
+					String sgeo = svalue;// svalue.replace(',', ' ');
+					kmodel.setGeo("MULTIPOINT("+sgeo+")");
 				}
 				
 			} else if (strfieldname.equals("关联照片")) {

@@ -1526,7 +1526,7 @@ public class ModifyErrorCtrl {
 		Boolean bFindTask = false;
 		// 查找第一个可作业的项目：存在可作业的任务 + 任务下可有web编辑器作业
 		try {
-			Integer querycount = 1000;//最大查找次数
+			Integer querycount = 3;//最大查找次数
 			// 找到一个可作业的任务
 			while (!bFindTask && querycount > 0) {
 				querycount--;
@@ -1554,6 +1554,17 @@ public class ModifyErrorCtrl {
 						RTaskInfo info =PoiCheck(linkpoilist);
 						int  poicheck =  info.getRet();
 						curErrorList = info.getErrorList();
+						
+//------------FOR TEST
+						String slog;
+						slog = "1任务"  + curTaskId.toString()+"错误：";
+						for(ErrorModel e:curErrorList ) {
+							slog +=	e.getId();
+							slog +=",";
+						}
+						taskModelClient.InsertTaskLog(0L, slog, logger.getName());		
+//--------------
+						
 						log = info.getLog();
 						if( poicheck == 1){
 							continue;
@@ -1590,6 +1601,12 @@ public class ModifyErrorCtrl {
 						}
 						
 					} // if( task != null && task.getId() != null)else
+					else
+					{
+						String slog;
+						slog = "当前项目id为-1,查询" + userid.toString() + "该错误任务为空";
+						taskModelClient.InsertTaskLog(0L, slog, logger.getName());
+					}
 
 				} // if( curProjectid == -1L)
 				else {//  查询当前项目下的任务
@@ -1610,6 +1627,17 @@ public class ModifyErrorCtrl {
 						RTaskInfo info =PoiCheck(linkpoilist);
 						int  poicheck =  info.getRet();
 						curErrorList = info.getErrorList();
+						
+//------------FOR TEST
+						String slog;
+						slog = "2任务"  + curTaskId.toString()+"错误：";
+						for(ErrorModel e:curErrorList ) {
+							slog +=	e.getId();
+							slog +=",";
+						}
+						taskModelClient.InsertTaskLog(0L, slog, logger.getName());		
+//--------------
+						
 						log = info.getLog();
 						if( poicheck == 1){
 							continue;
@@ -1667,6 +1695,17 @@ public class ModifyErrorCtrl {
 							RTaskInfo info =PoiCheck(linkpoilist);
 							int  poicheck =  info.getRet();
 							curErrorList = info.getErrorList();
+							
+	//------------FOR TEST
+							String slog;
+							slog = "3任务"  + curTaskId.toString()+"错误：";
+							for(ErrorModel e:curErrorList ) {
+								slog +=	e.getId();
+								slog +=",";
+							}
+							taskModelClient.InsertTaskLog(0L, slog, logger.getName());		
+	//--------------
+							
 							log = info.getLog();
 							if( poicheck == 1){
 								continue;
@@ -1864,6 +1903,9 @@ public class ModifyErrorCtrl {
 			ProjectModel project = new ProjectModel();
 			ProcessModel process = new ProcessModel();
 			Long keywordid = -1L;
+			
+			
+			
 			try {
 				Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 				
@@ -1874,6 +1916,11 @@ public class ModifyErrorCtrl {
 				String strerrorids = ParamUtils.getParameter(request, "errorids");
 				String oids = ParamUtils.getParameter(request, "oid");
 				Integer oidcount = oids.split(",").length;
+				
+				String log;
+				log = "提交改错任务:"+taskid.toString();
+	            taskModelClient.InsertTaskLog(taskid, log, logger.getName());
+				
 				for( int indexoid = 0 ;indexoid < oidcount;indexoid++) {
 					Long oid = Long.valueOf( oids.split(",")[indexoid] );
 					POIDo poi = this.getPOI2(oid);
@@ -1903,7 +1950,7 @@ public class ModifyErrorCtrl {
 					if (taskModelClient.submitModifyTask(taskid, userid, 2).compareTo(0L) <= 0) {
 						
 						if (taskModelClient.submitModifyTask(taskid, userid, 2).compareTo(0L) <= 0) {
-							String log;
+						
 							log = "设置任务" + taskid + "state=2,userid="+ userid+ " 失败,请手动处理";
 							taskModelClient.InsertTaskLog(taskid, log,logger.getName() );
 							json.addObject("resultMsg", "任务提交失败");
@@ -1912,7 +1959,9 @@ public class ModifyErrorCtrl {
 						}
 					}
 				}
-
+			
+				log = "提交改错任务状态2:"+taskid.toString();
+                taskModelClient.InsertTaskLog(taskid, log, logger.getName());
 
 				if (getnext) {
 					stask = getModifyTask(userid);

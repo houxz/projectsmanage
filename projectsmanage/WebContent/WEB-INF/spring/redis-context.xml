@@ -18,7 +18,7 @@
 	<cache:annotation-driven cache-manager="cacheManager" />
 <!-- 	redis-jdbc  redis-jdbc-yiyi 是相同的 -->
 	<context:property-placeholder
-		location="WEB-INF/spring/redis-jdbc-yiyi.properties"
+		location="WEB-INF/spring/redis-jdbc.properties"
 		ignore-unresolvable="true" />
 
 <!-- 		<context:property-placeholder -->

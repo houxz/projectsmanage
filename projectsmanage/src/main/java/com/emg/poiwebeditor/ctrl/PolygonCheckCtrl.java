@@ -85,7 +85,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-			task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONCHECK_QUENE, ProductTask.TYPE_POLYGONCHECK_MAKING, TypeEnum.polygon_check_init, TypeEnum.polygon_check_using, 0);
+			task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONCHECK_QUENE, ProductTask.TYPE_POLYGONCHECK_MAKING, TypeEnum.polygon_check_init, TypeEnum.polygon_check_using,TypeEnum.polygon_check_making, 0);
 			
 			if (task != null  && task.getId() != null) {
 				TaskModel taskdb = taskClient.getTaskByID(task.getId());
@@ -179,7 +179,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 			}
 			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_POLYGONCHECK_MAKING);
 			if (getnext) {
-				task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONCHECK_QUENE, ProductTask.TYPE_POLYGONCHECK_MAKING, TypeEnum.polygon_check_init, TypeEnum.polygon_check_using, 0);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONCHECK_QUENE, ProductTask.TYPE_POLYGONCHECK_MAKING, TypeEnum.polygon_check_init, TypeEnum.polygon_check_using,TypeEnum.polygon_check_making, 0);
 				// task = productTask.popUserEditTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
 				// task = getNextEditTask(userid);
 				logger.debug("9: " + new Date().getTime() + "");
@@ -235,11 +235,11 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
 				throw new Exception( "当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
 			}
-			taskClient.updateUsedTask(taskid, TypeEnum.polygon_edit_used);
+			taskClient.updateUsedTask(taskid, TypeEnum.polygon_check_making);
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_POLYGONCHECK_MAKING);
 			if (getnext) {
-				task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONCHECK_QUENE, ProductTask.TYPE_POLYGONCHECK_MAKING, TypeEnum.polygon_check_init, TypeEnum.polygon_check_using, 0);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONCHECK_QUENE, ProductTask.TYPE_POLYGONCHECK_MAKING, TypeEnum.polygon_check_init, TypeEnum.polygon_check_using,TypeEnum.polygon_check_making, 0);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {
@@ -697,7 +697,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 			}
 			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_POLYGONCHECK_MAKING);
 			if (getnext) {
-				task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONCHECK_QUENE, ProductTask.TYPE_POLYGONCHECK_MAKING, TypeEnum.polygon_check_init, TypeEnum.polygon_check_using, 0);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONCHECK_QUENE, ProductTask.TYPE_POLYGONCHECK_MAKING, TypeEnum.polygon_check_init, TypeEnum.polygon_check_using,TypeEnum.polygon_check_making, 0);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {

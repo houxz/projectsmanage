@@ -47,6 +47,7 @@ import com.emg.poiwebeditor.pojo.ProcessModel;
 import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ReferdataModel;
 import com.emg.poiwebeditor.pojo.TagDO;
+import com.emg.poiwebeditor.pojo.TaskLinkPoiModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
 
 @Controller
@@ -87,11 +88,11 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			TaskModel tempTask = productTask.popCurrentTask(userid, ProductTask.TYPE_POLYGONEDIT_MAKING);
 			if (tempTask == null) {
-				productTask.loadUserTask(userid, ProductTask.TYPE_POLYGONEDIT_QUENE,ProductTask.TYPE_POLYGONEDIT_MAKING, TypeEnum.polygon_edit_init, TypeEnum.polygon_edit_making);
+				productTask.loadUserTask(userid, ProductTask.TYPE_POLYGONEDIT_QUENE,ProductTask.TYPE_POLYGONEDIT_MAKING, TypeEnum.polygon_edit_init, TypeEnum.polygon_edit_using, TypeEnum.polygon_edit_making );
 			}
 			
 			
-			task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONEDIT_QUENE, ProductTask.TYPE_POLYGONEDIT_MAKING, TypeEnum.polygon_edit_init, TypeEnum.polygon_edit_using, 0);
+			task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONEDIT_QUENE, ProductTask.TYPE_POLYGONEDIT_MAKING, TypeEnum.polygon_edit_init, TypeEnum.polygon_edit_using, TypeEnum.polygon_edit_making , 0);
 			
 			if (task != null  && task.getId() != null) {
 				TaskModel taskdb = taskClient.getTaskByID(task.getId());
@@ -175,16 +176,23 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 			if (relations != null) {
 				ret = publicClient.updateRelations(u,  relations);
 			}
-			
+			if (oid != null) {
+				//当所有关系、数据都保存成功之后再往linkpoi里面写数据
+				taskClient.InsertNewPOITask(taskid, oid);
+				publicClient.updateModifiedlogs( logs);
+			}
 			//if (taskClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
 			if (taskClient.submitTask(taskid, userid, TypeEnum.polygon_edit_submit).compareTo(0L) <= 0) {
 				json.addObject("resultMsg", "任务提交失败");
 				json.addObject("result", 0);
 				return json;
 			}
+			// 把所有更新过的点状态改为readyforqc
+			String linkPois = taskClient.getLinkPoiIds(taskid);
+			poiClient.updateForReady(linkPois);
 			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_POLYGONEDIT_MAKING);
 			if (getnext) {
-				task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONEDIT_QUENE, ProductTask.TYPE_POLYGONEDIT_MAKING, TypeEnum.polygon_edit_init, TypeEnum.polygon_edit_using, 0);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONEDIT_QUENE, ProductTask.TYPE_POLYGONEDIT_MAKING, TypeEnum.polygon_edit_init, TypeEnum.polygon_edit_using, TypeEnum.polygon_edit_making , 0);
 				// task = productTask.popUserEditTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
 				// task = getNextEditTask(userid);
 				logger.debug("9: " + new Date().getTime() + "");
@@ -197,15 +205,10 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 							process = processModelDao.selectByPrimaryKey(processid);
 						}
 					}
-					
 					keywordid = task.getKeywordid();
 				}
 			}
-			if (oid != null) {
-				//当所有关系、数据都保存成功之后再往linkpoi里面写数据
-				taskClient.InsertNewPOITask(taskid, oid);
-				publicClient.updateModifiedlogs( logs);
-			}
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			json.addObject("error", e.getMessage());
@@ -244,7 +247,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_POLYGONEDIT_MAKING);
 			if (getnext) {
-				task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONEDIT_QUENE, ProductTask.TYPE_POLYGONEDIT_MAKING, TypeEnum.polygon_edit_init, TypeEnum.polygon_edit_using, 0);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONEDIT_QUENE, ProductTask.TYPE_POLYGONEDIT_MAKING, TypeEnum.polygon_edit_init, TypeEnum.polygon_edit_using, TypeEnum.polygon_edit_making , 0);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {
@@ -570,12 +573,9 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 			POIDo  poi = this.getPOI(request, null);
-			String geo = ParamUtils.getParameter(request, "geo");
-			poi.setGeo(geo);
 			poi.setConfirm(ConfirmEnum.confirm_ok);
 			poi.setConfirmUId(userid);
 			poi.setUid(userid);
-			
 			
 			logger.debug(JSON.toJSON(poi).toString());
 			
@@ -603,7 +603,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		Long ret = -1L;
 		try {
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);			
-			taskClient.updateUsedTask(taskid, TypeEnum.polygon_edit_making);
+			ret = taskClient.updateUsedTask(taskid, TypeEnum.polygon_edit_making);
 			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -681,7 +681,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		}
 		
 		poi.setId(oid);
-		poi.setSystemId(370);
+		poi.setSystemId(SystemType.poi_polymerize.getValue());
 		poi.setConfirm(ConfirmEnum.ready_for_qc);
 		poi.setAutoCheck(CheckEnum.uncheck);
 		poi.setManualCheck(CheckEnum.uncheck);
@@ -714,7 +714,8 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 						tag.setV(null);
 						tags.add(tag);
 					}
-				}else if ("remark".equals(tag.getK()) && remark != null) {
+				}
+				if ("remark".equals(tag.getK()) && remark != null) {
 					
 					SimpleDateFormat f   = new SimpleDateFormat("yyyyMMdd");   
 			        String date = f.format(new Date()); 
@@ -823,7 +824,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 			}
 			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_POLYGONEDIT_MAKING);
 			if (getnext) {
-				task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONEDIT_QUENE, ProductTask.TYPE_POLYGONEDIT_MAKING, TypeEnum.polygon_edit_init, TypeEnum.polygon_edit_using, 0);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONEDIT_QUENE, ProductTask.TYPE_POLYGONEDIT_MAKING, TypeEnum.polygon_edit_init, TypeEnum.polygon_edit_using, TypeEnum.polygon_edit_making, 0);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {

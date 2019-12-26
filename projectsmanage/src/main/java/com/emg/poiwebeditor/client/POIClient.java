@@ -29,7 +29,7 @@ public class POIClient {
 	
 	private static final Logger logger = LoggerFactory.getLogger(POIClient.class);
 	
-	private final static String selectPOIByOidUrl = "http://%s:%s/%s/poi/ids/%s";
+	private final static String selectPOIByOidUrl = "http://%s:%s/%s/poi/ids/merge/%s";
 	// private final static String selectPOIByOidUrl = "http://%s:%s/%s/poi/load/%s/%s";
 	private final static String deletePOIByOidUrl = "http://%s:%s/%s/poi/delete";
 	private final static String updatePOIRelationUrl = "http://%s:%s/%s/poi/upload/merge";
@@ -40,7 +40,7 @@ public class POIClient {
 	private final static String poiRelation =  "http://%s:%s/%s/poiMerge/oid/%s";
 	
 	private final static String updateManucheck =  "http://%s:%s/%s/poi/manucheck/project/%s";
-	
+	private final static String updateForReady =  "http://%s:%s/%s/poi/redayforqc/%s";
 	private final static String selectAdminGeojsonByAdaid =  "http://%s:%s/%s/admin/adaids/%s";
 	private final static String selectBuiltupareaGeojsonByOwner =  "http://%s:%s/%s/builtuparea/owners/%s";
 	private final static String selectPOIGeojsonByBoundUrl = "http://%s:%s/%s/poigeojson/bound?bound=%s"; //&minzoom=%s&namec=%s&colums=%s
@@ -59,9 +59,8 @@ public class POIClient {
 			HttpClientResult result = HttpClientUtils.doGet(String.format(selectPOIByOidUrl, host, port, path, oid));
 			if (!result.getStatus().equals(HttpStatus.OK))
 				return null;
-		
-			Object json = JSONArray.parse(result.getJson());
 			
+			Object json = JSONArray.parse(result.getJson());
 			if (json instanceof JSONArray) {
 				JSONArray data = (JSONArray) json;
 				if (data != null && data.size() > 0) {
@@ -211,6 +210,18 @@ public class POIClient {
 	
 	public Long updateManucheck(String projectId) throws Exception {
 		HttpClientResult result = HttpClientUtils.doGet(String.format(updateManucheck, host, port, path, projectId));
+		if (!result.getStatus().equals(HttpStatus.OK))
+			return null;
+		
+		if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error")) {
+			return Long.valueOf(1);
+		} else {
+			return -1L;
+		}
+	}
+	
+	public Long updateForReady(String oids) throws Exception {
+		HttpClientResult result = HttpClientUtils.doGet(String.format(updateForReady, host, port, path, oids));
 		if (!result.getStatus().equals(HttpStatus.OK))
 			return null;
 		

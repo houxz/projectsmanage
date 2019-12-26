@@ -85,8 +85,8 @@ public class CheckCtrl extends BaseCtrl {
 		long errorId = -1l;
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-			productTask.loadUserTask(userid, ProductTask.TYPE_CHECK_QUENE,ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using);
-			task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using, 0);
+			productTask.loadUserTask(userid, ProductTask.TYPE_CHECK_QUENE,ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using,TypeEnum.check_using);
+			task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using,TypeEnum.check_using, 0);
 			if (task != null  && task.getId() != null) {
 				TaskModel taskdb = taskClient.getTaskByID(task.getId());
 				if (!productTask.canEdit(taskdb, userid, ProductTask.TYPE_CHECK_MAKING)) {
@@ -178,7 +178,7 @@ public class CheckCtrl extends BaseCtrl {
 			}
 			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
 			if (getnext) {
-				task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using, 0);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using,TypeEnum.check_using, 0);
 				// task = getNextCheckTask(userid);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
@@ -243,7 +243,7 @@ public class CheckCtrl extends BaseCtrl {
 			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
 			if (getnext) {
 				// task = getNextCheckTask(userid);
-				task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using, 0);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using, TypeEnum.check_using,0);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {
@@ -801,7 +801,7 @@ public class CheckCtrl extends BaseCtrl {
 			
 			if (getnext) {
 				// task = getNextCheckTask(userid);
-				task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using, 0);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_CHECK_QUENE, ProductTask.TYPE_CHECK_MAKING, TypeEnum.check_init, TypeEnum.check_using,TypeEnum.check_using, 0);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {

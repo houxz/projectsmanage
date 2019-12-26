@@ -14,8 +14,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.emg.poiwebeditor.client.TaskClient;
 import com.emg.poiwebeditor.common.RoleType;
 import com.emg.poiwebeditor.common.SystemType;
@@ -26,7 +24,6 @@ import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ProjectModelExample;
 import com.emg.poiwebeditor.pojo.ProjectsUserModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
-import com.emg.poiwebeditor.tool.FileTool;
 
 @Service
 public  class ProductTask {
@@ -81,9 +78,12 @@ public  class ProductTask {
      * @param user
      * @param type
      * @param typeInit 拿用户初始状态
-     * @param typeUsing 用户占用状态
+     * @param typeUsing 由初始到占用, 点状：1，5
+     * @param typeUsed 用户占用状态, 点状：1，5   面状：6，5
+     
+     * 
      */
-    public void loadUserTask(int user, String type, String typemaking, TypeEnum typeInit, TypeEnum typeUsing) {
+    public void loadUserTask(int user, String type, String typemaking, TypeEnum typeInit, TypeEnum typeUsing, TypeEnum typeUsed) {
     	
     	String key = type + "_" + user;
     	if (redisTemplate.hasKey(key)) {
@@ -94,7 +94,7 @@ public  class ProductTask {
     		redisTemplate.delete(key);
     		long length = listOps.size(key);
     		if (length < userTaskCache) {
-    			List<TaskModel> tasks = this.getUserTask(user, userTaskCache-length, typeUsing);
+    			List<TaskModel> tasks = this.getUserTask(user, userTaskCache-length, typeUsed);
     			for (int i = tasks.size() - 1; i >=0 ; i--) {
         			String k = typemaking + "_" + user + "_current";
         	    	if (redisTemplate.hasKey(k) && valueOperations.size(k) > 0) {
@@ -114,7 +114,7 @@ public  class ProductTask {
     			}  			
     		}
     	}else {
-    		List<TaskModel> tasks = this.getUserTask(user, userTaskCache, typeUsing);
+    		List<TaskModel> tasks = this.getUserTask(user, userTaskCache, typeUsed);
     		if(tasks == null) return;
     		for (int i = tasks.size() - 1; i >=0 ; i--) {
     			String k = typemaking + "_" + user + "_current";
@@ -145,7 +145,7 @@ public  class ProductTask {
      * @param typeUsed 已经占用状态的任务
      * @return
      */
-    public TaskModel popUserTask(int user, String type, String typemaking, TypeEnum typeInit, TypeEnum typeUsed, int index) {
+    public TaskModel popUserTask(int user, String type, String typemaking, TypeEnum typeInit,  TypeEnum typeUsing, TypeEnum typeUsed, int index) {
     	//用来缓解递归调用太多次，当此人消息队列中做完了，又在重新分配新任务的时候，及时获取到新分配的任务
     	if (index > 1) return null;
     	String key = typemaking + "_" + user + "_current";
@@ -156,14 +156,14 @@ public  class ProductTask {
         	TaskModel task = listOps.rightPop(k2);
         	
         	if ( task == null) {
-        		this.loadUserTask(user, type,typemaking, typeInit, typeUsed);
+        		this.loadUserTask(user, type,typemaking, typeInit, typeUsing, typeUsed);
         	}
-        	if (task == null) task = this.popUserTask(user, type, typemaking, typeInit, typeUsed, ++index);
+        	if (task == null) task = this.popUserTask(user, type, typemaking, typeInit,typeUsing, typeUsed, ++index);
         	valueOperations.set(key, task);
         	if (listOps.size(k2) < 3 ) {
         		/*LoadTask thread = new LoadTask(user, type,typemaking, typeInit, typeUsed);
         		thread.start();*/
-        		loadUserTask(user, type,typemaking, typeInit, typeUsed);
+        		loadUserTask(user, type,typemaking, typeInit, typeUsing,typeUsed);
         	}
         	return task;
     	}
@@ -177,18 +177,19 @@ public  class ProductTask {
      *
      */
     class LoadTask extends Thread {
-    	int user; String type; String typemaking; TypeEnum typeInit; TypeEnum typeUsed;
-    	public LoadTask(int user, String type, String typemaking, TypeEnum typeInit, TypeEnum typeUsed) {
+    	int user; String type; String typemaking; TypeEnum typeInit; TypeEnum typeUsed;TypeEnum typeUsing;
+    	public LoadTask(int user, String type, String typemaking, TypeEnum typeInit, TypeEnum typeUsed, TypeEnum typeUsing) {
     		this.user = user;
     		this.type = type;
     		this.typemaking = typemaking;
     		this.typeInit = typeInit;
     		this.typeUsed = typeUsed;
+    		this.typeUsing = typeUsing;
     	}
     	
     	public void run() {
     		logger.debug("load user: " + user + " tasks");
-    		loadUserTask(user, type,typemaking, typeInit, typeUsed);
+    		loadUserTask(user, type,typemaking, typeInit, typeUsing, typeUsed);
     	}
     }
     

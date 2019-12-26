@@ -15,6 +15,7 @@ import com.emg.poiwebeditor.common.Common;
 import com.emg.poiwebeditor.common.DatabaseType;
 import com.emg.poiwebeditor.common.TypeEnum;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
+import com.emg.poiwebeditor.pojo.TaskLinkPoiModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
 
 @Service
@@ -64,7 +65,8 @@ public  class TaskClient {
 			}
 			sql2.deleteCharAt(sql2.length() - 1);
 			sql2.append(")");
-			sql2.append(" update tb_task set starttime=now(),operatetime=now(), ");
+			sql2.append(" update tb_task set operatetime=now(), ");
+			// sql2.append(" update tb_task set starttime=now(),operatetime=now(), ");
 			sql2.append(" state=").append(type.getState()).append(", ");
 			sql2.append(" process=").append(type.getProcess()).append(", ");
 			sql2.append(type.getUserColumn()).append("=").append(userid);
@@ -227,6 +229,27 @@ public  class TaskClient {
 				throw e;
 			}
 			return ret;
+		}
+		
+		public String getLinkPoiIds(Long taskid) throws Exception{
+			List links = null;
+			String ids = "";
+			try {
+				StringBuilder sb = new StringBuilder();
+				sb.append("select poiid from tb_task_link_poi where taskid = ").append(taskid);
+				
+				links =  ExecuteSQLApiClientUtils.postList(String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sb.toString(), TaskLinkPoiModel.class);
+				if (links != null) {
+					for (int i = 0; i < links.size(); i++) {
+						TaskLinkPoiModel task = (TaskLinkPoiModel)links.get(i);
+						ids += task.getPoiId() + ",";
+					}
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw e;
+			}
+			return ids.length() > 0 ? ids.substring(0, ids.length() -1 ) :  ids;
 		}
 		
 		//查询该任务是否已经标记了错误

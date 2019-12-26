@@ -4165,6 +4165,7 @@ public class SchedulerTask {
 				String log;
 				log= "任务关联的错误不存在或者状态已经被修改";
 				taskModelClient.InsertTaskLog(taskid, log, logger.getName());
+				logger.debug(log);
 				return 5;
 			}else if(  (flag&4)==4 ) { // 未质检 
 				return 3;// 继续找下个任务
@@ -4173,6 +4174,13 @@ public class SchedulerTask {
 				if (taskModelClient.updateModifyTask(taskid, userid, 0, 6).compareTo(0L) <= 0) {
 					logger.debug("修改任务状态失败0,6");
 				}
+				//------------FOR TEST
+				String slog;
+				slog = "3任务"  + taskid.toString()+"状态刷为0,6";
+			
+				taskModelClient.InsertTaskLog(taskid, slog, logger.getName());	
+				logger.debug(slog);
+				//--------------
 				return 4;// 找到作业任务
 				
 			}else if( (flag & 2 ) == 2) {//质检OK
@@ -4180,9 +4188,23 @@ public class SchedulerTask {
 				if (taskModelClient.submitModifyTask(taskid, userid, 3).compareTo(0L) <= 0) {
 					// json.addObject("resultMsg", "任务提交失败");
 				}
+				//------------FOR TEST
+				String slog;
+				slog = "3任务"  + taskid.toString()+"状态刷为3,x";
+			
+				taskModelClient.InsertTaskLog(taskid, slog, logger.getName());	
+				logger.debug(slog);
+				//--------------
 				return 2;// 继续找下个任务
 			}else if( (flag & 32 ) == 32) {//其他系统占用
 				taskModelClient.submitModifyTask(taskid, userid, 3);
+				//------------FOR TEST
+				String slog;
+				slog = "3任务"  + taskid.toString()+"状态刷为3,x1";
+			
+				taskModelClient.InsertTaskLog(taskid, slog, logger.getName());	
+				logger.debug(slog);
+				//--------------
 				return 7;
 			}else if( (flag & 1 ) == 1) {// 任务下不存在点
 				// 关联POI不存在，任务设置质检完成 ?
@@ -4190,6 +4212,13 @@ public class SchedulerTask {
 					// 修改状态失败
 					logger.debug("修改任务状态失败3,6");
 				}
+				//------------FOR TEST
+				String slog;
+				slog = "3任务"  + taskid.toString()+"状态刷为3,x2";
+			
+				taskModelClient.InsertTaskLog(taskid, slog, logger.getName());		
+				logger.debug(slog);
+				//--------------
 				return 1;// 继续找下个任务
 			}
 			
@@ -4206,8 +4235,8 @@ public class SchedulerTask {
 	@Scheduled(cron = "${scheduler.modifytask.dotime}")
 	public void updateTaskState() {
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               		logger.debug("####scanfModifyTask()##start#####");
-//		if( 1> 0)
-//			return;
+	//	if( 1> 0)
+	//		return;
 		// 1.0 获取所有开启的项目	
 	
 		List<ProjectModel> rows = projectModelDao.selectProjectWithConfig( projectdbname,processdbname,ProjectState.START.getValue(), SystemType.poi_polymerize.getValue());
@@ -4266,8 +4295,8 @@ public class SchedulerTask {
 				}
 			}
 			//for test
-			if( 1> 0)
-				return;
+//			if( 1> 0)
+//				return;
 			
 			//处理所有免检项目
 			if(uncheckProject != null && uncheckProject.length() > 0) {
@@ -4920,8 +4949,8 @@ public class SchedulerTask {
 	public void updateProjectProgress() {
 		logger.debug("####scanfModifyTask()##start#####");
 		
-		if(1>0)
-			return ;
+	//	if(1>0)
+	//		return ;
 		
 		// 1.0 获取所有开启的项目	
 		

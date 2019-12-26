@@ -82,11 +82,24 @@ public class EditCtrl extends BaseCtrl {
 		
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-			productTask.loadUserTask(userid, ProductTask.TYPE_EDIT_QUENE,ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using);
-			task = productTask.popUserTask(userid, ProductTask.TYPE_EDIT_QUENE, ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using, 0);
+			// taskModelClient.updateTaskState(userid, 5, 5);
+			// task = getNextEditTask(userid);
+			// task = productTask.popUserEditTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
+			task = productTask.popUserTask(userid, ProductTask.TYPE_EDIT_QUENE, ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using,TypeEnum.edit_using, 0);
 			
 			if (task != null  && task.getId() != null) {
 				TaskModel taskdb = taskClient.getTaskByID(task.getId());
+				/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 5)) {
+					TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+					if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+					throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+				}else if(taskdb != null && taskdb.getEditid() != userid ) {
+					TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+					if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+					JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+					logger.error("当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+					throw new Exception("当前任务存在冲突，不允许编辑，刷新页面获取下一个");
+				}*/
 				if (!productTask.canEdit(taskdb, userid, ProductTask.TYPE_EDIT_MAKING)) {
 					JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
 					throw new Exception( "当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
@@ -139,6 +152,17 @@ public class EditCtrl extends BaseCtrl {
 			logger.debug( "submit poi:" + oid + ", taskid:" + taskid);
 			//在提交任务的时候，判断是否一个任务被提交了多次
 			TaskModel taskdb = taskClient.getTaskByID(taskid);
+			/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3)  && taskdb.getProcess() == 5)) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+			}else if(taskdb != null && taskdb.getEditid() != userid ) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+				logger.error("当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+				throw new Exception("当前任务存在冲突，不允许编辑，刷新页面获取下一个");
+			}*/
 			if (!productTask.canEdit(taskdb, userid, ProductTask.TYPE_EDIT_MAKING)) {
 				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
 				throw new Exception( "当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
@@ -159,11 +183,11 @@ public class EditCtrl extends BaseCtrl {
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			List<PoiMergeDO> relations = this.getRelation(taskid, saveRelations);
 			Long u = new Long(userid);
-			/*if (poi != null) {
+			if (poi != null) {
 				ret = poiClient.updatePOI(u, poi);
 				
 				
-			}*/
+			}
 			if (relations != null) {
 				ret = publicClient.updateRelations(u,  relations);
 			}
@@ -176,7 +200,7 @@ public class EditCtrl extends BaseCtrl {
 			}
 			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
 			if (getnext) {
-				task = productTask.popUserTask(userid, ProductTask.TYPE_EDIT_QUENE, ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using, 0);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_EDIT_QUENE, ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using, TypeEnum.edit_using,0);
 				// task = productTask.popUserEditTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
 				// task = getNextEditTask(userid);
 				logger.debug("9: " + new Date().getTime() + "");
@@ -228,6 +252,17 @@ public class EditCtrl extends BaseCtrl {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 			TaskModel taskdb = taskClient.getTaskByID(taskid);
+			/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 5)) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+			}else if(taskdb != null && taskdb.getEditid() != userid ) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+				logger.error("当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+				throw new Exception("当前任务存在冲突，不允许编辑，刷新页面获取下一个");
+			}*/
 			if (!productTask.canEdit(taskdb, userid, ProductTask.TYPE_EDIT_MAKING)) {
 				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
 				throw new Exception( "当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
@@ -239,7 +274,7 @@ public class EditCtrl extends BaseCtrl {
 			if (getnext) {
 				// task = getNextEditTask(userid);
 				// task = productTask.popUserEditTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
-				task = productTask.popUserTask(userid, ProductTask.TYPE_EDIT_QUENE, ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using, 0);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_EDIT_QUENE, ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using,TypeEnum.edit_using, 0);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {
@@ -387,6 +422,17 @@ public class EditCtrl extends BaseCtrl {
 			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 			TaskModel taskdb = taskClient.getTaskByID(taskid);
+			/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 5)) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+			}else if(taskdb != null && taskdb.getEditid() != userid ) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+				logger.error("当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+				throw new Exception("当前任务存在冲突，不允许编辑，刷新页面获取下一个");
+			}*/
 			if (!productTask.canEdit(taskdb, userid, ProductTask.TYPE_EDIT_MAKING)) {
 				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
 				throw new Exception( "当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
@@ -570,7 +616,8 @@ public class EditCtrl extends BaseCtrl {
 						tag.setV(null);
 						tags.add(tag);
 					}
-				}else if ("remark".equals(tag.getK()) && remark != null) {
+				}
+				if ("remark".equals(tag.getK()) && remark != null) {
 					
 					SimpleDateFormat f   = new SimpleDateFormat("yyyyMMdd");   
 			        String date = f.format(new Date()); 
@@ -905,6 +952,17 @@ public class EditCtrl extends BaseCtrl {
 			Long u = new Long(userid);
 			//在提交任务的时候，判断是否一个任务被提交了多次
 			TaskModel taskdb = taskClient.getTaskByID(taskid);
+			/*if (taskdb == null || ((taskdb.getState() == 2 || taskdb.getState() == 3) && taskdb.getProcess() == 5)) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				throw new Exception("当前任务已经提交，不能再修改，请刷新页面");
+			}else if(taskdb != null && taskdb.getEditid() != userid ) {
+				TaskModel temptask = productTask.popCurrentTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				if (temptask != null && taskdb != null && taskdb.getId().equals(temptask.getId())) productTask.removeCurrentUserTask(userid, ProductTask.TYPE_EDIT_MAKING);
+				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
+				logger.error("当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
+				throw new Exception("当前任务存在冲突，不允许编辑，刷新页面获取下一个");
+			}*/
 			if (!productTask.canEdit(taskdb, userid, ProductTask.TYPE_EDIT_MAKING)) {
 				JSONObject taskjson = (JSONObject) JSON.toJSON(taskdb);
 				throw new Exception( "当前用户：" + userid + ", 产生错误的任务：" + taskjson.toJSONString());
@@ -931,7 +989,7 @@ public class EditCtrl extends BaseCtrl {
 			if (getnext) {
 				// task = getNextEditTask(userid);
 				// task = productTask.popUserEditTask(userid, ProductTask.TYPE_QUENE, ProductTask.TYPE_MAKING);
-				task = productTask.popUserTask(userid, ProductTask.TYPE_EDIT_QUENE, ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using, 0);
+				task = productTask.popUserTask(userid, ProductTask.TYPE_EDIT_QUENE, ProductTask.TYPE_EDIT_MAKING, TypeEnum.edit_init, TypeEnum.edit_using,TypeEnum.edit_using, 0);
 				if (task != null  && task.getId() != null) {
 					Long projectid = task.getProjectid();
 					if (projectid.compareTo(0L) > 0) {

@@ -42,8 +42,9 @@ html, body, #emgmap, #baidumap {
 	/* radius:8; 
 	
 	*/
-	/* fillColor:blue; */
-	color:#000000;
+	/* fillColor:blue; 
+	color:#000000;*/
+	color:green;
 	weight:1;
 	font-size: 10px;
 	background-image: url(../images/red.png) ; 

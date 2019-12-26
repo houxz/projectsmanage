@@ -55,10 +55,10 @@
 	var emgDel, baiduDel, tengxunDel, gaodeDel;
 	var keywordid = eval('(${keywordid})');
 	var poiid     = eval('(${poiid})');
- //	var curerrorlist = null;//eval('(${errorlist})');
+
 	var curerrorlist = eval('${errorlist}');
 	
-// 	var curerrorlist1 = eval('[com.emg.poiwebeditor.pojo.ErrorMode, emg.poiwebeditor.pojo.ErrorModel]');
+
 
 	
 	var zoom = 17;

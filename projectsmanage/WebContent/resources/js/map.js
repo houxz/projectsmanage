@@ -3,46 +3,56 @@
 	     */
 	    var normalm1 = L.tileLayer.chinaProvider('Geoq.Normal.Map', {
 	        maxZoom: 30,
-	        minZoom: 5
+	        minZoom: 5,
+	        unlimited: true
 	    });
 	    var normalm2 = L.tileLayer.chinaProvider('Geoq.Normal.Color', {
 	        maxZoom: 30,
-	        minZoom: 5
+	        minZoom: 5,
+	        unlimited: true
 	    });
 	    var normalm3 = L.tileLayer.chinaProvider('Geoq.Normal.PurplishBlue', {
 	        maxZoom: 30,
-	        minZoom: 5
+	        minZoom: 5,
+	        unlimited: true
 	    });
 	    var normalm4 = L.tileLayer.chinaProvider('Geoq.Normal.Gray', {
 	        maxZoom: 30,
-	        minZoom: 5
+	        minZoom: 5,
+	        unlimited: true
 	    });
 	    var normalm5 = L.tileLayer.chinaProvider('Geoq.Normal.Warm', {
 	        maxZoom: 30,
-	        minZoom: 5
+	        minZoom: 5,
+	        unlimited: true
 	    });
 	    var normalm6 = L.tileLayer.chinaProvider('Geoq.Normal.Cold', {
 	        maxZoom: 30,
-	        minZoom: 5
+	        minZoom: 5,
+	        unlimited: true
 	    });
 	    /**
 	     * 天地图内容
 	     */
 	    var normalm = L.tileLayer.chinaProvider('TianDiTu.Normal.Map', {
 	            maxZoom: 30,
-	            minZoom: 5
+	            minZoom: 5,
+		        unlimited: true
 	        }),
 	        normala = L.tileLayer.chinaProvider('TianDiTu.Normal.Annotion', {
 	            maxZoom: 30,
-	            minZoom: 5
+	            minZoom: 5,
+		        unlimited: true
 	        }),
 	        imgm = L.tileLayer.chinaProvider('TianDiTu.Satellite.Map', {
 	            maxZoom: 30,
-	            minZoom: 5
+	            minZoom: 5,
+		        unlimited: true
 	        }),
 	        imga = L.tileLayer.chinaProvider('TianDiTu.Satellite.Annotion', {
 	            maxZoom: 30,
-	            minZoom: 5
+	            minZoom: 5,
+		        unlimited: true
 	        });
 	 
 	    var normal = L.layerGroup([normalm, normala]),
@@ -69,36 +79,43 @@
 	    
 	    var GaodeNormalWebrd8 = L.tileLayer.chinaProvider('GaoDe.NormalWebrd8.Map', {
 	        maxZoom: 18,
-	        minZoom: 1
+	        minZoom: 1,
+	        unlimited: true
 	    });
 	    
 	    var GaodeNormalWebst7 = L.tileLayer.chinaProvider('GaoDe.NormalWebst7.Map', {
 	        maxZoom: 18,
-	        minZoom: 1
+	        minZoom: 1,
+	        unlimited: true
 	    });
 	    
 	    var GaodeNormalWebst8 = L.tileLayer.chinaProvider('GaoDe.NormalWebst8.Map', {
 	        maxZoom: 18,
-	        minZoom: 1
+	        minZoom: 1,
+	        unlimited: true
 	    });
 	    
 	    var GaodeNormalWprd7 = L.tileLayer.chinaProvider('GaoDe.NormalWprd7.Map', {
 	        maxZoom: 18,
-	        minZoom: 1
+	        minZoom: 1,
+	        unlimited: true
 	    });
 	    
 	    var GaodeNormalWprd8 = L.tileLayer.chinaProvider('GaoDe.NormalWprd8.Map', {
 	        maxZoom: 18,
-	        minZoom: 1
+	        minZoom: 1,
+	        unlimited: true
 	    });
 	    
 	    var Gaodimgem = L.tileLayer.chinaProvider('GaoDe.Satellite.Map', {
 	    	  maxZoom: 18,
-		        minZoom: 1
+		        minZoom: 1,
+		        unlimited: true
 	    });
 	    var Gaodimga = L.tileLayer.chinaProvider('GaoDe.Satellite.Annotion', {
 	    	  maxZoom: 18,
-		      minZoom: 1
+		      minZoom: 1,
+		        unlimited: true
 	    });
 	    var Gaodimage = L.layerGroup([Gaodimgem, Gaodimga]);
 	   
@@ -108,7 +125,8 @@
 	     */
 	    var Tengxun = L.tileLayer.chinaProvider('TengXun.Normal.Map', {
 	        maxZoom: 30,
-	        minZoom: 5
+	        minZoom: 5,
+	        unlimited: true
 	    });
 	    
 	    /**
@@ -116,7 +134,8 @@
 	     */
 	    var OSM = L.tileLayer.chinaProvider('OSM.Normal.Map', {
 	        maxZoom: 30,
-	        minZoom: 5
+	        minZoom: 5,
+	        unlimited: true
 	    });
 
 	    /**
@@ -124,7 +143,8 @@
 	     */
 	    var EMG = L.tileLayer.chinaProvider('EMG.Normal.Map', {
 	        maxZoom: 30,
-	        minZoom: 5
+	        minZoom: 5,
+	        unlimited: true
 	    });
 
 	    /**
@@ -141,19 +161,23 @@
 	     */
 	    var Geoq = L.tileLayer.chinaProvider('Geoq.Normal.Map', {
 	        maxZoom: 30,
-	        minZoom: 5
+	        minZoom: 5,
+	        unlimited: true
 	    });
 	    var GeoqPurplishBlue = L.tileLayer.chinaProvider('Geoq.Normal.PurplishBlue', {
 	        maxZoom: 30,
-	        minZoom: 5
+	        minZoom: 5,
+	        unlimited: true
 	    });
 	    var GeoqGray = L.tileLayer.chinaProvider('Geoq.Normal.Gray', {
 	        maxZoom: 30,
-	        minZoom: 5
+	        minZoom: 5,
+	        unlimited: true
 	    });
 	    var GeoqWarm = L.tileLayer.chinaProvider('Geoq.Normal.Warm', {
 	        maxZoom: 30,
-	        minZoom: 5
+	        minZoom: 5,
+	        unlimited: true
 	    });
 	    
 	    var baseLayers = {

@@ -51,7 +51,7 @@
 <script src="resources/js/leaflet/editableMarkercluster/leaflet.markercluster.editablemarker.js"></script>
 <link rel="stylesheet" href="resources/js/leaflet/leaflet.contextmenu.css" />
 <script src="resources/js/leaflet/leaflet.contextmenu.js"></script>
-<script src="resources/js/map.js"></script>
+<script src="resources/js/map.js?v=<%=System.currentTimeMillis() %>"></script>
 <link href="resources/css/edit.css?v=<%=System.currentTimeMillis() %>" rel="stylesheet" />
 <script src="resources/js/basemap.js?v=<%=System.currentTimeMillis() %>"></script>
 <script src='resources/js/featcodeget.js?v=<%=System.currentTimeMillis() %>'></script>
@@ -178,7 +178,7 @@
 							
 							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="getNextTask();">稍后修改</button>
 							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="keywordError();">资料错误</button>
-							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="insertPOI();">新增</button>
+							<!-- <button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="insertPOI();">新增</button> -->
 							<button id="submitTask" class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="submitEditTask();">提交</button>
 						</div>
 					</div>
@@ -279,7 +279,7 @@
 		</table>
 		<div>			
 		<button id="btcanclepoi" class="btn btn-default"  data-toggle="tooltip" title="Q" onClick="canclePoi();">取消</button>
-		<button id="btsavepoi" class="btn btn-warning" data-toggle="tooltip" title="S/Enter" onClick="markMain(this);">确定</button>
+		<button id="btsavepoi" class="btn btn-warning" data-toggle="tooltip" title="S/Enter" onClick="markMain(null);">确定</button>
 		</div>
 	</div>
 	<div class="footline">
@@ -339,8 +339,8 @@
 	var isShowBackground = false, isShowWay = false;
 	//当前标记主点的点是不是EMG列表中的点
 	var emgFlag = false;
-	// 被标记为主点的点, removeMainMarker标记主点时从地图上移除的点
-	var mainMarker = null, removeMainMarker = null;
+	// 被标记为主点的点, 
+	var mainMarker = null;
 	
 	L.Marker.mergeOptions({
 	    poi: null,
@@ -809,7 +809,7 @@
 		gaodeMarker.clearLayers();
 		tengxunMarker.clearLayers();
 		mainMarker = null;
-		removeMainMarker = null;
+		emgmap.setZoom(18);
 	}
 	
 	
@@ -928,7 +928,7 @@
 									$(this).prop("checked", true);
 									var emgFeatcode = $($(this).parents("table")[0]).find("td.tdValue[data-key='class']");
 									var k = j;
-									
+									rdChange(this, srcType, null, null, srcInnerId);
 									$.when( 
 											loadEditPOI(srcInnerId, emgFeatcode, false)
 									).done(function() {
@@ -1068,7 +1068,7 @@
 						var point = L.latLng(parseFloat(s[1]), parseFloat(s[0]));
 						innerPoint.push(point);
 					}
-					var polygon = L.polygon(innerPoint, {color: 'green'});
+					var polygon = L.polygon(innerPoint, {color: 'green', fillOpacity: 0});
 					areaLayer.addLayer(polygon);
 					// zoom the map to the polygon
 					//emgmap.fitBounds(polygon.getBounds());
@@ -1121,7 +1121,7 @@
 			$("table#tbEdit>tbody td.tdValue>input:text").val("");
 			if (json && json.result == 1 && json.poi != null) {
 				var poi = json.poi;
-				currentPoi = json.poi
+				currentPoi = json.poi;
 				if (isSetMain) systemPoi = poi;
 				if(poi.del) {
 					$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(-1);
@@ -1154,7 +1154,11 @@
 	}
 	
 	function rdChange(ck, srcType, lat, lng, srcInnerId) {
-		var latlngpoi = L.latLng(parseFloat(lat), parseFloat(lng));
+		var latlngpoi = null;
+		if (lat != null && lng != null) {
+			latlngpoi = L.latLng(parseFloat(lat), parseFloat(lng));
+		}
+		
 		if (ck.checked == false && srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
 			if (emgCurrentMarker != null) {
 		        emgCurrentMarker.remove();
@@ -1178,7 +1182,7 @@
 			$.when(loadEditPOI(srcInnerId, emgFeatcode, false)) .done(function() {
 				
 				var geo = getGEO(currentPoi.geo);
-				emgmap.setView(latlngpoi);
+				emgmap.setView(L.latLng(geo[1], geo[0]));
 				emgSrcInnerId = srcInnerId;
 				emgSrcType = srcType;
 				 $("input[name='"+ ck.name +"']:checkbox").prop("checked", false);
@@ -1219,11 +1223,14 @@
 			emgmap.setView(latlngpoi);
 		} else if (ck.checked == false && srcType == <%=SrcTypeEnum.GAODE.getValue() %>) {
 			removeMarker(gaodeMarker, srcType, srcInnerId);
-		} else {
+		}/*  else {
 			console.log("Error on srcType: " + srcType);
 			return;
-		}
-	
+		} */
+		if (emgmap.getZoom() > 18) {
+			emgmap.setZoom(17);
+			emgmap.fireEvent("zoomend");
+		} 
 	}
 	
 	function removeMarker(layerGroup, srcType, srcInnerId){
@@ -1419,9 +1426,15 @@
 	}
 	
 	function markMain(e) {
-		var oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+		var oid = null;
+	
+		if (e != null) {
+			oid = e.options.poi.id	;
+		}else {
+			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+		}
+	
 		loadEditPOI(oid, null, true);
-			
 		if (oid<1){
 			$.webeditor.showCheckBox("alert", "当前点不符合标记主点的条件，你确认当前点没有被删除");	
 			return ;
@@ -1430,36 +1443,39 @@
 		var emgLayers = emgListMarker.getLayers();	
 		var layer = null;
 		for (var i = 0; i < emgLayers.length; i++) {
-			if(emgLayers[i].options.poi.id == oid ) {
+			if(emgLayers[i].options.poi != null && emgLayers[i].options.poi.id == parseInt(oid) ) {
 				layer = emgLayers[i];
-				emgListMarker.removeLayer(layer);
-				
-				emgFlag = true;
+				if (mainMarker != null) {
+					mainMarker.setIcon(setIcon(mainMarker.options.poi.namec));
+				}
+				mainMarker = layer;
+				mainMarker.setIcon(mainPointIcon);
+				break;
+			}else if (emgLayers[i].options.poi == null && emgLayers[i].options.srcInnerId == parseInt(oid) ) {
+				layer = emgLayers[i];
+				if (mainMarker != null) {
+					mainMarker.setIcon(setIcon(mainMarker.options.poi.namec));
+				}
+				mainMarker = layer;
+				mainMarker.options.poi = currentPoi;
+				mainMarker.setIcon(mainPointIcon);
+				break;
 			}
 		}
 		if (layer == null ){
 			emgLayers = emgMarker.getLayers();			
 			for (var i = 0; i < emgLayers.length; i++) {
-				if(emgLayers[i].options.poi.id == oid ) {
+				if(emgLayers[i].options.poi.id == parseInt(oid) ) {
 					layer = emgLayers[i];
-					emgMarker.removeLayer(layer);
-					emgFlag = false;
+					if (mainMarker != null) {
+						mainMarker.setIcon(setIcon(mainMarker.options.poi.namec));
+					}
+					mainMarker = layer;
+					mainMarker.setIcon(mainPointIcon);
+					break;
 				}
 			}
 		}
-		if (mainMarker == null) {
-			layer.setIcon(mainPointIcon);
-			mainMarker = layer;
-			mainMarker.addTo(emgmap);
-		} else {
-			if (emgFlag) {
-				emgListMarker.addLayer(removeMainMarker);
-			}else {
-				emgMarker.addLayer(removeMainMarker);
-			}
-			mainMarker.setLatLng(layer.getLatLng());
-		}
-		removeMainMarker = layer;
 	}
 	
 	function loadReferdatas(keywordid) {
@@ -1660,6 +1676,8 @@
 		oid =  $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
 		if (oid == systemPoi.id) {
 			updatePOIInMap();
+		}else {
+			oid = systemPoi.id;
 		}
 		/* try {
 			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
@@ -1685,6 +1703,7 @@
 		var tables = ["tbemg", "tbbaidu", "tbtengxun", "tbgaode"];
 		var relations = [];
 		var emgChecked = false;
+		var remark = $("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val();
 		for (var i = 0; i < tables.length; i++) {
 			// $("#" + tables[i] + " table tbody tr :checkbox")
 			$("#" + tables[i] + " input:checked").each(function(){
@@ -1749,10 +1768,10 @@
 			}
 		}
 		// 当聚合成功，在数据库里有relation,但EMG中未检索到聚合成功的点，则弹窗提示，未考虑新增点的情况
-		if (originalCheckRelation != null && originalCheckRelation.length > 0 && oid > 0) {
+		/* if (originalCheckRelation != null && originalCheckRelation.length > 0 && oid > 0) {
 			$.webeditor.showCheckBox("alert", "与EMG的关系在数据库中已经存在，但EMG检索未查询到该记录，请连接开发人员查明此问题");
 			return;
-		} 
+		}  */
 		var projectId = $("#curProjectID").val();
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		// var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
@@ -1917,13 +1936,19 @@
 	
 		//在地图中添加EMG选中行的特殊marker
 	function initEmgMarker(geo, srcType, srcInnerId) {
+		var html = $("#configDlg").html();
+        
 		emgCurrentMarker = new L.marker([geo[1],geo[0]],
-        		{ icon: blueemgIcon,title:name, srcType: srcType, srcInnerId: srcInnerId});
+        		{ icon: blueemgIcon,title:name, srcType: srcType, srcInnerId: srcInnerId}).bindPopup(html)
+        	    .openPopup();;
 		
 		emgCurrentMarker.on("click",function(){
+			updatePOIInMap();
 			loadEditPOI(srcInnerId, null, false);
+           	checkEmg(srcInnerId);
+			
         });
-        emgCurrentMarker.addTo(emgmap);
+		emgListMarker.addLayer(emgCurrentMarker);
 	}
 		
 	function getGEO(point) {
@@ -2095,7 +2120,7 @@
 			if (json && json.result > 0) {
 				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(json.result);
 				$.webeditor.showMsgLabel("success", "获取OID成功");
-				pointFeature.options.poi = {"oid": json.result};
+				pointFeature.options.poi = {"id": json.result};
 			} else {
 				if(json.error != null && json.error.length > 0) {
 					$.webeditor.showMsgLabel("alert", json.error);
@@ -2136,6 +2161,7 @@
 		var featcode =$("#featcode").val();
 		var sortcode =$("#sortcode").val();
 		var poistate = $("#poistate").val();
+		var remark = $("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val();
 		if(namec == null || namec.trim() == "" || featcode == null || featcode.trim() == "" || geo == null || geo.trim() == "") {
 			$.webeditor.showMsgLabel("alert", "名称、分类、坐标不能为空");
 			return;
@@ -2159,6 +2185,8 @@
 			"sortcode" : sortcode,
 			"geo" : geo,
 			"poistate": poistate,
+			"taskid": $("#curTaskID").text(),
+			"remark": remark == "" || remark == null ? " " : remark,
 			"projectId": projectId
 		}, function(json) {
 			if (json && json.result > 0) {
@@ -2175,10 +2203,18 @@
 				var emgLayers = emgListMarker.getLayers();	
 				var emgFlag = false;
 				for (var i = 0; i < emgLayers.length; i++) {
-					if(emgLayers[i].options.poi.id == parseInt(oid) ) {
+					
+					if(emgLayers[i].options.poi != null && emgLayers[i].options.poi.id == parseInt(oid) ) {
 						var layer = emgLayers[i];
 						layer.setIcon(setIcon(namec));
 						emgFlag = true;
+						console.log("从加载的当前视口中进行修改");
+						break;
+					}else if (emgLayers[i].options.poi == null && emgLayers[i].options.srcInnerId == parseInt(oid)) {
+						var layer = emgLayers[i];
+						layer.setIcon(setIcon(namec));
+						emgFlag = true;
+						console.log("从加载的当前视口中进行修改");
 						break;
 					}
 				}
@@ -2188,6 +2224,7 @@
 						if(emgLayers[i].options.poi.id == parseInt(oid) ) {
 							layer = emgLayers[i];
 							layer.setIcon(setIcon(namec));
+							console.log("从EMG列表中进行修改");
 							break;
 						}
 					}
@@ -2289,13 +2326,12 @@
 	
 	function map_drag(map, flag) {
 		$.when(updatePOIInMap()).done(function () {
-			
-		
 		// 当为添加点时触发的拖动事件，不重新加载地图
 		var zoom = map.getZoom();
 		if (zoom < 15 || zoom > 18) return;
 		var box = map.getBounds().getNorthWest().lng + "," + map.getBounds().getNorthWest().lat + "," + map.getBounds().getSouthEast().lng + "," + map.getBounds().getSouthEast().lat;
-	//  获取拆分的格网
+	
+		
 		 jQuery.post("./polygonedit.web", {
 				"atn" : "getdatabybox",
 				"box" : box,
@@ -2304,22 +2340,29 @@
 			}, function(json) {
 				if (json != null  && json.rows != null) {	
 					drawMarkers(json.rows, emgMarker);
-				
 				}	
+				if (mainMarker != null) {
+					 markMain(mainMarker);
+				 }
+				if (emgCurrentMarker != null && systemPoi != null && ((systemPoi != null && systemPoi.id != emgCurrentMarker.options.poi.id) || systemPoi == null)) {
+					
+					emgListMarker.addLayer(emgCurrentMarker);
+				}
 			}, "json");  
 		 drawMarkers(emgPOIs, emgListMarker);
 		 getBackgroundByDistance(isShowBackground);
 		 getWayByDistance(isShowWay);
+		 
 		});
 	}
 	
 	function drawMarkers(emgPOIs, markers) {
+	
 		markers.clearLayers();
 		for(var i = 0; i  < emgPOIs.length; i++) {
 			 (function (index){ //封闭空间开始
 				 var row=emgPOIs[index];
 					var geo = getGEO(row.geo);
-					console.log("emg list marker geo" + geo);
 					var html = $("#configDlg").html();
                    var pointFeature = new L.marker([geo[1], geo[0]],
                    		{icon:setIcon(row.namec),draggable: true, poi: row,
