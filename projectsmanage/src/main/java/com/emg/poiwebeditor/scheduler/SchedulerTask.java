@@ -4235,8 +4235,8 @@ public class SchedulerTask {
 	@Scheduled(cron = "${scheduler.modifytask.dotime}")
 	public void updateTaskState() {
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               		logger.debug("####scanfModifyTask()##start#####");
-	//	if( 1> 0)
-	//		return;
+		if( 1> 0)
+			return;
 		// 1.0 获取所有开启的项目	
 	
 		List<ProjectModel> rows = projectModelDao.selectProjectWithConfig( projectdbname,processdbname,ProjectState.START.getValue(), SystemType.poi_polymerize.getValue());
@@ -4949,8 +4949,8 @@ public class SchedulerTask {
 	public void updateProjectProgress() {
 		logger.debug("####scanfModifyTask()##start#####");
 		
-	//	if(1>0)
-	//		return ;
+		if(1>0)
+			return ;
 		
 		// 1.0 获取所有开启的项目	
 		

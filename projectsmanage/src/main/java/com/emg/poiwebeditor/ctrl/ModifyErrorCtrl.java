@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.constraints.Null;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.emg.poiwebeditor.client.POIClient;
 import com.emg.poiwebeditor.client.PublicClient;
 import com.emg.poiwebeditor.client.TaskModelClient;
@@ -208,19 +210,6 @@ public class ModifyErrorCtrl {
 		return task;
 	}
 
-	// byhxz20190520
-//	private TaskLinkPoiModel getLinkPoi(Long taskid) {
-//		TaskLinkPoiModel linkpoi = new TaskLinkPoiModel();
-//		try {
-//			linkpoi = taskModelClient.selectTaskLinkPoiByTaskid(taskid);
-//
-//		} catch (Exception e) {
-//			logger.error(e.getMessage(), e);
-//		}
-//
-//		return null;
-//	}
-
 	@RequestMapping(params = "atn=getpoibyoid")
 	public ModelAndView getPOIByOid(Model model, HttpServletRequest request, HttpSession session) {
 		logger.debug("START");
@@ -342,9 +331,14 @@ public class ModifyErrorCtrl {
 			poi.setUid(Long.valueOf(userid));
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-//			curTaskId = taskid;
-			poiClient.updatePOIToDB(poi);
 
+			poiClient.updatePOIToDB(poi);
+			
+
+			String log;
+			log = "提交任务前保存poi:" +taskid.toString();
+			taskModelClient.InsertTaskLog(taskid, log, logger.getName());
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -1526,7 +1520,7 @@ public class ModifyErrorCtrl {
 		Boolean bFindTask = false;
 		// 查找第一个可作业的项目：存在可作业的任务 + 任务下可有web编辑器作业
 		try {
-			Integer querycount = 3;//最大查找次数
+			Integer querycount = 1;//最大查找次数
 			// 找到一个可作业的任务
 			while (!bFindTask && querycount > 0) {
 				querycount--;
@@ -1562,7 +1556,8 @@ public class ModifyErrorCtrl {
 							slog +=	e.getId();
 							slog +=",";
 						}
-						taskModelClient.InsertTaskLog(0L, slog, logger.getName());		
+						taskModelClient.InsertTaskLog(curTaskId, slog, logger.getName());	
+						System.out.println(slog);
 //--------------
 						
 						log = info.getLog();
@@ -1635,7 +1630,8 @@ public class ModifyErrorCtrl {
 							slog +=	e.getId();
 							slog +=",";
 						}
-						taskModelClient.InsertTaskLog(0L, slog, logger.getName());		
+						taskModelClient.InsertTaskLog(0L, slog, logger.getName());	
+						System.out.println(slog);
 //--------------
 						
 						log = info.getLog();
@@ -1703,7 +1699,8 @@ public class ModifyErrorCtrl {
 								slog +=	e.getId();
 								slog +=",";
 							}
-							taskModelClient.InsertTaskLog(0L, slog, logger.getName());		
+							taskModelClient.InsertTaskLog(0L, slog, logger.getName());	
+							System.out.println(slog);
 	//--------------
 							
 							log = info.getLog();
@@ -1904,22 +1901,25 @@ public class ModifyErrorCtrl {
 			ProcessModel process = new ProcessModel();
 			Long keywordid = -1L;
 			
-			
-			
+			//----------------------------------------------------------
+			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			try {
-				Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
-				
-				Long projectId = ParamUtils.getLongParameter(request, "projectId", 0);
-				
+				POIDo poi0 = this.getSavePOI(request);
+				poi0.setConfirmUId(Long.valueOf(userid));
+				poi0.setUid(Long.valueOf(userid));
 				Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 				Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+				
+				Long projectId = ParamUtils.getLongParameter(request, "projectId", 0);
 				String strerrorids = ParamUtils.getParameter(request, "errorids");
-				String oids = ParamUtils.getParameter(request, "oid");
+				String oids = ParamUtils.getParameter(request, "oids");
 				Integer oidcount = oids.split(",").length;
 				
+				poiClient.updatePOIToDB(poi0);
 				String log;
-				log = "提交改错任务:"+taskid.toString();
-	            taskModelClient.InsertTaskLog(taskid, log, logger.getName());
+				log = "提交任务前保存 当前poi:" +taskid.toString();
+				taskModelClient.InsertTaskLog(taskid, log, logger.getName());
+	
 				
 				for( int indexoid = 0 ;indexoid < oidcount;indexoid++) {
 					Long oid = Long.valueOf( oids.split(",")[indexoid] );
@@ -1960,7 +1960,7 @@ public class ModifyErrorCtrl {
 					}
 				}
 			
-				log = "提交改错任务状态2:"+taskid.toString();
+				log = "提交改错任务状态state=2:"+taskid.toString();
                 taskModelClient.InsertTaskLog(taskid, log, logger.getName());
 
 				if (getnext) {
@@ -1993,7 +1993,14 @@ public class ModifyErrorCtrl {
 
 			if( stask != null) {
 				model.addAttribute("poiid", stask.getPoiId());
-				model.addAttribute("errorlist", stask.getErrorList());
+
+				JSONArray errobject = JSONArray.fromObject(stask.getErrorList());
+				String   errstring = errobject.toString();
+				//model.addAttribute("errorlist2", errobject);
+				
+			//	model.addAttribute("errorlist", errobject);
+				json.addObject("errorlist2", errstring);
+				//model.addAttribute("errorlist", stask.getErrorList());
 			}else {
 				model.addAttribute("poiid", -1L);
 				model.addAttribute("errorlist", null);

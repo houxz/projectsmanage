@@ -306,20 +306,6 @@ public class TasksManageCtrl extends BaseCtrl {
 					}
 				}
 			}else {
-				
-//				ProcessModelExample _example = new ProcessModelExample();
-//				_example.or().andStateNotEqualTo(4);//废弃不显示
-//				List<ProcessModel> processes = processModelDao.selectByExample(_example);
-//				if (processes0 != null && processes0.size() > 0) {
-//					List<Long> processids = new ArrayList<Long>();
-//					for (ProcessModel processModel : processes0) {
-//						processids.add(processModel.getId());
-//					}
-//					example.clear();
-//					example.or().andProcessidIn(processids);
-//					projects = projectModelDao.selectByExample(example);
-//				}
-				
 			}
 
 			if (projects != null && !projects.isEmpty()) {
@@ -330,11 +316,11 @@ public class TasksManageCtrl extends BaseCtrl {
 			}
 
 			ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.BIANJIRENWUKU, processType);
-			//add by lianhr begin 2019/02/21
+			
 			if(processType.getValue().equals(ProcessType.COUNTRY.getValue())) {
 				config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZHIJIANRENWUKU, processType);
 			}
-			//add by lianhr end
+			
 			if (config != null && config.getDefaultValue() != null && !config.getDefaultValue().isEmpty()) {
 				ConfigDBModel configDBModel = configDBModelDao
 						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
@@ -812,6 +798,17 @@ public class TasksManageCtrl extends BaseCtrl {
 					stateMaps.add(new StateMap(4, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
 					stateMaps.add(new StateMap(4, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
 					break;
+				case "稍后修改"://20200203
+					stateMaps.add(new StateMap(6, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(6, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT.getValue(), null));
+					stateMaps.add(new StateMap(6, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					stateMaps.add(new StateMap(6, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK.getValue(), null));
+					
+					stateMaps.add(new StateMap(6, 5, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(6, 6, TaskTypeEnum.POIPOLYMERIZE_EDIT2.getValue(), null));
+					stateMaps.add(new StateMap(6, 6, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
+					stateMaps.add(new StateMap(6, 7, TaskTypeEnum.POIPOLYMERIZE_CHECK2.getValue(), null));
+					break;
 				}
 				break;
 			default:
@@ -867,6 +864,9 @@ public class TasksManageCtrl extends BaseCtrl {
 				return "抽检跳过";
 			}else if(state.equals(3) && process.equals(0)) {
 				return "自动完成";
+			}//20200203
+			else if( state.equals(6)) {
+				return "稍后修改";
 			}
 		}
 		else if (tasktype.equals(TaskTypeEnum.QC_JIUGONGGE) || tasktype.equals(TaskTypeEnum.QC_QUANYU)) {

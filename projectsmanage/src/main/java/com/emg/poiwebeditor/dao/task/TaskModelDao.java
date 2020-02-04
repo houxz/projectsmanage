@@ -85,6 +85,10 @@ public class TaskModelDao {
 			}
 			sql.append("tb_task ");
 			sql.append(" WHERE 1=1");
+			//just for test
+			//sql.append(" WHERE 1=1 and state = 6 ");
+			//end
+			
 			
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
 				sql.append(" AND " + separator + "id" + separator + " = " + record.getId());
@@ -200,6 +204,9 @@ public class TaskModelDao {
 			}
 			sql.append("tb_task ");
 			sql.append(" WHERE 1=1");
+			// just for test
+			//sql.append(" WHERE 1=1 and state=6 ");
+			//end
 			
 			if (record.getId() != null && record.getId().compareTo(0L) > 0) {
 				sql.append(" AND " + separator + "id" + separator + " = " + record.getId());

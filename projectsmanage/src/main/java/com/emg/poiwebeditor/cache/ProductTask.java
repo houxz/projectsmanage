@@ -149,6 +149,10 @@ public  class ProductTask {
     	//用来缓解递归调用太多次，当此人消息队列中做完了，又在重新分配新任务的时候，及时获取到新分配的任务
     	if (index > 1) return null;
     	String key = typemaking + "_" + user + "_current";
+    	
+    	// for test
+    	Long vnum2 = valueOperations.size(key);
+    	
     	if (redisTemplate.hasKey(key) && valueOperations.size(key) > 0) {
     		return valueOperations.get(key);
     	}else {
@@ -160,6 +164,7 @@ public  class ProductTask {
         	}
         	if (task == null) task = this.popUserTask(user, type, typemaking, typeInit,typeUsing, typeUsed, ++index);
         	valueOperations.set(key, task);
+        	Long vnum = valueOperations.size(key);
         	if (listOps.size(k2) < 3 ) {
         		/*LoadTask thread = new LoadTask(user, type,typemaking, typeInit, typeUsed);
         		thread.start();*/
