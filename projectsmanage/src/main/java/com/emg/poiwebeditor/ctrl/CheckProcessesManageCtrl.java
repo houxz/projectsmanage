@@ -54,6 +54,7 @@ import com.emg.poiwebeditor.pojo.ProjectsUserModel;
 import com.emg.poiwebeditor.pojo.SpotCheckInfo;
 import com.emg.poiwebeditor.pojo.SpotCheckProjectInfo;
 import com.emg.poiwebeditor.pojo.SpotCheckTaskInfo;
+import com.emg.poiwebeditor.pojo.TaskLinkPoiModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
 import com.emg.poiwebeditor.pojo.keywordModelForTask;
 
@@ -426,25 +427,35 @@ public class CheckProcessesManageCtrl extends BaseCtrl {
 							TaskModel task = 	taskModelClient.createspotchecktask(spotchecktaskids[n], spotlist[j].getNewprojectid(),tasktype );
 							if( task != null) {
 								Long taskid = task.getId();
-								KeywordModel keyw = publicClient.selectKeywordsByID(task.getKeywordid());
-								Long featureid = 0L;
-								if( keyw != null) {
-									Integer srctype = keyw.getSrcType();
-									String  srcinnerid = keyw.getSrcInnerId();
-									List<PoiMergeDO>  relationlist =  publicClient.selectPOIRelation(srcinnerid,srctype);
-									int resize = relationlist.size();
-									for( PoiMergeDO pm : relationlist) {
-										int srctypetmp = pm.getSrcType();
-										String srcinneridtmp = pm.getSrcInnerId();
-										if(srctype.equals( srctypetmp) && srcinneridtmp.equals( srcinnerid )) {
-											featureid = pm.getOid();
-											break;
-										}
-									}											
-								}//if( keyw != null) {
-								taskModelClient.updatetasklinkpoi(taskid,featureid);
 								
-								newctcount++;
+								Long featureid = 0L;
+								//20200210 面状的查任务库  点状的维持原来逻辑
+								if(tasktype.equals(17004)) {
+									ArrayList<TaskLinkPoiModel> linkpoilist =taskModelClient.selectTaskLinkPoisByTaskid(spotchecktaskids[n]);
+									for (TaskLinkPoiModel taskLinkPoiModel : linkpoilist) {
+										featureid = taskLinkPoiModel.getPoiId();
+										taskModelClient.updatetasklinkpoi(taskid,featureid);
+									}
+								}else {
+									KeywordModel keyw = publicClient.selectKeywordsByID(task.getKeywordid());
+									if( keyw != null) {
+										Integer srctype = keyw.getSrcType();
+										String  srcinnerid = keyw.getSrcInnerId();
+										List<PoiMergeDO>  relationlist =  publicClient.selectPOIRelation(srcinnerid,srctype);
+										int resize = relationlist.size();
+										for( PoiMergeDO pm : relationlist) {
+											int srctypetmp = pm.getSrcType();
+											String srcinneridtmp = pm.getSrcInnerId();
+											if(srctype.equals( srctypetmp) && srcinneridtmp.equals( srcinnerid )) {
+												featureid = pm.getOid();
+												break;
+											}
+										}											
+									}//if( keyw != null) {
+									taskModelClient.updatetasklinkpoi(taskid,featureid);
+									
+									newctcount++;
+								}
 							}
 						}
 						//更新项目信息
