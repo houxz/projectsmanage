@@ -56,6 +56,24 @@ html, body, #emgmap, #baidumap {
 	/* background-color:yellow; */
 }
 
+.geojsonMakerOptions_blue {
+	/* radius:8; 
+	
+	*/
+	/* fillColor:blue; 
+	color:#000000;*/
+	color:green;
+	weight:1;
+	font-size: 10px;
+	background-image: url(../images/blue.png) ; 
+	background-repeat: no-repeat;
+	background-position: 65% ;
+	width:fit-content;
+	width:-webkit-fit-content;
+	width:-moz-fit-content;
+	/* background-color:yellow; */
+}
+
 .dropdown {
     position: relative;
     display: inline-block;

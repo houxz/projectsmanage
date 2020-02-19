@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -23,7 +24,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.emg.poiwebeditor.cache.ProductTask;
-import com.emg.poiwebeditor.client.EditTaskClient;
+import com.emg.poiwebeditor.client.CheckTaskClient;
 import com.emg.poiwebeditor.client.POIClient;
 import com.emg.poiwebeditor.client.PublicClient;
 import com.emg.poiwebeditor.common.CheckEnum;
@@ -47,6 +48,7 @@ import com.emg.poiwebeditor.pojo.ProcessModel;
 import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ReferdataModel;
 import com.emg.poiwebeditor.pojo.TagDO;
+import com.emg.poiwebeditor.pojo.TaskLinkPoiModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
 
 @Controller
@@ -67,7 +69,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 	private ProductTask productTask;
 	
 	@Autowired
-	private EditTaskClient taskClient;
+	private CheckTaskClient taskClient;
 	
 	@Autowired
 	private ConfigValueModelDao configValueDao;
@@ -82,7 +84,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		ProjectModel project = new ProjectModel();
 		ProcessModel process = new ProcessModel();
 		Long keywordid = -1L;
-		
+		String featcode = "";
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONCHECK_QUENE, ProductTask.TYPE_POLYGONCHECK_MAKING, TypeEnum.polygon_check_init, TypeEnum.polygon_check_using,TypeEnum.polygon_check_making, 0);
@@ -100,6 +102,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 					Long processid = project.getProcessid();
 					if (processid.compareTo(0L) > 0) {
 						process = processModelDao.selectByPrimaryKey(processid);
+						featcode = getProjectFeatcode(processid);
 					}
 				}
 				
@@ -115,9 +118,10 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		model.addAttribute("project", project);
 		model.addAttribute("process", process);
 		model.addAttribute("keywordid", keywordid);
+		model.addAttribute("featcodes", featcode);
 		
 		logger.debug("OPENLADER OVER");
-		return "polygonedit";
+		return "polygoncheck";
 	}
 	
 
@@ -523,9 +527,12 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		String geo = ParamUtils.getParameter(request, "geo");
 		Long projectId = ParamUtils.getLongParameter(request, "projectId", 0);
 		String poistate = ParamUtils.getParameter(request, "poistate");
+		String isDel = ParamUtils.getParameter(request, "isDel");
 		POIDo poi = new POIDo();
 		poi.setNamec(namec);
-		
+		if (isDel != null || !isDel.isEmpty()) {
+			poi.setDel(Boolean.valueOf(isDel));
+		}
 		POIDo savePoi = poiClient.selectPOIByOid(oid);
 		if (savePoi == null || savePoi.getId() == -1) {
 			poi.setGrade(GradeEnum.general);
@@ -726,4 +733,184 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		logger.debug("END");
 		return json;
 	}
+	
+	@RequestMapping(params = "atn=getrelatedpoi")
+	public ModelAndView getRelatedPoi(Model model, HttpServletRequest request, HttpSession session) {
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<POIDo> pois = new ArrayList<>();
+		try {
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			if (taskid != -1) {
+				List<TaskLinkPoiModel> links = taskClient.selectTaskPoi(taskid);
+				
+				if (links == null || links.isEmpty()) return null;
+				
+				String oid = (String)links.stream().map(entity -> String.valueOf(entity.getPoiId())).collect(Collectors.joining(","));
+				// 不包含新增删除的点
+				pois = poiClient.selectPOIByOidWithoutNewDel(oid);
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			
+		}
+		json.addObject("pois", pois);
+		json.addObject("count", 1);
+		json.addObject("result", 1);
+
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=ismarkerror")
+	public ModelAndView isMarkError(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		long id = -1l;
+		try {
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			id = taskClient.isMarkError(taskid);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		
+		json.addObject("result", id);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=getmodifiedlog")
+	public ModelAndView getModifiedLogs(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<ModifiedlogDO> logs = new ArrayList<ModifiedlogDO>();
+		try {
+			Long keywordid = ParamUtils.getLongParameter(request, "keywordid", -1);
+			logs = publicClient.loadModifiedLog(keywordid);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			logs = new ArrayList<ModifiedlogDO>();
+		}
+		json.addObject("modifiedlogs", logs);
+		json.addObject("count", 1);
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=getpoibyoids")
+	public ModelAndView getPOIByOids(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<POIDo> pois = new ArrayList<POIDo>();
+		try {
+			String oid = ParamUtils.getParameter(request, "oids");
+			pois = poiClient.selectPOIByOids(oid);
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		json.addObject("rows", pois);
+		json.addObject("count", 1);
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	/**
+	 * 以keyword坐标为中心点画圆查找半径为指定distance距离的道路
+	 * @param model
+	 * @param request
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping(params = "atn=getdatabybox")
+	public ModelAndView getDataByBox(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<POIDo> pois = new ArrayList<POIDo>();
+		try {
+			String box = ParamUtils.getParameter(request, "box", "");
+			Long processid = ParamUtils.getLongParameter(request, "processid", -1);
+			String exceptOids = ParamUtils.getParameter(request, "exceptoids", "");
+			
+			String featcode = getProjectFeatcode(processid);
+			
+			if (box != null && !box.isEmpty() && featcode != null) {
+				pois = poiClient.selectDataByBox(box, featcode, exceptOids);
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		json.addObject("rows", pois);
+		json.addObject("count", pois.size());
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	/**
+	 * 以keyword坐标为中心点画圆查找半径为指定distance距离的道路
+	 * @param model
+	 * @param request
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping(params = "atn=getwaybydistance")
+	public ModelAndView getWayByDistance(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<String> ways = new ArrayList<String>();
+		try {
+			String location = ParamUtils.getParameter(request, "geo", null);
+			
+			if ( location != null) {
+				ways = poiClient.selectWayByDistance( location);
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		json.addObject("rows", ways);
+		json.addObject("count", ways.size());
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	/**
+	 * 以keyword坐标为中心点画圆查找半径为指定distance距离的道路
+	 * @param model
+	 * @param request
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping(params = "atn=getbackgroundbydistance")
+	public ModelAndView getBackgroundByDistance(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		List<String> ways = new ArrayList<String>();
+		try {
+			String location = ParamUtils.getParameter(request, "geo", null);
+			
+			if ( location != null) {
+				ways = poiClient.selectBackgroundByDistance( location);
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		json.addObject("rows", ways);
+		json.addObject("count", ways.size());
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
 }

@@ -30,6 +30,8 @@ public class POIClient {
 	private static final Logger logger = LoggerFactory.getLogger(POIClient.class);
 	
 	private final static String selectPOIByOidUrl = "http://%s:%s/%s/poi/ids/merge/%s";
+	private final static String selectPOIByOidWithoutNewDel = "http://%s:%s/%s/poi/ids/withoutnewdel/%s";
+	
 	// private final static String selectPOIByOidUrl = "http://%s:%s/%s/poi/load/%s/%s";
 	private final static String deletePOIByOidUrl = "http://%s:%s/%s/poi/delete";
 	private final static String updatePOIRelationUrl = "http://%s:%s/%s/poi/upload/merge";
@@ -79,6 +81,32 @@ public class POIClient {
 		List<POIDo> pois = new ArrayList<POIDo>();
 		try {
 			HttpClientResult result = HttpClientUtils.doGet(String.format(selectPOIByOidUrl, host, port, path, oid));
+			if (!result.getStatus().equals(HttpStatus.OK))
+				return null;
+			
+			Object json = JSONArray.parse(result.getJson());
+			if (json instanceof JSONArray) {
+				JSONArray data = (JSONArray) json;
+				if (data != null && data.size() > 0) {
+					for (Integer i = 0, len = data.size(); i < len; i++) {
+						POIDo poi = new POIDo();
+						poi = JSON.parseObject(data.getJSONObject(i).toJSONString(), POIDo.class);
+						pois.add(poi);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return pois;
+	}
+	
+	public List<POIDo> selectPOIByOidWithoutNewDel(String oid) throws Exception {
+		List<POIDo> pois = new ArrayList<POIDo>();
+		try {
+			HttpClientResult result = HttpClientUtils.doGet(String.format(selectPOIByOidWithoutNewDel, host, port, path, oid));
 			if (!result.getStatus().equals(HttpStatus.OK))
 				return null;
 			

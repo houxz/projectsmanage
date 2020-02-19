@@ -2,32 +2,32 @@
 	     * 智图地图内容
 	     */
 	    var normalm1 = L.tileLayer.chinaProvider('Geoq.Normal.Map', {
-	        maxZoom: 30,
+	        maxZoom: 18,
 	        minZoom: 5,
 	        unlimited: true
 	    });
 	    var normalm2 = L.tileLayer.chinaProvider('Geoq.Normal.Color', {
-	        maxZoom: 30,
+	        maxZoom: 18,
 	        minZoom: 5,
 	        unlimited: true
 	    });
 	    var normalm3 = L.tileLayer.chinaProvider('Geoq.Normal.PurplishBlue', {
-	        maxZoom: 30,
+	        maxZoom: 16,
 	        minZoom: 5,
 	        unlimited: true
 	    });
 	    var normalm4 = L.tileLayer.chinaProvider('Geoq.Normal.Gray', {
-	        maxZoom: 30,
+	        maxZoom: 16,
 	        minZoom: 5,
 	        unlimited: true
 	    });
 	    var normalm5 = L.tileLayer.chinaProvider('Geoq.Normal.Warm', {
-	        maxZoom: 30,
+	        maxZoom: 16,
 	        minZoom: 5,
 	        unlimited: true
 	    });
 	    var normalm6 = L.tileLayer.chinaProvider('Geoq.Normal.Cold', {
-	        maxZoom: 30,
+	        maxZoom: 18,
 	        minZoom: 5,
 	        unlimited: true
 	    });
@@ -35,22 +35,22 @@
 	     * 天地图内容
 	     */
 	    var normalm = L.tileLayer.chinaProvider('TianDiTu.Normal.Map', {
-	            maxZoom: 30,
+	            maxZoom: 18,
 	            minZoom: 5,
 		        unlimited: true
 	        }),
 	        normala = L.tileLayer.chinaProvider('TianDiTu.Normal.Annotion', {
-	            maxZoom: 30,
+	            maxZoom: 18,
 	            minZoom: 5,
 		        unlimited: true
 	        }),
 	        imgm = L.tileLayer.chinaProvider('TianDiTu.Satellite.Map', {
-	            maxZoom: 30,
+	            maxZoom: 18,
 	            minZoom: 5,
 		        unlimited: true
 	        }),
 	        imga = L.tileLayer.chinaProvider('TianDiTu.Satellite.Annotion', {
-	            maxZoom: 30,
+	            maxZoom: 18,
 	            minZoom: 5,
 		        unlimited: true
 	        });
@@ -61,12 +61,15 @@
 	     * 谷歌
 	     */
 	    var normalMap = L.tileLayer.chinaProvider('Google.Normal.Map', {
-	            maxZoom: 30,
-	            minZoom: 1
+	            maxZoom: 18,
+	            minZoom: 1,
+	            unlimited: true
+	            
 	        }),
 	        satelliteMap = L.tileLayer.chinaProvider('Google.Satellite.Map', {
-	            maxZoom: 30,
-	            minZoom: 1
+	            maxZoom: 18,
+	            minZoom: 1,
+	            unlimited: true
 	        });
 	    /**
 	     * 高德地图
@@ -124,7 +127,7 @@
 	     * 腾讯地图
 	     */
 	    var Tengxun = L.tileLayer.chinaProvider('TengXun.Normal.Map', {
-	        maxZoom: 30,
+	        maxZoom: 18,
 	        minZoom: 5,
 	        unlimited: true
 	    });
@@ -133,7 +136,7 @@
 	     * OSM地图
 	     */
 	    var OSM = L.tileLayer.chinaProvider('OSM.Normal.Map', {
-	        maxZoom: 30,
+	        maxZoom: 18,
 	        minZoom: 5,
 	        unlimited: true
 	    });
@@ -142,7 +145,7 @@
 	     * EMG地图
 	     */
 	    var EMG = L.tileLayer.chinaProvider('EMG.Normal.Map', {
-	        maxZoom: 30,
+	        maxZoom: 16,
 	        minZoom: 5,
 	        unlimited: true
 	    });
@@ -152,7 +155,7 @@
 	     */
 /*	    var BaiDu = new L.tileLayer.baidu({ layer: 'custom',customid:'midnight'});
 	    var BaiDu2 = L.tileLayer.chinaProvider('BaiDu.Normal.Map', {
-	        maxZoom: 30,
+	        maxZoom: 18,
 	        minZoom: 5
 	    });*/
 	    
@@ -160,22 +163,22 @@
 	     * geoq地图
 	     */
 	    var Geoq = L.tileLayer.chinaProvider('Geoq.Normal.Map', {
-	        maxZoom: 30,
+	        maxZoom: 18,
 	        minZoom: 5,
 	        unlimited: true
 	    });
 	    var GeoqPurplishBlue = L.tileLayer.chinaProvider('Geoq.Normal.PurplishBlue', {
-	        maxZoom: 30,
+	        maxZoom: 16,
 	        minZoom: 5,
 	        unlimited: true
 	    });
 	    var GeoqGray = L.tileLayer.chinaProvider('Geoq.Normal.Gray', {
-	        maxZoom: 30,
+	        maxZoom: 16,
 	        minZoom: 5,
 	        unlimited: true
 	    });
 	    var GeoqWarm = L.tileLayer.chinaProvider('Geoq.Normal.Warm', {
-	        maxZoom: 30,
+	        maxZoom: 16,
 	        minZoom: 5,
 	        unlimited: true
 	    });

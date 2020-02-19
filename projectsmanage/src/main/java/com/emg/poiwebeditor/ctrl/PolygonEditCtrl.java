@@ -47,7 +47,6 @@ import com.emg.poiwebeditor.pojo.ProcessModel;
 import com.emg.poiwebeditor.pojo.ProjectModel;
 import com.emg.poiwebeditor.pojo.ReferdataModel;
 import com.emg.poiwebeditor.pojo.TagDO;
-import com.emg.poiwebeditor.pojo.TaskLinkPoiModel;
 import com.emg.poiwebeditor.pojo.TaskModel;
 
 @Controller
@@ -139,6 +138,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		ProjectModel project = new ProjectModel();
 		ProcessModel process = new ProcessModel();
 		Long keywordid = -1L;
+		POIDo poi = null;
 		long ret = -1l;
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
@@ -162,17 +162,17 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 					logs.add(log);
 				}
 			}
-			/*if (oid != -1) {
+			if (oid != -1) {
 				poi = this.getPOI(request, logs);
 				poi.setConfirmUId(Long.valueOf(userid));
 				poi.setUid(Long.valueOf(userid));
-			}*/
+			}
 			Boolean getnext = ParamUtils.getBooleanParameter(request, "getnext");
 			List<PoiMergeDO> relations = this.getRelation(taskid, saveRelations);
 			Long u = new Long(userid);
-			/*if (poi != null) {
+			if (poi != null) {
 				ret = poiClient.updatePOI(u, poi);
-			}*/
+			}
 			if (relations != null) {
 				ret = publicClient.updateRelations(u,  relations);
 			}

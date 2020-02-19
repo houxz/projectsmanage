@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>制作</title>
+<title>面状点抽检</title>
 <meta charset="UTF-8" />
 <meta name="robots" content="none">
 <meta http-equiv="Pragma" content="no-cache">
@@ -51,12 +51,13 @@
 <script src="resources/js/leaflet/editableMarkercluster/leaflet.markercluster.editablemarker.js"></script>
 <link rel="stylesheet" href="resources/js/leaflet/leaflet.contextmenu.css" />
 <script src="resources/js/leaflet/leaflet.contextmenu.js"></script>
-<script src="resources/js/map.js"></script>
+<script src="resources/js/map.js?v=<%=System.currentTimeMillis() %>"></script>
 <link href="resources/css/edit.css?v=<%=System.currentTimeMillis() %>" rel="stylesheet" />
 <script src="resources/js/basemap.js?v=<%=System.currentTimeMillis() %>"></script>
 <script src='resources/js/featcodeget.js?v=<%=System.currentTimeMillis() %>'></script>
 <script src="resources/js/featcoderegex.js?v=<%=System.currentTimeMillis() %>"></script>
 <script src="resources/js/coordtransform.js?v=<%=System.currentTimeMillis() %>"></script>
+
 </head>
 <body>
 	<div id="headdiv"></div>
@@ -116,7 +117,7 @@
 									<!-- <input id="featcode" class="form-control input-sm" type="text"> -->
 									<div class="input-group">
 										<input id="featcode" onchange="valueChange(this)" class="form-control input-sm" type="text" >
-										<span id="featcodeSpan" class="input-group-addon" style="cursor: pointer;" onClick="dlgFeatcodePOIConfig(-1, this);" title="选择类型代码" disabled >选择</span>
+										<span id="featcodeSpan" class="input-group-addon" style="cursor: pointer;" onClick="dlgFeatcodePOIConfig(-1, this);" title="选择类型代码"  >选择</span>
 									</div>
 									
 									</td>
@@ -134,7 +135,7 @@
 										<!-- <input class="form-control input-sm" type="text"> -->
 										<div class="input-group">
 											<input type="text" onchange="valueChange(this)" class="form-control" id="sortcode" placeholder="请输入系列代码" >
-											<span id="sortcodeSpan" class="input-group-addon" style="cursor: pointer;" onClick="dlgSortcodeConfig(-1, this);" title="选择系列代码" disabled>选择</span>
+											<span id="sortcodeSpan" class="input-group-addon" style="cursor: pointer;" onClick="dlgSortcodeConfig(-1, this);" title="选择系列代码" >选择</span>
 										</div>
 									</td>
 								</tr>
@@ -170,16 +171,20 @@
 									<td class="tdKey">备注</td>
 									<td class="tdValue" data-key="remark"><input class="form-control input-sm" type="text"></td>
 								</tr>
-								
+								<tr style="display:none">
+									<td class="tdKey">是否是egm列表中的点</td>
+									<td class='tdValue'><input type="text" 
+									class="form-control input-sm" id="isEmgListPoint"  value="false"
+									placeholder="系列代码中文"></td>
+								</tr>
 							</tbody>
 						</table>
 						<div >
 							
 							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="getNextTask();">稍后修改</button>
 							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="keywordError();">资料错误</button>
-							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="updatePOI();">新增</button>
+							<!-- <button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="insertPOI();">新增</button> -->
 							<button id="submitTask" class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="submitEditTask();">提交</button>
-							
 						</div>
 					</div>
 				
@@ -190,11 +195,10 @@
 						  <span>展开功能</span>
 						  <div class="dropdown-content">
 						  	<!-- <a id="ashowbaidu" onclick=showBaiduMap()>显示百度</a> -->
-						  	<a id="ashowpoianno" onclick=showPoiAnno() >显示道路(B)</a>
-						  	<a id="ashowpoilist" class="selecta" onclick=showPoiList() >显示背景</a>
-						  	<!-- <a id="ashowadmin" onclick=showAdmin() >显示区划</a>
-						  	<a id="ashowpoi" onclick=showPoi() >显示POI</a> -->
-						    <!-- <a id="asubmittask" onclick=submitTask() >提交任务(Ctrl+Enter)</a>		 -->			    
+						  	<a id="ashowpoianno" onclick="javascript: isShowWay = !isShowWay; getWayByDistance(isShowWay);" >显示道路</a>
+						  	<a id="ashowpoilist" class="selecta" onclick=" javascript: isShowBackground = !isShowBackground; getBackgroundByDistance(isShowBackground)" >显示背景</a>
+						  	<a id="ashowpoilist" class="selecta" onclick=" showEditPoiListDiv(this) " >编辑数据</a>
+						  			    
 						  </div>
 					</div>		
 					<tr id="tr_pano" >
@@ -235,48 +239,10 @@
 					</tr>
 				</table>
 			</div>
+			
 		</div>
 		</div>
-		<div id="configDlg" style="display: none;">
-		<table id="tbEdit" class="table table-bordered table-condensed">
-			<thead>
-		    	<tr>
-		      		<th><span class="glyphicon glyphicon-edit"></span></th>
-		      		<th>poi minzoom修改</th>
-		    	</tr>
-		  	</thead>
-			<tbody>
-				<tr>
-					<td class="tdKey">OID</td>
-					<td class="tdValue" data-key="oid"><input id="poi_oid" class="form-control input-sm" type="text" disabled></input></td>
-				</tr>
-				<tr>
-					<td class="tdKey">名称</td>
-					<td class="tdValue" data-key="name"><textarea id="poi_namec" class="form-control input-sm" disabled></textarea></td>
-				</tr>
-				<tr>
-					<td class="tdKey">minzoom</td>
-					<td class="tdValue" data-key="minzoom">
-					<div class="input-group">
-					     <span class="input-group-btn">
-					       <button class="btn btn-default" type="button" id="buttonminusminzoom" data-toggle="tooltip" title="D" onclick="minusMinzoom()">-</button>
-					     </span>
-					     <input id = "poi_minzoom" class="form-control" type="text" data-toggle="tooltip" title="F:当前,C:0" 
-					     		maxlength="2" 
-					     	 	onkeyup="value=value.replace(/[^0-9]/g,'')" onpaste="value=value.replace(/[^0-9]/g,'')" 
-					     	 	oncontextmenu = "value=value.replace(/[^0-9]/g,'')" >	
-					     <span class="input-group-btn">
-					       <button class="btn btn-default" type="button" id="buttonplusminzoom" data-toggle="tooltip" title="E" onclick="plusMinzoom()">+</button>
-					     </span>
-					</div>		 
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<div>			
-		<button id="btcanclepoi" class="btn btn-default"  data-toggle="tooltip" title="Q" onClick="canclePoi();">取消</button>
-		<button id="btsavepoi" class="btn btn-warning" data-toggle="tooltip" title="S/Enter" onClick="savePoi();">保存</button>
-		</div>
+		
 	</div>
 	</c:when>
 		<c:otherwise>
@@ -287,6 +253,57 @@
 			</div>
 		</c:otherwise>
 	</c:choose>
+	<div id="featcodePOI" style="display: none;">
+		<div class="dtree" style="height: 400px;">
+			<p><a href="javascript: d.openAll();">全部展开</a> | <a href="javascript: d.closeAll();">全部折叠</a></p>
+			<script type="text/javascript">
+				var d = featcodetree();
+				document.write(d);
+			</script>
+		</div>
+	</div>
+	<div id="sortcodePOI" style="display: none;">
+		<div class="sortcheck" style="height: 400px;">
+			<table>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div id="configDlg" style="display: none;">
+		<table id="tbEdit" class="table table-bordered table-condensed">
+			<thead>
+		    	<tr>
+		      		<th><span class="glyphicon glyphicon-edit"></span></th>
+		      		<th>是否标记为主点</th>
+		    	</tr>
+		  	</thead>
+			<tbody>
+				
+			</tbody>
+		</table>
+		<div>			
+		<button id="btcanclepoi" class="btn btn-default"  data-toggle="tooltip" title="Q" onClick="canclePoi();">取消</button>
+		<button id="btsavepoi" class="btn btn-warning" data-toggle="tooltip" title="S/Enter" onClick="markMain(null, true);">确定</button>
+		</div>
+	</div>
+	<div id="poiEditListDiv" style="display: none;">
+	<table id="poiEditList"  class="table table-bordered">
+			<%-- <caption>条纹表格布局</caption> --%>
+			<thead>
+				<tr>
+					<th>OID</th>
+					<th>名称</th>
+					<th>类型</th>
+					<th>系列</th>
+					<th>状态</th>
+					<th>删除</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+		</div>
 	<div class="footline">
 		<div><span>当前项目编号：</span><span id="curProcessID">${process.id}</span></div>
 		<div><span>当前项目：</span><span id="curProcessName">${process.name}</span></div>
@@ -299,9 +316,10 @@
 		<c:set var="modeltext" value='${model==1?"编辑":"浏览"}'/>
 		<c:out value="${modeltext}"></c:out>
 		</span></div>
-		<div><input type="hidden" id="curProjectID" value="${task.projectid}"></div>
+		<div><input type="hidden" id="curProjectID"  value="${task.projectid}"></div>
 		<div><input type="hidden" id="taskname" value="${task.name}"></div>
 		<div><input type="hidden" id="curModel" value="${model}"></div>	
+		<div><input type="hidden" id="projectfeatcodes" value="${featcodes}"></div>	
 	</div>
 	
 	<script>
@@ -312,11 +330,12 @@
 	var keywordid = eval('(${keywordid})');
 	var keyword = null;
 	var systemPoi = null;
+	// 当前选中的POI
+	var currentPoi = null;
 	// var delFeatcoe = true;
 	var systemOid = -1; // 当前编辑器左侧有OID
 	// databaseSaveRelation: 用来存储数据库中保存着的relation 关系, originalCheckRelation: 数据库中存在emg和点评的关系，但该点在现在EMG中没有，单独记录，用来做提示框条件， currentCheckRelation： 数据库中有，且已经被选中的
 	var databaseSaveRelation = [], originalCheckRelation = [], currentCheckRelation = [];
-	
 	var source = [];
 	var zoom = 17;
 	var submitflag = 0;
@@ -324,16 +343,34 @@
 	// 不允许编辑的类型
 	var notEditCode = [2080101,2080102,2080103,2010101,2010102,2010103,2010104,2010105,2010106, 2010108];
 	var loaderr = "<span class='red'>加载失败</span>";
-	//emgCurrentMarker emg当前选中的项
-	var emgCurrentMarker = null,emgMarker=L.layerGroup(), baiduMarker = L.layerGroup(), gaodeMarker = L.layerGroup(), tengxunMarker = L.layerGroup();
+	//emgCurrentMarker emg当前选中的项 , emgListMarker:emg列表中列出来的点， emgmarker:当前视口除emg列表中的点之外的，其它库里的POI点
+	var emgCurrentMarker = null, emgListMarker = L.layerGroup(), emgMarker=L.layerGroup(), baiduMarker = L.layerGroup(), gaodeMarker = L.layerGroup(), tengxunMarker = L.layerGroup();
+	var wayLayer = L.layerGroup(),areaLayer = L.layerGroup(), editPoiLayer = L.layerGroup();
+	//当前选中的EMG把原来的红色标记删除换成最新的蓝色
+	// var removeEmgMarker = null;
+	
 	// 当前选中的POI点是否修改了
 	var poiEditFlag = false;
 	// 是不是第一次保存POI点，只是保存POI点，而非提交任务
 	var isFirstSavePoi = false;
+	// EMG 参考数据
+	var emgPOIs = null;
+	// 用来标记EMG中列表中的所有oids,因为在拖动地图的时候不需要重新绘制EMG中的点，所以再次加载的时候，要过滤到现有的EMG列表中的点
+	var emgPOIOIDs = null;
+	//是否显示背景，是否显示道路
+	var isShowBackground = false, isShowWay = false;
+	//当前标记主点的点是不是EMG列表中的点
+	// var emgFlag = false;
+	
+	var isEmgList = false;
+	// 被标记为主点的点, 
+	var mainMarker = null;
+	
 	L.Marker.mergeOptions({
 	    poi: null,
 	    srcType: -1,
-	    srcInnerId: ""
+	    srcInnerId: "",
+	    isEmgListPoint: false
 	  });
 	
 	var yellowIcon = L.icon({
@@ -354,34 +391,46 @@
 	var redemgIcon = L.icon({
 	    iconUrl: 'resources/images/red_emg.png'
 	});
+	var delGreenIcon = L.icon({
+	    iconUrl: 'resources/images/green2.png'
+	});
 	var blueemgIcon = L.icon({
+	    iconUrl: 'resources/images/blue.png'
+	});
+	var mainPointIcon = L.icon({
 	    iconUrl: 'resources/images/blue_emg.png'
 	});
 	
 	$(document).ready(function() {
 		$.webeditor.getHead();
 		
-		console.log("hello edit: 111 " + Date.now());
+		console.log("hello check:  " + Date.now());
 		if (keywordid && keywordid > 0) {
 			//console.log("开始加载数据: " + Date.now());
-			$.when( 
-				loadKeyword(keywordid)
-			).done(function() {
-				var geo = getGEO(dianpingGeo);
-				
-				initEmgmap([parseFloat(geo[1]), parseFloat(geo[0])]);
-				tengxunMarker.addTo(emgmap);
-				baiduMarker.addTo(emgmap);
-				gaodeMarker.addTo(emgmap);
-				emgMarker.addTo(emgmap);
-				$.when(loadReferdatas(keywordid)
-				).done(function() {
-					if (keyword) {
-						loadRelation(keyword.srcInnerId, keyword.srcType);
-					}
-				});
-			});
+			/* $.when( 
+						loadKeyword(keywordid)
+					).done(function() {
+						var geo = getGEO(dianpingGeo);
+						
+						initEmgmap([parseFloat(geo[1]), parseFloat(geo[0])]);
+						tengxunMarker.addTo(emgmap);
+						baiduMarker.addTo(emgmap);
+						gaodeMarker.addTo(emgmap);
+						emgMarker.addTo(emgmap);
+						emgListMarker.addTo(emgmap);
+						wayLayer.addTo(emgmap);
+						areaLayer.addTo(emgmap);
+						$.when(loadReferdatas(keywordid)
+						).done(function() {
+							if (keyword) {
+								loadRelation(keyword.srcInnerId, keyword.srcType);
+								map_drag(emgmap);
+							}
+						});
+					}); */
 			//console.log("结束加载数据: " + Date.now());
+					//初始化页面
+				initPage(keywordid, $("#curTaskID").html())	;
 			
 		}else {
 			$.webeditor.showMsgLabel("alert", "没有获取到参考资料");
@@ -409,11 +458,187 @@
 			 if (event.altKey &&  event.keyCode==86) {   
 				 submitEditTask();
              }else if(event.altKey &&  event.keyCode==67) {   
-				updatePOI();
+				insertPOI();
              }
 		 });
 	});
+	function initPage(keywordid, taskid) {
+		/* loadKeyword(keywordid);
+		loadReferdatas(keywordid); */
+		$.when( 
+				loadKeyword(keywordid)
+			).done(function() {
+				var geo = getGEO(dianpingGeo);
+				
+				initEmgmap([parseFloat(geo[1]), parseFloat(geo[0])]);
+				tengxunMarker.addTo(emgmap);
+				baiduMarker.addTo(emgmap);
+				gaodeMarker.addTo(emgmap);
+				emgMarker.addTo(emgmap);
+				emgListMarker.addTo(emgmap);
+				wayLayer.addTo(emgmap);
+				areaLayer.addTo(emgmap);
+				editPoiLayer.addTo(emgmap);
+				$.when(loadReferdatas(keywordid)
+				).done(function() {
+					// 加载修改过或者存量删除的点
+					loadRelatedPoi($("#curTaskID").html());
+					loadRelation(keyword.srcInnerId, keyword.srcType);
+					map_drag(emgmap);
+				});
+		});
+		isMarkError();
+		loadModifiedLogs(keywordid);
+	}
 	
+	// 把所有编辑过的点都添加到地图上，以一个特殊的样式添加到列表中
+	function loadRelatedPoi(taskid, emgFeatcode) {
+		var dtd = $.Deferred(); 
+		jQuery.post("./polygoncheck.web", {
+			"atn" : "getrelatedpoi",
+			"taskid" : taskid
+		}, function(json) {
+			$("table#tbEdit>tbody td.tdValue>input:text").val("");
+			if (json && json.result == 1 && json.pois != null) {
+				var $tbody = $("#poiEditList>tbody");
+				$tbody.empty();
+				json.pois.forEach(function(poi, index) {
+					var html = new Array();
+					html.push("<tr onclick='markMap2Point(" +JSON.stringify(poi).replace(/"/g, '&quot;') + ")'><td >" + poi.id+ "</td>");
+					html.push("<td >" + poi.namec+ "</td>");
+					html.push("<td >" + poi.featcode+ "</td>");
+					html.push("<td >" + poi.sortcode+ "</td>");
+					html.push("<td style='display: none'>" + poi.geo+ "</td>");
+					
+					
+					var flag = false;
+					for(var i = 0; i < poi.poitags.length; i++) {
+						var tag = poi.poitags[i];
+						if(tag.k == 'poistate') {
+							flag = true;
+							html.push("<td >" + tag.v + "</td>");
+						}
+					}
+					if(!flag) {
+						html.push("<td ></td>");
+					}
+					if (poi.del) {
+						html.push("<td >");
+						html.push("<button class='btn btn-default' onclick='recoveryPoi(" + JSON.stringify(poi).replace(/"/g, '&quot;') + ", this)' >恢复</button>");
+					}else {
+						html.push("<td ></td>");
+					}
+				    html.push("</tr>");
+				    $tbody.append(html.join(''));
+				});
+				
+				if (editPoiLayer != null) {
+					editPoiLayer.clearLayers();
+				}
+				
+				for(var i = 0; i  < json.pois.length; i++) {
+					 (function (index){ //封闭空间开始
+						var row=json.pois[index];
+						var geo = getGEO(row.geo);
+						var html = $("#configDlg").html();
+		                var pointFeature = new L.marker([geo[1], geo[0]],
+		                   		{icon:redemgIcon,draggable: true, poi: row,isEmgListPoint: isEmgList} ).bindPopup(html).openPopup();
+		                if (row.isDel) {
+		                	pointFeature.setIcon(delGreenIcon);
+		                }			                
+		                pointFeature.on("click",function(){
+		                updatePOIInMap(null);
+		                loadEditPOI(row.id, null, false, isEmgList);
+		                checkEmg(this, row.id);
+		                }); 
+		                pointFeature.on("dragend",function(e){
+			                $.when(loadEditPOI(row.id, null, false, isEmgList)).done(function() {
+				                $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("MULTIPOINT ("+ e.target._latlng.lng + " " + e.target._latlng.lat + "," + e.target._latlng.lng + " " + e.target._latlng.lat + ")");
+				          		poiEditFlag = true;
+			                });
+		       	        }); 
+		                editPoiLayer.addLayer(pointFeature);
+	               })(i) 
+				}  
+				 
+			} else {
+				$("table#tbEdit>tbody td.tdValue>input:text").val("加载失败");
+			}
+			dtd.resolve();
+		}, "json");
+		return dtd;
+	}
+	
+	//恢复删除的POI点
+	function recoveryPoi(poi, e) {
+		markMap2Point(poi);
+		poiEditFlag = true;
+		updatePOIInMap(false);
+		stopPropagation();
+		
+	}
+	
+	function stopPropagation(e) {  
+        e = e || window.event;  
+        if(e.stopPropagation) { //W3C阻止冒泡方法  
+            e.stopPropagation();  
+        } else {  
+            e.cancelBubble = true; //IE阻止冒泡方法  
+        }  
+    }
+	
+	// 当选中列表中的POI之后，左侧列表更新成当前选中的POI的数据，地图定位到当前点的坐标，
+	function markMap2Point(poi) {
+		if(poi == null) return;
+		var geo = getGEO(poi.geo);
+		emgmap.setView(L.latLng(geo[1], geo[0]));
+		
+		
+		 $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(poi.id);
+		
+		$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
+		$("#featcode").val(poi.featcode);
+		$("#sortcode").val(poi.sortcode);
+		if (isEmgListPoint != null) {
+			$("#isEmgListPoint").val(isEmgListPoint);
+		}
+		
+		setfeatcodename();
+		setsortcodename();
+		$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val(poi.geo);
+		
+		poi.poitags.forEach(function(tag, index) {
+			$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
+		});
+		
+	}
+	
+	//展示编辑过的POI和存量删除的POI点
+	function showEditPoiListDiv(obj) {        
+        $("#poiEditListDiv").dialog({
+			modal : true,
+			closeOnEscape : false,
+			resizable : false,
+			width : 500,
+			heigth: 500,
+			overflow: scroll,
+			position: { at: "right" },
+			title : "编辑过的POI",
+			open : function(event, ui) {
+				$(".ui-dialog-titlebar-close").hide();
+			},
+			close : function() {
+			},
+			buttons : [  {
+				text : "关闭",
+				'class' : "btn btn-default",
+				click : function() {
+					$(this).dialog("close");
+				}
+			} ]
+		});
+    }
+
 	function setfeatcodename(){
 		$('#featcodename').val("");
 		var featcode = $('#featcode').val();
@@ -495,7 +720,6 @@
 	}
 	
 	function dlgFeatcodePOIConfig(band2, ele) {
-		if($(ele).attr("disabled")) return;
 		// delFeatcoe = false;
 		$("#featcodePOI").data("band2", band2);
 		$("#featcodePOI").dialog({
@@ -544,7 +768,6 @@
 	}
 	
 	function dlgSortcodeConfig(band2, ele) {
-		if($(ele).attr("disabled")) return;
 		$("#sortcodePOI").data("band2", band2);
 		
 		if (band2 < 0) {
@@ -774,10 +997,26 @@
 	function initArray() {
 		originalCheckRelation = [];
 		currentCheckRelation = [];
-		emgCurrentMarker = null;
+	}
+	
+	function initMap(){
 		// 判断点是否被编辑了
 		poiEditFlag = false;
 		isFirstSavePoi = false;
+		if (emgCurrentMarker != null) {
+			emgmap.removeLayer(emgCurrentMarker);
+			emgCurrentMarker = null;
+		}
+		emgListMarker.clearLayers();
+		wayLayer.clearLayers();
+		areaLayer.clearLayers();
+		editPoiLayer.clearLayers();
+		emgMarker.clearLayers();
+		baiduMarker.clearLayers();
+		gaodeMarker.clearLayers();
+		tengxunMarker.clearLayers();
+		mainMarker = null;
+		emgmap.setZoom(18);
 	}
 	
 	
@@ -846,7 +1085,7 @@
 		//console.log("加载keyword开始");
 		//console.log(Date.now());
 		var dtd = $.Deferred(); 
-		jQuery.post("./edit.web", {
+		jQuery.post("./polygoncheck.web", {
 			"atn" : "getkeywordbyid",
 			"keywordid" : keywordid
 		}, function(json) {
@@ -874,7 +1113,7 @@
 		var dtd = $.Deferred(); 
 		//console.log("加载relation开始");
 		//console.log(Date.now());
-		jQuery.post("./edit.web", {
+		jQuery.post("./polygoncheck.web", {
 			"atn" : "getRelationByOid",
 			"srcInnerId" : srcInnerId,
 			"srcType": srcType
@@ -894,27 +1133,18 @@
 								if (keyword.srcInnerId == databaseSaveRelation[j].srcInnerId && keyword.srcType == databaseSaveRelation[j].srcType && srcInnerId == databaseSaveRelation[j].oid) {
 									// 当为EMG数据时，srcinnerid则为oid
 									$(this).prop("checked", true);
-									// loadEditPOI(srcInnerId);
 									var emgFeatcode = $($(this).parents("table")[0]).find("td.tdValue[data-key='class']");
-									var k = j;
-									if (emgCurrentMarker == null) {
-										var geo = null;
-										var geoTemp =$($(this).parents("tbody")[0]).find("td.tdValue[data-key='geo']")[0].innerText;
-										if ($($(this).parents("tbody")[0]).find("td.tdValue[data-key='geo']")[0].innerText.indexOf("MULTIPOIN") >= 0) {
-											var t = geoTemp.split(",")[1];
-											geo = t.substring(0, t.length-1).split(" ");
-										}else {
-											geo = geoTemp.replace("POINT (","").replace(")", "").split(" ");
-										}
-										initEmgMarker(geo,databaseSaveRelation[j].srcType, databaseSaveRelation[j].srcInnerId);
-									}
-									$.when( 
-											loadEditPOI(srcInnerId, emgFeatcode)
+									var k = j,ele = this;
+									console.log("k1" + $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val());
+									rdChange(ele, srcType, null, null, srcInnerId, true);
+									/* $.when( 
+											 loadEditPOI(srcInnerId, emgFeatcode, false, null)
 									).done(function() {
+										console.log("k2" + $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val());
 										source = [];
-										
 										currentCheckRelation.push(databaseSaveRelation[k]);
-									});
+										
+									}); */
 									flags[i] = true;
 									
 								} 
@@ -974,6 +1204,82 @@
 		return dtd;
 	}
 	
+	
+	function getWayByDistance(flag) {
+		if (!flag) {
+			wayLayer.clearLayers();
+			return;
+		}
+		
+		jQuery.post("./polygoncheck.web", {
+			"atn" : "getwaybydistance",
+			"geo" : emgmap.getBounds().getNorthWest().lng + "," + emgmap.getBounds().getNorthWest().lat + "," + emgmap.getBounds().getSouthEast().lng + "," + emgmap.getBounds().getSouthEast().lat
+			
+		}, function(json) {
+			if (json && json.result == 1 && json.rows != null) {
+				var ways = json.rows;
+				var allPoint = [];
+				for (var i = 0; i < ways.length; i++) {
+					var points = ways[i].substring(11, ways[i].length -1).split(",");
+					var innerPoint = [];
+					for (var j = 0; j < points.length; j++) {
+						var s = points[j].split(" ");
+						var point = L.latLng(parseFloat(s[1]), parseFloat(s[0]));
+						innerPoint.push(point);
+					}
+					var polyline = L.polyline(innerPoint, {color: 'red'});	
+					wayLayer.addLayer(polyline);
+					//wayLayer.fitBounds(polyline.getBounds());
+					// emgmap.fitBounds(polyline.getBounds());
+					
+				}
+				/* var polyline = L.polyline(allPoint, {color: 'red'}).addTo(emgmap);					
+				emgmap.fitBounds(polyline.getBounds()); */
+				
+			} else {
+				$("table#tbEdit>tbody td.tdValue>input:text").val("加载失败");
+			}
+		}, "json");
+		
+	}
+	
+	function getBackgroundByDistance(flag) {
+		if (!flag) {
+			areaLayer.clearLayers();
+			return;
+		}
+		
+		jQuery.post("./polygoncheck.web", {
+			"atn" : "getbackgroundbydistance",
+			"geo" : emgmap.getBounds().getNorthWest().lng + "," + emgmap.getBounds().getNorthWest().lat + "," + emgmap.getBounds().getSouthEast().lng + "," + emgmap.getBounds().getSouthEast().lat
+			
+		}, function(json) {
+			if (json && json.result == 1 && json.rows != null) {
+				var ways = json.rows;
+				var allPoint = [];
+				for (var i = 0; i < ways.length; i++) {
+					var points = ways[i].substring(9, ways[i].length -1).split(",");
+					var innerPoint = [];
+					for (var j = 0; j < points.length; j++) {
+						var s = points[j].split(" ");
+						var point = L.latLng(parseFloat(s[1]), parseFloat(s[0]));
+						innerPoint.push(point);
+					}
+					var polygon = L.polygon(innerPoint, {color: 'green', fillOpacity: 0});
+					areaLayer.addLayer(polygon);
+					// zoom the map to the polygon
+					//emgmap.fitBounds(polygon.getBounds());
+					
+				}
+				
+				
+			} else {
+				$("table#tbEdit>tbody td.tdValue>input:text").val("加载失败");
+			}
+		}, "json");
+		
+	}
+	
 	function refercompare(a, b) {
 		return a.sequence - b.sequence;
 	}
@@ -992,29 +1298,30 @@
 					$emgmarkerBase.setLatLng(latlngpoi);
 				} else {
 					$emgmarkerBase = L.marker([geo[1], geo[0]]).addTo(emgmap);
-					
 				}
 			}	
 			return true;
-			
 		} catch(e) {
 			return false;
 		}
 		//console.log("结束绘制EMG地图: " + Date.now());
 	}
-	
-	function loadEditPOI(oid, emgFeatcode) {
+	// 是否把当前点信息设置为主点isSetMain:是否设置成主点， isEmgListPoint: 需要加载的点是否为EMG列表中的点
+	function loadEditPOI(oid, emgFeatcode, isSetMain, isEmgListPoint) {
 		if (!oid || oid <= 0) 	return;
 		var dtd = $.Deferred(); 
 		systemOid = oid;
-		jQuery.post("./polygonedit.web", {
+		jQuery.post("./polygoncheck.web", {
 			"atn" : "getpoibyoid",
 			"oid" : oid
 		}, function(json) {
+			if (!oid || oid <= 0) 	return;
 			$("table#tbEdit>tbody td.tdValue>input:text").val("");
 			if (json && json.result == 1 && json.poi != null) {
-				systemPoi = json.poi;
 				var poi = json.poi;
+				currentPoi = json.poi;
+				if (isSetMain) systemPoi = poi;
+				console.log("k5");
 				if(poi.del) {
 					$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(-1);
 				}else {
@@ -1023,6 +1330,10 @@
 				$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
 				$("#featcode").val(poi.featcode);
 				$("#sortcode").val(poi.sortcode);
+				if (isEmgListPoint != null) {
+					$("#isEmgListPoint").val(isEmgListPoint);
+				}
+				
 				setfeatcodename();
 				setsortcodename();
 				$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val(poi.geo);
@@ -1030,7 +1341,7 @@
 					var featcode = getfeatcodename(poi.featcode);
 					emgFeatcode.text(featcode);
 					// 如果POI已经被删除，则把颜色置为红色
-					if (poi.del) {
+					if (poi.del || poi.id == -1) {
 						$($($(emgFeatcode).parents("table")[0]).find("td.tdIndex")[0]).css('background-color', 'red');
 					}
 				}
@@ -1045,13 +1356,20 @@
 		return dtd;
 	}
 	
-	function rdChange(ck, srcType, lat, lng, srcInnerId) {
-		var latlngpoi = L.latLng(parseFloat(lat), parseFloat(lng));
+	// flag: 用来设置是在地图上点击触发的还是在列表中点击触发的， 当在地图上点击的时候不能重新设置中心点，不能调整地图级别
+	function rdChange(ck, srcType, lat, lng, srcInnerId, flag) {
+		console.log("k3" + $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val());
+		var latlngpoi = null;
+		if (lat != null && lng != null) {
+			latlngpoi = L.latLng(parseFloat(lat), parseFloat(lng));
+		}
+		var minlng = emgmap.getBounds().getNorthWest().lng , minlat = emgmap.getBounds().getNorthWest().lat , 
+		maxlng = emgmap.getBounds().getSouthEast().lng , maxlat =  emgmap.getBounds().getSouthEast().lat;
 		if (ck.checked == false && srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
-			if (emgCurrentMarker != null) {
+			/* if (emgCurrentMarker != null) {
 		        emgCurrentMarker.remove();
 		        emgCurrentMarker = null;
-			}
+			} */
 			$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("-1");
 			$("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val("");
 			emgSrcInnerId = "";
@@ -1060,39 +1378,95 @@
 			$('#featcode').val("");
 			$('#sortcodename').val("");
 			$('#featcodename').val("");
-			
+			/* if(removeEmgMarker != null) {
+				emgListMarker.addLayer(removeEmgMarker);
+				removeEmgMarker = null;
+			} */
 		}else if (ck.checked == true && srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
-			// loadEditPOI(srcInnerId);
 			var emgFeatcode = $($(ck).parents("table")[0]).find("td.tdValue[data-key='class']");
-			loadEditPOI(srcInnerId, emgFeatcode);
 			
-			emgmap.setView(latlngpoi);
-			emgSrcInnerId = srcInnerId;
-			emgSrcType = srcType;
-			 $("input[name='"+ ck.name +"']:checkbox").prop("checked", false);
-			ck.checked = true; 
-			if (emgCurrentMarker == null) {
-				initEmgMarker([lng,lat], srcType, srcInnerId);
-			}else {
-				emgCurrentMarker.setLatLng(L.latLng(lat,lng));
-			}
+			$.when(loadEditPOI(srcInnerId, emgFeatcode, false, true)) .done(function() {
+				console.log("k4" + $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val());
+				var geo = getGEO(currentPoi.geo);
+				if(flag) {
+					emgmap.setView(L.latLng(geo[1], geo[0]));
+				}
+				
+				emgSrcInnerId = srcInnerId;
+				emgSrcType = srcType;
+				 $("input[name='"+ ck.name +"']:checkbox").prop("checked", false);
+				ck.checked = true; 
+				console.log("emg geo" + geo);
+				console.log(this);
+				var layers = emgListMarker.getLayers();
+				for(var i = 0; i < layers.length; i++) {
+					var layer = layers[i];
+					if (layers[i].options.poi.id == parseInt(srcInnerId)) {
+						emgCurrentMarker = layer;
+						layer.setIcon(setEmgCheckIcon(layer.options.poi.namec));
+					}else if(layer.getIcon().options.className == 'geojsonMakerOptions_blue' && layers[i].options.poi.id != parseInt(srcInnerId)){
+						layer.setIcon(setIcon(layer.options.poi.namec));
+					}
+				}
+				
+				/* if (emgCurrentMarker == null) {
+					initEmgMarker(geo, srcType, srcInnerId);
+					
+				}else {
+					if(removeEmgMarker != null) {
+						emgListMarker.addLayer(removeEmgMarker);
+						removeEmgMarker = null;
+					}
+					emgCurrentMarker.setLatLng(L.latLng(geo[1], geo[0]));
+				} 
+				var layers = emgListMarker.getLayers();
+				for(var i = 0; i < layers.length; i++) {
+					if (layers[i].options.poi.id == parseInt(srcInnerId)) {
+						removeEmgMarker = layers[i];
+						emgListMarker.removeLayer(layers[i]);
+					}
+				}
+				*/
+			});
+			
 		}else if (ck.checked == true && srcType == <%=SrcTypeEnum.BAIDU.getValue() %>) {
+			var geo = coordtransform.bd09togcj02(lng, lat);
 			addBaiduMarker(lat,lng,  srcType, srcInnerId);
+			latlngpoi = L.latLng(parseFloat(geo[1]), parseFloat(geo[0]));
+			if(flag) {
+				emgmap.setView(latlngpoi);
+			}
 		} else if (ck.checked == false && srcType == <%=SrcTypeEnum.BAIDU.getValue() %>) {
 			removeMarker(baiduMarker, srcType, srcInnerId);
 		} else if (ck.checked == true && srcType == <%=SrcTypeEnum.TENGXUN.getValue() %>) {
 			addTengxunMarker(lat,lng,  srcType, srcInnerId);
+			if(flag) {
+				emgmap.setView(latlngpoi);
+			}
 		}else if (ck.checked == false && srcType == <%=SrcTypeEnum.TENGXUN.getValue() %>) {
 			removeMarker(tengxunMarker, srcType, srcInnerId);
 		} else if (ck.checked == true && srcType == <%=SrcTypeEnum.GAODE.getValue() %>) {
 			addGaodeMarker(lat,lng,  srcType, srcInnerId);
+			if(flag) {
+				emgmap.setView(latlngpoi);
+			}
 		} else if (ck.checked == false && srcType == <%=SrcTypeEnum.GAODE.getValue() %>) {
 			removeMarker(gaodeMarker, srcType, srcInnerId);
-		} else {
+		}/*  else {
 			console.log("Error on srcType: " + srcType);
 			return;
-		}
-	
+		} */
+		
+		if (emgmap.getZoom() > 18 && flag) {
+			var geo = getGEO(currentPoi.geo);
+			if (lat != null && lng != null && srcType != <%=SrcTypeEnum.EMG.getValue() %> && lat <= minlat && lat >= maxlat && lng >= minlng && lng <= maxlng) {
+				return;
+			}else if(srcType == <%=SrcTypeEnum.EMG.getValue() %> && geo[1] <= minlat && geo[1] >= maxlat && geo[0] >= minlng && geo[0] <= maxlng) {
+				return;
+			}
+			emgmap.setZoom(17);
+			emgmap.fireEvent("zoomend");
+		} 
 	}
 	
 	function removeMarker(layerGroup, srcType, srcInnerId){
@@ -1177,6 +1551,7 @@
 			}
 			
 			source.push(obj);
+			
 		}
 		
 		$("table#tbEdit>tbody td.tdValue[data-key='" + key + "']>textarea").val(value);
@@ -1212,6 +1587,7 @@
 			}
 			
 		}
+		poiEditFlag = true;
 		
 	} 
 	
@@ -1261,7 +1637,7 @@
 			var html = new Array();
 			html.push("<table id ='"+ tbid + referdata.id + "' class=\"table table-bordered table-condensed tableWith\"><tbody>");
 			html.push("<tr class='trIndex'><td class='tdIndex' rowspan='6'>");
-		    html.push("<input type='checkbox' name='rd" + tbid + "' onChange='rdChange(this, " + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\");' value='" + referdata.id + "," + referdata.srcInnerId + "," + referdata.srcType + "' >");
+		    html.push("<input type='checkbox' name='rd" + tbid + "' onChange='rdChange(this, " + referdata.srcType + "," + referdata.srcLat + "," + referdata.srcLon + ",\"" + referdata.srcInnerId + "\", true);' value='" + referdata.id + "," + referdata.srcInnerId + "," + referdata.srcType + "' >");
 		    html.push("</td></tr>");
 		    
 		    html.push("<tr><td class='tdKey'>名称</td>");
@@ -1287,9 +1663,112 @@
 		});
 	}
 	
+	
+	
+	function markMain(e, flag) {
+		var oid = null;
+	
+		if (e != null) {
+			oid = e.options.poi.id	;
+		}else {
+			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+		}
+	
+		loadEditPOI(oid, null, true, null);
+		if (oid<1){
+			$.webeditor.showCheckBox("alert", "当前点不符合标记主点的条件，你确认当前点没有被删除");	
+			return ;
+		}
+		emgmap.closePopup();
+		var emgLayers = emgListMarker.getLayers();	
+		emgLayers = emgLayers.concat(emgMarker.getLayers());
+		var layer = null;
+		for (var i = 0; i < emgLayers.length; i++) {
+			layer = emgLayers[i];
+			if((layer.options.poi != null && layer.options.poi.id == parseInt(oid)) || (layer.options.srcInnerId != null && layer.options.srcInnerId == parseInt(oid)) ) {
+				if (mainMarker != null) {
+					mainMarker.setIcon(setIcon(mainMarker.options.poi.namec));
+				}
+				mainMarker = layer;
+				mainMarker.options.poi = currentPoi;
+				mainMarker.setIcon(mainPointIcon);
+				break;
+			}
+		}
+		/* if (layer == null ){
+			emgLayers = emgMarker.getLayers();			
+			for (var i = 0; i < emgLayers.length; i++) {
+				if(emgLayers[i].options.poi.id == parseInt(oid) ) {
+					layer = emgLayers[i];
+					if (mainMarker != null) {
+						mainMarker.setIcon(setIcon(mainMarker.options.poi.namec));
+					}
+					mainMarker = layer;
+					mainMarker.setIcon(mainPointIcon);
+					break;
+				}
+			}
+		} */
+		/// if (flag) poiEditFlag = true;
+	}
+	
+	/* function markMain(e, flag) {
+		var oid = null;
+	
+		if (e != null) {
+			oid = e.options.poi.id	;
+		}else {
+			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+		}
+	
+		loadEditPOI(oid, null, true, null);
+		if (oid<1){
+			$.webeditor.showCheckBox("alert", "当前点不符合标记主点的条件，你确认当前点没有被删除");	
+			return ;
+		}
+		emgmap.closePopup();
+		var emgLayers = emgListMarker.getLayers();	
+		var layer = null;
+		for (var i = 0; i < emgLayers.length; i++) {
+			if(emgLayers[i].options.poi != null && emgLayers[i].options.poi.id == parseInt(oid) ) {
+				layer = emgLayers[i];
+				if (mainMarker != null) {
+					mainMarker.setIcon(setIcon(mainMarker.options.poi.namec));
+				}
+				mainMarker = layer;
+				mainMarker.setIcon(mainPointIcon);
+				break;
+			}else if (emgLayers[i].options.poi == null && emgLayers[i].options.srcInnerId == parseInt(oid) ) {
+				layer = emgLayers[i];
+				if (mainMarker != null) {
+					mainMarker.setIcon(setIcon(mainMarker.options.poi.namec));
+				}
+				mainMarker = layer;
+				mainMarker.options.poi = currentPoi;
+				mainMarker.setIcon(mainPointIcon);
+				break;
+			}
+		}
+		if (layer == null ){
+			emgLayers = emgMarker.getLayers();			
+			for (var i = 0; i < emgLayers.length; i++) {
+				if(emgLayers[i].options.poi.id == parseInt(oid) ) {
+					layer = emgLayers[i];
+					if (mainMarker != null) {
+						mainMarker.setIcon(setIcon(mainMarker.options.poi.namec));
+					}
+					mainMarker = layer;
+					mainMarker.setIcon(mainPointIcon);
+					break;
+				}
+			}
+		}
+		/// if (flag) poiEditFlag = true;
+	} */
+	
 	function loadReferdatas(keywordid) {
 		var dtd = $.Deferred();
-		jQuery.post("./edit.web", {
+		jQuery.post("./polygoncheck.web", {
 			"atn" : "getreferdatabykeywordid",
 			"keywordid" : keywordid
 		}, function(json) {
@@ -1315,53 +1794,29 @@
 					if (emgrefers && emgrefers.length > 0) {
 						emgrefers.sort(refercompare);
 						var flag = drawEMGMap(emgrefers[0].srcLat, emgrefers[0].srcLon, zoom);
-						// L.marker([emgrefers[0].srcLat, emgrefers[0].srcLon]).addTo(emgmap);
-						if (flag) {
-							//加载方圆500米范围的点
-							jQuery.post("./polygonedit.web", {
-								"atn" : "getpoibydistance",
-								"processid" : $("#curProcessID").text(),
-								"distance" : keyword.distance,
-								"location": keyword.geo
-							}, function(json) {
-								if (json && json.result == 1) {
-									var pois = json.rows;
-									for(var i = 0; i  < pois.length; i++) {
-										(function (index){ //封闭空间开始
-						                    var row=pois[index];
-											var geo = getGEO(row.geo);
-						                    
-						                    var pointFeature = new L.marker([geo[1], geo[0]],
-						                    		{ icon: redIcon,title:row.namec, poi: row} );
-						                    pointFeature.on("click",function(){
-						                    	updatePOIInMap();
-						                    	console.log(row);
-						                    	loadEditPOI(row.id, null);
-						                    	
-						                    });
-						                    emgMarker.addLayer(pointFeature);
-						                    // pointFeature.addTo(emgmap);
-						                })(i) 
-									}
-								} 
-							});
-							// 成功显示地图
-							for(var i = 0; i  < emgrefers.length; i++) {
-								(function (index){ //封闭空间开始
-				                    var row=emgrefers[index];
-				                    var pointFeature = new L.marker([row.srcLat,row.srcLon],
-				                    		{ icon: redIcon,title:row.name,srcType: row.srcType, srcInnerId: row.srcInnerId});
-				                    pointFeature.on("click",function(){
-										updatePOIInMap();
-				                    	loadEditPOI(row.srcInnerId, null);
-				                    	
-				                    });
-				                    emgMarker.addLayer(pointFeature);
-				                    // pointFeature.addTo(emgmap);
-				                })(i) 
-							}
-							
+						// 把EMG中的数据显示在地图上
+						emgPOIOIDs = emgrefers[0].srcInnerId;
+						for (var i = 1; i < emgrefers.length; i++) {
+							emgPOIOIDs = emgPOIOIDs + "," + emgrefers[i].srcInnerId;
 						}
+						jQuery.post("./polygoncheck.web", {
+							"atn" : "getpoibyoids",
+							"oids": emgPOIOIDs
+						}, function(json) {
+							if (json && json.result > 0) {
+								emgPOIs = json.rows;
+								drawMarkers(emgPOIs, emgListMarker, true);
+							} else {
+								
+								if(json.error != null && json.error.length > 0) {
+									$.webeditor.showMsgLabel("alert", json.error);
+								}else {
+									$.webeditor.showMsgLabel("alert", "获取OID失败");
+								}
+								
+							}
+							$.webeditor.showMsgBox("close");
+						}, "json");
 						drawReferdatas("tbemg", emgrefers);
 						emgSrcInnerId = emgrefers[0].srcInnerId;
 						emgSrcType = emgrefers[0].srcType;
@@ -1421,10 +1876,32 @@
 		return dtd;
 	}
 	
+	// 当点击地图中的EMG的点时候在EMG列表中有，则显示勾选相应的内容，如果没有则取消现在已经勾选的项
+	function checkEmg(el, oid) {
+		if (oid == null || oid == "") return;
+	
+		$("input[name=rdtbemg]:checkbox").each(function(){
+			// relations.push();
+			var srcInnerId = $(this).val().split(",")[1];
+			var srcType = $(this).val().split(",")[2];
+			if ($(this).prop("checked") && oid != srcInnerId ) {
+				$(this).prop("checked", false);
+				rdChange(this, <%=SrcTypeEnum.EMG.getValue() %>, null, null, oid, false);
+				// return false;
+			}else if (srcType == 1 && srcInnerId == oid && !$(this).prop("checked")){
+				$(this).prop("checked", true);
+				rdChange(this, <%=SrcTypeEnum.EMG.getValue() %>, null, null, oid, false);
+				// return false;
+			}
+			
+		});
+		
+	}
+	
 	//标识资料错误
 	function keywordError(){
 		var isLoadNextTask = $("table#tbEdit>tbody td.tdKey[data-key='isLoadNextTask']>input:checkbox").prop("checked");
-		var oid = oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+		var oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
 		var relation = null;
 			// $("#" + tables[i] + " table tbody tr :checkbox")
 		$("#tbemg input:checked").each(function(){
@@ -1455,7 +1932,7 @@
 		
 		$.webeditor.showConfirmBox("alert","你确定把当前资料打上错误标识吗？", function(){
 			$.webeditor.showMsgBox("info", "数据保存中...");
-			jQuery.post("./edit.web", {
+			jQuery.post("./polygoncheck.web", {
 				"atn" : "keywordError",
 				"taskid" : $("#curTaskID").text(),
 				"getnext" : isLoadNextTask,
@@ -1464,36 +1941,8 @@
 			}, function(json) {
 				if (json && json.result == 1) {
 					var task = json.task;
-					if (task && task.id) {
-						var process = json.process;
-						var project = json.project;
-						$("#curProcessID").text(process.id);
-						$("#curProcessName").text(process.name);
-						$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
-						$("#curTaskID").text(task.id);
-						$("#curProjectID").val(task.projectid);
-						$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
-						$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
-						//$("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
-						$("#featcode").val("");
-						$("#sortcode").val("");
-						$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("");
-						$("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val("");
-						keywordid = json.keywordid;
-						initKeywordColor();
-						if (keywordid && keywordid > 0) {
-							$.when( 
-									loadKeyword(keywordid)
-								).done(function() {
-									$.when(loadReferdatas(keywordid)
-									).done(function() {
-										if (keyword) {
-											loadRelation(keyword.srcInnerId, keyword.srcType);
-										}
-									});
-								});
-						}
-					} 
+					initTask(task, json);
+					 
 					
 				}else {
 					if(json.error != null && json.error.length > 0) {
@@ -1512,7 +1961,17 @@
 	function submitEditTask() {
 		console.log("提交前预处理开始: " + Date.now());
 		var oid = null;
-		try {
+		if (systemPoi == null || systemPoi.id == null) {
+			$.webeditor.showCheckBox("alert", "没有设置需要保存关系的主点");
+			return;
+		}
+		oid =  $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+		if (oid == systemPoi.id) {
+			updatePOIInMap(null);
+		}else {
+			oid = systemPoi.id;
+		}
+		/* try {
 			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
 			if (oid == "" || oid == null || oid == -1) {
 				$.webeditor.showCheckBox("alert", "未新增点，且EMG中没有勾选");
@@ -1521,11 +1980,12 @@
 			
 		} catch(e) {
 			return;
-		}
+		} */
 		
 		var tempfeatcode = $("#featcode").val();
 		if (isCanSubmit(tempfeatcode, notEditCode)) {
 			$.webeditor.showMsgLabel("alert", "当前POI点的类型不允许操作");
+			loadEditPOI(oid, null, false, null);
 			return;
 		}
 		if (submitflag == 1) {
@@ -1536,6 +1996,7 @@
 		var tables = ["tbemg", "tbbaidu", "tbtengxun", "tbgaode"];
 		var relations = [];
 		var emgChecked = false;
+		var remark = $("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val();
 		for (var i = 0; i < tables.length; i++) {
 			// $("#" + tables[i] + " table tbody tr :checkbox")
 			$("#" + tables[i] + " input:checked").each(function(){
@@ -1553,7 +2014,6 @@
 					relation.errorType = keyword.errorType;
 					relations.push(relation);
 				}else if (i > 0 && oid > 0){
-					
 					var relation = new Object();
 					relation.srcInnerId = srcInnerId;
 					relation.srcType = srcType;
@@ -1566,7 +2026,7 @@
 			
 			
 		}
-		if (!emgChecked && oid > -1 && oid.trim() != "" && keyword != null && keyword.srcInnerId != null) {
+		if (!emgChecked && oid > -1  && keyword != null && keyword.srcInnerId != null) {
 			var relation = new Object();
 			relation.srcInnerId = keyword.srcInnerId;
 			relation.srcType = keyword.srcType;
@@ -1601,10 +2061,10 @@
 			}
 		}
 		// 当聚合成功，在数据库里有relation,但EMG中未检索到聚合成功的点，则弹窗提示，未考虑新增点的情况
-		if (originalCheckRelation != null && originalCheckRelation.length > 0 && oid > 0) {
+		/* if (originalCheckRelation != null && originalCheckRelation.length > 0 && oid > 0) {
 			$.webeditor.showCheckBox("alert", "与EMG的关系在数据库中已经存在，但EMG检索未查询到该记录，请连接开发人员查明此问题");
 			return;
-		} 
+		}  */
 		var projectId = $("#curProjectID").val();
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		// var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
@@ -1670,20 +2130,20 @@
 			} */
 		// }
 		
-		var featcode =$("#featcode").val();
+		/* var featcode =$("#featcode").val();
 		var sortcode =$("#sortcode").val();
 		var remark = $("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val();
-		var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val();
+		var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val(); */
 		var isLoadNextTask = $("table#tbEdit>tbody td.tdKey[data-key='isLoadNextTask']>input:checkbox").prop("checked");
-		if((namec == null || namec.trim() == "" || featcode == null || featcode.trim() == "" || geo == null || geo.trim() == "") && oid != -1) {
+		if((systemPoi.namec == null || systemPoi.namec.trim() == "" || systemPoi.featcode == null ||  systemPoi.geo == null || systemPoi.geo.trim() == "") && oid != -1) {
 			submitflag = 0;
 			$.webeditor.showMsgLabel("alert", "名称、分类、坐标不能为空");
-			if (featcode == null || featcode.trim() == "" ){
+			/* if (featcode == null || featcode.trim() == "" ){
 				$("#featcode").removeAttr("disabled");
 				$("#sortcode").removeAttr("disabled");
 				$("#featcodeSpan").removeAttr("disabled");
 				$("#sortcodeSpan").removeAttr("disabled");
-			}
+			} */
 			return;
 		}
 		$.webeditor.showMsgBox("info", "数据保存中...");
@@ -1691,18 +2151,19 @@
 		if(delFlag) {
 			$.webeditor.showConfirmBox("alert","保存的关系已经在数据库中存在，是否删除原关系保存新的关系", function(){
 				
-				jQuery.post("./edit.web", {
+				jQuery.post("./polygoncheck.web", {
 					"atn" : "submitedittask",
 					"taskid" : $("#curTaskID").text(),
 					"getnext" : isLoadNextTask,
 					"relations": JSON.stringify(relations),
-					"namec": namec,
 					"oid": oid,
+					"namec": systemPoi.namec,
+					
 					//"tel": tel,
-					"featcode" : featcode,
-					"sortcode" : sortcode,
-					"geo" : geo,
-					"remark": remark == "" || remark == null ? " " : remark,
+					"featcode" : systemPoi.featcode,
+					"sortcode" : systemPoi.sortcode,
+					"geo" : systemPoi.geo,
+					"remark": remark == "" || remark == null ? " " : systemPoi.remark, 
 					"projectId": projectId,
 					"source": JSON.stringify(source),
 					"poistate": $("#poistate").val()
@@ -1727,18 +2188,19 @@
 		}else {
 			
 			//$.webeditor.showConfirmBox("alert","确实要提交当前资料？", function(){
-				jQuery.post("./edit.web", {
+				jQuery.post("./polygoncheck.web", {
 					"atn" : "submitedittask",
 					"taskid" : $("#curTaskID").text(),
 					"getnext" : isLoadNextTask,
 					"relations": JSON.stringify(relations),
-					"namec": namec,
 					"oid": oid,
+"namec": systemPoi.namec,
+					
 					//"tel": tel,
-					"featcode" : featcode,
-					"sortcode" : sortcode,
-					"geo" : geo,
-					"remark": remark == "" || remark == null ? " " : remark,
+					"featcode" : systemPoi.featcode,
+					"sortcode" : systemPoi.sortcode,
+					"geo" : systemPoi.geo,
+					"remark": remark == "" || remark == null ? " " : systemPoi.remark, 
 					"projectId": projectId,
 					"source": JSON.stringify(source),
 					"poistate": $("#poistate").val()
@@ -1767,25 +2229,49 @@
 	
 		//在地图中添加EMG选中行的特殊marker
 	function initEmgMarker(geo, srcType, srcInnerId) {
+		var html = $("#configDlg").html();
+        
 		emgCurrentMarker = new L.marker([geo[1],geo[0]],
-        		{ icon: blueemgIcon,title:name, srcType: srcType, srcInnerId: srcInnerId});
+        		{ icon: blueemgIcon,title:name, srcType: srcType, srcInnerId: srcInnerId, }).bindPopup(html)
+        	    .openPopup();;
 		
 		emgCurrentMarker.on("click",function(){
-			loadEditPOI(srcInnerId, emgFeatcode);
+			updatePOIInMap(null);
+			loadEditPOI(srcInnerId, null, false, null);
+           	checkEmg(this, srcInnerId);
+			
         });
-        emgCurrentMarker.addTo(emgmap);
+		emgListMarker.addLayer(emgCurrentMarker);
 	}
 		
 	function getGEO(point) {
 		var geo = null;
-		if (point.indexOf("MULTIPOIN") >= 0) {
+		if (point.indexOf("MULTIPOINT ((") >= 0) {
 		var t = point.split(", (")[1];
 		geo = t.substring(0, t.length-3).split(" ");
 			// geo = dianpingGeo.replace("MULTIPOIN (","").replace(")", "").split(" ");
+		}else if (point.indexOf("MULTIPOINT (") >= 0) {
+			var t = point.split(",")[1];
+			geo = t.substring(0, t.length-1).split(" ");
+				// geo = dianpingGeo.replace("MULTIPOIN (","").replace(")", "").split(" ");
 		}else {
 			geo = point.replace("POINT (","").replace(")", "").split(" ");
 		}
 		return geo;
+	}
+	
+	function initPOIInfo() {
+		$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
+		$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
+		// $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
+		$("#featcode").val("");
+		$("#sortcode").val("");
+		$("#featcodename").val("");
+		$("#sortcodename").val("");
+		
+		$("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val("");
+		$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("");
+		$("#poistate").val(0)
 	}
 		
 	function initTask(task, json) {
@@ -1793,7 +2279,8 @@
 		// delFeatcoe = true;
 		if (task && task.id) {
 			submitflag = 0;
-			
+			initArray();
+			initMap();
 			var process = json.process;
 			var project = json.project;
 			$("#curProcessID").text(process.id);
@@ -1801,21 +2288,7 @@
 			$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
 			$("#curTaskID").text(task.id);
 			$("#curProjectID").val(task.projectid);
-			$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
-			$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
-			// $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
-			$("#featcode").val("");
-			$("#sortcode").val("");
-			$("#featcodename").val("");
-			$("#sortcodename").val("");
-			$("#featcode").attr("disabled", true);
-			$("#sortcode").attr("disabled", true);
-			$("#featcodeSpan").attr("disabled", true);
-			$("#sortcodeSpan").attr("disabled", true);
-			$("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val("");
-			$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("");
-			$("#poistate").val(0)
-			initKeywordColor();
+			initPOIInfo();
 			console.log("接收到返回数据结束初始化控件: " + Date.now());
 			keywordid = json.keywordid;
 			if (keywordid && keywordid > 0) {
@@ -1823,6 +2296,9 @@
 				$.when( 
 						loadKeyword(keywordid)
 					).done(function() {
+						var geo = getGEO(dianpingGeo);
+						var piont = L.latLng([parseFloat(geo[1]), parseFloat(geo[0])]);
+						emgmap.setView(piont);
 						$.when(loadReferdatas(keywordid)
 						).done(function() {
 							if (keyword) {
@@ -1871,7 +2347,7 @@
 		var projectId = $("#curProjectID").val();
 		$.webeditor.showConfirmBox("alert","确定要删除这个POI吗？", function(){
 			$.webeditor.showMsgBox("info", "数据保存中...");
-			jQuery.post("./edit.web", {
+			jQuery.post("./polygoncheck.web", {
 				"atn" : "deletepoibyoid",
 				"oid" : oid,
 				"taskid" : $("#curTaskID").text(),
@@ -1896,7 +2372,28 @@
 		});
 	}
 	
-	function updatePOI() {
+	//双击在地图上添加新点
+	
+	function insertPOI(e) {
+		var pointFeature = null;
+		if (e != null && e.latlng != null) {
+			initPOIInfo();
+		
+			pointFeature = new L.marker(e.latlng,
+	         		{icon:setIcon_pink(""), draggable:true} );
+	         pointFeature.on("click",function(){
+	         	updatePOIInMap(null);
+	         }); 
+	         pointFeature.on("dragend",function(e){
+		        $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("MULTIPOINT ("+ e.target._latlng.lng + " " + e.target._latlng.lat + "," + e.target._latlng.lng + " " + e.target._latlng.lat + ")");
+		        poiEditFlag = true;
+	         }); 
+	         emgListMarker.addLayer(pointFeature);		
+	         poiEditFlag = true;
+	         $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("MULTIPOINT ("+ e.latlng.lng + " " + e.latlng.lat + "," + e.latlng.lng + " " + e.latlng.lat + ")");
+		
+		}
+		// -------分隔线--------
 		var oid = null;
 		try {
 			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
@@ -1909,15 +2406,15 @@
 		}
 		
 		$.webeditor.showMsgBox("info", "获取oid");
-		jQuery.post("./edit.web", {
+		jQuery.post("./polygoncheck.web", {
 			"atn" : "updatepoibyoid",
 			
 		}, function(json) {
 			if (json && json.result > 0) {
 				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(json.result);
 				$.webeditor.showMsgLabel("success", "获取OID成功");
+				pointFeature.options.poi = {"id": json.result};
 			} else {
-				
 				if(json.error != null && json.error.length > 0) {
 					$.webeditor.showMsgLabel("alert", json.error);
 				}else {
@@ -1929,32 +2426,64 @@
 		}, "json");
 	}
 	
+	function getProjectFeatcode() {
+	
+		var projectFeatcodes = $("#projectfeatcodes").val().split(",");
+		return projectFeatcodes;
+	}
+	
 	//切换点的时候，保存上一个修改的POI
-	function updatePOIInMap() {
+	// 当不需要修改或者修改成功时返回ture, 当修改失败，或因featcode属性信息有误返回时，返回false
+	function updatePOIInMap(isDel) {
 		var oid = null;
+		var dtd = $.Deferred();
 		try {
 			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
 		} catch(e) {
-			return;
+			return false;
 		}
 		//判断点是否被编辑
-		if (!poiEditFlag ) {
-			return;
+		if (!poiEditFlag || oid == null || oid == -1) {
+			return true;
 		}
 		
 		var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val();
 		var projectId = $("#curProjectID").val();
+		var projectFeatcodes = getProjectFeatcode();
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		// var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
 		var featcode =$("#featcode").val();
 		var sortcode =$("#sortcode").val();
 		var poistate = $("#poistate").val();
+		var isEmgListPoint = $("#isEmgListPoint").val();
+		
+		var remark = $("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val();
 		if(namec == null || namec.trim() == "" || featcode == null || featcode.trim() == "" || geo == null || geo.trim() == "") {
 			$.webeditor.showMsgLabel("alert", "名称、分类、坐标不能为空");
 			return;
 		}
+		var flag = false;
+		for (var i = 0 ; i < projectFeatcodes.length; i++) {
+			if (projectFeatcodes[i] == featcode ){
+				 flag = true;
+			}
+		}
+		if (isCanSubmit(featcode, notEditCode)) {
+			$.webeditor.showMsgLabel("alert", "当前POI点的类型不允许操作");
+			loadEditPOI(oid, null, false, isEmgListPoint);
+			poiEditFlag = false;
+			return;
+		}
+		// 不在项目可编辑的featcode列表里，且也不在EMG列表里， flag: flase: 不在项目 可编辑featcode列表里， true, 在项目编辑featcode列表里
+		if((!flag && isEmgListPoint != 'true') || (!flag && isEmgListPoint == 'true' && featcode != currentPoi.featcode)) {
+			$.webeditor.showCheckBox("alert", "当前POI不在项目可编辑featcode范围内(" + $("#projectfeatcodes").val() +")，不能进行编辑");
+			//如果修改成了不允许编辑的类型需要把属性恢复回去
+			if (isDel == null || isDel == true)loadEditPOI(oid, null, false, isEmgListPoint);
+			poiEditFlag = false;
+			return false;
+		}
 		$.webeditor.showMsgBox("info", "数据保存中...");
-		jQuery.post("./polygonedit.web", {
+		jQuery.post("./polygoncheck.web", {
 			"atn" : "updatepoi",
 			"oid" : oid,
 			"namec" : namec,
@@ -1962,11 +2491,62 @@
 			"sortcode" : sortcode,
 			"geo" : geo,
 			"poistate": poistate,
+			"taskid": $("#curTaskID").text(),
+			"remark": remark == "" || remark == null ? " " : remark,
+			"isDel": isDel == null ? "" : isDel,
 			"projectId": projectId
 		}, function(json) {
 			if (json && json.result > 0) {
 				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(json.result);
 				$.webeditor.showMsgLabel("success", "保存成功");
+				poiEditFlag = false;
+				var flag = false;
+				for(var i = 0; i < emgPOIs.length; i++) {
+					if (flag) break;
+					if(emgPOIs[i].id == oid) {
+						emgPOIs[i].geo = geo;
+					}
+				}
+				var emgLayers = emgListMarker.getLayers();	
+				var emgFlag = false;
+				for (var i = 0; i < emgLayers.length; i++) {
+					
+					if(emgLayers[i].options.poi != null && emgLayers[i].options.poi.id == parseInt(oid) ) {
+						var layer = emgLayers[i];
+						layer.setIcon(setIcon(namec));
+						emgFlag = true;
+						break;
+					}else if (emgLayers[i].options.poi == null && emgLayers[i].options.srcInnerId == parseInt(oid)) {
+						var layer = emgLayers[i];
+						layer.setIcon(setIcon(namec));
+						emgFlag = true;
+						break;
+					}
+				}
+				if (!emgFlag ){
+					emgLayers = emgMarker.getLayers();			
+					for (var i = 0; i < emgLayers.length; i++) {
+						if(emgLayers[i].options.poi.id == parseInt(oid) ) {
+							layer = emgLayers[i];
+							layer.setIcon(setIcon(namec));
+							console.log("从EMG列表中进行修改");
+							break;
+						}
+					}
+				}
+				//此次修改为把删除的点进行恢复
+				if (isDel != null && !isDel) {
+					$("#poiEditList>tbody tr").each(function() {
+						var id = this.cells[0].innerText;
+						if (id == oid) {
+							this.cells[6].innerHTML = "";
+						}
+					
+						console.log(this);
+					
+					});
+					
+				}
 			} else {
 				
 				if(json.error != null && json.error.length > 0) {
@@ -1977,11 +2557,12 @@
 				
 			}
 			$.webeditor.showMsgBox("close");
+			dtd.resolve();
 		}, "json");
 		if(!isFirstSavePoi) {
 			isFirstSavePoi = true;
 			// 当一个任务中需要修改多个POI点时，在修改完第一个点后，把任务状态修改为6，5
-			jQuery.post("./polygonedit.web", {
+			jQuery.post("./polygoncheck.web", {
 				"atn" : "updatetaskstate",
 				"taskid" : $("#curTaskID").text(),
 				"state" : 6,
@@ -2002,6 +2583,7 @@
 				// $.webeditor.showMsgBox("close");
 			}, "json");
 		}
+		return dtd;
 	}
 	
 	function valueChange(obj) {
@@ -2023,41 +2605,14 @@
 	}
 	
 	function getNextTask() {
-		jQuery.post("./edit.web", {
+		jQuery.post("./polygoncheck.web", {
 			"atn" : "getNextTask",
 			"taskid" : $("#curTaskID").text(),
 			"getnext" : true,
 		}, function(json) {
 			if (json && json.result == 1) {
 				var task = json.task;
-				if (task && task.id) {
-					var process = json.process;
-					var project = json.project;
-					$("#curProcessID").text(process.id);
-					$("#curProcessName").text(process.name);
-					$("#curProjectOwner").text(project.owner == 1 ? '私有' : '公有');
-					$("#curTaskID").text(task.id);
-					$("#curProjectID").val(task.projectid);
-					$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("");
-					$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val("");
-					// $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val("");
-					$("#featcode").val("");
-					$("#sortcode").val("");
-					keywordid = json.keywordid;
-					initKeywordColor();
-					if (keywordid && keywordid > 0) {
-						$.when( 
-								loadKeyword(keywordid)
-							).done(function() {
-								$.when(loadReferdatas(keywordid)
-								).done(function() {
-									if (keyword) {
-										loadRelation(keyword.srcInnerId, keyword.srcType);
-									}
-								});
-							});
-					}
-				}
+				initTask(task, json);
 			}else {
 				if(json.error != null && json.error.length > 0) {
 					$.webeditor.showMsgLabel("alert", json.error);
@@ -2067,66 +2622,164 @@
 			}
 		});
 	}
-	function map_drag(map) {	
-		var zoom = emgmap.getZoom();
-		var minzoom = parseFloat(zoom);
-		
-		var oldzoom = m_oldzoom;
-		//卸载minzoom大于本级别的poi
-		if (m_oldzoom != minzoom) {
-			canclePoi();
-			var i;
-			for (i in emgmap._layers) {
-				var f = emgmap._layers[i].feature;
-				if (f != null) {
-					if(f.geometry.type != 'Point'){
-						continue;
-					}
-					var zoomtemp;
-					if (f.properties.minzoom == null || f.properties.minzoom == '') {
-						zoomtemp = 0;
-					} else {
-						zoomtemp = parseInt(f.properties.minzoom);
-					}				 
-					if (zoomtemp > parseInt(zoom)+1 || zoomtemp == 0) {
-						emgmap._layers[i].remove();
-						
-						var bounds = m_mapBound.get(zoomtemp);
-						if (bounds != null) {	
-							m_mapBound.delete(zoomtemp);
-						}
-					}
-				}
-			}
-			m_oldzoom = minzoom;
-		}
-
-		var minx = map.getBounds().getSouthWest().lng;
-		var miny = map.getBounds().getSouthEast().lat;
-		var maxx = map.getBounds().getSouthEast().lng;
-		var maxy = map.getBounds().getNorthWest().lat;		
-
-	//  获取拆分的格网
-		jQuery.post("./edit.web", {
-				"atn" : "getbounds",
-				"minx" : minx,
-				"miny" : miny,
-				"maxx" : maxx,
-				"maxy" : maxy
-			}, function(json) {
-				if (json != null && json.bounds != null) {				
-					for (var i = 0; i < json.bounds.length; i++) {
-						var bound = json.bounds[i];		
-
-						var bExist = addBound(parseInt(zoom)+1,bound);
-						if (!bExist) { //没加载过的
-							var pt = bound.split(',');
-							movemap(pt[0],pt[1],pt[2],pt[3],oldzoom);							
-						}
-					}
-				}	
-			}, "json");
+	
+	function setIcon(name) {
+		var myIconName = L.divIcon({
+            html: name,
+            className: 'geojsonMakerOptions_red',
+            iconSize:[120, 35],
+            bgPos: [-60,-15]
+	    });  
+		return myIconName;
 	}
+	
+	function setEmgCheckIcon(name) {
+		var myIconName = L.divIcon({
+            html: name,
+            className: 'geojsonMakerOptions_blue',
+            iconSize:[120, 35],
+            bgPos: [-60,-15]
+	    });  
+		return myIconName;
+	}
+	
+	
+	
+	function setIcon_pink(name) {
+		var myIconName = L.divIcon({
+            html: name,
+            className: 'geojsonMakerOptions_pink',
+            iconSize:[100, 35]
+	    });  
+		return myIconName;
+	}
+	
+	function map_drag(map, flag) {
+		$.when(updatePOIInMap(null)).done(function () {
+		// 当为添加点时触发的拖动事件，不重新加载地图
+		var zoom = map.getZoom();
+		if (zoom > 18 && mainMarker != null) {
+			// markMain(mainMarker, false);
+			 emgListMarker.addLayer(mainMarker);
+		}
+		if (zoom > 18 && emgCurrentMarker != null  &&
+				(( systemPoi != null && 
+						((emgCurrentMarker.options.srcInnerId != null && systemPoi.id != emgCurrentMarker.options.srcInnerId) || 
+								( emgCurrentMarker.options.poi != null && systemPoi.id != emgCurrentMarker.options.poi.id))) || 
+			systemPoi == null)) {
+			emgListMarker.addLayer(emgCurrentMarker);
+		}
+		if (zoom < 15 || zoom > 18) return;
+		var box = map.getBounds().getNorthWest().lng + "," + map.getBounds().getNorthWest().lat + "," + map.getBounds().getSouthEast().lng + "," + map.getBounds().getSouthEast().lat;
+	
+		
+		 jQuery.post("./polygoncheck.web", {
+				"atn" : "getdatabybox",
+				"box" : box,
+				"exceptoids": emgPOIOIDs,
+				"processid": $("#curProcessID").text()
+			}, function(json) {
+				if (json != null  && json.rows != null) {	
+					drawMarkers(json.rows, emgMarker, false);
+				}	
+				if (mainMarker != null) {
+					 // markMain(mainMarker, false);
+					 emgListMarker.addLayer(mainMarker);
+				 }
+				if (emgCurrentMarker != null  && ((systemPoi != null && 
+						((emgCurrentMarker.options.srcInnerId != null && systemPoi.id != emgCurrentMarker.options.srcInnerId) || 
+								( emgCurrentMarker.options.poi != null && systemPoi.id != emgCurrentMarker.options.poi.id))) || 
+					systemPoi == null)){
+					emgListMarker.addLayer(emgCurrentMarker);
+				}
+				
+			}, "json");  
+		 drawMarkers(emgPOIs, emgListMarker, true);
+		 getBackgroundByDistance(isShowBackground);
+		 getWayByDistance(isShowWay);
+		 
+		});
+	}
+	
+	// emgPOIs: 需要绘制的POI点， markers:需要填充到的layergroup, isEmgList: 是否是EMG列表中的点
+	function drawMarkers(emgPOIs, markers, isEmgList) {
+		if (markers != null) {
+			markers.clearLayers();
+		}
+		
+		for(var i = 0; i  < emgPOIs.length; i++) {
+			 (function (index){ //封闭空间开始
+				 var row=emgPOIs[index];
+			 
+				 
+				 if ((mainMarker != null &&  row.id == mainMarker.options.poi.id) || (emgCurrentMarker != null && 
+						 ((emgCurrentMarker.options.srcInnerId != null &&   row.id == emgCurrentMarker.options.srcInnerId) || 
+							( emgCurrentMarker.options.poi != null && row.id == emgCurrentMarker.options.poi.id)))){
+					 
+				 }else {
+				 
+					var geo = getGEO(row.geo);
+					var html = $("#configDlg").html();
+	                var pointFeature = new L.marker([geo[1], geo[0]],
+	                   		{icon:setIcon(row.namec),draggable: true, poi: row,isEmgListPoint: isEmgList} ).bindPopup(html).openPopup();
+	                pointFeature.on("click",function(){
+	                updatePOIInMap(null);
+	                loadEditPOI(row.id, null, false, isEmgList);
+	                checkEmg(this, row.id);
+	                }); 
+	                pointFeature.on("dragend",function(e){
+		                $.when(loadEditPOI(row.id, null, false, isEmgList)).done(function() {
+			                $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("MULTIPOINT ("+ e.target._latlng.lng + " " + e.target._latlng.lat + "," + e.target._latlng.lng + " " + e.target._latlng.lat + ")");
+			          		poiEditFlag = true;
+		                });
+	       	        }); 
+	                markers.addLayer(pointFeature);
+				 }
+               })(i) 
+				}  
+	}
+	
+	function canclePoi() {
+		if ( emgmap == null) {
+			return;
+		}
+		emgmap.closePopup();
+	}
+	
+	function isMarkError() {
+		jQuery.post("./polygoncheck.web", {
+			"atn" : "ismarkerror",
+			"taskid" : $("#curTaskID").html(),
+		}, function(json) {
+			if (json && json.result > 0) {
+					$('#markError').attr("disabled", "disabled");
+				
+			}else {
+				$('#markError').removeAttr("disabled");
+			
+				//$.webeditor.showMsgLabel("查询标记错误失败");
+			}
+		});
+		
+	}
+	
+	function loadModifiedLogs(keywordid) {
+		var dtd = $.Deferred(); 
+		jQuery.post("./polygoncheck.web", {
+			"atn" : "getmodifiedlog",
+			"keywordid" : keywordid
+		}, function(json) {
+			
+			if (json && json.result == 1 && json.modifiedlogs != null) {
+				source = json.modifiedlogs;
+			} else {
+				$("table#tbEdit>tbody td.tdValue>input:text").val("加载失败");
+			}
+			dtd.resolve();
+		}, "json");
+		return dtd;
+	}
+	
     </script>
     
 </body>

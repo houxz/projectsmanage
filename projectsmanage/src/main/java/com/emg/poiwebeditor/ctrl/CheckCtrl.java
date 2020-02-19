@@ -194,7 +194,11 @@ public class CheckCtrl extends BaseCtrl {
 				}
 			}
 			if (oid != -1) {
-				TaskLinkPoiModel link = taskClient.selectTaskPoi(taskid);
+				List links = taskClient.selectTaskPoi(taskid);
+				TaskLinkPoiModel link = null;
+				if (links != null && !links.isEmpty()) {
+					link = (TaskLinkPoiModel)links.get(0);
+				}
 				if (link != null ) {
 					taskClient.updateLinkPoiTask(taskid, oid);
 				}else if(link == null) {
@@ -320,7 +324,12 @@ public class CheckCtrl extends BaseCtrl {
 		try {
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 			if (taskid != -1) {
-				TaskLinkPoiModel link = taskClient.selectTaskPoi(taskid);
+				List links = taskClient.selectTaskPoi(taskid);
+				TaskLinkPoiModel link = null;
+				if (links != null && !links.isEmpty()) {
+					link = (TaskLinkPoiModel)links.get(0);
+				}
+				
 				if (link == null || link.getPoiId() == -1) return null;
 				long oid = link.getPoiId();
 				poi = poiClient.selectPOIByOid(oid);

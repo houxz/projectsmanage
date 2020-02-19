@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context" 
+    xmlns:tx="http://www.springframework.org/schema/tx"
     xmlns:aop="http://www.springframework.org/schema/aop"
     xsi:schemaLocation="
         http://www.springframework.org/schema/beans
@@ -14,7 +16,7 @@
         http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <!--邮件配置 -->
-    <context:property-placeholder location="WEB-INF/spring/mail.properties" ignore-unresolvable="true" />
+    <context:property-placeholder location="WEB-INF/spring/mail.properties" ignore-unresolvable="true" />    
 
     <!--配置邮件接口 -->
     <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">

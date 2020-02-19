@@ -1,6 +1,7 @@
 package com.emg.poiwebeditor.client;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -77,12 +78,12 @@ public class CheckTaskClient extends TaskClient{
 		return ret;
 	}
 	
-	public TaskLinkPoiModel selectTaskPoi(long taskid) throws Exception {
-		TaskLinkPoiModel task = null;
+	public List selectTaskPoi(long taskid) throws Exception {
+		List task = null;
 		try {
 			String sql = "select * from tb_task_link_poi where taskid = " +taskid;
 			logger.debug(sql);
-			task = (TaskLinkPoiModel) ExecuteSQLApiClientUtils.postModel(String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sql, TaskLinkPoiModel.class);
+			task = ExecuteSQLApiClientUtils.postList(String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sql, TaskLinkPoiModel.class);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw e;

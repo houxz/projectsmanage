@@ -1548,18 +1548,6 @@ public class ModifyErrorCtrl {
 						RTaskInfo info =PoiCheck(linkpoilist);
 						int  poicheck =  info.getRet();
 						curErrorList = info.getErrorList();
-						
-//------------FOR TEST
-						String slog;
-						slog = "1任务"  + curTaskId.toString()+"错误：";
-						for(ErrorModel e:curErrorList ) {
-							slog +=	e.getId();
-							slog +=",";
-						}
-						taskModelClient.InsertTaskLog(curTaskId, slog, logger.getName());	
-						System.out.println(slog);
-//--------------
-						
 						log = info.getLog();
 						if( poicheck == 1){
 							continue;
@@ -1622,18 +1610,6 @@ public class ModifyErrorCtrl {
 						RTaskInfo info =PoiCheck(linkpoilist);
 						int  poicheck =  info.getRet();
 						curErrorList = info.getErrorList();
-						
-//------------FOR TEST
-						String slog;
-						slog = "2任务"  + curTaskId.toString()+"错误：";
-						for(ErrorModel e:curErrorList ) {
-							slog +=	e.getId();
-							slog +=",";
-						}
-						taskModelClient.InsertTaskLog(0L, slog, logger.getName());	
-						System.out.println(slog);
-//--------------
-						
 						log = info.getLog();
 						if( poicheck == 1){
 							continue;
@@ -1691,18 +1667,6 @@ public class ModifyErrorCtrl {
 							RTaskInfo info =PoiCheck(linkpoilist);
 							int  poicheck =  info.getRet();
 							curErrorList = info.getErrorList();
-							
-	//------------FOR TEST
-							String slog;
-							slog = "3任务"  + curTaskId.toString()+"错误：";
-							for(ErrorModel e:curErrorList ) {
-								slog +=	e.getId();
-								slog +=",";
-							}
-							taskModelClient.InsertTaskLog(0L, slog, logger.getName());	
-							System.out.println(slog);
-	//--------------
-							
 							log = info.getLog();
 							if( poicheck == 1){
 								continue;
@@ -1838,9 +1802,11 @@ public class ModifyErrorCtrl {
 					List<ErrorModel> ErrorList = new ArrayList<ErrorModel>();
 					ErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
 					Integer errcount = ErrorList.size();
-					if (errcount > 0) {
+					if (errcount > 0  ) {//for test
 					// 存在待修改的质检错误
+						
 						for (ErrorModel errorModel : ErrorList) {
+							//if( curErrorList.size()<1)
 							curErrorList.add(errorModel);
 						}
 					} else 
