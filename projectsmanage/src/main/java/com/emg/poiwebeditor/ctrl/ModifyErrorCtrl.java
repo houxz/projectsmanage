@@ -38,6 +38,7 @@ import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.poiwebeditor.dao.task.ErrorModelDao;
 import com.emg.poiwebeditor.pojo.ErrorModel;
+import com.emg.poiwebeditor.pojo.ErrorModel2;
 import com.emg.poiwebeditor.pojo.KeywordModel;
 import com.emg.poiwebeditor.pojo.POIDo;
 import com.emg.poiwebeditor.pojo.PoiMergeDO;
@@ -113,10 +114,12 @@ public class ModifyErrorCtrl {
 		model.addAttribute("project", project);
 		model.addAttribute("process", process);
 		model.addAttribute("keywordid", keywordid);
+		
 		if( stask != null) {
-			model.addAttribute("poiid", stask.getPoiId());
+			model.addAttribute("poiid", stask.getPoiId());//20000183031136  @#%
 			JSONArray errobject = JSONArray.fromObject(stask.getErrorList());
 			model.addAttribute("errorlist", errobject);
+			//request.setAttribute("errorlist", stask.getErrorList());
 		}else {
 			model.addAttribute("poiid", -1L);
 		//	model.addAttribute("errorlist", null);
@@ -353,7 +356,7 @@ public class ModifyErrorCtrl {
 		logger.debug("START");
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 
-		List<ErrorModel> errorlist = new ArrayList<ErrorModel>();
+		List<ErrorModel2> errorlist = new ArrayList<ErrorModel2>();
 		Long poiid = ParamUtils.getLongParameter(request, "poiid", -1);
 		if(poiid > 0) {
 			errorlist = errorModelDao.selectErrorsbyPoiid( poiid);
@@ -1174,7 +1177,7 @@ public class ModifyErrorCtrl {
 		Long curPoiId = -1L;
 		// 一轮中已经查询过的项目(可能由于某种原因没作业而跳过，后面需要再次查询是否可作业)
 		List<Long> doneProjectList = new ArrayList<Long>();
-		List<ErrorModel> curErrorList = new ArrayList<ErrorModel>();
+		List<ErrorModel2> curErrorList = new ArrayList<ErrorModel2>();
 		Boolean bFindTask = false;
 		// 查找第一个可作业的项目：存在可作业的任务 + 任务下可有web编辑器作业
 		try {
@@ -1516,7 +1519,7 @@ public class ModifyErrorCtrl {
 		Long curPoiId = -1L;
 		// 一轮中已经查询过的项目(可能由于某种原因没作业而跳过，后面需要再次查询是否可作业)
 		List<Long> doneProjectList = new ArrayList<Long>();
-		List<ErrorModel> curErrorList = new ArrayList<ErrorModel>();
+		List<ErrorModel2> curErrorList = new ArrayList<ErrorModel2>();
 		Boolean bFindTask = false;
 		// 查找第一个可作业的项目：存在可作业的任务 + 任务下可有web编辑器作业
 		try {
@@ -1557,7 +1560,7 @@ public class ModifyErrorCtrl {
 							stask.setTaskMode(task);
 							stask.setErrorList(curErrorList);
 							if( curErrorList.size() > 0) {
-								ErrorModel em = curErrorList.get(0);
+								ErrorModel2 em = curErrorList.get(0);
 								curPoiId = em.getFeatureid();
 								stask.setPoiId(curPoiId);	
 							}
@@ -1619,7 +1622,7 @@ public class ModifyErrorCtrl {
 							stask.setTaskMode(task);
 							stask.setErrorList(curErrorList);
 							if( curErrorList.size() > 0) {
-								ErrorModel em = curErrorList.get(0);
+								ErrorModel2 em = curErrorList.get(0);
 								curPoiId = em.getFeatureid();
 								stask.setPoiId(curPoiId);	
 							}
@@ -1676,7 +1679,7 @@ public class ModifyErrorCtrl {
 								stask.setTaskMode(task);
 								stask.setErrorList(curErrorList);
 								if( curErrorList.size() > 0) {
-									ErrorModel em = curErrorList.get(0);
+									ErrorModel2 em = curErrorList.get(0);
 									curPoiId = em.getFeatureid();
 									stask.setPoiId(curPoiId);	
 								}
@@ -1722,7 +1725,7 @@ public class ModifyErrorCtrl {
 	private RTaskInfo PoiCheck(ArrayList<TaskLinkPoiModel> linkpoilist ){
 		
 		RTaskInfo info  = new RTaskInfo();
-		List<ErrorModel> curErrorList = new ArrayList<ErrorModel>();;
+		List<ErrorModel2> curErrorList = new ArrayList<ErrorModel2>();;
 		String log;
 		
 		//存在未质检的poi  继续等待质检                        1
@@ -1766,12 +1769,12 @@ public class ModifyErrorCtrl {
 						// 质检结果被修改过，中途保存过POI
 						isok = false;
 						haveerr = true;
-						List<ErrorModel> ErrorList = new ArrayList<ErrorModel>();
+						List<ErrorModel2> ErrorList = new ArrayList<ErrorModel2>();
 						ErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
 						Integer errcount = ErrorList.size();
 						if (errcount > 0) {
 						// 存在待修改的质检错误
-							for (ErrorModel errorModel : ErrorList) {
+							for (ErrorModel2 errorModel : ErrorList) {
 								curErrorList.add(errorModel);
 							}
 						} 
@@ -1799,13 +1802,13 @@ public class ModifyErrorCtrl {
 					//质检错误
 					isok = false;
 					haveerr = true;
-					List<ErrorModel> ErrorList = new ArrayList<ErrorModel>();
+					List<ErrorModel2> ErrorList = new ArrayList<ErrorModel2>();
 					ErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
 					Integer errcount = ErrorList.size();
 					if (errcount > 0  ) {//for test
 					// 存在待修改的质检错误
 						
-						for (ErrorModel errorModel : ErrorList) {
+						for (ErrorModel2 errorModel : ErrorList) {
 							//if( curErrorList.size()<1)
 							curErrorList.add(errorModel);
 						}

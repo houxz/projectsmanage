@@ -87,6 +87,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		String featcode = "";
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			
 			task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONCHECK_QUENE, ProductTask.TYPE_POLYGONCHECK_MAKING, TypeEnum.polygon_check_init, TypeEnum.polygon_check_using,TypeEnum.polygon_check_making, 0);
 			
 			if (task != null  && task.getId() != null) {
@@ -133,8 +134,8 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		TaskModel task = new TaskModel();
 		ProjectModel project = new ProjectModel();
 		ProcessModel process = new ProcessModel();
-		Long keywordid = -1L;
 		long ret = -1l;
+		Long keywordid = -1l;
 		try {
 			Integer userid = ParamUtils.getIntAttribute(session, CommonConstants.SESSION_USER_ID, -1);
 			Long oid = ParamUtils.getLongParameter(request, "oid", -1);
@@ -142,6 +143,8 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 			String saveRelations = ParamUtils.getParameter(request, "relations");
 			String source = ParamUtils.getParameter(request, "source");
 			POIDo poi = null;
+			keywordid = ParamUtils.getLongParameter(request, "keywordid", -1);
+			Long projectId = ParamUtils.getLongParameter(request, "projectId", 0);
 			List<ModifiedlogDO> logs = new ArrayList<ModifiedlogDO>();
 			logger.debug( "submit poi:" + oid + ", taskid:" + taskid);
 			//在提交任务的时候，判断是否一个任务被提交了多次
@@ -168,19 +171,39 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 			Long u = new Long(userid);
 			if (poi != null) {
 				ret = poiClient.updatePOI(u, poi);
-				
-				
 			}
 			if (relations != null) {
 				ret = publicClient.updateRelations(u,  relations);
 			}
+			if (oid != null) {
+				//当所有关系、数据都保存成功之后再往linkpoi里面写数据
+				taskClient.InsertNewPOITask(taskid, oid);
+				publicClient.updateModifiedlogs( logs);
+			}
 			
 			//if (taskClient.submitEditTask(taskid, userid).compareTo(0L) <= 0) {
-			if (taskClient.submitTask(taskid, userid, TypeEnum.polygon_edit_submit).compareTo(0L) <= 0) {
+			if (taskClient.submitTask(taskid, userid, TypeEnum.polygon_check_submit).compareTo(0L) <= 0) {
 				json.addObject("resultMsg", "任务提交失败");
 				json.addObject("result", 0);
 				return json;
 			}
+			// 把所有更新过的点状态改为readyforqc
+			String linkPois = taskClient.getLinkPoiIds(taskid);
+			poiClient.updateForReady(linkPois);
+			
+			//更新所有点的confirm, projectid, systemid
+			List<POIDo> pois = new ArrayList<>();
+			String oids[] = linkPois.split(",");
+			for(String id : oids) {
+				POIDo tempPOI = new POIDo();
+				tempPOI.setId(Long.parseLong(id));
+				tempPOI.setConfirmUId(u);
+				tempPOI.setProjectid(projectId);
+				tempPOI.setSystemId(370);
+				pois.add(tempPOI);
+			}
+			poiClient.updateConfirm(pois);
+			
 			productTask.removeCurrentUserTask(userid, ProductTask.TYPE_POLYGONCHECK_MAKING);
 			if (getnext) {
 				task = productTask.popUserTask(userid, ProductTask.TYPE_POLYGONCHECK_QUENE, ProductTask.TYPE_POLYGONCHECK_MAKING, TypeEnum.polygon_check_init, TypeEnum.polygon_check_using,TypeEnum.polygon_check_making, 0);
@@ -200,11 +223,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 					keywordid = task.getKeywordid();
 				}
 			}
-			if (poi != null) {
-				//当所有关系、数据都保存成功之后再往linkpoi里面写数据
-				taskClient.InsertNewPOITask(taskid, oid);
-				publicClient.updateModifiedlogs( logs);
-			}
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			json.addObject("error", e.getMessage());
@@ -428,9 +447,9 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 			poi.setId(oid);
 			poi.setSystemId(SystemType.poi_polymerize.getValue());
 			logger.debug(JSON.toJSON(poi).toString());
-			
-			
 			ret = poiClient.deletePOIByOid(poi);
+
+			taskClient.InsertNewPOITask(taskid, oid);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			json.addObject("error", e.getMessage());
@@ -449,6 +468,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		Long ret = -1L;
 		try {
 			Long userid = ParamUtils.getLongAttribute(session, CommonConstants.SESSION_USER_ID, -1);
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
 			POIDo  poi = this.getPOI(request, null);
 			String geo = ParamUtils.getParameter(request, "geo");
 			poi.setGeo(geo);
@@ -461,6 +481,8 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 			
 			if (poi != null) {
 				ret = poiClient.updatePOI(userid, poi);
+				//当所有关系、数据都保存成功之后再往linkpoi里面写数据
+				taskClient.InsertNewPOITask(taskid, poi.getId());
 			}
 			
 		} catch (Exception e) {
@@ -530,7 +552,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		String isDel = ParamUtils.getParameter(request, "isDel");
 		POIDo poi = new POIDo();
 		poi.setNamec(namec);
-		if (isDel != null || !isDel.isEmpty()) {
+		if (isDel != null && !isDel.isEmpty()) {
 			poi.setDel(Boolean.valueOf(isDel));
 		}
 		POIDo savePoi = poiClient.selectPOIByOid(oid);
@@ -595,7 +617,8 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 						tag.setV(null);
 						tags.add(tag);
 					}
-				}else if ("remark".equals(tag.getK()) && remark != null) {
+				}
+				if ("remark".equals(tag.getK()) && remark != null) {
 					
 					SimpleDateFormat f   = new SimpleDateFormat("yyyyMMdd");   
 			        String date = f.format(new Date()); 
@@ -697,7 +720,7 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 				}
 			}
 			
-			if (taskClient.submitTask(taskid, userid, TypeEnum.polygon_edit_submit).compareTo(0L) <= 0) {
+			if (taskClient.submitTask(taskid, userid, TypeEnum.polygon_check_submit).compareTo(0L) <= 0) {
 				json.addObject("resultMsg", "任务提交失败");
 				json.addObject("result", 0);
 				return json;
@@ -740,14 +763,9 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		List<POIDo> pois = new ArrayList<>();
 		try {
 			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
-			if (taskid != -1) {
-				List<TaskLinkPoiModel> links = taskClient.selectTaskPoi(taskid);
-				
-				if (links == null || links.isEmpty()) return null;
-				
-				String oid = (String)links.stream().map(entity -> String.valueOf(entity.getPoiId())).collect(Collectors.joining(","));
-				// 不包含新增删除的点
-				pois = poiClient.selectPOIByOidWithoutNewDel(oid);
+			Long keywordid = ParamUtils.getLongParameter(request, "keywordid", -1);
+			if (keywordid != -1) {
+				pois = getEditUserPois(keywordid);
 			}
 			
 		} catch (Exception e) {
@@ -759,6 +777,24 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		json.addObject("result", 1);
 
 		return json;
+	}
+	
+	/**
+	 * 获得在制作任务中制作人员编辑过的点
+	 * @param keywordid
+	 * @return
+	 * @throws Exception 
+	 */
+	public List<POIDo> getEditUserPois(long keywordid) throws Exception {
+		List<POIDo> pois = new ArrayList<>();
+		List<TaskLinkPoiModel> links = taskClient.selectEditUserPoi(keywordid);
+		
+		if (links == null || links.isEmpty()) return null;
+		
+		String oid = (String)links.stream().map(entity -> String.valueOf(entity.getPoiId())).collect(Collectors.joining(","));
+		// 不包含新增删除的点
+		pois = poiClient.selectPOIByOidWithoutNewDel(oid);
+		return pois;
 	}
 	
 	@RequestMapping(params = "atn=ismarkerror")
@@ -907,6 +943,23 @@ private static final Logger logger = LoggerFactory.getLogger(EditCtrl.class);
 		}
 		json.addObject("rows", ways);
 		json.addObject("count", ways.size());
+		json.addObject("result", 1);
+
+		logger.debug("END");
+		return json;
+	}
+	
+	@RequestMapping(params = "atn=markusererror")
+	public ModelAndView markUserError(Model model, HttpServletRequest request, HttpSession session) {
+		logger.debug("START");
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+		try {
+			Long taskid = ParamUtils.getLongParameter(request, "taskid", -1);
+			taskClient.updateCheckTaskState(taskid);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		
 		json.addObject("result", 1);
 
 		logger.debug("END");

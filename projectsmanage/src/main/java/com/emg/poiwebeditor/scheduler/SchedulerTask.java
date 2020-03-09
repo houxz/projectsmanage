@@ -65,6 +65,7 @@ import com.emg.poiwebeditor.pojo.ConfigValueModel;
 import com.emg.poiwebeditor.pojo.ConfirmPoiCapacityModel;
 import com.emg.poiwebeditor.pojo.EmployeeModel;
 import com.emg.poiwebeditor.pojo.ErrorModel;
+import com.emg.poiwebeditor.pojo.ErrorModel2;
 import com.emg.poiwebeditor.pojo.FeatureFinishedModel;
 import com.emg.poiwebeditor.pojo.POIDo;
 import com.emg.poiwebeditor.pojo.ProcessConfigModel;
@@ -255,10 +256,7 @@ public class SchedulerTask {
 	// @Scheduled(cron = "${scheduler.modifytask.dotime}")
 	public void scanfModifyTask() {
 		logger.debug("####scanfModifyTask()##start#####");
-		//--for test
-				if(1 > 0) {
-					return;
-				}
+		
 		// 1.0 获取所有开启的项目	
 		
 		ProjectModelExample example = new ProjectModelExample();
@@ -357,7 +355,7 @@ public class SchedulerTask {
 						} else if (check == CheckEnum.err) {
 							// 质检出错误：加载错误改错
 							// 根据POI查询错误
-							List<ErrorModel> curErrorList = new ArrayList<ErrorModel>();
+							List<ErrorModel2> curErrorList = new ArrayList<ErrorModel2>();
 							curErrorList = errorModelDao.selectErrorsbyPoiid(linkpoi.getPoiId());
 							Integer errcount = curErrorList.size();
 							if (errcount > 0) {
@@ -464,10 +462,7 @@ public class SchedulerTask {
 	 * */
 	@Scheduled(cron = "${scheduler.modifytask.dotime}")
 	public void updateTaskState() {
-		//--for test
-				if(1 > 2) {
-					return;
-				}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     		logger.debug("####scanfModifyTask()##start#####");
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              		logger.debug("####scanfModifyTask()##start#####");
 		
 		// 1.0 获取所有开启的项目	
 	
@@ -506,9 +501,6 @@ public class SchedulerTask {
 				Integer taskcount = tasklist.size();
 				for( int indextask = 0 ; indextask < taskcount ; indextask++) {
 					TaskModel task = tasklist.get(indextask);
-					Long taskid = task.getId();
-					Long pid = task.getProjectid();
-					System.out.println(taskid.toString() +" : "+pid.toString() );
 					if(task.getProjectid().equals(928L)) {
 						int a = 0;
 						a +=1;
@@ -529,11 +521,6 @@ public class SchedulerTask {
 					}
 				}
 			}
-			
-			if(1 > 0) {
-				return;
-			} 
-			
 			//处理所有免检项目
 			if(uncheckProject != null && uncheckProject.length() > 0) {
 				logger.debug("免校正的项目ID为：" + uncheckProject);
@@ -1184,11 +1171,6 @@ public class SchedulerTask {
 	@Scheduled(cron = "${schedulerpoi.updateprojectprogress.dotime}")
 	public void updateProjectProgress() {
 		logger.debug("####scanfModifyTask()##start#####");
-		
-		//--for test
-		if(1 > 0) {
-			return;
-		}
 		
 		// 1.0 获取所有开启的项目	
 		

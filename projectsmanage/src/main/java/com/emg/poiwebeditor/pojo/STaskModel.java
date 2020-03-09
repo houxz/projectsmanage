@@ -4,7 +4,7 @@ import java.util.List;
 
 public class STaskModel {
 	private TaskModel task ;
-	private List<ErrorModel> errorList;
+	private List<ErrorModel2> errorList;
 	private Long poiid;
 	
 	public void setTaskMode(TaskModel task) {
@@ -15,11 +15,11 @@ public class STaskModel {
 		return task;
 	}
 	
-	public void setErrorList(List<ErrorModel> errorList ) {
+	public void setErrorList(List<ErrorModel2> errorList ) {
 		this.errorList = errorList;
 	}
 	
-	public List<ErrorModel> getErrorList() {
+	public List<ErrorModel2> getErrorList() {
 		return errorList;
 	}
 	

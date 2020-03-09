@@ -91,5 +91,26 @@ public class CheckTaskClient extends TaskClient{
 		
 		return task;
 	}
+	
+	/**
+	 * 查找所有制作人员制作过的点
+	 * @param keywordid
+	 * @return
+	 * @throws Exception
+	 */
+	public List selectEditUserPoi(long keywordid) throws Exception {
+		List task = null;
+		try {
+			String sql = "select * from tb_task_link_poi where taskid = (select id from tb_task where keywordid = " + keywordid + " and tasktype = 17003) " ;
+			logger.debug(sql);
+			task = ExecuteSQLApiClientUtils.postList(String.format(postUrl, host, port, path, SELECT), contentType, "sql=" + sql, TaskLinkPoiModel.class);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		
+		return task;
+	}
+	
 
 }

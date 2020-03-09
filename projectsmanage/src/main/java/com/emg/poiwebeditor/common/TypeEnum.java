@@ -46,7 +46,7 @@ public enum TypeEnum {
 	polygon_check_init(0,0,"checkid", 17004),
 	polygon_check_using(1,7,"checkid", 17004),
 	polygon_check_submit(2, 7, "checkid", 17004),
-	polygon_check_making(6,7,"editid", 17004);
+	polygon_check_making(6,7,"checkid", 17004);
 	
 	private int state;
 	private int process;

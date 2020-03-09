@@ -4,15 +4,15 @@ import java.util.List;
 
 public class RTaskInfo {
 	private int    ret=0;
-	private	List<ErrorModel> ErrorList;
+	private	List<ErrorModel2> ErrorList;
 	private String log;
 	
 	
 	
-	public List<ErrorModel> getErrorList() {
+	public List<ErrorModel2> getErrorList() {
 		return ErrorList;
 	}
-	public void setErrorList(List<ErrorModel> errorList) {
+	public void setErrorList(List<ErrorModel2> errorList) {
 		ErrorList = errorList;
 	}
 	public String getLog() {

@@ -35,6 +35,7 @@ import com.emg.poiwebeditor.dao.projectsmanager.ProjectModelDao;
 import com.emg.poiwebeditor.dao.projectsmanager.ProjectsUserModelDao;
 import com.emg.poiwebeditor.dao.task.ErrorModelDao;
 import com.emg.poiwebeditor.pojo.ErrorModel;
+import com.emg.poiwebeditor.pojo.ErrorModel2;
 import com.emg.poiwebeditor.pojo.KeywordModel;
 import com.emg.poiwebeditor.pojo.POIDo;
 import com.emg.poiwebeditor.pojo.PoiMergeDO;
@@ -80,7 +81,7 @@ public class ModifyCtrl {
 	//当前作业点poiid
 	private Long         curPoiId;
 	private Long         curKeyWordId;
-	List< ErrorModel> 	 curErrorList = new ArrayList<ErrorModel>();
+	List< ErrorModel2> 	 curErrorList = new ArrayList<ErrorModel2>();
 	
 
 	//byhxz20190522

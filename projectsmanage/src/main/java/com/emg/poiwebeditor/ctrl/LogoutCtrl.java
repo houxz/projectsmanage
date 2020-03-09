@@ -61,10 +61,10 @@ public class LogoutCtrl extends BaseCtrl {
 					productTask.removeUserTask(userid, ProductTask.TYPE_CHECK_QUENE, TypeEnum.check_using);
 					productTask.removeCurrentUserTask(userid, ProductTask.TYPE_CHECK_MAKING);
 					
-					productTask.removeUserTask(userid, ProductTask.TYPE_POLYGONEDIT_QUENE, TypeEnum.edit_using);
+					productTask.removeUserTask(userid, ProductTask.TYPE_POLYGONEDIT_QUENE, TypeEnum.polygon_edit_using);
 					productTask.removeCurrentUserTask(userid, ProductTask.TYPE_POLYGONEDIT_MAKING);
 					
-					productTask.removeUserTask(userid, ProductTask.TYPE_POLYGONCHECK_QUENE, TypeEnum.check_using);
+					productTask.removeUserTask(userid, ProductTask.TYPE_POLYGONCHECK_QUENE, TypeEnum.polygon_check_using);
 					productTask.removeCurrentUserTask(userid, ProductTask.TYPE_POLYGONCHECK_MAKING);
 					Thread.sleep(500);
 					// taskClient.updateTaskState(userid, 1, 5);

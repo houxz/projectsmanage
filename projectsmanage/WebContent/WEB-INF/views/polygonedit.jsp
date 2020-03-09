@@ -153,7 +153,7 @@
 								<tr >
 									<td class="tdKey">状态</td>
 									<td class="tdValue" data-key="poistate">
-										<select id="poistate" >
+										<select id="poistate" onchange="valueChange(this)">
 							                <option value= "0">正常</option>
 							                <option value= "1">在建</option>
 							                <option value= "2">不开放</option>

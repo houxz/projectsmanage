@@ -40,6 +40,7 @@ import com.emg.poiwebeditor.common.SystemType;
 import com.emg.poiwebeditor.pojo.ConfigDBModel;
 import com.emg.poiwebeditor.pojo.ErrorAndErrorRelatedModel;
 import com.emg.poiwebeditor.pojo.ErrorModel;
+import com.emg.poiwebeditor.pojo.ErrorModel2;
 import com.emg.poiwebeditor.pojo.ErrorRelatedModel;
 import com.emg.poiwebeditor.pojo.ErrorSetModel;
 import com.emg.poiwebeditor.pojo.ErrorlistModel;
@@ -946,8 +947,8 @@ public class ErrorModelDao {
 	//add by lianhr end
 	
 	//byhxz20190520
-	public List<ErrorModel> selectErrorsbyPoiid(Long poiid) {
-		List<ErrorModel> errors = new ArrayList<ErrorModel>();
+	public List<ErrorModel2> selectErrorsbyPoiid(Long poiid) {
+		List<ErrorModel2> errors = new ArrayList<ErrorModel2>();
 		//just for test
 		//poiid =20000123522494L;// 20000191844967L;
 		try {
@@ -976,7 +977,28 @@ public class ErrorModelDao {
 				if( data instanceof JSONArray) {
 					JSONArray jsonArray = (JSONArray)data;
 					for(Integer i = 0 ; i < jsonArray.size() ; i++) {
-						ErrorModel errModel = JSON.parseObject(jsonArray.get(i).toString(), ErrorModel.class);
+						String strjsong = jsonArray.get(i).toString();
+//						strjsong=strjsong.replace('\'', 'Z');
+//						strjsong=strjsong.replace('(', 'X');
+//						strjsong=strjsong.replace(')', 'C');
+//						strjsong=strjsong.replace('(', 'V');
+//						strjsong =strjsong.replace('.', ' ');
+//						strjsong = strjsong.replace('$', ' ');
+						strjsong = strjsong.replace("\"", "");
+						
+						ErrorModel2 errModel = JSON.parseObject(jsonArray.get(i).toString(), ErrorModel2.class);
+//						String sv = errModel.getEditvalue();
+//						sv = sv.replace("\"", "“");
+//						sv = sv.replace("(", "（");
+//						sv = sv.replace(")", "）)");
+//						errModel.setEditvalue(sv);
+						String sr = errModel.getErrorremark();
+						
+						sr = sr.replace("\"", "“");
+						sr = sr.replace("(", "（");
+						sr = sr.replace(")", "）)");
+						errModel.setErrorremark(sr);
+						//System.out.println(errModel.toString());
 						errors.add(errModel);
 						}
 				}
@@ -984,7 +1006,7 @@ public class ErrorModelDao {
 			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			errors = new ArrayList<ErrorModel>();
+			errors = new ArrayList<ErrorModel2>();
 		} 
 		return errors;
 	}

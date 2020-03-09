@@ -38,6 +38,23 @@ html, body, #emgmap, #baidumap {
 	/* background-color:yellow; */
 }
 
+.geojsonMakerOptions_redemg {
+	/* radius:8; 
+	
+	*/
+	/* fillColor:blue; */
+	color:#000000;
+	font-size: 9px;
+	background-image: url(../images/red_emg.png) ;
+	background-repeat: no-repeat;
+	background-position: center bottom;
+	width:fit-content;
+	width:-webkit-fit-content;
+	width:-moz-fit-content;
+	text-align: right;
+	/* background-color:yellow; */
+}
+
 .geojsonMakerOptions_red {
 	/* radius:8; 
 	

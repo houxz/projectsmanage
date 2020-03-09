@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.emg.poiwebeditor.common.SystemType;
+import com.emg.poiwebeditor.pojo.ModifiedlogDO;
 import com.emg.poiwebeditor.pojo.POIDo;
 import com.emg.poiwebeditor.pojo.PoiMergeDO;
 
@@ -53,6 +54,8 @@ public class POIClient {
 	private final static String selectBackgroundByDistance = "http://%s:%s/%s/background/distance/%s/all";
 	
 	private final static String selectDataByBox = "http://%s:%s/%s/poi/box/%s/%s/%s";
+	
+	private final static String updateConfirm =  "http://%s:%s/%s/poi/updateConfirm";
 	private String contentType = "application/json";
 	
 	public POIDo selectPOIByOid(Long oid) throws Exception {
@@ -451,4 +454,23 @@ public class POIClient {
 		
 		return pois;
 	}
+	
+	public Long updateConfirm( List<POIDo> pois) throws Exception {
+
+		JSONArray json= JSONArray.parseArray(JSON.toJSONString(pois));
+		logger.debug(json.toString());
+		HttpClientResult result = null;
+		long ret = -1l;
+			result = HttpClientUtils.doPostHttpClient(String.format(updateConfirm, host, port, path), contentType,  json.toString());
+		
+		if (result.getStatus().equals(HttpStatus.OK) && !result.getJson().contains("error") && ret < 0) {
+			ret = 1l;
+		} else if (result.getStatus().equals(HttpStatus.BAD_REQUEST) && result.getJson() != null) {
+			JSONObject obj = JSONObject.parseObject(result.getJson());
+			String error = obj.getString("errMsg");
+			throw new Exception(error);
+		}
+		return ret;
+	}
+	
 }

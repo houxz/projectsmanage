@@ -1,4 +1,5 @@
 <%@ page import="com.emg.poiwebeditor.common.SrcTypeEnum"%>
+<%@ page import="com.emg.poiwebeditor.common.POIStateEnum"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt'%>
@@ -153,7 +154,7 @@
 								<tr >
 									<td class="tdKey">状态</td>
 									<td class="tdValue" data-key="poistate">
-										<select id="poistate" >
+										<select id="poistate" onchange="valueChange(this)">
 							                <option value= "0">正常</option>
 							                <option value= "1">在建</option>
 							                <option value= "2">不开放</option>
@@ -185,6 +186,9 @@
 							<button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="keywordError();">资料错误</button>
 							<!-- <button class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="insertPOI();">新增</button> -->
 							<button id="submitTask" class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="submitEditTask();">提交</button>
+						</div>
+						<div style="margin-top:10px">
+							<button  id="markError" class="btn btn-default" style="padding: 5px 5px 5px 5px;" onClick="markError();">标记错误</button>
 						</div>
 					</div>
 				
@@ -284,7 +288,7 @@
 		</table>
 		<div>			
 		<button id="btcanclepoi" class="btn btn-default"  data-toggle="tooltip" title="Q" onClick="canclePoi();">取消</button>
-		<button id="btsavepoi" class="btn btn-warning" data-toggle="tooltip" title="S/Enter" onClick="markMain(null, true);">确定</button>
+		<button id="btsavepoi" class="btn btn-warning" data-toggle="tooltip" title="S/Enter" onClick="markMain(null, false, null);">确定</button>
 		</div>
 	</div>
 	<div id="poiEditListDiv" style="display: none;">
@@ -366,11 +370,14 @@
 	// 被标记为主点的点, 
 	var mainMarker = null;
 	
+	var poiEditList = null;
+	
 	L.Marker.mergeOptions({
 	    poi: null,
 	    srcType: -1,
 	    srcInnerId: "",
-	    isEmgListPoint: false
+	    isEmgListPoint: false,
+	    isEditPoiPoint: false // 是否是之前制作人编辑过的点
 	  });
 	
 	var yellowIcon = L.icon({
@@ -388,9 +395,7 @@
 	    iconUrl: 'resources/images/lightblue.png'
 	});
 	
-	var redemgIcon = L.icon({
-	    iconUrl: 'resources/images/red_emg.png'
-	});
+	
 	var delGreenIcon = L.icon({
 	    iconUrl: 'resources/images/green2.png'
 	});
@@ -406,29 +411,6 @@
 		
 		console.log("hello check:  " + Date.now());
 		if (keywordid && keywordid > 0) {
-			//console.log("开始加载数据: " + Date.now());
-			/* $.when( 
-						loadKeyword(keywordid)
-					).done(function() {
-						var geo = getGEO(dianpingGeo);
-						
-						initEmgmap([parseFloat(geo[1]), parseFloat(geo[0])]);
-						tengxunMarker.addTo(emgmap);
-						baiduMarker.addTo(emgmap);
-						gaodeMarker.addTo(emgmap);
-						emgMarker.addTo(emgmap);
-						emgListMarker.addTo(emgmap);
-						wayLayer.addTo(emgmap);
-						areaLayer.addTo(emgmap);
-						$.when(loadReferdatas(keywordid)
-						).done(function() {
-							if (keyword) {
-								loadRelation(keyword.srcInnerId, keyword.srcType);
-								map_drag(emgmap);
-							}
-						});
-					}); */
-			//console.log("结束加载数据: " + Date.now());
 					//初始化页面
 				initPage(keywordid, $("#curTaskID").html())	;
 			
@@ -463,8 +445,6 @@
 		 });
 	});
 	function initPage(keywordid, taskid) {
-		/* loadKeyword(keywordid);
-		loadReferdatas(keywordid); */
 		$.when( 
 				loadKeyword(keywordid)
 			).done(function() {
@@ -482,9 +462,14 @@
 				$.when(loadReferdatas(keywordid)
 				).done(function() {
 					// 加载修改过或者存量删除的点
-					loadRelatedPoi($("#curTaskID").html());
-					loadRelation(keyword.srcInnerId, keyword.srcType);
-					map_drag(emgmap);
+					$.when(loadRelation(keyword.srcInnerId, keyword.srcType)).done(function(){
+						$.when(loadRelatedPoi($("#curTaskID").html())).done(function(){
+							map_drag(emgmap);
+							 
+						});
+						// map_drag(emgmap);
+					});
+					
 				});
 		});
 		isMarkError();
@@ -496,27 +481,46 @@
 		var dtd = $.Deferred(); 
 		jQuery.post("./polygoncheck.web", {
 			"atn" : "getrelatedpoi",
+			"keywordid":keyword.id,
 			"taskid" : taskid
 		}, function(json) {
-			$("table#tbEdit>tbody td.tdValue>input:text").val("");
+			// $("table#tbEdit>tbody td.tdValue>input:text").val("");
+			var $tbody = $("#poiEditList>tbody");
 			if (json && json.result == 1 && json.pois != null) {
-				var $tbody = $("#poiEditList>tbody");
+				
 				$tbody.empty();
+				poiEditList = json.pois;
 				json.pois.forEach(function(poi, index) {
 					var html = new Array();
 					html.push("<tr onclick='markMap2Point(" +JSON.stringify(poi).replace(/"/g, '&quot;') + ")'><td >" + poi.id+ "</td>");
 					html.push("<td >" + poi.namec+ "</td>");
 					html.push("<td >" + poi.featcode+ "</td>");
 					html.push("<td >" + poi.sortcode+ "</td>");
-					html.push("<td style='display: none'>" + poi.geo+ "</td>");
-					
 					
 					var flag = false;
 					for(var i = 0; i < poi.poitags.length; i++) {
 						var tag = poi.poitags[i];
+						
 						if(tag.k == 'poistate') {
 							flag = true;
-							html.push("<td >" + tag.v + "</td>");
+							html.push("<td style='display: none'>" +  tag.v   + "</td>");
+							switch(parseInt(tag.v)){
+							case 0:
+								html.push("<td >" + "<%=POIStateEnum.NORMAL.getDetail()%> " + "</td>");
+								break;
+							case 1:
+								html.push("<td >" +" <%=POIStateEnum.BUILD.getDetail()%> " + "</td>");
+								break;
+							case 2:
+								html.push("<td >" + "<%=POIStateEnum.NOTOPEN.getDetail()%>"  + "</td>");
+								break;
+							case 3:
+								html.push("<td >" + "<%=POIStateEnum.REPAIRE.getDetail()%>"  + "</td>");
+								break;
+							default :
+								html.push("<td >" + "<%=POIStateEnum.NOTCONFIRM.getDetail()%>"  + "</td>");
+								break;
+							}
 						}
 					}
 					if(!flag) {
@@ -528,6 +532,7 @@
 					}else {
 						html.push("<td ></td>");
 					}
+					html.push("<td style='display: none'>" + poi.geo+ "</td>");
 				    html.push("</tr>");
 				    $tbody.append(html.join(''));
 				});
@@ -535,38 +540,45 @@
 				if (editPoiLayer != null) {
 					editPoiLayer.clearLayers();
 				}
+				drawEditPOIMarkers(json.pois);
 				
 				for(var i = 0; i  < json.pois.length; i++) {
-					 (function (index){ //封闭空间开始
-						var row=json.pois[index];
-						var geo = getGEO(row.geo);
-						var html = $("#configDlg").html();
-		                var pointFeature = new L.marker([geo[1], geo[0]],
-		                   		{icon:redemgIcon,draggable: true, poi: row,isEmgListPoint: isEmgList} ).bindPopup(html).openPopup();
-		                if (row.isDel) {
-		                	pointFeature.setIcon(delGreenIcon);
-		                }			                
-		                pointFeature.on("click",function(){
-		                updatePOIInMap(null);
-		                loadEditPOI(row.id, null, false, isEmgList);
-		                checkEmg(this, row.id);
-		                }); 
-		                pointFeature.on("dragend",function(e){
-			                $.when(loadEditPOI(row.id, null, false, isEmgList)).done(function() {
-				                $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("MULTIPOINT ("+ e.target._latlng.lng + " " + e.target._latlng.lat + "," + e.target._latlng.lng + " " + e.target._latlng.lat + ")");
-				          		poiEditFlag = true;
-			                });
-		       	        }); 
-		                editPoiLayer.addLayer(pointFeature);
-	               })(i) 
-				}  
+					var poi = json.pois[i];
+					if(poi.id != systemOid) continue;
+					
+					if (poi.geo != null) {						
+						var geo = getGEO(poi.geo);
+						emgmap.setView(L.latLng(geo[1], geo[0]));
+					}
+					setPOITableValue(poi);
+					markMain(null,true, poi);
+				}
 				 
 			} else {
-				$("table#tbEdit>tbody td.tdValue>input:text").val("加载失败");
+				$tbody.empty();
+				$("table#tbEdit>tbody td.tdValue>input:text").val("加载失败或者没有关联POI点");
 			}
 			dtd.resolve();
 		}, "json");
 		return dtd;
+	}
+	
+	function setPOITableValue(poi) {
+		$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(poi.id);
+		$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
+		$("#featcode").val(poi.featcode);
+		$("#sortcode").val(poi.sortcode);
+		setfeatcodename();
+		setsortcodename();
+		$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val(poi.geo);
+		poi.poitags.forEach(function(tag, index) {
+			if(tag.k == 'poistate') {
+				$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>select").val(tag.v);
+			}else {
+				$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
+			}
+			
+		});
 	}
 	
 	//恢复删除的POI点
@@ -592,24 +604,11 @@
 		if(poi == null) return;
 		var geo = getGEO(poi.geo);
 		emgmap.setView(L.latLng(geo[1], geo[0]));
+		setPOITableValue(poi);
 		
-		
-		 $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(poi.id);
-		
-		$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
-		$("#featcode").val(poi.featcode);
-		$("#sortcode").val(poi.sortcode);
 		if (isEmgListPoint != null) {
 			$("#isEmgListPoint").val(isEmgListPoint);
 		}
-		
-		setfeatcodename();
-		setsortcodename();
-		$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val(poi.geo);
-		
-		poi.poitags.forEach(function(tag, index) {
-			$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
-		});
 		
 	}
 	
@@ -623,7 +622,7 @@
 			heigth: 500,
 			overflow: scroll,
 			position: { at: "right" },
-			title : "编辑过的POI",
+			title : "制作人员编辑过的POI",
 			open : function(event, ui) {
 				$(".ui-dialog-titlebar-close").hide();
 			},
@@ -1020,53 +1019,7 @@
 	}
 	
 	
-	/* function initArray() {
-		//console.log("开始初始化颜色开始");
-		//console.log(Date.now());
-		originalCheckRelation = [];
-		currentCheckRelation = [];
-		var tbtables = [ "tbbaidu", "tbtengxun", "tbgaode"];
-		var baidu =null;
-		var tengxun = null;
-		var gaode = null;	
-		if ( $("#tbbaidu input:checkbox") != null  || $("#tbbaidu input:checkbox").length > 0) {
-			baidu = $("#tbbaidu input:checked")[0];			
-		}
-		if ( $("#tbtengxun input:checkbox") != null  || $("#tbtengxun input:checkbox").length > 0) {
-			tengxun = $("#tbtengxun input:checked")[0];			
-		}
-		if ( $("#tbgaode input:checkbox") != null  || $("#tbgaode input:checkbox").length > 0) {
-			gaode = $("#tbgaode input:checked")[0];			
-		}
-		
-		var dianpingName = null,baiduName = null,tengxunName = null,  gaodeName = null;
-		if (baidu != null ) {
-			var baidutable = $("#tbbaidu" +baidu.value.split(",")[0]);
-			baiduName = $(baidutable.find("tbody tr td[data-key=name]")[0]);
-		}
-		
-		if (tengxun != null ) {
-			var tengxuntable = $("#tbtengxun" +tengxun.value.split(",")[0]);
-			tengxunName = $(tengxuntable.find("tbody tr td[data-key=name]")[0]);
-		}
-		
-		if (gaode != null ) {
-			var gaodetable = $("#tbgaode" +gaode.value.split(",")[0]);
-			gaodeName = $(gaodetable.find("tbody tr td[data-key=name]")[0]);
-		}
-		
-		if (keyword != null) {
-			dianpingName = $("table#tbKeyword>tbody tr td.tdValue[data-key='name']");
-		}
-		var markName = markNameColor(baiduName,gaodeName, tengxunName, dianpingName);
-		if (markName != null && markName.length > 1){
-			var datasource = getSRC(markName);
-			changeName(markName[0].innerText, datasource, "namec");
-		}
-		
-		//console.log("结束初始化颜色");
-		//console.log(Date.now());
-	} */
+	
 	
 	function getTel(tempTel) {
 		//var tempTel = tel.innerText;
@@ -1124,7 +1077,9 @@
 			initArray();
 			if (json && json.result == 1 && json.rows.length > 0) {
 				databaseSaveRelation = json.rows;
+				systemOid = databaseSaveRelation[0].oid;
 				for (var i = 0; i < tables.length; i++) {
+					
 					$.each($("input[name='" +tables[i] +"']:checkbox"), function(){
 						var srcInnerId = $(this).val().split(",")[1];
 						var srcType = $(this).val().split(",")[2];
@@ -1137,14 +1092,13 @@
 									var k = j,ele = this;
 									console.log("k1" + $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val());
 									rdChange(ele, srcType, null, null, srcInnerId, true);
-									/* $.when( 
+									$.when( 
 											 loadEditPOI(srcInnerId, emgFeatcode, false, null)
 									).done(function() {
-										console.log("k2" + $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val());
-										source = [];
-										currentCheckRelation.push(databaseSaveRelation[k]);
+										 source = [];
+										currentCheckRelation.push(databaseSaveRelation[k]); 
 										
-									}); */
+									}); 
 									flags[i] = true;
 									
 								} 
@@ -1162,41 +1116,22 @@
 				}
 				
 			} 
-			if (!flags[0]) {
+			
+			
+			if(!flags[0]) {
 				for (var j = 0; j < databaseSaveRelation.length; j++) {
 					if (keyword.srcInnerId == databaseSaveRelation[j].srcInnerId && keyword.srcType == databaseSaveRelation[j].srcType) {
 						// 在数据库里存在点评和EMG的关系，但是在界面上加载的时候，EMG中却没有指定oid的数据
 						originalCheckRelation.push(databaseSaveRelation[j]);
 					}
 				}
-			}
-			
-			
-			/* for (var i = 0; i < tbtables.length; i++) {
-				if ( $("#" + tbtables[i] + " input:checkbox") && $("#" + tbtables[i] + " input:checkbox").length > 0 && !flags[i]) {
-					// $("#" + tbtables[i] + " input:checkbox")[0].checked = true;
-					flags[i] = true;
-					if (i == 0 ) {
-						var srcInnerId = $("#" + tbtables[i] + " input:checkbox")[0].value.split(",")[1];
-						var emgFeatcode = $($($("#" + tbtables[i] + " input:checkbox")[0]).parents("table")[0]).find("td.tdValue[data-key='class']");
-						$.when( 
-								loadEditPOI(srcInnerId, emgFeatcode)
-						).done(function() {
-							source = [];	
-							initArray();
-							
-						});
-					}
-				}
-			} */
-			if(!flags[0]) {
 				var oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+				
 				if (oid == null || oid.trim() == "") {
 					source = [];
 					// initArray();
 				}
 			}
-			
 			dtd.resolve();
 		}, "json");
 		//console.log(Date.now());
@@ -1267,8 +1202,6 @@
 					}
 					var polygon = L.polygon(innerPoint, {color: 'green', fillOpacity: 0});
 					areaLayer.addLayer(polygon);
-					// zoom the map to the polygon
-					//emgmap.fitBounds(polygon.getBounds());
 					
 				}
 				
@@ -1292,7 +1225,6 @@
 		try{
 			var latlngpoi = L.latLng(parseFloat(geo[1]), parseFloat(geo[0]));
 			emgmap.setView(latlngpoi);
-			
 			if(geo != null ) {
 				if ($emgmarkerBase) {
 					$emgmarkerBase.setLatLng(latlngpoi);
@@ -1317,26 +1249,22 @@
 		}, function(json) {
 			if (!oid || oid <= 0) 	return;
 			$("table#tbEdit>tbody td.tdValue>input:text").val("");
+			$("table#tbEdit>tbody td.tdValue>select").val(0);
 			if (json && json.result == 1 && json.poi != null) {
 				var poi = json.poi;
 				currentPoi = json.poi;
 				if (isSetMain) systemPoi = poi;
-				console.log("k5");
+				setPOITableValue(poi);
+				// 删除的点，且是之前制作人员修改过的点也要展示oid,所以这里怎么区分
 				if(poi.del) {
 					$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(-1);
 				}else {
 					 $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(poi.id);
-				}
-				$("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val(poi.namec);
-				$("#featcode").val(poi.featcode);
-				$("#sortcode").val(poi.sortcode);
+				}				
 				if (isEmgListPoint != null) {
 					$("#isEmgListPoint").val(isEmgListPoint);
 				}
 				
-				setfeatcodename();
-				setsortcodename();
-				$("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val(poi.geo);
 				if (emgFeatcode != null) {
 					var featcode = getfeatcodename(poi.featcode);
 					emgFeatcode.text(featcode);
@@ -1345,9 +1273,7 @@
 						$($($(emgFeatcode).parents("table")[0]).find("td.tdIndex")[0]).css('background-color', 'red');
 					}
 				}
-				poi.poitags.forEach(function(tag, index) {
-					$("table#tbEdit>tbody td.tdValue[data-key='" + tag.k +"']>input:text").val(tag.v);
-				});
+				
 			} else {
 				$("table#tbEdit>tbody td.tdValue>input:text").val("加载失败");
 			}
@@ -1358,7 +1284,7 @@
 	
 	// flag: 用来设置是在地图上点击触发的还是在列表中点击触发的， 当在地图上点击的时候不能重新设置中心点，不能调整地图级别
 	function rdChange(ck, srcType, lat, lng, srcInnerId, flag) {
-		console.log("k3" + $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val());
+		
 		var latlngpoi = null;
 		if (lat != null && lng != null) {
 			latlngpoi = L.latLng(parseFloat(lat), parseFloat(lng));
@@ -1366,10 +1292,7 @@
 		var minlng = emgmap.getBounds().getNorthWest().lng , minlat = emgmap.getBounds().getNorthWest().lat , 
 		maxlng = emgmap.getBounds().getSouthEast().lng , maxlat =  emgmap.getBounds().getSouthEast().lat;
 		if (ck.checked == false && srcType == <%=SrcTypeEnum.EMG.getValue() %>) {
-			/* if (emgCurrentMarker != null) {
-		        emgCurrentMarker.remove();
-		        emgCurrentMarker = null;
-			} */
+			
 			$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val("-1");
 			$("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val("");
 			emgSrcInnerId = "";
@@ -1386,7 +1309,6 @@
 			var emgFeatcode = $($(ck).parents("table")[0]).find("td.tdValue[data-key='class']");
 			
 			$.when(loadEditPOI(srcInnerId, emgFeatcode, false, true)) .done(function() {
-				console.log("k4" + $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val());
 				var geo = getGEO(currentPoi.geo);
 				if(flag) {
 					emgmap.setView(L.latLng(geo[1], geo[0]));
@@ -1408,25 +1330,6 @@
 						layer.setIcon(setIcon(layer.options.poi.namec));
 					}
 				}
-				
-				/* if (emgCurrentMarker == null) {
-					initEmgMarker(geo, srcType, srcInnerId);
-					
-				}else {
-					if(removeEmgMarker != null) {
-						emgListMarker.addLayer(removeEmgMarker);
-						removeEmgMarker = null;
-					}
-					emgCurrentMarker.setLatLng(L.latLng(geo[1], geo[0]));
-				} 
-				var layers = emgListMarker.getLayers();
-				for(var i = 0; i < layers.length; i++) {
-					if (layers[i].options.poi.id == parseInt(srcInnerId)) {
-						removeEmgMarker = layers[i];
-						emgListMarker.removeLayer(layers[i]);
-					}
-				}
-				*/
 			});
 			
 		}else if (ck.checked == true && srcType == <%=SrcTypeEnum.BAIDU.getValue() %>) {
@@ -1452,10 +1355,7 @@
 			}
 		} else if (ck.checked == false && srcType == <%=SrcTypeEnum.GAODE.getValue() %>) {
 			removeMarker(gaodeMarker, srcType, srcInnerId);
-		}/*  else {
-			console.log("Error on srcType: " + srcType);
-			return;
-		} */
+		}
 		
 		if (emgmap.getZoom() > 18 && flag) {
 			var geo = getGEO(currentPoi.geo);
@@ -1664,107 +1564,65 @@
 	}
 	
 	
-	
-	function markMain(e, flag) {
-		var oid = null;
-	
+	// flag:true: 是之前制作人员编辑过的点，false: 不是制作人员编辑过的点, tempPoi:制作人员设置的主点信息
+	function markMain(e, flag, tempPoi) {
+		var oid = null;	
 		if (e != null) {
 			oid = e.options.poi.id	;
 		}else {
 			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
+		}	
+		if(flag) {
+			currentPoi = tempPoi;
+		}else {
+			 loadEditPOI(oid, null, true, null);
 		}
-	
-		loadEditPOI(oid, null, true, null);
+		if (tempPoi != null) {
+			systemPoi = tempPoi;
+		}
 		if (oid<1){
 			$.webeditor.showCheckBox("alert", "当前点不符合标记主点的条件，你确认当前点没有被删除");	
 			return ;
 		}
+		
 		emgmap.closePopup();
 		var emgLayers = emgListMarker.getLayers();	
 		emgLayers = emgLayers.concat(emgMarker.getLayers());
-		var layer = null;
+		var layer = null, isFind = false;
 		for (var i = 0; i < emgLayers.length; i++) {
 			layer = emgLayers[i];
 			if((layer.options.poi != null && layer.options.poi.id == parseInt(oid)) || (layer.options.srcInnerId != null && layer.options.srcInnerId == parseInt(oid)) ) {
-				if (mainMarker != null) {
+				if (mainMarker != null && !mainMarker.options.isEditPoiPoint ) {
 					mainMarker.setIcon(setIcon(mainMarker.options.poi.namec));
+				}else if (mainMarker != null && mainMarker.options.isEditPoiPoint ) {
+					mainMarker.setIcon(setIcon_redEmg(mainMarker.options.poi.namec));
 				}
+				isFind = true;
 				mainMarker = layer;
 				mainMarker.options.poi = currentPoi;
+				// 如何是之前制作人员编辑过的点flag = false,
+				 mainMarker.options.isEditPoiPoint =  flag;
+				
 				mainMarker.setIcon(mainPointIcon);
 				break;
 			}
 		}
-		/* if (layer == null ){
-			emgLayers = emgMarker.getLayers();			
-			for (var i = 0; i < emgLayers.length; i++) {
-				if(emgLayers[i].options.poi.id == parseInt(oid) ) {
-					layer = emgLayers[i];
-					if (mainMarker != null) {
-						mainMarker.setIcon(setIcon(mainMarker.options.poi.namec));
+		if(!isFind) {
+			for (var i = 0; i < editPoiLayer.getLayers().length; i++) {
+				layer = editPoiLayer.getLayers()[i];
+				if((layer.options.poi != null && layer.options.poi.id == parseInt(oid)) || (layer.options.srcInnerId != null && layer.options.srcInnerId == parseInt(oid)) ) {
+					if (mainMarker != null ) {
+						mainMarker.setIcon( setIcon_redEmg(mainMarker.options.poi.namec)  );
 					}
+					flag = true;
 					mainMarker = layer;
+					mainMarker.options.poi = currentPoi;
 					mainMarker.setIcon(mainPointIcon);
 					break;
 				}
 			}
-		} */
-		/// if (flag) poiEditFlag = true;
+		}
 	}
-	
-	/* function markMain(e, flag) {
-		var oid = null;
-	
-		if (e != null) {
-			oid = e.options.poi.id	;
-		}else {
-			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
-		}
-	
-		loadEditPOI(oid, null, true, null);
-		if (oid<1){
-			$.webeditor.showCheckBox("alert", "当前点不符合标记主点的条件，你确认当前点没有被删除");	
-			return ;
-		}
-		emgmap.closePopup();
-		var emgLayers = emgListMarker.getLayers();	
-		var layer = null;
-		for (var i = 0; i < emgLayers.length; i++) {
-			if(emgLayers[i].options.poi != null && emgLayers[i].options.poi.id == parseInt(oid) ) {
-				layer = emgLayers[i];
-				if (mainMarker != null) {
-					mainMarker.setIcon(setIcon(mainMarker.options.poi.namec));
-				}
-				mainMarker = layer;
-				mainMarker.setIcon(mainPointIcon);
-				break;
-			}else if (emgLayers[i].options.poi == null && emgLayers[i].options.srcInnerId == parseInt(oid) ) {
-				layer = emgLayers[i];
-				if (mainMarker != null) {
-					mainMarker.setIcon(setIcon(mainMarker.options.poi.namec));
-				}
-				mainMarker = layer;
-				mainMarker.options.poi = currentPoi;
-				mainMarker.setIcon(mainPointIcon);
-				break;
-			}
-		}
-		if (layer == null ){
-			emgLayers = emgMarker.getLayers();			
-			for (var i = 0; i < emgLayers.length; i++) {
-				if(emgLayers[i].options.poi.id == parseInt(oid) ) {
-					layer = emgLayers[i];
-					if (mainMarker != null) {
-						mainMarker.setIcon(setIcon(mainMarker.options.poi.namec));
-					}
-					mainMarker = layer;
-					mainMarker.setIcon(mainPointIcon);
-					break;
-				}
-			}
-		}
-		/// if (flag) poiEditFlag = true;
-	} */
 	
 	function loadReferdatas(keywordid) {
 		var dtd = $.Deferred();
@@ -1829,7 +1687,6 @@
 						if (keyword && keyword.geo) {
 							var geo = null;
 							drawEMGMap(null,null, zoom);
-							
 						}
 					}
 					if (baidurefers && baidurefers.length > 0) {
@@ -1971,16 +1828,7 @@
 		}else {
 			oid = systemPoi.id;
 		}
-		/* try {
-			oid = $("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val();
-			if (oid == "" || oid == null || oid == -1) {
-				$.webeditor.showCheckBox("alert", "未新增点，且EMG中没有勾选");
-				return;
-			}
-			
-		} catch(e) {
-			return;
-		} */
+		
 		
 		var tempfeatcode = $("#featcode").val();
 		if (isCanSubmit(tempfeatcode, notEditCode)) {
@@ -2036,23 +1884,7 @@
 			relations.push(relation);
 		}
 		var delFlag = false;
-		//提示删除标识
-		/* if (databaseSaveRelation != null && relations != null) {
-			for (var j = 0; j < databaseSaveRelation.length; j++) {
-				var flag = false;
-				for (var i = 0; i < relations.length; i++) {
-					if(relations[i].srcInnerId == databaseSaveRelation[j].srcInnerId && relations[i].srcType == databaseSaveRelation[j].srcType && relations[i].oid != databaseSaveRelation[j].oid && databaseSaveRelation[j].importTime != null) {
-						// 此种情况需要人工确认，表明数据库中的关系存在且已经确认过，但现在提交的与库里保存的不一致
-						delFlag = true;
-						break;
-						
-					}
-					if (delFlag) break;
-					
-				}
-				
-			}
-		} */
+		
 		// 在库里保存了关系，现在取消掉，需要删除relation,且没有新增POI点，即oid为-1
 		if (currentCheckRelation != null && (relations == null || relations.length == 0) && oid !="" && oid != -1) {
 			for (var i = 0; i < currentCheckRelation.length; i++) {
@@ -2060,11 +1892,7 @@
 				relations.push(currentCheckRelation[i]);
 			}
 		}
-		// 当聚合成功，在数据库里有relation,但EMG中未检索到聚合成功的点，则弹窗提示，未考虑新增点的情况
-		/* if (originalCheckRelation != null && originalCheckRelation.length > 0 && oid > 0) {
-			$.webeditor.showCheckBox("alert", "与EMG的关系在数据库中已经存在，但EMG检索未查询到该记录，请连接开发人员查明此问题");
-			return;
-		}  */
+		
 		var projectId = $("#curProjectID").val();
 		var namec = $("table#tbEdit>tbody td.tdValue[data-key='name']>textarea").val();
 		// var tel = $("table#tbEdit>tbody td.tdValue[data-key='tel']>input:text").val();
@@ -2073,77 +1901,12 @@
 		for (var i = 0; i < brandcode.length; i++) {
 			if ($("#featcode").val() == brandcode[i]) existBrand = true;
 		}
-		/* if (emgChecked && existBrand) {
-			
-		}else  {
-			if (delFeatcoe) {
-				$("#featcode").val("");
-				$("#sortcode").val("");
-				$("#featcodename").val("");
-				$("#sortcodename").val(""); 
-			} */
-			
-			// $("#tbbaidu").find("td input:checked")
-			/* if ( $("#tbgaode input:checkbox") && $("#tbgaode input:checked").length > 0){
-				var ele = $("#tbgaode input:checked");
-			
-				// var ele = $($($("#tbgaode input:checked")[0]).parents("table")[0]).find("td.tdValue[data-key='class']");	
-				for (var i = 0; i < ele.length; i++) {
-					var g = $($(ele[i]).parents("table")[0]).find("td.tdValue[data-key='class']");	
-					var valueArray = g.text().split(";");
-					getCode(gaodeCode, valueArray, g);
-					if ($("#featcode").val() != null && $("#featcode").val().trim() != "") break;
-				}
-				
-			} */
-			
-			/* if (($("#featcode").val() == null || $("#featcode").val().trim() == "") && $("#tbbaidu input:checkbox") && $("#tbbaidu input:checked").length > 0) {
-				// var ele = $($($("#tbgaode input:checked")[0]).parents("table")[0]).find("td.tdValue[data-key='class']");		
-				var ele = $("#tbbaidu input:checked");
-				for (var i = 0; i < ele.length; i++) {
-					var g = $($(ele[i]).parents("table")[0]).find("td.tdValue[data-key='class']");	
-					var valueArray = g.text().split(";");
-					getCode(baiduCode, valueArray, g);
-					if ($("#featcode").val() != null && $("#featcode").val().trim() != "") break;
-				}
-			}
-			
-			if (($("#featcode").val() == null || $("#featcode").val().trim() == "") && $("#tbtengxun input:checkbox") && $("#tbtengxun input:checked").length > 0) {
-				// var ele = $($($("#tbgaode input:checked")[0]).parents("table")[0]).find("td.tdValue[data-key='class']");
-				var ele = $("#tbtengxun input:checked");
-				for (var i = 0; i < ele.length; i++) {
-					var g = $($(ele[i]).parents("table")[0]).find("td.tdValue[data-key='class']");	
-					var valueArray = g.text().split(":");
-					getCode(tengxunCode, valueArray, g);
-					if ($("#featcode").val() != null && $("#featcode").val().trim() != "") break;
-				}
-			}
-			
-			if (($("#featcode").val() == null || $("#featcode").val().trim() == "") && $("#tbemg input:checkbox") && $("#tbemg input:checked").length > 0) {
-				// var ele = $($($("#tbgaode input:checked")[0]).parents("table")[0]).find("td.tdValue[data-key='class']");
-				var ele = $("#tbemg input:checked");
-				for (var i = 0; i < ele.length; i++) {
-					var g = $($(ele[i]).parents("table")[0]).find("td.tdValue[data-key='class']");	
-					var featcode =$("#featcode").val(systemPoi.featcode);
-					var sortcode =$("#sortcode").val(systemPoi.sortcode);
-				}
-			} */
-		// }
 		
-		/* var featcode =$("#featcode").val();
-		var sortcode =$("#sortcode").val();
-		var remark = $("table#tbEdit>tbody td.tdValue[data-key='remark']>input:text").val();
-		var geo = $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val(); */
+		
 		var isLoadNextTask = $("table#tbEdit>tbody td.tdKey[data-key='isLoadNextTask']>input:checkbox").prop("checked");
 		if((systemPoi.namec == null || systemPoi.namec.trim() == "" || systemPoi.featcode == null ||  systemPoi.geo == null || systemPoi.geo.trim() == "") && oid != -1) {
 			submitflag = 0;
 			$.webeditor.showMsgLabel("alert", "名称、分类、坐标不能为空");
-			/* if (featcode == null || featcode.trim() == "" ){
-				$("#featcode").removeAttr("disabled");
-				$("#sortcode").removeAttr("disabled");
-				$("#featcodeSpan").removeAttr("disabled");
-				$("#sortcodeSpan").removeAttr("disabled");
-			} */
 			return;
 		}
 		$.webeditor.showMsgBox("info", "数据保存中...");
@@ -2166,7 +1929,8 @@
 					"remark": remark == "" || remark == null ? " " : systemPoi.remark, 
 					"projectId": projectId,
 					"source": JSON.stringify(source),
-					"poistate": $("#poistate").val()
+					"poistate": $("#poistate").val(),
+					"keywordid": keyword.id
 					// "isLoadNextTask": isLoadNextTask
 				}, function(json) {
 					if (json && json.result == 1) {
@@ -2221,8 +1985,6 @@
 					}
 				});
 		}
-		
-		
 		$.webeditor.showMsgBox("close");
 		
 	}
@@ -2299,14 +2061,22 @@
 						var geo = getGEO(dianpingGeo);
 						var piont = L.latLng([parseFloat(geo[1]), parseFloat(geo[0])]);
 						emgmap.setView(piont);
+						
 						$.when(loadReferdatas(keywordid)
 						).done(function() {
-							if (keyword) {
-								loadRelation(keyword.srcInnerId, keyword.srcType);
-							}
+							// 加载修改过或者存量删除的点
+							$.when(loadRelation(keyword.srcInnerId, keyword.srcType)).done(function(){
+								$.when(loadRelatedPoi($("#curTaskID").html())).done(function(){
+									 map_drag(emgmap);
+								});
+								// map_drag(emgmap);
+							});
+							
 						});
 					});
 			}
+			isMarkError();
+			loadModifiedLogs(keywordid);
 		} 
 	}
 	
@@ -2411,6 +2181,8 @@
 			
 		}, function(json) {
 			if (json && json.result > 0) {
+				
+			
 				$("table#tbEdit>tbody td.tdValue[data-key='oid']>input:text").val(json.result);
 				$.webeditor.showMsgLabel("success", "获取OID成功");
 				pointFeature.options.poi = {"id": json.result};
@@ -2478,7 +2250,8 @@
 		if((!flag && isEmgListPoint != 'true') || (!flag && isEmgListPoint == 'true' && featcode != currentPoi.featcode)) {
 			$.webeditor.showCheckBox("alert", "当前POI不在项目可编辑featcode范围内(" + $("#projectfeatcodes").val() +")，不能进行编辑");
 			//如果修改成了不允许编辑的类型需要把属性恢复回去
-			if (isDel == null || isDel == true)loadEditPOI(oid, null, false, isEmgListPoint);
+			// if (isDel == null || isDel == true)loadEditPOI(oid, null, false, isEmgListPoint);
+			loadEditPOI(oid, null, false, isEmgListPoint);
 			poiEditFlag = false;
 			return false;
 		}
@@ -2527,6 +2300,8 @@
 					emgLayers = emgMarker.getLayers();			
 					for (var i = 0; i < emgLayers.length; i++) {
 						if(emgLayers[i].options.poi.id == parseInt(oid) ) {
+							emgFlag = true;
+						
 							layer = emgLayers[i];
 							layer.setIcon(setIcon(namec));
 							console.log("从EMG列表中进行修改");
@@ -2534,27 +2309,47 @@
 						}
 					}
 				}
-				//此次修改为把删除的点进行恢复
-				if (isDel != null && !isDel) {
-					$("#poiEditList>tbody tr").each(function() {
-						var id = this.cells[0].innerText;
-						if (id == oid) {
+				
+				if (!emgFlag ){
+					for (var i = 0; i < poiEditList.length; i++) {
+						if(poiEditList[i].id == parseInt(oid) ) {
+							poiEditList[i].namec = namec;
+							poiEditList[i].featcode = featcode;
+							poiEditList[i].sortcode = sortcode;
+							poiEditList[i].geo = geo;
+							poiEditList[i].poitags.forEach(function(tag, index) {
+								if(tag.k == 'poistate') {
+									tag.value = poistate;
+								}
+								if(tag.k == 'remark') {
+									tag.value = remark;
+								}
+							});
+							break;
+						}
+					}
+				}
+				//如果修改的数据为列表中的数据，则修改完后要更新列表
+				
+				$("#poiEditList>tbody tr").each(function() {
+					var id = this.cells[0].innerText;
+					if (id == oid) {
+						this.cells[1].innerText = namec;
+						this.cells[2].innerText = featcode;
+						this.cells[3].innerText = sortcode;
+						this.cells[4].innerText = poistate;
+						// 有一列隐藏的geo字段
+						if(!isDel){
 							this.cells[6].innerHTML = "";
 						}
-					
-						console.log(this);
-					
-					});
-					
-				}
+					}				
+				});
 			} else {
-				
 				if(json.error != null && json.error.length > 0) {
 					$.webeditor.showMsgLabel("alert", json.error);
 				}else {
 					$.webeditor.showMsgLabel("alert", "保存失败");
 				}
-				
 			}
 			$.webeditor.showMsgBox("close");
 			dtd.resolve();
@@ -2569,7 +2364,6 @@
 				"process" : 5
 			}, function(json) {
 				if (json && json.result > 0) {
-					
 					$.webeditor.showMsgLabel("success", "修改任务状态成功");
 				} else {
 					
@@ -2578,9 +2372,7 @@
 					}else {
 						$.webeditor.showMsgLabel("alert", "修改任务状态失败");
 					}
-					
 				}
-				// $.webeditor.showMsgBox("close");
 			}, "json");
 		}
 		return dtd;
@@ -2654,6 +2446,15 @@
 		return myIconName;
 	}
 	
+	function setIcon_redEmg(name) {
+		var myIconName = L.divIcon({
+            html: name,
+            className: 'geojsonMakerOptions_redemg',
+            iconSize:[100, 35]
+	    });  
+		return myIconName;
+	}
+	
 	function map_drag(map, flag) {
 		$.when(updatePOIInMap(null)).done(function () {
 		// 当为添加点时触发的拖动事件，不重新加载地图
@@ -2670,9 +2471,9 @@
 			emgListMarker.addLayer(emgCurrentMarker);
 		}
 		if (zoom < 15 || zoom > 18) return;
-		var box = map.getBounds().getNorthWest().lng + "," + map.getBounds().getNorthWest().lat + "," + map.getBounds().getSouthEast().lng + "," + map.getBounds().getSouthEast().lat;
-	
-		
+		console.log(map.getBounds());
+		var box = (map.getBounds().getSouthWest().lng -0.01) + "," + (map.getBounds().getSouthWest().lat - 0.01) + "," + map.getBounds().getNorthEast().lng + "," + map.getBounds().getNorthEast().lat;
+		console.log(box);
 		 jQuery.post("./polygoncheck.web", {
 				"atn" : "getdatabybox",
 				"box" : box,
@@ -2682,12 +2483,13 @@
 				if (json != null  && json.rows != null) {	
 					drawMarkers(json.rows, emgMarker, false);
 				}	
+				if(poiEditList != null) drawEditPOIMarkers(poiEditList);
 				if (mainMarker != null) {
 					 // markMain(mainMarker, false);
 					 emgListMarker.addLayer(mainMarker);
 				 }
 				if (emgCurrentMarker != null  && ((systemPoi != null && 
-						((emgCurrentMarker.options.srcInnerId != null && systemPoi.id != emgCurrentMarker.options.srcInnerId) || 
+						((emgCurrentMarker.options.srcInnerId != null && emgCurrentMarker.options.srcInnerId != "" && systemPoi.id != emgCurrentMarker.options.srcInnerId) || 
 								( emgCurrentMarker.options.poi != null && systemPoi.id != emgCurrentMarker.options.poi.id))) || 
 					systemPoi == null)){
 					emgListMarker.addLayer(emgCurrentMarker);
@@ -2701,6 +2503,70 @@
 		});
 	}
 	
+	//绘制制作人员编辑过的点
+	function drawEditPOIMarkers(pois) {
+		if(editPoiLayer != null) {
+			editPoiLayer.clearLayers();
+		}
+	
+		for(var i = 0; i  < pois.length; i++) {
+			 (function (index){ //封闭空间开始
+				var row=pois[index];
+				var geo = getGEO(row.geo);
+				var html = $("#configDlg").html();
+				//当拖动地图的时候，如果该点是制作编辑的点，则在加载的时候，只展示编辑样式，不展示原有样式 
+				var layers = emgListMarker.getLayers();
+				for(var i = 0; i < layers.length; i++) {
+					var layer = layers[i];
+					if (layers[i].options.poi.id == parseInt(row.id) && (mainMarker == null ||
+							(mainMarker != null &&  mainMarker.options.poi != null &&  parseInt(row.id) != mainMarker.options.poi.id) 
+							)) {
+						emgListMarker.removeLayer(layer);
+					}
+				}
+				
+				layers = emgMarker.getLayers();
+				for(var i = 0; i < layers.length; i++) {
+					var layer = layers[i];
+					/* if (layers[i].options.poi.id == parseInt(row.id) && (mainMarker == null ||
+							(mainMarker != null &&  mainMarker.options.poi != null &&  parseInt(row.id) != mainMarker.options.poi.id) 
+					)) { */
+					if (layers[i].options.poi.id == parseInt(row.id)){
+						emgMarker.removeLayer(layer);
+					}
+				}
+				/* if (emgCurrentMarker != null  && 
+						 ((emgCurrentMarker.options.srcInnerId != null &&   row.id == emgCurrentMarker.options.srcInnerId) || 
+									( emgCurrentMarker.options.poi != null && row.id == emgCurrentMarker.options.poi.id))) {
+					emgmap.removeLayer(emgCurrentMarker);
+					emgCurrentMarker = null;
+				} */
+				if (mainMarker == null ||
+						(mainMarker != null &&  mainMarker.options.poi != null &&  parseInt(row.id) != mainMarker.options.poi.id) 
+				){
+	               var pointFeature = new L.marker([geo[1], geo[0]],
+	                  		{icon:setIcon_redEmg(row.namec),draggable: true, poi: row,isEmgListPoint: isEmgList, isEditPoiPoint: true} ).bindPopup(html).openPopup();
+	               if (row.isDel) {
+	               	pointFeature.setIcon(delGreenIcon);
+	               }		
+	               
+	               pointFeature.on("click",function(){
+	               updatePOIInMap(null);
+	               loadEditPOI(row.id, null, false, isEmgList);
+	               checkEmg(this, row.id);
+	               }); 
+	               pointFeature.on("dragend",function(e){
+		                $.when(loadEditPOI(row.id, null, false, isEmgList)).done(function() {
+			                $("table#tbEdit>tbody td.tdValue[data-key='geo']>input:text").val("MULTIPOINT ("+ e.target._latlng.lng + " " + e.target._latlng.lat + "," + e.target._latlng.lng + " " + e.target._latlng.lat + ")");
+			          		poiEditFlag = true;
+		                });
+	      	        }); 
+	               editPoiLayer.addLayer(pointFeature);
+				}
+          })(i) 
+		}  
+	}
+	
 	// emgPOIs: 需要绘制的POI点， markers:需要填充到的layergroup, isEmgList: 是否是EMG列表中的点
 	function drawMarkers(emgPOIs, markers, isEmgList) {
 		if (markers != null) {
@@ -2710,9 +2576,8 @@
 		for(var i = 0; i  < emgPOIs.length; i++) {
 			 (function (index){ //封闭空间开始
 				 var row=emgPOIs[index];
-			 
-				 
-				 if ((mainMarker != null &&  row.id == mainMarker.options.poi.id) || (emgCurrentMarker != null && 
+				 if ((mainMarker != null &&  mainMarker.options.poi != null &&  row.id == mainMarker.options.poi.id) 
+						 || (emgCurrentMarker != null && 
 						 ((emgCurrentMarker.options.srcInnerId != null &&   row.id == emgCurrentMarker.options.srcInnerId) || 
 							( emgCurrentMarker.options.poi != null && row.id == emgCurrentMarker.options.poi.id)))){
 					 
@@ -2756,8 +2621,6 @@
 				
 			}else {
 				$('#markError').removeAttr("disabled");
-			
-				//$.webeditor.showMsgLabel("查询标记错误失败");
 			}
 		});
 		
@@ -2778,6 +2641,22 @@
 			dtd.resolve();
 		}, "json");
 		return dtd;
+	}
+	function markError() {
+		$.webeditor.showConfirmBox("alert","确实要标记错误？", function(){
+	
+			jQuery.post("./polygoncheck.web", {
+				"atn" : "markusererror",
+				"taskid" : $("#curTaskID").html(),
+			}, function(json) {
+				if (json && json.result == 1) {
+					$("#markError").attr("disabled", true);
+				}else {
+					$.webeditor.showMsgLabel("标记错误失败");
+				}
+			});
+		});
+		
 	}
 	
     </script>

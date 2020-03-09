@@ -53,7 +53,7 @@ public  class ProductTask {
 	
 	//制作任务缓存的消息队列 type
 	public static final String TYPE_POLYGONCHECK_QUENE = "011check";
-	//制作中缓存的当前任务type
+	//抽检中缓存的当前任务type
 	public static final String TYPE_POLYGONCHECK_MAKING = "012check";
 	
 	public static final int STATE_1 = 1;
