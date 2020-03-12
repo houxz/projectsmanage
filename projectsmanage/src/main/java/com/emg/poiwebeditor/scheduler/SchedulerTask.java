@@ -192,6 +192,7 @@ public class SchedulerTask {
 	@Autowired
 	private TaskClient taskClient;
 	
+	private int   testvalue= 0;// 0 不执行， 1 执行
 
 	/**
 	 * 半夜三更 创建每天的任务
@@ -255,6 +256,10 @@ public class SchedulerTask {
 	 * */
 	// @Scheduled(cron = "${scheduler.modifytask.dotime}")
 	public void scanfModifyTask() {
+		
+		 if(1>testvalue) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          		logger.debug("####scanfModifyTask()##start#####");
+		 	return ;
+		 }	
 		logger.debug("####scanfModifyTask()##start#####");
 		
 		// 1.0 获取所有开启的项目	
@@ -462,8 +467,9 @@ public class SchedulerTask {
 	 * */
 	@Scheduled(cron = "${scheduler.modifytask.dotime}")
 	public void updateTaskState() {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              		logger.debug("####scanfModifyTask()##start#####");
-		
+ if(1>testvalue) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          		logger.debug("####scanfModifyTask()##start#####");
+ 	return ;
+ }	
 		// 1.0 获取所有开启的项目	
 	
 		List<ProjectModel> rows = projectModelDao.selectProjectWithConfig( projectdbname,processdbname,ProjectState.START.getValue(), SystemType.poi_polymerize.getValue());
@@ -1129,47 +1135,17 @@ public class SchedulerTask {
 		}
 	}
 	
-//	@Scheduled(cron = "${scheduler.attachcapacity.updateuser.dotime}")
-//	public void loadMakeTask() {
-//		if (!attachEnable.equalsIgnoreCase("true"))
-//			return;
-//		logger.debug("start update username.");
-//		AttachCapacityModelExample example = new AttachCapacityModelExample();
-//		AttachCapacityModelExample.Criteria criteria = example.or();
-//		criteria.andCountDate(getDateString(new Date()));
-//		List<AttachMakeCapacityModel> makes = attachCapacityDao.selectAttachCapacity(example);
-//		List<EmployeeModel> users = emapgoAccountService.getAllEmployees();
-//		if (makes != null && users != null) {
-//			for(AttachMakeCapacityModel make : makes) {
-//				for(EmployeeModel user : users) {
-//					if(make.getUserid() == user.getId()) {
-//						make.setUsername(user.getRealname());
-//					}
-//				}
-//			}
-//			attachCapacityDao.updateUserName(makes);
-//		}
-//		
-//		List<AttachCheckCapacityModel> checks = attachCheckCapacityDao.selectcheckAttachCapacity(example);
-//		
-//		if (checks != null && users != null) {
-//			for(AttachCheckCapacityModel check : checks) {
-//				for(EmployeeModel user : users) {
-//					if(check.getUserid() == user.getId()) {
-//						check.setUsername(user.getRealname());
-//					}
-//				}
-//			}
-//			attachCheckCapacityDao.updateUserName(checks);
-//		}
-//		
-//	}
 	
 	/*
 	 * 定时扫描任务库 ,更新进度
 	 * */
 	@Scheduled(cron = "${schedulerpoi.updateprojectprogress.dotime}")
 	public void updateProjectProgress() {
+		
+		 if(1>testvalue) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          		logger.debug("####scanfModifyTask()##start#####");
+		 	return ;
+		 }	
+		
 		logger.debug("####scanfModifyTask()##start#####");
 		
 		// 1.0 获取所有开启的项目	

@@ -71,7 +71,7 @@
 			$(this).ajaxSubmit(options);
 			
 			$("#pg").show();
-			
+			$("#pgnum").show();
 			uploadtimer();
 			
 			return false;
@@ -154,6 +154,9 @@
 					var percentComplete = Math.ceil(count / totall * 100);
 					var pg = document.getElementById('pg');
 					pg.value = percentComplete;
+					var pgnum = document.getElementById('pgnum');
+					var pv = count + "/" + totall;
+					$("#pgnum").text(pv);
 					if (count != totall && count != 0)
 						uploadtimer();
 				}
@@ -163,6 +166,7 @@
 	
 	function uploaddataset(){
 		$("#pg").hide();
+		$("#pgnum").hide();
 		 $("#uploadDlg").bootstrapDialog({
 				queryParams : function(params) {
 					return params;
@@ -228,7 +232,8 @@
 		<form id='uploadform' name='uploadfile' action="./fielddatamanage.web?atn=springUpload" method='post' enctype='multipart/form-data'>
 		<input id='fp' type='file' name='uploadfile' />
 		<br/>
-		<progress max="100" value="0" id="pg"></progress>
+		<progress max="100" value="0" id="pg">111</progress>
+		<a id="pgnum"></a>
 		<br/><br/>
 		<input  type="submit" value='上传'  style="width:20%" />
 		</form>

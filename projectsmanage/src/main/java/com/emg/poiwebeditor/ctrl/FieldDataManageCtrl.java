@@ -2,14 +2,20 @@ package com.emg.poiwebeditor.ctrl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.model.DataModel;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.transaction.Transactional;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -18,7 +24,12 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,6 +55,8 @@ import com.emg.poiwebeditor.service.ProcessConfigModelService;
 import net.sf.json.JSONObject;
 
 @Controller
+//@Transactional
+@Scope("session")
 @RequestMapping("/fielddatamanage.web")
 public class FieldDataManageCtrl extends BaseCtrl {
 
@@ -154,8 +167,10 @@ public class FieldDataManageCtrl extends BaseCtrl {
 		return json;
 	}
 
-	@RequestMapping(params = "atn=springUpload")
-	public ModelAndView springUpload(HttpServletRequest request, HttpSession session)
+	//20200309修改上传规则修改by mengjiao shihuiying，废弃
+	// 暂时保留，后续修改后没问题了可删除
+	@RequestMapping(params = "atn=springUpload_20200309old")
+	public ModelAndView springUpload_20200309old(HttpServletRequest request, HttpSession session)
 			throws IllegalStateException, IOException {
 		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
 
@@ -264,7 +279,7 @@ public class FieldDataManageCtrl extends BaseCtrl {
 										kmodel.setDatasetId(datasetid);
 										kmodel.setSrcType(110);// 预定义都写这个值
 										
-										Boolean bInsert = datasetModelDao.Insertkeyword(configDBModel, kmodel);
+										Boolean bInsert = false;// datasetModelDao.Insertkeyword(configDBModel, kmodel);
 										if (!bInsert)
 											bInsertError = true;
 										kmodellist.add(kmodel);
@@ -462,7 +477,13 @@ public class FieldDataManageCtrl extends BaseCtrl {
 		
 			}else if(ictype == HSSFCell.CELL_TYPE_NUMERIC) {
 				dvalue = cell.getNumericCellValue();
-				svalue = String.valueOf(dvalue);
+				if (strfieldname.equals("数据源类型")) {
+					int ivalue = (int)dvalue;
+					svalue = String.valueOf(ivalue);
+				}
+				else {
+					svalue = String.valueOf(dvalue);
+				}
 			}else {
 				continue;
 			}
@@ -477,8 +498,10 @@ public class FieldDataManageCtrl extends BaseCtrl {
 			} else if (strfieldname.equals("区县")) {
 				kmodel.setDistrict(svalue);
 			} else if (strfieldname.equals("名称")) {
+				svalue = svalue.replace("'", "''");
 				kmodel.setName(svalue);
 			} else if (strfieldname.equals("地址")) {
+				svalue = svalue.replace("'", "''");
 				kmodel.setAddress(svalue);
 			} else if (strfieldname.equals("电话")) {
 				kmodel.setTelephone(svalue);
@@ -501,7 +524,9 @@ public class FieldDataManageCtrl extends BaseCtrl {
 			} else if (strfieldname.equals("数据来源")) {
 
 			} else if (strfieldname.equals("数据源类型")) {
-				//20190611需求要求写死110 不读此字段了  kmodel.setSrcType(Integer.valueOf(svalue));
+				//20190611需求要求写死110 不读此字段了 
+				//20200309 又要求读了 
+				kmodel.setSrcType(Integer.valueOf(svalue));
 			} else if (strfieldname.equals("数据源ID")) {
 				kmodel.setSrcInnerId(svalue);
 			} else if (strfieldname.equals("备注")) {
@@ -520,4 +545,855 @@ public class FieldDataManageCtrl extends BaseCtrl {
 
 		return kmodel;
 	}
+	/*
+	 * 20200309 新规则
+	 * 1. 1000条为一个dataset
+	 * 2. 数据源类型字段，有值则读值，没有则默认100
+	 *   暂时屏蔽，新函数修改为一次插入多条记录
+	 * */
+	@RequestMapping(params = "atn=springUpload3")
+	public ModelAndView springUpload3(HttpServletRequest request, HttpSession session)
+			throws IllegalStateException, IOException {
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+
+		uploadtotall =100;
+		uploadcount = 1;
+		String account = getLoginAccount(session);
+		EmployeeModel record = new EmployeeModel();
+		record.setUsername(account);
+		Integer userid = 0;
+		String realname = "";
+
+		EmployeeModel user = emapgoAccountService.getOneEmployeeWithCache(record);
+		if (user != null) {
+			userid = user.getId();
+			realname = user.getRealname();
+		}
+
+		long startTime = System.currentTimeMillis();
+		// 将当前上下文初始化给 commonsmutipartresolver 多部分解器
+		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
+				request.getSession().getServletContext());
+		// 检查form中是否有enctype='multipart/form-data'
+		if (multipartResolver.isMultipart(request)) {
+			// 将request变成多部分request
+			try {
+				MultipartHttpServletRequest multiRequest = multipartResolver.resolveMultipart(request);
+
+				Boolean ischeck = CheckField(multiRequest ,json);
+				if( ischeck == false) {
+					uploadcount = 0;
+					json.addObject("result",0);
+					return json;
+				}
+				
+				ProcessType processType = ProcessType.POIPOLYMERIZE;
+				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZILIAOKU,
+						processType);
+				ConfigDBModel configDBModel = configDBModelDao
+						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+
+				Boolean bdatasetok = false;
+				// 获取multiRequest中所有的文件名
+				Iterator<String> iter = multiRequest.getFileNames();
+				Long batchid = 0L;
+				if (iter.hasNext()) {
+					// 申请批次号
+					// 工具识别码 SVN号 400
+					// code
+					batchid = datasetModelDao.getBatchid();
+				}
+				Long bid = datasetModelDao.InsertBatch(configDBModel, batchid, userid, realname);
+				if (bid > 0) {
+					while (iter.hasNext()) {
+						// 一次遍历所有文件
+						MultipartFile file = multiRequest.getFile(iter.next().toString());
+						if (file != null) {
+							InputStream  input = file.getInputStream();
+							String filename = file.getOriginalFilename();
+							int indexc = filename.indexOf(".");
+							String name = filename.substring(0, indexc);
+							String ext = filename.substring(indexc+1);
+							if( ext.compareToIgnoreCase("xls") !=0 ) {
+								uploadcount = 0;
+								json.addObject("err","只支持xls格式");
+								json.addObject("result", 0);
+								return json;
+							}
+							HSSFWorkbook workbook = new HSSFWorkbook(input);
+							
+							
+							
+							Map<Integer, List<KeywordModel>> dataMap = new  HashMap<Integer, List<KeywordModel>>();
+							//计算需要多少个dataset 1000条记录一个
+					
+							int tmpuploadtotall = 0;
+							int  DATASETRecord_COUNT=1000;
+							int  recordcount=0;
+							List<KeywordModel> keyList = null;
+							for (int index = 0; index < workbook.getNumberOfSheets(); index++) {
+								HSSFSheet sheet = workbook.getSheetAt(index);
+								int firstrowindex = sheet.getFirstRowNum();// 默认第一行为表头
+								int lastrowindex = sheet.getLastRowNum();// 从第二行开始为正文数据
+								if (lastrowindex <= 0)
+									continue;
+								
+								Integer datacount=0;
+								HSSFRow fields = sheet.getRow(0);
+								for (int indexrow = 1; indexrow <= lastrowindex; indexrow++) {
+									HSSFRow row = sheet.getRow(indexrow);
+									KeywordModel kmodel = changerowtoKeywordModel(row, fields);
+									if (kmodel != null && kmodel.getId() != null) {
+										
+										if( recordcount == 0) {
+											keyList = new ArrayList<>();
+											dataMap.put(datacount++, keyList);
+										}
+										recordcount++;
+										keyList.add(kmodel);
+										if( recordcount == DATASETRecord_COUNT) {
+											recordcount =0;
+										}
+										tmpuploadtotall++;
+									}
+								}
+							}
+							uploadtotall = tmpuploadtotall;
+							int datasetcount = dataMap.size();
+							
+							for ( Map.Entry<Integer, List<KeywordModel>> entry : dataMap.entrySet()) {
+								DatasetModel dataset = new DatasetModel();
+								Integer datasetindex = entry.getKey() ;
+								List<KeywordModel> allkmodellist=entry.getValue();
+								
+								dataset.setName(name);
+								dataset.setPath(file.getOriginalFilename());// 浏览器做了安全设置,js页无法获取上传路径
+								// 一个文件一个dataset
+								dataset.setDatatype(37);
+								dataset.setState(1);
+								dataset.setProcess(1);// 上传中
+								dataset.setBatchid(batchid.toString());
+								// 更新资料状态 任务创建完成
+								Long datasetid = datasetModelDao.InsertDataset(configDBModel);
+								boolean b = datasetid.equals(-1L);
+								if (datasetid.equals(-1L)) {
+									uploadcount = 0;
+									json.addObject("err","插入dataset失败");
+									json.addObject("result", 0);
+									return json;
+								}
+								dataset.setId(datasetid);
+								dataset.setUsername(realname);
+								dataset.setRoleid(userid);
+								Double xmin = 1000d;
+								Double ymin = 1000d;
+								Double xmax = 0d;
+								Double ymax = 0d;
+								Boolean bInsertError = false;// 插入数据库过程是否有问题
+								
+								List<KeywordModel> kmodellist= new ArrayList<>();
+								Integer srcType = 110;
+								int tmpcount =0;
+								for (int indexrow = 0; indexrow < allkmodellist.size(); indexrow++) {
+									tmpcount++;
+									if( uploadcount == 1 && tmpcount == 1) {}
+									else {
+										uploadcount ++;
+									}
+									KeywordModel kmodel = allkmodellist.get(indexrow);
+					
+									kmodel.setDatasetId(datasetid);
+									if (kmodel.getSrcType() != null ) {
+										srcType = kmodel.getSrcType();
+									}
+									else {
+										kmodel.setSrcType(110);// 预定义都写这个值
+									}
+
+									Boolean bInsert = false;// datasetModelDao.Insertkeyword(configDBModel, kmodel,json);
+									// 连接异常后重连
+									for( int runindex= 0 ; runindex<10; runindex++) {
+										try {
+											bInsert =  datasetModelDao.Insertkeyword(configDBModel, kmodel,json);
+										} catch (Exception e) {
+											String msString = e.getMessage();
+											if( msString.indexOf("Could not get JDBC Connection")>-1) {
+												System.out.println("连接失败重新连接");
+												continue;
+											}
+										}
+										if( bInsert) {
+											break;
+										}
+									}
+									
+									
+									if (!bInsert) {
+										bInsertError = true;
+										json.addObject("result", 0);
+									    return json;
+									
+									}
+									kmodellist.add(kmodel);
+
+									if (kmodel.getGeo() != null) {
+										// 计算整个dataset的envelope MULTIPOINT(126.63585 45.76099,126.63585
+										// 45.76099)
+										String sgeo = kmodel.getGeo();
+										int indexzk = sgeo.indexOf('(');
+										int indexyk = sgeo.indexOf(')');
+										String ss = sgeo.substring(indexzk + 1, indexyk);
+										ss = ss.replace(',', ' ');
+										String[] xy = ss.split(" ");
+										Double x = Double.parseDouble(xy[0]);
+										Double y = Double.parseDouble(xy[1]);
+										if (x < xmin)
+											xmin = x;
+										if (x > xmax)
+											xmax = x;
+										if (y < ymin)
+											ymin = y;
+										if (y > ymax)
+											ymax = y;
+										x = Double.parseDouble(xy[2]);
+										y = Double.parseDouble(xy[3]);
+										if (x < xmin)
+											xmin = x;
+										if (x > xmax)
+											xmax = x;
+										if (y < ymin)
+											ymin = y;
+										if (y > ymax)
+											ymax = y;
+									}	
+								}
+								dataset.setRecordcount(kmodellist.size());
+								if (bInsertError) {
+									dataset.setState(2);
+									dataset.setProcess(1);// 上传异常
+								} else {
+									dataset.setState(3);
+									dataset.setProcess(1);// 上传完成
+									// from guoqianqian src_inner_id 全部赋值 id
+									Boolean bUpdate = datasetModelDao.Updatekeywordsrcinnerid(configDBModel, datasetid);
+								}
+
+								// 设置成默认值
+								dataset.setReason(0);
+								dataset.setMode(0);
+								dataset.setArea_code(0);
+								dataset.setCity_code(0);
+							//	dataset.setDatasource(110);// 预定义的
+								dataset.setDatasource(srcType);
+								if (xmax > 0 && ymax > 0) {
+									// POLYGON((132.972469618056 49.1760601128472,132.972469618056
+									// 18.2250998263889,82.0648600260417 18.2250998263889,82.0648600260417
+									// 49.1760601128472,132.972469618056 49.1760601128472))
+									StringBuilder envelope = new StringBuilder();
+									envelope.append("POLYGON((");
+									envelope.append(xmin.toString() + " " + ymin.toString() + ",");
+									envelope.append(xmax.toString() + " " + ymin.toString() + ",");
+									envelope.append(xmax.toString() + " " + ymax.toString() + ",");
+									envelope.append(xmin.toString() + " " + ymax.toString() + ",");
+									envelope.append(xmin.toString() + " " + ymin.toString());
+									envelope.append("))");
+
+									dataset.setEnvelope(envelope);
+								}
+								Boolean bupdate = datasetModelDao.updateDataset(configDBModel, dataset);
+							}//for(int indexdataset =0; indexdataset < datasetcount;indexdataset++) {
+						}//if (file != null) {
+					} //
+					Boolean bbatchok = datasetModelDao.updateBatch(configDBModel, bid);
+					if (bbatchok)
+						json.addObject("result", 1);
+					else
+						json.addObject("result", 0);
+				} // if( bid >0)
+			} catch (Exception e) {
+				logger.debug(e.getMessage(), e);
+			}
+		}
+		long endTime = System.currentTimeMillis();
+		logger.debug("上传文件用时:" + String.valueOf(endTime - startTime) + "ms");
+		return json;
+	}
+	
+	/*
+	 * 解决：
+	 * 1、批量上传
+	 * 2、事务：上传时保证全部上传或者全部不上传。
+	 * */
+	@RequestMapping(params = "atn=springUpload")
+	public ModelAndView springUpload(HttpServletRequest request, HttpSession session)
+			throws IllegalStateException, IOException {
+		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+
+		uploadtotall =100;
+		uploadcount = 1;
+		String account = getLoginAccount(session);
+		EmployeeModel record = new EmployeeModel();
+		record.setUsername(account);
+		Integer userid = 0;
+		String realname = "";
+
+		EmployeeModel user = emapgoAccountService.getOneEmployeeWithCache(record);
+		if (user != null) {
+			userid = user.getId();
+			realname = user.getRealname();
+		}
+
+		long startTime = System.currentTimeMillis();
+		// 将当前上下文初始化给 commonsmutipartresolver 多部分解器
+		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
+				request.getSession().getServletContext());
+		// 检查form中是否有enctype='multipart/form-data'
+		if (multipartResolver.isMultipart(request)) {
+			// 将request变成多部分request
+			try {
+				MultipartHttpServletRequest multiRequest = multipartResolver.resolveMultipart(request);
+
+				Boolean ischeck = CheckField(multiRequest ,json);
+				if( ischeck == false) {
+					uploadcount = 0;
+					json.addObject("result",0);
+					return json;
+				}
+				
+				ProcessType processType = ProcessType.POIPOLYMERIZE;
+				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZILIAOKU,
+						processType);
+				ConfigDBModel configDBModel = configDBModelDao
+						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+
+				Boolean bdatasetok = false;
+				// 获取multiRequest中所有的文件名
+				Iterator<String> iter = multiRequest.getFileNames();
+				Long batchid = 0L;
+				if (iter.hasNext()) {
+					// 申请批次号
+					// 工具识别码 SVN号 400
+					// code
+					batchid = datasetModelDao.getBatchid();
+				}
+				Long bid = datasetModelDao.InsertBatch(configDBModel, batchid, userid, realname);
+				if (bid > 0) {
+					while (iter.hasNext()) {
+						// 一次遍历所有文件
+						MultipartFile file = multiRequest.getFile(iter.next().toString());
+						if (file != null) {
+							InputStream  input = file.getInputStream();
+							String filename = file.getOriginalFilename();
+							int indexc = filename.indexOf(".");
+							String name = filename.substring(0, indexc);
+							String ext = filename.substring(indexc+1);
+							if( ext.compareToIgnoreCase("xls") !=0 ) {
+								uploadcount = 0;
+								json.addObject("err","只支持xls格式");
+								json.addObject("result", 0);
+								return json;
+							}
+							HSSFWorkbook workbook = new HSSFWorkbook(input);
+							
+							
+							
+							Map<Integer, List<KeywordModel>> dataMap = new  HashMap<Integer, List<KeywordModel>>();
+							//计算需要多少个dataset 1000条记录一个
+					
+							int tmpuploadtotall = 0;
+							int  DATASETRecord_COUNT=1000;
+							int  recordcount=0;
+							List<KeywordModel> keyList = null;
+							for (int index = 0; index < workbook.getNumberOfSheets(); index++) {
+								HSSFSheet sheet = workbook.getSheetAt(index);
+								int firstrowindex = sheet.getFirstRowNum();// 默认第一行为表头
+								int lastrowindex = sheet.getLastRowNum();// 从第二行开始为正文数据
+								if (lastrowindex <= 0)
+									continue;
+								
+								Integer datacount=0;
+								HSSFRow fields = sheet.getRow(0);
+								for (int indexrow = 1; indexrow <= lastrowindex; indexrow++) {
+									HSSFRow row = sheet.getRow(indexrow);
+									KeywordModel kmodel = changerowtoKeywordModel(row, fields);
+									if (kmodel != null && kmodel.getId() != null) {
+										
+										if( recordcount == 0) {
+											keyList = new ArrayList<>();
+											dataMap.put(datacount++, keyList);
+										}
+										recordcount++;
+										keyList.add(kmodel);
+										if( recordcount == DATASETRecord_COUNT) {
+											recordcount =0;
+										}
+										tmpuploadtotall++;
+									}
+								}
+							}
+							uploadtotall = tmpuploadtotall;
+							int datasetcount = dataMap.size();
+							BasicDataSource dataSource = datasetModelDao.getDataSource( configDBModel );
+							Connection connection =  dataSource.getConnection();
+							Statement statement = connection.createStatement();
+							//statement.addBatch(sql);
+							//int[]counts= statement.executeBatch();
+							boolean bstate = connection.getAutoCommit();
+							connection.setAutoCommit(false);
+							Boolean boolean1 = connection.getAutoCommit();
+							for ( Map.Entry<Integer, List<KeywordModel>> entry : dataMap.entrySet()) {
+								DatasetModel dataset = new DatasetModel();
+								Integer datasetindex = entry.getKey() ;
+								List<KeywordModel> allkmodellist=entry.getValue();
+								
+								dataset.setName(name);
+								dataset.setPath(file.getOriginalFilename());// 浏览器做了安全设置,js页无法获取上传路径
+								// 一个文件一个dataset
+								dataset.setDatatype(37);
+								dataset.setState(1);
+								dataset.setProcess(1);// 上传中
+								dataset.setBatchid(batchid.toString());
+								// 更新资料状态 任务创建完成
+								Long datasetid = datasetModelDao.InsertDataset(configDBModel,dataSource);
+								boolean b = datasetid.equals(-1L);
+								if (datasetid.equals(-1L)) {
+									uploadcount = 0;
+									json.addObject("err","插入dataset失败");
+									json.addObject("result", 0);
+									return json;
+								}
+								dataset.setId(datasetid);
+								dataset.setUsername(realname);
+								dataset.setRoleid(userid);
+								Double xmin = 1000d;
+								Double ymin = 1000d;
+								Double xmax = 0d;
+								Double ymax = 0d;
+								Boolean bInsertError = false;// 插入数据库过程是否有问题
+								
+								List<KeywordModel> kmodellist= new ArrayList<>();
+								Integer srcType = 110;
+								int tmpcount =0;
+								for (int indexrow = 0; indexrow < allkmodellist.size(); indexrow++) {
+									tmpcount++;
+									if( uploadcount == 1 && tmpcount == 1) {}
+									else {
+										uploadcount ++;
+									}
+									KeywordModel kmodel = allkmodellist.get(indexrow);
+					
+									kmodel.setDatasetId(datasetid);
+									if (kmodel.getSrcType() != null ) {
+										srcType = kmodel.getSrcType();
+									}
+									else {
+										kmodel.setSrcType(110);// 预定义都写这个值
+									}
+
+									String sql = datasetModelDao.getInsertkeywordSql(configDBModel, kmodel,json,dataSource);
+									statement.addBatch(sql);
+										
+									kmodellist.add(kmodel);
+
+									if (kmodel.getGeo() != null) {
+										// 计算整个dataset的envelope MULTIPOINT(126.63585 45.76099,126.63585
+										// 45.76099)
+										String sgeo = kmodel.getGeo();
+										int indexzk = sgeo.indexOf('(');
+										int indexyk = sgeo.indexOf(')');
+										String ss = sgeo.substring(indexzk + 1, indexyk);
+										ss = ss.replace(',', ' ');
+										String[] xy = ss.split(" ");
+										Double x = Double.parseDouble(xy[0]);
+										Double y = Double.parseDouble(xy[1]);
+										if (x < xmin)
+											xmin = x;
+										if (x > xmax)
+											xmax = x;
+										if (y < ymin)
+											ymin = y;
+										if (y > ymax)
+											ymax = y;
+										x = Double.parseDouble(xy[2]);
+										y = Double.parseDouble(xy[3]);
+										if (x < xmin)
+											xmin = x;
+										if (x > xmax)
+											xmax = x;
+										if (y < ymin)
+											ymin = y;
+										if (y > ymax)
+											ymax = y;
+									}	
+								}
+								//insert data
+								try {
+									int[]counts= statement.executeBatch();
+									connection.commit();
+									statement.clearBatch();
+									
+								} catch (Exception e) {
+										// TODO: handle exception
+									connection.rollback();
+									
+									
+									connection.setAutoCommit(bstate);
+									statement.close();
+									connection.close();
+									
+									String mString = e.getMessage();
+									json.addObject("err", mString);
+									json.addObject("result", 0);
+								    return json;
+								}
+									
+								dataset.setRecordcount(kmodellist.size());
+								if (bInsertError) {
+									dataset.setState(2);
+									dataset.setProcess(1);// 上传异常
+								} else {
+									dataset.setState(3);
+									dataset.setProcess(1);// 上传完成
+									// from guoqianqian src_inner_id 全部赋值 id
+									Boolean bUpdate = datasetModelDao.Updatekeywordsrcinnerid(configDBModel, datasetid);
+								}
+
+								// 设置成默认值
+								dataset.setReason(0);
+								dataset.setMode(0);
+								dataset.setArea_code(0);
+								dataset.setCity_code(0);
+							//	dataset.setDatasource(110);// 预定义的
+								dataset.setDatasource(srcType);
+								if (xmax > 0 && ymax > 0) {
+									// POLYGON((132.972469618056 49.1760601128472,132.972469618056
+									// 18.2250998263889,82.0648600260417 18.2250998263889,82.0648600260417
+									// 49.1760601128472,132.972469618056 49.1760601128472))
+									StringBuilder envelope = new StringBuilder();
+									envelope.append("POLYGON((");
+									envelope.append(xmin.toString() + " " + ymin.toString() + ",");
+									envelope.append(xmax.toString() + " " + ymin.toString() + ",");
+									envelope.append(xmax.toString() + " " + ymax.toString() + ",");
+									envelope.append(xmin.toString() + " " + ymax.toString() + ",");
+									envelope.append(xmin.toString() + " " + ymin.toString());
+									envelope.append("))");
+
+									dataset.setEnvelope(envelope);
+								}
+								Boolean bupdate = datasetModelDao.updateDataset(configDBModel, dataset);
+							}//for(int indexdataset =0; indexdataset < datasetcount;indexdataset++) {
+							
+							connection.setAutoCommit(bstate);
+							statement.close();
+							connection.close();
+							
+						}//if (file != null) {
+					} //
+					Boolean bbatchok = datasetModelDao.updateBatch(configDBModel, bid);
+					if (bbatchok)
+						json.addObject("result", 1);
+					else
+						json.addObject("result", 0);
+				} // if( bid >0)
+			} catch (Exception e) {
+				logger.debug(e.getMessage(), e);
+			}
+		}
+		long endTime = System.currentTimeMillis();
+		logger.debug("上传文件用时:" + String.valueOf(endTime - startTime) + "ms");
+		return json;
+	}
+
+// for  测试 sql 事务	
+//	@RequestMapping(params = "atn=springUpload")
+//	public ModelAndView springUpload(HttpServletRequest request, HttpSession session)
+//			throws IllegalStateException, IOException {
+//		ModelAndView json = new ModelAndView(new MappingJackson2JsonView());
+//
+//		uploadtotall =100;
+//		uploadcount = 1;
+//		String account = getLoginAccount(session);
+//		EmployeeModel record = new EmployeeModel();
+//		record.setUsername(account);
+//		Integer userid = 0;
+//		String realname = "";
+//
+//		EmployeeModel user = emapgoAccountService.getOneEmployeeWithCache(record);
+//		if (user != null) {
+//			userid = user.getId();
+//			realname = user.getRealname();
+//		}
+//
+//		long startTime = System.currentTimeMillis();
+//		// 将当前上下文初始化给 commonsmutipartresolver 多部分解器
+//		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
+//				request.getSession().getServletContext());
+//		// 检查form中是否有enctype='multipart/form-data'
+//		if (multipartResolver.isMultipart(request)) {
+//			// 将request变成多部分request
+//			try {
+//				MultipartHttpServletRequest multiRequest = multipartResolver.resolveMultipart(request);
+//
+//				Boolean ischeck = CheckField(multiRequest ,json);
+//				if( ischeck == false) {
+//					uploadcount = 0;
+//					json.addObject("result",0);
+//					return json;
+//				}
+//				
+//				ProcessType processType = ProcessType.POIPOLYMERIZE;
+//				ProcessConfigModel config = processConfigModelService.selectByPrimaryKey(ProcessConfigEnum.ZILIAOKU,
+//						processType);
+//				ConfigDBModel configDBModel = configDBModelDao
+//						.selectByPrimaryKey(Integer.valueOf(config.getDefaultValue()));
+//
+//				Boolean bdatasetok = false;
+//				// 获取multiRequest中所有的文件名
+//				Iterator<String> iter = multiRequest.getFileNames();
+//				Long batchid = 0L;
+//				if (iter.hasNext()) {
+//					// 申请批次号
+//					// 工具识别码 SVN号 400
+//					// code
+//					batchid = datasetModelDao.getBatchid();
+//				}
+//				Long bid = datasetModelDao.InsertBatch(configDBModel, batchid, userid, realname);
+//				if (bid > 0) {
+//					while (iter.hasNext()) {
+//						// 一次遍历所有文件
+//						MultipartFile file = multiRequest.getFile(iter.next().toString());
+//						if (file != null) {
+//							InputStream  input = file.getInputStream();
+//							String filename = file.getOriginalFilename();
+//							int indexc = filename.indexOf(".");
+//							String name = filename.substring(0, indexc);
+//							String ext = filename.substring(indexc+1);
+//							if( ext.compareToIgnoreCase("xls") !=0 ) {
+//								uploadcount = 0;
+//								json.addObject("err","只支持xls格式");
+//								json.addObject("result", 0);
+//								return json;
+//							}
+//							HSSFWorkbook workbook = new HSSFWorkbook(input);
+//							
+//							
+//							
+//							Map<Integer, List<KeywordModel>> dataMap = new  HashMap<Integer, List<KeywordModel>>();
+//							//计算需要多少个dataset 1000条记录一个
+//					
+//							int tmpuploadtotall = 0;
+//							int  DATASETRecord_COUNT=1000;
+//							int  recordcount=0;
+//							List<KeywordModel> keyList = null;
+//							for (int index = 0; index < workbook.getNumberOfSheets(); index++) {
+//								HSSFSheet sheet = workbook.getSheetAt(index);
+//								int firstrowindex = sheet.getFirstRowNum();// 默认第一行为表头
+//								int lastrowindex = sheet.getLastRowNum();// 从第二行开始为正文数据
+//								if (lastrowindex <= 0)
+//									continue;
+//								
+//								Integer datacount=0;
+//								HSSFRow fields = sheet.getRow(0);
+//								for (int indexrow = 1; indexrow <= lastrowindex; indexrow++) {
+//									HSSFRow row = sheet.getRow(indexrow);
+//									KeywordModel kmodel = changerowtoKeywordModel(row, fields);
+//									if (kmodel != null && kmodel.getId() != null) {
+//										
+//										if( recordcount == 0) {
+//											keyList = new ArrayList<>();
+//											dataMap.put(datacount++, keyList);
+//										}
+//										recordcount++;
+//										keyList.add(kmodel);
+//										if( recordcount == DATASETRecord_COUNT) {
+//											recordcount =0;
+//										}
+//										tmpuploadtotall++;
+//									}
+//								}
+//							}
+//							uploadtotall = tmpuploadtotall;
+//							int datasetcount = dataMap.size();
+//							BasicDataSource dataSource = datasetModelDao.getDataSource( configDBModel );
+//							//Connection connection =  dataSource.getConnection();
+//							//Statement statement = connection.createStatement();
+//							
+//							
+//							//boolean bstate = connection.getAutoCommit();
+//							//connection.setAutoCommit(false);
+//							//Boolean boolean1 = connection.getAutoCommit();
+//							
+//							
+//							JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+//							List<String> sqlList= new ArrayList<>();
+//							
+//							for ( Map.Entry<Integer, List<KeywordModel>> entry : dataMap.entrySet()) {
+//								DatasetModel dataset = new DatasetModel();
+//								Integer datasetindex = entry.getKey() ;
+//								List<KeywordModel> allkmodellist=entry.getValue();
+//								
+//								dataset.setName(name);
+//								dataset.setPath(file.getOriginalFilename());// 浏览器做了安全设置,js页无法获取上传路径
+//								// 一个文件一个dataset
+//								dataset.setDatatype(37);
+//								dataset.setState(1);
+//								dataset.setProcess(1);// 上传中
+//								dataset.setBatchid(batchid.toString());
+//								// 更新资料状态 任务创建完成
+//								Long datasetid = datasetModelDao.InsertDataset(configDBModel,dataSource);
+//								boolean b = datasetid.equals(-1L);
+//								if (datasetid.equals(-1L)) {
+//									uploadcount = 0;
+//									json.addObject("err","插入dataset失败");
+//									json.addObject("result", 0);
+//									return json;
+//								}
+//								dataset.setId(datasetid);
+//								dataset.setUsername(realname);
+//								dataset.setRoleid(userid);
+//								Double xmin = 1000d;
+//								Double ymin = 1000d;
+//								Double xmax = 0d;
+//								Double ymax = 0d;
+//								Boolean bInsertError = false;// 插入数据库过程是否有问题
+//								
+//								List<KeywordModel> kmodellist= new ArrayList<>();
+//								Integer srcType = 110;
+//								int tmpcount =0;
+//								for (int indexrow = 0; indexrow < allkmodellist.size(); indexrow++) {
+//									tmpcount++;
+//									if( uploadcount == 1 && tmpcount == 1) {}
+//									else {
+//										uploadcount ++;
+//									}
+//									KeywordModel kmodel = allkmodellist.get(indexrow);
+//					
+//									kmodel.setDatasetId(datasetid);
+//									if (kmodel.getSrcType() != null ) {
+//										srcType = kmodel.getSrcType();
+//									}
+//									else {
+//										kmodel.setSrcType(110);// 预定义都写这个值
+//									}
+//
+//									String sql = datasetModelDao.getInsertkeywordSql(configDBModel, kmodel,json,dataSource);
+//									sqlList.add(sql);
+//										
+//									kmodellist.add(kmodel);
+//
+//									if (kmodel.getGeo() != null) {
+//										// 计算整个dataset的envelope MULTIPOINT(126.63585 45.76099,126.63585
+//										// 45.76099)
+//										String sgeo = kmodel.getGeo();
+//										int indexzk = sgeo.indexOf('(');
+//										int indexyk = sgeo.indexOf(')');
+//										String ss = sgeo.substring(indexzk + 1, indexyk);
+//										ss = ss.replace(',', ' ');
+//										String[] xy = ss.split(" ");
+//										Double x = Double.parseDouble(xy[0]);
+//										Double y = Double.parseDouble(xy[1]);
+//										if (x < xmin)
+//											xmin = x;
+//										if (x > xmax)
+//											xmax = x;
+//										if (y < ymin)
+//											ymin = y;
+//										if (y > ymax)
+//											ymax = y;
+//										x = Double.parseDouble(xy[2]);
+//										y = Double.parseDouble(xy[3]);
+//										if (x < xmin)
+//											xmin = x;
+//										if (x > xmax)
+//											xmax = x;
+//										if (y < ymin)
+//											ymin = y;
+//										if (y > ymax)
+//											ymax = y;
+//									}	
+//								}
+//								//insert data
+//								try {
+////									int[]counts= statement.executeBatch();
+////									connection.commit();
+////									statement.clearBatch();
+//									
+//									ConnectionCallback<T>();
+//									jdbcTemplate.execute(new TransactionCallback<Object>() {
+//
+//										@Override
+//										public Object doInTransaction(TransactionStatus status) {
+//											// TODO Auto-generated method stub
+//											return null;
+//										}
+//									
+//									
+//									});
+//									
+//									
+//								} catch (Exception e) {
+//										// TODO: handle exception
+//									String mString = e.getMessage();
+//									json.addObject("err", mString);
+//									json.addObject("result", 0);
+//								    return json;
+//								}
+//									
+//								dataset.setRecordcount(kmodellist.size());
+//								if (bInsertError) {
+//									dataset.setState(2);
+//									dataset.setProcess(1);// 上传异常
+//								} else {
+//									dataset.setState(3);
+//									dataset.setProcess(1);// 上传完成
+//									// from guoqianqian src_inner_id 全部赋值 id
+//									Boolean bUpdate = datasetModelDao.Updatekeywordsrcinnerid(configDBModel, datasetid);
+//								}
+//
+//								// 设置成默认值
+//								dataset.setReason(0);
+//								dataset.setMode(0);
+//								dataset.setArea_code(0);
+//								dataset.setCity_code(0);
+//							//	dataset.setDatasource(110);// 预定义的
+//								dataset.setDatasource(srcType);
+//								if (xmax > 0 && ymax > 0) {
+//									// POLYGON((132.972469618056 49.1760601128472,132.972469618056
+//									// 18.2250998263889,82.0648600260417 18.2250998263889,82.0648600260417
+//									// 49.1760601128472,132.972469618056 49.1760601128472))
+//									StringBuilder envelope = new StringBuilder();
+//									envelope.append("POLYGON((");
+//									envelope.append(xmin.toString() + " " + ymin.toString() + ",");
+//									envelope.append(xmax.toString() + " " + ymin.toString() + ",");
+//									envelope.append(xmax.toString() + " " + ymax.toString() + ",");
+//									envelope.append(xmin.toString() + " " + ymax.toString() + ",");
+//									envelope.append(xmin.toString() + " " + ymin.toString());
+//									envelope.append("))");
+//
+//									dataset.setEnvelope(envelope);
+//								}
+//								Boolean bupdate = datasetModelDao.updateDataset(configDBModel, dataset);
+//							}//for(int indexdataset =0; indexdataset < datasetcount;indexdataset++) {
+//							
+//							connection.setAutoCommit(bstate);
+//							statement.close();
+//							connection.close();
+//							
+//						}//if (file != null) {
+//					} //
+//					Boolean bbatchok = datasetModelDao.updateBatch(configDBModel, bid);
+//					if (bbatchok)
+//						json.addObject("result", 1);
+//					else
+//						json.addObject("result", 0);
+//				} // if( bid >0)
+//			} catch (Exception e) {
+//				logger.debug(e.getMessage(), e);
+//			}
+//		}
+//		long endTime = System.currentTimeMillis();
+//		logger.debug("上传文件用时:" + String.valueOf(endTime - startTime) + "ms");
+//		return json;
+//	}
+	
 }

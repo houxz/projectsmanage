@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.emg.poiwebeditor.client.ExecuteSQLApiClientUtils;
 import com.emg.poiwebeditor.client.HttpClientResult;
@@ -465,7 +466,7 @@ System.out.println(sql);
 	/*
 	 * tb_keywords表插入记录
 	 * */
-	public Boolean Insertkeyword(ConfigDBModel configDBModel,KeywordModel kmodel) {
+	public Boolean Insertkeyword(ConfigDBModel configDBModel,KeywordModel kmodel , ModelAndView json) throws Exception {
 		BasicDataSource dataSource = null;
 		Boolean bret = false;
 		try {
@@ -565,13 +566,29 @@ System.out.println(sql);
 
 			dataSource = Common.getDataSource(configDBModel);
 
+			try {
+				if(	dataSource.getConnection() == null) {
+					json.addObject("err", "datasrouce null1");
+				}
+				
+			} catch (Exception e) {
+				if( dataSource == null)
+				json.addObject("err", "datasrouce null");
+				else
+				json.addObject("err", "datasrouce not null");
+			}
+			
 			int row = new JdbcTemplate(dataSource).update(sql.toString());
 			if (row == 1)
 				bret = true;
+			else {
+				json.addObject("err", sql.toString());
+			}
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-
+			json.addObject("err", e.getMessage() );
+			throw e;
 		} finally {
 			if (dataSource != null) {
 				try {
@@ -817,4 +834,407 @@ System.out.println(sql);
 		}
 		return datasets;
 	}
+	
+	/*
+	 * tb_keywords表插入记录
+	 * */
+	public Boolean Insertkeyword2(ConfigDBModel configDBModel,KeywordModel kmodel , ModelAndView json) throws Exception {
+		BasicDataSource dataSource = null;
+		Boolean bret = false;
+		try {
+			if (configDBModel == null)
+				return false;
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			String fieldsname = "";
+			
+			
+			StringBuffer sql = new StringBuffer();
+			sql.append(" insert into  ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append("tb_keywords (province,city,district,name,address,telephone,geo,\"desc\",src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
+			if( kmodel.getProvince() !=null)
+				sql.append("'"+ kmodel.getProvince() +"',");
+			else
+				sql.append("'',");
+			if(kmodel.getCity() != null)
+				sql.append("'" + kmodel.getCity() +"',");
+			else
+				sql.append("'',");
+			
+			if(kmodel.getDistrict() != null)
+				sql.append("'" + kmodel.getDistrict() +"',");
+			else
+				sql.append("'',");
+			
+			if(kmodel.getName() != null)
+				sql.append("'" + kmodel.getName() + "',");
+			else
+				sql.append("'',");
+			
+			if(kmodel.getAddress()!= null)
+				sql.append("'" + kmodel.getAddress() + "',");
+			else
+				sql.append("'',");
+			
+			if(kmodel.getTelephone() != null)
+				sql.append("'" + kmodel.getTelephone() +"',");
+			else
+				sql.append("'',");
+			
+			if(kmodel.getGeo() != null)
+				sql.append("'" + kmodel.getGeo() +"',");
+			else
+				sql.append("NULL,");
+			
+			if(kmodel.getDesc() != null)
+				sql.append( "'" + kmodel.getDesc() + "',");
+			else
+				sql.append("'',");
+				
+	
+			
+			if(kmodel.getSrcType() != null)
+				sql.append( kmodel.getSrcType() +",");
+			else
+				sql.append("NULL,");
+			
+			if(kmodel.getSrcInnerId() != null)
+				sql.append("'"+kmodel.getSrcInnerId() + "',");
+			else
+				sql.append("'',");
+			
+			if(kmodel.getRemark() != null)
+				sql.append("'"+ kmodel.getRemark() +"',");
+			else
+				sql.append("'',");
+			
+			if(kmodel.getDatasetId() != null)
+				sql.append(kmodel.getDatasetId() +",");
+			else
+				sql.append("NULL,");
+			
+			if(kmodel.getQueryType() != null)
+				sql.append(kmodel.getQueryType() + ",");
+			else
+				sql.append("NULL,");
+				
+			if(kmodel.getDistance() != null)
+				sql.append(kmodel.getDistance() + ",");
+			else
+				sql.append("NULL,");
+			
+			if(kmodel.getPoiType() != null)
+				sql.append("'" +kmodel.getPoiType()+"'");
+			else
+				sql.append("''");
+			
+			sql.append(" )");
+System.out.println(sql);
+
+			dataSource = Common.getDataSource(configDBModel);
+			
+			
+			dataSource.getConnection().setAutoCommit(false);
+			try {
+				if(	dataSource.getConnection() == null) {
+					json.addObject("err", "datasrouce null1");
+				}
+				
+			} catch (Exception e) {
+				if( dataSource == null)
+				json.addObject("err", "datasrouce null");
+				else
+				json.addObject("err", "datasrouce not null");
+			}
+			
+			int row = new JdbcTemplate(dataSource).update(sql.toString());
+			if (row == 1)
+				bret = true;
+			else {
+				json.addObject("err", sql.toString());
+			}
+
+			dataSource.getConnection().commit();
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("err", e.getMessage() );
+			throw e;
+		} finally {
+			if (dataSource != null) {
+				try {
+					dataSource.close();
+				} catch (SQLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+		return bret;
+	}
+	
+	public BasicDataSource getDataSource(ConfigDBModel configDBModel) {
+		Long id = -1L;
+		BasicDataSource dataSource = null;
+		try {
+			if (configDBModel == null)
+				return null;
+	
+			dataSource = Common.getDataSource(configDBModel);
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+
+		} 
+		return dataSource;
+	}
+	  //插入dataset空记录
+		public Long InsertDataset(ConfigDBModel configDBModel,BasicDataSource dataSource) {
+			Long id = -1L;
+			try {
+				if (configDBModel == null)
+					return -1L;
+				Integer dbtype = configDBModel.getDbtype();
+
+				String separator = Common.getDatabaseSeparator(dbtype);
+
+				StringBuffer sql = new StringBuffer();
+				sql.append(" insert into  ");
+				if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+					sql.append(configDBModel.getDbschema()).append(".");
+				}
+				
+				sql.append("tb_dataset (recordcount,datatype,batchid)values(0,0,0)");
+				sql.append(" RETURNING id");
+				id = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null,Long.class);
+				
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+
+			}
+			return id;
+		}
+		
+		
+		/*
+		 * tb_keywords表插入记录
+		 * */
+		public Boolean Insertkeyword3(ConfigDBModel configDBModel,KeywordModel kmodel , ModelAndView json,BasicDataSource dataSource) throws Exception {
+			Boolean bret = false;
+			try {
+				if (configDBModel == null)
+					return false;
+				Integer dbtype = configDBModel.getDbtype();
+
+				String separator = Common.getDatabaseSeparator(dbtype);
+
+				String fieldsname = "";
+				
+				
+				StringBuffer sql = new StringBuffer();
+				sql.append(" insert into  ");
+				if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+					sql.append(configDBModel.getDbschema()).append(".");
+				}
+				sql.append("tb_keywords (province,city,district,name,address,telephone,geo,\"desc\",src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
+				if( kmodel.getProvince() !=null)
+					sql.append("'"+ kmodel.getProvince() +"',");
+				else
+					sql.append("'',");
+				if(kmodel.getCity() != null)
+					sql.append("'" + kmodel.getCity() +"',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getDistrict() != null)
+					sql.append("'" + kmodel.getDistrict() +"',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getName() != null)
+					sql.append("'" + kmodel.getName() + "',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getAddress()!= null)
+					sql.append("'" + kmodel.getAddress() + "',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getTelephone() != null)
+					sql.append("'" + kmodel.getTelephone() +"',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getGeo() != null)
+					sql.append("'" + kmodel.getGeo() +"',");
+				else
+					sql.append("NULL,");
+				
+				if(kmodel.getDesc() != null)
+					sql.append( "'" + kmodel.getDesc() + "',");
+				else
+					sql.append("'',");
+					
+		
+				
+				if(kmodel.getSrcType() != null)
+					sql.append( kmodel.getSrcType() +",");
+				else
+					sql.append("NULL,");
+				
+				if(kmodel.getSrcInnerId() != null)
+					sql.append("'"+kmodel.getSrcInnerId() + "',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getRemark() != null)
+					sql.append("'"+ kmodel.getRemark() +"',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getDatasetId() != null)
+					sql.append(kmodel.getDatasetId() +",");
+				else
+					sql.append("NULL,");
+				
+				if(kmodel.getQueryType() != null)
+					sql.append(kmodel.getQueryType() + ",");
+				else
+					sql.append("NULL,");
+					
+				if(kmodel.getDistance() != null)
+					sql.append(kmodel.getDistance() + ",");
+				else
+					sql.append("NULL,");
+				
+				if(kmodel.getPoiType() != null)
+					sql.append("'" +kmodel.getPoiType()+"'");
+				else
+					sql.append("''");
+				
+				sql.append(" )");
+	System.out.println(sql);
+			
+				int row = new JdbcTemplate(dataSource).update(sql.toString());
+				if (row == 1)
+					bret = true;
+				else {
+					json.addObject("err", sql.toString());
+				}
+				
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				json.addObject("err", e.getMessage() );
+				throw e;
+			} 
+			return bret;
+		}
+		
+		public String getInsertkeywordSql(ConfigDBModel configDBModel,KeywordModel kmodel , ModelAndView json,BasicDataSource dataSource) throws Exception {
+			StringBuffer sql = new StringBuffer();
+			try {
+				if (configDBModel == null)
+					return "";
+				Integer dbtype = configDBModel.getDbtype();
+
+				String separator = Common.getDatabaseSeparator(dbtype);
+
+				String fieldsname = "";
+				
+				
+				
+				sql.append(" insert into  ");
+				if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+					sql.append(configDBModel.getDbschema()).append(".");
+				}
+				sql.append("tb_keywords (province,city,district,name,address,telephone,geo,\"desc\",src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
+				if( kmodel.getProvince() !=null)
+					sql.append("'"+ kmodel.getProvince() +"',");
+				else
+					sql.append("'',");
+				if(kmodel.getCity() != null)
+					sql.append("'" + kmodel.getCity() +"',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getDistrict() != null)
+					sql.append("'" + kmodel.getDistrict() +"',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getName() != null)
+					sql.append("'" + kmodel.getName() + "',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getAddress()!= null)
+					sql.append("'" + kmodel.getAddress() + "',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getTelephone() != null)
+					sql.append("'" + kmodel.getTelephone() +"',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getGeo() != null)
+					sql.append("'" + kmodel.getGeo() +"',");
+				else
+					sql.append("NULL,");
+				
+				if(kmodel.getDesc() != null)
+					sql.append( "'" + kmodel.getDesc() + "',");
+				else
+					sql.append("'',");
+					
+		
+				
+				if(kmodel.getSrcType() != null)
+					sql.append( kmodel.getSrcType() +",");
+				else
+					sql.append("NULL,");
+				
+				if(kmodel.getSrcInnerId() != null)
+					sql.append("'"+kmodel.getSrcInnerId() + "',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getRemark() != null)
+					sql.append("'"+ kmodel.getRemark() +"',");
+				else
+					sql.append("'',");
+				
+				if(kmodel.getDatasetId() != null)
+					sql.append(kmodel.getDatasetId() +",");
+				else
+					sql.append("NULL,");
+				
+				if(kmodel.getQueryType() != null)
+					sql.append(kmodel.getQueryType() + ",");
+				else
+					sql.append("NULL,");
+					
+				if(kmodel.getDistance() != null)
+					sql.append(kmodel.getDistance() + ",");
+				else
+					sql.append("NULL,");
+				
+				if(kmodel.getPoiType() != null)
+					sql.append("'" +kmodel.getPoiType()+"'");
+				else
+					sql.append("''");
+				
+				sql.append(" );");			
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				json.addObject("err", e.getMessage() );
+				throw e;
+			} 
+			return sql.toString();
+		}
 }
