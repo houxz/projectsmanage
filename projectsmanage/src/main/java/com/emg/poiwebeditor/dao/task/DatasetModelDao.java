@@ -30,15 +30,14 @@ import com.alibaba.fastjson.JSONObject;
 
 @Component
 public class DatasetModelDao {
-	
+
 	@Value("${fielddatabatchidurl}")
-	private String batchidUrl ;
-	
+	private String batchidUrl;
+
 	private static final Logger logger = LoggerFactory.getLogger(DatasetModelDao.class);
 
-	
-	
-	public List<DatasetModel> selectDatasets(ConfigDBModel configDBModel, List<Integer> dataTypes, DatasetModel record, Integer limit, Integer offset) {
+	public List<DatasetModel> selectDatasets(ConfigDBModel configDBModel, List<Integer> dataTypes, DatasetModel record,
+			Integer limit, Integer offset) {
 		List<DatasetModel> datasets = new ArrayList<DatasetModel>();
 		BasicDataSource dataSource = null;
 		try {
@@ -57,7 +56,8 @@ public class DatasetModelDao {
 			sql.append("tb_dataset ");
 			sql.append(" WHERE 1=1 ");
 			if (dataTypes != null && !dataTypes.isEmpty()) {
-				sql.append(" AND " + separator + "datatype" + separator + " IN ( " + StringUtils.join(dataTypes, ",") + " ) ");
+				sql.append(" AND " + separator + "datatype" + separator + " IN ( " + StringUtils.join(dataTypes, ",")
+						+ " ) ");
 			}
 			if (record != null) {
 				if (record.getId() != null && record.getId().compareTo(0L) > 0) {
@@ -75,16 +75,16 @@ public class DatasetModelDao {
 				if (record.getPath() != null && !record.getPath().isEmpty()) {
 					sql.append(" AND " + separator + "path" + separator + " like '%" + record.getPath() + "%'");
 				}
-				if(record.getState() != null && record.getState().compareTo(0) > 0) {
-					sql.append(" AND " + separator + "state" + separator + "=" + record.getState() );
+				if (record.getState() != null && record.getState().compareTo(0) > 0) {
+					sql.append(" AND " + separator + "state" + separator + "=" + record.getState());
 				}
-				if(record.getProcess() != null && record.getProcess().compareTo(0) > 0) {
-					sql.append(" AND " + separator + "process" + separator + "=" + record.getProcess() );
+				if (record.getProcess() != null && record.getProcess().compareTo(0) > 0) {
+					sql.append(" AND " + separator + "process" + separator + "=" + record.getProcess());
 				}
 			}
-			
-			sql.append(" AND (state != 3 OR process != 8) ");//不显示项目完成的资料
-			
+
+			sql.append(" AND (state != 3 OR process != 8) ");// 不显示项目完成的资料
+
 			sql.append(" ORDER BY id desc ");
 			if (limit.compareTo(0) > 0) {
 				sql.append(" LIMIT " + limit);
@@ -94,7 +94,8 @@ public class DatasetModelDao {
 			}
 
 			dataSource = Common.getDataSource(configDBModel);
-			datasets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<DatasetModel>(DatasetModel.class));
+			datasets = new JdbcTemplate(dataSource).query(sql.toString(),
+					new BeanPropertyRowMapper<DatasetModel>(DatasetModel.class));
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -110,13 +111,14 @@ public class DatasetModelDao {
 		}
 		return datasets;
 	}
-	
-	//查询可创建交互确认的dataset byxhz20190517 state =3 process = 2
-	public List<DatasetModel> selectOkDatasets(ConfigDBModel configDBModel, List<Integer> dataTypes, Integer limit, Integer offset) {
+
+	// 查询可创建交互确认的dataset byxhz20190517 state =3 process = 2
+	public List<DatasetModel> selectOkDatasets(ConfigDBModel configDBModel, List<Integer> dataTypes, Integer limit,
+			Integer offset) {
 		List<DatasetModel> datasets = new ArrayList<DatasetModel>();
 		BasicDataSource dataSource = null;
 		try {
-			if ( configDBModel == null)
+			if (configDBModel == null)
 				return datasets;
 			Integer dbtype = configDBModel.getDbtype();
 
@@ -131,10 +133,12 @@ public class DatasetModelDao {
 			sql.append("tb_dataset ");
 			sql.append(" WHERE state = 3 and process = 2 ");
 			if (dataTypes != null && !dataTypes.isEmpty()) {
-				sql.append(" AND " + separator + "datatype" + separator + " IN ( " + StringUtils.join(dataTypes, ",") + " ) ");
+				sql.append(" AND " + separator + "datatype" + separator + " IN ( " + StringUtils.join(dataTypes, ",")
+						+ " ) ");
 			}
-		
-			sql.append(" ORDER BY id desc ");
+
+			// sql.append(" ORDER BY id desc ");
+			sql.append(" ORDER BY id  ");// for test
 			if (limit.compareTo(0) > 0) {
 				sql.append(" LIMIT " + limit);
 			}
@@ -143,7 +147,8 @@ public class DatasetModelDao {
 			}
 
 			dataSource = Common.getDataSource(configDBModel);
-			datasets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<DatasetModel>(DatasetModel.class));
+			datasets = new JdbcTemplate(dataSource).query(sql.toString(),
+					new BeanPropertyRowMapper<DatasetModel>(DatasetModel.class));
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -160,12 +165,14 @@ public class DatasetModelDao {
 		return datasets;
 	}
 
-	public Integer countErrorSets(ConfigDBModel configDBModel, List<Integer> dataTypes, DatasetModel record, Integer limit, Integer offset) {
+	public Integer countErrorSets(ConfigDBModel configDBModel, List<Integer> dataTypes, DatasetModel record,
+			Integer limit, Integer offset) {
 		Integer count = -1;
 		BasicDataSource dataSource = null;
 		try {
-			if (configDBModel == null)	return count;
-			
+			if (configDBModel == null)
+				return count;
+
 			Integer dbtype = configDBModel.getDbtype();
 
 			String separator = Common.getDatabaseSeparator(dbtype);
@@ -178,7 +185,8 @@ public class DatasetModelDao {
 			sql.append("tb_dataset");
 			sql.append(" WHERE 1=1 ");
 			if (dataTypes != null && !dataTypes.isEmpty()) {
-				sql.append(" AND " + separator + "datatype" + separator + " IN ( " + StringUtils.join(dataTypes, ",") + " ) ");
+				sql.append(" AND " + separator + "datatype" + separator + " IN ( " + StringUtils.join(dataTypes, ",")
+						+ " ) ");
 			}
 			if (record != null) {
 				if (record.getId() != null && record.getId().compareTo(0L) > 0) {
@@ -196,15 +204,15 @@ public class DatasetModelDao {
 				if (record.getPath() != null && !record.getPath().isEmpty()) {
 					sql.append(" AND " + separator + "path" + separator + " like '%" + record.getPath() + "%'");
 				}
-				if(record.getState() != null && record.getState().compareTo(0) > 0) {
-					sql.append(" AND " + separator + "state" + separator + "=" + record.getState() );
+				if (record.getState() != null && record.getState().compareTo(0) > 0) {
+					sql.append(" AND " + separator + "state" + separator + "=" + record.getState());
 				}
-				if(record.getProcess() != null && record.getProcess().compareTo(0) > 0) {
-					sql.append(" AND " + separator + "process" + separator + "=" + record.getProcess() );
+				if (record.getProcess() != null && record.getProcess().compareTo(0) > 0) {
+					sql.append(" AND " + separator + "process" + separator + "=" + record.getProcess());
 				}
 			}
-			
-			sql.append(" AND (state != 3 OR process != 8) ");//不显示项目完成的资料
+
+			sql.append(" AND (state != 3 OR process != 8) ");// 不显示项目完成的资料
 
 			dataSource = Common.getDataSource(configDBModel);
 			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
@@ -222,14 +230,15 @@ public class DatasetModelDao {
 		}
 		return count;
 	}
-	
-	//查询可创建交互确认任务的资料数 byhxz20190517  state =3 process = 2
+
+	// 查询可创建交互确认任务的资料数 byhxz20190517 state =3 process = 2
 	public Integer countOKDataSets(ConfigDBModel configDBModel, List<Integer> dataTypes) {
 		Integer count = -1;
 		BasicDataSource dataSource = null;
 		try {
-			if (configDBModel == null)	return count;
-			
+			if (configDBModel == null)
+				return count;
+
 			Integer dbtype = configDBModel.getDbtype();
 
 			String separator = Common.getDatabaseSeparator(dbtype);
@@ -242,9 +251,10 @@ public class DatasetModelDao {
 			sql.append("tb_dataset");
 			sql.append(" WHERE state = 3 and process = 2 ");
 			if (dataTypes != null && !dataTypes.isEmpty()) {
-				sql.append(" AND " + separator + "datatype" + separator + " IN ( " + StringUtils.join(dataTypes, ",") + " ) ");
+				sql.append(" AND " + separator + "datatype" + separator + " IN ( " + StringUtils.join(dataTypes, ",")
+						+ " ) ");
 			}
-			
+
 			dataSource = Common.getDataSource(configDBModel);
 			count = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Integer.class);
 		} catch (Exception e) {
@@ -262,36 +272,48 @@ public class DatasetModelDao {
 		return count;
 	}
 
-	//获取批次的keyid集合
-	public List<keywordModelForTask> selectKeyidsbyDataset(ConfigDBModel configDBModel, Integer limit, Integer offset,String sdatasetid) {
+	// 获取批次的keyid集合
+	public List<keywordModelForTask> selectKeyidsbyDataset(ConfigDBModel configDBModel, Integer limit, Integer offset,
+			String sdatasetid) {
 		List<keywordModelForTask> datasets = new ArrayList<keywordModelForTask>();
 		BasicDataSource dataSource = null;
 		try {
-			if ( configDBModel == null)
+			if (configDBModel == null)
 				return datasets;
 			Integer dbtype = configDBModel.getDbtype();
 
 			String separator = Common.getDatabaseSeparator(dbtype);
 
-			StringBuffer sql = new StringBuffer();
-			sql.append(" select tb_keywords.\"id\", \"count\"(tb_referdata.src_type = 1 or null ) as emapcount,\"count\"(tb_referdata.src_type = 45 or null ) as bdcount ,\r\n" + 
-					" \"count\"(tb_referdata.src_type = 46 or null ) as txcount , \"count\"(tb_referdata.src_type = 47 or null ) as gdcount ");
-			sql.append(" FROM ");
-			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-				sql.append(configDBModel.getDbschema()).append(".");
+			String[] strdatasetid = sdatasetid.split(",");
+			for (int i = 0; i < strdatasetid.length; i++) {
+
+				String strid = strdatasetid[i];
+				StringBuffer sql = new StringBuffer();
+				sql.append(
+						" select tb_keywords.\"id\", \"count\"(tb_referdata.src_type = 1 or null ) as emapcount,\"count\"(tb_referdata.src_type = 45 or null ) as bdcount ,\r\n"
+								+ " \"count\"(tb_referdata.src_type = 46 or null ) as txcount , \"count\"(tb_referdata.src_type = 47 or null ) as gdcount ");
+				sql.append(" FROM ");
+				if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+					sql.append(configDBModel.getDbschema()).append(".");
+				}
+				sql.append(" tb_keywords LEFT JOIN tb_referdata on \r\n"
+						+ "tb_keywords.\"id\" = tb_referdata.ref_keyword_id ");
+				sql.append(" WHERE state != 3 ");// 不要废弃的
+
+				sql.append(" AND " + separator + "datasetid" + separator + " IN ( " + strid + " ) ");
+
+				sql.append("  GROUP BY tb_keywords.id ORDER BY id asc ");
+
+				dataSource = Common.getDataSource(configDBModel);
+
+				List<keywordModelForTask> datasets0 = new ArrayList<keywordModelForTask>();
+				datasets0 = new JdbcTemplate(dataSource).query(sql.toString(),
+						new BeanPropertyRowMapper<keywordModelForTask>(keywordModelForTask.class));
+				System.out.println(datasets0.size());
+				
+				datasets.addAll(datasets0);
+				System.out.println(datasets.size());
 			}
-			sql.append(" tb_keywords LEFT JOIN tb_referdata on \r\n" + 
-					"tb_keywords.\"id\" = tb_referdata.ref_keyword_id ");
-			sql.append(" WHERE state != 3 ");//不要废弃的
-		
-			sql.append(" AND " + separator + "datasetid" + separator + " IN ( " + sdatasetid + " ) ");
-			
-			sql.append("  GROUP BY tb_keywords.id ORDER BY id asc ");
-	
-			dataSource = Common.getDataSource(configDBModel);
-	
-			datasets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<keywordModelForTask>(keywordModelForTask.class));
-		
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			datasets = new ArrayList<keywordModelForTask>();
@@ -306,9 +328,10 @@ public class DatasetModelDao {
 		}
 		return datasets;
 	}
-	
-		//更新dataset 状态
-	public Boolean updateDataSetStatebyDataset(ConfigDBModel configDBModel, String datasetid, Integer state,Integer process) {
+
+	// 更新dataset 状态
+	public Boolean updateDataSetStatebyDataset(ConfigDBModel configDBModel, String datasetid, Integer state,
+			Integer process) {
 		BasicDataSource dataSource = null;
 		try {
 			if (configDBModel == null)
@@ -325,14 +348,14 @@ public class DatasetModelDao {
 			sql.append("tb_dataset ");
 			sql.append(" set state = " + state);
 			sql.append(" , process=" + process);
-			sql.append(" where id in ( " + datasetid +" )");
+			sql.append(" where id in ( " + datasetid + " )");
 
 			System.out.println(sql);
 
 			dataSource = Common.getDataSource(configDBModel);
 
 			int row = new JdbcTemplate(dataSource).update(sql.toString());
-			if (row > 0 )
+			if (row > 0)
 				return true;
 			else
 				return false;
@@ -351,8 +374,8 @@ public class DatasetModelDao {
 		}
 		return false;
 	}
-	
-	//插入dataset空记录
+
+	// 插入dataset空记录
 	public Long InsertDataset(ConfigDBModel configDBModel) {
 		Long id = -1L;
 		BasicDataSource dataSource = null;
@@ -368,13 +391,13 @@ public class DatasetModelDao {
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
-			
+
 			sql.append("tb_dataset (recordcount,datatype,batchid)values(0,0,0)");
 			sql.append(" RETURNING id");
 			dataSource = Common.getDataSource(configDBModel);
 
-			id = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null,Long.class);
-			
+			id = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Long.class);
+
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 
@@ -389,9 +412,8 @@ public class DatasetModelDao {
 		}
 		return id;
 	}
-	
-	
-	public Boolean updateDataset(ConfigDBModel configDBModel,DatasetModel dataset) {
+
+	public Boolean updateDataset(ConfigDBModel configDBModel, DatasetModel dataset) {
 		BasicDataSource dataSource = null;
 		Boolean bret = false;
 		try {
@@ -407,47 +429,47 @@ public class DatasetModelDao {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_dataset ");
-			sql.append("set ver = 0 " );
-			if(dataset.getRecordcount() != null)
-			sql.append(",recordcount ="+ dataset.getRecordcount().toString()); 
-			if( dataset.getPath() != null)
-				sql.append(",path='" + dataset.getPath() +"'");
-			if( dataset.getName() != null)
-				sql.append(",name='"+ dataset.getName() +"'");
+			sql.append("set ver = 0 ");
+			if (dataset.getRecordcount() != null)
+				sql.append(",recordcount =" + dataset.getRecordcount().toString());
+			if (dataset.getPath() != null)
+				sql.append(",path='" + dataset.getPath() + "'");
+			if (dataset.getName() != null)
+				sql.append(",name='" + dataset.getName() + "'");
 			sql.append(",datatype=37");
 			sql.append(",startdatetime=now()");
-			if( dataset.getUsername() != null)
-				sql.append(",username='"+dataset.getUsername() +"'");
-			if( dataset.getRoleid() != null)
-				sql.append(",userid="+ dataset.getRoleid().toString());
-			if(dataset.getReason() != null)
-				sql.append(",reason="+ dataset.getReason().toString() );
-			if( dataset.getMode() != null)
-				sql.append(",mode=" + dataset.getMode().toString() );
-			if( dataset.getDatasource() != null)
-				sql.append(",datasource="+dataset.getDatasource() );
-			if( dataset.getArea_code() != null)
+			if (dataset.getUsername() != null)
+				sql.append(",username='" + dataset.getUsername() + "'");
+			if (dataset.getRoleid() != null)
+				sql.append(",userid=" + dataset.getRoleid().toString());
+			if (dataset.getReason() != null)
+				sql.append(",reason=" + dataset.getReason().toString());
+			if (dataset.getMode() != null)
+				sql.append(",mode=" + dataset.getMode().toString());
+			if (dataset.getDatasource() != null)
+				sql.append(",datasource=" + dataset.getDatasource());
+			if (dataset.getArea_code() != null)
 				sql.append(",area_code=" + dataset.getArea_code().toString());
-			if( dataset.getCity_code() != null)
-				sql.append(",city_code="+ dataset.getCity_code().toString() );
-			if(dataset.getBatchid() != null)
-				sql.append(",batchid=" + dataset.getBatchid() );
-			if( dataset.getEnvelope() != null)
-				sql.append(",envelope='" + dataset.getEnvelope().toString() +"'");// 这里可能有问题
-			if( dataset.getState() != null)
-				sql.append(",state = " +  dataset.getState().toString());
-			if( dataset.getProcess() != null)
-				sql.append(" , process=" + dataset.getProcess().toString() );
-			
-			sql.append(" where id ="+ dataset.getId() );
-System.out.println(sql);
+			if (dataset.getCity_code() != null)
+				sql.append(",city_code=" + dataset.getCity_code().toString());
+			if (dataset.getBatchid() != null)
+				sql.append(",batchid=" + dataset.getBatchid());
+			if (dataset.getEnvelope() != null)
+				sql.append(",envelope='" + dataset.getEnvelope().toString() + "'");// 这里可能有问题
+			if (dataset.getState() != null)
+				sql.append(",state = " + dataset.getState().toString());
+			if (dataset.getProcess() != null)
+				sql.append(" , process=" + dataset.getProcess().toString());
+
+			sql.append(" where id =" + dataset.getId());
+			System.out.println(sql);
 
 			dataSource = Common.getDataSource(configDBModel);
 
 			int row = new JdbcTemplate(dataSource).update(sql.toString());
 			if (row == 1)
 				bret = true;
-		
+
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 
@@ -462,11 +484,11 @@ System.out.println(sql);
 		}
 		return bret;
 	}
-	
+
 	/*
 	 * tb_keywords表插入记录
-	 * */
-	public Boolean Insertkeyword(ConfigDBModel configDBModel,KeywordModel kmodel , ModelAndView json) throws Exception {
+	 */
+	public Boolean Insertkeyword(ConfigDBModel configDBModel, KeywordModel kmodel, ModelAndView json) throws Exception {
 		BasicDataSource dataSource = null;
 		Boolean bret = false;
 		try {
@@ -477,107 +499,105 @@ System.out.println(sql);
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			String fieldsname = "";
-			
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" insert into  ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
-			sql.append("tb_keywords (province,city,district,name,address,telephone,geo,\"desc\",src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
-			if( kmodel.getProvince() !=null)
-				sql.append("'"+ kmodel.getProvince() +"',");
+			sql.append(
+					"tb_keywords (province,city,district,name,address,telephone,geo,\"desc\",src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
+			if (kmodel.getProvince() != null)
+				sql.append("'" + kmodel.getProvince() + "',");
 			else
 				sql.append("'',");
-			if(kmodel.getCity() != null)
-				sql.append("'" + kmodel.getCity() +"',");
+			if (kmodel.getCity() != null)
+				sql.append("'" + kmodel.getCity() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getDistrict() != null)
-				sql.append("'" + kmodel.getDistrict() +"',");
+
+			if (kmodel.getDistrict() != null)
+				sql.append("'" + kmodel.getDistrict() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getName() != null)
+
+			if (kmodel.getName() != null)
 				sql.append("'" + kmodel.getName() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getAddress()!= null)
+
+			if (kmodel.getAddress() != null)
 				sql.append("'" + kmodel.getAddress() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getTelephone() != null)
-				sql.append("'" + kmodel.getTelephone() +"',");
+
+			if (kmodel.getTelephone() != null)
+				sql.append("'" + kmodel.getTelephone() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getGeo() != null)
-				sql.append("'" + kmodel.getGeo() +"',");
+
+			if (kmodel.getGeo() != null)
+				sql.append("'" + kmodel.getGeo() + "',");
 			else
 				sql.append("NULL,");
-			
-			if(kmodel.getDesc() != null)
-				sql.append( "'" + kmodel.getDesc() + "',");
+
+			if (kmodel.getDesc() != null)
+				sql.append("'" + kmodel.getDesc() + "',");
 			else
 				sql.append("'',");
-				
-	
-			
-			if(kmodel.getSrcType() != null)
-				sql.append( kmodel.getSrcType() +",");
+
+			if (kmodel.getSrcType() != null)
+				sql.append(kmodel.getSrcType() + ",");
 			else
 				sql.append("NULL,");
-			
-			if(kmodel.getSrcInnerId() != null)
-				sql.append("'"+kmodel.getSrcInnerId() + "',");
+
+			if (kmodel.getSrcInnerId() != null)
+				sql.append("'" + kmodel.getSrcInnerId() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getRemark() != null)
-				sql.append("'"+ kmodel.getRemark() +"',");
+
+			if (kmodel.getRemark() != null)
+				sql.append("'" + kmodel.getRemark() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getDatasetId() != null)
-				sql.append(kmodel.getDatasetId() +",");
+
+			if (kmodel.getDatasetId() != null)
+				sql.append(kmodel.getDatasetId() + ",");
 			else
 				sql.append("NULL,");
-			
-			if(kmodel.getQueryType() != null)
+
+			if (kmodel.getQueryType() != null)
 				sql.append(kmodel.getQueryType() + ",");
 			else
 				sql.append("NULL,");
-				
-			if(kmodel.getDistance() != null)
+
+			if (kmodel.getDistance() != null)
 				sql.append(kmodel.getDistance() + ",");
 			else
 				sql.append("NULL,");
-			
-			if(kmodel.getPoiType() != null)
-				sql.append("'" +kmodel.getPoiType()+"'");
+
+			if (kmodel.getPoiType() != null)
+				sql.append("'" + kmodel.getPoiType() + "'");
 			else
 				sql.append("''");
-			
+
 			sql.append(" )");
-System.out.println(sql);
+			System.out.println(sql);
 
 			dataSource = Common.getDataSource(configDBModel);
 
 			try {
-				if(	dataSource.getConnection() == null) {
+				if (dataSource.getConnection() == null) {
 					json.addObject("err", "datasrouce null1");
 				}
-				
+
 			} catch (Exception e) {
-				if( dataSource == null)
-				json.addObject("err", "datasrouce null");
+				if (dataSource == null)
+					json.addObject("err", "datasrouce null");
 				else
-				json.addObject("err", "datasrouce not null");
+					json.addObject("err", "datasrouce not null");
 			}
-			
+
 			int row = new JdbcTemplate(dataSource).update(sql.toString());
 			if (row == 1)
 				bret = true;
@@ -587,7 +607,7 @@ System.out.println(sql);
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			json.addObject("err", e.getMessage() );
+			json.addObject("err", e.getMessage());
 			throw e;
 		} finally {
 			if (dataSource != null) {
@@ -600,11 +620,11 @@ System.out.println(sql);
 		}
 		return bret;
 	}
-	
+
 	/*
 	 * tb_batch表插入数据
-	 * */
-	public Long InsertBatch(ConfigDBModel configDBModel,Long batchid,Integer userid,String username) {
+	 */
+	public Long InsertBatch(ConfigDBModel configDBModel, Long batchid, Integer userid, String username) {
 		Long id = -1L;
 		BasicDataSource dataSource = null;
 		try {
@@ -619,17 +639,17 @@ System.out.println(sql);
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
-			
+
 			sql.append("tb_batch (batchid,userid,username,uploadstarttime)values(");
-			sql.append( batchid +",");
+			sql.append(batchid + ",");
 			sql.append(userid + ",'");
-			sql.append(username  + "',");
-			sql.append("now()" +")" );
+			sql.append(username + "',");
+			sql.append("now()" + ")");
 			sql.append(" RETURNING id");
 			dataSource = Common.getDataSource(configDBModel);
 
-			id = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null,Long.class);
-			
+			id = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Long.class);
+
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 
@@ -644,11 +664,11 @@ System.out.println(sql);
 		}
 		return id;
 	}
-	
+
 	/*
 	 * 更新endtime
-	 * */
-	public Boolean updateBatch(ConfigDBModel configDBModel,Long bid) {
+	 */
+	public Boolean updateBatch(ConfigDBModel configDBModel, Long bid) {
 		BasicDataSource dataSource = null;
 		Boolean bret = false;
 		try {
@@ -659,16 +679,15 @@ System.out.println(sql);
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			String fieldsname = "";
-			
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" update  ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append(" tb_batch set uploadendtime = now() where id = " + bid);
-			
-System.out.println(sql);
+
+			System.out.println(sql);
 
 			dataSource = Common.getDataSource(configDBModel);
 
@@ -690,7 +709,7 @@ System.out.println(sql);
 		}
 		return bret;
 	}
-	
+
 	public Long getBatchid() {
 		String httpurl = batchidUrl;
 		Long ret = -1L;
@@ -698,23 +717,23 @@ System.out.println(sql);
 			HttpClientResult result = HttpClientUtils.doGet(httpurl);
 			if (!result.getStatus().equals(HttpStatus.OK))
 				return ret;
-			
+
 			JSONObject json = JSONObject.parseObject(result.getJson());
 			if (json.containsKey("batchId")) {
-		    	ret = (Long)json.get("batchId");
-		    }
+				ret = (Long) json.get("batchId");
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return ret;
 	}
-	
+
 	/*
 	 * tb_keywords 更新记录
-	 * */
-	public Boolean Updatekeywordsrcinnerid(ConfigDBModel configDBModel,Long datasetid) {
+	 */
+	public Boolean Updatekeywordsrcinnerid(ConfigDBModel configDBModel, Long datasetid) {
 		BasicDataSource dataSource = null;
 		Boolean bret = false;
 		try {
@@ -725,16 +744,15 @@ System.out.println(sql);
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			String fieldsname = "";
-			
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" update  ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
 			sql.append("tb_keywords set src_inner_id = id where datasetid = " + datasetid.toString());
-		
-System.out.println(sql);
+
+			System.out.println(sql);
 
 			dataSource = Common.getDataSource(configDBModel);
 
@@ -756,8 +774,8 @@ System.out.println(sql);
 		}
 		return bret;
 	}
-	
-	public Boolean Updatekeywordstate(ConfigDBModel configDBModel,Long id,Integer state) {
+
+	public Boolean Updatekeywordstate(ConfigDBModel configDBModel, Long id, Integer state) {
 		BasicDataSource dataSource = null;
 		Boolean bret = false;
 		try {
@@ -768,16 +786,15 @@ System.out.println(sql);
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			String fieldsname = "";
-			
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" update  ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
-			sql.append("tb_keywords set state = "+ state +" where id = " + id.toString());
-		
-System.out.println(sql);
+			sql.append("tb_keywords set state = " + state + " where id = " + id.toString());
+
+			System.out.println(sql);
 
 			dataSource = Common.getDataSource(configDBModel);
 
@@ -799,7 +816,7 @@ System.out.println(sql);
 		}
 		return bret;
 	}
-	
+
 	public List<DatasetModel> selectDatasetsByDatasetids(ConfigDBModel configDBModel, String datasetids) {
 		List<DatasetModel> datasets = new ArrayList<DatasetModel>();
 		BasicDataSource dataSource = null;
@@ -815,10 +832,10 @@ System.out.println(sql);
 			sql.append("tb_dataset ");
 			sql.append(" WHERE id in ( " + datasetids);
 			sql.append(" )ORDER BY id desc ");
-			
 
 			dataSource = Common.getDataSource(configDBModel);
-			datasets = new JdbcTemplate(dataSource).query(sql.toString(), new BeanPropertyRowMapper<DatasetModel>(DatasetModel.class));
+			datasets = new JdbcTemplate(dataSource).query(sql.toString(),
+					new BeanPropertyRowMapper<DatasetModel>(DatasetModel.class));
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -834,11 +851,12 @@ System.out.println(sql);
 		}
 		return datasets;
 	}
-	
+
 	/*
 	 * tb_keywords表插入记录
-	 * */
-	public Boolean Insertkeyword2(ConfigDBModel configDBModel,KeywordModel kmodel , ModelAndView json) throws Exception {
+	 */
+	public Boolean Insertkeyword2(ConfigDBModel configDBModel, KeywordModel kmodel, ModelAndView json)
+			throws Exception {
 		BasicDataSource dataSource = null;
 		Boolean bret = false;
 		try {
@@ -849,109 +867,106 @@ System.out.println(sql);
 			String separator = Common.getDatabaseSeparator(dbtype);
 
 			String fieldsname = "";
-			
-			
+
 			StringBuffer sql = new StringBuffer();
 			sql.append(" insert into  ");
 			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
 				sql.append(configDBModel.getDbschema()).append(".");
 			}
-			sql.append("tb_keywords (province,city,district,name,address,telephone,geo,\"desc\",src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
-			if( kmodel.getProvince() !=null)
-				sql.append("'"+ kmodel.getProvince() +"',");
+			sql.append(
+					"tb_keywords (province,city,district,name,address,telephone,geo,\"desc\",src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
+			if (kmodel.getProvince() != null)
+				sql.append("'" + kmodel.getProvince() + "',");
 			else
 				sql.append("'',");
-			if(kmodel.getCity() != null)
-				sql.append("'" + kmodel.getCity() +"',");
+			if (kmodel.getCity() != null)
+				sql.append("'" + kmodel.getCity() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getDistrict() != null)
-				sql.append("'" + kmodel.getDistrict() +"',");
+
+			if (kmodel.getDistrict() != null)
+				sql.append("'" + kmodel.getDistrict() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getName() != null)
+
+			if (kmodel.getName() != null)
 				sql.append("'" + kmodel.getName() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getAddress()!= null)
+
+			if (kmodel.getAddress() != null)
 				sql.append("'" + kmodel.getAddress() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getTelephone() != null)
-				sql.append("'" + kmodel.getTelephone() +"',");
+
+			if (kmodel.getTelephone() != null)
+				sql.append("'" + kmodel.getTelephone() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getGeo() != null)
-				sql.append("'" + kmodel.getGeo() +"',");
+
+			if (kmodel.getGeo() != null)
+				sql.append("'" + kmodel.getGeo() + "',");
 			else
 				sql.append("NULL,");
-			
-			if(kmodel.getDesc() != null)
-				sql.append( "'" + kmodel.getDesc() + "',");
+
+			if (kmodel.getDesc() != null)
+				sql.append("'" + kmodel.getDesc() + "',");
 			else
 				sql.append("'',");
-				
-	
-			
-			if(kmodel.getSrcType() != null)
-				sql.append( kmodel.getSrcType() +",");
+
+			if (kmodel.getSrcType() != null)
+				sql.append(kmodel.getSrcType() + ",");
 			else
 				sql.append("NULL,");
-			
-			if(kmodel.getSrcInnerId() != null)
-				sql.append("'"+kmodel.getSrcInnerId() + "',");
+
+			if (kmodel.getSrcInnerId() != null)
+				sql.append("'" + kmodel.getSrcInnerId() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getRemark() != null)
-				sql.append("'"+ kmodel.getRemark() +"',");
+
+			if (kmodel.getRemark() != null)
+				sql.append("'" + kmodel.getRemark() + "',");
 			else
 				sql.append("'',");
-			
-			if(kmodel.getDatasetId() != null)
-				sql.append(kmodel.getDatasetId() +",");
+
+			if (kmodel.getDatasetId() != null)
+				sql.append(kmodel.getDatasetId() + ",");
 			else
 				sql.append("NULL,");
-			
-			if(kmodel.getQueryType() != null)
+
+			if (kmodel.getQueryType() != null)
 				sql.append(kmodel.getQueryType() + ",");
 			else
 				sql.append("NULL,");
-				
-			if(kmodel.getDistance() != null)
+
+			if (kmodel.getDistance() != null)
 				sql.append(kmodel.getDistance() + ",");
 			else
 				sql.append("NULL,");
-			
-			if(kmodel.getPoiType() != null)
-				sql.append("'" +kmodel.getPoiType()+"'");
+
+			if (kmodel.getPoiType() != null)
+				sql.append("'" + kmodel.getPoiType() + "'");
 			else
 				sql.append("''");
-			
+
 			sql.append(" )");
-System.out.println(sql);
+			System.out.println(sql);
 
 			dataSource = Common.getDataSource(configDBModel);
-			
-			
+
 			dataSource.getConnection().setAutoCommit(false);
 			try {
-				if(	dataSource.getConnection() == null) {
+				if (dataSource.getConnection() == null) {
 					json.addObject("err", "datasrouce null1");
 				}
-				
+
 			} catch (Exception e) {
-				if( dataSource == null)
-				json.addObject("err", "datasrouce null");
+				if (dataSource == null)
+					json.addObject("err", "datasrouce null");
 				else
-				json.addObject("err", "datasrouce not null");
+					json.addObject("err", "datasrouce not null");
 			}
-			
+
 			int row = new JdbcTemplate(dataSource).update(sql.toString());
 			if (row == 1)
 				bret = true;
@@ -960,10 +975,10 @@ System.out.println(sql);
 			}
 
 			dataSource.getConnection().commit();
-			
+
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			json.addObject("err", e.getMessage() );
+			json.addObject("err", e.getMessage());
 			throw e;
 		} finally {
 			if (dataSource != null) {
@@ -976,265 +991,262 @@ System.out.println(sql);
 		}
 		return bret;
 	}
-	
+
 	public BasicDataSource getDataSource(ConfigDBModel configDBModel) {
 		Long id = -1L;
 		BasicDataSource dataSource = null;
 		try {
 			if (configDBModel == null)
 				return null;
-	
+
 			dataSource = Common.getDataSource(configDBModel);
-			
+
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 
-		} 
+		}
 		return dataSource;
 	}
-	  //插入dataset空记录
-		public Long InsertDataset(ConfigDBModel configDBModel,BasicDataSource dataSource) {
-			Long id = -1L;
-			try {
-				if (configDBModel == null)
-					return -1L;
-				Integer dbtype = configDBModel.getDbtype();
 
-				String separator = Common.getDatabaseSeparator(dbtype);
+	// 插入dataset空记录
+	public Long InsertDataset(ConfigDBModel configDBModel, BasicDataSource dataSource) {
+		Long id = -1L;
+		try {
+			if (configDBModel == null)
+				return -1L;
+			Integer dbtype = configDBModel.getDbtype();
 
-				StringBuffer sql = new StringBuffer();
-				sql.append(" insert into  ");
-				if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-					sql.append(configDBModel.getDbschema()).append(".");
-				}
-				
-				sql.append("tb_dataset (recordcount,datatype,batchid)values(0,0,0)");
-				sql.append(" RETURNING id");
-				id = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null,Long.class);
-				
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+			String separator = Common.getDatabaseSeparator(dbtype);
 
-			}
-			return id;
-		}
-		
-		
-		/*
-		 * tb_keywords表插入记录
-		 * */
-		public Boolean Insertkeyword3(ConfigDBModel configDBModel,KeywordModel kmodel , ModelAndView json,BasicDataSource dataSource) throws Exception {
-			Boolean bret = false;
-			try {
-				if (configDBModel == null)
-					return false;
-				Integer dbtype = configDBModel.getDbtype();
-
-				String separator = Common.getDatabaseSeparator(dbtype);
-
-				String fieldsname = "";
-				
-				
-				StringBuffer sql = new StringBuffer();
-				sql.append(" insert into  ");
-				if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-					sql.append(configDBModel.getDbschema()).append(".");
-				}
-				sql.append("tb_keywords (province,city,district,name,address,telephone,geo,\"desc\",src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
-				if( kmodel.getProvince() !=null)
-					sql.append("'"+ kmodel.getProvince() +"',");
-				else
-					sql.append("'',");
-				if(kmodel.getCity() != null)
-					sql.append("'" + kmodel.getCity() +"',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getDistrict() != null)
-					sql.append("'" + kmodel.getDistrict() +"',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getName() != null)
-					sql.append("'" + kmodel.getName() + "',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getAddress()!= null)
-					sql.append("'" + kmodel.getAddress() + "',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getTelephone() != null)
-					sql.append("'" + kmodel.getTelephone() +"',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getGeo() != null)
-					sql.append("'" + kmodel.getGeo() +"',");
-				else
-					sql.append("NULL,");
-				
-				if(kmodel.getDesc() != null)
-					sql.append( "'" + kmodel.getDesc() + "',");
-				else
-					sql.append("'',");
-					
-		
-				
-				if(kmodel.getSrcType() != null)
-					sql.append( kmodel.getSrcType() +",");
-				else
-					sql.append("NULL,");
-				
-				if(kmodel.getSrcInnerId() != null)
-					sql.append("'"+kmodel.getSrcInnerId() + "',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getRemark() != null)
-					sql.append("'"+ kmodel.getRemark() +"',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getDatasetId() != null)
-					sql.append(kmodel.getDatasetId() +",");
-				else
-					sql.append("NULL,");
-				
-				if(kmodel.getQueryType() != null)
-					sql.append(kmodel.getQueryType() + ",");
-				else
-					sql.append("NULL,");
-					
-				if(kmodel.getDistance() != null)
-					sql.append(kmodel.getDistance() + ",");
-				else
-					sql.append("NULL,");
-				
-				if(kmodel.getPoiType() != null)
-					sql.append("'" +kmodel.getPoiType()+"'");
-				else
-					sql.append("''");
-				
-				sql.append(" )");
-	System.out.println(sql);
-			
-				int row = new JdbcTemplate(dataSource).update(sql.toString());
-				if (row == 1)
-					bret = true;
-				else {
-					json.addObject("err", sql.toString());
-				}
-				
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-				json.addObject("err", e.getMessage() );
-				throw e;
-			} 
-			return bret;
-		}
-		
-		public String getInsertkeywordSql(ConfigDBModel configDBModel,KeywordModel kmodel , ModelAndView json,BasicDataSource dataSource) throws Exception {
 			StringBuffer sql = new StringBuffer();
-			try {
-				if (configDBModel == null)
-					return "";
-				Integer dbtype = configDBModel.getDbtype();
+			sql.append(" insert into  ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
 
-				String separator = Common.getDatabaseSeparator(dbtype);
+			sql.append("tb_dataset (recordcount,datatype,batchid)values(0,0,0)");
+			sql.append(" RETURNING id");
+			id = new JdbcTemplate(dataSource).queryForObject(sql.toString(), null, Long.class);
 
-				String fieldsname = "";
-				
-				
-				
-				sql.append(" insert into  ");
-				if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
-					sql.append(configDBModel.getDbschema()).append(".");
-				}
-				sql.append("tb_keywords (province,city,district,name,address,telephone,geo,\"desc\",src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
-				if( kmodel.getProvince() !=null)
-					sql.append("'"+ kmodel.getProvince() +"',");
-				else
-					sql.append("'',");
-				if(kmodel.getCity() != null)
-					sql.append("'" + kmodel.getCity() +"',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getDistrict() != null)
-					sql.append("'" + kmodel.getDistrict() +"',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getName() != null)
-					sql.append("'" + kmodel.getName() + "',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getAddress()!= null)
-					sql.append("'" + kmodel.getAddress() + "',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getTelephone() != null)
-					sql.append("'" + kmodel.getTelephone() +"',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getGeo() != null)
-					sql.append("'" + kmodel.getGeo() +"',");
-				else
-					sql.append("NULL,");
-				
-				if(kmodel.getDesc() != null)
-					sql.append( "'" + kmodel.getDesc() + "',");
-				else
-					sql.append("'',");
-					
-		
-				
-				if(kmodel.getSrcType() != null)
-					sql.append( kmodel.getSrcType() +",");
-				else
-					sql.append("NULL,");
-				
-				if(kmodel.getSrcInnerId() != null)
-					sql.append("'"+kmodel.getSrcInnerId() + "',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getRemark() != null)
-					sql.append("'"+ kmodel.getRemark() +"',");
-				else
-					sql.append("'',");
-				
-				if(kmodel.getDatasetId() != null)
-					sql.append(kmodel.getDatasetId() +",");
-				else
-					sql.append("NULL,");
-				
-				if(kmodel.getQueryType() != null)
-					sql.append(kmodel.getQueryType() + ",");
-				else
-					sql.append("NULL,");
-					
-				if(kmodel.getDistance() != null)
-					sql.append(kmodel.getDistance() + ",");
-				else
-					sql.append("NULL,");
-				
-				if(kmodel.getPoiType() != null)
-					sql.append("'" +kmodel.getPoiType()+"'");
-				else
-					sql.append("''");
-				
-				sql.append(" );");			
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-				json.addObject("err", e.getMessage() );
-				throw e;
-			} 
-			return sql.toString();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+
 		}
+		return id;
+	}
+
+	/*
+	 * tb_keywords表插入记录
+	 */
+	public Boolean Insertkeyword3(ConfigDBModel configDBModel, KeywordModel kmodel, ModelAndView json,
+			BasicDataSource dataSource) throws Exception {
+		Boolean bret = false;
+		try {
+			if (configDBModel == null)
+				return false;
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			String fieldsname = "";
+
+			StringBuffer sql = new StringBuffer();
+			sql.append(" insert into  ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append(
+					"tb_keywords (province,city,district,name,address,telephone,geo,\"desc\",src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
+			if (kmodel.getProvince() != null)
+				sql.append("'" + kmodel.getProvince() + "',");
+			else
+				sql.append("'',");
+			if (kmodel.getCity() != null)
+				sql.append("'" + kmodel.getCity() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getDistrict() != null)
+				sql.append("'" + kmodel.getDistrict() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getName() != null)
+				sql.append("'" + kmodel.getName() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getAddress() != null)
+				sql.append("'" + kmodel.getAddress() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getTelephone() != null)
+				sql.append("'" + kmodel.getTelephone() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getGeo() != null)
+				sql.append("'" + kmodel.getGeo() + "',");
+			else
+				sql.append("NULL,");
+
+			if (kmodel.getDesc() != null)
+				sql.append("'" + kmodel.getDesc() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getSrcType() != null)
+				sql.append(kmodel.getSrcType() + ",");
+			else
+				sql.append("NULL,");
+
+			if (kmodel.getSrcInnerId() != null)
+				sql.append("'" + kmodel.getSrcInnerId() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getRemark() != null)
+				sql.append("'" + kmodel.getRemark() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getDatasetId() != null)
+				sql.append(kmodel.getDatasetId() + ",");
+			else
+				sql.append("NULL,");
+
+			if (kmodel.getQueryType() != null)
+				sql.append(kmodel.getQueryType() + ",");
+			else
+				sql.append("NULL,");
+
+			if (kmodel.getDistance() != null)
+				sql.append(kmodel.getDistance() + ",");
+			else
+				sql.append("NULL,");
+
+			if (kmodel.getPoiType() != null)
+				sql.append("'" + kmodel.getPoiType() + "'");
+			else
+				sql.append("''");
+
+			sql.append(" )");
+			System.out.println(sql);
+
+			int row = new JdbcTemplate(dataSource).update(sql.toString());
+			if (row == 1)
+				bret = true;
+			else {
+				json.addObject("err", sql.toString());
+			}
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("err", e.getMessage());
+			throw e;
+		}
+		return bret;
+	}
+
+	public String getInsertkeywordSql(ConfigDBModel configDBModel, KeywordModel kmodel, ModelAndView json,
+			BasicDataSource dataSource) throws Exception {
+		StringBuffer sql = new StringBuffer();
+		try {
+			if (configDBModel == null)
+				return "";
+			Integer dbtype = configDBModel.getDbtype();
+
+			String separator = Common.getDatabaseSeparator(dbtype);
+
+			String fieldsname = "";
+
+			sql.append(" insert into  ");
+			if (dbtype.equals(DatabaseType.POSTGRESQL.getValue())) {
+				sql.append(configDBModel.getDbschema()).append(".");
+			}
+			sql.append(
+					"tb_keywords (province,city,district,name,address,telephone,geo,\"desc\",src_type,src_inner_id,remark,datasetid,query_type,distance,poi_type) values(");
+			if (kmodel.getProvince() != null)
+				sql.append("'" + kmodel.getProvince() + "',");
+			else
+				sql.append("'',");
+			if (kmodel.getCity() != null)
+				sql.append("'" + kmodel.getCity() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getDistrict() != null)
+				sql.append("'" + kmodel.getDistrict() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getName() != null)
+				sql.append("'" + kmodel.getName() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getAddress() != null)
+				sql.append("'" + kmodel.getAddress() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getTelephone() != null)
+				sql.append("'" + kmodel.getTelephone() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getGeo() != null)
+				sql.append("'" + kmodel.getGeo() + "',");
+			else
+				sql.append("NULL,");
+
+			if (kmodel.getDesc() != null)
+				sql.append("'" + kmodel.getDesc() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getSrcType() != null)
+				sql.append(kmodel.getSrcType() + ",");
+			else
+				sql.append("NULL,");
+
+			if (kmodel.getSrcInnerId() != null)
+				sql.append("'" + kmodel.getSrcInnerId() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getRemark() != null)
+				sql.append("'" + kmodel.getRemark() + "',");
+			else
+				sql.append("'',");
+
+			if (kmodel.getDatasetId() != null)
+				sql.append(kmodel.getDatasetId() + ",");
+			else
+				sql.append("NULL,");
+
+			if (kmodel.getQueryType() != null)
+				sql.append(kmodel.getQueryType() + ",");
+			else
+				sql.append("NULL,");
+
+			if (kmodel.getDistance() != null)
+				sql.append(kmodel.getDistance() + ",");
+			else
+				sql.append("NULL,");
+
+			if (kmodel.getPoiType() != null)
+				sql.append("'" + kmodel.getPoiType() + "'");
+			else
+				sql.append("''");
+
+			sql.append(" );");
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			json.addObject("err", e.getMessage());
+			throw e;
+		}
+		return sql.toString();
+	}
 }

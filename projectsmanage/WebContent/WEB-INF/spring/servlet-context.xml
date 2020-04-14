@@ -31,12 +31,12 @@
 	
 	<context:property-placeholder location="WEB-INF/spring/version.properties" ignore-unresolvable="true"/>
 
-	<context:property-placeholder location="WEB-INF/spring/scheduler_yiyi.properties" ignore-unresolvable="true"/>
-<!-- 	<context:property-placeholder location="WEB-INF/spring/scheduler_yy.properties" ignore-unresolvable="true"/> -->
+<!-- 	<context:property-placeholder location="WEB-INF/spring/scheduler_yiyi.properties" ignore-unresolvable="true"/> -->
+	<context:property-placeholder location="WEB-INF/spring/scheduler_yy.properties" ignore-unresolvable="true"/>
 	
 
-	<context:property-placeholder location="WEB-INF/spring/webapi_yiyi.properties" ignore-unresolvable="true"/>
-<!-- 	<context:property-placeholder location="WEB-INF/spring/webapi_yy.properties" ignore-unresolvable="true"/> -->
+<!-- 	<context:property-placeholder location="WEB-INF/spring/webapi_yiyi.properties" ignore-unresolvable="true"/> -->
+	<context:property-placeholder location="WEB-INF/spring/webapi_yy.properties" ignore-unresolvable="true"/>
 	
 	<beans:bean id="transactionManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
